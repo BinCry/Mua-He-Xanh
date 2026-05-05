@@ -10,14 +10,14 @@ let durationStr = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sá
     <div class="container-site position-relative" style="z-index: 10;">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb mb-4">
-                <li class="breadcrumb-item"><a href="<%= baseUrl %>/" class="text-white-50 text-decoration-none">Trang chủ</a></li>
+                <li class="breadcrumb-item"><a href="/" class="text-white-75 text-decoration-none">Trang chủ</a></li>
                 <li class="breadcrumb-item active text-white" aria-current="page">Hành trình cá nhân</li>
             </ol>
         </nav>
         <div class="row align-items-end g-4">
             <div class="col-lg-8">
                 <div class="mb-2">
-                    <span class="badge bg-secondary text-dark rounded-pill me-1"><%= seasonName %></span>
+                    <span class="badge bg-white text-dark rounded-pill me-1"><%= seasonName %></span>
                     <% 
                     let targetAudience = "Mọi đối tượng";
                     if (mood.includes("Du xuân")) targetAudience = "Gia đình, Giới trẻ";
@@ -89,10 +89,10 @@ let durationStr = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sá
                                             <button class="btn btn-light btn-sm text-danger" onclick="if(confirm('Xóa chặng này?')) updateStop('<%= journey.id %>', '<%= stop.destination_id %>', 'remove')" title="Xóa"><i class="bi bi-trash"></i></button>
                                         </div>
                                     </div>
-                                    <p class="small text-muted line-clamp-2 mb-3"><%= stop.short_desc || stop.story %></p>
+                                    <p class="small text-dark line-clamp-2 mb-3"><%= stop.short_desc || stop.story %></p>
                                     
                                     <div class="d-flex flex-wrap gap-2 mb-3">
-                                        <span class="badge bg-soft-success text-success small"><i class="bi bi-clock me-1"></i>45-60 phút</span>
+                                        <span class="badge bg-soft-success text-success border border-success-subtle small"><i class="bi bi-clock me-1"></i>45-60 phút</span>
                                         <% if (stop.type === 'temple') { %>
                                             <span class="badge bg-soft-primary text-primary small"><i class="bi bi-activity me-1"></i>Viếng chùa, thiền định</span>
                                         <% } else if (stop.type === 'craft') { %>

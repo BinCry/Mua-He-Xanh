@@ -21,8 +21,10 @@
 
 .bg-soft-primary { background-color: var(--color-soft-primary) !important; }
 .bg-soft-secondary { background-color: var(--color-soft-secondary) !important; }
-.text-primary { color: var(--color-primary) !important; }
-.text-secondary { color: var(--color-secondary) !important; }
+.text-primary { color: #4a6e4b !important; } /* Darker primary for contrast */
+.text-secondary { color: #8b5e3c !important; } /* Using accent for secondary text for contrast */
+.text-muted { color: #5f6a6b !important; } /* Darker muted text */
+.text-white-50 { color: rgba(255,255,255,0.7) !important; } /* More visible white-50 */
 
 * { 
   box-sizing: border-box;
