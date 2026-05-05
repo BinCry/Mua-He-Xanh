@@ -7,9 +7,16 @@
         <div class="animate__animated animate__fadeInUp">
             <span class="badge bg-secondary text-dark mb-3 px-3 py-2 rounded-pill"><%= dest.type.toUpperCase() %></span>
             <h1 class="display-1 fw-black mb-3"><%= dest.name %></h1>
-            <p class="lead opacity-75 d-flex align-items-center gap-2">
-                <i class="bi bi-geo-alt-fill text-secondary"></i> <%= dest.short_desc %>
-            </p>
+            <div class="d-flex align-items-center gap-3">
+                <p class="lead opacity-75 d-flex align-items-center gap-2 mb-0">
+                    <i class="bi bi-geo-alt-fill text-secondary"></i> <%= dest.short_desc %>
+                </p>
+                <% if (user && (user.role === 'manager' || user.role === 'admin') && user.managed_destination_id === dest.id) { %>
+                    <a href="/manager" class="btn btn-secondary btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                        <i class="bi bi-pencil-square me-1"></i> Quản lý điểm đến
+                    </a>
+                <% } %>
+            </div>
         </div>
     </div>
 </section>

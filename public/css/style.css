@@ -62,40 +62,40 @@ h1, h2, h3, h4, h5, h6, .display-text {
   padding: 0 20px;
 }
 
-/* Navbar — Logo Script Style */
+/* Navbar — Sidebar Support */
 .navbar-bl {
-  background-color: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  padding: 15px 0;
+  background-color: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(15px);
+  padding: 10px 0;
   border-bottom: 1px solid var(--color-border);
   position: sticky;
   top: 0;
-  z-index: 1000;
-}
-.navbar-brand {
-  font-family: var(--font-logo);
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--color-primary) !important;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  z-index: 1050;
 }
 .navbar-brand img {
-  height: 40px;
+  height: 35px;
+  width: auto;
 }
 .navbar-bl .nav-link {
   color: var(--color-text) !important;
   font-weight: 500;
-  padding: 8px 15px !important;
+  font-size: 0.95rem;
+  padding: 8px 10px !important;
   transition: all 0.3s ease;
 }
-.navbar-bl .nav-link:hover,
-.navbar-bl .nav-link.active {
+.navbar-bl .nav-link:hover {
   color: var(--color-primary) !important;
-  font-weight: 700 !important;
-  background: rgba(92, 138, 94, 0.1);
+  background: var(--color-soft-primary);
   border-radius: 8px;
+}
+
+/* Offcanvas Sidebar Styling */
+.offcanvas {
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.list-group-item-action:hover {
+  background-color: var(--color-soft-primary) !important;
+  color: var(--color-primary) !important;
 }
 
 /* Cards & Frames */

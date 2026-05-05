@@ -1,0 +1,13 @@
+<section class="site-section d-flex align-items-center" style="min-height: 80vh;">
+    <div class="container-site text-center">
+        <div class="display-1 text-danger mb-4"><i class="bi bi-shield-lock"></i> 403</div>
+        <h2 class="display-text mb-4">Truy cập bị chặn</h2>
+        <p class="text-muted mb-5 mx-auto" style="max-width: 500px;">
+            <%= typeof message !== 'undefined' ? message : 'Bạn không có quyền truy cập vào nội dung này. Vui lòng quay lại hoặc đăng nhập bằng tài khoản quản lý.' %>
+        </p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="/" class="btn btn-outline-bl rounded-pill">Về trang chủ</a>
+            <a href="/auth/login" class="btn btn-primary-bl rounded-pill px-4">Đăng nhập Quản lý</a>
+        </div>
+    </div>
+</section>

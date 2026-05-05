@@ -12,6 +12,7 @@ const MapController = require('../controllers/MapController');
 
 const ManagerController = require('../controllers/ManagerController');
 const AuthController = require('../controllers/AuthController');
+const { ensureAuthenticated, ensureManager, restrictToManagers } = require('../middleware/auth');
 
 // Page Routes
 router.get('/', HomeController.index);
@@ -25,8 +26,8 @@ router.get('/journey', JourneyController.index);
 router.get('/journey/preset/:theme', JourneyController.preset);
 
 // Manager Routes
-router.get('/manager', ManagerController.index);
-router.post('/manager/update', ManagerController.updateDestination);
+router.get('/manager', ensureManager, ManagerController.index);
+router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 
 // Auth Routes
 router.get('/auth/login', AuthController.loginPage);

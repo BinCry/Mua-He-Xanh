@@ -1,48 +1,83 @@
-<nav class="navbar navbar-expand-lg navbar-bl">
-  <div class="container-site">
-    <a class="navbar-brand" href="<%= baseUrl %>/">
-      <img src="<%= baseUrl %>/images/logo.png" alt="Logo">
-      Bình Lợi Healing
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" style="border-color:rgba(255,255,255,0.2)">
-      <span class="navbar-toggler-icon" style="filter:invert(1)"></span>
+<nav class="navbar navbar-bl sticky-top">
+  <div class="container-site d-flex align-items-center justify-content-between">
+    
+    <!-- LEFT: 3-Bar Toggler (Mobile Only) -->
+    <button class="btn btn-link text-primary p-0 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
+      <i class="bi bi-list fs-1"></i>
     </button>
-    <div class="collapse navbar-collapse" id="navMain">
-      <ul class="navbar-nav ms-auto align-items-center gap-1">
+
+    <!-- CENTER/LEFT: Logo -->
+    <a class="navbar-brand m-0" href="/">
+      <img src="<%= baseUrl %>/images/logo.png" alt="Logo">
+      <span class="d-none d-sm-inline">Bình Lợi Healing</span>
+    </a>
+
+    <!-- RIGHT: Desktop Menu & Auth -->
+    <div class="d-flex align-items-center gap-2 gap-md-3">
+      <!-- Desktop Links (Hidden on Mobile) -->
+      <ul class="navbar-nav d-none d-lg-flex flex-row gap-3 me-3 align-items-center border-end pe-3">
         <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
         <li class="nav-item"><a class="nav-link" href="/destinations">Điểm đến</a></li>
         <li class="nav-item"><a class="nav-link" href="/journey">Hành trình</a></li>
         <li class="nav-item"><a class="nav-link" href="/map">Bản đồ</a></li>
-        <li class="nav-item"><a class="nav-link" href="/checkin">Check-in</a></li>
         <li class="nav-item"><a class="nav-link" href="/summary">Huy hiệu</a></li>
-        
-        <li class="nav-item ms-lg-3 border-start ps-lg-3">
-          <% if (user) { %>
-            <div class="dropdown">
-              <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src="<%= user.avatar || '/images/hero-2.png' %>" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;">
-                <span class="small fw-bold"><%= user.full_name.split(' ').pop() %></span>
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4">
-                <li><a class="dropdown-item small py-2" href="/summary"><i class="bi bi-person-badge me-2"></i>Passport của tôi</a></li>
-                <% if (user.role === 'manager') { %>
-                  <li><a class="dropdown-item small py-2" href="/manager"><i class="bi bi-speedometer2 me-2"></i>Quản lý địa điểm</a></li>
-                <% } %>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item small py-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
-              </ul>
-            </div>
-          <% } else { %>
-            <a class="btn btn-outline-bl btn-sm px-4 rounded-pill" href="/auth/login">
-              <i class="bi bi-person-circle me-1"></i> Đăng nhập
-            </a>
-          <% } %>
-        </li>
-
-        <li class="nav-item ms-2">
-          <a class="btn btn-nav-cta" href="/onboarding">Bắt đầu hành trình ✦</a>
-        </li>
       </ul>
+
+      <!-- Auth/CTA Section (Always on Right) -->
+      <div class="d-flex align-items-center gap-2">
+        <% if (user) { %>
+          <div class="dropdown">
+            <a class="p-0 border-0 bg-transparent" href="#" role="button" data-bs-toggle="dropdown">
+              <img src="<%= user.avatar || '/images/hero-2.png' %>" class="rounded-circle border border-2 border-primary" style="width: 38px; height: 38px; object-fit: cover;">
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 mt-3">
+              <li class="px-3 py-2 border-bottom mb-2">
+                <p class="small fw-bold mb-0 text-truncate" style="max-width: 150px;"><%= user.full_name %></p>
+                <p class="x-small text-muted mb-0"><%= user.email %></p>
+              </li>
+              <li><a class="dropdown-item small py-2" href="/summary"><i class="bi bi-person-badge me-2"></i>Passport</a></li>
+              <% if (user.role === 'manager') { %>
+                <li><a class="dropdown-item small py-2" href="/manager"><i class="bi bi-speedometer2 me-2"></i>Quản lý</a></li>
+              <% } %>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item small py-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+            </ul>
+          </div>
+          <a class="btn btn-nav-cta btn-sm px-3 d-flex align-items-center" href="/onboarding">
+            <span class="d-none d-md-inline">Bắt đầu</span> Hành trình ✦
+          </a>
+        <% } else { %>
+          <a class="btn btn-outline-bl btn-sm px-4 rounded-pill" href="/auth/login">
+            <i class="bi bi-person-circle me-1"></i> <span class="d-none d-sm-inline">Đăng nhập</span>
+          </a>
+        <% } %>
+      </div>
     </div>
   </div>
 </nav>
+
+<!-- SIDEBAR: Offcanvas (Left side) -->
+<div class="offcanvas offcanvas-start border-0 shadow-lg" tabindex="-1" id="sidebarMenu" aria-labelledby="sidebarMenuLabel" style="width: 280px; background-color: var(--color-bg);">
+  <div class="offcanvas-header border-bottom py-4">
+    <div class="navbar-brand m-0" id="sidebarMenuLabel">
+      <img src="<%= baseUrl %>/images/logo.png" alt="Logo" style="height: 35px;">
+      <span class="fw-bold fs-5 text-primary">Healing Menu</span>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body p-0">
+    <div class="list-group list-group-flush mt-3">
+      <a href="/" class="list-group-item list-group-item-action border-0 px-4 py-3 bg-transparent"><i class="bi bi-house-door me-3 text-primary"></i> Trang chủ</a>
+      <a href="/destinations" class="list-group-item list-group-item-action border-0 px-4 py-3 bg-transparent"><i class="bi bi-compass me-3 text-primary"></i> Điểm đến</a>
+      <a href="/journey" class="list-group-item list-group-item-action border-0 px-4 py-3 bg-transparent"><i class="bi bi-map-fill me-3 text-primary"></i> Hành trình cá nhân</a>
+      <a href="/map" class="list-group-item list-group-item-action border-0 px-4 py-3 bg-transparent"><i class="bi bi-geo-alt-fill me-3 text-primary"></i> Bản đồ tương tác</a>
+      <a href="/checkin" class="list-group-item list-group-item-action border-0 px-4 py-3 bg-transparent"><i class="bi bi-qr-code-scan me-3 text-primary"></i> Check-in & Audio</a>
+      <a href="/summary" class="list-group-item list-group-item-action border-0 px-4 py-3 bg-transparent"><i class="bi bi-award me-3 text-primary"></i> Huy hiệu & Passport</a>
+    </div>
+    
+    <div class="sidebar-footer mt-auto p-4 border-top">
+      <p class="small text-muted mb-0">© 2026 Bình Lợi Healing</p>
+      <p class="x-small text-muted">Vẻ đẹp Tây phía Tây TP.HCM</p>
+    </div>
+  </div>
+</div>
