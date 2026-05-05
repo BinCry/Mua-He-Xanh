@@ -1,178 +1,228 @@
-<!-- BOOTSTRAP 5 CLEAN PREMIUM LAYOUT -->
-<div class="bg-light min-vh-100">
-    <!-- Header Section -->
-    <div class="bg-white border-bottom py-5 mb-5 shadow-sm">
-        <div class="container-site">
-            <div class="row align-items-center">
-                <div class="col-lg-7">
-                    <nav aria-label="breadcrumb">
-                        <ol class="breadcrumb mb-2">
-                            <li class="breadcrumb-item"><a href="/" class="text-primary text-decoration-none small fw-bold">TRANG CHỦ</a></li>
-                            <li class="breadcrumb-item active small fw-bold" aria-current="page">HÀNH TRÌNH CỦA TÔI</li>
-                        </ol>
-                    </nav>
-                    <h1 class="display-5 fw-bold text-dark mb-3">Hành trình trải nghiệm <span class="text-primary"><%= seasonName %></span></h1>
-                    <p class="text-muted lead mb-0">Lộ trình được tối ưu hóa dựa trên sở thích và cảm xúc của bạn.</p>
-                </div>
-                <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
-                    <div class="d-inline-flex gap-3 bg-soft-primary p-3 rounded-4 shadow-sm">
-                        <div class="text-center px-3 border-end">
-                            <div class="fw-bold fs-4 text-primary"><%= Math.round(journey.total_minutes/60) %>h</div>
-                            <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px;">Thời gian</div>
+<!-- ULTIMATE FUNCTIONAL JOURNEY - BOOTSTRAP 5 + SORTABLE JS -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<div id="journey-app-root" class="bg-white min-vh-100">
+    
+    <!-- STATE 1: SUGGESTIONS (SWIPE MODE) -->
+    <section id="state-suggestions" class="py-5 animate__animated animate__fadeIn">
+        <div class="container-site text-center">
+            <span class="badge bg-soft-primary text-primary rounded-pill px-3 py-2 mb-3 fw-bold">DÀNH RIÊNG CHO BẠN</span>
+            <h1 class="display-4 fw-black mb-1">Hôm nay bạn muốn đi đâu?</h1>
+            <p class="text-muted mb-5">Vuốt để chọn hành trình phù hợp với tâm trạng của bạn.</p>
+
+            <div class="suggestion-swipe-wrapper mb-5">
+                <div class="row justify-content-center overflow-auto flex-nowrap pb-4 px-3" id="suggestion-list">
+                    <!-- Card 1 -->
+                    <div class="col-10 col-md-4">
+                        <div class="card border-0 shadow-lg rounded-5 overflow-hidden h-100 selection-card" onclick="selectJourney('healing')">
+                            <img src="<%= baseUrl %>/images/hero-1.png" class="card-img-top" style="height: 350px; object-fit: cover;">
+                            <div class="card-body p-4 text-start">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="small fw-bold text-primary">🌿 CHỮA LÀNH</span>
+                                    <span class="fw-bold">98% Match</span>
+                                </div>
+                                <h4 class="fw-black mb-3">Một ngày miền Tây giữa phố</h4>
+                                <div class="d-flex gap-3 text-muted small fw-bold">
+                                    <span><i class="bi bi-clock me-1"></i> 6H</span>
+                                    <span><i class="bi bi-geo-alt me-1"></i> 5 ĐIỂM</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="text-center px-3 border-end">
-                            <div class="fw-bold fs-4 text-primary"><%= journey.total_km %>km</div>
-                            <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px;">Quãng đường</div>
-                        </div>
-                        <div class="text-center px-3">
-                            <div class="fw-bold fs-4 text-primary"><%= journey.stops.length %></div>
-                            <div class="small text-muted text-uppercase fw-bold" style="font-size: 10px;">Điểm dừng</div>
+                    </div>
+                    <!-- Card 2 -->
+                    <div class="col-10 col-md-4">
+                        <div class="card border-0 shadow-lg rounded-5 overflow-hidden h-100 selection-card" onclick="selectJourney('culture')">
+                            <img src="<%= baseUrl %>/images/hero-2.png" class="card-img-top" style="height: 350px; object-fit: cover;">
+                            <div class="card-body p-4 text-start">
+                                <div class="d-flex justify-content-between mb-2">
+                                    <span class="small fw-bold text-warning">🎨 VĂN HÓA</span>
+                                    <span class="fw-bold">85% Match</span>
+                                </div>
+                                <h4 class="fw-black mb-3">Sống chậm Bình Lợi không vội</h4>
+                                <div class="d-flex gap-3 text-muted small fw-bold">
+                                    <span><i class="bi bi-clock me-1"></i> 4H</span>
+                                    <span><i class="bi bi-geo-alt me-1"></i> 3 ĐIỂM</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div class="container-site pb-5">
-        <div class="row g-4">
-            <!-- Timeline Column -->
-            <div class="col-lg-8">
-                <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
-                    <div class="card-header bg-white border-bottom py-3 px-4">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0 fw-bold"><i class="bi bi-map me-2 text-primary"></i> Lộ trình chi tiết</h5>
-                            <button class="btn btn-sm btn-outline-primary rounded-pill px-3 fw-bold" onclick="toggleEdit()">
-                                <i class="bi bi-pencil-square me-1"></i> Tùy chỉnh
-                            </button>
+            <button class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-black shadow-lg" onclick="activateJourney()">
+                CHỌN HÀNH TRÌNH NÀY ✦
+            </button>
+        </div>
+    </section>
+
+    <!-- STATE 2: ACTIVE & CUSTOMIZE JOURNEY -->
+    <section id="state-active" style="display: none;" class="animate__animated animate__fadeIn">
+        <div class="bg-primary text-white py-5 mb-4 position-relative overflow-hidden">
+            <div class="container-site position-relative" style="z-index: 10;">
+                <div class="row align-items-center">
+                    <div class="col-md-7">
+                        <h2 class="display-6 fw-black mb-2" id="active-title">Một ngày miền Tây giữa phố</h2>
+                        <div class="d-flex gap-3 opacity-75 fw-bold small">
+                            <span id="stat-time"><i class="bi bi-clock me-1"></i> ~6 tiếng</span>
+                            <span id="stat-km"><i class="bi bi-geo-alt me-1"></i> 12.5 km</span>
+                            <span><i class="bi bi-bicycle me-1"></i> Xe máy</span>
                         </div>
                     </div>
-                    <div class="card-body p-4">
-                        <!-- Bootstrap 5 Vertical Timeline -->
-                        <div class="position-relative ps-4 border-start border-2 border-primary border-opacity-25" style="margin-left: 12px;">
-                            <% journey.stops.forEach((stop, index) => { %>
-                                <div class="mb-5 position-relative">
-                                    <!-- Timeline Dot -->
-                                    <div class="position-absolute start-0 translate-middle-x bg-primary rounded-circle shadow-sm" 
-                                         style="width: 20px; height: 20px; left: -14px; top: 10px; border: 4px solid #fff;"></div>
-                                    
-                                    <div class="card border-0 bg-light rounded-4 overflow-hidden shadow-sm-hover transition">
-                                        <div class="row g-0">
-                                            <div class="col-md-4">
-                                                <img src="<%= fixImg(stop.cover_image) %>" class="img-fluid h-100 object-fit-cover" style="min-height: 180px;">
-                                            </div>
-                                            <div class="col-md-8">
-                                                <div class="card-body p-4">
-                                                    <div class="d-flex justify-content-between align-items-start mb-2">
-                                                        <span class="badge bg-white text-primary border rounded-pill px-3 py-2 small mb-2 shadow-sm">
-                                                            <%= index === 0 ? '08:30 AM' : 'ĐIỂM DỪNG ' + (index + 1) %>
-                                                        </span>
-                                                        <div class="dropdown edit-controls" style="display: none;">
-                                                            <button class="btn btn-link text-muted p-0" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
-                                                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg">
-                                                                <li><a class="dropdown-item py-2" href="#"><i class="bi bi-arrow-up me-2"></i> Di chuyển lên</a></li>
-                                                                <li><a class="dropdown-item py-2 text-danger" href="#"><i class="bi bi-trash me-2"></i> Xóa điểm này</a></li>
-                                                            </ul>
-                                                        </div>
-                                                    </div>
-                                                    <h4 class="fw-bold mb-2"><%= stop.name %></h4>
-                                                    <p class="text-muted small mb-4"><%= stop.short_desc || 'Khám phá không gian yên bình và nhận những năng lượng tích cực từ thiên nhiên.' %></p>
-                                                    <div class="d-flex gap-2">
-                                                        <a href="<%= baseUrl %>/explore/<%= stop.slug %>" class="btn btn-primary btn-sm rounded-pill px-4 fw-bold">Chi tiết</a>
-                                                        <a href="https://maps.google.com/?q=<%= stop.lat %>,<%= stop.lng %>" target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill px-3">Bản đồ</a>
-                                                    </div>
+                    <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                        <button class="btn btn-white rounded-pill px-4 fw-black" onclick="toggleEditMode()" id="btn-edit-mode">
+                            🎨 TÙY CHỈNH LỘ TRÌNH
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <i class="bi bi-stars position-absolute bottom-0 end-0 m-n4 opacity-25" style="font-size: 150px;"></i>
+        </div>
+
+        <div class="container-site pb-5">
+            <div class="row g-4">
+                <div class="col-lg-8">
+                    <!-- TIMELINE CONTAINER -->
+                    <div id="journey-timeline" class="list-group list-group-flush gap-3 border-0">
+                        <% journey.stops.forEach((stop, index) => { %>
+                            <div class="journey-stop-item list-group-item border-0 p-0 mb-3" data-id="<%= stop.destination_id %>">
+                                <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative">
+                                    <div class="row g-0">
+                                        <div class="col-3 col-md-2 d-flex flex-column align-items-center justify-content-center bg-light border-end">
+                                            <div class="handle p-2" style="cursor: grab; display: none;"><i class="bi bi-grip-vertical fs-4 text-muted"></i></div>
+                                            <div class="fw-black text-primary"><%= (index === 0) ? '08:00' : (index === 1 ? '10:30' : '13:00') %></div>
+                                            <div class="small text-muted fw-bold">CHẶNG <%= index + 1 %></div>
+                                        </div>
+                                        <div class="col-9 col-md-10">
+                                            <div class="card-body p-3 d-flex align-items-center gap-3">
+                                                <img src="<%= fixImg(stop.cover_image) %>" class="rounded-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="fw-black mb-1"><%= stop.name %></h6>
+                                                    <p class="small text-muted mb-0 text-truncate-1"><%= stop.short_desc || 'Trải nghiệm không gian bình yên.' %></p>
+                                                </div>
+                                                <div class="d-flex gap-1 action-btns">
+                                                    <button class="btn btn-soft-primary btn-sm rounded-circle" onclick="checkIn('<%= stop.name %>')"><i class="bi bi-geo-fill"></i></button>
+                                                    <button class="btn btn-soft-danger btn-sm rounded-circle btn-delete" style="display: none;" onclick="removeStop(this)"><i class="bi bi-trash"></i></button>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    
-                                    <!-- Transport Gap -->
-                                    <% if (index < journey.stops.length - 1) { %>
-                                        <div class="py-3 text-center text-muted small fw-bold opacity-50">
-                                            <i class="bi bi-arrow-down mb-1 d-block"></i>
-                                            <span>Di chuyển 15 phút bằng xe máy</span>
-                                        </div>
-                                    <% } %>
                                 </div>
-                            <% }) %>
-                        </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                    
+                    <!-- ADD STOP BUTTON (Only in Edit Mode) -->
+                    <div id="add-stop-container" style="display: none;" class="text-center py-4">
+                        <button class="btn btn-outline-primary btn-pill px-4 fw-bold" onclick="alert('Mở danh sách địa điểm để thêm...')">
+                            <i class="bi bi-plus-lg me-1"></i> Thêm điểm dừng mới
+                        </button>
                     </div>
                 </div>
-            </div>
 
-            <!-- Sidebar Actions -->
-            <div class="col-lg-4">
-                <div class="sticky-top" style="top: 100px;">
-                    <!-- Action Card -->
-                    <div class="card border-0 shadow-sm rounded-4 bg-primary text-white p-4 mb-4 overflow-hidden position-relative">
-                        <div class="position-relative" style="z-index: 10;">
-                            <h5 class="fw-bold mb-4">Sẵn sàng trải nghiệm?</h5>
-                            <button class="btn btn-white btn-lg w-100 rounded-pill fw-bold text-primary mb-3 shadow-sm py-3" onclick="startJourney()">
-                                <i class="bi bi-play-circle-fill me-2"></i> BẮT ĐẦU NGAY
+                <div class="col-lg-4">
+                    <div class="sticky-top" style="top: 100px;">
+                        <div class="card border-0 shadow-lg rounded-5 bg-dark text-white p-4 mb-4">
+                            <h5 class="fw-black mb-4">Trợ lý hành trình</h5>
+                            <div class="d-flex align-items-center gap-3 mb-4 p-3 bg-white bg-opacity-10 rounded-4">
+                                <div class="bg-primary p-2 rounded-circle"><i class="bi bi-cursor-fill"></i></div>
+                                <div>
+                                    <div class="small opacity-50">ĐIỂM ĐẾN TIẾP THEO</div>
+                                    <div class="fw-bold"><%= journey.stops[0].name %></div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-black mb-3" onclick="startNavigation()">
+                                🚀 BẮT ĐẦU NGAY
                             </button>
-                            <p class="small mb-0 opacity-75 text-center">Bật GPS để nhận chỉ đường từng bước và thu thập huy hiệu tự động.</p>
-                        </div>
-                        <i class="bi bi-cursor-fill position-absolute bottom-0 end-0 m-n3 opacity-10" style="font-size: 120px;"></i>
-                    </div>
-
-                    <!-- Preparation Card -->
-                    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-                        <h6 class="fw-bold mb-3">Lưu ý chuẩn bị</h6>
-                        <ul class="list-group list-group-flush small">
-                            <li class="list-group-item px-0 py-3 border-light bg-transparent d-flex gap-3">
-                                <i class="bi bi-battery-full text-success fs-5"></i>
-                                <span>Sạc đầy điện thoại để sử dụng Passport điện tử.</span>
-                            </li>
-                            <li class="list-group-item px-0 py-3 border-light bg-transparent d-flex gap-3">
-                                <i class="bi bi-sun text-warning fs-5"></i>
-                                <span>Trang bị nón, kem chống nắng và nước uống.</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <!-- Suggestions Card -->
-                    <div class="card border-0 shadow-sm rounded-4 p-4">
-                        <h6 class="fw-bold mb-3">Hành trình phổ biến khác</h6>
-                        <div class="d-grid gap-2">
-                            <a href="/journey/preset/song-cham" class="btn btn-light text-start p-3 border-0 rounded-4 transition shadow-sm-hover">
-                                <div class="fw-bold small mb-1">🌿 Sống chậm Bình Lợi</div>
-                                <div class="text-muted" style="font-size: 11px;">Chữa lành & Tĩnh lặng</div>
-                            </a>
-                            <a href="/journey/preset/miet-vuon" class="btn btn-light text-start p-3 border-0 rounded-4 transition shadow-sm-hover">
-                                <div class="fw-bold small mb-1">🥥 Miệt vườn giữa phố</div>
-                                <div class="text-muted" style="font-size: 11px;">Ẩm thực & Trải nghiệm</div>
-                            </a>
+                            <p class="small text-center opacity-50">Lộ trình sẽ được lưu vào Passport điện tử của bạn.</p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
 </div>
 
 <style>
+    #journey-app-root { font-family: 'Outfit', sans-serif; }
+    .display-4, .display-6 { font-family: 'Playfair Display', serif; }
     .bg-soft-primary { background-color: rgba(92, 138, 94, 0.1); }
     .text-primary { color: #5c8a5e !important; }
     .btn-primary { background-color: #5c8a5e; border-color: #5c8a5e; }
-    .btn-primary:hover { background-color: #4a6e4b; border-color: #4a6e4b; transform: translateY(-2px); }
-    .btn-outline-primary { color: #5c8a5e; border-color: #5c8a5e; }
-    .btn-outline-primary:hover { background-color: #5c8a5e; color: #fff; }
+    .btn-primary:hover { background-color: #4a6e4b; transform: translateY(-3px); }
+    .rounded-5 { border-radius: 2.5rem !important; }
     .rounded-4 { border-radius: 1.5rem !important; }
-    .transition { transition: all 0.3s ease; }
-    .shadow-sm-hover:hover { shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important; }
-    .object-fit-cover { object-fit: cover; }
-    .letter-spacing-lg { letter-spacing: 1px; }
+    .fw-black { font-weight: 900; }
+    .selection-card { cursor: pointer; transition: all 0.4s ease; border: 3px solid transparent; }
+    .selection-card:hover { transform: translateY(-10px); border-color: var(--color-primary); }
+    .btn-white { background: #fff; color: var(--color-primary); border: none; }
+    .btn-soft-primary { background: #f1f7f1; color: var(--color-primary); border: none; }
+    .btn-soft-danger { background: #fef1f1; color: #dc3545; border: none; }
+    .text-truncate-1 { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
 </style>
 
 <script>
-    let isEdit = false;
-    function toggleEdit() {
-        isEdit = !isEdit;
-        const controls = document.querySelectorAll('.edit-controls');
-        controls.forEach(c => c.style.display = isEdit ? 'block' : 'none');
+    let isEditMode = false;
+    let sortable;
+
+    function selectJourney(type) {
+        document.querySelectorAll('.selection-card').forEach(c => c.style.borderColor = 'transparent');
+        event.currentTarget.style.borderColor = '#5c8a5e';
     }
 
-    function startJourney() {
-        alert('Hệ thống đang kích hoạt GPS... Chúc bạn có một hành trình chữa lành tuyệt vời tại Bình Lợi!');
+    function activateJourney() {
+        document.getElementById('state-suggestions').classList.add('animate__fadeOut');
+        setTimeout(() => {
+            document.getElementById('state-suggestions').style.display = 'none';
+            document.getElementById('state-active').style.display = 'block';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }, 500);
+    }
+
+    function toggleEditMode() {
+        isEditMode = !isEditMode;
+        const btn = document.getElementById('btn-edit-mode');
+        const handles = document.querySelectorAll('.handle');
+        const deleteBtns = document.querySelectorAll('.btn-delete');
+        const addBtn = document.getElementById('add-stop-container');
+        const el = document.getElementById('journey-timeline');
+
+        if (isEditMode) {
+            btn.innerHTML = '💾 LƯU LẠI LỘ TRÌNH';
+            btn.classList.replace('btn-white', 'btn-success');
+            handles.forEach(h => h.style.display = 'block');
+            deleteBtns.forEach(b => b.style.display = 'block');
+            addBtn.style.display = 'block';
+            
+            // Initialize Sortable
+            sortable = Sortable.create(el, {
+                animation: 150,
+                handle: '.handle',
+                ghostClass: 'bg-soft-primary'
+            });
+        } else {
+            btn.innerHTML = '🎨 TÙY CHỈNH LỘ TRÌNH';
+            btn.classList.replace('btn-success', 'btn-white');
+            handles.forEach(h => h.style.display = 'none');
+            deleteBtns.forEach(b => b.style.display = 'none');
+            addBtn.style.display = 'none';
+            if (sortable) sortable.destroy();
+            alert('Đã lưu thay đổi của bạn!');
+        }
+    }
+
+    function removeStop(btn) {
+        if(confirm('Bạn muốn xóa điểm dừng này?')) {
+            btn.closest('.journey-stop-item').remove();
+        }
+    }
+
+    function startNavigation() {
+        alert('🚀 Đang kết nối GPS... Bản đồ dẫn đường đã sẵn sàng cho điểm dừng đầu tiên!');
+    }
+
+    function checkIn(name) {
+        alert('📍 Đã Check-in thành công tại: ' + name + '\nBạn đã nhận được 10 điểm tích lũy!');
     }
 </script>
