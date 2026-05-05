@@ -1,8 +1,0 @@
-<section class="site-section text-center py-5">
-    <div class="container-site">
-        <div class="display-1 text-primary mb-4">404</div>
-        <h2 class="display-text mb-4">Không tìm thấy trang</h2>
-        <p class="text-muted mb-5">Địa điểm hoặc trang bạn đang tìm kiếm không tồn tại hoặc đã được di dời.</p>
-        <a href="<?= $APP_URL ?>" class="btn-primary-bl">Quay về trang chủ</a>
-    </div>
-</section>
