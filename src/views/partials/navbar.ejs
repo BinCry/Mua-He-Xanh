@@ -15,6 +15,30 @@
         <li class="nav-item"><a class="nav-link" href="/map">Bản đồ</a></li>
         <li class="nav-item"><a class="nav-link" href="/checkin">Check-in</a></li>
         <li class="nav-item"><a class="nav-link" href="/summary">Huy hiệu</a></li>
+        
+        <li class="nav-item ms-lg-3 border-start ps-lg-3">
+          <% if (user) { %>
+            <div class="dropdown">
+              <a class="nav-link dropdown-toggle d-flex align-items-center gap-2 py-1" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                <img src="<%= user.avatar || '/images/hero-2.png' %>" class="rounded-circle border" style="width: 32px; height: 32px; object-fit: cover;">
+                <span class="small fw-bold"><%= user.full_name.split(' ').pop() %></span>
+              </a>
+              <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4">
+                <li><a class="dropdown-item small py-2" href="/summary"><i class="bi bi-person-badge me-2"></i>Passport của tôi</a></li>
+                <% if (user.role === 'manager') { %>
+                  <li><a class="dropdown-item small py-2" href="/manager"><i class="bi bi-speedometer2 me-2"></i>Quản lý địa điểm</a></li>
+                <% } %>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item small py-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+              </ul>
+            </div>
+          <% } else { %>
+            <a class="btn btn-outline-bl btn-sm px-4 rounded-pill" href="/auth/login">
+              <i class="bi bi-person-circle me-1"></i> Đăng nhập
+            </a>
+          <% } %>
+        </li>
+
         <li class="nav-item ms-2">
           <a class="btn btn-nav-cta" href="/onboarding">Bắt đầu hành trình ✦</a>
         </li>

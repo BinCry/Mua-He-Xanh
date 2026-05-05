@@ -44,6 +44,7 @@ app.use((req, res, next) => {
     res.locals.baseUrl = baseUrl;
     res.locals.appName = 'Bình Lợi Healing';
     res.locals.session = req.session;
+    res.locals.user = req.session.user || null;
     
     // Helper: fix image paths from database (strips 'public/' prefix)
     res.locals.fixImg = (imgPath, fallback) => {
