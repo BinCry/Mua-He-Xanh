@@ -16,14 +16,14 @@ const { ensureAuthenticated, ensureManager, restrictToManagers } = require('../m
 
 // Page Routes
 router.get('/', HomeController.index);
-router.get('/vibe-check', OnboardingController.index);
-router.get('/khoi-hanh', OnboardingController.index);
+router.get('/onboarding', OnboardingController.index);
 router.get('/checkin', CheckinController.index);
 router.get('/summary', SummaryController.index);
 router.get('/map', MapController.index);
 router.get('/destinations', ExploreController.list);
 router.get('/explore/:slug', ExploreController.show);
 router.get('/journey', JourneyController.index);
+router.get('/hanh-trinh-cua-toi', JourneyController.index);
 router.get('/journey/preset/:theme', JourneyController.preset);
 
 // Manager Routes

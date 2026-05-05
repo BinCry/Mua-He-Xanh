@@ -38,8 +38,8 @@ class JourneyController {
             if (month >= 11 || month <= 3) seasonName = 'Du xuân Bình Lợi';
             else if (month >= 7 && month <= 10) seasonName = 'Lễ hội mùa Thu';
 
-            res.render('journey/index', {
-                title: 'Gợi ý hành trình',
+            res.render('journey/story_mode', {
+                title: 'Hành trình của tôi',
                 journey: journeyWithStops,
                 seasonName: seasonName
             });

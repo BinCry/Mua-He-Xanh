@@ -1,0 +1,166 @@
+<% 
+let stops = journey.stops || [];
+let totalKm = journey.total_km || 0;
+let totalMin = journey.total_minutes || 0;
+%>
+
+<div class="story-mode-app">
+    
+    <!-- MÀN HÌNH CHỌN VIBE (SWIPE) -->
+    <div id="section-suggestions" class="animate__animated animate__fadeIn">
+        <div class="container-site py-5 text-center">
+            <h1 class="display-text fw-black mb-1">Gợi ý vibe cho bạn</h1>
+            <p class="text-muted mb-5">Vuốt ngang để tìm hành trình ưng ý nhất</p>
+
+            <div class="suggestion-swipe-container mb-5">
+                <!-- Thẻ 1 -->
+                <div class="swipe-card" onclick="selectThisJourney('song-cham')">
+                    <div class="swipe-match-badge">98% Match</div>
+                    <img src="<%= baseUrl %>/images/hero-1.png" class="swipe-card-img">
+                    <div class="swipe-card-content text-start">
+                        <span class="swipe-card-vibe">🌿 CHILL & HEALING</span>
+                        <h3 class="swipe-card-title">Một ngày miền Tây giữa phố</h3>
+                        <div class="swipe-card-stats">
+                            <span><i class="bi bi-clock"></i> 6h</span>
+                            <span><i class="bi bi-geo-alt"></i> 5 điểm</span>
+                            <span>🛵 Xe máy</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="btn btn-primary-bl btn-pill px-5 py-3 shadow-lg" onclick="goToTimeline()">
+                CHỌN HÀNH TRÌNH NÀY ✦
+            </button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH TIMELINE (STORY MODE) -->
+    <div id="section-timeline" style="display: none;" class="animate__animated animate__fadeIn">
+        
+        <!-- Story Top Bar (Instagram Style) -->
+        <div class="story-progress-bar d-flex gap-1 p-2 bg-dark">
+            <% stops.forEach((s, i) => { %>
+                <div class="flex-grow-1 bg-white bg-opacity-25 rounded-pill" style="height: 3px;"></div>
+            <% }) %>
+        </div>
+
+        <div class="container-site py-4">
+            <!-- Header Thông tin -->
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 class="fw-black mb-0">Lộ trình trải nghiệm</h2>
+                    <div class="small text-muted">6 tiếng | 12km | Xe máy</div>
+                </div>
+                <button class="btn btn-soft-primary btn-sm rounded-pill px-3" onclick="toggleEditMode()" id="btn-edit-toggle">
+                    🎨 ĐỘ LẠI
+                </button>
+            </div>
+
+            <!-- Story Items -->
+            <div class="story-list" id="sortable-stops">
+                <% stops.forEach((stop, index) => { %>
+                <div class="story-item-box mb-4" data-id="<%= stop.destination_id %>">
+                    <div class="d-flex gap-3">
+                        <div class="story-time-badge"><%= index === 0 ? '08:00' : (index === 1 ? '10:30' : '13:00') %></div>
+                        <div class="flex-grow-1 story-card-bl">
+                            <img src="<%= fixImg(stop.cover_image) %>" class="story-card-img-small">
+                            <div class="story-card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h6 class="fw-black mb-1"><%= stop.name %></h6>
+                                    <button class="btn-remove-stop text-danger border-0 bg-transparent" style="display: none;" onclick="removeStop('<%= stop.destination_id %>')">
+                                        <i class="bi bi-dash-circle-fill"></i>
+                                    </button>
+                                </div>
+                                <p class="small text-muted mb-0 text-truncate-2"><%= stop.short_desc || 'Trải nghiệm tâm linh, thư giãn tâm hồn.' %></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+
+            <!-- Nút hành động chính -->
+            <div class="fixed-bottom p-4 bg-white border-top shadow-lg" style="z-index: 100;">
+                <div class="row g-3">
+                    <div class="col-8">
+                        <button class="btn btn-primary-bl w-100 py-3 rounded-pill fw-black letter-spacing-lg" onclick="startJourneyNow()">
+                            🚀 BẮT ĐẦU NGAY
+                        </button>
+                    </div>
+                    <div class="col-4">
+                        <button class="btn btn-outline-dark w-100 py-3 rounded-pill" onclick="window.location.href='/map'">
+                            <i class="bi bi-geo-alt"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div style="height: 120px;"></div> <!-- Spacer for fixed bottom -->
+        </div>
+    </div>
+
+</div>
+
+<style>
+.story-mode-app { background: #fcfcfc; min-height: 100vh; }
+.story-time-badge {
+    width: 60px; height: 30px; background: #000; color: #fff;
+    border-radius: 100px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800; margin-top: 10px;
+}
+.story-card-bl {
+    background: #fff; border-radius: 24px; overflow: hidden;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.04); display: flex;
+    border: 1px solid rgba(0,0,0,0.03); transition: all 0.3s ease;
+}
+.story-card-img-small { width: 90px; height: 90px; object-fit: cover; }
+.story-card-body { padding: 15px; flex-grow: 1; }
+.btn-primary-bl { letter-spacing: 1px; }
+</style>
+
+<script>
+let editMode = false;
+
+function goToTimeline() {
+    document.getElementById('section-suggestions').style.display = 'none';
+    document.getElementById('section-timeline').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleEditMode() {
+    editMode = !editMode;
+    const btn = document.getElementById('btn-edit-toggle');
+    const removeBtns = document.querySelectorAll('.btn-remove-stop');
+    
+    if (editMode) {
+        btn.innerHTML = '💾 LƯU LẠI';
+        btn.classList.replace('btn-soft-primary', 'btn-success');
+        removeBtns.forEach(b => b.style.display = 'block');
+        alert('Chế độ "Độ" hành trình: Bạn có thể xóa bớt điểm hoặc sắp xếp lại.');
+    } else {
+        btn.innerHTML = '🎨 ĐỘ LẠI';
+        btn.classList.replace('btn-success', 'btn-soft-primary');
+        removeBtns.forEach(b => b.style.display = 'none');
+    }
+}
+
+function removeStop(id) {
+    if(confirm('Xóa điểm dừng này?')) {
+        document.querySelector(`[data-id="${id}"]`).remove();
+    }
+}
+
+function startJourneyNow() {
+    alert('🚀 Bắt đầu hành trình! Hệ thống đang kích hoạt GPS và Passport điện tử của bạn.');
+}
+
+// Swipe Simulation
+let startX;
+document.querySelector('.suggestion-swipe-container').addEventListener('touchstart', e => startX = e.touches[0].clientX);
+document.querySelector('.suggestion-swipe-container').addEventListener('touchend', e => {
+    const diff = e.changedTouches[0].clientX - startX;
+    if (Math.abs(diff) > 60) {
+        alert('Đang lướt xem các vibe khác...');
+    }
+});
+</script>
