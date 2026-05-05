@@ -1,111 +1,154 @@
-<section class="site-section min-vh-100 d-flex align-items-center">
+<section class="vibe-wizard">
     <div class="container-site">
-        <div class="text-center mb-5 animate__animated animate__fadeIn">
-            <span class="text-primary fw-bold mb-2 d-block">BẮT ĐẦU HÀNH TRÌNH</span>
-            <h2 class="display-text">Thiết kế trải nghiệm của bạn</h2>
-            <p class="text-muted mx-auto" style="max-width: 600px;">Để gợi ý lộ trình phù hợp nhất, hãy cho chúng tôi
-                biết mong muốn của bạn hôm nay.</p>
-        </div>
-
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <form id="onboardingForm" class="card-bl p-4 p-md-5 shadow-lg animate__animated animate__zoomIn">
-                    <!-- Step 1: Mood Selection -->
-                    <div class="mb-5">
-                        <label class="form-label fw-bold mb-3"><i class="bi bi-emoji-smile me-2"></i> Cảm xúc hiện tại
-                            của bạn?</label>
-                        <div class="row g-3">
-                            <div class="col-md-4">
-                                <input type="radio" class="btn-check" name="mood" id="mood_an_nhien" value="an-nhien"
-                                    checked>
-                                <label class="btn btn-outline-bl w-100 py-3 d-flex flex-column align-items-center gap-2"
-                                    for="mood_an_nhien">
-                                    <span class="fs-2">🌿</span>
-                                    <span>An nhiên</span>
-                                </label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="radio" class="btn-check" name="mood" id="mood_ket_noi" value="ket-noi">
-                                <label class="btn btn-outline-bl w-100 py-3 d-flex flex-column align-items-center gap-2"
-                                    for="mood_ket_noi">
-                                    <span class="fs-2">🤝</span>
-                                    <span>Kết nối</span>
-                                </label>
-                            </div>
-                            <div class="col-md-4">
-                                <input type="radio" class="btn-check" name="mood" id="mood_nang_luong"
-                                    value="nang-luong">
-                                <label class="btn btn-outline-bl w-100 py-3 d-flex flex-column align-items-center gap-2"
-                                    for="mood_nang_luong">
-                                    <span class="fs-2">⚡</span>
-                                    <span>Năng lượng</span>
-                                </label>
-                            </div>
-                        </div>
+        <form id="onboardingForm">
+            
+            <!-- STEP 1: CHỌN VIBE -->
+            <div class="wizard-step active" id="step1">
+                <h1 class="vibe-title">Hôm nay bạn<br>muốn đi kiểu gì?</h1>
+                <p class="vibe-subtitle">Chọn vibe chuyến đi, không cần suy nghĩ nhiều. ✨</p>
+                
+                <div class="vibe-grid">
+                    <div class="vibe-card" onclick="toggleVibe('chill', this)">
+                        <span class="vibe-icon">🌿</span>
+                        <span>Chill nhẹ miệt vườn</span>
                     </div>
-
-                    <!-- Step 2: Duration Selection -->
-                    <div class="mb-5">
-                        <label class="form-label fw-bold mb-3"><i class="bi bi-clock me-2"></i> Thời gian bạn dự định
-                            tham quan?</label>
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <input type="radio" class="btn-check" name="duration" id="dur_half" value="half"
-                                    checked>
-                                <label class="btn btn-outline-bl w-100 py-3" for="dur_half">Nửa ngày
-                                    (Sáng/Chiều)</label>
-                            </div>
-                            <div class="col-md-6">
-                                <input type="radio" class="btn-check" name="duration" id="dur_full" value="full">
-                                <label class="btn btn-outline-bl w-100 py-3" for="dur_full">Cả ngày (Khám phá trọn
-                                    vẹn)</label>
-                            </div>
-                        </div>
+                    <div class="vibe-card" onclick="toggleVibe('peace', this)">
+                        <span class="vibe-icon">🛕</span>
+                        <span>Bình yên - Đi chùa - Thiền</span>
                     </div>
-
-                    <!-- Step 3: Interest Selection -->
-                    <div class="mb-5">
-                        <label class="form-label fw-bold mb-3"><i class="bi bi-heart me-2"></i> Bạn quan tâm đến điều gì
-                            nhất?</label>
-                        <div class="d-flex flex-wrap gap-2">
-                            <input type="checkbox" class="btn-check" id="int_temple" value="temple" checked>
-                            <label class="btn btn-outline-secondary btn-sm rounded-pill" for="int_temple">Tâm linh -
-                                Chùa cổ</label>
-
-                            <input type="checkbox" class="btn-check" id="int_craft" value="craft" checked>
-                            <label class="btn btn-outline-secondary btn-sm rounded-pill" for="int_craft">Làng nghề
-                                truyền thống</label>
-
-                            <input type="checkbox" class="btn-check" id="int_nature" value="nature">
-                            <label class="btn btn-outline-secondary btn-sm rounded-pill" for="int_nature">Sinh thái -
-                                Nông nghiệp</label>
-                        </div>
+                    <div class="vibe-card" onclick="toggleVibe('culture', this)">
+                        <span class="vibe-icon">🎨</span>
+                        <span>Khám phá văn hóa - Làng nghề</span>
                     </div>
-
-                    <div class="text-center">
-                        <button type="submit" class="btn btn-primary-bl btn-lg px-5 w-100">Khởi tạo hành trình cá nhân
-                            ✦</button>
+                    <div class="vibe-card" onclick="toggleVibe('history', this)">
+                        <span class="vibe-icon">🏛</span>
+                        <span>Đi học mà không chán</span>
                     </div>
-                </form>
+                    <div class="vibe-card" onclick="toggleVibe('family', this)">
+                        <span class="vibe-icon">🎉</span>
+                        <span>Đi chơi cùng bạn bè / gia đình</span>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="moods" id="input-moods">
+                
+                <button type="button" class="onboarding-btn-next mt-4" onclick="nextStep(2)">TIẾP TỤC ➔</button>
             </div>
-        </div>
+
+            <!-- STEP 2: THỜI GIAN -->
+            <div class="wizard-step" id="step2">
+                <h1 class="vibe-title">Bạn có bao nhiêu<br>thời gian?</h1>
+                <p class="vibe-subtitle">Để chúng tôi tối ưu lộ trình cho bạn.</p>
+                
+                <div class="vibe-grid">
+                    <div class="vibe-card" onclick="selectDuration('3h', this)">
+                        <span class="vibe-icon">⏳</span>
+                        <span>3-4 tiếng (đi nhanh)</span>
+                    </div>
+                    <div class="vibe-card" onclick="selectDuration('1d', this)">
+                        <span class="vibe-icon">🌤</span>
+                        <span>1 ngày (trọn vẹn)</span>
+                    </div>
+                    <div class="vibe-card" onclick="selectDuration('custom', this)">
+                        <span class="vibe-icon">⚙️</span>
+                        <span>Tự chọn (custom)</span>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="duration" id="input-duration">
+                
+                <div class="text-center mt-5">
+                    <button type="button" class="btn btn-link text-white opacity-50" onclick="prevStep(1)">← QUAY LẠI</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: KHI NÀO -->
+            <div class="wizard-step" id="step3">
+                <h1 class="vibe-title">Dự định đi<br>khi nào?</h1>
+                <p class="vibe-subtitle">Chọn thời điểm khởi hành.</p>
+                
+                <div class="vibe-grid">
+                    <div class="vibe-card" onclick="selectWhen('now', this)">
+                        <span class="vibe-icon">📍</span>
+                        <span>Ngay bây giờ</span>
+                    </div>
+                    <div class="vibe-card" onclick="selectWhen('weekend', this)">
+                        <span class="vibe-icon">📅</span>
+                        <span>Cuối tuần</span>
+                    </div>
+                    <div class="vibe-card" onclick="selectWhen('season', this)">
+                        <span class="vibe-icon">🌸</span>
+                        <span>Theo mùa</span>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="when" id="input-when">
+
+                <div class="text-center mt-5">
+                    <button type="submit" class="onboarding-btn-next shadow-lg" style="background: var(--color-primary); color: white;">
+                        ✨ GỢI Ý HÀNH TRÌNH CHO BẠN
+                    </button>
+                    <button type="button" class="btn btn-link text-white opacity-50 d-block mx-auto mt-3" onclick="prevStep(2)">← QUAY LẠI</button>
+                </div>
+            </div>
+
+        </form>
     </div>
 </section>
 
 <script>
-    document.getElementById('onboardingForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-        const mood = document.querySelector('input[name="mood"]:checked').value;
-        const duration = document.querySelector('input[name="duration"]:checked').value;
-        const interests = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+let selectedVibes = [];
 
-        // Lưu vào session via API
-        axios.post(window.APP_CONFIG.apiUrl + '/session', {
-            mood: mood,
-            duration: duration,
-            interests: interests
-        }).then(res => {
-            window.location.href = window.APP_CONFIG.baseUrl + '/journey';
-        });
+function toggleVibe(vibe, el) {
+    if (selectedVibes.includes(vibe)) {
+        selectedVibes = selectedVibes.filter(v => v !== vibe);
+        el.classList.remove('selected');
+    } else {
+        selectedVibes.push(vibe);
+        el.classList.add('selected');
+    }
+    document.getElementById('input-moods').value = selectedVibes.join(',');
+}
+
+function selectDuration(dur, el) {
+    document.querySelectorAll('#step2 .vibe-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('input-duration').value = dur;
+    setTimeout(() => nextStep(3), 400);
+}
+
+function selectWhen(when, el) {
+    document.querySelectorAll('#step3 .vibe-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('input-when').value = when;
+}
+
+function nextStep(s) {
+    document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
+    document.getElementById('step' + s).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep(s) {
+    nextStep(s);
+}
+
+document.getElementById('onboardingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG TÌM HÀNH TRÌNH...';
+    btn.disabled = true;
+
+    axios.post(window.APP_CONFIG.apiUrl + '/session', {
+        moods: document.getElementById('input-moods').value,
+        duration: document.getElementById('input-duration').value,
+        when: document.getElementById('input-when').value
+    }).then(res => {
+        window.location.href = window.APP_CONFIG.baseUrl + '/hanh-trinh-cua-toi';
+    }).catch(err => {
+        alert('Lỗi khởi tạo.');
+        btn.innerHTML = '✨ GỢI Ý HÀNH TRÌNH CHO BẠN';
+        btn.disabled = false;
     });
+});
 </script>
