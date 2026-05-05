@@ -1,180 +1,197 @@
-<!-- CINEMATIC JOURNEY MASTERPIECE V9 - THE ELITE EXPERIENCE -->
+<!-- THE ULTIMATE INTEGRATED JOURNEY APP - ALL-IN-ONE FLOW -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-<div id="elite-journey-v9" class="bg-white overflow-hidden">
+<div id="integrated-journey-app" class="bg-white min-vh-100">
 
-    <!-- HEADER: CINEMATIC OVERVIEW -->
-    <header class="journey-header-v9 py-5 bg-white border-bottom">
-        <div class="container-site">
-            <div class="row align-items-center">
-                <div class="col-lg-7 intro-text">
-                    <span class="badge bg-primary-soft text-primary px-3 py-2 rounded-pill mb-3 fw-bold animate__animated animate__fadeInDown">LỘ TRÌNH CỦA BẠN</span>
-                    <h1 class="display-3 fw-black mb-3">Một ngày miền Tây<br><span class="text-primary">giữa lòng phố thị</span></h1>
-                    <div class="d-flex gap-4 fw-bold text-muted small">
-                        <div class="d-flex align-items-center"><i class="bi bi-clock-fill me-2 text-primary"></i> 6 TIẾNG</div>
-                        <div class="d-flex align-items-center"><i class="bi bi-geo-alt-fill me-2 text-primary"></i> 12.5 KM</div>
-                        <div class="d-flex align-items-center"><i class="bi bi-bicycle me-2 text-primary"></i> XE MÁY</div>
+    <!-- STAGE 1: SMART WIZARD (CHOOSE VIBE) -->
+    <section id="stage-wizard" class="py-5 animate__animated animate__fadeIn">
+        <div class="container-site text-center py-5">
+            <div id="wizard-step-1" class="wizard-step active">
+                <h1 class="display-3 fw-black mb-3">Hôm nay bạn<br>muốn đi kiểu gì?</h1>
+                <p class="lead text-muted mb-5">Chọn vibe chuyến đi, không cần suy nghĩ nhiều. ✨</p>
+                <div class="row g-4 justify-content-center">
+                    <div class="col-6 col-md-3">
+                        <div class="v5-vibe-card p-5 glass-card" onclick="nextWizardStep(2)">
+                            <div class="display-3 mb-3">🌿</div>
+                            <div class="fw-black text-uppercase">Chill nhẹ</div>
+                        </div>
                     </div>
-                </div>
-                <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
-                    <button class="btn btn-premium btn-dark px-5 py-3 rounded-pill fw-black shadow-xl" onclick="launchCinematic()">BẮT ĐẦU NGAY 🚀</button>
+                    <div class="col-6 col-md-3">
+                        <div class="v5-vibe-card p-5 glass-card" onclick="nextWizardStep(2)">
+                            <div class="display-3 mb-3">🛕</div>
+                            <div class="fw-black text-uppercase">Bình yên</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
 
-    <!-- THE "FLOWING" ROUTE BAR -->
-    <div class="v9-route-bar bg-white border-bottom sticky-top shadow-sm py-4" style="top: 85px; z-index: 1000;">
-        <div class="container-site">
-            <div class="d-flex align-items-center justify-content-between position-relative px-5">
-                <div class="v9-progress-line position-absolute bg-light" style="height: 4px; left: 80px; right: 80px; top: 50%; transform: translateY(-50%); z-index: 1;"></div>
-                <div id="v9-active-line" class="position-absolute bg-primary" style="height: 4px; left: 80px; width: 0%; top: 50%; transform: translateY(-50%); z-index: 2; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);"></div>
-                
-                <% journey.stops.forEach((stop, index) => { %>
-                <div class="v9-node-container text-center" style="z-index: 10; cursor: pointer;" onclick="flyToStop(<%= index %>)">
-                    <div class="v9-node shadow-lg <%= index === 0 ? 'active' : '' %>" id="node-<%= index %>">
-                        <span class="small fw-black"><%= index + 1 %></span>
+            <div id="wizard-step-2" class="wizard-step d-none">
+                <h1 class="display-3 fw-black mb-3">Bạn có bao nhiêu<br>thời gian?</h1>
+                <div class="row g-4 justify-content-center mt-5">
+                    <div class="col-6 col-md-3">
+                        <div class="v5-vibe-card p-5 glass-card" onclick="nextWizardStep(3)">
+                            <div class="display-3 mb-3">⏳</div>
+                            <div class="fw-black">4 TIẾNG</div>
+                        </div>
                     </div>
-                    <div class="v9-node-label fw-bold mt-2"><%= stop.name %></div>
+                    <div class="col-6 col-md-3">
+                        <div class="v5-vibe-card p-5 glass-card" onclick="nextWizardStep(3)">
+                            <div class="display-3 mb-3">🌤</div>
+                            <div class="fw-black">1 NGÀY</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-link mt-5 text-muted" onclick="prevWizardStep(1)">← QUAY LẠI</button>
+            </div>
+
+            <div id="wizard-step-3" class="wizard-step d-none">
+                <h1 class="display-3 fw-black mb-3">Đi khi nào?</h1>
+                <div class="row g-4 justify-content-center mt-5">
+                    <div class="col-6 col-md-3">
+                        <div class="v5-vibe-card p-5 glass-card" onclick="finishWizard()">
+                            <div class="display-3 mb-3">📍</div>
+                            <div class="fw-black">NGAY BÂY GIỜ</div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <div class="v5-vibe-card p-5 glass-card" onclick="finishWizard()">
+                            <div class="display-3 mb-3">📅</div>
+                            <div class="fw-black">CUỐI TUẦN</div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-link mt-5 text-muted" onclick="prevWizardStep(2)">← QUAY LẠI</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- STAGE 2: PROCESSING (SMART DELAY) -->
+    <section id="stage-processing" style="display: none;" class="py-5 animate__animated animate__fadeIn">
+        <div class="container-site text-center py-5">
+            <div class="spinner-grow text-primary mb-4" style="width: 3rem; height: 3rem;"></div>
+            <h2 class="fw-black">Đang tối ưu lộ trình cho bạn...</h2>
+            <p class="text-muted">Chúng tôi đang tìm những địa điểm "healing" nhất.</p>
+        </div>
+    </section>
+
+    <!-- STAGE 3: THE CINEMATIC DASHBOARD (v9) -->
+    <section id="stage-result" style="display: none;" class="animate__animated animate__fadeIn">
+        <!-- HEADER -->
+        <header class="py-5 bg-white border-bottom">
+            <div class="container-site d-flex justify-content-between align-items-center">
+                <div>
+                    <h1 class="display-4 fw-black">Lộ trình <span class="text-primary">Chữa Lành</span></h1>
+                    <p class="text-muted mb-0">Dựa trên vibe và thời gian bạn đã chọn.</p>
+                </div>
+                <button class="btn btn-outline-primary rounded-pill px-4" onclick="restartWizard()">🔄 LÀM LẠI</button>
+            </div>
+        </header>
+
+        <!-- ROUTE BAR -->
+        <div class="v9-route-bar bg-white border-bottom sticky-top py-3" style="top: 85px; z-index: 1000;">
+            <div class="container-site d-flex align-items-center justify-content-between px-5">
+                <% journey.stops.forEach((stop, index) => { %>
+                <div class="text-center" onclick="flyToStop(<%= index %>)" style="cursor:pointer;">
+                    <div class="glass-node <%= index === 0 ? 'active' : '' %> mx-auto" id="node-<%= index %>"><%= index + 1 %></div>
+                    <div class="fw-bold mt-2" style="font-size: 8px;"><%= stop.name %></div>
                 </div>
                 <% }) %>
             </div>
         </div>
-    </div>
 
-    <main class="container-site py-5">
-        <div class="row g-5">
-            <!-- LEFT: THE ELITE MAP -->
-            <div class="col-lg-8">
-                <div class="map-wrapper-v9 rounded-5 shadow-2xl overflow-hidden border border-light position-relative">
-                    <div id="v9-map" style="height: 600px; width: 100%;"></div>
-                    <!-- Map Overlay Stats -->
-                    <div class="position-absolute bottom-0 start-0 m-4 glass-card p-3 d-flex gap-4 animate__animated animate__fadeInUp">
-                        <div class="text-center">
-                            <div class="small opacity-50 fw-bold">TIẾN ĐỘ</div>
-                            <div class="fw-black text-primary">0%</div>
+        <!-- MAIN CONTENT -->
+        <main class="container-site py-5">
+            <div class="row g-5">
+                <div class="col-lg-8">
+                    <div id="v9-map" class="rounded-5 shadow-2xl border" style="height: 550px;"></div>
+                </div>
+                <div class="col-lg-4">
+                    <h3 class="fw-black mb-4">Chi tiết Timeline</h3>
+                    <div class="d-flex flex-column gap-3">
+                        <% journey.stops.forEach((stop, index) => { %>
+                        <div class="glass-card p-4 d-flex align-items-center gap-3">
+                            <div class="fw-black text-primary display-6">0<%= index + 1 %></div>
+                            <div>
+                                <h6 class="fw-black mb-1"><%= stop.name %></h6>
+                                <p class="small text-muted mb-0"><%= stop.short_desc %></p>
+                            </div>
                         </div>
-                        <div class="text-center border-start ps-4">
-                            <div class="small opacity-50 fw-bold">THỜI GIAN</div>
-                            <div class="fw-black">08:00</div>
-                        </div>
+                        <% }) %>
                     </div>
+                    <button class="btn btn-primary-bl w-100 py-4 mt-5 rounded-pill fw-black fs-4" onclick="confetti()">🚀 ĐI LUÔN THÔI!</button>
                 </div>
             </div>
-
-            <!-- RIGHT: SMART TIMELINE ASSISTANT -->
-            <div class="col-lg-4">
-                <h3 class="fw-black mb-4">Timeline Trải Nghiệm</h3>
-                <div id="v9-timeline" class="d-flex flex-column gap-3">
-                    <% journey.stops.forEach((stop, index) => { %>
-                    <div class="v9-timeline-card glass-card p-4 d-flex gap-3 align-items-center border-0" style="transition: all 0.3s ease;">
-                        <div class="v9-time-box text-center me-2">
-                            <div class="fw-black text-primary" style="font-size: 1.2rem;">0<%= index + 1 %></div>
-                            <div class="small opacity-50 fw-bold">CHẶNG</div>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h5 class="fw-black mb-1"><%= stop.name %></h5>
-                            <p class="small text-muted mb-0"><%= stop.short_desc %></p>
-                        </div>
-                        <button class="btn btn-light rounded-circle"><i class="bi bi-chevron-right"></i></button>
-                    </div>
-                    <% }) %>
-                </div>
-                
-                <!-- SPECIAL CTA -->
-                <div class="mt-5 p-5 bg-primary text-white rounded-5 shadow-xl text-center">
-                    <div class="display-6 mb-3">✨</div>
-                    <h4 class="fw-black mb-3">Tùy chỉnh hành trình?</h4>
-                    <p class="small opacity-75 mb-4">Bạn có thể thêm bớt điểm dừng hoặc đổi phương tiện bất cứ lúc nào.</p>
-                    <button class="btn btn-white w-100 py-3 rounded-pill fw-black" onclick="alert('Mở chế độ Tùy chỉnh...')">🎨 ĐỘ LẠI NGAY</button>
-                </div>
-            </div>
-        </div>
-    </main>
+        </main>
+    </section>
 
 </div>
 
 <style>
     .fw-black { font-weight: 900; }
-    .display-3 { font-size: 4rem; letter-spacing: -2px; }
     .rounded-5 { border-radius: 2.5rem !important; }
-    .shadow-2xl { box-shadow: 0 50px 100px rgba(13, 148, 136, 0.15); }
-    
-    .v9-node {
-        width: 44px; height: 44px; background: #fff; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        border: 2px solid #eee; transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-    .v9-node.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); transform: scale(1.2); }
-    .v9-node-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--color-muted); }
-    
-    .v9-timeline-card:hover { transform: scale(1.03) translateX(10px); background: #fff; box-shadow: 0 20px 40px rgba(0,0,0,0.05); }
-    
-    .glass-card { background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); border-radius: 24px; border: 1px solid rgba(255,255,255,0.5); }
-    .btn-white { background: #fff; color: var(--color-primary); border: none; }
+    .glass-card { background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); border: 1px solid rgba(0,0,0,0.05); border-radius: 2rem; transition: all 0.3s ease; }
+    .v5-vibe-card:hover { transform: translateY(-10px); background: #fff; border-color: var(--color-primary); }
+    .glass-node { width: 40px; height: 40px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #eee; font-weight: 800; }
+    .glass-node.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
 </style>
 
 <script>
+    function nextWizardStep(s) {
+        gsap.to(`.wizard-step.active`, { opacity: 0, x: -50, duration: 0.4, onComplete: () => {
+            document.querySelectorAll('.wizard-step').forEach(step => {
+                step.classList.add('d-none');
+                step.classList.remove('active');
+            });
+            const next = document.getElementById('wizard-step-' + s);
+            next.classList.remove('d-none');
+            next.classList.add('active');
+            gsap.fromTo(next, { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.4 });
+        }});
+    }
+
+    function prevWizardStep(s) {
+        nextWizardStep(s); // Logic is same for reverse but we could refine it
+    }
+
+    function finishWizard() {
+        document.getElementById('stage-wizard').style.display = 'none';
+        document.getElementById('stage-processing').style.display = 'block';
+        
+        setTimeout(() => {
+            document.getElementById('stage-processing').style.display = 'none';
+            document.getElementById('stage-result').style.display = 'block';
+            initV9Map();
+            gsap.from("#stage-result", { opacity: 0, y: 50, duration: 0.8 });
+        }, 2000);
+    }
+
+    function restartWizard() {
+        document.getElementById('stage-result').style.display = 'none';
+        document.getElementById('stage-wizard').style.display = 'block';
+        nextWizardStep(1);
+    }
+
     let v9Map;
     let v9Markers = [];
-
-    window.onload = function() {
-        // GSAP INTRO ANIMATION
-        gsap.from(".intro-text h1", { duration: 1.2, y: 50, opacity: 0, ease: "power4.out", delay: 0.2 });
-        gsap.from(".v9-timeline-card", { duration: 0.8, x: 50, opacity: 0, stagger: 0.1, ease: "power3.out", delay: 0.5 });
-        
-        setTimeout(initV9Map, 500);
-    };
-
     function initV9Map() {
-        v9Map = L.map('v9-map', { zoomControl: false }).setView([10.796, 106.524], 14);
-        L.tileLayer('https://{s}.tile.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(v9Map);
-
+        if (v9Map) return;
+        v9Map = L.map('v9-map').setView([10.796, 106.524], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(v9Map);
         const stops = <%- JSON.stringify(journey.stops) %>;
-        const coords = [];
-
         stops.forEach((stop, i) => {
-            if(stop.lat && stop.lng) {
-                coords.push([stop.lat, stop.lng]);
-                const marker = L.marker([stop.lat, stop.lng]).addTo(v9Map);
-                v9Markers.push(marker);
-            }
+            const m = L.marker([stop.lat, stop.lng]).addTo(v9Map).bindPopup(stop.name);
+            v9Markers.push(m);
         });
-
-        if (coords.length > 1) {
-            const line = L.polyline(coords, { 
-                color: '#0d9488', weight: 5, opacity: 0.8, dashArray: '1, 10' 
-            }).addTo(v9Map);
-            
-            // Animation for the dashArray to create flow effect
-            let offset = 0;
-            setInterval(() => {
-                offset++;
-                line.setStyle({ dashOffset: -offset });
-            }, 50);
-
-            v9Map.fitBounds(L.latLngBounds(coords).pad(0.2));
-        }
     }
 
-    function flyToStop(index) {
-        document.querySelectorAll('.v9-node').forEach(n => n.classList.remove('active'));
-        document.getElementById('node-' + index).classList.add('active');
-        
-        const pct = (index / (v9Markers.length - 1)) * 100;
-        document.getElementById('v9-active-line').style.width = pct + '%';
-
-        v9Map.flyTo(v9Markers[index].getLatLng(), 16, { duration: 1.5 });
-        v9Markers[index].bindPopup(`<b>${index+1}. Chặng: </b> Đã sẵn sàng!`).openPopup();
-    }
-
-    function launchCinematic() {
-        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
-        gsap.to(".v9-progress-line", { duration: 2, scaleX: 1.1, ease: "elastic" });
-        alert('🚀 HÀNH TRÌNH ĐIỆN ẢNH BẮT ĐẦU! HÃY TẬN HƯỞNG.');
+    function flyToStop(i) {
+        document.querySelectorAll('.glass-node').forEach(n => n.classList.remove('active'));
+        document.getElementById('node-' + i).classList.add('active');
+        v9Map.flyTo(v9Markers[i].getLatLng(), 16);
+        v9Markers[i].openPopup();
     }
 </script>
