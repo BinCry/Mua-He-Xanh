@@ -1,128 +1,127 @@
-<!-- THE ULTIMATE INTEGRATED JOURNEY APP - ALL-IN-ONE FLOW -->
+<!-- THE ELITE JOURNEY ENGINE V10 - FIXED & CENTERED -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 
-<div id="integrated-journey-app" class="bg-white min-vh-100">
+<div id="v5-journey-app" class="bg-white min-vh-100">
 
-    <!-- STAGE 1: SMART WIZARD (CHOOSE VIBE) -->
-    <section id="stage-wizard" class="py-5 animate__animated animate__fadeIn">
-        <div class="container-site text-center py-5">
-            <div id="wizard-step-1" class="wizard-step active">
-                <h1 class="display-3 fw-black mb-3">Hôm nay bạn<br>muốn đi kiểu gì?</h1>
-                <p class="lead text-muted mb-5">Chọn vibe chuyến đi, không cần suy nghĩ nhiều. ✨</p>
-                <div class="row g-4 justify-content-center">
-                    <div class="col-6 col-md-3">
-                        <div class="v5-vibe-card p-5 glass-card" onclick="nextWizardStep(2)">
-                            <div class="display-3 mb-3">🌿</div>
-                            <div class="fw-black text-uppercase">Chill nhẹ</div>
-                        </div>
+    <!-- WIZARD STAGE -->
+    <section id="v5-wizard" class="v5-wizard-container animate__animated animate__fadeIn">
+        <div class="container-site text-center">
+            
+            <!-- STEP 1: VIBE -->
+            <div id="step-1" class="wizard-block active">
+                <h1 class="display-3 mb-2">Hôm nay bạn muốn đi kiểu gì?</h1>
+                <p class="text-muted fs-5">Chọn vibe chuyến đi, không cần suy nghĩ nhiều. ✨</p>
+                <div class="v5-vibe-grid">
+                    <div class="v5-card-item" onclick="selectCard(this, 1)">
+                        <div class="v5-icon-circle">🌿</div>
+                        <h4 class="fw-black">CHILL NHẸ</h4>
+                        <p class="small text-muted mb-0">Miệt vườn xanh mát</p>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <div class="v5-vibe-card p-5 glass-card" onclick="nextWizardStep(2)">
-                            <div class="display-3 mb-3">🛕</div>
-                            <div class="fw-black text-uppercase">Bình yên</div>
-                        </div>
+                    <div class="v5-card-item" onclick="selectCard(this, 1)">
+                        <div class="v5-icon-circle">🛕</div>
+                        <h4 class="fw-black">BÌNH YÊN</h4>
+                        <p class="small text-muted mb-0">Đi chùa - Thiền định</p>
                     </div>
+                    <div class="v5-card-item" onclick="selectCard(this, 1)">
+                        <div class="v5-icon-circle">🎨</div>
+                        <h4 class="fw-black">VĂN HÓA</h4>
+                        <p class="small text-muted mb-0">Khám phá làng nghề</p>
+                    </div>
+                </div>
+                <button class="btn-v5-next" onclick="nextStep(2)">TIẾP TỤC ➔</button>
+            </div>
+
+            <!-- STEP 2: TIME -->
+            <div id="step-2" class="wizard-block d-none">
+                <h1 class="display-3 mb-2">Bạn có bao nhiêu thời gian?</h1>
+                <p class="text-muted fs-5">Để chúng tôi tối ưu lộ trình tốt nhất cho bạn.</p>
+                <div class="v5-vibe-grid">
+                    <div class="v5-card-item" onclick="selectCard(this, 2)">
+                        <div class="v5-icon-circle">⏳</div>
+                        <h4 class="fw-black">3-4 TIẾNG</h4>
+                        <p class="small text-muted mb-0">Hành trình nhanh</p>
+                    </div>
+                    <div class="v5-card-item" onclick="selectCard(this, 2)">
+                        <div class="v5-icon-circle">🌤</div>
+                        <h4 class="fw-black">1 NGÀY</h4>
+                        <p class="small text-muted mb-0">Trải nghiệm trọn vẹn</p>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-link mt-5 text-muted fw-bold" onclick="nextStep(1)">← QUAY LẠI</button>
+                    <button class="btn-v5-next" onclick="nextStep(3)">TIẾP TỤC ➔</button>
                 </div>
             </div>
 
-            <div id="wizard-step-2" class="wizard-step d-none">
-                <h1 class="display-3 fw-black mb-3">Bạn có bao nhiêu<br>thời gian?</h1>
-                <div class="row g-4 justify-content-center mt-5">
-                    <div class="col-6 col-md-3">
-                        <div class="v5-vibe-card p-5 glass-card" onclick="nextWizardStep(3)">
-                            <div class="display-3 mb-3">⏳</div>
-                            <div class="fw-black">4 TIẾNG</div>
-                        </div>
+            <!-- STEP 3: WHEN -->
+            <div id="step-3" class="wizard-block d-none">
+                <h1 class="display-3 mb-2">Bạn muốn đi khi nào?</h1>
+                <div class="v5-vibe-grid">
+                    <div class="v5-card-item" onclick="selectCard(this, 3)">
+                        <div class="v5-icon-circle">📍</div>
+                        <h4 class="fw-black">NGAY BÂY GIỜ</h4>
                     </div>
-                    <div class="col-6 col-md-3">
-                        <div class="v5-vibe-card p-5 glass-card" onclick="nextWizardStep(3)">
-                            <div class="display-3 mb-3">🌤</div>
-                            <div class="fw-black">1 NGÀY</div>
-                        </div>
+                    <div class="v5-card-item" onclick="selectCard(this, 3)">
+                        <div class="v5-icon-circle">📅</div>
+                        <h4 class="fw-black">CUỐI TUẦN</h4>
                     </div>
                 </div>
-                <button class="btn btn-link mt-5 text-muted" onclick="prevWizardStep(1)">← QUAY LẠI</button>
+                <div class="d-flex justify-content-center gap-3">
+                    <button class="btn btn-link mt-5 text-muted fw-bold" onclick="nextStep(2)">← QUAY LẠI</button>
+                    <button class="btn-v5-next" onclick="finishWizard()">GỢI Ý HÀNH TRÌNH ✨</button>
+                </div>
             </div>
 
-            <div id="wizard-step-3" class="wizard-step d-none">
-                <h1 class="display-3 fw-black mb-3">Đi khi nào?</h1>
-                <div class="row g-4 justify-content-center mt-5">
-                    <div class="col-6 col-md-3">
-                        <div class="v5-vibe-card p-5 glass-card" onclick="finishWizard()">
-                            <div class="display-3 mb-3">📍</div>
-                            <div class="fw-black">NGAY BÂY GIỜ</div>
-                        </div>
-                    </div>
-                    <div class="col-6 col-md-3">
-                        <div class="v5-vibe-card p-5 glass-card" onclick="finishWizard()">
-                            <div class="display-3 mb-3">📅</div>
-                            <div class="fw-black">CUỐI TUẦN</div>
-                        </div>
-                    </div>
-                </div>
-                <button class="btn btn-link mt-5 text-muted" onclick="prevWizardStep(2)">← QUAY LẠI</button>
-            </div>
         </div>
     </section>
 
-    <!-- STAGE 2: PROCESSING (SMART DELAY) -->
-    <section id="stage-processing" style="display: none;" class="py-5 animate__animated animate__fadeIn">
-        <div class="container-site text-center py-5">
-            <div class="spinner-grow text-primary mb-4" style="width: 3rem; height: 3rem;"></div>
-            <h2 class="fw-black">Đang tối ưu lộ trình cho bạn...</h2>
-            <p class="text-muted">Chúng tôi đang tìm những địa điểm "healing" nhất.</p>
-        </div>
-    </section>
-
-    <!-- STAGE 3: THE CINEMATIC DASHBOARD (v9) -->
-    <section id="stage-result" style="display: none;" class="animate__animated animate__fadeIn">
-        <!-- HEADER -->
-        <header class="py-5 bg-white border-bottom">
+    <!-- DASHBOARD STAGE (RESULT) -->
+    <section id="v5-dashboard" style="display: none;" class="animate__animated animate__fadeIn">
+        <header class="v5-dashboard-header">
             <div class="container-site d-flex justify-content-between align-items-center">
                 <div>
-                    <h1 class="display-4 fw-black">Lộ trình <span class="text-primary">Chữa Lành</span></h1>
-                    <p class="text-muted mb-0">Dựa trên vibe và thời gian bạn đã chọn.</p>
+                    <h1 class="display-3 mb-0">Hành trình <span class="text-primary">Xanh</span></h1>
+                    <p class="text-muted mb-0 mt-2">Dựa trên vibe và thời gian của bạn.</p>
                 </div>
-                <button class="btn btn-outline-primary rounded-pill px-4" onclick="restartWizard()">🔄 LÀM LẠI</button>
+                <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" onclick="location.reload()">🔄 CHỌN LẠI</button>
             </div>
         </header>
 
-        <!-- ROUTE BAR -->
-        <div class="v9-route-bar bg-white border-bottom sticky-top py-3" style="top: 85px; z-index: 1000;">
-            <div class="container-site d-flex align-items-center justify-content-between px-5">
-                <% journey.stops.forEach((stop, index) => { %>
-                <div class="text-center" onclick="flyToStop(<%= index %>)" style="cursor:pointer;">
-                    <div class="glass-node <%= index === 0 ? 'active' : '' %> mx-auto" id="node-<%= index %>"><%= index + 1 %></div>
-                    <div class="fw-bold mt-2" style="font-size: 8px;"><%= stop.name %></div>
+        <div class="v5-route-bar shadow-sm">
+            <div class="container-site">
+                <div class="d-flex justify-content-between align-items-center px-lg-5">
+                    <% journey.stops.forEach((stop, index) => { %>
+                        <div class="text-center" onclick="flyToStop(<%= index %>)" style="cursor:pointer;">
+                            <div class="v5-timeline-node <%= index === 0 ? 'active' : '' %> mx-auto" id="node-<%= index %>"><%= index + 1 %></div>
+                            <div class="fw-black mt-2" style="font-size: 10px; text-transform: uppercase;"><%= stop.name %></div>
+                        </div>
+                    <% }) %>
                 </div>
-                <% }) %>
             </div>
         </div>
 
-        <!-- MAIN CONTENT -->
-        <main class="container-site py-5">
+        <main class="container-site py-5 mt-4">
             <div class="row g-5">
                 <div class="col-lg-8">
-                    <div id="v9-map" class="rounded-5 shadow-2xl border" style="height: 550px;"></div>
+                    <div id="map-v5" class="v5-map-box"></div>
                 </div>
                 <div class="col-lg-4">
                     <h3 class="fw-black mb-4">Chi tiết Timeline</h3>
-                    <div class="d-flex flex-column gap-3">
+                    <div class="v5-timeline-list">
                         <% journey.stops.forEach((stop, index) => { %>
-                        <div class="glass-card p-4 d-flex align-items-center gap-3">
+                        <div class="v5-timeline-card">
                             <div class="fw-black text-primary display-6">0<%= index + 1 %></div>
                             <div>
-                                <h6 class="fw-black mb-1"><%= stop.name %></h6>
+                                <h5 class="fw-black mb-1"><%= stop.name %></h5>
                                 <p class="small text-muted mb-0"><%= stop.short_desc %></p>
                             </div>
                         </div>
                         <% }) %>
                     </div>
-                    <button class="btn btn-primary-bl w-100 py-4 mt-5 rounded-pill fw-black fs-4" onclick="confetti()">🚀 ĐI LUÔN THÔI!</button>
+                    <button class="btn-v5-next w-100 py-4 mt-4 fs-4" onclick="alert('Bắt đầu dẫn đường!')">BẮT ĐẦU NGAY 🚀</button>
                 </div>
             </div>
         </main>
@@ -130,68 +129,52 @@
 
 </div>
 
-<style>
-    .fw-black { font-weight: 900; }
-    .rounded-5 { border-radius: 2.5rem !important; }
-    .glass-card { background: rgba(255,255,255,0.8); backdrop-filter: blur(20px); border: 1px solid rgba(0,0,0,0.05); border-radius: 2rem; transition: all 0.3s ease; }
-    .v5-vibe-card:hover { transform: translateY(-10px); background: #fff; border-color: var(--color-primary); }
-    .glass-node { width: 40px; height: 40px; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid #eee; font-weight: 800; }
-    .glass-node.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
-</style>
-
 <script>
-    function nextWizardStep(s) {
-        gsap.to(`.wizard-step.active`, { opacity: 0, x: -50, duration: 0.4, onComplete: () => {
-            document.querySelectorAll('.wizard-step').forEach(step => {
-                step.classList.add('d-none');
-                step.classList.remove('active');
-            });
-            const next = document.getElementById('wizard-step-' + s);
+    function selectCard(el, step) {
+        document.querySelectorAll(`#step-${step} .v5-card-item`).forEach(c => c.classList.remove('selected'));
+        el.classList.add('selected');
+    }
+
+    function nextStep(s) {
+        const active = document.querySelector('.wizard-block.active');
+        gsap.to(active, { opacity: 0, y: -20, duration: 0.3, onComplete: () => {
+            active.classList.add('d-none');
+            active.classList.remove('active');
+            const next = document.getElementById('step-' + s);
             next.classList.remove('d-none');
             next.classList.add('active');
-            gsap.fromTo(next, { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.4 });
+            gsap.fromTo(next, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3 });
         }});
     }
 
-    function prevWizardStep(s) {
-        nextWizardStep(s); // Logic is same for reverse but we could refine it
-    }
-
     function finishWizard() {
-        document.getElementById('stage-wizard').style.display = 'none';
-        document.getElementById('stage-processing').style.display = 'block';
-        
-        setTimeout(() => {
-            document.getElementById('stage-processing').style.display = 'none';
-            document.getElementById('stage-result').style.display = 'block';
-            initV9Map();
-            gsap.from("#stage-result", { opacity: 0, y: 50, duration: 0.8 });
-        }, 2000);
+        gsap.to("#v5-wizard", { opacity: 0, scale: 0.95, duration: 0.5, onComplete: () => {
+            document.getElementById('v5-wizard').style.display = 'none';
+            document.getElementById('v5-dashboard').style.display = 'block';
+            initMapV5();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }});
     }
 
-    function restartWizard() {
-        document.getElementById('stage-result').style.display = 'none';
-        document.getElementById('stage-wizard').style.display = 'block';
-        nextWizardStep(1);
-    }
-
-    let v9Map;
-    let v9Markers = [];
-    function initV9Map() {
-        if (v9Map) return;
-        v9Map = L.map('v9-map').setView([10.796, 106.524], 14);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(v9Map);
+    let mapV5;
+    let markersV5 = [];
+    function initMapV5() {
+        if (mapV5) return;
+        mapV5 = L.map('map-v5').setView([10.796, 106.524], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapV5);
         const stops = <%- JSON.stringify(journey.stops) %>;
         stops.forEach((stop, i) => {
-            const m = L.marker([stop.lat, stop.lng]).addTo(v9Map).bindPopup(stop.name);
-            v9Markers.push(m);
+            const m = L.marker([stop.lat, stop.lng]).addTo(mapV5).bindPopup(stop.name);
+            markersV5.push(m);
         });
+        const group = new L.featureGroup(markersV5);
+        mapV5.fitBounds(group.getBounds().pad(0.2));
     }
 
     function flyToStop(i) {
-        document.querySelectorAll('.glass-node').forEach(n => n.classList.remove('active'));
+        document.querySelectorAll('.v5-timeline-node').forEach(n => n.classList.remove('active'));
         document.getElementById('node-' + i).classList.add('active');
-        v9Map.flyTo(v9Markers[i].getLatLng(), 16);
-        v9Markers[i].openPopup();
+        mapV5.flyTo(markersV5[i].getLatLng(), 16);
+        markersV5[i].openPopup();
     }
 </script>
