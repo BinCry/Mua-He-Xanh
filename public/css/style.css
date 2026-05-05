@@ -90,16 +90,11 @@ h1, h2, h3, .display-text {
     height: auto !important;
 }
 
-.nav-link:hover, .nav-link.active, .nav-link.unfolded {
+.nav-link:hover, .nav-link.active {
     background: var(--color-white);
     color: var(--color-primary) !important;
-    box-shadow: 0 10px 20px rgba(0,0,0,0.05); /* Đổ bóng ẩn hiện */
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05);
     transform: translateY(-1px);
-}
-
-.nav-link.active::after, 
-.nav-link.unfolded::after {
-    display: none; /* Remove old underline */
 }
 
 /* Floating Unfold Menu (Premium Style) */
