@@ -26,6 +26,7 @@ router.all('/api/session', ApiController.session);
 router.all('/api/session/:uuid', ApiController.session);
 router.get('/api/destinations', ApiController.destinations);
 router.post('/api/journey', ApiController.journey);
+router.post('/api/journey/update-stop', ApiController.updateJourneyStop);
 router.post('/api/checkin', ApiController.checkin);
 
 module.exports = router;

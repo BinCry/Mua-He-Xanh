@@ -42,15 +42,26 @@ class Journey extends Model {
         // 2. Get candidates
         const candidates = await Destination.getForJourney(mood, interests, [hub.id]);
 
-        // 3. Filter by season (Làng Mai)
-        const month = new Date().getMonth() + 1;
+        // 3. Smart Filtering: Season + Time of Day
+        const now = new Date();
+        const month = now.getMonth() + 1;
+        const hour = now.getHours();
+        
         let filteredCandidates = candidates.filter(d => {
-            if (d.slug === 'lang-mai-vang') return month === 12 || month === 1;
+            // Seasonal: Mai Vàng only in Spring
+            if (d.slug === 'lang-mai-vang' && !(month === 12 || month === 1 || month === 2)) return false;
+            
+            // Time of day: If late (after 3 PM), prefer temples/nature over crafts
+            if (hour >= 15) {
+                if (d.type === 'craft' && !interests.includes('craft')) return false;
+            }
+            
             return true;
         });
 
-        // 4. Max stops
-        const maxStops = (duration === 'full_day') ? 5 : 3;
+        // 4. Max stops based on duration and remaining time
+        let maxStops = (duration === 'full_day') ? 5 : 3;
+        if (hour >= 16) maxStops = 2; // Late start, fewer stops
 
         // 5. Greedy Nearest-Neighbor
         const selected = [hub];
@@ -110,15 +121,37 @@ class Journey extends Model {
     /** Create preset journey */
     async createPreset(sessionId, theme) {
         let slugs = [];
+        let moodName = "Hành trình";
+        let totalKm = 4.5;
+        let totalMin = 180;
+
         switch (theme) {
+            case 'du-xuan':
+            case 'hoi-xuan':
+                slugs = ['lang-mai-vang', 'cong-vien-van-hoa-lang-le', 'chua-thanh-tam'];
+                moodName = "Du xuân Bình Lợi";
+                totalKm = 5.2;
+                totalMin = 210;
+                break;
+            case 'nguoi-mien-tay':
+                slugs = ['vuon-dua-binh-loi', 'lang-nghe-nhang', 'cong-vien-van-hoa-lang-le'];
+                moodName = "Một ngày làm người miền Tây";
+                totalKm = 3.8;
+                totalMin = 240;
+                break;
+            case 'tri-an-lich-su':
+                slugs = ['cong-vien-van-hoa-lang-le', 'chua-phap-tang', 'chua-thanh-tam'];
+                moodName = "Hành trình tri ân lịch sử";
+                totalKm = 4.2;
+                totalMin = 180;
+                break;
             case 'an-nhien':
                 slugs = ['chua-thanh-tam', 'vuon-dua-binh-loi', 'cong-vien-van-hoa-lang-le'];
+                moodName = "Hành trình An nhiên";
                 break;
             case 'lang-nghe':
                 slugs = ['lang-nghe-nhang', 'lang-mai-vang', 'chua-phap-tang'];
-                break;
-            case 'hoi-xuan':
-                slugs = ['lang-mai-vang', 'cong-vien-van-hoa-lang-le', 'chua-thanh-tam'];
+                moodName = "Khám phá Làng nghề";
                 break;
             default:
                 throw new Error("Theme invalid");
@@ -137,11 +170,11 @@ class Journey extends Model {
 
         const journeyId = await this.create({
             session_id: sessionId,
-            mood: theme,
+            mood: moodName,
             duration: 'full_day',
             interests: JSON.stringify({ preset: theme }),
-            total_km: 4.5,
-            total_minutes: 180,
+            total_km: totalKm,
+            total_minutes: totalMin,
             status: 'active',
         });
 

@@ -79,6 +79,22 @@ class ApiController {
         }
     }
 
+    async updateJourneyStop(req, res) {
+        const { journeyId, destinationId, action, order } = req.body;
+        const JourneyStop = require('../models/JourneyStop');
+        
+        try {
+            if (action === 'remove') {
+                await JourneyStop.remove(journeyId, destinationId);
+            } else if (action === 'reorder') {
+                await JourneyStop.updateOrder(journeyId, destinationId, order);
+            }
+            res.json({ success: true });
+        } catch (e) {
+            res.status(500).json({ success: false, message: e.message });
+        }
+    }
+
     // --- CHECK-IN API ---
     async checkin(req, res) {
         if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed' });

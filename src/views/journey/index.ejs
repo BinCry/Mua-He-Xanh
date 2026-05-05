@@ -68,8 +68,8 @@ let duration = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sáng/
                                     <img src="<%= fixImg(stop.cover_image) %>" 
                                          class="w-100 h-100 object-fit-cover" style="min-height: 220px;" alt="<%= stop.name %>">
                                     <div class="position-absolute top-0 start-0 m-3 d-flex gap-1">
-                                        <button class="btn btn-white btn-sm rounded-circle shadow-sm" title="Di chuyển lên"><i class="bi bi-arrow-up-short"></i></button>
-                                        <button class="btn btn-white btn-sm rounded-circle shadow-sm" title="Xóa"><i class="bi bi-x-short"></i></button>
+                                        <button class="btn btn-white btn-sm rounded-circle shadow-sm" onclick="updateStop('<%= journey.id %>', '<%= stop.destination_id %>', 'reorder', <%= index - 1 %>)" title="Di chuyển lên" <%= index === 0 ? 'disabled' : '' %>><i class="bi bi-arrow-up-short"></i></button>
+                                        <button class="btn btn-white btn-sm rounded-circle shadow-sm" onclick="updateStop('<%= journey.id %>', '<%= stop.destination_id %>', 'remove')" title="Xóa"><i class="bi bi-x-short"></i></button>
                                     </div>
                                 </div>
                                 <div class="col-md-8">
@@ -79,7 +79,7 @@ let duration = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sáng/
                                             <span class="text-muted small"><i class="bi bi-alarm"></i> <%= 8 + index %>:30 - <%= 9 + index %>:30</span>
                                         </div>
                                         <h4 class="fw-bold mb-2"><%= stop.name %></h4>
-                                        <div class="d-flex gap-2 mb-3">
+                                        <div class="d-flex gap-2 mb-3 flex-wrap">
                                             <span class="badge bg-light text-dark fw-normal border"><i class="bi bi-camera me-1"></i> Check-in</span>
                                             <% if(stop.type == 'craft') { %>
                                                 <span class="badge bg-light text-dark fw-normal border"><i class="bi bi-hammer me-1"></i> Workshop</span>
@@ -88,6 +88,7 @@ let duration = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sáng/
                                             <% } else { %>
                                                 <span class="badge bg-light text-dark fw-normal border"><i class="bi bi-eye me-1"></i> Tham quan</span>
                                             <% } %>
+                                            <span class="badge bg-soft-secondary text-dark fw-normal border"><i class="bi bi-bicycle me-1"></i> Gợi ý: Xe đạp / Đi bộ</span>
                                         </div>
                                         <p class="text-muted small mb-4 line-clamp-2"><%= stop.story %></p>
                                         
@@ -106,7 +107,7 @@ let duration = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sáng/
                                 <i class="bi bi-cup-hot fs-2 text-secondary"></i>
                             </div>
                             <div>
-                                <h6 class="fw-bold mb-1">Gợi ý nghỉ chân: Quán Nước Ven Kênh</h6>
+                                <h6 class="fw-bold mb-1">Gợi ý nghỉ chân & Ăn nhẹ</h6>
                                 <p class="small text-muted mb-0">Thưởng thức nước dừa tươi Bình Lợi và nghỉ ngơi 15 phút trước khi tiếp tục hành trình.</p>
                             </div>
                             <button class="btn btn-secondary btn-sm ms-auto rounded-pill px-3">Ghé ngay</button>
@@ -119,7 +120,7 @@ let duration = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sáng/
             
             <div class="text-center mt-4">
                 <div class="p-4 bg-light rounded-4 border border-dashed">
-                    <p class="mb-0 text-muted">Bạn đã hoàn thành lộ trình? Hãy chia sẻ cảm nhận của mình nhé!</p>
+                    <p class="mb-0 text-muted">Hệ thống tự động tính toán lộ trình tối ưu dựa trên vị trí các điểm đến.</p>
                 </div>
             </div>
         </div>
@@ -154,19 +155,33 @@ let duration = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sáng/
                         <span class="text-muted small">Mức độ vận động</span>
                         <span class="fw-bold small text-success">Nhẹ nhàng</span>
                     </div>
+                    <div class="d-grid mt-3">
+                        <% 
+                        let mapUrl = "https://www.google.com/maps/dir/";
+                        stops.forEach(s => {
+                            mapUrl += `${s.lat},${s.lng}/`;
+                        });
+                        %>
+                        <a href="<%= mapUrl %>" target="_blank" class="btn btn-primary-bl w-100 rounded-pill">
+                            <i class="bi bi-geo-alt-fill me-1"></i> Chỉ đường thực tế (Maps)
+                        </a>
+                    </div>
                     <hr>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-bl btn-sm w-100 rounded-pill" onclick="alert('Đã lưu hành trình!')"><i class="bi bi-heart me-1"></i> Lưu</button>
-                        <button class="btn btn-outline-bl btn-sm w-100 rounded-pill" onclick="alert('Link chia sẻ: ' + window.location.href)"><i class="bi bi-share me-1"></i> Chia sẻ</button>
+                        <button class="btn btn-outline-bl btn-sm w-100 rounded-pill" onclick="alert('Đã lưu hành trình vào mục yêu thích!')"><i class="bi bi-heart me-1"></i> Lưu</button>
+                        <button class="btn btn-outline-bl btn-sm w-100 rounded-pill" onclick="shareJourney()"><i class="bi bi-share me-1"></i> Chia sẻ</button>
                     </div>
                 </div>
 
                 <div class="card-bl p-4 border-0 shadow-sm bg-light">
-                    <h6 class="fw-bold mb-3">Hành trình gợi ý khác</h6>
+                    <h6 class="fw-bold mb-3">Hành trình gợi ý theo chủ đề</h6>
                     <div class="list-group list-group-flush bg-transparent">
-                        <a href="<%= baseUrl %>/journey/preset/an-nhien" class="list-group-item list-group-item-action bg-transparent px-0 small border-0 py-2 text-primary">Tuyến An Nhiên</a>
-                        <a href="<%= baseUrl %>/journey/preset/lang-nghe" class="list-group-item list-group-item-action bg-transparent px-0 small border-0 py-2 text-primary">Khám Phá Làng Nghề</a>
-                        <a href="<%= baseUrl %>/journey/preset/hoi-xuan" class="list-group-item list-group-item-action bg-transparent px-0 small border-0 py-2 text-primary">Tuyến Hội Xuân</a>
+                        <a href="<%= baseUrl %>/journey/preset/du-xuan" class="list-group-item list-group-item-action bg-transparent px-0 small border-0 py-2 text-primary fw-bold">🌸 Du xuân Bình Lợi</a>
+                        <a href="<%= baseUrl %>/journey/preset/nguoi-mien-tay" class="list-group-item list-group-item-action bg-transparent px-0 small border-0 py-2 text-primary fw-bold">🥥 Một ngày làm người miền Tây</a>
+                        <a href="<%= baseUrl %>/journey/preset/tri-an-lich-su" class="list-group-item list-group-item-action bg-transparent px-0 small border-0 py-2 text-primary fw-bold">🎖️ Hành trình tri ân lịch sử</a>
+                        <hr class="my-2">
+                        <a href="<%= baseUrl %>/journey/preset/an-nhien" class="list-group-item list-group-item-action bg-transparent px-0 small border-0 py-1 text-muted">Tuyến An Nhiên</a>
+                        <a href="<%= baseUrl %>/journey/preset/lang-nghe" class="list-group-item list-group-item-action bg-transparent px-0 small border-0 py-1 text-muted">Khám Phá Làng Nghề</a>
                     </div>
                 </div>
             </div>
@@ -231,3 +246,40 @@ let duration = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sáng/
     .marker-dot { width: 18px; height: 18px; border-width: 4px; }
 }
 </style>
+
+<script>
+async function updateStop(journeyId, destinationId, action, order = 0) {
+    try {
+        const response = await fetch('<%= baseUrl %>/api/journey/update-stop', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ journeyId, destinationId, action, order })
+        });
+        const result = await response.json();
+        if (result.success) {
+            window.location.reload();
+        } else {
+            alert('Lỗi: ' + result.message);
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Không thể kết nối máy chủ');
+    }
+}
+
+function shareJourney() {
+    const url = window.location.href;
+    const text = "Khám phá hành trình <%= mood %> tại Bình Lợi Healing!";
+    if (navigator.share) {
+        navigator.share({ title: 'Bình Lợi Healing', text: text, url: url });
+    } else {
+        const tempInput = document.createElement('input');
+        document.body.appendChild(tempInput);
+        tempInput.value = url;
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        alert('Đã copy link hành trình!');
+    }
+}
+</script>
