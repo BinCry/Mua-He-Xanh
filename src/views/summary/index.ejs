@@ -1,10 +1,18 @@
 <section class="site-section">
     <div class="container-site">
         <div class="text-center mb-5 animate__animated animate__fadeIn">
-            <span class="text-primary fw-bold mb-2 d-block">🏆 KẾT QUẢ HÀNH TRÌNH</span>
-            <h2 class="display-text">Huy hiệu & Thành tựu</h2>
-            <p class="text-muted mx-auto" style="max-width: 600px;">Chúc mừng bạn đã hoàn thành một phần hành trình khám phá "Hồn quê giữa nhịp sống mới" tại Bình Lợi.</p>
+            <span class="text-primary fw-bold mb-2 d-block">📘 PASSPORT DU LỊCH BÌNH LỢI</span>
+            <h2 class="display-text">Dấu ấn hành trình</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Đây là cuốn hộ chiếu số ghi lại mọi điểm đến và thành tựu của bạn tại "Miền Tây giữa lòng Sài Gòn".</p>
         </div>
+        
+        <% if (unlockedBadges.length >= 3) { %>
+            <div class="card-bl p-4 border-primary border-2 mb-5 text-center bg-light animate__animated animate__tada">
+                <div class="h1 mb-2">🎖️</div>
+                <h4 class="fw-bold text-primary">Chứng nhận Chiến sĩ quảng bá du lịch Bình Lợi</h4>
+                <p class="text-muted small mb-0">Bạn đã xuất sắc thu thập đủ dấu ấn hành trình và trở thành đại sứ văn hóa của địa phương!</p>
+            </div>
+        <% } %>
 
         <!-- Stats Overview -->
         <div class="row g-4 mb-5">
