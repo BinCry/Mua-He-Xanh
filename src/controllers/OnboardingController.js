@@ -1,7 +1,7 @@
 class OnboardingController {
-    async index(req, res) {
-        res.render('onboarding/index', {
-            title: 'Bạn đang cảm thấy thế nào?'
+    static index(req, res) {
+        res.render('onboarding/wizard', {
+            title: 'Khởi tạo hành trình'
         });
     }
 }

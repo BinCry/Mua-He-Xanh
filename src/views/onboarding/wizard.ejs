@@ -1,0 +1,155 @@
+<section class="onboarding-wizard">
+    <div class="container-site py-5">
+        <div id="onboardingWizard" class="row justify-content-center">
+            <div class="col-lg-10">
+                <form id="onboardingForm">
+                    
+                    <!-- STEP 1: MOOD -->
+                    <div class="wizard-step active" id="step1">
+                        <div class="text-center mb-5">
+                            <span class="step-indicator">Bước 01 / 03</span>
+                            <h2 class="onboarding-title">Hôm nay tâm trạng bạn thế nào?</h2>
+                            <p class="text-muted mx-auto" style="max-width: 500px;">Để Bình Lợi Healing thiết kế một hành trình "chạm" đến cảm xúc của riêng bạn.</p>
+                        </div>
+                        <div class="row g-4 justify-content-center">
+                            <div class="col-md-4">
+                                <div class="mood-card-premium" onclick="selectMood('an-nhien', this)">
+                                    <span class="mood-icon">🌿</span>
+                                    <h5 class="fw-bold mb-2">An nhiên</h5>
+                                    <p class="small text-muted mb-0">Tìm về sự tĩnh lặng qua những ngôi chùa cổ và thiên nhiên xanh.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mood-card-premium" onclick="selectMood('ket-noi', this)">
+                                    <span class="mood-icon">🏺</span>
+                                    <h5 class="fw-bold mb-2">Kết nối</h5>
+                                    <p class="small text-muted mb-0">Trải nghiệm văn hóa, làng nghề và nhịp sống của người dân địa phương.</p>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mood-card-premium" onclick="selectMood('nang-luong', this)">
+                                    <span class="mood-icon">⚡</span>
+                                    <h5 class="fw-bold mb-2">Năng lượng</h5>
+                                    <p class="small text-muted mb-0">Hành trình khám phá sinh thái và các hoạt động sôi nổi.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="mood" id="input-mood" required>
+                    </div>
+
+                    <!-- STEP 2: DURATION -->
+                    <div class="wizard-step" id="step2">
+                        <div class="text-center mb-5">
+                            <span class="step-indicator">Bước 02 / 03</span>
+                            <h2 class="onboarding-title">Bạn có bao nhiêu thời gian?</h2>
+                            <p class="text-muted mx-auto" style="max-width: 500px;">Hãy cho chúng tôi biết thời gian dự kiến để tối ưu lộ trình di chuyển.</p>
+                        </div>
+                        <div class="row g-4 justify-content-center">
+                            <div class="col-md-5">
+                                <div class="mood-card-premium p-5" onclick="selectDuration('half', this)">
+                                    <span class="mood-icon">🌤️</span>
+                                    <h5 class="fw-bold mb-2">Nửa ngày</h5>
+                                    <p class="small text-muted mb-0">Khoảng 3-4 tiếng (Sáng hoặc Chiều).</p>
+                                </div>
+                            </div>
+                            <div class="col-md-5">
+                                <div class="mood-card-premium p-5" onclick="selectDuration('full', this)">
+                                    <span class="mood-icon">🌅</span>
+                                    <h5 class="fw-bold mb-2">Cả ngày</h5>
+                                    <p class="small text-muted mb-0">Trải nghiệm trọn vẹn từ sáng đến hoàng hôn.</p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="duration" id="input-duration" required>
+                        <div class="text-center mt-5">
+                            <button type="button" class="btn btn-link text-muted" onclick="prevStep(1)">Quay lại</button>
+                        </div>
+                    </div>
+
+                    <!-- STEP 3: INTERESTS -->
+                    <div class="wizard-step" id="step3">
+                        <div class="text-center mb-5">
+                            <span class="step-indicator">Bước 03 / 03</span>
+                            <h2 class="onboarding-title">Sở thích đặc biệt của bạn?</h2>
+                            <p class="text-muted mx-auto" style="max-width: 500px;">Chọn những điều bạn không muốn bỏ lỡ trong hành trình này.</p>
+                        </div>
+                        <div class="row g-4 justify-content-center mb-5">
+                            <div class="col-auto">
+                                <input type="checkbox" class="btn-check" id="int_temple" value="temple" checked>
+                                <label class="btn btn-outline-bl btn-pill px-4" for="int_temple">Tâm linh & Di sản</label>
+                            </div>
+                            <div class="col-auto">
+                                <input type="checkbox" class="btn-check" id="int_craft" value="craft" checked>
+                                <label class="btn btn-outline-bl btn-pill px-4" for="int_craft">Làng nghề truyền thống</label>
+                            </div>
+                            <div class="col-auto">
+                                <input type="checkbox" class="btn-check" id="int_nature" value="nature">
+                                <label class="btn btn-outline-bl btn-pill px-4" for="int_nature">Thiên nhiên & Sinh thái</label>
+                            </div>
+                        </div>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary-bl btn-lg px-5 py-3 rounded-pill shadow-lg">KHỞI TẠO HÀNH TRÌNH ✦</button>
+                            <div class="mt-4">
+                                <button type="button" class="btn btn-link text-muted" onclick="prevStep(2)">Quay lại</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+let currentStep = 1;
+
+function selectMood(mood, element) {
+    document.querySelectorAll('#step1 .mood-card-premium').forEach(c => c.classList.remove('selected'));
+    element.classList.add('selected');
+    document.getElementById('input-mood').value = mood;
+    setTimeout(() => nextStep(2), 400);
+}
+
+function selectDuration(dur, element) {
+    document.querySelectorAll('#step2 .mood-card-premium').forEach(c => c.classList.remove('selected'));
+    element.classList.add('selected');
+    document.getElementById('input-duration').value = dur;
+    setTimeout(() => nextStep(3), 400);
+}
+
+function nextStep(step) {
+    document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step' + step).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep(step) {
+    document.querySelectorAll('.wizard-step').forEach(s => s.classList.remove('active'));
+    document.getElementById('step' + step).classList.add('active');
+}
+
+document.getElementById('onboardingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const mood = document.getElementById('input-mood').value;
+    const duration = document.getElementById('input-duration').value;
+    const interests = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+    // Show loading state
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG KHỞI TẠO...';
+    btn.disabled = true;
+
+    axios.post(window.APP_CONFIG.apiUrl + '/session', {
+        mood: mood,
+        duration: duration,
+        interests: interests
+    }).then(res => {
+        window.location.href = window.APP_CONFIG.baseUrl + '/journey';
+    }).catch(err => {
+        alert('Có lỗi xảy ra, vui lòng thử lại.');
+        btn.innerHTML = 'KHỞI TẠO HÀNH TRÌNH ✦';
+        btn.disabled = false;
+    });
+});
+</script>
