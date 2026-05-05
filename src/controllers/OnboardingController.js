@@ -1,7 +1,7 @@
 class OnboardingController {
     static index(req, res) {
-        res.render('onboarding/wizard', {
-            title: 'Khởi tạo hành trình'
+        res.render('onboarding/vibe_tiktok', {
+            title: 'Khám phá Vibe'
         });
     }
 }

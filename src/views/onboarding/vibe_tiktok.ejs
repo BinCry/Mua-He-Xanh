@@ -1,0 +1,154 @@
+<section class="vibe-wizard">
+    <div class="container-site">
+        <form id="onboardingForm">
+            
+            <!-- STEP 1: CHỌN VIBE -->
+            <div class="wizard-step active" id="step1">
+                <h1 class="vibe-title">Hôm nay bạn<br>muốn đi kiểu gì?</h1>
+                <p class="vibe-subtitle">Chọn vibe chuyến đi, không cần suy nghĩ nhiều. (Phiên bản TikTok-Vibe)</p>
+                
+                <div class="vibe-grid">
+                    <div class="vibe-card" onclick="toggleVibe('chill', this)">
+                        <span class="vibe-icon">🌿</span>
+                        <span>Chill nhẹ miệt vườn</span>
+                    </div>
+                    <div class="vibe-card" onclick="toggleVibe('peace', this)">
+                        <span class="vibe-icon">🛕</span>
+                        <span>Bình yên - Đi chùa - Thiền</span>
+                    </div>
+                    <div class="vibe-card" onclick="toggleVibe('culture', this)">
+                        <span class="vibe-icon">🎨</span>
+                        <span>Khám phá văn hóa - Làng nghề</span>
+                    </div>
+                    <div class="vibe-card" onclick="toggleVibe('history', this)">
+                        <span class="vibe-icon">🏛</span>
+                        <span>Đi học mà không chán</span>
+                    </div>
+                    <div class="vibe-card" onclick="toggleVibe('family', this)">
+                        <span class="vibe-icon">🎉</span>
+                        <span>Đi chơi cùng bạn bè / gia đình</span>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="moods" id="input-moods">
+                
+                <button type="button" class="onboarding-btn-next mt-4" onclick="nextStep(2)">TIẾP TỤC ➔</button>
+            </div>
+
+            <!-- STEP 2: THỜI GIAN -->
+            <div class="wizard-step" id="step2">
+                <h1 class="vibe-title">Bạn có bao nhiêu<br>thời gian?</h1>
+                <p class="vibe-subtitle">Để chúng tôi tối ưu lộ trình cho bạn.</p>
+                
+                <div class="vibe-grid">
+                    <div class="vibe-card" onclick="selectDuration('3h', this)">
+                        <span class="vibe-icon">⏳</span>
+                        <span>3-4 tiếng (đi nhanh)</span>
+                    </div>
+                    <div class="vibe-card" onclick="selectDuration('1d', this)">
+                        <span class="vibe-icon">🌤</span>
+                        <span>1 ngày (trọn vẹn)</span>
+                    </div>
+                    <div class="vibe-card" onclick="selectDuration('custom', this)">
+                        <span class="vibe-icon">⚙️</span>
+                        <span>Tự chọn (custom)</span>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="duration" id="input-duration">
+                
+                <div class="text-center mt-5">
+                    <button type="button" class="btn btn-link text-white opacity-50" onclick="prevStep(1)">← QUAY LẠI</button>
+                </div>
+            </div>
+
+            <!-- STEP 3: KHI NÀO -->
+            <div class="wizard-step" id="step3">
+                <h1 class="vibe-title">Dự định đi<br>khi nào?</h1>
+                <p class="vibe-subtitle">Chọn thời điểm khởi hành.</p>
+                
+                <div class="vibe-grid">
+                    <div class="vibe-card" onclick="selectWhen('now', this)">
+                        <span class="vibe-icon">📍</span>
+                        <span>Ngay bây giờ</span>
+                    </div>
+                    <div class="vibe-card" onclick="selectWhen('weekend', this)">
+                        <span class="vibe-icon">📅</span>
+                        <span>Cuối tuần</span>
+                    </div>
+                    <div class="vibe-card" onclick="selectWhen('season', this)">
+                        <span class="vibe-icon">🌸</span>
+                        <span>Theo mùa</span>
+                    </div>
+                </div>
+                
+                <input type="hidden" name="when" id="input-when">
+
+                <div class="text-center mt-5">
+                    <button type="submit" class="onboarding-btn-next shadow-lg" style="background: var(--color-primary); color: white;">
+                        ✨ GỢI Ý HÀNH TRÌNH CHO BẠN
+                    </button>
+                    <button type="button" class="btn btn-link text-white opacity-50 d-block mx-auto mt-3" onclick="prevStep(2)">← QUAY LẠI</button>
+                </div>
+            </div>
+
+        </form>
+    </div>
+</section>
+
+<script>
+let selectedVibes = [];
+
+function toggleVibe(vibe, el) {
+    if (selectedVibes.includes(vibe)) {
+        selectedVibes = selectedVibes.filter(v => v !== vibe);
+        el.classList.remove('selected');
+    } else {
+        selectedVibes.push(vibe);
+        el.classList.add('selected');
+    }
+    document.getElementById('input-moods').value = selectedVibes.join(',');
+}
+
+function selectDuration(dur, el) {
+    document.querySelectorAll('#step2 .vibe-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('input-duration').value = dur;
+    setTimeout(() => nextStep(3), 400);
+}
+
+function selectWhen(when, el) {
+    document.querySelectorAll('#step3 .vibe-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    document.getElementById('input-when').value = when;
+}
+
+function nextStep(s) {
+    document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
+    document.getElementById('step' + s).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function prevStep(s) {
+    nextStep(s);
+}
+
+document.getElementById('onboardingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('button[type="submit"]');
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG TÌM HÀNH TRÌNH...';
+    btn.disabled = true;
+
+    axios.post(window.APP_CONFIG.apiUrl + '/session', {
+        moods: document.getElementById('input-moods').value,
+        duration: document.getElementById('input-duration').value,
+        when: document.getElementById('input-when').value
+    }).then(res => {
+        window.location.href = window.APP_CONFIG.baseUrl + '/journey';
+    }).catch(err => {
+        alert('Lỗi khởi tạo.');
+        btn.innerHTML = '✨ GỢI Ý HÀNH TRÌNH CHO BẠN';
+        btn.disabled = false;
+    });
+});
+</script>
