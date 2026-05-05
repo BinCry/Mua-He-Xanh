@@ -6,11 +6,22 @@ class ManagerController {
     async index(req, res) {
         try {
             const user = req.session.user;
-            if (!user || user.role !== 'manager' || !user.managed_destination_id) {
-                return res.redirect('/auth/login?error=Bạn không có quyền truy cập khu vực này');
+            let destId = user.managed_destination_id;
+            
+            // Admin can override destId via query
+            if (user.role === 'admin' && req.query.dest_id) {
+                destId = req.query.dest_id;
             }
 
-            const dest = await Destination.findById(user.managed_destination_id);
+            if (!destId) {
+                if (user.role === 'admin') {
+                    const allDests = await Destination.findAll();
+                    return res.render('manager/admin_list', { title: 'Quản trị hệ thống', allDests });
+                }
+                return res.redirect('/auth/login?error=Bạn không có quyền quản lý địa điểm nào');
+            }
+
+            const dest = await Destination.findById(destId);
             if (!dest) return res.status(404).send("Địa điểm không tồn tại");
 
             // Get stats

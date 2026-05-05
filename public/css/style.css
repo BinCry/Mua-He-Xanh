@@ -66,23 +66,20 @@ h1, h2, h3, h4, h5, h6, .display-text {
    PHU QUOC STYLE PORTAL HEADER
    ========================================================================== */
 .navbar-bl {
-    height: 70px;
+    height: 85px;
     background: #fff !important;
     border-bottom: 2px solid #eee;
     padding: 0 !important;
-    box-shadow: none !important;
+    position: sticky;
+    top: 0;
+    z-index: 2000;
 }
 
-.navbar-bl .container-site {
-    height: 100%;
-}
-
-.navbar-brand {
-    padding-right: 30px;
-    border-right: 1px solid #eee;
-    height: 100%;
-    display: flex;
-    align-items: center;
+.navbar-brand img {
+    height: 55px; /* Fixed height to prevent exploding */
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
 }
 
 .navbar-nav {
