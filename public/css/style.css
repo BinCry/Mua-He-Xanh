@@ -300,8 +300,18 @@ h1, h2, h3, .display-text {
 }
 
 .card-bl-desc {
-    font-size: 0.9rem; color: var(--color-text-light);
-    line-height: 1.7; font-weight: 400;
+    margin-bottom: 20px;
+    color: var(--color-primary-dark);
+}
+
+.step-indicator {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    color: var(--color-primary);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    display: block;
 }
 
 /* ==========================================================================
