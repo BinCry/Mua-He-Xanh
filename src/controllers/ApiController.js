@@ -182,6 +182,8 @@ class ApiController {
                 highlight: dest.highlight
             }
         });
+    }
+
     // --- CHAT API ---
     async sendMessage(req, res) {
         const { destinationId, message } = req.body;
