@@ -1,107 +1,77 @@
-<!-- PREMIUM JOURNEY EXPERIENCE V8 - NO SUPERFICIALITY -->
+<!-- THE ULTIMATE CONSOLIDATED JOURNEY - PHIÊN BẢN HOÀN THIỆN -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
-<div id="premium-journey-engine" class="bg-white">
+<div id="journey-master-v5" class="bg-white min-vh-100">
 
-    <!-- SCREEN 1: VIBE SELECTOR (SPOTIFY STYLE) -->
-    <section id="v8-vibe-selector" class="py-5 animate__animated animate__fadeIn">
-        <div class="container-site">
-            <div class="text-center mb-5">
-                <h1 class="display-3 fw-black mb-2">Bạn muốn đi kiểu gì?</h1>
-                <p class="lead text-muted">Hôm nay tâm trạng bạn thế nào? Hãy chọn vibe của mình.</p>
-            </div>
+    <!-- STEP 1: VIBE SELECTOR (SPOTIFY STYLE) -->
+    <section id="screen-vibe" class="py-5 animate__animated animate__fadeIn">
+        <div class="container-site text-center">
+            <h1 class="v4-vibe-title display-4 fw-black">Hôm nay bạn<br>muốn đi kiểu gì?</h1>
+            <p class="v4-vibe-subtitle mb-5">Chọn vibe chuyến đi, không cần suy nghĩ nhiều. ✨</p>
             
             <div class="row g-4 justify-content-center">
-                <div class="col-md-4 col-lg-3">
-                    <div class="vibe-card-premium p-4 text-white" onclick="selectVibe('chill', this)" style="background: linear-gradient(135deg, #0d9488, #14b8a6);">
-                        <h3 class="fw-black">🌿 Chill nhẹ</h3>
-                        <p class="small opacity-75">Miệt vườn xanh mát</p>
-                        <img src="<%= baseUrl %>/images/hero-1.png">
+                <div class="col-6 col-md-3">
+                    <div class="v5-vibe-card p-4" onclick="toggleVibe('chill', this)">
+                        <div class="vibe-icon display-4">🌿</div>
+                        <div class="fw-black mt-3">Chill nhẹ</div>
                     </div>
                 </div>
-                <div class="col-md-4 col-lg-3">
-                    <div class="vibe-card-premium p-4 text-white" onclick="selectVibe('peace', this)" style="background: linear-gradient(135deg, #6366f1, #818cf8);">
-                        <h3 class="fw-black">🛕 Bình yên</h3>
-                        <p class="small opacity-75">Đi chùa - Thiền</p>
-                        <img src="<%= baseUrl %>/images/hero-2.png" style="transform: rotate(-15deg);">
+                <div class="col-6 col-md-3">
+                    <div class="v5-vibe-card p-4" onclick="toggleVibe('peace', this)">
+                        <div class="vibe-icon display-4">🛕</div>
+                        <div class="fw-black mt-3">Bình yên</div>
                     </div>
                 </div>
                 <!-- ... other vibes ... -->
             </div>
-            
-            <div class="text-center mt-5">
-                <button class="btn btn-premium btn-primary-bl shadow-lg px-5 py-3" onclick="showSwipeSuggestions()">TIẾP TỤC ➔</button>
+            <div class="mt-5">
+                <button class="btn btn-primary-bl btn-pill px-5 py-3 fs-5" onclick="goToSwipe()">TIẾP TỤC ➔</button>
             </div>
         </div>
     </section>
 
-    <!-- SCREEN 2: TIKTOK SWIPE SUGGESTIONS -->
-    <section id="v8-swipe-suggestions" style="display: none;" class="py-5 animate__animated animate__slideInRight">
+    <!-- STEP 2: TIKTOK SWIPE SUGGESTIONS -->
+    <section id="screen-swipe" style="display: none;" class="py-5 animate__animated animate__slideInRight">
         <div class="container-site text-center">
-            <h2 class="display-4 fw-black mb-5">Gợi ý dành riêng bạn ✨</h2>
-            
-            <div class="swiper swiper-journey">
+            <h2 class="display-5 fw-black mb-5">Hành trình gợi ý ✨</h2>
+            <div class="swiper swiper-journey mx-auto" style="max-width: 400px;">
                 <div class="swiper-wrapper">
-                    <!-- Slide 1 -->
-                    <div class="swiper-slide">
-                        <div class="h-100 d-flex flex-column">
-                            <img src="<%= baseUrl %>/images/hero-1.png" class="w-100 h-50 object-fit-cover">
-                            <div class="p-4 bg-white flex-grow-1 text-start">
-                                <span class="badge bg-primary-soft text-primary mb-2">98% PHÙ HỢP</span>
-                                <h3 class="fw-black mb-3">Một ngày miền Tây giữa phố</h3>
-                                <div class="d-flex gap-3 small fw-bold text-muted mb-4">
-                                    <span>⏱ 6H</span>
-                                    <span>🛵 XE MÁY</span>
-                                </div>
-                                <button class="btn btn-primary-bl w-100 py-3 rounded-pill fw-black" onclick="showFullRoute()">XEM CHI TIẾT</button>
-                            </div>
+                    <div class="swiper-slide card-bl border-0 shadow-lg">
+                        <img src="<%= baseUrl %>/images/hero-1.png" class="w-100 h-50 object-fit-cover">
+                        <div class="p-4 text-start">
+                            <h4 class="fw-black">Một ngày miền Tây giữa phố</h4>
+                            <p class="small text-muted mb-4">6 tiếng | 🛵 Xe máy | 98% Phù hợp</p>
+                            <button class="btn btn-primary-bl w-100 py-3 rounded-pill fw-black" onclick="goToOverview()">CHỌN LỘ TRÌNH NÀY</button>
                         </div>
                     </div>
-                    <!-- Slide 2 -->
-                    <div class="swiper-slide">
-                        <div class="h-100 d-flex flex-column">
-                            <img src="<%= baseUrl %>/images/hero-2.png" class="w-100 h-50 object-fit-cover">
-                            <div class="p-4 bg-white flex-grow-1 text-start">
-                                <span class="badge bg-info-soft text-info mb-2">85% PHÙ HỢP</span>
-                                <h3 class="fw-black mb-3">Hành trình tâm linh</h3>
-                                <div class="d-flex gap-3 small fw-bold text-muted mb-4">
-                                    <span>⏱ 4H</span>
-                                    <span>🚗 Ô TÔ</span>
-                                </div>
-                                <button class="btn btn-primary-bl w-100 py-3 rounded-pill fw-black" onclick="showFullRoute()">XEM CHI TIẾT</button>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Slide 2 ... -->
                 </div>
-                <!-- Add Pagination -->
-                <div class="swiper-pagination"></div>
+                <div class="swiper-pagination mt-4"></div>
             </div>
+            <button class="btn btn-link mt-4 text-muted" onclick="backToVibe()">← Quay lại chọn vibe</button>
         </div>
     </section>
 
-    <!-- SCREEN 3: INTERACTIVE ROUTE DASHBOARD -->
-    <section id="v8-route-dashboard" style="display: none;" class="animate__animated animate__fadeIn">
-        <!-- ROUTE TIMELINE BAR (GLASS NODES) -->
-        <div class="route-timeline-glass sticky-top py-4 border-bottom bg-white bg-opacity-75" style="top: 80px; z-index: 1000; backdrop-filter: blur(15px);">
+    <!-- STEP 3: ROUTE OVERVIEW (MAP + TIMELINE BAR) -->
+    <section id="screen-overview" style="display: none;" class="animate__animated animate__fadeIn">
+        <!-- THE FAMOUS ROUTE TIMELINE BAR -->
+        <div class="route-timeline-v5 py-4 border-bottom sticky-top bg-white shadow-sm" style="top: 85px; z-index: 1000;">
             <div class="container-site">
                 <div class="d-flex align-items-center justify-content-between position-relative px-5">
-                    <div class="position-absolute start-0 end-0" style="height: 4px; background: #e2e8f0; top: 25px; z-index: 1; margin: 0 80px;"></div>
-                    <div class="progress-line position-absolute start-0 bg-primary" style="height: 4px; top: 25px; z-index: 2; margin-left: 80px; width: 0%; transition: width 0.5s ease;"></div>
-                    
+                    <div class="position-absolute start-0 end-0 bg-light" style="height: 4px; top: 50%; transform: translateY(-50%); margin: 0 60px;"></div>
                     <% journey.stops.forEach((stop, index) => { %>
-                    <div class="text-center" style="z-index: 10; cursor: pointer;" onclick="focusStop(<%= index %>)">
-                        <div class="glass-node <%= index === 0 ? 'active' : '' %> mx-auto" id="node-<%= index %>">
-                            <i class="bi bi-geo-alt-fill"></i>
+                        <div class="text-center position-relative" style="z-index: 5;" onclick="focusOnMap(<%= index %>)">
+                            <div class="glass-node <%= index === 0 ? 'active' : '' %> mx-auto" id="node-<%= index %>">
+                                <i class="bi bi-geo-alt-fill"></i>
+                            </div>
+                            <div class="fw-black mt-2" style="font-size: 9px;"><%= stop.name %></div>
                         </div>
-                        <div class="fw-black mt-2" style="font-size: 10px; text-transform: uppercase;"><%= stop.name %></div>
-                    </div>
                     <% }) %>
                 </div>
             </div>
@@ -110,26 +80,26 @@
         <div class="container-site py-5">
             <div class="row g-4">
                 <div class="col-lg-8">
-                    <div id="v8-map" class="shadow-premium rounded-5 overflow-hidden border" style="height: 500px;"></div>
+                    <div id="v5-map" class="rounded-5 shadow-xl border overflow-hidden" style="height: 500px;"></div>
                     
+                    <!-- TIMELINE LIST -->
                     <div class="mt-5">
                         <div class="d-flex justify-content-between align-items-center mb-4">
-                            <h2 class="fw-black">Timeline Hành trình</h2>
-                            <button class="btn btn-light rounded-pill px-4 fw-bold" onclick="toggleEditMode()">TÙY CHỈNH 🎨</button>
+                            <h2 class="fw-black">Chi tiết hành trình</h2>
+                            <button class="btn btn-outline-primary rounded-pill px-4" onclick="enableEdit()"><i class="bi bi-sliders me-2"></i>TÙY CHỈNH</button>
                         </div>
-                        <div id="v8-timeline-list">
+                        <div id="v5-timeline-list">
                             <% journey.stops.forEach((stop, index) => { %>
                             <div class="journey-item-v5 mb-3" data-id="<%= stop.destination_id %>">
-                                <div class="glass-card p-4 d-flex align-items-center gap-4 border-0">
+                                <div class="card-bl p-4 d-flex align-items-center gap-4">
                                     <div class="handle d-none me-2"><i class="bi bi-grip-vertical fs-3"></i></div>
-                                    <div class="fw-black display-6 text-primary opacity-25">0<%= index + 1 %></div>
+                                    <div class="display-6 fw-black text-primary opacity-25">0<%= index + 1 %></div>
                                     <div class="flex-grow-1">
-                                        <h4 class="fw-black mb-1"><%= stop.name %></h4>
+                                        <h5 class="fw-black mb-1"><%= stop.name %></h5>
                                         <p class="small text-muted mb-0"><%= stop.short_desc %></p>
                                     </div>
                                     <div class="d-flex gap-2">
-                                        <button class="btn btn-light rounded-circle"><i class="bi bi-chat-dots"></i></button>
-                                        <button class="btn btn-light rounded-circle text-danger d-none btn-remove"><i class="bi bi-trash"></i></button>
+                                        <button class="btn btn-light rounded-circle text-danger d-none btn-remove" onclick="removePoint(this)"><i class="bi bi-trash"></i></button>
                                     </div>
                                 </div>
                             </div>
@@ -140,14 +110,11 @@
 
                 <div class="col-lg-4">
                     <div class="sticky-top" style="top: 180px;">
-                        <div class="glass-card p-5 bg-dark text-white text-center">
-                            <h2 class="fw-black mb-3">Sẵn sàng đi?</h2>
-                            <p class="small opacity-50 mb-5">Hành trình đã được tối ưu cho Xe Máy.</p>
-                            <button class="btn btn-premium btn-primary-bl w-100 py-4 fs-4 fw-black mb-4" onclick="launchJourney()">BẮT ĐẦU NGAY 🚀</button>
-                            <div class="d-flex justify-content-around small fw-bold opacity-75">
-                                <span><i class="bi bi-clock me-1"></i> 6 TIẾNG</span>
-                                <span><i class="bi bi-geo me-1"></i> 12.5 KM</span>
-                            </div>
+                        <div class="card-bl p-5 bg-dark text-white text-center shadow-2xl">
+                            <h3 class="fw-black mb-3">Sẵn sàng chưa?</h3>
+                            <p class="small opacity-50 mb-5">Hành trình dự kiến 6 giờ di chuyển.</p>
+                            <button class="btn btn-primary-bl w-100 py-4 fs-4 fw-black rounded-pill mb-4" onclick="launchJourney()">BẮT ĐẦU NGAY 🚀</button>
+                            <button class="btn btn-outline-light w-100 py-3 rounded-pill fw-bold" onclick="alert('Đã lưu hành trình!')">💾 LƯU LẠI</button>
                         </div>
                     </div>
                 </div>
@@ -158,36 +125,30 @@
 </div>
 
 <script>
-    let v8Swiper;
-    let v8Map;
-    let v8Markers = [];
+    let v5Swiper;
+    let v5Map;
+    let v5Markers = [];
 
-    function selectVibe(vibe, el) {
-        document.querySelectorAll('.vibe-card-premium').forEach(c => c.classList.remove('border-primary', 'border-4'));
-        el.classList.add('border-primary', 'border-4');
-    }
-
-    function showSwipeSuggestions() {
-        document.getElementById('v8-vibe-selector').style.display = 'none';
-        document.getElementById('v8-swipe-suggestions').style.display = 'block';
-        
-        v8Swiper = new Swiper('.swiper-journey', {
-            effect: 'cards',
-            grabCursor: true,
-            pagination: { el: '.swiper-pagination' },
+    function goToSwipe() {
+        document.getElementById('screen-vibe').style.display = 'none';
+        document.getElementById('screen-swipe').style.display = 'block';
+        v5Swiper = new Swiper('.swiper-journey', {
+            effect: 'cards', grabCursor: true, pagination: { el: '.swiper-pagination' }
         });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function showFullRoute() {
-        document.getElementById('v8-swipe-suggestions').style.display = 'none';
-        document.getElementById('v8-route-dashboard').style.display = 'block';
-        setTimeout(initV8Map, 400);
+    function goToOverview() {
+        document.getElementById('screen-swipe').style.display = 'none';
+        document.getElementById('screen-overview').style.display = 'block';
+        setTimeout(initV5Map, 300);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function initV8Map() {
-        if (v8Map) return;
-        v8Map = L.map('v8-map').setView([10.796, 106.524], 14);
-        L.tileLayer('https://{s}.tile.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(v8Map);
+    function initV5Map() {
+        if (v5Map) return;
+        v5Map = L.map('v5-map').setView([10.796, 106.524], 14);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(v5Map);
 
         const stops = <%- JSON.stringify(journey.stops) %>;
         const coords = [];
@@ -195,31 +156,38 @@
         stops.forEach((stop, i) => {
             if(stop.lat && stop.lng) {
                 coords.push([stop.lat, stop.lng]);
-                const marker = L.marker([stop.lat, stop.lng]).addTo(v8Map);
-                v8Markers.push(marker);
+                const marker = L.marker([stop.lat, stop.lng]).addTo(v5Map).bindPopup(`<b>${stop.name}</b>`);
+                v5Markers.push(marker);
             }
         });
 
         if (coords.length > 1) {
-            L.polyline(coords, { color: '#0d9488', weight: 5, dashArray: '10, 10', opacity: 0.8 }).addTo(v8Map);
-            v8Map.fitBounds(L.latLngBounds(coords).pad(0.2));
+            L.polyline(coords, { color: '#0d9488', weight: 4, dashArray: '10, 10' }).addTo(v5Map);
+            v5Map.fitBounds(L.latLngBounds(coords).pad(0.2));
         }
     }
 
-    function focusStop(index) {
+    function focusOnMap(index) {
         document.querySelectorAll('.glass-node').forEach(n => n.classList.remove('active'));
         document.getElementById('node-' + index).classList.add('active');
-        v8Map.setView(v8Markers[index].getLatLng(), 16);
+        v5Map.setView(v5Markers[index].getLatLng(), 16);
+        v5Markers[index].openPopup();
     }
 
-    function toggleEditMode() {
-        document.querySelectorAll('.handle').forEach(h => h.classList.toggle('d-none'));
-        document.querySelectorAll('.btn-remove').forEach(b => b.classList.toggle('d-none'));
-        Sortable.create(document.getElementById('v8-timeline-list'), { handle: '.handle', animation: 200 });
+    function enableEdit() {
+        document.querySelectorAll('.handle').forEach(h => h.classList.remove('d-none'));
+        document.querySelectorAll('.btn-remove').forEach(b => b.classList.remove('d-none'));
+        Sortable.create(document.getElementById('v5-timeline-list'), { handle: '.handle', animation: 200 });
+        alert('🎨 Chế độ tùy chỉnh: Kéo thả để sắp xếp lại điểm đến!');
     }
 
     function launchJourney() {
-        confetti({ particleCount: 200, spread: 80, origin: { y: 0.6 } });
-        alert('🚀 HÀNH TRÌNH CHÍNH THỨC BẮT ĐẦU! GPS ĐÃ ĐƯỢC KÍCH HOẠT.');
+        alert('🚀 HÀNH TRÌNH CHỮA LÀNH BẮT ĐẦU! CHÚC BẠN CÓ TRẢI NGHIỆM TUYỆT VỜI.');
+        window.location.href = '/map';
+    }
+
+    function backToVibe() {
+        document.getElementById('screen-swipe').style.display = 'none';
+        document.getElementById('screen-vibe').style.display = 'block';
     }
 </script>
