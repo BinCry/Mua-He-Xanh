@@ -30,77 +30,132 @@ body {
 }
 
 /* ==========================================================================
-   ROBUST NAVBAR
+   PHU QUOC STYLE PORTAL HEADER (RESTORED)
    ========================================================================== */
 .navbar-bl {
-    height: 75px;
-    background: var(--color-white);
-    border-bottom: 1px solid var(--color-border);
-    padding: 0;
-    transition: var(--transition);
+    height: 85px;
+    background: #fff !important;
+    border-bottom: 2px solid #eee;
+    padding: 0 !important;
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+}
+
+.navbar-bl .container-site {
+    height: 100%;
+}
+
+.navbar-brand {
+    padding-right: 30px;
+    border-right: 1px solid #eee;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .navbar-brand img {
-    height: 45px;
+    height: 50px;
     width: auto;
-    max-width: 150px;
+    max-width: 180px;
     object-fit: contain;
 }
 
-.navbar-brand span {
-    font-weight: 800;
-    font-size: 1.2rem;
-    color: var(--color-primary);
-    letter-spacing: -0.5px;
+.navbar-nav {
+    height: 100%;
+}
+
+.nav-item {
+    border-right: 1px solid #eee;
+    height: 100%;
+    display: flex;
+    align-items: center;
 }
 
 .nav-link {
-    font-weight: 600;
-    color: var(--color-text) !important;
-    font-size: 0.95rem;
-    padding: 10px 15px !important;
-    transition: var(--transition);
+    text-transform: uppercase;
+    font-weight: 800 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.5px;
+    color: #222 !important;
+    padding: 0 25px !important;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
 }
 
-.nav-link:hover, .nav-link.active {
+.nav-link:hover {
     color: var(--color-primary) !important;
 }
 
-/* Header Icons Bar (Simplified) */
-.header-categories {
+.nav-link.active::after, 
+.nav-link.unfolded::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--color-primary);
+}
+
+/* Dynamic Category Bar (Unfold Effect) */
+.header-categories-wrapper {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     background: #fff;
-    padding: 15px 0;
-    border-bottom: 1px solid var(--color-border);
-    overflow-x: auto;
-    white-space: nowrap;
+    border-bottom: 0 solid #eee;
+}
+
+.header-categories-wrapper.show {
+    max-height: 200px;
+    border-bottom-width: 1px;
+}
+
+.header-categories {
+    padding: 30px 0;
 }
 
 .cat-item {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     align-items: center;
     text-decoration: none;
     color: var(--color-text-light);
-    margin-right: 30px;
     transition: var(--transition);
 }
 
 .cat-item i {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
     background: var(--color-soft-primary);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 5px;
-    font-size: 1.1rem;
+    margin-bottom: 10px;
+    font-size: 1.4rem;
     color: var(--color-primary);
+    border: 1px solid transparent;
 }
 
 .cat-item:hover {
     color: var(--color-primary);
-    transform: translateY(-2px);
+    transform: translateY(-5px);
+}
+
+.cat-item:hover i {
+    background: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(92, 138, 94, 0.2);
+}
+
+.cat-item span {
+    font-size: 0.8rem;
+    font-weight: 700;
 }
 
 /* ==========================================================================
