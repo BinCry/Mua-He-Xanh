@@ -1,10 +1,6 @@
 <section class="explore-hero-premium position-relative overflow-hidden">
-    <% 
-    let coverImg = dest.cover_image;
-    let imgSrc = (coverImg && coverImg.startsWith('http')) ? coverImg : (baseUrl + '/' + (coverImg || 'images/hero-3.png'));
-    %>
     <div class="hero-bg animate__animated animate__zoomIn">
-        <img src="<%= imgSrc %>" class="w-100 h-100 object-fit-cover" alt="<%= dest.name %>">
+        <img src="<%= fixImg(dest.cover_image, '/images/hero-3.png') %>" class="w-100 h-100 object-fit-cover" alt="<%= dest.name %>">
     </div>
     <div class="hero-overlay-dark"></div>
     <div class="hero-content container-site text-white">
@@ -105,7 +101,7 @@
                 <div class="row g-2">
                     <div class="col-8">
                         <div class="rounded-4 overflow-hidden shadow-sm ratio ratio-16x9">
-                            <img src="<%= imgSrc %>" class="w-100 h-100 object-fit-cover" alt="Gallery 1">
+                            <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover" alt="Gallery 1">
                         </div>
                     </div>
                     <div class="col-4">
@@ -155,7 +151,7 @@
                         <% related.forEach(rel => { %>
                         <div class="d-flex align-items-center gap-3">
                             <div class="rounded-3 overflow-hidden" style="width: 50px; height: 50px; flex-shrink: 0;">
-                                <img src="<%= rel.cover_image ? (rel.cover_image.startsWith('http') ? rel.cover_image : (baseUrl + '/' + rel.cover_image)) : (baseUrl + '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover" alt="<%= rel.name %>">
+                                <img src="<%= fixImg(rel.cover_image) %>" class="w-100 h-100 object-fit-cover" alt="<%= rel.name %>">
                             </div>
                             <div class="flex-grow-1">
                                 <h6 class="mb-0 small fw-bold text-truncate" style="max-width: 150px;"><%= rel.name %></h6>

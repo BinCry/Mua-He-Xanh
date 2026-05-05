@@ -65,7 +65,7 @@ let duration = (journey.duration === 'full_day') ? 'Cả ngày' : 'Buổi sáng/
                         <div class="card-bl border-0 shadow-sm overflow-hidden mb-4">
                             <div class="row g-0">
                                 <div class="col-md-4 position-relative">
-                                    <img src="<%= (stop.cover_image && stop.cover_image.startsWith('http')) ? stop.cover_image : (baseUrl + '/' + stop.cover_image) %>" 
+                                    <img src="<%= fixImg(stop.cover_image) %>" 
                                          class="w-100 h-100 object-fit-cover" style="min-height: 220px;" alt="<%= stop.name %>">
                                     <div class="position-absolute top-0 start-0 m-3 d-flex gap-1">
                                         <button class="btn btn-white btn-sm rounded-circle shadow-sm" title="Di chuyển lên"><i class="bi bi-arrow-up-short"></i></button>

@@ -42,12 +42,8 @@
         <div class="grid-3col">
             <% destinations.forEach(dest => { %>
                 <div class="card-bl animate__animated animate__fadeInUp">
-                    <% 
-                    let coverImg = dest.cover_image;
-                    let imgSrc = coverImg ? (coverImg.startsWith('http') ? coverImg : (baseUrl + '/' + coverImg)) : (baseUrl + '/images/hero-2.png');
-                    %>
                     <div class="position-relative">
-                        <img src="<%= imgSrc %>" class="card-bl-img" alt="<%= dest.name %>">
+                        <img src="<%= fixImg(dest.cover_image) %>" class="card-bl-img" alt="<%= dest.name %>">
                         <div class="position-absolute top-0 end-0 m-3">
                              <span class="badge bg-white text-primary rounded-pill shadow-sm">+<%= dest.points %> ✨</span>
                         </div>

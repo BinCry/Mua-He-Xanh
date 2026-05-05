@@ -74,12 +74,8 @@
 
                     <% if (nextStop) { %>
                         <div class="animate__animated animate__fadeIn">
-                            <% 
-                            let coverImg = nextStop.cover_image;
-                            let imgSrc = (coverImg && coverImg.startsWith('http')) ? coverImg : (baseUrl + '/' + (coverImg || 'images/hero-2.png'));
-                            %>
                             <div class="rounded-4 overflow-hidden mb-3 shadow-sm">
-                                <img src="<%= imgSrc %>" class="w-100" style="height:180px; object-fit:cover;">
+                                <img src="<%= fixImg(nextStop.cover_image) %>" class="w-100" style="height:180px; object-fit:cover;">
                             </div>
                             <span class="badge bg-secondary text-dark mb-2"><%= nextStop.type.toUpperCase() %></span>
                             <h4 class="mb-2"><%= nextStop.name %></h4>

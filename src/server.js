@@ -44,6 +44,18 @@ app.use((req, res, next) => {
     res.locals.baseUrl = baseUrl;
     res.locals.appName = 'Bình Lợi Healing';
     res.locals.session = req.session;
+    
+    // Helper: fix image paths from database (strips 'public/' prefix)
+    res.locals.fixImg = (imgPath, fallback) => {
+        fallback = fallback || '/images/hero-2.png';
+        if (!imgPath) return baseUrl + fallback;
+        if (imgPath.startsWith('http')) return imgPath;
+        // Strip 'public/' prefix if present
+        let clean = imgPath.replace(/^public\//, '');
+        if (!clean.startsWith('/')) clean = '/' + clean;
+        return baseUrl + clean;
+    };
+    
     next();
 });
 
