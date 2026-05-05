@@ -106,6 +106,21 @@ class Destination extends Model {
         );
         return rows;
     }
+
+    /** Get popular destinations based on check-ins */
+    async getPopular(limit = 3) {
+        const [rows] = await this.db.query(
+            `SELECT d.*, COUNT(c.id) as checkin_count 
+             FROM ${this.table} d
+             LEFT JOIN check_ins c ON d.id = c.destination_id
+             WHERE d.is_active = 1
+             GROUP BY d.id
+             ORDER BY checkin_count DESC, d.sort_order ASC
+             LIMIT ?`,
+            [limit]
+        );
+        return rows;
+    }
 }
 
 module.exports = new Destination();

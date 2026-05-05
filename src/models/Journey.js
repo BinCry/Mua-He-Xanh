@@ -194,6 +194,29 @@ class Journey extends Model {
 
         return this.getWithStops(journeyId);
     }
+
+    /** Recalculate KM and Minutes based on current stops */
+    async recalculateMetrics(journeyId) {
+        const journey = await this.getWithStops(journeyId);
+        if (!journey || !journey.stops || journey.stops.length === 0) return;
+
+        let totalMeters = 0;
+        const stops = journey.stops;
+        for (let i = 1; i < stops.length; i++) {
+            totalMeters += Model.haversine(
+                stops[i - 1].lat, stops[i - 1].lng,
+                stops[i].lat, stops[i].lng
+            );
+        }
+        const totalKm = Math.round((totalMeters / 1000) * 100) / 100;
+        const timePerStop = (journey.duration === 'full_day') ? 60 : 45;
+        const totalMinutes = stops.length * timePerStop + Math.round(totalKm * 15);
+
+        await this.update(journeyId, {
+            total_km: totalKm,
+            total_minutes: totalMinutes
+        });
+    }
 }
 
 module.exports = new Journey();

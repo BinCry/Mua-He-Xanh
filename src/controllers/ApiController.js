@@ -73,6 +73,13 @@ class ApiController {
             const duration = session.duration || 'half_day';
             
             const journey = await Journey.createPersonalized(session.id, mood, duration, interests);
+            
+            // KPI Tracking: Log journey creation
+            await UserSession.db.query(
+                "INSERT INTO analytics (id, session_id, event, metadata) VALUES (?, ?, ?, ?)",
+                [uuidv4(), session.id, 'journey_created', JSON.stringify({ mood, duration, stop_count: journey.stops.length })]
+            );
+
             res.json({ success: true, data: journey });
         } catch (e) {
             res.status(500).json({ success: false, message: e.message });
@@ -88,7 +95,17 @@ class ApiController {
                 await JourneyStop.remove(journeyId, destinationId);
             } else if (action === 'reorder') {
                 await JourneyStop.updateOrder(journeyId, destinationId, order);
+            } else if (action === 'update_transport') {
+                const transport = req.body.transport || 'walking';
+                await UserSession.db.query(
+                    "UPDATE journey_stops SET transport = ? WHERE journey_id = ? AND destination_id = ?",
+                    [transport, journeyId, destinationId]
+                );
             }
+            
+            // Recalculate journey totals
+            await Journey.recalculateMetrics(journeyId);
+            
             res.json({ success: true });
         } catch (e) {
             res.status(500).json({ success: false, message: e.message });
