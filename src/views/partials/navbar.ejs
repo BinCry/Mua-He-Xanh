@@ -20,9 +20,7 @@
         <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Trang chủ') ? 'active' : '' %>" href="/">Trang chủ</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Điểm đến') ? 'active' : '' %>" href="/destinations" id="link-explore">
-          Khám phá <i class="bi bi-chevron-down ms-1 small"></i>
-        </a>
+        <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Điểm đến') ? 'active' : '' %>" href="/destinations">Khám phá</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/journey">Hành trình</a>
@@ -43,7 +41,7 @@
       <% if (user) { %>
         <div class="dropdown me-3">
           <a class="p-0 border-0 bg-transparent d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
-            <img src="<%= user.avatar || '/images/hero-2.png' %>" class="nav-user-avatar" alt="User" style="width: 38px; height: 38px;">
+            <img src="<%= user.avatar || '/images/hero-2.png' %>" class="nav-user-avatar" alt="User" style="width: 38px; height: 38px; border-radius: 50%;">
           </a>
           <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 mt-3">
             <li class="px-3 py-2 border-bottom bg-light rounded-top-4">
@@ -61,71 +59,6 @@
 
   </div>
 </nav>
-
-<!-- UNIFOLD CATEGORY BAR -->
-<div class="header-categories-wrapper" id="explore-categories">
-  <div class="header-categories container-site">
-    <div class="row g-4 justify-content-center">
-      <div class="col-auto">
-        <a href="/destinations?type=temple" class="cat-item">
-          <i><i class="bi bi-bank"></i></i>
-          <span>Tâm linh</span>
-        </a>
-      </div>
-      <div class="col-auto">
-        <a href="/destinations?type=craft" class="cat-item">
-          <i><i class="bi bi-hammer"></i></i>
-          <span>Làng nghề</span>
-        </a>
-      </div>
-      <div class="col-auto">
-        <a href="/destinations?type=farm" class="cat-item">
-          <i><i class="bi bi-tree"></i></i>
-          <span>Nông nghiệp</span>
-        </a>
-      </div>
-      <div class="col-auto">
-        <a href="/destinations?type=nature" class="cat-item">
-          <i><i class="bi bi-flower1"></i></i>
-          <span>Thiên nhiên</span>
-        </a>
-      </div>
-      <div class="col-auto">
-        <a href="/destinations?type=workshop" class="cat-item">
-          <i><i class="bi bi-palette"></i></i>
-          <span>Trải nghiệm</span>
-        </a>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const link = document.getElementById('link-explore');
-    const panel = document.getElementById('explore-categories');
-    const navItem = link ? link.closest('.nav-item') : null;
-    
-    if (navItem && panel) {
-        // Unfold on Hover for Premium feel
-        navItem.addEventListener('mouseenter', () => {
-            panel.classList.add('show');
-            link.classList.add('unfolded');
-        });
-        
-        // Hide when mouse leaves the whole area (nav item + panel)
-        const closeMenu = (e) => {
-            if (!navItem.contains(e.relatedTarget) && !panel.contains(e.relatedTarget)) {
-                panel.classList.remove('show');
-                link.classList.remove('unfolded');
-            }
-        };
-
-        navItem.addEventListener('mouseleave', closeMenu);
-        panel.addEventListener('mouseleave', closeMenu);
-    }
-});
-</script>
 
 <!-- Mobile Sidebar -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMenu">
