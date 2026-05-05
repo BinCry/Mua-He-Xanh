@@ -9,6 +9,9 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for Render (required for secure cookies behind proxy)
+app.set('trust proxy', 1);
+
 // View engine setup
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -27,7 +30,7 @@ app.use(session({
     saveUninitialized: true,
     cookie: { 
         maxAge: 604800000, // 7 days
-        secure: process.env.NODE_ENV === 'production' 
+        secure: false // Set to false for compatibility
     }
 }));
 
@@ -36,7 +39,9 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Global variables for templates
 app.use((req, res, next) => {
-    res.locals.baseUrl = process.env.APP_URL || `http://localhost:${PORT}`;
+    // Use BASE_URL from env, fallback to auto-detect
+    const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+    res.locals.baseUrl = baseUrl;
     res.locals.appName = 'Bình Lợi Healing';
     res.locals.session = req.session;
     next();
@@ -49,6 +54,12 @@ app.use('/', indexRouter);
 // 404 handler
 app.use((req, res) => {
     res.status(404).render('errors/404', { title: '404 - Không tìm thấy' });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+    console.error('Server Error:', err);
+    res.status(500).send('Internal Server Error: ' + err.message);
 });
 
 app.listen(PORT, () => {
