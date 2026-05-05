@@ -20,12 +20,9 @@
         <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Trang chủ') ? 'active' : '' %>" href="/">Trang chủ</a>
       </li>
       <li class="nav-item">
-        <div class="d-flex align-items-center">
-          <a class="nav-link pe-2 <%= typeof title !== 'undefined' && title.includes('Điểm đến') ? 'active' : '' %>" href="/destinations">Khám phá</a>
-          <button class="btn btn-link p-0 text-dark me-2" id="btn-unfold-explore" style="margin-left: -10px;">
-            <i class="bi bi-chevron-down small"></i>
-          </button>
-        </div>
+        <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Điểm đến') ? 'active' : '' %>" href="/destinations" id="link-explore">
+          Khám phá <i class="bi bi-chevron-down ms-1 small"></i>
+        </a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/journey">Hành trình</a>
@@ -105,23 +102,27 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const btn = document.getElementById('btn-unfold-explore');
+    const link = document.getElementById('link-explore');
     const panel = document.getElementById('explore-categories');
+    const navItem = link ? link.closest('.nav-item') : null;
     
-    if (btn && panel) {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            panel.classList.toggle('show');
-            btn.classList.toggle('unfolded');
-            
-            // Change icon
-            const icon = btn.querySelector('i');
-            if (panel.classList.contains('show')) {
-                icon.classList.replace('bi-chevron-down', 'bi-chevron-up');
-            } else {
-                icon.classList.replace('bi-chevron-up', 'bi-chevron-down');
-            }
+    if (navItem && panel) {
+        // Unfold on Hover for Premium feel
+        navItem.addEventListener('mouseenter', () => {
+            panel.classList.add('show');
+            link.classList.add('unfolded');
         });
+        
+        // Hide when mouse leaves the whole area (nav item + panel)
+        const closeMenu = (e) => {
+            if (!navItem.contains(e.relatedTarget) && !panel.contains(e.relatedTarget)) {
+                panel.classList.remove('show');
+                link.classList.remove('unfolded');
+            }
+        };
+
+        navItem.addEventListener('mouseleave', closeMenu);
+        panel.addEventListener('mouseleave', closeMenu);
     }
 });
 </script>
