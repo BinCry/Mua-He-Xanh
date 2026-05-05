@@ -32,9 +32,16 @@ class JourneyController {
                 return res.redirect('/onboarding');
             }
 
+            // Determine current season
+            const month = new Date().getMonth() + 1;
+            let seasonName = 'Miệt vườn giữa Phố';
+            if (month >= 11 || month <= 3) seasonName = 'Du xuân Bình Lợi';
+            else if (month >= 7 && month <= 10) seasonName = 'Lễ hội mùa Thu';
+
             res.render('journey/index', {
                 title: 'Gợi ý hành trình',
-                journey: journeyWithStops
+                journey: journeyWithStops,
+                seasonName: seasonName
             });
         } catch (error) {
             console.error("Journey index error:", error);
