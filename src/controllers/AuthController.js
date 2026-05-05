@@ -4,46 +4,55 @@ const { v4: uuidv4 } = require('uuid');
 
 class AuthController {
     
-    async loginPage(req, res) {
+    loginPage = (req, res) => {
         res.render('auth/login', {
             title: 'Đăng nhập - Bình Lợi Healing',
             error: req.query.error || null
         });
     }
 
-    async handleLogin(req, res) {
-        const { email, password } = req.body;
-        const user = await User.findByEmail(email);
-        
-        // Basic password check (in real app, use bcrypt)
-        if (user && user.password === password) {
-            await this.establishSession(req, res, user);
-            return res.redirect('/summary');
+    handleLogin = async (req, res) => {
+        try {
+            const { email, password } = req.body;
+            const user = await User.findByEmail(email);
+            
+            if (user && user.password === password) {
+                await this.establishSession(req, res, user);
+                return res.redirect('/summary');
+            }
+            
+            res.redirect('/auth/login?error=Sai email hoặc mật khẩu');
+        } catch (error) {
+            console.error("Login error:", error);
+            res.status(500).send("Internal Server Error");
         }
-        
-        res.redirect('/auth/login?error=Sai email hoặc mật khẩu');
     }
 
-    async handleSocialLogin(req, res) {
-        const { platform, email, name, avatar, id } = req.body;
-        
-        const data = {
-            email,
-            fullName: name,
-            avatar,
-            googleId: platform === 'google' ? id : null,
-            facebookId: platform === 'facebook' ? id : null
-        };
+    handleSocialLogin = async (req, res) => {
+        try {
+            const { platform, email, name, avatar, id } = req.body;
+            
+            const data = {
+                email,
+                fullName: name,
+                avatar,
+                googleId: platform === 'google' ? id : null,
+                facebookId: platform === 'facebook' ? id : null
+            };
 
-        const user = await User.createFromSocial(data);
-        await this.establishSession(req, res, user);
-        
-        res.json({ success: true, redirect: '/summary' });
+            const user = await User.createFromSocial(data);
+            await this.establishSession(req, res, user);
+            
+            res.json({ success: true, redirect: '/summary' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
     }
 
-    async establishSession(req, res, user) {
+    establishSession = async (req, res, user) => {
         let sessionUuid = req.cookies.session_uuid;
         if (!sessionUuid) {
+            const { v4: uuidv4 } = require('uuid');
             sessionUuid = uuidv4();
             res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
         }
@@ -55,10 +64,17 @@ class AuthController {
         );
 
         // Store user in express session
-        req.session.user = user;
+        req.session.user = {
+            id: user.id,
+            email: user.email,
+            full_name: user.full_name,
+            role: user.role,
+            avatar: user.avatar,
+            managed_destination_id: user.managed_destination_id
+        };
     }
 
-    async logout(req, res) {
+    logout = (req, res) => {
         req.session.destroy();
         res.clearCookie('session_uuid');
         res.redirect('/');
