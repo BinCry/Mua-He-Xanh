@@ -10,6 +10,7 @@ const CheckinController = require('../controllers/CheckinController');
 const SummaryController = require('../controllers/SummaryController');
 const MapController = require('../controllers/MapController');
 
+const ManagerController = require('../controllers/ManagerController');
 const AuthController = require('../controllers/AuthController');
 
 // Page Routes
@@ -22,6 +23,10 @@ router.get('/destinations', ExploreController.list);
 router.get('/explore/:slug', ExploreController.show);
 router.get('/journey', JourneyController.index);
 router.get('/journey/preset/:theme', JourneyController.preset);
+
+// Manager Routes
+router.get('/manager', ManagerController.index);
+router.post('/manager/update', ManagerController.updateDestination);
 
 // Auth Routes
 router.get('/auth/login', AuthController.loginPage);
