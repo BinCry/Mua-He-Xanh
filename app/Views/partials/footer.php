@@ -1,0 +1,44 @@
+<?php /** Footer partial */ ?>
+<footer class="footer-bl">
+  <div class="container-site">
+    <div class="row g-4">
+      <div class="col-lg-4">
+        <h5 class="navbar-brand text-secondary" style="font-size: 24px;">Bình Lợi Healing</h5>
+        <p style="font-size:14px; opacity:0.8;">“Bình Lợi – Giữ hồn quê giữa nhịp sống mới”<br>Hệ sinh thái du lịch đa trải nghiệm – gần TP.HCM.</p>
+        <div class="d-flex gap-3 mt-4">
+          <a href="https://www.facebook.com/xabinhloitphcm" target="_blank" class="text-white h5 opacity-75 hover-opacity-100"><i class="bi bi-facebook"></i></a>
+          <a href="#" class="text-white h5 opacity-75 hover-opacity-100"><i class="bi bi-youtube"></i></a>
+          <a href="#" class="text-white h5 opacity-75 hover-opacity-100"><i class="bi bi-instagram"></i></a>
+        </div>
+      </div>
+      <div class="col-lg-2">
+        <h5>Khám phá</h5>
+        <ul class="list-unstyled small opacity-75" style="line-height: 2.2">
+          <li><a href="<?= $APP_URL ?>/destinations" class="text-white text-decoration-none">Điểm đến</a></li>
+          <li><a href="<?= $APP_URL ?>/onboarding" class="text-white text-decoration-none">Hành trình</a></li>
+          <li><a href="<?= $APP_URL ?>/map" class="text-white text-decoration-none">Bản đồ</a></li>
+          <li><a href="<?= $APP_URL ?>/checkin" class="text-white text-decoration-none">Check-in</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3">
+        <h5>Cộng đồng</h5>
+        <ul class="list-unstyled small opacity-75" style="line-height: 2.2">
+          <li><a href="#" class="text-white text-decoration-none">UBND Xã Bình Lợi</a></li>
+          <li><a href="#" class="text-white text-decoration-none">Mặt Trận Xã Bình Lợi</a></li>
+          <li><a href="#" class="text-white text-decoration-none">Tuổi trẻ Xã Bình Lợi</a></li>
+        </ul>
+      </div>
+      <div class="col-lg-3">
+        <h5>Liên hệ</h5>
+        <ul class="list-unstyled small opacity-75" style="line-height: 2.2">
+          <li><i class="bi bi-geo-alt me-2"></i> Bình Lợi, Bình Chánh, TP.HCM</li>
+          <li><i class="bi bi-telephone me-2"></i> (028) 3765 0xxx</li>
+          <li><i class="bi bi-envelope me-2"></i> info@binhloi-healing.vn</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bl-bottom">
+      <p class="mb-0">© <?= date('Y') ?> Bình Lợi Healing — Giữ hồn quê giữa nhịp sống mới.</p>
+    </div>
+  </div>
+</footer>

@@ -1,0 +1,136 @@
+<section class="site-section">
+    <div class="container-site">
+        <div class="text-center mb-5 animate__animated animate__fadeIn">
+            <span class="text-primary fw-bold mb-2 d-block">BẢN ĐỒ THÔNG MINH</span>
+            <h2 class="display-text">Lộ trình của bạn</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Công viên Văn hóa Láng Le là trung tâm kết nối các tuyến tham quan xung quanh.</p>
+        </div>
+
+        <!-- Filters & Tools -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-8">
+                <div class="d-flex gap-2 overflow-auto pb-2">
+                    <button class="btn btn-outline-bl btn-sm px-4 rounded-pill active">Tất cả</button>
+                    <button class="btn btn-outline-bl btn-sm px-4 rounded-pill">Tâm linh</button>
+                    <button class="btn btn-outline-bl btn-sm px-4 rounded-pill">Sinh thái</button>
+                    <button class="btn btn-outline-bl btn-sm px-4 rounded-pill">Làng nghề</button>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <button class="btn btn-secondary text-dark btn-sm rounded-pill" onclick="locateMe()">
+                    <i class="bi bi-geo-fill me-1"></i> Tìm vị trí của tôi
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="map-container card-bl p-2 shadow-lg animate__animated animate__zoomIn">
+                    <div id="gps-indicator" class="position-absolute bg-primary text-white rounded-circle shadow pulse d-none" style="width:15px; height:15px; z-index: 20; border: 2px solid white;"></div>
+                    
+                    <svg viewBox="0 0 400 350" xmlns="http://www.w3.org/2000/svg" class="w-100 h-auto">
+                        <!-- Sông ngòi (Background) -->
+                        <path d="M0,50 Q100,60 150,150 T400,200" fill="none" stroke="#B2EBF2" stroke-width="12" opacity="0.4" />
+                        <path d="M100,0 Q120,100 80,350" fill="none" stroke="#B2EBF2" stroke-width="8" opacity="0.3" />
+                        
+                        <!-- Đường đi (Background) -->
+                        <path d="M50,350 L100,200 L250,180 L350,100" fill="none" stroke="#eee" stroke-width="6" />
+                        
+                        <!-- Tuyến đường hành trình -->
+                        <?php 
+                        $points = [];
+                        foreach ($journey['stops'] as $stop) {
+                            $points[] = $stop['map_x'] . "," . $stop['map_y'];
+                        }
+                        ?>
+                        <polyline points="<?= implode(' ', $points) ?>" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-dasharray="8,4" opacity="0.6">
+                            <animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite" />
+                        </polyline>
+
+                        <!-- Markers -->
+                        <?php foreach ($journey['stops'] as $idx => $stop): ?>
+                            <g class="map-marker" style="cursor:pointer" onclick="window.location.href='<?= $APP_URL ?>/explore/<?= $stop['slug'] ?>'">
+                                <?php if ($stop['is_hub']): ?>
+                                    <circle cx="<?= $stop['map_x'] ?>" cy="<?= $stop['map_y'] ?>" r="15" fill="var(--color-secondary)" opacity="0.2">
+                                        <animate attributeName="r" values="15;22;15" dur="3s" repeatCount="indefinite" />
+                                    </circle>
+                                <?php endif; ?>
+                                
+                                <circle cx="<?= $stop['map_x'] ?>" cy="<?= $stop['map_y'] ?>" r="8" fill="<?= $stop['is_completed'] ? '#5c8a5e' : 'white' ?>" stroke="var(--color-primary)" stroke-width="2" />
+                                
+                                <text x="<?= $stop['map_x'] ?>" y="<?= $stop['map_y'] - 15 ?>" font-size="10" font-weight="900" text-anchor="middle" fill="var(--color-accent)"><?= $idx + 1 ?>. <?= $stop['name'] ?></text>
+                            </g>
+                        <?php endforeach; ?>
+                    </svg>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card-bl p-4 h-100 shadow-sm border-0 bg-light">
+                    <h5 class="mb-4 text-uppercase letter-spacing-lg"><i class="bi bi-cursor-fill me-2"></i> Trình hướng dẫn</h5>
+                    <?php 
+                    $nextStop = null;
+                    foreach ($journey['stops'] as $stop) {
+                        if (!$stop['is_completed']) {
+                            $nextStop = $stop;
+                            break;
+                        }
+                    }
+                    ?>
+
+                    <?php if ($nextStop): ?>
+                        <div class="animate__animated animate__fadeIn">
+                            <?php 
+                            $coverImg = $nextStop['cover_image'];
+                            $imgSrc = ($coverImg && strpos($coverImg, 'http') === 0) ? $coverImg : ($BASE_URL . '/' . ($coverImg ?: 'public/images/hero-2.png'));
+                            ?>
+                            <div class="rounded-4 overflow-hidden mb-3 shadow-sm">
+                                <img src="<?= $imgSrc ?>" class="w-100" style="height:180px; object-fit:cover;">
+                            </div>
+                            <span class="badge bg-secondary text-dark mb-2"><?= strtoupper($nextStop['type']) ?></span>
+                            <h4 class="mb-2"><?= $nextStop['name'] ?></h4>
+                            <p class="small text-muted mb-4"><?= $nextStop['short_desc'] ?></p>
+                            
+                            <div class="d-grid gap-2">
+                                <a href="<?= $APP_URL ?>/explore/<?= $nextStop['slug'] ?>" class="btn btn-primary-bl">Xem câu chuyện & Chỉ đường</a>
+                                <a href="<?= $APP_URL ?>/checkin" class="btn btn-outline-bl btn-sm">Tôi đã đến đây! (Check-in)</a>
+                            </div>
+                        </div>
+                    <?php else: ?>
+                        <div class="text-center py-5">
+                            <div class="display-1 mb-4">🏆</div>
+                            <h4 class="mb-3">Hành trình tuyệt vời!</h4>
+                            <p class="small text-muted mb-5">Bạn đã khám phá hết các mảnh ghép di sản trong hành trình chữa lành này.</p>
+                            <a href="<?= $APP_URL ?>/summary" class="btn btn-primary-bl w-100">Xem tổng kết & Huy hiệu</a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function locateMe() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            const indicator = document.getElementById('gps-indicator');
+            indicator.classList.remove('d-none');
+            // Giả lập tọa độ trên SVG (thực tế cần phép chiếu bản đồ)
+            indicator.style.left = '50%';
+            indicator.style.top = '50%';
+            alert('Đã tìm thấy vị trí của bạn gần Công viên Văn hóa Láng Le!');
+        });
+    }
+}
+</script>
+
+<style>
+.map-container { position: relative; background: #fff; }
+.letter-spacing-lg { letter-spacing: 2px; font-size: 0.8rem; font-weight: 900; color: var(--color-primary); }
+.pulse { animation: pulse-animation 2s infinite; }
+@keyframes pulse-animation {
+  0% { box-shadow: 0 0 0 0px rgba(92, 138, 94, 0.7); }
+  100% { box-shadow: 0 0 0 15px rgba(92, 138, 94, 0); }
+}
+</style>

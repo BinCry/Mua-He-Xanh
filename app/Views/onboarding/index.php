@@ -1,0 +1,96 @@
+<section class="site-section min-vh-100 d-flex align-items-center">
+    <div class="container-site">
+        <div class="text-center mb-5 animate__animated animate__fadeIn">
+            <span class="text-primary fw-bold mb-2 d-block">BẮT ĐẦU HÀNH TRÌNH</span>
+            <h2 class="display-text">Thiết kế trải nghiệm của bạn</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Để gợi ý lộ trình phù hợp nhất, hãy cho chúng tôi biết mong muốn của bạn hôm nay.</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <form id="onboardingForm" class="card-bl p-4 p-md-5 shadow-lg animate__animated animate__zoomIn">
+                    <!-- Step 1: Mood Selection -->
+                    <div class="mb-5">
+                        <label class="form-label fw-bold mb-3"><i class="bi bi-emoji-smile me-2"></i> Cảm xúc hiện tại của bạn?</label>
+                        <div class="row g-3">
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="mood" id="mood_an_nhien" value="an-nhien" checked>
+                                <label class="btn btn-outline-bl w-100 py-3 d-flex flex-column align-items-center gap-2" for="mood_an_nhien">
+                                    <span class="fs-2">🌿</span>
+                                    <span>An nhiên</span>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="mood" id="mood_ket_noi" value="ket-noi">
+                                <label class="btn btn-outline-bl w-100 py-3 d-flex flex-column align-items-center gap-2" for="mood_ket_noi">
+                                    <span class="fs-2">🤝</span>
+                                    <span>Kết nối</span>
+                                </label>
+                            </div>
+                            <div class="col-md-4">
+                                <input type="radio" class="btn-check" name="mood" id="mood_nang_luong" value="nang-luong">
+                                <label class="btn btn-outline-bl w-100 py-3 d-flex flex-column align-items-center gap-2" for="mood_nang_luong">
+                                    <span class="fs-2">⚡</span>
+                                    <span>Năng lượng</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2: Duration Selection -->
+                    <div class="mb-5">
+                        <label class="form-label fw-bold mb-3"><i class="bi bi-clock me-2"></i> Thời gian bạn dự định tham quan?</label>
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check" name="duration" id="dur_half" value="half" checked>
+                                <label class="btn btn-outline-bl w-100 py-3" for="dur_half">Nửa ngày (Sáng/Chiều)</label>
+                            </div>
+                            <div class="col-md-6">
+                                <input type="radio" class="btn-check" name="duration" id="dur_full" value="full">
+                                <label class="btn btn-outline-bl w-100 py-3" for="dur_full">Cả ngày (Khám phá trọn vẹn)</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3: Interest Selection -->
+                    <div class="mb-5">
+                        <label class="form-label fw-bold mb-3"><i class="bi bi-heart me-2"></i> Bạn quan tâm đến điều gì nhất?</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            <input type="checkbox" class="btn-check" id="int_temple" value="temple" checked>
+                            <label class="btn btn-outline-secondary btn-sm rounded-pill" for="int_temple">Tâm linh - Chùa cổ</label>
+                            
+                            <input type="checkbox" class="btn-check" id="int_craft" value="craft" checked>
+                            <label class="btn btn-outline-secondary btn-sm rounded-pill" for="int_craft">Làng nghề truyền thống</label>
+                            
+                            <input type="checkbox" class="btn-check" id="int_nature" value="nature">
+                            <label class="btn btn-outline-secondary btn-sm rounded-pill" for="int_nature">Sinh thái - Nông nghiệp</label>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary-bl btn-lg px-5 w-100">Khởi tạo hành trình cá nhân ✦</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('onboardingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const mood = formData.get('mood');
+    const duration = formData.get('duration');
+    const interests = Array.from(document.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
+
+    // Lưu vào session via API
+    axios.post(window.APP_CONFIG.apiUrl + '/session', {
+        mood: mood,
+        duration: duration,
+        interests: interests
+    }).then(res => {
+        window.location.href = window.APP_CONFIG.baseUrl + '/journey';
+    });
+});
+</script>

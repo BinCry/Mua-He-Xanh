@@ -1,0 +1,426 @@
+<!-- Hero Section: Immersive Storytelling -->
+<section class="hero-immersive position-relative overflow-hidden">
+    <div class="hero-overlay"></div>
+    <img src="<?= $BASE_URL ?>/public/images/hero-1.png" class="w-100 h-100 object-fit-cover animate__animated animate__zoomIn" alt="Bình Lợi Panorama">
+    <div class="container-site h-100 position-relative d-flex align-items-center justify-content-center text-center text-white" style="z-index: 10;">
+        <div class="animate__animated animate__fadeInUp">
+            <span class="text-secondary fw-bold mb-3 d-block letter-spacing-lg">BÌNH LỢI — TP. HỒ CHÍ MINH</span>
+            <h1 class="display-1 fw-black mb-4">Bình Lợi – Miền Tây<br>giữa lòng Sài Gòn</h1>
+            <p class="lead opacity-75 mb-5 mx-auto" style="max-width: 700px;">
+                Khám phá bản sắc văn hóa - sinh thái tại cửa ngõ ngoại thành,<br>
+                nơi truyền thống làng nghề hòa quyện cùng công nghệ số.
+            </p>
+            <div class="d-flex gap-3 justify-content-center flex-wrap">
+                <a href="<?= $APP_URL ?>/map" class="btn btn-primary-bl btn-lg px-4 rounded-pill">
+                    <i class="bi bi-geo-alt-fill me-2"></i>Bản đồ
+                </a>
+                <a href="<?= $APP_URL ?>/onboarding" class="btn btn-secondary btn-lg px-4 rounded-pill text-dark">
+                    <i class="bi bi-signpost-split-fill me-2"></i>Hành trình
+                </a>
+                <a href="<?= $APP_URL ?>/checkin" class="btn btn-outline-light btn-lg px-4 rounded-pill">
+                    <i class="bi bi-qr-code-scan me-2"></i>Check-in
+                </a>
+            </div>
+        </div>
+    </div>
+    <div class="scroll-down">
+        <i class="bi bi-chevron-down"></i>
+    </div>
+</section>
+
+<!-- Community Stats -->
+<section class="bg-white py-5 shadow-sm position-relative" style="z-index: 20; margin-top: -50px; border-radius: 30px 30px 0 0;">
+    <div class="container-site">
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="p-3">
+                    <h2 class="fw-black text-primary mb-0"><?= number_format($stats['checkins']) ?>+</h2>
+                    <p class="text-muted small text-uppercase fw-bold">Lượt Check-in</p>
+                </div>
+            </div>
+            <div class="col-md-4 border-start border-end">
+                <div class="p-3">
+                    <h2 class="fw-black text-primary mb-0"><?= $stats['destinations'] ?></h2>
+                    <p class="text-muted small text-uppercase fw-bold">Điểm đến hấp dẫn</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-3">
+                    <h2 class="fw-black text-primary mb-0"><?= number_format($stats['reviews']) ?></h2>
+                    <p class="text-muted small text-uppercase fw-bold">Đánh giá tin cậy</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 1: Tổng quan về Xã Bình Lợi -->
+<section id="about" class="site-section bg-white">
+    <div class="container-site">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="pe-lg-5">
+                    <span class="text-primary fw-bold mb-2 d-block">01. TỔNG QUAN ĐỊA PHƯƠNG</span>
+                    <h2 class="display-text mb-4">Vùng đất của tiềm năng<br>và di sản bản địa</h2>
+                    <p class="lead text-muted mb-4">Xã Bình Lợi sở hữu quy mô diện tích lớn khoảng <strong>54,18 km²</strong>, là một trong những địa phương có quỹ đất rộng và tài nguyên thiên nhiên trù phú bậc nhất tại TP.HCM.</p>
+                    <p>Với dân số khoảng <strong>47.180 người</strong> và mật độ <strong>871 người/km²</strong>, Bình Lợi đang trong giai đoạn tái định hình mạnh mẽ hướng phát triển kinh tế - xã hội, trong đó du lịch sinh thái và văn hóa được xem là hướng đi tiềm năng chiến lược.</p>
+                    
+                    <div class="row g-4 mt-2">
+                        <div class="col-6">
+                            <div class="p-3 border-start border-primary border-4 bg-light">
+                                <h3 class="fw-black mb-1">54.18</h3>
+                                <p class="small text-muted mb-0">Km² Diện tích</p>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 border-start border-primary border-4 bg-light">
+                                <h3 class="fw-black mb-1">47k+</h3>
+                                <p class="small text-muted mb-0">Cư dân bản địa</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="position-relative">
+                    <div class="rounded-4 overflow-hidden shadow-lg border-frame">
+                        <img src="<?= $BASE_URL ?>/public/images/hero-2.png" class="w-100" alt="Bình Lợi Landscape">
+                    </div>
+                    <div class="floating-badge bg-white p-4 shadow-lg rounded-3 position-absolute top-50 start-0 translate-middle-y ms-n4 d-none d-md-block">
+                        <h5 class="text-primary mb-1">Thiên nhiên an lành</h5>
+                        <p class="small text-muted mb-0">Bao quanh bởi hệ thống kênh rạch</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 2: Trái tim kết nối - Công viên Láng Le -->
+<section class="site-section bg-dark text-white position-relative overflow-hidden">
+    <div class="container-site">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 order-2 order-lg-1">
+                <div class="position-relative">
+                    <img src="<?= $BASE_URL ?>/public/images/hero-1.png" class="rounded-4 w-100 shadow-lg" alt="Láng Le Hub">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 rounded-4 border border-secondary opacity-25 m-3"></div>
+                </div>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2">
+                <span class="text-secondary fw-bold mb-2 d-block">02. HẠT NHÂN KẾT NỐI</span>
+                <h2 class="display-text text-white mb-4">Công viên Văn hóa Láng Le</h2>
+                <p class="lead opacity-75 mb-4">Đóng vai trò là “trung tâm kết nối” trong mọi hành trình trải nghiệm tại Bình Lợi.</p>
+                <p class="small opacity-50 mb-5">Đây không chỉ là không gian phục vụ sinh hoạt cộng đồng quy mô lớn mà còn là điểm dừng chân chính, nơi hội tụ các giá trị lịch sử và là Hub kết nối các làng nghề, nông trại sinh thái xung quanh.</p>
+                
+                <div class="feature-item d-flex gap-3 mb-4">
+                    <div class="icon-box bg-secondary text-dark"><i class="bi bi-geo-fill"></i></div>
+                    <div>
+                        <h6>Vị trí chiến lược</h6>
+                        <p class="small opacity-75 mb-0">Điểm xuất phát lý tưởng cho các tuyến tham quan làng nghề.</p>
+                    </div>
+                </div>
+                <div class="feature-item d-flex gap-3">
+                    <div class="icon-box bg-secondary text-dark"><i class="bi bi-people-fill"></i></div>
+                    <div>
+                        <h6>Trung tâm Văn hóa</h6>
+                        <p class="small opacity-75 mb-0">Nơi lưu giữ hồn cốt và các hoạt động cộng đồng đặc trưng.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 3: Bản sắc Làng Nghề & Sinh Thái -->
+<section class="site-section">
+    <div class="container-site text-center mb-5">
+        <span class="text-primary fw-bold mb-2 d-block">03. BẢN SẮC ĐỊA PHƯƠNG</span>
+        <h2 class="display-text">Làng Nghề & Sinh Thái</h2>
+        <div class="mx-auto bg-primary mt-3" style="width: 60px; height: 3px;"></div>
+    </div>
+    
+    <div class="container-site">
+        <div class="mb-4 d-flex justify-content-between align-items-end">
+            <div>
+                <h3 class="fw-bold mb-0">✨ Gợi ý cho bạn</h3>
+                <p class="text-muted small mb-0">Dành cho mùa: <span class="badge bg-secondary rounded-pill"><?= $seasonName ?></span></p>
+            </div>
+            <a href="<?= $APP_URL ?>/destinations?season=<?= $currentSeason ?>" class="btn btn-link text-primary p-0 text-decoration-none small">Xem tất cả <i class="bi bi-arrow-right"></i></a>
+        </div>
+        <div class="grid-3col">
+            <?php foreach ($featured as $dest): ?>
+                <div class="card-intro animate__animated animate__fadeInUp">
+                    <div class="card-intro-img position-relative">
+                        <?php 
+                        $coverImg = $dest['cover_image'];
+                        $imgSrc = $coverImg ? ((strpos($coverImg, 'http') === 0) ? $coverImg : ($BASE_URL . '/' . $coverImg)) : ($BASE_URL . '/public/images/hero-2.png');
+                        ?>
+                        <img src="<?= $imgSrc ?>" alt="<?= $dest['name'] ?>">
+                        <div class="position-absolute top-0 end-0 m-3">
+                             <span class="badge bg-white text-primary rounded-pill shadow-sm">+<?= $dest['points'] ?> ✨</span>
+                        </div>
+                    </div>
+                    <div class="card-intro-content">
+                        <span class="badge bg-light text-primary mb-2 border text-uppercase" style="font-size: 0.7rem;"><?= $dest['type'] ?></span>
+                        <h4><?= $dest['name'] ?></h4>
+                        <p class="text-truncate-2"><?= $dest['short_desc'] ?></p>
+                        <a href="<?= $APP_URL ?>/explore/<?= $dest['slug'] ?>" class="btn btn-sm btn-outline-primary mt-3 rounded-pill px-3">Khám phá</a>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<!-- Seasonal Videos & Stories -->
+<section class="site-section bg-light">
+    <div class="container-site">
+        <div class="text-center mb-5">
+            <span class="text-primary fw-bold mb-2 d-block">FILM & STORIES</span>
+            <h2 class="display-text">Nhịp sống qua ống kính</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-lg">
+                    <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Bình Lợi - Miền Tây giữa lòng Sài Gòn" allowfullscreen></iframe>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="d-flex flex-column gap-3">
+                    <div class="card-bl p-3 d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0 bg-primary text-white rounded-3 p-2" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-play-fill h3 mb-0"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Du xuân Bình Lợi</h6>
+                            <p class="small text-muted mb-0">Vẻ đẹp rực rỡ của làng Mai Vàng.</p>
+                        </div>
+                    </div>
+                    <div class="card-bl p-3 d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0 bg-secondary text-dark rounded-3 p-2" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-play-fill h3 mb-0"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Miệt vườn giữa Phố</h6>
+                            <p class="small text-muted mb-0">Trải nghiệm hái dừa ven kênh rạch.</p>
+                        </div>
+                    </div>
+                    <div class="card-bl p-3 d-flex align-items-center gap-3">
+                        <div class="flex-shrink-0 bg-dark text-white rounded-3 p-2" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-play-fill h3 mb-0"></i>
+                        </div>
+                        <div>
+                            <h6 class="mb-1">Lễ hội mùa Thu</h6>
+                            <p class="small text-muted mb-0">Lung linh hoa đăng trên hồ Láng Le.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Proposed Tourism Routes -->
+<section class="site-section">
+    <div class="container-site">
+        <div class="row align-items-end mb-5">
+            <div class="col-md-8">
+                <span class="text-primary fw-bold mb-2 d-block">ITINERARIES</span>
+                <h2 class="display-text">Tuyến du lịch đề xuất</h2>
+                <p class="text-muted">Được thiết kế để bạn tận hưởng trọn vẹn bản sắc Bình Lợi trong ngày.</p>
+            </div>
+            <div class="col-md-4 text-md-end">
+                <a href="<?= $APP_URL ?>/onboarding" class="btn btn-outline-primary rounded-pill">Tự tạo hành trình <i class="bi bi-magic ms-1"></i></a>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card-bl h-100">
+                    <div class="p-4">
+                        <span class="badge bg-soft-primary text-primary mb-3">#Chữa_Lành</span>
+                        <h5>Tuyến An Nhiên</h5>
+                        <ul class="list-unstyled mt-3 mb-4 small text-muted">
+                            <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>Chùa Thanh Tâm (Thiền định)</li>
+                            <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>Vườn Dừa (Nghỉ ngơi)</li>
+                            <li><i class="bi bi-check2-circle text-primary me-2"></i>Công viên Láng Le</li>
+                        </ul>
+                        <a href="<?= $APP_URL ?>/journey/preset/an-nhien" class="btn btn-primary-bl w-100 rounded-pill btn-sm">Xem lộ trình</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-bl h-100 border-primary" style="border-width: 2px;">
+                    <div class="p-4">
+                        <span class="badge bg-primary text-white mb-3">Phổ biến nhất</span>
+                        <h5>Tuyến Khám Phá Làng Nghề</h5>
+                        <ul class="list-unstyled mt-3 mb-4 small text-muted">
+                            <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>Làng nghề Nhang</li>
+                            <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>Làng Mai Vàng</li>
+                            <li><i class="bi bi-check2-circle text-primary me-2"></i>Chùa Pháp Tạng</li>
+                        </ul>
+                        <a href="<?= $APP_URL ?>/journey/preset/lang-nghe" class="btn btn-primary-bl w-100 rounded-pill btn-sm">Xem lộ trình</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-bl h-100">
+                    <div class="p-4">
+                        <span class="badge bg-soft-secondary text-dark mb-3">#Gia_Đình</span>
+                        <h5>Tuyến Hội Xuân (Theo mùa)</h5>
+                        <ul class="list-unstyled mt-3 mb-4 small text-muted">
+                            <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>Vườn Mai Vàng</li>
+                            <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>Hội xuân Láng Le</li>
+                            <li><i class="bi bi-check2-circle text-primary me-2"></i>Lễ chùa cầu an</li>
+                        </ul>
+                        <a href="<?= $APP_URL ?>/journey/preset/hoi-xuan" class="btn btn-primary-bl w-100 rounded-pill btn-sm">Xem lộ trình</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Upcoming Events & News -->
+<section class="site-section bg-light">
+    <div class="container-site">
+        <div class="row g-5">
+            <!-- Events -->
+            <div class="col-lg-7">
+                <div class="mb-4">
+                    <span class="text-primary fw-bold mb-2 d-block">WHAT'S ON</span>
+                    <h2 class="display-text">Sự kiện sắp diễn ra</h2>
+                </div>
+                <div class="event-timeline">
+                    <div class="event-card d-flex gap-4 mb-4 p-3 bg-white rounded-4 shadow-sm">
+                        <div class="event-date text-center p-3 bg-primary text-white rounded-3" style="min-width: 80px;">
+                            <span class="d-block h4 mb-0 fw-bold">18</span>
+                            <span class="small text-uppercase">Tháng 5</span>
+                        </div>
+                        <div>
+                            <span class="badge bg-soft-primary text-primary mb-2">Sắp diễn ra</span>
+                            <h5 class="mb-1">Lễ hội thả diều "Sắc màu Bình Lợi"</h5>
+                            <p class="small text-muted mb-0"><i class="bi bi-geo-alt me-1"></i>Công viên Văn hóa Láng Le</p>
+                        </div>
+                    </div>
+                    <div class="event-card d-flex gap-4 mb-4 p-3 bg-white rounded-4 shadow-sm">
+                        <div class="event-date text-center p-3 bg-secondary text-dark rounded-3" style="min-width: 80px;">
+                            <span class="d-block h4 mb-0 fw-bold">15</span>
+                            <span class="small text-uppercase">Tháng 6</span>
+                        </div>
+                        <div>
+                            <span class="badge bg-soft-secondary text-dark mb-2">Đã mở đăng ký</span>
+                            <h5 class="mb-1">Khóa tu mùa hè cho thanh thiếu niên</h5>
+                            <p class="small text-muted mb-0"><i class="bi bi-geo-alt me-1"></i>Chùa Thanh Tâm</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Articles / Local Info -->
+            <div class="col-lg-5">
+                <div class="mb-4">
+                    <span class="text-primary fw-bold mb-2 d-block">BLOG & NEWS</span>
+                    <h2 class="display-text">Góc địa phương</h2>
+                </div>
+                <div class="list-group list-group-flush bg-transparent">
+                    <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 px-0 py-3 d-flex gap-3">
+                        <img src="<?= $BASE_URL ?>/public/images/hero-2.png" class="rounded-3" style="width: 80px; height: 80px; object-fit: cover;" alt="Article">
+                        <div>
+                            <h6 class="mb-1">Bình Lợi - Vùng đất di sản ngoại thành</h6>
+                            <p class="small text-muted mb-0">Khám phá lịch sử hình thành và phát triển của vùng đất...</p>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 px-0 py-3 d-flex gap-3">
+                        <img src="<?= $BASE_URL ?>/public/images/card-culture.png" class="rounded-3" style="width: 80px; height: 80px; object-fit: cover;" alt="Article">
+                        <div>
+                            <h6 class="mb-1">Trải nghiệm 1 ngày làm nông dân</h6>
+                            <p class="small text-muted mb-0">Hành trình hái dừa, làm nhang và thưởng thức ẩm thực...</p>
+                        </div>
+                    </a>
+                </div>
+                <a href="#" class="btn btn-link text-primary p-0 mt-3 text-decoration-none small">Xem thêm bài viết <i class="bi bi-arrow-right"></i></a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Section 4: Công nghệ & Tương lai -->
+<section class="site-section bg-light">
+    <div class="container-site text-center mb-5">
+        <span class="text-primary fw-bold mb-2 d-block">04. DU LỊCH THÔNG MINH</span>
+        <h2 class="display-text">Trải nghiệm số hóa</h2>
+        <p class="text-muted mx-auto" style="max-width: 600px;">Ứng dụng công nghệ số như Bản đồ thông minh, QR kể chuyện giúp nâng cao trải nghiệm cho du khách.</p>
+    </div>
+    
+    <div class="container-site">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center">
+                    <div class="h1 text-primary mb-3"><i class="bi bi-map-fill"></i></div>
+                    <h5>Bản đồ tương tác</h5>
+                    <p class="small text-muted">Định vị GPS và gợi ý lộ trình tối ưu dựa trên sở thích cá nhân.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center">
+                    <div class="h1 text-primary mb-3"><i class="bi bi-qr-code-scan"></i></div>
+                    <h5>QR Kể Chuyện</h5>
+                    <p class="small text-muted">Mỗi điểm đến là một mảnh ghép ký ức được số hóa sinh động.</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="p-4 bg-white rounded-4 shadow-sm h-100 text-center">
+                    <div class="h1 text-primary mb-3"><i class="bi bi-award-fill"></i></div>
+                    <h5>Gamification</h5>
+                    <p class="small text-muted">Thu thập huy hiệu bản sắc khi khám phá đủ các địa danh tại địa phương.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Call to Action -->
+<section class="site-section bg-primary text-white text-center">
+    <div class="container-site py-4">
+        <h2 class="display-text mb-4">Sẵn sàng khám phá Bình Lợi?</h2>
+        <p class="lead mb-5 opacity-75">Hãy để chúng tôi đồng hành cùng bạn trong hành trình chữa lành này.</p>
+        <a href="<?= $APP_URL ?>/onboarding" class="btn btn-light btn-lg px-5 rounded-pill fw-bold text-primary">Bắt đầu ngay 🚀</a>
+    </div>
+</section>
+
+<style>
+.hero-immersive {
+    height: 100vh;
+    background-color: #000;
+}
+.hero-overlay {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.6));
+    z-index: 5;
+}
+.scroll-down {
+    position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+    color: white; font-size: 2rem; animation: bounce 2s infinite; z-index: 10;
+}
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0) translateX(-50%);}
+    40% {transform: translateY(-10px) translateX(-50%);}
+    60% {transform: translateY(-5px) translateX(-50%);}
+}
+.fw-black { font-weight: 900; }
+.border-frame { border: 1px solid var(--color-border); }
+.icon-box {
+    width: 45px; height: 45px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; flex-shrink: 0;
+}
+.card-intro {
+    background: #fff; border-radius: 20px; overflow: hidden;
+    border: 1px solid #eee; transition: all 0.3s ease; text-align: left;
+}
+.card-intro:hover { transform: translateY(-10px); box-shadow: 0 15px 35px rgba(0,0,0,0.08); }
+.card-intro-img img { width: 100%; height: 250px; object-fit: cover; }
+.card-intro-content { padding: 25px; }
+.card-intro-content h4 { font-size: 1.25rem; margin-bottom: 15px; color: var(--color-primary); }
+.card-intro-content p { font-size: 0.9rem; color: #666; line-height: 1.6; margin-bottom: 0; }
+</style>

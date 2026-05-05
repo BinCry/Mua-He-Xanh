@@ -1,0 +1,108 @@
+<section class="site-section">
+    <div class="container-site">
+        <div class="text-center mb-5 animate__animated animate__fadeIn">
+            <span class="text-primary fw-bold mb-2 d-block">🏆 KẾT QUẢ HÀNH TRÌNH</span>
+            <h2 class="display-text">Huy hiệu & Thành tựu</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Chúc mừng bạn đã hoàn thành một phần hành trình khám phá "Hồn quê giữa nhịp sống mới" tại Bình Lợi.</p>
+        </div>
+
+        <!-- Stats Overview -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-4">
+                <div class="card-bl p-4 text-center animate__animated animate__fadeInUp">
+                    <div class="h2 text-primary mb-1"><?= $session['total_points'] ?></div>
+                    <div class="small text-muted text-uppercase fw-bold">Tổng điểm tích lũy</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-bl p-4 text-center animate__animated animate__fadeInUp animate__delay-1s">
+                    <div class="h2 text-secondary mb-1"><?= count($unlockedBadges) ?></div>
+                    <div class="small text-muted text-uppercase fw-bold">Huy hiệu đạt được</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card-bl p-4 text-center animate__animated animate__fadeInUp animate__delay-2s">
+                    <div class="h2 text-accent mb-1"><?= count($history) ?></div>
+                    <div class="small text-muted text-uppercase fw-bold">Địa điểm đã ghé</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-5">
+            <!-- Badges List -->
+            <div class="col-lg-7">
+                <h4 class="mb-4 border-start border-primary border-4 ps-3">Bộ sưu tập Huy hiệu</h4>
+                <?php if (empty($unlockedBadges)): ?>
+                    <div class="alert alert-light text-center p-5">
+                        <i class="bi bi-award display-1 opacity-25 d-block mb-3"></i>
+                        <p class="text-muted">Bạn chưa đạt được huy hiệu nào. Hãy tiếp tục hành trình để mở khóa nhé!</p>
+                        <a href="<?= $APP_URL ?>/map" class="btn btn-primary-bl mt-3">Tiếp tục khám phá</a>
+                    </div>
+                <?php else: ?>
+                    <div class="row g-4">
+                        <?php foreach ($unlockedBadges as $badge): ?>
+                            <div class="col-sm-6 col-md-4">
+                                <div class="card-bl p-3 text-center h-100 animate__animated animate__zoomIn">
+                                    <div class="badge-icon-lg mb-3" style="font-size: 40px;"><?= $badge['icon'] ?></div>
+                                    <h6 class="fw-bold mb-1"><?= $badge['name'] ?></h6>
+                                    <p class="x-small text-muted mb-0"><?= $badge['description'] ?></p>
+                                    <span class="badge bg-secondary text-dark mt-2">+<?= $badge['points'] ?> pts</span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+
+            <!-- History Timeline -->
+            <div class="col-lg-5">
+                <h4 class="mb-4 border-start border-primary border-4 ps-3">Nhật ký hành trình</h4>
+                <div class="history-timeline">
+                    <?php if (empty($history)): ?>
+                        <p class="text-muted small">Chưa có lịch sử check-in.</p>
+                    <?php else: ?>
+                        <?php foreach ($history as $h): ?>
+                            <div class="d-flex gap-3 mb-4 animate__animated animate__fadeInRight">
+                                <div class="flex-shrink-0">
+                                    <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="bi bi-geo-alt"></i>
+                                    </div>
+                                </div>
+                                <div>
+                                    <h6 class="fw-bold mb-0"><?= $h['name'] ?></h6>
+                                    <p class="small text-muted mb-0"><?= date('H:i, d/m/Y', strtotime($h['checked_at'])) ?></p>
+                                    <span class="x-small text-primary fw-bold">Phương thức: <?= $h['checkin_method'] ?></span>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-5">
+            <button class="btn btn-primary-bl px-5" onclick="shareJourney()">Chia sẻ hành trình lên Facebook 🚀</button>
+        </div>
+    </div>
+</section>
+
+<style>
+.badge-icon-lg {
+    width: 80px;
+    height: 80px;
+    background: #f8f9fa;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto;
+    border: 2px dashed var(--color-secondary);
+}
+.x-small { font-size: 11px; }
+</style>
+
+<script>
+function shareJourney() {
+    alert('Chức năng chia sẻ đang được tối ưu hóa cho Facebook OpenGraph. Bạn có thể chụp màn hình và chia sẻ ngay với hashtag #BinhLoiHealing!');
+}
+</script>
