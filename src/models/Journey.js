@@ -128,29 +128,34 @@ class Journey extends Model {
         switch (theme) {
             case 'du-xuan':
             case 'hoi-xuan':
-                slugs = ['lang-mai-vang', 'cong-vien-van-hoa-lang-le', 'chua-thanh-tam'];
+                slugs = ['lang-mai-vang', 'xuong-nhang-minh', 'chua-thanh-tam'];
                 moodName = "Du xuân Bình Lợi";
-                totalKm = 5.2;
-                totalMin = 210;
-                break;
-            case 'nguoi-mien-tay':
-                slugs = ['vuon-dua-binh-loi', 'lang-nghe-nhang', 'cong-vien-van-hoa-lang-le'];
-                moodName = "Một ngày làm người miền Tây";
-                totalKm = 3.8;
-                totalMin = 240;
-                break;
-            case 'tri-an-lich-su':
-                slugs = ['cong-vien-van-hoa-lang-le', 'chua-phap-tang', 'chua-thanh-tam'];
-                moodName = "Hành trình tri ân lịch sử";
-                totalKm = 4.2;
+                totalKm = 4.8;
                 totalMin = 180;
                 break;
+            case 'miet-vuon':
+            case 'nguoi-mien-tay':
+                slugs = ['vuon-dua', 'xuong-nhang-minh', 'cong-vien-lang-le'];
+                moodName = "Miệt vườn giữa phố";
+                totalKm = 4.2;
+                totalMin = 240;
+                break;
+            case 'tam-linh':
+            case 'tri-an-lich-su':
+                slugs = ['chua-phap-tang', 'chua-thanh-tam', 'cong-vien-lang-le'];
+                moodName = "Tâm linh & Nguồn cội";
+                totalKm = 3.5;
+                totalMin = 150;
+                break;
+            case 'song-cham':
             case 'an-nhien':
-                slugs = ['chua-thanh-tam', 'vuon-dua-binh-loi', 'cong-vien-van-hoa-lang-le'];
-                moodName = "Hành trình An nhiên";
+                slugs = ['rung-phong-ho', 'vuon-lan', 'cau-chu-z'];
+                moodName = "Sống chậm Bình Lợi";
+                totalKm = 5.5;
+                totalMin = 180;
                 break;
             case 'lang-nghe':
-                slugs = ['lang-nghe-nhang', 'lang-mai-vang', 'chua-phap-tang'];
+                slugs = ['xuong-nhang-minh', 'lang-mai-vang', 'chua-phap-tang'];
                 moodName = "Khám phá Làng nghề";
                 break;
             default:
