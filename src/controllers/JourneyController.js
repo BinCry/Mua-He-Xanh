@@ -7,6 +7,11 @@ class JourneyController {
             const uuid = req.cookies.session_uuid;
             if (!uuid) return res.redirect('/onboarding');
 
+            // --- STRATEGY REQUIREMENT: Authentication check ---
+            if (!req.session.user) {
+                return res.redirect('/auth/login?error=Vui lòng đăng nhập để bắt đầu hành trình của bạn');
+            }
+
             const session = await UserSession.findByUuid(uuid);
             if (!session || !session.mood) return res.redirect('/onboarding');
 
@@ -43,6 +48,10 @@ class JourneyController {
             const { theme } = req.params;
             const uuid = req.cookies.session_uuid;
             if (!uuid) return res.redirect('/onboarding');
+
+            if (!req.session.user) {
+                return res.redirect('/auth/login?error=Vui lòng đăng nhập để bắt đầu hành trình của bạn');
+            }
 
             const session = await UserSession.findByUuid(uuid);
             if (!session) return res.redirect('/onboarding');

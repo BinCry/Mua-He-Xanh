@@ -60,14 +60,54 @@
 }
 </style>
 
+<!-- Multimedia Portal Modal -->
+<div class="modal fade" id="multimediaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="position-relative">
+                <img id="modal-img" src="" class="w-100" style="height: 200px; object-fit: cover;">
+                <div class="position-absolute top-0 end-0 m-3">
+                    <button type="button" class="btn-close btn-close-white bg-dark p-2 rounded-circle" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="position-absolute bottom-0 start-0 w-100 p-3 bg-gradient-dark text-white">
+                    <h4 id="modal-title" class="mb-0 fw-bold"></h4>
+                </div>
+            </div>
+            <div class="modal-body p-4 text-center">
+                <!-- Audio Guide -->
+                <div id="audio-container" class="mb-4 d-none">
+                    <div class="d-flex align-items-center justify-content-center gap-3 bg-light p-3 rounded-pill border">
+                        <i class="bi bi-volume-up-fill text-primary fs-4"></i>
+                        <div class="small text-muted fw-bold">Audio Guide Đang Phát...</div>
+                        <audio id="modal-audio" controls class="d-none">
+                            <source id="modal-audio-source" src="" type="audio/mpeg">
+                        </audio>
+                        <button class="btn btn-primary-bl btn-sm rounded-pill" onclick="toggleAudio()"><i class="bi bi-play-fill" id="play-icon"></i></button>
+                    </div>
+                </div>
+
+                <p id="modal-story" class="text-muted small mb-4" style="line-height: 1.6;"></p>
+                
+                <div class="d-grid gap-2">
+                    <button class="btn btn-primary-bl rounded-pill" onclick="window.location.href='/summary'">Hoàn thành & Xem Passport</button>
+                    <button class="btn btn-outline-bl rounded-pill" data-bs-dismiss="modal">Ở lại khám phá thêm</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-dark { background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
+</style>
+
 <script src="https://unpkg.com/html5-qrcode"></script>
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
 
 <script>
 // QR Scanner Logic
 function onScanSuccess(decodedText, decodedResult) {
-    document.getElementById('qr-result').innerHTML = `<div class="alert alert-success">Đã quét: ${decodedText}</div>`;
-    // decodedText is usually the slug or URL. We need the slug.
+    document.getElementById('qr-result').innerHTML = `<div class="alert alert-success">Đã quét thành công! Đang xử lý...</div>`;
     let slug = decodedText;
     if (decodedText.includes('/')) {
         slug = decodedText.split('/').pop();
@@ -80,9 +120,9 @@ html5QrcodeScanner.render(onScanSuccess);
 
 // GPS Logic
 document.getElementById('btn-gps-check').addEventListener('click', () => {
+    document.getElementById('location-status').innerHTML = '<i class="bi bi-hourglass-split"></i> Đang xác thực tọa độ...';
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(pos => {
-            document.getElementById('location-status').innerHTML = `Tọa độ: ${pos.coords.latitude.toFixed(4)}, ${pos.coords.longitude.toFixed(4)}`;
             verifyCheckin('<%= slug || "" %>', 'gps', pos.coords.latitude, pos.coords.longitude);
         });
     } else {
@@ -96,6 +136,14 @@ function verifyCheckin(slug, method, lat = null, lng = null) {
         return;
     }
     
+    // Auto-detect location if GPS method and no lat/lng provided yet
+    if (method === 'gps' && lat === null) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            verifyCheckin(slug, 'gps', pos.coords.latitude, pos.coords.longitude);
+        });
+        return;
+    }
+
     axios.post(window.APP_CONFIG.apiUrl + '/checkin', {
         slug: slug,
         method: method,
@@ -103,14 +151,53 @@ function verifyCheckin(slug, method, lat = null, lng = null) {
         lng: lng
     }).then(res => {
         if (res.data.success) {
-            confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-            alert('Check-in thành công! Bạn nhận được ' + res.data.points_earned + ' điểm.');
-            window.location.href = window.APP_CONFIG.baseUrl + '/summary';
+            confetti({ particleCount: 150, spread: 100, origin: { y: 0.7 } });
+            showMultimediaPortal(res.data.destination);
         } else {
             alert('Thất bại: ' + res.data.message);
+            document.getElementById('location-status').innerHTML = 'Xác thực thất bại. Vui lòng thử lại.';
         }
     }).catch(err => {
         alert('Lỗi: ' + (err.response?.data?.message || err.message));
+        document.getElementById('location-status').innerHTML = 'Lỗi kết nối.';
     });
+}
+
+function showMultimediaPortal(dest) {
+    document.getElementById('modal-title').innerText = dest.name;
+    document.getElementById('modal-img').src = window.APP_CONFIG.baseUrl + '/images/' + (dest.cover_image || 'hero-1.png');
+    document.getElementById('modal-story').innerText = dest.story || "Chào mừng bạn đến với địa điểm văn hóa đặc sắc của Bình Lợi.";
+    
+    const audio = document.getElementById('modal-audio');
+    const container = document.getElementById('audio-container');
+    
+    if (dest.audio_url) {
+        document.getElementById('modal-audio-source').src = dest.audio_url;
+        audio.load();
+        container.classList.remove('d-none');
+        // Auto play audio guide
+        setTimeout(() => {
+            audio.play().then(() => {
+                document.getElementById('play-icon').className = 'bi bi-pause-fill';
+            }).catch(e => console.log("Auto-play blocked by browser policy"));
+        }, 500);
+    } else {
+        container.classList.add('d-none');
+    }
+
+    const myModal = new bootstrap.Modal(document.getElementById('multimediaModal'));
+    myModal.show();
+}
+
+function toggleAudio() {
+    const audio = document.getElementById('modal-audio');
+    const icon = document.getElementById('play-icon');
+    if (audio.paused) {
+        audio.play();
+        icon.className = 'bi bi-pause-fill';
+    } else {
+        audio.pause();
+        icon.className = 'bi bi-play-fill';
+    }
 }
 </script>

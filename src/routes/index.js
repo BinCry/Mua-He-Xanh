@@ -10,6 +10,8 @@ const CheckinController = require('../controllers/CheckinController');
 const SummaryController = require('../controllers/SummaryController');
 const MapController = require('../controllers/MapController');
 
+const AuthController = require('../controllers/AuthController');
+
 // Page Routes
 router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
@@ -21,6 +23,12 @@ router.get('/explore/:slug', ExploreController.show);
 router.get('/journey', JourneyController.index);
 router.get('/journey/preset/:theme', JourneyController.preset);
 
+// Auth Routes
+router.get('/auth/login', AuthController.loginPage);
+router.post('/auth/login', AuthController.handleLogin);
+router.post('/auth/social', AuthController.handleSocialLogin);
+router.get('/auth/logout', AuthController.logout);
+
 // API Routes
 router.all('/api/session', ApiController.session);
 router.all('/api/session/:uuid', ApiController.session);
@@ -28,5 +36,6 @@ router.get('/api/destinations', ApiController.destinations);
 router.post('/api/journey', ApiController.journey);
 router.post('/api/journey/update-stop', ApiController.updateJourneyStop);
 router.post('/api/checkin', ApiController.checkin);
+router.post('/api/send-message', ApiController.sendMessage);
 
 module.exports = router;

@@ -140,6 +140,28 @@
                         <a href="https://www.google.com/maps/dir/?api=1&destination=<%= dest.lat %>,<%= dest.lng %>" target="_blank" class="btn btn-outline-bl btn-lg">
                             <i class="bi bi-map-fill me-2"></i> Chỉ đường (Maps)
                         </a>
+                        <button class="btn btn-light border btn-lg mt-2" data-bs-toggle="modal" data-bs-target="#chatModal">
+                            <i class="bi bi-chat-dots-fill me-2 text-primary"></i> Chat với quản lý
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Chat Modal -->
+                <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content border-0 rounded-4 shadow-lg">
+                            <div class="modal-header bg-primary text-white border-0 py-3">
+                                <h5 class="modal-title fw-bold"><i class="bi bi-chat-dots me-2"></i> Chat với <%= dest.name %></h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <p class="small text-muted mb-4">Quản lý địa điểm sẽ trả lời các câu hỏi của bạn về dịch vụ, giờ mở cửa hoặc hỗ trợ khác.</p>
+                                <div class="mb-3">
+                                    <textarea id="chat-message" class="form-control border-light bg-light" rows="4" placeholder="Nhập câu hỏi của bạn..."></textarea>
+                                </div>
+                                <button class="btn btn-primary-bl w-100 rounded-pill py-2" onclick="sendChatMessage('<%= dest.id %>')">Gửi tin nhắn</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -208,5 +230,23 @@
 <script>
 function startStorytelling() {
     alert('Khởi động Audio Storytelling: Chào mừng bạn đến với <%= dest.name %>. Hãy đeo tai nghe để trải nghiệm tốt nhất!');
+}
+
+function sendChatMessage(destinationId) {
+    const message = document.getElementById('chat-message').value;
+    if (!message) return alert('Vui lòng nhập tin nhắn');
+
+    axios.post(window.APP_CONFIG.apiUrl + '/send-message', {
+        destinationId,
+        message
+    }).then(res => {
+        if (res.data.success) {
+            alert(res.data.message);
+            bootstrap.Modal.getInstance(document.getElementById('chatModal')).hide();
+            document.getElementById('chat-message').value = '';
+        }
+    }).catch(err => {
+        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+    });
 }
 </script>

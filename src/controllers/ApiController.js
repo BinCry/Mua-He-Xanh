@@ -172,8 +172,41 @@ class ApiController {
         res.json({
             success: true,
             points_earned: dest.points,
-            new_badges: newBadges
+            new_badges: newBadges,
+            destination: {
+                name: dest.name,
+                story: dest.story,
+                audio_url: dest.audio_url,
+                video_url: dest.video_url,
+                cover_image: dest.cover_image,
+                highlight: dest.highlight
+            }
         });
+    // --- CHAT API ---
+    async sendMessage(req, res) {
+        const { destinationId, message } = req.body;
+        const sessionUuid = req.cookies.session_uuid;
+        
+        if (!sessionUuid || !destinationId || !message) {
+            return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ' });
+        }
+
+        const session = await UserSession.findByUuid(sessionUuid);
+        if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
+
+        // Get manager for this destination
+        const [managers] = await UserSession.db.query(
+            "SELECT id FROM users WHERE managed_destination_id = ? AND role = 'manager' LIMIT 1",
+            [destinationId]
+        );
+        const receiverId = managers.length > 0 ? managers[0].id : null;
+
+        await UserSession.db.query(
+            "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message) VALUES (?, ?, ?, ?, ?)",
+            [uuidv4(), session.id, receiverId, destinationId, message]
+        );
+
+        res.json({ success: true, message: 'Đã gửi tin nhắn đến quản lý địa điểm.' });
     }
 }
 

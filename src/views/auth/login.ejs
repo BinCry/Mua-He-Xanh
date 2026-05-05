@@ -1,0 +1,53 @@
+<section class="site-section d-flex align-items-center" style="min-height: 80vh;">
+    <div class="container-site">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="card-bl p-5 shadow-lg border-0 animate__animated animate__fadeIn">
+                    <div class="text-center mb-5">
+                        <img src="<%= baseUrl %>/images/hero-1.png" class="rounded-circle mb-3 shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                        <h3 class="fw-black text-primary">Bình Lợi Healing</h3>
+                        <p class="text-muted">Đăng nhập để nhận Passport du lịch số</p>
+                    </div>
+
+                    <% if (error) { %>
+                        <div class="alert alert-danger small py-2"><%= error %></div>
+                    <% } %>
+
+                    <form action="<%= baseUrl %>/auth/login" method="POST" class="mb-4">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Email</label>
+                            <input type="email" name="email" class="form-control rounded-pill px-3" placeholder="email@example.com" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Mật khẩu</label>
+                            <input type="password" name="password" class="form-control rounded-pill px-3" placeholder="••••••••" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary-bl w-100 py-2 rounded-pill fw-bold">Đăng nhập</button>
+                    </form>
+
+                    <div class="text-center position-relative mb-4">
+                        <hr>
+                        <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted small">Hoặc tiếp tục với</span>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <button class="btn btn-outline-bl w-100 rounded-pill small" onclick="alert('Google Login đang kết nối...')">
+                                <i class="bi bi-google me-1"></i> Google
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button class="btn btn-outline-bl w-100 rounded-pill small" onclick="alert('Facebook Login đang kết nối...')">
+                                <i class="bi bi-facebook me-1"></i> Facebook
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-5">
+                        <p class="small text-muted">Chưa có tài khoản? <a href="#" class="text-primary fw-bold text-decoration-none">Đăng ký ngay</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
