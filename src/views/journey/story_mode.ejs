@@ -1,242 +1,225 @@
-<!-- ULTIMATE JOURNEY MASTERPIECE - XANH TRANG THEME -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<div class="bg-white min-vh-100 py-5">
+    <div class="container-site">
 
-<div id="journey-app" class="bg-white min-vh-100">
-
-    <!-- SCREEN 1: SUGGESTIONS (SWIPE TIKTOK STYLE) -->
-    <section id="screen-suggestions" class="py-5 animate__animated animate__fadeIn">
-        <div class="container-site text-center">
-            <h1 class="v4-vibe-title">Gợi ý cho bạn ✨</h1>
-            <p class="v4-vibe-subtitle mb-5">Dựa trên vibe của bạn, chúng tôi đề xuất 3 hành trình "match" nhất.</p>
-
-            <div class="swipe-container position-relative mb-5" style="max-width: 450px; margin: 0 auto; height: 600px;">
-                <!-- Card Match 98% -->
-                <div class="swipe-card active shadow-3xl rounded-5 overflow-hidden position-absolute w-100 h-100 bg-white border border-light">
-                    <img src="<%= baseUrl %>/images/hero-1.png" class="w-100 h-60 object-fit-cover" style="height: 60%;">
-                    <div class="p-4 text-start">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="badge bg-primary rounded-pill px-3 py-2">MỨC ĐỘ PHÙ HỢP: 98%</span>
-                            <div class="text-primary fw-black">MATCH!</div>
-                        </div>
-                        <h2 class="fw-black text-dark mb-3">Một ngày miền Tây giữa phố</h2>
-                        <div class="d-flex gap-4 text-muted small fw-bold">
-                            <span><i class="bi bi-clock-history me-1"></i> 6H</span>
-                            <span><i class="bi bi-geo-alt me-1"></i> 5 ĐIỂM</span>
-                            <span><i class="bi bi-bicycle me-1"></i> XE MÁY</span>
-                        </div>
-                        <div class="mt-4 d-grid">
-                            <button class="btn btn-primary-bl py-3 fw-black rounded-pill" onclick="showOverview('healing')">CHỌN VIBE NÀY ➔</button>
-                        </div>
-                    </div>
-                </div>
+        <!-- HEADER: CLEAN & PREMIUM -->
+        <div class="row mb-5 animate__animated animate__fadeIn">
+            <div class="col-lg-8">
+                <span class="text-primary fw-bold letter-spacing-lg mb-2 d-block">TRẢI NGHIỆM ĐÃ SẴN SÀNG</span>
+                <h1 class="display-3 fw-black mb-3">Hành trình của bạn tại <span class="text-primary">Bình Lợi</span>
+                </h1>
+                <p class="text-muted lead" style="max-width: 600px;">Hệ thống đã thiết kế một lộ trình riêng biệt để bạn
+                    có thể cảm nhận trọn vẹn sự an nhiên và bản sắc nơi đây.</p>
             </div>
-            
-            <div class="d-flex justify-content-center gap-3">
-                <button class="btn btn-light rounded-circle shadow-sm p-3"><i class="bi bi-x-lg text-danger fs-4"></i></button>
-                <button class="btn btn-light rounded-circle shadow-sm p-3"><i class="bi bi-heart-fill text-primary fs-4"></i></button>
-            </div>
-        </div>
-    </section>
-
-    <!-- SCREEN 2: OVERVIEW & TIMELINE (STORY MODE) -->
-    <section id="screen-overview" style="display: none;" class="animate__animated animate__fadeIn">
-        <div class="bg-primary text-white py-5 mb-5 shadow-lg">
-            <div class="container-site">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <h1 class="display-5 fw-black mb-2">Một ngày miền Tây giữa phố</h1>
-                        <div class="d-flex gap-4 fw-bold small opacity-75">
-                            <span>⏱ 6 TIẾNG</span>
-                            <span>📍 12KM</span>
-                            <span>🛵 XE MÁY</span>
+            <div class="col-lg-4 text-lg-end d-flex align-items-end justify-content-lg-end mt-4 mt-lg-0">
+                <div class="p-3 bg-light rounded-4 d-inline-flex gap-4 shadow-sm">
+                    <div class="text-center">
+                        <div class="fw-black fs-4 text-dark">
+                            <%= Math.round(journey.total_minutes/60) %>h
                         </div>
+                        <div class="small text-muted fw-bold" style="font-size: 10px;">THỜI GIAN</div>
                     </div>
-                    <div class="col-md-4 text-md-end mt-4 mt-md-0">
-                        <button class="btn btn-white text-primary rounded-pill px-4 fw-black py-2" onclick="startCustomize()">🎨 TÙY CHỈNH THEO MÌNH</button>
+                    <div class="text-center">
+                        <div class="fw-black fs-4 text-dark">
+                            <%= journey.total_km %>km
+                        </div>
+                        <div class="small text-muted fw-bold" style="font-size: 10px;">QUÃNG ĐƯỜNG</div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <div class="container-site pb-5">
-            <div class="row g-5">
-                <div class="col-lg-8">
-                    <h4 class="fw-black mb-4">Timeline trải nghiệm</h4>
-                    <div id="sortable-list" class="list-group gap-3 border-0">
-                        <% journey.stops.forEach((stop, index) => { %>
-                        <div class="journey-card-v4 p-3 d-flex align-items-center gap-3 animate__animated animate__fadeInUp" data-id="<%= stop.id %>">
-                            <div class="handle d-none me-2"><i class="bi bi-grip-vertical fs-4 text-muted"></i></div>
-                            <div class="step-circle"><%= index + 1 %></div>
-                            <img src="<%= fixImg(stop.cover_image) %>" class="rounded-4" style="width: 80px; height: 80px; object-fit: cover;">
-                            <div class="flex-grow-1">
-                                <h6 class="fw-black mb-1"><%= stop.name %></h6>
-                                <p class="small text-muted mb-0"><%= stop.short_desc %></p>
-                            </div>
-                            <div class="d-flex gap-2 btn-actions">
-                                <button class="btn btn-light btn-sm rounded-circle"><i class="bi bi-chat-dots text-primary"></i></button>
-                                <button class="btn btn-light btn-sm rounded-circle text-danger d-none btn-remove" onclick="this.closest('.journey-card-v4').remove()"><i class="bi bi-x-lg"></i></button>
+        <div class="row g-5">
+            <!-- LEFT: THE JOURNEY LIST -->
+            <div class="col-lg-8">
+                <div class="journey-flow">
+                    <% journey.stops.forEach((stop, index)=> { %>
+                        <div class="journey-item mb-5 animate__animated animate__fadeInUp"
+                            style="animation-delay: <%= index * 0.1 %>s">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-auto me-4">
+                                    <div class="step-circle">
+                                        <%= index + 1 %>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div
+                                        class="card border-0 bg-white shadow-sm rounded-5 overflow-hidden journey-card-v4 transition">
+                                        <div class="row g-0">
+                                            <div class="col-md-4">
+                                                <div class="position-relative h-100">
+                                                    <img src="<%= fixImg(stop.cover_image) %>"
+                                                        class="img-fluid h-100 object-fit-cover"
+                                                        style="min-height: 200px;">
+                                                    <div
+                                                        class="card-img-overlay d-flex align-items-start justify-content-end p-2">
+                                                        <span
+                                                            class="badge bg-white text-dark rounded-pill shadow-sm small">
+                                                            <%= (index===0) ? 'BẮT ĐẦU' : 'CHẶNG ' + (index + 1) %>
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="card-body p-4 p-md-5">
+                                                    <h3 class="fw-black mb-2">
+                                                        <%= stop.name %>
+                                                    </h3>
+                                                    <p class="text-muted mb-4">
+                                                        <%= stop.short_desc
+                                                            || 'Không gian yên bình mang lại cảm giác thư thái và phục hồi năng lượng.'
+                                                            %>
+                                                    </p>
+                                                    <div class="d-flex gap-2">
+                                                        <a href="<%= baseUrl %>/explore/<%= stop.slug %>"
+                                                            class="btn btn-dark btn-pill px-4 py-2 small fw-bold">XEM
+                                                            CHI TIẾT</a>
+                                                        <button
+                                                            class="btn btn-outline-primary btn-pill px-4 py-2 small fw-bold"
+                                                            onclick="simulateCheckin('<%= stop.name %>')">CHECK-IN</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <% }) %>
-                    </div>
+                </div>
+            </div>
 
-                    <!-- CUSTOMIZE CONTROLS (Hidden by default) -->
-                    <div id="customize-controls" class="mt-5 d-none p-4 bg-light rounded-5">
-                        <h6 class="fw-black mb-4">Điều chỉnh thời gian (Slider)</h6>
-                        <input type="range" class="form-range" min="2" max="10" step="1" id="timeSlider" oninput="updateTimeVal(this.value)">
-                        <div class="d-flex justify-content-between mt-2">
-                            <span class="small fw-bold text-muted">2 Giờ</span>
-                            <span class="badge bg-primary p-2" id="timeVal">Dự kiến: 6 Giờ</span>
-                            <span class="small fw-bold text-muted">10 Giờ</span>
-                        </div>
-                        <div id="timeWarning" class="mt-3 text-center fw-bold text-success">Ổn áp 👍</div>
-                        
-                        <div class="mt-4">
-                            <h6 class="fw-black mb-3">Phương tiện di chuyển</h6>
-                            <div class="btn-group w-100">
-                                <input type="radio" class="btn-check" name="vbtn-radio" id="vbtn-radio1" checked>
-                                <label class="btn btn-outline-primary py-3" for="vbtn-radio1">🛵 XE MÁY</label>
-                                <input type="radio" class="btn-check" name="vbtn-radio" id="vbtn-radio2">
-                                <label class="btn btn-outline-primary py-3" for="vbtn-radio2">🚲 XE ĐẠP</label>
-                                <input type="radio" class="btn-check" name="vbtn-radio" id="vbtn-radio3">
-                                <label class="btn btn-outline-primary py-3" for="vbtn-radio3">🚶 ĐI BỘ</label>
+            <!-- RIGHT: SMART ASSISTANT -->
+            <div class="col-lg-4">
+                <div class="sticky-top" style="top: 120px;">
+                    <div
+                        class="card border-0 rounded-5 shadow-2xl bg-dark text-white p-5 overflow-hidden position-relative mb-4">
+                        <div class="position-relative" style="z-index: 10;">
+                            <h4 class="fw-black mb-4">Trợ lý du lịch <br><span class="text-primary">Bình Lợi AI</span>
+                            </h4>
+
+                            <div id="next-stop-box" class="mb-5 p-4 bg-white bg-opacity-10 rounded-4">
+                                <div class="small opacity-50 mb-1">ĐIỂM ĐẾN TIẾP THEO</div>
+                                <h5 class="fw-bold mb-0 text-primary">
+                                    <%= journey.stops[0].name %>
+                                </h5>
+                            </div>
+
+                            <button class="btn btn-primary btn-lg w-100 rounded-pill py-3 fw-black shadow-lg mb-3"
+                                onclick="startNav()">
+                                🚀 KHỞI HÀNH NGAY
+                            </button>
+                            <div class="text-center small opacity-50 fw-bold">TIẾN ĐỘ: <span
+                                    id="progress-text">0%</span></div>
+                            <div class="progress mt-2" style="height: 6px; background: rgba(255,255,255,0.1);">
+                                <div class="progress-bar bg-primary rounded-pill" role="progressbar" style="width: 0%"
+                                    id="progress-bar"></div>
                             </div>
                         </div>
+                        <i class="bi bi-compass position-absolute bottom-0 end-0 m-n4 opacity-10"
+                            style="font-size: 150px;"></i>
                     </div>
-                </div>
 
-                <div class="col-lg-4">
-                    <div class="sticky-top" style="top: 100px;">
-                        <div class="card border-0 shadow-3xl rounded-5 p-5 bg-dark text-white text-center">
-                            <h4 class="fw-black mb-4">Bắt đầu ngay?</h4>
-                            <button class="btn btn-primary w-100 py-3 rounded-pill fw-black mb-3 fs-5" onclick="startJourney()">🚀 BẮT ĐẦU NGAY</button>
-                            <button class="btn btn-outline-light w-100 py-3 rounded-pill fw-bold" onclick="saveJourney()">💾 LƯU LẠI</button>
-                            <p class="small mt-4 opacity-50">Lộ trình sẽ được tối ưu dựa trên thời gian thực tế.</p>
+                    <!-- HELP CARD -->
+                    <div class="card border-0 rounded-5 shadow-sm p-4">
+                        <h6 class="fw-black mb-3">Bạn cần hỗ trợ?</h6>
+                        <div class="d-grid gap-2">
+                            <button
+                                class="btn btn-light text-start p-3 rounded-4 border-0 small d-flex align-items-center gap-3">
+                                <i class="bi bi-chat-dots-fill text-primary"></i>
+                                <span>Chat với điểm đến</span>
+                            </button>
+                            <button
+                                class="btn btn-light text-start p-3 rounded-4 border-0 small d-flex align-items-center gap-3">
+                                <i class="bi bi-telephone-fill text-primary"></i>
+                                <span>Hotline hỗ trợ 24/7</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- SCREEN 3: ACTIVE JOURNEY (REAL-TIME ASSISTANT) -->
-    <section id="screen-active" style="display: none;" class="animate__animated animate__fadeIn">
-        <div class="container-site py-5 text-center">
-            <div class="p-5 bg-light rounded-5 shadow-lg mb-5 position-relative overflow-hidden">
-                <span class="badge bg-primary mb-3">BẠN ĐANG Ở ĐÂY</span>
-                <h1 class="display-4 fw-black mb-4 text-primary">Điểm tiếp theo: <%= journey.stops[0].name %></h1>
-                <p class="lead text-muted">Sắp tới rồi đó, chuẩn bị máy ảnh thôi 👀</p>
-                <div class="d-flex justify-content-center gap-3 mt-5">
-                    <button class="btn btn-primary btn-lg rounded-pill px-5 py-3 fw-black shadow-lg" onclick="simulateCheckin()">📸 CHECK-IN</button>
-                    <button class="btn btn-outline-primary btn-lg rounded-pill px-5 py-3 fw-bold" onclick="window.location.href='/map'">🗺 MỞ MAP</button>
-                </div>
-                <i class="bi bi-compass position-absolute bottom-0 end-0 m-n4 opacity-10" style="font-size: 200px;"></i>
-            </div>
-            
-            <button class="btn btn-link text-danger fw-bold" onclick="finishJourney()">KẾT THÚC HÀNH TRÌNH SỚM</button>
-        </div>
-    </section>
-
-    <!-- SCREEN 4: FINISH & BADGE -->
-    <section id="screen-finish" style="display: none;" class="animate__animated animate__fadeIn">
-        <div class="container-site py-5 text-center">
-            <div class="display-1 mb-4">🏆</div>
-            <h1 class="display-3 fw-black mb-2">Tuyệt vời!</h1>
-            <p class="lead mb-5 text-muted">Bạn đã hoàn thành 80% hành trình chữa lành hôm nay.</p>
-            
-            <div class="row justify-content-center mb-5">
-                <div class="col-md-6">
-                    <div class="card border-0 shadow-lg rounded-5 p-5 bg-primary text-white">
-                        <div class="display-4 mb-3">🏅</div>
-                        <h3 class="fw-black mb-2">Huy hiệu: Sống Chậm</h3>
-                        <p class="opacity-75">Đã được thêm vào Passport điện tử của bạn.</p>
-                        <button class="btn btn-white text-primary rounded-pill fw-black px-4 mt-4" onclick="window.location.href='/summary'">XEM PASSPORT</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-flex justify-content-center gap-3">
-                <button class="btn btn-outline-primary rounded-pill px-5 py-3 fw-bold">📲 SHARE STORY</button>
-                <button class="btn btn-dark rounded-pill px-5 py-3 fw-black" onclick="window.location.href='/'">VỀ TRANG CHỦ</button>
-            </div>
-        </div>
-    </section>
-
+    </div>
 </div>
 
 <style>
-    #journey-app { font-family: 'Outfit', sans-serif; overflow-x: hidden; }
-    .fw-black { font-weight: 900; }
-    .shadow-3xl { box-shadow: 0 40px 100px rgba(13, 148, 136, 0.15); }
-    .rounded-5 { border-radius: 2.5rem !important; }
-    .btn-white { background: #fff; color: var(--color-primary); border: none; }
-    .h-60 { height: 60%; }
-    .object-fit-cover { object-fit: cover; }
-    .btn-pill { border-radius: 100px; }
+    .journey-item {
+        position: relative;
+    }
+
+    .journey-item::before {
+        content: '';
+        position: absolute;
+        left: 24px;
+        top: 50px;
+        bottom: -50px;
+        width: 2px;
+        background: rgba(0, 0, 0, 0.05);
+        z-index: 0;
+    }
+
+    .journey-item:last-child::before {
+        display: none;
+    }
+
+    .step-circle {
+        width: 48px;
+        height: 48px;
+        background: var(--color-primary);
+        color: #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+        font-size: 1.2rem;
+        position: relative;
+        z-index: 10;
+        box-shadow: 0 0 0 10px #fff;
+    }
+
+    .journey-card-v4 {
+        border: 1px solid rgba(0, 0, 0, 0.02);
+    }
+
+    .journey-card-v4:hover {
+        transform: scale(1.02);
+        box-shadow: 0 30px 60px rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .rounded-5 {
+        border-radius: 2rem !important;
+    }
+
+    .shadow-2xl {
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
+    }
+
+    .btn-pill {
+        border-radius: 100px;
+    }
+
+    .fw-black {
+        font-weight: 900;
+    }
+
+    .letter-spacing-lg {
+        letter-spacing: 2px;
+    }
 </style>
 
 <script>
-    let currentStep = 1;
+    let currentProgress = 0;
+    function simulateCheckin(name) {
+        currentProgress += (100 / <%= journey.stops.length %>);
+        if (currentProgress > 100) currentProgress = 100;
 
-    function showOverview(type) {
-        document.getElementById('screen-suggestions').style.display = 'none';
-        document.getElementById('screen-overview').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.getElementById('progress-bar').style.width = currentProgress + '%';
+        document.getElementById('progress-text').innerHTML = Math.round(currentProgress) + '%';
+
+        alert('📍 Tuyệt vời! Bạn đã Check-in tại ' + name + '.\nĐiểm tiếp theo đã sẵn sàng.');
     }
 
-    function startCustomize() {
-        document.getElementById('customize-controls').classList.remove('d-none');
-        document.querySelectorAll('.handle').forEach(h => h.classList.remove('d-none'));
-        document.querySelectorAll('.btn-remove').forEach(b => b.classList.remove('d-none'));
-        
-        const el = document.getElementById('sortable-list');
-        Sortable.create(el, {
-            animation: 150,
-            handle: '.handle',
-            ghostClass: 'bg-soft-primary'
-        });
-        alert('🎨 Chế độ tùy chỉnh đã bật! Bạn có thể kéo thả để đổi lộ trình.');
-    }
-
-    function updateTimeVal(val) {
-        document.getElementById('timeVal').innerText = 'Dự kiến: ' + val + ' Giờ';
-        const warning = document.getElementById('timeWarning');
-        if (val < 4) {
-            warning.innerText = 'Đi không kịp đâu 😅';
-            warning.classList.replace('text-success', 'text-danger');
-        } else {
-            warning.innerText = 'Ổn áp 👍';
-            warning.classList.replace('text-danger', 'text-success');
-        }
-    }
-
-    function startJourney() {
-        document.getElementById('screen-overview').style.display = 'none';
-        document.getElementById('screen-active').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function simulateCheckin() {
-        alert('📸 Đã Check-in thành công! Bạn nhận được 15 điểm tích lũy.');
-        finishJourney(); // Auto finish for demo
-    }
-
-    function finishJourney() {
-        document.getElementById('screen-active').style.display = 'none';
-        document.getElementById('screen-finish').style.display = 'block';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        
-        // Confetti effect
-        confetti({
-            particleCount: 150,
-            spread: 70,
-            origin: { y: 0.6 },
-            colors: ['#0d9488', '#3b82f6', '#fff']
-        });
-    }
-
-    function saveJourney() {
-        alert('💾 Đã lưu lộ trình vào mục yêu thích!');
+    function startNav() {
+        alert('🚀 Đang mở bản đồ dẫn đường... Hãy bật GPS để bắt đầu hành trình nhé!');
     }
 </script>
