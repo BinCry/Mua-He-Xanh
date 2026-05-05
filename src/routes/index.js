@@ -22,7 +22,8 @@ router.get('/journey', JourneyController.index);
 router.get('/journey/preset/:theme', JourneyController.preset);
 
 // API Routes
-router.all('/api/session/:uuid?', ApiController.session);
+router.all('/api/session', ApiController.session);
+router.all('/api/session/:uuid', ApiController.session);
 router.get('/api/destinations', ApiController.destinations);
 router.post('/api/journey', ApiController.journey);
 router.post('/api/checkin', ApiController.checkin);
