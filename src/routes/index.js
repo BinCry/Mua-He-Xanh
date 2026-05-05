@@ -17,6 +17,7 @@ const { ensureAuthenticated, ensureManager, restrictToManagers } = require('../m
 // Page Routes
 router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
+router.get('/khoi-hanh', OnboardingController.index);
 router.get('/checkin', CheckinController.index);
 router.get('/summary', SummaryController.index);
 router.get('/map', MapController.index);

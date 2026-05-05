@@ -1,96 +1,133 @@
-<div class="immersive-wizard">
-    <!-- BACKGROUND IMAGES LAYER -->
-    <div class="wizard-bg-layer">
-        <img src="<%= baseUrl %>/images/hero-1.png" class="wizard-bg-image active" id="bg-1">
-        <img src="<%= baseUrl %>/images/hero-2.png" class="wizard-bg-image" id="bg-2">
-        <img src="<%= baseUrl %>/images/hero-3.png" class="wizard-bg-image" id="bg-3">
-    </div>
-
-    <!-- CONTENT LAYER -->
-    <div class="wizard-content-layer">
-        <form id="onboardingForm" class="w-100">
+<section class="minimal-wizard">
+    <div class="container-site">
+        <form id="onboardingForm">
             
-            <!-- STEP 1: MOOD -->
-            <div class="immersive-step active" id="step1">
-                <div class="mb-2 opacity-50 letter-spacing-lg small">BƯỚC 01 / CẢM XÚC</div>
-                <h2 class="immersive-title">Hôm nay bạn muốn<br><span class="text-accent">cảm thấy</span> thế nào?</h2>
-                <div class="option-grid-immersive">
-                    <div class="immersive-option" onclick="selectMood('an-nhien', this)">🌿 AN NHIÊN</div>
-                    <div class="immersive-option" onclick="selectMood('ket-noi', this)">🏺 KẾT NỐI</div>
-                    <div class="immersive-option" onclick="selectMood('nang-luong', this)">⚡ NĂNG LƯỢNG</div>
+            <!-- STEP 1: MOOD GRID -->
+            <div class="wizard-step active" id="step1">
+                <div class="row align-items-center mb-5">
+                    <div class="col-lg-8">
+                        <span class="minimal-step-label">Bước 01 — Cảm xúc</span>
+                        <h1 class="minimal-title-main">Bạn đang tìm kiếm<br>điều gì hôm nay?</h1>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="minimal-card" onclick="selectMood('an-nhien', this)">
+                            <img src="<%= baseUrl %>/images/hero-1.png" alt="An nhiên">
+                            <div class="minimal-card-overlay">
+                                <h3 class="fw-bold mb-1">An nhiên</h3>
+                                <p class="small opacity-75 mb-0">Tĩnh lặng & Chữa lành</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="minimal-card" onclick="selectMood('ket-noi', this)">
+                            <img src="<%= baseUrl %>/images/hero-2.png" alt="Kết nối">
+                            <div class="minimal-card-overlay">
+                                <h3 class="fw-bold mb-1">Kết nối</h3>
+                                <p class="small opacity-75 mb-0">Văn hóa & Làng nghề</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="minimal-card" onclick="selectMood('nang-luong', this)">
+                            <img src="<%= baseUrl %>/images/hero-3.png" alt="Năng lượng">
+                            <div class="minimal-card-overlay">
+                                <h3 class="fw-bold mb-1">Năng lượng</h3>
+                                <p class="small opacity-75 mb-0">Khám phá & Hoạt động</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <input type="hidden" name="mood" id="input-mood">
             </div>
 
             <!-- STEP 2: DURATION -->
-            <div class="immersive-step" id="step2">
-                <div class="mb-2 opacity-50 letter-spacing-lg small">BƯỚC 02 / THỜI GIAN</div>
-                <h2 class="immersive-title">Dành bao lâu cho<br><span class="text-accent">bản thân</span>?</h2>
-                <div class="option-grid-immersive">
-                    <div class="immersive-option" onclick="selectDuration('half', this)">🌤️ NỬA NGÀY</div>
-                    <div class="immersive-option" onclick="selectDuration('full', this)">🌅 CẢ NGÀY</div>
+            <div class="wizard-step" id="step2">
+                <div class="row align-items-center mb-5">
+                    <div class="col-lg-8">
+                        <span class="minimal-step-label">Bước 02 — Thời gian</span>
+                        <h1 class="minimal-title-main">Dành bao lâu cho<br>cuộc hành trình?</h1>
+                    </div>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <div class="minimal-card" style="height: 350px;" onclick="selectDuration('half', this)">
+                            <img src="<%= baseUrl %>/images/hero-2.png" alt="Nửa ngày">
+                            <div class="minimal-card-overlay">
+                                <h3 class="fw-bold mb-1">Nửa ngày</h3>
+                                <p class="small opacity-75 mb-0">Sáng hoặc Chiều (3-4 tiếng)</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="minimal-card" style="height: 350px;" onclick="selectDuration('full', this)">
+                            <img src="<%= baseUrl %>/images/hero-1.png" alt="Cả ngày">
+                            <div class="minimal-card-overlay">
+                                <h3 class="fw-bold mb-1">Cả ngày</h3>
+                                <p class="small opacity-75 mb-0">Trải nghiệm trọn vẹn (8-10 tiếng)</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <input type="hidden" name="duration" id="input-duration">
                 <div class="mt-5">
-                    <button type="button" class="btn btn-link text-white opacity-50" onclick="prevStep(1)">← QUAY LẠI</button>
+                    <button type="button" class="btn btn-link text-dark fw-bold text-decoration-none" onclick="prevStep(1)">← QUAY LẠI CẢM XÚC</button>
                 </div>
             </div>
 
-            <!-- STEP 3: FINAL -->
-            <div class="immersive-step" id="step3">
-                <div class="mb-2 opacity-50 letter-spacing-lg small">BƯỚC 03 / KHỞI HÀNH</div>
-                <h2 class="immersive-title">Sẵn sàng để<br><span class="text-accent">chữa lành</span>?</h2>
-                <p class="lead mb-5 opacity-75">Bình Lợi Healing đã chuẩn bị sẵn sàng lộ trình dành riêng cho bạn.</p>
-                <div class="text-center">
-                    <button type="submit" class="btn btn-primary-bl btn-lg px-5 py-4 rounded-pill shadow-lg fw-black letter-spacing-lg">
-                        BẮT ĐẦU HÀNH TRÌNH ✦
-                    </button>
-                    <div class="mt-4">
-                        <button type="button" class="btn btn-link text-white opacity-50" onclick="prevStep(2)">← THAY ĐỔI LỰA CHỌN</button>
+            <!-- STEP 3: SUBMIT -->
+            <div class="wizard-step" id="step3">
+                <div class="row justify-content-center text-center py-5">
+                    <div class="col-lg-8">
+                        <span class="minimal-step-label">Bước cuối cùng</span>
+                        <h1 class="minimal-title-main">Hành trình của bạn<br>đã sẵn sàng.</h1>
+                        <p class="lead text-muted mb-5">Chúng tôi đã tổng hợp những điểm đến tuyệt vời nhất dựa trên cảm xúc của bạn.</p>
+                        <button type="submit" class="btn btn-primary-bl btn-lg px-5 py-4 rounded-pill shadow-lg fw-bold">
+                            KHÁM PHÁ HÀNH TRÌNH NGAY ✦
+                        </button>
+                        <div class="mt-4">
+                            <button type="button" class="btn btn-link text-muted" onclick="prevStep(2)">Thay đổi lựa chọn</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
         </form>
     </div>
-
-    <!-- EXIT BUTTON -->
-    <a href="/" class="position-absolute top-0 end-0 m-4 text-white text-decoration-none opacity-50 hover-opacity-100 z-index-50">
-        ĐÓNG <i class="bi bi-x-lg ms-2"></i>
-    </a>
-</div>
+</section>
 
 <script>
 function selectMood(val, el) {
-    document.querySelectorAll('#step1 .immersive-option').forEach(o => o.classList.remove('selected'));
+    document.querySelectorAll('#step1 .minimal-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     document.getElementById('input-mood').value = val;
-    changeBg(2);
     setTimeout(() => nextStep(2), 600);
 }
 
 function selectDuration(val, el) {
-    document.querySelectorAll('#step2 .immersive-option').forEach(o => o.classList.remove('selected'));
+    document.querySelectorAll('#step2 .minimal-card').forEach(c => c.classList.remove('selected'));
     el.classList.add('selected');
     document.getElementById('input-duration').value = val;
-    changeBg(3);
     setTimeout(() => nextStep(3), 600);
 }
 
 function nextStep(s) {
-    document.querySelectorAll('.immersive-step').forEach(step => step.classList.remove('active'));
-    document.getElementById('step' + s).classList.add('active');
+    document.querySelectorAll('.wizard-step').forEach(step => {
+        step.style.opacity = '0';
+        setTimeout(() => step.classList.remove('active'), 300);
+    });
+    setTimeout(() => {
+        const next = document.getElementById('step' + s);
+        next.classList.add('active');
+        next.style.opacity = '1';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 400);
 }
 
 function prevStep(s) {
-    document.querySelectorAll('.immersive-step').forEach(step => step.classList.remove('active'));
-    document.getElementById('step' + s).classList.add('active');
-    changeBg(s);
-}
-
-function changeBg(s) {
-    document.querySelectorAll('.wizard-bg-image').forEach(img => img.classList.remove('active'));
-    document.getElementById('bg-' + s).classList.add('active');
+    nextStep(s);
 }
 
 document.getElementById('onboardingForm').addEventListener('submit', function(e) {
@@ -102,12 +139,12 @@ document.getElementById('onboardingForm').addEventListener('submit', function(e)
     axios.post(window.APP_CONFIG.apiUrl + '/session', {
         mood: document.getElementById('input-mood').value,
         duration: document.getElementById('input-duration').value,
-        interests: ['temple', 'craft', 'nature'] // Default all
+        interests: ['temple', 'craft', 'nature']
     }).then(res => {
         window.location.href = window.APP_CONFIG.baseUrl + '/journey';
     }).catch(err => {
-        alert('Có lỗi xảy ra.');
-        btn.innerHTML = 'BẮT ĐẦU HÀNH TRÌNH ✦';
+        alert('Lỗi khởi tạo.');
+        btn.innerHTML = 'KHÁM PHÁ HÀNH TRÌNH NGAY ✦';
         btn.disabled = false;
     });
 });
