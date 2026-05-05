@@ -1,53 +1,100 @@
-<section class="site-section d-flex align-items-center justify-content-center" style="min-height: 85vh; background-color: var(--color-bg);">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-11 col-sm-9 col-md-7 col-lg-5 col-xl-4">
-                <div class="card-bl p-3 p-md-5 shadow-lg border-0 animate__animated animate__fadeIn" style="min-width: 280px;">
-                    <div class="text-center mb-4">
-                        <img src="<%= baseUrl %>/images/hero-1.png" class="rounded-circle mb-3 shadow-sm" style="width: 70px; height: 70px; object-fit: cover;">
-                        <h4 class="fw-black text-primary mb-1">Bình Lợi Healing</h4>
-                        <p class="text-muted small">Đăng nhập để nhận Passport du lịch số</p>
-                    </div>
+<section class="auth-page-fix">
+    <div class="auth-box">
+        <div class="auth-header">
+            <img src="<%= baseUrl %>/images/logo.png" alt="Logo">
+            <h2>Bình Lợi Healing</h2>
+            <p>Đăng nhập để nhận Passport số</p>
+        </div>
 
-                    <% if (error) { %>
-                        <div class="alert alert-danger x-small py-2"><%= error %></div>
-                    <% } %>
+        <% if (error) { %>
+            <div class="auth-alert"><%= error %></div>
+        <% } %>
 
-                    <form action="<%= baseUrl %>/auth/login" method="POST" class="mb-3">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold">Email</label>
-                            <input type="email" name="email" class="form-control rounded-pill px-3 py-2" placeholder="email@example.com" required>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label small fw-bold">Mật khẩu</label>
-                            <input type="password" name="password" class="form-control rounded-pill px-3 py-2" placeholder="••••••••" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary-bl w-100 py-2 rounded-pill fw-bold">Đăng nhập</button>
-                    </form>
-
-                    <div class="text-center position-relative mb-4">
-                        <hr class="opacity-10">
-                        <span class="position-absolute top-50 start-50 translate-middle bg-white px-2 text-muted x-small">Hoặc tiếp tục với</span>
-                    </div>
-
-                    <div class="row g-2 mb-4">
-                        <div class="col-6">
-                            <button class="btn btn-outline-bl btn-sm w-100 rounded-pill" onclick="alert('Google Login đang kết nối...')">
-                                <i class="bi bi-google me-1"></i> Google
-                            </button>
-                        </div>
-                        <div class="col-6">
-                            <button class="btn btn-outline-bl btn-sm w-100 rounded-pill" onclick="alert('Facebook Login đang kết nối...')">
-                                <i class="bi bi-facebook me-1"></i> Facebook
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="text-center pt-3 border-top mt-2">
-                        <p class="small text-muted mb-0">Chưa có tài khoản? <a href="#" class="text-primary fw-bold text-decoration-none">Đăng ký ngay</a></p>
-                    </div>
-                </div>
+        <form action="<%= baseUrl %>/auth/login" method="POST">
+            <div class="auth-input-group">
+                <label>Email</label>
+                <input type="email" name="email" placeholder="email@example.com" required>
             </div>
+            <div class="auth-input-group">
+                <label>Mật khẩu</label>
+                <input type="password" name="password" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="auth-submit">Đăng nhập</button>
+        </form>
+
+        <div class="auth-divider">
+            <span>Hoặc đăng nhập với</span>
+        </div>
+
+        <div class="auth-social">
+            <button onclick="alert('Kết nối Google...')"><i class="bi bi-google"></i> Google</button>
+            <button onclick="alert('Kết nối Facebook...')"><i class="bi bi-facebook"></i> Facebook</button>
+        </div>
+
+        <div class="auth-footer">
+            Chưa có tài khoản? <a href="#">Đăng ký</a>
         </div>
     </div>
 </section>
+
+<style>
+.auth-page-fix {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    padding: 20px;
+}
+.auth-box {
+    background: #fff;
+    width: 100%;
+    max-width: 400px;
+    padding: 40px 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
+    border: 1px solid #eee;
+}
+.auth-header { text-align: center; margin-bottom: 30px; }
+.auth-header img { height: 60px; margin-bottom: 15px; }
+.auth-header h2 { font-weight: 800; color: #5c8a5e; margin-bottom: 5px; font-size: 1.5rem; }
+.auth-header p { color: #666; font-size: 0.9rem; }
+
+.auth-alert { 
+    background: #fff5f5; color: #e53e3e; padding: 10px; border-radius: 10px; 
+    font-size: 0.85rem; text-align: center; margin-bottom: 20px; border: 1px solid #feb2b2;
+}
+
+.auth-input-group { margin-bottom: 20px; }
+.auth-input-group label { display: block; font-weight: 700; font-size: 0.8rem; margin-bottom: 8px; color: #444; }
+.auth-input-group input { 
+    width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #ddd; 
+    font-size: 0.95rem; outline: none; transition: border 0.3s;
+}
+.auth-input-group input:focus { border-color: #5c8a5e; }
+
+.auth-submit { 
+    width: 100%; padding: 12px; border-radius: 12px; border: none; 
+    background: #5c8a5e; color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s;
+}
+.auth-submit:hover { background: #4a6d4b; }
+
+.auth-divider { position: relative; text-align: center; margin: 30px 0; }
+.auth-divider::before { content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: #eee; }
+.auth-divider span { position: relative; background: #fff; padding: 0 15px; color: #999; font-size: 0.75rem; }
+
+.auth-social { display: flex; gap: 10px; margin-bottom: 30px; }
+.auth-social button { 
+    flex: 1; padding: 10px; border-radius: 12px; border: 1px solid #ddd; 
+    background: #fff; font-size: 0.85rem; cursor: pointer; transition: 0.3s;
+}
+.auth-social button:hover { background: #f9f9f9; }
+
+.auth-footer { text-align: center; font-size: 0.85rem; color: #666; }
+.auth-footer a { color: #5c8a5e; font-weight: 700; text-decoration: none; }
+
+@media (max-width: 450px) {
+    .auth-box { padding: 30px 20px; border-radius: 0; box-shadow: none; border: none; max-width: 100%; height: 100%; }
+    .auth-page-fix { padding: 0; background: #fff; }
+}
+</style>
