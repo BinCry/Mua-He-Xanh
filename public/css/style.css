@@ -139,36 +139,43 @@ h1, h2, h3, .display-text {
     text-decoration: none;
     color: var(--color-text-light);
     transition: var(--transition);
+    padding: 15px 25px;
+    background: #fff;
+    border-radius: 20px;
+    border: 1px solid rgba(0,0,0,0.05);
+    min-width: 140px;
 }
 
 .cat-item i {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
     background: var(--color-soft-primary);
-    border-radius: 50%;
+    border-radius: 15px; /* Softer box icon */
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
-    font-size: 1.4rem;
+    margin-bottom: 12px;
+    font-size: 1.3rem;
     color: var(--color-primary);
-    border: 1px solid transparent;
+    transition: var(--transition);
 }
 
 .cat-item:hover {
-    color: var(--color-primary);
+    background: var(--color-white);
     transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.08);
+    border-color: var(--color-primary);
 }
 
 .cat-item:hover i {
     background: var(--color-primary);
     color: #fff;
-    box-shadow: 0 10px 20px rgba(92, 138, 94, 0.2);
 }
 
 .cat-item span {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     font-weight: 700;
+    color: var(--color-text);
 }
 
 /* Buttons */

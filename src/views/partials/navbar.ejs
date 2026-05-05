@@ -20,7 +20,12 @@
         <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Trang chủ') ? 'active' : '' %>" href="/">Trang chủ</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link" id="btn-unfold-explore">Khám phá <i class="bi bi-chevron-down ms-1 small"></i></a>
+        <div class="d-flex align-items-center">
+          <a class="nav-link pe-2 <%= typeof title !== 'undefined' && title.includes('Điểm đến') ? 'active' : '' %>" href="/destinations">Khám phá</a>
+          <button class="btn btn-link p-0 text-dark me-2" id="btn-unfold-explore" style="margin-left: -10px;">
+            <i class="bi bi-chevron-down small"></i>
+          </button>
+        </div>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/journey">Hành trình</a>
