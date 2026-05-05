@@ -66,10 +66,12 @@ h1, h2, h3, .display-text {
 
 .navbar-nav {
     height: 100%;
+    gap: 8px; /* Space between rounded items */
+    padding: 10px 0;
 }
 
 .nav-item {
-    border-right: 1px solid #eee;
+    border-right: none !important; /* Remove old vertical lines */
     height: 100%;
     display: flex;
     align-items: center;
@@ -78,44 +80,52 @@ h1, h2, h3, .display-text {
 .nav-link {
     text-transform: uppercase;
     font-weight: 800 !important;
-    font-size: 0.85rem !important;
+    font-size: 0.8rem !important;
     letter-spacing: 0.5px;
-    color: #222 !important;
-    padding: 0 25px !important;
-    height: 100%;
-    display: flex;
-    align-items: center;
+    color: var(--color-text) !important;
+    padding: 10px 20px !important;
+    border-radius: 16px; /* Bo góc cho từng mục */
+    transition: var(--transition);
     position: relative;
-    cursor: pointer;
+    height: auto !important;
 }
 
-.nav-link:hover {
+.nav-link:hover, .nav-link.active, .nav-link.unfolded {
+    background: var(--color-white);
     color: var(--color-primary) !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.05); /* Đổ bóng ẩn hiện */
+    transform: translateY(-1px);
 }
 
 .nav-link.active::after, 
 .nav-link.unfolded::after {
-    content: '';
-    position: absolute;
-    bottom: -2px;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: var(--color-primary);
+    display: none; /* Remove old underline */
 }
 
-/* Dynamic Category Bar (Unfold Effect) */
+/* Floating Unfold Menu (Premium Style) */
 .header-categories-wrapper {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-    background: #fff;
-    border-bottom: 0 solid #eee;
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    width: 90%;
+    max-width: 1000px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-radius: 32px;
+    box-shadow: 0 30px 60px rgba(0,0,0,0.12);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 1000;
 }
 
 .header-categories-wrapper.show {
-    max-height: 200px;
-    border-bottom-width: 1px;
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(15px);
 }
 
 .header-categories {
