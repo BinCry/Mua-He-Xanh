@@ -1,43 +1,80 @@
-<footer class="footer-bl">
-  <div class="container-site">
-    <div class="row g-4">
+<footer class="bg-dark text-white py-5 mt-auto">
+  <div class="container">
+    <div class="row g-5">
+      <!-- About -->
       <div class="col-lg-4">
-        <h5 class="navbar-brand text-secondary" style="font-size: 24px;">Bình Lợi Healing</h5>
-        <p style="font-size:14px; opacity:0.8;">“Bình Lợi – Giữ hồn quê giữa nhịp sống mới”<br>Hệ sinh thái du lịch đa trải nghiệm – gần TP.HCM.</p>
-        <div class="d-flex gap-3 mt-4">
-          <a href="https://www.facebook.com/xabinhloitphcm" target="_blank" class="text-white h5 opacity-75 hover-opacity-100"><i class="bi bi-facebook"></i></a>
-          <a href="#" class="text-white h5 opacity-75 hover-opacity-100"><i class="bi bi-youtube"></i></a>
-          <a href="#" class="text-white h5 opacity-75 hover-opacity-100"><i class="bi bi-instagram"></i></a>
+        <h3 class="fw-bold text-primary mb-4" style="font-family: 'Playfair Display', serif;">Bình Lợi Healing</h3>
+        <p class="small opacity-75 mb-4 lh-lg">
+          “Bình Lợi – Giữ hồn quê giữa nhịp sống mới”<br>
+          Hệ sinh thái du lịch đa trải nghiệm tại cửa ngõ TP.HCM, nơi kết nối giá trị làng nghề truyền thống và công nghệ số.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="https://www.facebook.com/xabinhloitphcm" target="_blank" class="btn btn-outline-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <a href="#" class="btn btn-outline-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+            <i class="bi bi-youtube"></i>
+          </a>
+          <a href="#" class="btn btn-outline-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px;">
+            <i class="bi bi-instagram"></i>
+          </a>
         </div>
       </div>
-      <div class="col-lg-2">
-        <h5>Khám phá</h5>
-        <ul class="list-unstyled small opacity-75" style="line-height: 2.2">
-          <li><a href="<%= baseUrl %>/destinations" class="text-white text-decoration-none">Điểm đến</a></li>
-          <li><a href="<%= baseUrl %>/onboarding" class="text-white text-decoration-none">Hành trình</a></li>
-          <li><a href="<%= baseUrl %>/map" class="text-white text-decoration-none">Bản đồ</a></li>
-          <li><a href="<%= baseUrl %>/checkin" class="text-white text-decoration-none">Check-in</a></li>
+
+      <!-- Links -->
+      <div class="col-6 col-lg-2">
+        <h6 class="text-uppercase fw-bold mb-4" style="letter-spacing: 1px;">Khám phá</h6>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="/destinations" class="text-white-50 text-decoration-none hover-white">Địa điểm</a></li>
+          <li class="mb-2"><a href="/onboarding" class="text-white-50 text-decoration-none hover-white">Hành trình</a></li>
+          <li class="mb-2"><a href="/map" class="text-white-50 text-decoration-none hover-white">Bản đồ</a></li>
+          <li class="mb-2"><a href="/checkin" class="text-white-50 text-decoration-none hover-white">Check-in</a></li>
         </ul>
       </div>
-      <div class="col-lg-3">
-        <h5>Cộng đồng</h5>
-        <ul class="list-unstyled small opacity-75" style="line-height: 2.2">
-          <li><a href="#" class="text-white text-decoration-none">UBND Xã Bình Lợi</a></li>
-          <li><a href="#" class="text-white text-decoration-none">Mặt Trận Xã Bình Lợi</a></li>
-          <li><a href="#" class="text-white text-decoration-none">Tuổi trẻ Xã Bình Lợi</a></li>
+
+      <!-- Community -->
+      <div class="col-6 col-lg-3">
+        <h6 class="text-uppercase fw-bold mb-4" style="letter-spacing: 1px;">Cộng đồng</h6>
+        <ul class="list-unstyled">
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">UBND Xã Bình Lợi</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Mặt Trận Xã Bình Lợi</a></li>
+          <li class="mb-2"><a href="#" class="text-white-50 text-decoration-none hover-white">Tuổi trẻ Bình Lợi</a></li>
         </ul>
       </div>
+
+      <!-- Contact -->
       <div class="col-lg-3">
-        <h5>Liên hệ</h5>
-        <ul class="list-unstyled small opacity-75" style="line-height: 2.2">
-          <li><i class="bi bi-geo-alt me-2"></i> Bình Lợi, Bình Chánh, TP.HCM</li>
-          <li><i class="bi bi-telephone me-2"></i> (028) 3765 0xxx</li>
-          <li><i class="bi bi-envelope me-2"></i> info@binhloi-healing.vn</li>
+        <h6 class="text-uppercase fw-bold mb-4" style="letter-spacing: 1px;">Liên hệ</h6>
+        <ul class="list-unstyled text-white-50 small">
+          <li class="mb-3 d-flex align-items-start">
+            <i class="bi bi-geo-alt-fill text-primary me-2"></i>
+            <span>Bình Lợi, Huyện Bình Chánh, TP. Hồ Chí Minh</span>
+          </li>
+          <li class="mb-3 d-flex align-items-center">
+            <i class="bi bi-telephone-fill text-primary me-2"></i>
+            <span>(028) 3765 0xxx</span>
+          </li>
+          <li class="mb-3 d-flex align-items-center">
+            <i class="bi bi-envelope-fill text-primary me-2"></i>
+            <span>info@binhloi-healing.vn</span>
+          </li>
         </ul>
       </div>
     </div>
-    <div class="footer-bl-bottom">
-      <p class="mb-0">© <%= new Date().getFullYear() %> Bình Lợi Healing — Giữ hồn quê giữa nhịp sống mới.</p>
+
+    <hr class="my-5 opacity-10">
+
+    <div class="row align-items-center">
+      <div class="col-md-6 text-center text-md-start mb-3 mb-md-0">
+        <p class="small text-white-50 mb-0">© <%= new Date().getFullYear() %> Bình Lợi Healing. Mọi quyền được bảo lưu.</p>
+      </div>
+      <div class="col-md-6 text-center text-md-end">
+        <p class="small text-white-50 mb-0">Thiết kế bởi <span class="text-primary fw-bold">Antigravity AI</span></p>
+      </div>
     </div>
   </div>
 </footer>
+
+<style>
+  .hover-white:hover { color: #fff !important; }
+</style>

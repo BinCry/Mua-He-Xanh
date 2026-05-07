@@ -1,103 +1,130 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<section class="elite-onboard-hero min-vh-100 d-flex align-items-center bg-white">
-    <div class="container-elite w-100">
-        <div class="reveal-up text-center mb-5">
-            <span class="elite-header-pill mb-4">Personalized Healing Journey</span>
-            <h1 class="elite-title mb-3" style="line-height: 1.1; color: var(--v5-primary);">Tâm trạng của bạn<br>hôm nay thế nào?</h1>
-            <p class="lead text-muted mx-auto" style="max-width: 600px;">Hãy để Bình Lợi Healing giúp bạn tìm lại sự cân bằng trong tâm hồn thông qua những lộ trình bản sắc.</p>
+<section class="py-5 bg-light min-vh-100 d-flex align-items-center">
+    <div class="container py-5">
+        <!-- Header Section -->
+        <div class="row justify-content-center mb-5 reveal-up">
+            <div class="col-lg-8 text-center">
+                <span class="badge bg-primary rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold" style="letter-spacing: 1px;">Personalized Journey</span>
+                <h1 class="display-4 fw-bold mb-3" style="color: var(--v5-primary); font-family: 'Playfair Display', serif;">Tâm trạng của bạn<br>hôm nay thế nào?</h1>
+                <p class="lead text-muted">Hãy để chúng tôi thiết kế một hành trình chữa lành tâm hồn dành riêng cho bạn tại Bình Lợi.</p>
+            </div>
         </div>
 
-        <form id="eliteOnboardingForm">
-            <!-- Vibe Selection -->
-            <div class="vibe-grid-elite">
-                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('chill', this)">
-                    <span class="icon">🌿</span>
-                    <span class="vibe-name-new">Sống chậm</span>
-                </div>
-                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('peace', this)">
-                    <span class="icon">🛕</span>
-                    <span class="vibe-name-new">Tĩnh lặng</span>
-                </div>
-                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('culture', this)">
-                    <span class="icon">🎨</span>
-                    <span class="vibe-name-new">Khám phá</span>
-                </div>
-                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('history', this)">
-                    <span class="icon">🏛</span>
-                    <span class="vibe-name-new">Cội nguồn</span>
-                </div>
-                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('family', this)">
-                    <span class="icon">👨‍👩‍👧‍👦</span>
-                    <span class="vibe-name-new">Gắn kết</span>
-                </div>
-            </div>
-
-            <div class="row g-4 mt-5 reveal-up">
-                <div class="col-md-6">
-                    <div class="glass-panel p-4">
-                        <label class="form-label fw-bold mb-3 d-block">Quy mô hành trình?</label>
-                        <select class="form-select border-0 bg-light rounded-4 p-3" name="duration" required>
-                            <option value="3h">Dạo quanh (3-4 tiếng)</option>
-                            <option value="1d" selected>Trọn vẹn 1 ngày</option>
-                            <option value="custom">Tự do khám phá</option>
-                        </select>
+        <!-- Selection Form -->
+        <form id="eliteOnboardingForm" class="row justify-content-center">
+            <div class="col-xl-10">
+                <!-- Vibe Grid -->
+                <div class="row g-4 mb-5">
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('chill', this)">
+                            <div class="fs-1 mb-2">🌿</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Sống chậm</h6>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('peace', this)">
+                            <div class="fs-1 mb-2">🛕</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Tĩnh lặng</h6>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('culture', this)">
+                            <div class="fs-1 mb-2">🎨</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Khám phá</h6>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('history', this)">
+                            <div class="fs-1 mb-2">🏛</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Cội nguồn</h6>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('family', this)">
+                            <div class="fs-1 mb-2">👨‍👩‍👧‍👦</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Gắn kết</h6>
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-6">
-                    <div class="glass-panel p-4">
-                        <label class="form-label fw-bold mb-3 d-block">Khởi hành lúc nào?</label>
-                        <select class="form-select border-0 bg-light rounded-4 p-3" name="when" required>
-                            <option value="now">Ngay lúc này</option>
-                            <option value="weekend">Cuối tuần tới</option>
-                            <option value="season">Mùa hội lễ</option>
-                        </select>
+
+                <!-- Filters -->
+                <div class="row g-4 mb-5 reveal-up">
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm rounded-4">
+                            <label class="form-label fw-bold mb-3"><i class="bi bi-clock me-2"></i>Quy mô hành trình?</label>
+                            <select class="form-select form-select-lg border-0 bg-light rounded-3" name="duration" required>
+                                <option value="3h">Dạo quanh (3-4 tiếng)</option>
+                                <option value="1d" selected>Trọn vẹn 1 ngày</option>
+                                <option value="custom">Tự do khám phá</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm rounded-4">
+                            <label class="form-label fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Khởi hành lúc nào?</label>
+                            <select class="form-select form-select-lg border-0 bg-light rounded-3" name="when" required>
+                                <option value="now">Ngay lúc này</option>
+                                <option value="weekend">Cuối tuần tới</option>
+                                <option value="season">Mùa hội lễ</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <input type="hidden" name="moods" id="moods-input-elite" required>
+                <input type="hidden" name="moods" id="moods-input-bs" required>
 
-            <div class="text-center mt-5 reveal-up">
-                <button type="submit" class="btn btn-primary-v5 btn-lg px-5 py-3 shadow-lg" id="submit-btn-elite">
-                    Bắt đầu hành trình chữa lành ➔
-                </button>
+                <!-- Actions -->
+                <div class="text-center mt-4 reveal-up">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow" id="submit-btn-bs">
+                        BẮT ĐẦU HÀNH TRÌNH CHỮA LÀNH ➔
+                    </button>
+                    <p class="mt-3 text-muted small">Mọi lộ trình đều có thể tùy chỉnh sau khi tạo.</p>
+                </div>
             </div>
         </form>
     </div>
 </section>
 
+<style>
+    .vibe-card-bs { transition: all 0.3s ease; border-color: #eee; cursor: pointer; }
+    .vibe-card-bs:hover { transform: translateY(-10px); border-color: var(--v5-primary); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+    .vibe-card-bs.active { border-color: var(--v5-primary); background-color: rgba(92, 138, 94, 0.05); color: var(--v5-primary); }
+    .cursor-pointer { cursor: pointer; }
+    .col-lg-2-5 { flex: 0 0 auto; width: 20%; }
+    @media (max-width: 992px) { .col-lg-2-5 { width: 33.333%; } }
+    @media (max-width: 576px) { .col-lg-2-5 { width: 50%; } }
+</style>
+
 <script>
-    let selectedVibes = [];
+    let selectedVibesBS = [];
 
     document.addEventListener('DOMContentLoaded', () => {
-        gsap.to('.reveal-up', {
-            opacity: 1, y: 0, stagger: 0.15, duration: 1, ease: 'power3.out'
-        });
+        gsap.to('.reveal-up', { opacity: 1, y: 0, stagger: 0.15, duration: 1, ease: 'power3.out' });
     });
 
-    function selectVibeElite(vibe, el) {
-        if (selectedVibes.includes(vibe)) {
-            selectedVibes = selectedVibes.filter(v => v !== vibe);
+    function selectVibeBS(vibe, el) {
+        if (selectedVibesBS.includes(vibe)) {
+            selectedVibesBS = selectedVibesBS.filter(v => v !== vibe);
             el.classList.remove('active');
         } else {
-            selectedVibes.push(vibe);
+            selectedVibesBS.push(vibe);
             el.classList.add('active');
         }
-        document.getElementById('moods-input-elite').value = selectedVibes.join(',');
+        document.getElementById('moods-input-bs').value = selectedVibesBS.join(',');
     }
 
     document.getElementById('eliteOnboardingForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const moods = document.getElementById('moods-input-elite').value;
+        const moods = document.getElementById('moods-input-bs').value;
         if (!moods) {
-            alert('Hãy chọn ít nhất một cảm xúc!');
+            alert('Vui lòng chọn ít nhất một cảm xúc để chúng tôi gợi ý lộ trình!');
             return;
         }
 
-        const btn = document.getElementById('submit-btn-elite');
+        const btn = document.getElementById('submit-btn-bs');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang chuẩn bị...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang chuẩn bị lộ trình...';
 
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
