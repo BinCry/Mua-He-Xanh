@@ -67,14 +67,12 @@ class ApiController {
         if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
         
         try {
-            // Note: In PHP it called createFromMood, here we use createPersonalized or similar
-            // Assuming we want a personalized one if data exists
             const interests = session.interests ? JSON.parse(session.interests) : [];
             const duration = session.duration || 'half_day';
             
             const journey = await Journey.createPersonalized(session.id, mood, duration, interests);
             
-            // KPI Tracking: Log journey creation
+            // KPI Tracking
             await UserSession.db.query(
                 "INSERT INTO analytics (id, session_id, event, metadata) VALUES (?, ?, ?, ?)",
                 [uuidv4(), session.id, 'journey_created', JSON.stringify({ mood, duration, stop_count: journey.stops.length })]
@@ -86,22 +84,13 @@ class ApiController {
         }
     }
 
+    /** Update journey stop (reorder or remove) */
     async updateJourneyStop(req, res) {
-        const { journeyId, destinationId, action, order } = req.body;
+        const { journeyId, action, order, destinationId } = req.body;
         const JourneyStop = require('../models/JourneyStop');
         
         try {
-            if (action === 'remove') {
-                await JourneyStop.remove(journeyId, destinationId);
-            } else if (action === 'reorder') {
-                await JourneyStop.updateOrder(journeyId, destinationId, order);
-            } else if (action === 'update_transport') {
-                const transport = req.body.transport || 'walking';
-        try {
-            const { journeyId, action, order, destinationId } = req.body;
-            
             if (action === 'reorder' && order) {
-                // Update order for each stop
                 for (let i = 0; i < order.length; i++) {
                     await JourneyStop.updateByJourneyAndDest(journeyId, order[i], { stop_order: i });
                 }
@@ -109,9 +98,7 @@ class ApiController {
                 await Journey.removeStop(journeyId, destinationId);
             }
 
-            // Recalculate journey metrics (KM and Minutes)
             await Journey.recalculateMetrics(journeyId);
-            
             res.json({ success: true });
         } catch (error) {
             console.error("Update stop error:", error);
@@ -140,7 +127,6 @@ class ApiController {
         const dest = await Destination.findBySlug(slug);
         if (!dest) return res.status(404).json({ success: false, message: 'Điểm đến không tồn tại' });
 
-        // Verify distance
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
         if (distance > dest.radius_meter * 1.5) {
             return res.status(400).json({ success: false, message: `Bạn đang cách quá xa địa điểm (${Math.round(distance)}m)` });
@@ -150,7 +136,6 @@ class ApiController {
             return res.status(400).json({ success: false, message: 'Bạn đã check-in điểm này rồi' });
         }
 
-        // Perform check-in
         await CheckIn.create({
             session_id: session.id,
             destination_id: dest.id,
@@ -161,10 +146,8 @@ class ApiController {
             distance_meter: Math.round(distance)
         });
 
-        // Update total points in session
         await UserSession.addPoints(session.id, dest.points);
 
-        // Mark journey stop as completed if applicable
         const journey = await Journey.getActiveBySession(session.id);
         if (journey) {
             await UserSession.db.query(
@@ -173,7 +156,6 @@ class ApiController {
             );
         }
 
-        // Check badges
         const newBadges = await UserBadge.checkAndUnlock(session.id);
 
         res.json({
@@ -203,7 +185,6 @@ class ApiController {
         const session = await UserSession.findByUuid(sessionUuid);
         if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
 
-        // Get manager for this destination
         const [managers] = await UserSession.db.query(
             "SELECT id FROM users WHERE managed_destination_id = ? AND role = 'manager' LIMIT 1",
             [destinationId]
