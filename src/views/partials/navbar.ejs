@@ -23,8 +23,12 @@
           href="/">Trang chủ</a>
       </li>
       <li class="nav-item">
-        <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Điểm đến') ? 'active' : '' %>"
+        <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Địa điểm') ? 'active' : '' %>"
           href="/destinations">Địa điểm</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Hành trình') ? 'active' : '' %>"
+          href="/onboarding">Hành trình</a>
       </li>
       <li class="nav-item">
         <a class="nav-link" href="/map">Bản đồ</a>
