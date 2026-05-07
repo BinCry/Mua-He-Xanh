@@ -2,94 +2,100 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<div class="elite-header-journey py-5">
+<div class="elite-header-journey py-5" style="background: #fff; border-bottom: 1px solid #eee;">
     <div class="container-elite">
         <div class="row align-items-center">
-            <div class="col-lg-7 reveal-up">
-                <span class="elite-header-pill">Your Healing Roadmap</span>
-                <h1 class="elite-title mb-1" style="font-size: 3.5rem;">Lộ trình bình yên</h1>
-                <p class="opacity-75 mb-0">Dành riêng cho <%= user ? user.full_name : 'bạn' %> • <%= seasonName %> <%= new Date().getFullYear() %></p>
+            <div class="col-lg-8 reveal-up">
+                <span class="elite-header-pill mb-3">Suggested Itinerary</span>
+                <h1 class="elite-title mb-1" style="color: var(--v5-primary); font-size: 3rem;">Lộ trình của bạn</h1>
+                <p class="text-muted mb-0">Chúng tôi đã thiết kế một hành trình <%= seasonName.toLowerCase() %> dành riêng cho <%= user ? user.full_name : 'bạn' %>.</p>
             </div>
-            <div class="col-lg-5 text-lg-end reveal-up mt-4 mt-lg-0">
-                <div class="d-flex gap-3 justify-content-lg-end">
-                    <button class="glass-panel px-4 py-2 text-white border-0" onclick="window.print()">
-                        <i class="bi bi-printer me-2"></i>In lộ trình
-                    </button>
-                    <a href="/onboarding" class="glass-panel px-4 py-2 text-white text-decoration-none">
-                        <i class="bi bi-arrow-repeat me-2"></i>Làm mới vibe
-                    </a>
-                </div>
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0 reveal-up">
+                <a href="/onboarding" class="btn btn-outline-primary rounded-pill px-4">Đổi tâm trạng ➔</a>
             </div>
         </div>
     </div>
 </div>
 
-<main class="pb-5">
+<main class="py-5 bg-light">
     <div class="container-elite">
-        <!-- Stats Grid - Re-aligned -->
-        <div class="stats-glass-row reveal-up mb-5">
-            <div class="glass-panel stat-glass-item flex-fill">
-                <span class="stat-glass-lab">Khoảng cách</span>
-                <span class="stat-glass-val"><%= journey.total_km %> <small style="font-size: 1rem;">KM</small></span>
+        <!-- Dashboard Overview -->
+        <div class="row g-4 mb-5 reveal-up">
+            <div class="col-md-4">
+                <div class="glass-panel p-4 h-100 text-center">
+                    <div class="text-primary mb-2"><i class="bi bi-geo-alt fs-2"></i></div>
+                    <h6 class="text-uppercase fw-bold small opacity-50">Tổng quãng đường</h6>
+                    <h3 class="fw-black mb-0"><%= journey.total_km %> <small>KM</small></h3>
+                </div>
             </div>
-            <div class="glass-panel stat-glass-item flex-fill border-start border-end border-glass">
-                <span class="stat-glass-lab">Thời gian</span>
-                <span class="stat-glass-val"><%= journey.total_minutes %> <small style="font-size: 1rem;">PHÚT</small></span>
+            <div class="col-md-4">
+                <div class="glass-panel p-4 h-100 text-center">
+                    <div class="text-primary mb-2"><i class="bi bi-clock fs-2"></i></div>
+                    <h6 class="text-uppercase fw-bold small opacity-50">Thời gian dự kiến</h6>
+                    <h3 class="fw-black mb-0"><%= journey.total_minutes %> <small>PHÚT</small></h3>
+                </div>
             </div>
-            <div class="glass-panel stat-glass-item flex-fill">
-                <span class="stat-glass-lab">Ước tính thưởng</span>
-                <span class="stat-glass-val">+<%= journey.stops.length * 50 %> <small style="font-size: 1rem;">PTS</small></span>
+            <div class="col-md-4">
+                <div class="glass-panel p-4 h-100 text-center">
+                    <div class="text-primary mb-2"><i class="bi bi-stars fs-2"></i></div>
+                    <h6 class="text-uppercase fw-bold small opacity-50">Số điểm dừng</h6>
+                    <h3 class="fw-black mb-0"><%= journey.stops.length %> <small>ĐIỂM</small></h3>
+                </div>
             </div>
         </div>
 
-        <!-- Interactive Core -->
-        <div class="map-elite-wrapper reveal-up" style="min-height: 700px;">
-            <div id="map-elite" style="width: 100%; height: 100%;"></div>
-            
-            <!-- Floating Timeline -->
-            <div class="floating-timeline glass-panel">
-                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-                    <h5 class="fw-bold mb-0">Hành trình chi tiết</h5>
-                    <span class="badge bg-emerald rounded-pill" id="journey-progress">0%</span>
+        <div class="row g-5">
+            <!-- Timeline & Content (Main Focus) -->
+            <div class="col-lg-6 order-2 order-lg-1">
+                <div class="mb-4 d-flex justify-content-between align-items-center reveal-up">
+                    <h3 class="fw-bold mb-0">Timeline hành trình</h3>
+                    <div class="badge bg-primary rounded-pill px-3 py-2" id="progress-badge">Tiến độ: 0%</div>
                 </div>
 
-                <div id="timeline-list">
+                <div class="timeline-list-full">
                     <% journey.stops.forEach((stop, i) => { %>
-                        <div class="elite-step-card" id="step-<%= i %>" onclick="focusEliteMap(<%= i %>)">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div class="elite-step-num">0<%= i + 1 %></div>
-                                <div class="check-indicator d-none" id="check-<%= i %>">
-                                    <i class="bi bi-check-circle-fill text-emerald fs-4"></i>
+                        <div class="glass-panel p-4 mb-4 reveal-up elite-step-card" id="step-<%= i %>" onclick="focusEliteMap(<%= i %>)">
+                            <div class="row g-3">
+                                <div class="col-auto">
+                                    <div class="step-num-circle"><%= i + 1 %></div>
                                 </div>
-                            </div>
-                            <h6 class="fw-bold mb-2"><%= stop.name %></h6>
-                            <p class="small opacity-50 mb-3 text-truncate-2"><%= stop.short_desc %></p>
-                            
-                            <!-- Stop Actions -->
-                            <div class="d-flex gap-2 mt-3 action-buttons">
-                                <button class="btn btn-sm btn-emerald-glass flex-fill py-2" onclick="handleCheckIn(<%= i %>, event)">
-                                    <i class="bi bi-qr-code-scan me-1"></i>Check-in
-                                </button>
-                                <a href="https://www.google.com/maps/dir/?api=1&destination=<%= stop.lat %>,<%= stop.lng %>" 
-                                   target="_blank" class="btn btn-sm btn-outline-light flex-fill py-2 border-glass" onclick="event.stopPropagation()">
-                                    <i class="bi bi-signpost-2 me-1"></i>Chỉ đường
-                                </a>
+                                <div class="col">
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="fw-bold mb-2"><%= stop.name %></h5>
+                                        <div class="check-mark d-none" id="check-<%= i %>">
+                                            <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                        </div>
+                                    </div>
+                                    <p class="text-muted small mb-3"><%= stop.short_desc || stop.story %></p>
+                                    
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="handleCheckIn(<%= i %>, event)">
+                                            <i class="bi bi-qr-code-scan me-1"></i> Check-in
+                                        </button>
+                                        <a href="https://www.google.com/maps/dir/?api=1&destination=<%= stop.lat %>,<%= stop.lng %>" 
+                                           target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="event.stopPropagation()">
+                                            <i class="bi bi-signpost-2"></i>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     <% }) %>
                 </div>
             </div>
 
-            <!-- Start/Finish Bottom Bar -->
-            <div class="position-absolute bottom-0 start-0 end-0 p-4" style="z-index: 1001; background: linear-gradient(to top, rgba(2,44,34,0.8), transparent);">
-                <div class="container-fluid d-flex justify-content-between align-items-center">
-                    <div class="text-white">
-                        <small class="opacity-50 d-block">Trạng thái hiện tại</small>
-                        <span id="current-status-text" class="fw-bold">Sẵn sàng xuất phát</span>
+            <!-- Map (Sidebar Focus) -->
+            <div class="col-lg-6 order-1 order-lg-2">
+                <div class="sticky-top" style="top: 120px;">
+                    <div class="map-elite-wrapper shadow-lg overflow-hidden" style="height: 600px; border-radius: 32px; border: 4px solid #fff;">
+                        <div id="map-elite" style="width: 100%; height: 100%;"></div>
                     </div>
-                    <button class="btn btn-lg rounded-pill px-5 shadow-lg fw-bold btn-emerald" id="main-action-btn" onclick="startHealingJourney()">
-                        BẮT ĐẦU HÀNH TRÌNH 🚀
-                    </button>
+                    <div class="mt-4 p-4 glass-panel text-center">
+                        <p class="small text-muted mb-3">Bạn đã sẵn sàng cho chuyến hành trình này?</p>
+                        <button class="btn btn-primary btn-lg w-100 rounded-pill fw-bold" onclick="startHealingJourney()">
+                            BẮT ĐẦU DI CHUYỂN NGAY ➔
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -97,109 +103,72 @@
 </main>
 
 <style>
-    .btn-emerald { background: #10b981; color: white; border: none; }
-    .btn-emerald:hover { background: #059669; transform: scale(1.05); }
-    .btn-emerald-glass { background: rgba(16, 185, 129, 0.2); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
-    .btn-emerald-glass:hover { background: rgba(16, 185, 129, 0.4); color: white; }
-    .border-glass { border-color: rgba(255,255,255,0.1) !important; }
-    .text-emerald { color: #10b981 !important; }
-    .bg-emerald { background: #10b981 !important; }
-    .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    
-    .elite-step-card .action-buttons { opacity: 0; transform: translateY(10px); transition: all 0.3s ease; height: 0; overflow: hidden; }
-    .elite-step-card.active .action-buttons { opacity: 1; transform: translateY(0); height: auto; margin-top: 15px; }
+    .step-num-circle {
+        width: 35px; height: 35px;
+        background: var(--v5-primary); color: #fff;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        font-weight: 900;
+    }
+    .elite-step-card { cursor: pointer; transition: all 0.3s ease; }
+    .elite-step-card:hover { transform: scale(1.02); border-color: var(--v5-primary); }
+    .elite-step-card.active { border-left: 8px solid var(--v5-primary); background: #f8faf8; }
 </style>
 
 <script>
     let mapElite;
-    let eliteMarkers = [];
-    let completedStops = new Set();
-    const totalStops = <%= journey.stops.length %>;
+    let markers = [];
+    let completed = new Set();
 
     document.addEventListener('DOMContentLoaded', () => {
-        initEliteMap();
-        
-        gsap.to('.reveal-up', {
-            opacity: 1, y: 0, stagger: 0.2, duration: 1, ease: 'power3.out'
-        });
+        initMap();
+        gsap.to('.reveal-up', { opacity: 1, y: 0, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
     });
 
-    function initEliteMap() {
+    function initMap() {
         mapElite = L.map('map-elite', { zoomControl: false }).setView([10.796, 106.524], 14);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(mapElite);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(mapElite);
 
         const stops = <%- JSON.stringify(journey.stops) %>;
         stops.forEach((stop, i) => {
-            const m = L.marker([stop.lat, stop.lng], {
-                icon: L.divIcon({
-                    className: 'elite-marker',
-                    html: `<div id="marker-${i}" class="custom-marker" style="background:#10b981; width:14px; height:14px; border:3px solid #fff; border-radius:50%; box-shadow:0 0 15px #10b981;"></div>`,
-                    iconSize: [14, 14]
-                })
-            }).addTo(mapElite);
-            m.bindPopup(`<div class="p-2"><b class="text-dark">${stop.name}</b><br><small class="text-muted">Điểm dừng số ${i+1}</small></div>`);
-            eliteMarkers.push(m);
+            const m = L.marker([stop.lat, stop.lng]).addTo(mapElite);
+            m.bindPopup(`<b>${stop.name}</b>`);
+            markers.push(m);
         });
 
         if (stops.length > 0) {
-            const group = new L.featureGroup(eliteMarkers);
-            mapElite.fitBounds(group.getBounds().pad(0.3));
+            const group = new L.featureGroup(markers);
+            mapElite.fitBounds(group.getBounds().pad(0.2));
         }
     }
 
     function focusEliteMap(i) {
         document.querySelectorAll('.elite-step-card').forEach(c => c.classList.remove('active'));
         document.getElementById('step-' + i).classList.add('active');
-        mapElite.flyTo(eliteMarkers[i].getLatLng(), 16);
-        eliteMarkers[i].openPopup();
+        mapElite.flyTo(markers[i].getLatLng(), 16);
+        markers[i].openPopup();
     }
 
     function handleCheckIn(i, event) {
         event.stopPropagation();
+        completed.add(i);
+        document.getElementById('check-' + i).classList.remove('d-none');
+        updateProgress();
         
-        // Simulate QR Scan
-        const btn = event.currentTarget;
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang xác thực...';
-
-        setTimeout(() => {
-            completedStops.add(i);
-            document.getElementById('check-' + i).classList.remove('d-none');
-            document.getElementById('marker-' + i).style.background = '#fbbf24';
-            document.getElementById('marker-' + i).style.boxShadow = '0 0 15px #fbbf24';
-            
-            updateProgress();
-            
-            btn.innerHTML = '<i class="bi bi-check-lg me-1"></i>Đã Check-in';
-            btn.classList.add('btn-secondary');
-            btn.classList.remove('btn-emerald-glass');
-
-            if (completedStops.size === totalStops) {
-                finishJourney();
-            } else {
-                focusEliteMap((i + 1) % totalStops);
-            }
-        }, 1500);
+        if (completed.size === markers.length) {
+            confetti({ particleCount: 200, spread: 70 });
+            alert('Tuyệt vời! Bạn đã hoàn thành hành trình.');
+        } else {
+            focusEliteMap((i + 1) % markers.length);
+        }
     }
 
     function updateProgress() {
-        const progress = Math.round((completedStops.size / totalStops) * 100);
-        document.getElementById('journey-progress').innerText = progress + '%';
-        document.getElementById('current-status-text').innerText = `Đã hoàn thành ${completedStops.size}/${totalStops} điểm`;
+        const p = Math.round((completed.size / markers.length) * 100);
+        document.getElementById('progress-badge').innerText = `Tiến độ: ${p}%`;
     }
 
     function startHealingJourney() {
-        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-        document.getElementById('main-action-btn').innerText = 'HÀNH TRÌNH ĐANG DIỄN RA...';
+        confetti({ particleCount: 100 });
         focusEliteMap(0);
-    }
-
-    function finishJourney() {
-        confetti({ particleCount: 300, spread: 100, origin: { y: 0.5 } });
-        document.getElementById('main-action-btn').innerText = 'HOÀN THÀNH HÀNH TRÌNH! 🎉';
-        document.getElementById('main-action-btn').classList.add('btn-warning');
-        alert('Chúc mừng! Bạn đã hoàn thành trọn vẹn hành trình chữa lành tại Bình Lợi. Một huy hiệu đặc biệt đã được gửi vào kho tàng của bạn!');
-        
-        setTimeout(() => { window.location.href = '/summary'; }, 3000);
     }
 </script>

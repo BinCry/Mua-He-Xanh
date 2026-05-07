@@ -1,33 +1,33 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<section class="elite-onboard-hero min-vh-100 d-flex align-items-center">
+<section class="elite-onboard-hero min-vh-100 d-flex align-items-center bg-white">
     <div class="container-elite w-100">
         <div class="reveal-up text-center mb-5">
             <span class="elite-header-pill mb-4">Personalized Healing Journey</span>
-            <h1 class="elite-title mb-3" style="line-height: 1.1;">Tâm trạng của bạn<br>hôm nay thế nào?</h1>
-            <p class="lead opacity-75 mx-auto" style="max-width: 600px;">Hãy để Bình Lợi Healing giúp bạn tìm lại sự cân bằng trong tâm hồn thông qua những lộ trình bản sắc.</p>
+            <h1 class="elite-title mb-3" style="line-height: 1.1; color: var(--v5-primary);">Tâm trạng của bạn<br>hôm nay thế nào?</h1>
+            <p class="lead text-muted mx-auto" style="max-width: 600px;">Hãy để Bình Lợi Healing giúp bạn tìm lại sự cân bằng trong tâm hồn thông qua những lộ trình bản sắc.</p>
         </div>
 
         <form id="eliteOnboardingForm">
             <!-- Vibe Selection -->
             <div class="vibe-grid-elite">
-                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('chill', this)">
+                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('chill', this)">
                     <span class="icon">🌿</span>
                     <span class="vibe-name-new">Sống chậm</span>
                 </div>
-                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('peace', this)">
+                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('peace', this)">
                     <span class="icon">🛕</span>
                     <span class="vibe-name-new">Tĩnh lặng</span>
                 </div>
-                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('culture', this)">
+                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('culture', this)">
                     <span class="icon">🎨</span>
                     <span class="vibe-name-new">Khám phá</span>
                 </div>
-                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('history', this)">
+                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('history', this)">
                     <span class="icon">🏛</span>
                     <span class="vibe-name-new">Cội nguồn</span>
                 </div>
-                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('family', this)">
+                <div class="vibe-card-elite reveal-up" onclick="selectVibeElite('family', this)">
                     <span class="icon">👨‍👩‍👧‍👦</span>
                     <span class="vibe-name-new">Gắn kết</span>
                 </div>
@@ -37,7 +37,7 @@
                 <div class="col-md-6">
                     <div class="glass-panel p-4">
                         <label class="form-label fw-bold mb-3 d-block">Quy mô hành trình?</label>
-                        <select class="form-select bg-dark text-white border-0 rounded-4 p-3" name="duration" required>
+                        <select class="form-select border-0 bg-light rounded-4 p-3" name="duration" required>
                             <option value="3h">Dạo quanh (3-4 tiếng)</option>
                             <option value="1d" selected>Trọn vẹn 1 ngày</option>
                             <option value="custom">Tự do khám phá</option>
@@ -47,7 +47,7 @@
                 <div class="col-md-6">
                     <div class="glass-panel p-4">
                         <label class="form-label fw-bold mb-3 d-block">Khởi hành lúc nào?</label>
-                        <select class="form-select bg-dark text-white border-0 rounded-4 p-3" name="when" required>
+                        <select class="form-select border-0 bg-light rounded-4 p-3" name="when" required>
                             <option value="now">Ngay lúc này</option>
                             <option value="weekend">Cuối tuần tới</option>
                             <option value="season">Mùa hội lễ</option>
@@ -59,9 +59,7 @@
             <input type="hidden" name="moods" id="moods-input-elite" required>
 
             <div class="text-center mt-5 reveal-up">
-                <button type="submit" class="btn btn-lg px-5 py-3 rounded-pill fw-bold" 
-                        style="background: var(--elite-secondary); color: var(--elite-bg); box-shadow: 0 0 30px rgba(251, 191, 36, 0.4);"
-                        id="submit-btn-elite">
+                <button type="submit" class="btn btn-primary-v5 btn-lg px-5 py-3 shadow-lg" id="submit-btn-elite">
                     Bắt đầu hành trình chữa lành ➔
                 </button>
             </div>
@@ -74,11 +72,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         gsap.to('.reveal-up', {
-            opacity: 1,
-            y: 0,
-            stagger: 0.15,
-            duration: 1,
-            ease: 'power3.out'
+            opacity: 1, y: 0, stagger: 0.15, duration: 1, ease: 'power3.out'
         });
     });
 
@@ -97,22 +91,20 @@
         e.preventDefault();
         const moods = document.getElementById('moods-input-elite').value;
         if (!moods) {
-            alert('Hãy chọn ít nhất một cảm xúc để chúng tôi gợi ý lộ trình tốt nhất!');
+            alert('Hãy chọn ít nhất một cảm xúc!');
             return;
         }
 
         const btn = document.getElementById('submit-btn-elite');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang chuẩn bị lộ trình...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang chuẩn bị...';
 
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
 
         axios.post('/api/session', data)
             .then(res => {
-                gsap.to('body', { opacity: 0, duration: 0.5, onComplete: () => {
-                    window.location.href = '/hanh-trinh-cua-toi';
-                }});
+                window.location.href = '/hanh-trinh-cua-toi';
             })
             .catch(err => {
                 console.error(err);
