@@ -102,6 +102,35 @@ body {
 }
 
 /* ==========================================================================
+   NAVBAR GLASS
+   ========================================================================== */
+.navbar-elite-glass {
+    background: rgba(2, 44, 34, 0.7) !important;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 15px 0;
+}
+
+.navbar-elite-glass .nav-link {
+    color: rgba(255, 255, 255, 0.7) !important;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    padding: 10px 20px !important;
+}
+
+.navbar-elite-glass .nav-link:hover, 
+.navbar-elite-glass .nav-link.active {
+    color: var(--elite-primary) !important;
+}
+
+.nav-user-avatar {
+    border: 2px solid var(--elite-primary);
+    padding: 2px;
+}
+
+/* ==========================================================================
    DASHBOARD UI
    ========================================================================== */
 .elite-header-pill {
