@@ -268,6 +268,24 @@ class Journey extends Model {
 
         return journeyId;
     }
+
+    /** Remove a stop from journey */
+    async removeStop(journeyId, destinationId) {
+        await this.db.query(
+            "DELETE FROM journey_stops WHERE journey_id = ? AND destination_id = ?",
+            [journeyId, destinationId]
+        );
+        // After deletion, we might need to fix the stop_order
+        const journey = await this.getWithStops(journeyId);
+        if (journey && journey.stops) {
+            for (let i = 0; i < journey.stops.length; i++) {
+                await this.db.query(
+                    "UPDATE journey_stops SET stop_order = ? WHERE id = ?",
+                    [i, journey.stops[i].id]
+                );
+            }
+        }
+    }
 }
 
 module.exports = new Journey();

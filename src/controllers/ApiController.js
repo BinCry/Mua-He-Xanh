@@ -97,18 +97,25 @@ class ApiController {
                 await JourneyStop.updateOrder(journeyId, destinationId, order);
             } else if (action === 'update_transport') {
                 const transport = req.body.transport || 'walking';
-                await UserSession.db.query(
-                    "UPDATE journey_stops SET transport = ? WHERE journey_id = ? AND destination_id = ?",
-                    [transport, journeyId, destinationId]
-                );
-            }
+        try {
+            const { journeyId, action, order, destinationId } = req.body;
             
-            // Recalculate journey totals
+            if (action === 'reorder' && order) {
+                // Update order for each stop
+                for (let i = 0; i < order.length; i++) {
+                    await JourneyStop.updateByJourneyAndDest(journeyId, order[i], { stop_order: i });
+                }
+            } else if (action === 'remove' && destinationId) {
+                await Journey.removeStop(journeyId, destinationId);
+            }
+
+            // Recalculate journey metrics (KM and Minutes)
             await Journey.recalculateMetrics(journeyId);
             
             res.json({ success: true });
-        } catch (e) {
-            res.status(500).json({ success: false, message: e.message });
+        } catch (error) {
+            console.error("Update stop error:", error);
+            res.status(500).json({ success: false, error: error.message });
         }
     }
 

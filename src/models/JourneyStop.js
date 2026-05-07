@@ -5,6 +5,18 @@ class JourneyStop extends Model {
         super('journey_stops');
     }
 
+    async findByJourney(journeyId) {
+        return this.find({ journey_id: journeyId });
+    }
+
+    /** Update stop by journey and destination IDs */
+    async updateByJourneyAndDest(journeyId, destinationId, data) {
+        return this.db.query(
+            "UPDATE journey_stops SET ? WHERE journey_id = ? AND destination_id = ?",
+            [data, journeyId, destinationId]
+        );
+    }
+
     async remove(journeyId, destinationId) {
         return this.db.query(
             `DELETE FROM ${this.table} WHERE journey_id = ? AND destination_id = ?`,
