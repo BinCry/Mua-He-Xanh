@@ -31,7 +31,7 @@
                             </div>
 
                             <form action="/journey/confirm" method="POST">
-                                <input type="hidden" name="journeyData" value='<%= JSON.stringify(sug) %>'>
+                                <input type="hidden" name="journeyData" value='<%= JSON.stringify(sug).replace(/'/g, "&#39;") %>'>
                                 <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">CHỌN LỘ TRÌNH NÀY</button>
                             </form>
                         </div>
