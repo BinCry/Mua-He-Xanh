@@ -1,62 +1,68 @@
-<section class="new-wizard-wrapper">
-    <div class="container-custom">
-        <div class="text-center mb-5">
-            <h1 class="onboard-title">Hôm nay bạn muốn đi kiểu gì?</h1>
-            <p class="onboard-subtitle">Chọn vibe cho chuyến hành trình chữa lành của riêng bạn.</p>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+<section class="elite-onboard-hero">
+    <div class="container-elite">
+        <div class="reveal-up">
+            <span class="elite-header-pill">Personalized Experience</span>
+            <h1 class="elite-title">Tâm trạng của bạn<br>hôm nay thế nào?</h1>
+            <p class="lead opacity-75">Hãy để Bình Lợi Healing giúp bạn tìm lại sự cân bằng trong tâm hồn.</p>
         </div>
 
-        <form id="newOnboardingForm">
+        <form id="eliteOnboardingForm">
             <!-- Vibe Selection -->
-            <div class="vibe-selection-grid mb-5">
-                <div class="vibe-card-new" onclick="selectVibe('chill', this)">
-                    <span class="vibe-icon-new">🌿</span>
-                    <span class="vibe-name-new">Chill</span>
+            <div class="vibe-grid-elite">
+                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('chill', this)">
+                    <span class="icon">🌿</span>
+                    <span class="vibe-name-new">Sống chậm</span>
                 </div>
-                <div class="vibe-card-new" onclick="selectVibe('peace', this)">
-                    <span class="vibe-icon-new">🛕</span>
-                    <span class="vibe-name-new">Bình yên</span>
+                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('peace', this)">
+                    <span class="icon">🛕</span>
+                    <span class="vibe-name-new">Tĩnh lặng</span>
                 </div>
-                <div class="vibe-card-new" onclick="selectVibe('culture', this)">
-                    <span class="vibe-icon-new">🎨</span>
-                    <span class="vibe-name-new">Văn hóa</span>
+                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('culture', this)">
+                    <span class="icon">🎨</span>
+                    <span class="vibe-name-new">Khám phá</span>
                 </div>
-                <div class="vibe-card-new" onclick="selectVibe('history', this)">
-                    <span class="vibe-icon-new">🏛</span>
-                    <span class="vibe-name-new">Lịch sử</span>
+                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('history', this)">
+                    <span class="icon">🏛</span>
+                    <span class="vibe-name-new">Cội nguồn</span>
                 </div>
-                <div class="vibe-card-new" onclick="selectVibe('family', this)">
-                    <span class="vibe-icon-new">🎉</span>
-                    <span class="vibe-name-new">Gia đình</span>
-                </div>
-            </div>
-
-            <hr class="my-5 opacity-10">
-
-            <!-- Other Options -->
-            <div class="row g-4 mb-5">
-                <div class="col-md-6">
-                    <label class="form-label fw-bold mb-3">Bạn có bao nhiêu thời gian?</label>
-                    <select class="form-select form-select-lg rounded-4" name="duration" required>
-                        <option value="3h">3-4 Tiếng (Nhanh chóng)</option>
-                        <option value="1d" selected>Trọn vẹn 1 ngày</option>
-                        <option value="custom">Tự chọn (Khám phá tự do)</option>
-                    </select>
-                </div>
-                <div class="col-md-6">
-                    <label class="form-label fw-bold mb-3">Thời điểm khởi hành?</label>
-                    <select class="form-select form-select-lg rounded-4" name="when" required>
-                        <option value="now">Ngay bây giờ</option>
-                        <option value="weekend">Cuối tuần này</option>
-                        <option value="season">Mùa lễ hội</option>
-                    </select>
+                <div class="glass-card-interactive vibe-card-elite reveal-up" onclick="selectVibeElite('family', this)">
+                    <span class="icon">👨‍👩‍👧‍👦</span>
+                    <span class="vibe-name-new">Gắn kết</span>
                 </div>
             </div>
 
-            <input type="hidden" name="moods" id="moods-input" required>
+            <div class="row g-4 mt-5 reveal-up">
+                <div class="col-md-6">
+                    <div class="glass-panel p-4">
+                        <label class="form-label fw-bold mb-3 d-block">Quy mô hành trình?</label>
+                        <select class="form-select bg-dark text-white border-0 rounded-4 p-3" name="duration" required>
+                            <option value="3h">Dạo quanh (3-4 tiếng)</option>
+                            <option value="1d" selected>Trọn vẹn 1 ngày</option>
+                            <option value="custom">Tự do khám phá</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="glass-panel p-4">
+                        <label class="form-label fw-bold mb-3 d-block">Khởi hành lúc nào?</label>
+                        <select class="form-select bg-dark text-white border-0 rounded-4 p-3" name="when" required>
+                            <option value="now">Ngay lúc này</option>
+                            <option value="weekend">Cuối tuần tới</option>
+                            <option value="season">Mùa hội lễ</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
 
-            <div class="text-center mt-5">
-                <button type="submit" class="btn-primary-v5 btn-lg px-5" id="submit-btn">
-                    Tạo hành trình của tôi ➔
+            <input type="hidden" name="moods" id="moods-input-elite" required>
+
+            <div class="text-center mt-5 reveal-up">
+                <button type="submit" class="btn btn-lg px-5 py-3 rounded-pill fw-bold" 
+                        style="background: var(--elite-secondary); color: var(--elite-bg); box-shadow: 0 0 30px rgba(251, 191, 36, 0.4);"
+                        id="submit-btn-elite">
+                    Bắt đầu hành trình chữa lành ➔
                 </button>
             </div>
         </form>
@@ -66,7 +72,17 @@
 <script>
     let selectedVibes = [];
 
-    function selectVibe(vibe, el) {
+    document.addEventListener('DOMContentLoaded', () => {
+        gsap.to('.reveal-up', {
+            opacity: 1,
+            y: 0,
+            stagger: 0.15,
+            duration: 1,
+            ease: 'power3.out'
+        });
+    });
+
+    function selectVibeElite(vibe, el) {
         if (selectedVibes.includes(vibe)) {
             selectedVibes = selectedVibes.filter(v => v !== vibe);
             el.classList.remove('active');
@@ -74,27 +90,29 @@
             selectedVibes.push(vibe);
             el.classList.add('active');
         }
-        document.getElementById('moods-input').value = selectedVibes.join(',');
+        document.getElementById('moods-input-elite').value = selectedVibes.join(',');
     }
 
-    document.getElementById('newOnboardingForm').addEventListener('submit', function(e) {
+    document.getElementById('eliteOnboardingForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const moods = document.getElementById('moods-input').value;
+        const moods = document.getElementById('moods-input-elite').value;
         if (!moods) {
-            alert('Vui lòng chọn ít nhất một Vibe!');
+            alert('Hãy chọn ít nhất một cảm xúc để chúng tôi gợi ý lộ trình tốt nhất!');
             return;
         }
 
-        const btn = document.getElementById('submit-btn');
+        const btn = document.getElementById('submit-btn-elite');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang tạo...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang chuẩn bị lộ trình...';
 
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
 
         axios.post('/api/session', data)
             .then(res => {
-                window.location.href = '/hanh-trinh-cua-toi';
+                gsap.to('body', { opacity: 0, duration: 0.5, onComplete: () => {
+                    window.location.href = '/hanh-trinh-cua-toi';
+                }});
             })
             .catch(err => {
                 console.error(err);

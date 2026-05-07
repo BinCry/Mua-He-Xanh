@@ -1,79 +1,110 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<div class="journey-header-new">
-    <div class="container-custom">
+<div class="elite-header-journey py-5">
+    <div class="container-elite">
         <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h1 class="onboard-title mb-1">Hành trình của bạn</h1>
-                <p class="text-muted mb-0"><%= greeting %>, <%= user ? user.full_name : 'bạn đồng hành' %>! Lộ trình này dành riêng cho bạn.</p>
+            <div class="reveal-up">
+                <span class="elite-header-pill">Your Healing Roadmap</span>
+                <h1 class="elite-title mb-0" style="font-size: 3rem;">Lộ trình bình yên</h1>
+                <p class="opacity-50 mt-2">Dành riêng cho <%= user ? user.full_name : 'bạn' %> • Cập nhật lúc <%= new Date().toLocaleTimeString('vi-VN') %></p>
             </div>
-            <a href="/onboarding" class="btn btn-outline-secondary rounded-pill px-4 btn-sm">Thay đổi vibe</a>
+            <div class="reveal-up">
+                <a href="/onboarding" class="glass-panel px-4 py-2 text-white text-decoration-none small">Làm mới vibe ➔</a>
+            </div>
         </div>
     </div>
 </div>
 
-<main class="py-5">
-    <div class="container-custom">
+<main class="pb-5">
+    <div class="container-elite">
         <!-- Stats -->
-        <div class="stats-grid-new mb-5">
-            <div class="stat-item-new">
-                <div class="stat-label-new">Khoảng cách</div>
-                <div class="stat-value-new"><%= journey.total_km %> KM</div>
+        <div class="stats-glass-row reveal-up">
+            <div class="glass-panel stat-glass-item">
+                <span class="stat-glass-lab">Khoảng cách</span>
+                <span class="stat-glass-val"><%= journey.total_km %> <small style="font-size: 1rem;">KM</small></span>
             </div>
-            <div class="stat-item-new">
-                <div class="stat-label-new">Thời gian</div>
-                <div class="stat-value-new"><%= journey.total_minutes %> PHÚT</div>
+            <div class="glass-panel stat-glass-item">
+                <span class="stat-glass-lab">Thời gian dự kiến</span>
+                <span class="stat-glass-val"><%= journey.total_minutes %> <small style="font-size: 1rem;">PHÚT</small></span>
             </div>
-            <div class="stat-item-new">
-                <div class="stat-label-new">Điểm dừng</div>
-                <div class="stat-value-new"><%= journey.stops.length %> ĐIỂM</div>
+            <div class="glass-panel stat-glass-item">
+                <span class="stat-glass-lab">Tích lũy</span>
+                <span class="stat-glass-val">+<%= journey.stops.length * 50 %> <small style="font-size: 1rem;">PTS</small></span>
             </div>
         </div>
 
-        <div class="row g-5">
-            <!-- Map -->
-            <div class="col-lg-7 order-1 order-lg-2">
-                <div class="sticky-top" style="top: 100px;">
-                    <div id="map-new" class="map-container-new"></div>
-                    <div class="text-center">
-                        <button class="btn-primary-v5 w-100" onclick="alert('Đang bắt đầu dẫn đường...')">BẮT ĐẦU DI CHUYỂN 🚀</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Steps -->
-            <div class="col-lg-5 order-2 order-lg-1">
-                <h3 class="fw-bold mb-4">Các điểm dừng chân</h3>
-                <div class="timeline-list-new">
+        <!-- Map & Timeline -->
+        <div class="map-elite-wrapper reveal-up">
+            <div id="map-elite" style="width: 100%; height: 100%;"></div>
+            
+            <!-- Floating Timeline -->
+            <div class="floating-timeline glass-panel">
+                <h5 class="fw-bold mb-4 px-2">Điểm dừng chân</h5>
+                <div id="timeline-list">
                     <% journey.stops.forEach((stop, i) => { %>
-                        <div class="step-card-new" id="step-<%= i %>" onclick="focusOnMap(<%= i %>)">
-                            <div class="step-number-new"><%= i + 1 %></div>
-                            <div class="step-info-new">
-                                <h4><%= stop.name %></h4>
-                                <p><%= stop.short_desc %></p>
-                            </div>
+                        <div class="elite-step-card" id="step-<%= i %>" onclick="focusEliteMap(<%= i %>)">
+                            <div class="elite-step-num">0<%= i + 1 %></div>
+                            <h6 class="fw-bold mb-1"><%= stop.name %></h6>
+                            <p class="small opacity-50 mb-0"><%= stop.short_desc %></p>
                         </div>
                     <% }) %>
                 </div>
+            </div>
+
+            <!-- Start Button Overlay -->
+            <div class="position-absolute bottom-0 end-0 m-4" style="z-index: 1001;">
+                <button class="btn btn-lg rounded-pill px-5 shadow-lg fw-bold" 
+                        style="background: var(--elite-primary); color: white; border: none;"
+                        onclick="startHealingJourney()">
+                    BẮT ĐẦU NGAY 🚀
+                </button>
             </div>
         </div>
     </div>
 </main>
 
+<style>
+    /* Map styling to fit the elite theme */
+    .leaflet-container { background: #022c22 !important; }
+    .leaflet-bar { border: none !important; box-shadow: 0 10px 20px rgba(0,0,0,0.3) !important; }
+    .leaflet-bar a { background: #064e3b !important; color: white !important; border: 1px solid rgba(255,255,255,0.1) !important; }
+</style>
+
 <script>
-    let map;
-    let markers = [];
+    let mapElite;
+    let eliteMarkers = [];
 
     document.addEventListener('DOMContentLoaded', () => {
-        initMap();
+        initEliteMap();
+        
+        gsap.to('.reveal-up', {
+            opacity: 1,
+            y: 0,
+            stagger: 0.2,
+            duration: 1.2,
+            ease: 'expo.out'
+        });
+        
+        // Stagger timeline cards
+        gsap.from('.elite-step-card', {
+            opacity: 0,
+            x: -30,
+            stagger: 0.1,
+            duration: 0.8,
+            delay: 0.5,
+            ease: 'back.out'
+        });
     });
 
-    function initMap() {
-        if (!document.getElementById('map-new')) return;
+    function initEliteMap() {
+        mapElite = L.map('map-elite', { zoomControl: true }).setView([10.796, 106.524], 14);
         
-        map = L.map('map-new', { zoomControl: false }).setView([10.796, 106.524], 14);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
+        // Use a Dark Mode Map Theme
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(mapElite);
 
         const stops = <%- JSON.stringify(journey.stops) %>;
         const latlngs = [];
@@ -82,23 +113,49 @@
             const pos = [stop.lat, stop.lng];
             latlngs.push(pos);
 
-            const m = L.marker(pos).addTo(map);
-            m.bindPopup(`<b>${stop.name}</b>`);
-            markers.push(m);
+            const m = L.marker(pos, {
+                icon: L.divIcon({
+                    className: 'elite-marker',
+                    html: `<div style="background: var(--elite-primary); width: 12px; height: 12px; border: 3px solid white; border-radius: 50%; box-shadow: 0 0 10px var(--elite-primary);"></div>`,
+                    iconSize: [12, 12]
+                })
+            }).addTo(mapElite);
+            
+            m.bindPopup(`<b style="color:#022c22">${stop.name}</b>`);
+            eliteMarkers.push(m);
         });
 
         if (latlngs.length > 0) {
-            L.polyline(latlngs, { color: '#059669', weight: 3, dashArray: '5, 10' }).addTo(map);
-            const group = new L.featureGroup(markers);
-            map.fitBounds(group.getBounds().pad(0.2));
+            L.polyline(latlngs, { 
+                color: '#10b981', 
+                weight: 4, 
+                opacity: 0.6,
+                dashArray: '10, 10' 
+            }).addTo(mapElite);
+            
+            const group = new L.featureGroup(eliteMarkers);
+            mapElite.fitBounds(group.getBounds().pad(0.3));
         }
     }
 
-    function focusOnMap(i) {
-        document.querySelectorAll('.step-card-new').forEach(c => c.classList.remove('active'));
+    function focusEliteMap(i) {
+        document.querySelectorAll('.elite-step-card').forEach(c => c.classList.remove('active'));
         document.getElementById('step-' + i).classList.add('active');
 
-        map.flyTo(markers[i].getLatLng(), 16);
-        markers[i].openPopup();
+        mapElite.flyTo(eliteMarkers[i].getLatLng(), 16, {
+            duration: 1.5,
+            ease: 'power2.inOut'
+        });
+        eliteMarkers[i].openPopup();
+    }
+
+    function startHealingJourney() {
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#10b981', '#fbbf24', '#ffffff']
+        });
+        alert('Hành trình của bạn đã được kích hoạt! Hãy bắt đầu di chuyển đến điểm dừng chân đầu tiên.');
     }
 </script>
