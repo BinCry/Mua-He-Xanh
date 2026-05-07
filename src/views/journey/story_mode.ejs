@@ -2,125 +2,111 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<!-- Header Section -->
-<div class="bg-white border-bottom py-5">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-8 reveal-up">
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-2">
-                        <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
-                        <li class="breadcrumb-item active text-primary fw-bold" aria-current="page">Hành trình của tôi</li>
-                    </ol>
-                </nav>
-                <h1 class="display-4 fw-bold mb-1" style="color: var(--v5-primary); font-family: 'Playfair Display', serif;">Lộ trình gợi ý</h1>
-                <p class="lead text-muted mb-0">Hành trình <%= seasonName.toLowerCase() %> dành riêng cho <%= user ? user.full_name : 'bạn' %>.</p>
-            </div>
-            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0 reveal-up">
-                <a href="/onboarding" class="btn btn-outline-primary rounded-pill px-4 fw-bold shadow-sm">
-                    <i class="bi bi-arrow-repeat me-2"></i>Đổi tâm trạng
-                </a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<main class="py-5 bg-light">
-    <div class="container">
+<main class="py-5 bg-light min-vh-100">
+    <div class="container py-lg-4">
         
-        <!-- Summary Stats -->
-        <div class="row g-4 mb-5 reveal-up">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
-                    <div class="text-primary mb-2"><i class="bi bi-geo-alt fs-1"></i></div>
-                    <h6 class="text-uppercase fw-bold text-muted small mb-1">Khoảng cách</h6>
-                    <h2 class="fw-bold mb-0"><%= journey.total_km %> <small class="fs-6">KM</small></h2>
+        <!-- Header Card -->
+        <div class="card border-0 shadow-sm rounded-5 p-4 p-lg-5 mb-5 bg-white reveal-up">
+            <div class="row align-items-center">
+                <div class="col-lg-8">
+                    <span class="badge bg-primary px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm" style="letter-spacing: 1px;">Suggested Itinerary</span>
+                    <h1 class="display-4 fw-bold mb-2" style="color: var(--v5-primary); font-family: 'Playfair Display', serif;">Hành trình của bạn</h1>
+                    <p class="lead text-muted mb-0">Thiết kế dựa trên cảm hứng <%= seasonName.toLowerCase() %> dành riêng cho bạn.</p>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
-                    <div class="text-primary mb-2"><i class="bi bi-clock fs-1"></i></div>
-                    <h6 class="text-uppercase fw-bold text-muted small mb-1">Thời gian</h6>
-                    <h2 class="fw-bold mb-0"><%= journey.total_minutes %> <small class="fs-6">PHÚT</small></h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm rounded-4 p-4 text-center">
-                    <div class="text-primary mb-2"><i class="bi bi-award fs-1"></i></div>
-                    <h6 class="text-uppercase fw-bold text-muted small mb-1">Điểm dừng</h6>
-                    <h2 class="fw-bold mb-0"><%= journey.stops.length %> <small class="fs-6">ĐỊA ĐIỂM</small></h2>
+                <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                    <div class="stats-mini d-flex justify-content-lg-end gap-4">
+                        <div class="text-center">
+                            <h3 class="fw-bold mb-0 text-primary"><%= journey.total_km %></h3>
+                            <small class="text-uppercase text-muted fw-bold" style="font-size: 10px;">KM</small>
+                        </div>
+                        <div class="text-center border-start ps-4">
+                            <h3 class="fw-bold mb-0 text-primary"><%= journey.total_minutes %></h3>
+                            <small class="text-uppercase text-muted fw-bold" style="font-size: 10px;">Phút</small>
+                        </div>
+                        <div class="text-center border-start ps-4">
+                            <h3 class="fw-bold mb-0 text-primary"><%= journey.stops.length %></h3>
+                            <small class="text-uppercase text-muted fw-bold" style="font-size: 10px;">Điểm</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="row g-4">
-            <!-- Timeline Section -->
-            <div class="col-lg-6 order-2 order-lg-1">
-                <div class="d-flex justify-content-between align-items-center mb-4 reveal-up">
-                    <h3 class="fw-bold mb-0">Timeline chi tiết</h3>
-                    <div class="badge bg-primary rounded-pill px-3 py-2 fs-6" id="progress-badge">Tiến độ: 0%</div>
-                </div>
+        <!-- Main Dashboard Card -->
+        <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white reveal-up">
+            <div class="row g-0">
+                
+                <!-- Left: Timeline (Contained) -->
+                <div class="col-lg-5 border-end">
+                    <div class="p-4 p-lg-5 overflow-auto" style="max-height: 800px;">
+                        <div class="d-flex justify-content-between align-items-center mb-5">
+                            <h4 class="fw-bold mb-0">Các chặng dừng chân</h4>
+                            <span class="badge bg-light text-primary rounded-pill border px-3 py-2 fw-bold" id="progress-badge">Tiến độ: 0%</span>
+                        </div>
 
-                <div class="journey-timeline">
-                    <% journey.stops.forEach((stop, i) => { %>
-                        <div class="card border-0 shadow-sm rounded-4 mb-4 reveal-up journey-stop-card" id="step-<%= i %>" onclick="focusEliteMap(<%= i %>)">
-                            <div class="card-body p-4">
-                                <div class="d-flex">
-                                    <div class="flex-shrink-0 me-4">
-                                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-4 shadow-sm" style="width: 45px; height: 45px;">
-                                            <%= i + 1 %>
-                                        </div>
-                                    </div>
-                                    <div class="flex-grow-1">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h5 class="fw-bold mb-0 text-dark"><%= stop.name %></h5>
-                                            <div class="check-indicator d-none" id="check-<%= i %>">
-                                                <i class="bi bi-check-circle-fill text-success fs-3"></i>
+                        <div class="timeline-v5">
+                            <% journey.stops.forEach((stop, i) => { %>
+                                <div class="card border-0 bg-light rounded-4 mb-4 journey-stop-card shadow-sm-hover" id="step-<%= i %>" onclick="focusEliteMap(<%= i %>)">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex gap-3">
+                                            <div class="flex-shrink-0">
+                                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-5 shadow" style="width: 40px; height: 40px;">
+                                                    <%= i + 1 %>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <p class="text-muted small mb-3 lh-base"><%= stop.short_desc || stop.story %></p>
-                                        
-                                        <div class="d-flex gap-2">
-                                            <button class="btn btn-primary btn-sm rounded-pill px-4 fw-bold shadow-sm" onclick="handleCheckIn(<%= i %>, event)">
-                                                <i class="bi bi-qr-code-scan me-2"></i>Check-in
-                                            </button>
-                                            <a href="https://www.google.com/maps/dir/?api=1&destination=<%= stop.lat %>,<%= stop.lng %>" 
-                                               target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill px-3" onclick="event.stopPropagation()">
-                                                <i class="bi bi-signpost-2"></i>
-                                            </a>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                                    <h6 class="fw-bold mb-0 text-dark fs-5"><%= stop.name %></h6>
+                                                    <div class="check-indicator d-none" id="check-<%= i %>">
+                                                        <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                                                    </div>
+                                                </div>
+                                                <p class="text-muted small mb-4 lh-base text-truncate-3"><%= stop.short_desc || stop.story %></p>
+                                                
+                                                <div class="d-flex gap-2">
+                                                    <button class="btn btn-primary btn-sm rounded-pill px-4 py-2 fw-bold shadow-sm" onclick="handleCheckIn(<%= i %>, event)">
+                                                        Check-in
+                                                    </button>
+                                                    <a href="https://www.google.com/maps/dir/?api=1&destination=<%= stop.lat %>,<%= stop.lng %>" 
+                                                       target="_blank" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-2" onclick="event.stopPropagation()">
+                                                        <i class="bi bi-signpost-2"></i>
+                                                    </a>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
+                            <% }) %>
                         </div>
-                    <% }) %>
-                </div>
-            </div>
-
-            <!-- Map Section -->
-            <div class="col-lg-6 order-1 order-lg-2">
-                <div class="sticky-top" style="top: 100px; z-index: 1020;">
-                    <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-4" style="height: 600px;">
-                        <div id="map-elite" style="width: 100%; height: 100%;"></div>
                     </div>
-                    <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-primary text-white">
-                        <p class="small opacity-75 mb-3">Tận hưởng hành trình chữa lành tuyệt vời nhất</p>
-                        <button class="btn btn-light btn-lg w-100 rounded-pill fw-bold text-primary shadow" onclick="startHealingJourney()">
+                </div>
+
+                <!-- Right: Map (Contained) -->
+                <div class="col-lg-7 position-relative">
+                    <div id="map-elite" class="h-100" style="min-height: 500px;"></div>
+                    
+                    <!-- Floating Action -->
+                    <div class="position-absolute bottom-0 start-0 end-0 p-4" style="z-index: 1000;">
+                        <button class="btn btn-white btn-lg w-100 rounded-pill shadow-lg fw-bold text-primary py-3" onclick="startHealingJourney()">
                             BẮT ĐẦU DI CHUYỂN <i class="bi bi-rocket-takeoff ms-2"></i>
                         </button>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </main>
 
 <style>
-    .journey-stop-card { cursor: pointer; transition: all 0.3s ease; border-left: 0 solid var(--v5-primary) !important; }
-    .journey-stop-card:hover { transform: translateX(10px); background-color: #fff; }
-    .journey-stop-card.active { border-left: 8px solid var(--v5-primary) !important; background-color: rgba(92, 138, 94, 0.03); }
-    .shadow-lg { box-shadow: 0 1rem 3rem rgba(0,0,0,.1) !important; }
+    .journey-stop-card { cursor: pointer; transition: all 0.3s ease; border-left: 0 solid var(--v5-primary); }
+    .journey-stop-card:hover { transform: scale(1.02); background: #fff; border-color: #eee; }
+    .journey-stop-card.active { border-left: 6px solid var(--v5-primary); background-color: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.05) !important; }
+    .btn-white { background: #fff; color: var(--v5-primary); border: none; }
+    .btn-white:hover { background: #f8f9fa; transform: translateY(-3px); }
     .rounded-5 { border-radius: 2.5rem !important; }
+    .text-truncate-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .shadow-sm-hover:hover { box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important; }
 </style>
 
 <script>
@@ -130,7 +116,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         initMap();
-        gsap.to('.reveal-up', { opacity: 1, y: 0, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
+        gsap.to('.reveal-up', { opacity: 1, y: 0, stagger: 0.15, duration: 1, ease: 'power2.out' });
     });
 
     function initMap() {
@@ -146,7 +132,7 @@
 
         if (stops.length > 0) {
             const group = new L.featureGroup(markers);
-            mapElite.fitBounds(group.getBounds().pad(0.2));
+            mapElite.fitBounds(group.getBounds().pad(0.1));
         }
     }
 
@@ -165,7 +151,7 @@
         
         if (completed.size === markers.length) {
             confetti({ particleCount: 200, spread: 70, origin: { y: 0.6 } });
-            alert('Tuyệt vời! Bạn đã hoàn thành trọn vẹn hành trình chữa lành.');
+            alert('Chúc mừng! Bạn đã hoàn thành hành trình.');
         } else {
             focusEliteMap((i + 1) % markers.length);
         }
