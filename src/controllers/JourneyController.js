@@ -21,9 +21,9 @@ class JourneyController {
             if (!journey && session.mood) {
                 const interests = session.interests ? JSON.parse(session.interests) : [];
                 journeyWithStops = await Journey.createPersonalized(
-                    session.id, 
-                    session.mood, 
-                    session.duration || 'morning', 
+                    session.id,
+                    session.mood,
+                    session.duration || 'morning',
                     interests
                 );
             } else if (journey) {

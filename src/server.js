@@ -28,7 +28,7 @@ app.use(session({
     secret: process.env.SESSION_SECRET || 'binh_loi_secret',
     resave: false,
     saveUninitialized: true,
-    cookie: { 
+    cookie: {
         maxAge: 604800000, // 7 days
         secure: false // Set to false for compatibility
     }
@@ -45,7 +45,7 @@ app.use((req, res, next) => {
     res.locals.appName = 'Bình Lợi Healing';
     res.locals.session = req.session;
     res.locals.user = req.session.user || null;
-    
+
     // Helper: fix image paths from database (strips 'public/' prefix)
     res.locals.fixImg = (imgPath, fallback) => {
         fallback = fallback || '/images/hero-2.png';
@@ -56,7 +56,7 @@ app.use((req, res, next) => {
         if (!clean.startsWith('/')) clean = '/' + clean;
         return baseUrl + clean;
     };
-    
+
     next();
 });
 

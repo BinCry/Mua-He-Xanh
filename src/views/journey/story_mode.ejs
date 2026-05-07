@@ -9,7 +9,7 @@
     <!-- WIZARD STAGE -->
     <section id="v5-wizard" class="v5-wizard-container animate__animated animate__fadeIn">
         <div class="container-site text-center">
-            
+
             <!-- STEP 1: VIBE -->
             <div id="step-1" class="wizard-block active">
                 <h1 class="display-3 mb-2">Hôm nay bạn muốn đi kiểu gì?</h1>
@@ -86,19 +86,25 @@
                     <h1 class="display-3 mb-0">Hành trình <span class="text-primary">Xanh</span></h1>
                     <p class="text-muted mb-0 mt-2">Dựa trên vibe và thời gian của bạn.</p>
                 </div>
-                <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" onclick="location.reload()">🔄 CHỌN LẠI</button>
+                <button class="btn btn-outline-dark rounded-pill px-4 fw-bold" onclick="location.reload()">🔄 CHỌN
+                    LẠI</button>
             </div>
         </header>
 
         <div class="v5-route-bar shadow-sm">
             <div class="container-site">
                 <div class="d-flex justify-content-between align-items-center px-lg-5">
-                    <% journey.stops.forEach((stop, index) => { %>
+                    <% journey.stops.forEach((stop, index)=> { %>
                         <div class="text-center" onclick="flyToStop(<%= index %>)" style="cursor:pointer;">
-                            <div class="v5-timeline-node <%= index === 0 ? 'active' : '' %> mx-auto" id="node-<%= index %>"><%= index + 1 %></div>
-                            <div class="fw-black mt-2" style="font-size: 10px; text-transform: uppercase;"><%= stop.name %></div>
+                            <div class="v5-timeline-node <%= index === 0 ? 'active' : '' %> mx-auto"
+                                id="node-<%= index %>">
+                                <%= index + 1 %>
+                            </div>
+                            <div class="fw-black mt-2" style="font-size: 10px; text-transform: uppercase;">
+                                <%= stop.name %>
+                            </div>
                         </div>
-                    <% }) %>
+                        <% }) %>
                 </div>
             </div>
         </div>
@@ -111,17 +117,23 @@
                 <div class="col-lg-4">
                     <h3 class="fw-black mb-4">Chi tiết Timeline</h3>
                     <div class="v5-timeline-list">
-                        <% journey.stops.forEach((stop, index) => { %>
-                        <div class="v5-timeline-card">
-                            <div class="fw-black text-primary display-6">0<%= index + 1 %></div>
-                            <div>
-                                <h5 class="fw-black mb-1"><%= stop.name %></h5>
-                                <p class="small text-muted mb-0"><%= stop.short_desc %></p>
+                        <% journey.stops.forEach((stop, index)=> { %>
+                            <div class="v5-timeline-card">
+                                <div class="fw-black text-primary display-6">0<%= index + 1 %>
+                                </div>
+                                <div>
+                                    <h5 class="fw-black mb-1">
+                                        <%= stop.name %>
+                                    </h5>
+                                    <p class="small text-muted mb-0">
+                                        <%= stop.short_desc %>
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                        <% }) %>
+                            <% }) %>
                     </div>
-                    <button class="btn-v5-next w-100 py-4 mt-4 fs-4" onclick="alert('Bắt đầu dẫn đường!')">BẮT ĐẦU NGAY 🚀</button>
+                    <button class="btn-v5-next w-100 py-4 mt-4 fs-4" onclick="alert('Bắt đầu dẫn đường!')">BẮT ĐẦU NGAY
+                        🚀</button>
                 </div>
             </div>
         </main>
@@ -137,23 +149,27 @@
 
     function nextStep(s) {
         const active = document.querySelector('.wizard-block.active');
-        gsap.to(active, { opacity: 0, y: -20, duration: 0.3, onComplete: () => {
-            active.classList.add('d-none');
-            active.classList.remove('active');
-            const next = document.getElementById('step-' + s);
-            next.classList.remove('d-none');
-            next.classList.add('active');
-            gsap.fromTo(next, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3 });
-        }});
+        gsap.to(active, {
+            opacity: 0, y: -20, duration: 0.3, onComplete: () => {
+                active.classList.add('d-none');
+                active.classList.remove('active');
+                const next = document.getElementById('step-' + s);
+                next.classList.remove('d-none');
+                next.classList.add('active');
+                gsap.fromTo(next, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.3 });
+            }
+        });
     }
 
     function finishWizard() {
-        gsap.to("#v5-wizard", { opacity: 0, scale: 0.95, duration: 0.5, onComplete: () => {
-            document.getElementById('v5-wizard').style.display = 'none';
-            document.getElementById('v5-dashboard').style.display = 'block';
-            initMapV5();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }});
+        gsap.to("#v5-wizard", {
+            opacity: 0, scale: 0.95, duration: 0.5, onComplete: () => {
+                document.getElementById('v5-wizard').style.display = 'none';
+                document.getElementById('v5-dashboard').style.display = 'block';
+                initMapV5();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        });
     }
 
     let mapV5;
@@ -162,7 +178,7 @@
         if (mapV5) return;
         mapV5 = L.map('map-v5').setView([10.796, 106.524], 14);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mapV5);
-        const stops = <%- JSON.stringify(journey.stops) %>;
+        const stops = <% - JSON.stringify(journey.stops) %>;
         stops.forEach((stop, i) => {
             const m = L.marker([stop.lat, stop.lng]).addTo(mapV5).bindPopup(stop.name);
             markersV5.push(m);
