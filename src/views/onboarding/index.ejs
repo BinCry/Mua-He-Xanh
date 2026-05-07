@@ -1,110 +1,93 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
 <section class="py-5 bg-light min-vh-100 d-flex align-items-center">
-    <div class="container py-lg-5">
-        
-        <!-- Main Onboarding Card -->
-        <div class="card border-0 shadow-lg rounded-5 overflow-hidden bg-white reveal-up">
-            <div class="card-body p-4 p-lg-5">
-                
-                <!-- Header Section -->
-                <div class="text-center mb-5">
-                    <span class="badge bg-primary px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm" style="letter-spacing: 1px;">Step 1: Mood Selection</span>
-                    <h1 class="display-4 fw-bold mb-3" style="color: var(--v5-primary); font-family: 'Playfair Display', serif;">Hôm nay bạn muốn<br>đi kiểu gì?</h1>
-                    <p class="text-muted mx-auto" style="max-width: 500px;">Hãy chọn tâm trạng hiện tại để chúng tôi thiết kế lộ trình chữa lành phù hợp nhất cho bạn.</p>
-                </div>
-
-                <form id="eliteOnboardingForm" class="row justify-content-center">
-                    <div class="col-xl-11">
-                        
-                        <!-- Vibe Selection Grid -->
-                        <div class="row g-4 mb-5">
-                            <div class="col-6 col-md-4 col-lg-2-5">
-                                <div class="vibe-card-bs card h-100 border-2 text-center p-4" onclick="selectVibeBS('chill', this)">
-                                    <div class="fs-1 mb-2">🌿</div>
-                                    <h6 class="fw-bold mb-0 text-uppercase small">Sống chậm</h6>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-2-5">
-                                <div class="vibe-card-bs card h-100 border-2 text-center p-4" onclick="selectVibeBS('peace', this)">
-                                    <div class="fs-1 mb-2">🛕</div>
-                                    <h6 class="fw-bold mb-0 text-uppercase small">Tĩnh lặng</h6>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-2-5">
-                                <div class="vibe-card-bs card h-100 border-2 text-center p-4" onclick="selectVibeBS('culture', this)">
-                                    <div class="fs-1 mb-2">🎨</div>
-                                    <h6 class="fw-bold mb-0 text-uppercase small">Khám phá</h6>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-2-5">
-                                <div class="vibe-card-bs card h-100 border-2 text-center p-4" onclick="selectVibeBS('history', this)">
-                                    <div class="fs-1 mb-2">🏛</div>
-                                    <h6 class="fw-bold mb-0 text-uppercase small">Cội nguồn</h6>
-                                </div>
-                            </div>
-                            <div class="col-6 col-md-4 col-lg-2-5">
-                                <div class="vibe-card-bs card h-100 border-2 text-center p-4" onclick="selectVibeBS('family', this)">
-                                    <div class="fs-1 mb-2">👨‍👩‍👧‍👦</div>
-                                    <h6 class="fw-bold mb-0 text-uppercase small">Gắn kết</h6>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Secondary Filters Section -->
-                        <div class="bg-light rounded-4 p-4 p-lg-5 mb-5">
-                            <div class="row g-4">
-                                <div class="col-md-6 border-end-md">
-                                    <label class="form-label fw-bold mb-3 d-flex align-items-center">
-                                        <i class="bi bi-clock-history text-primary me-2 fs-5"></i> Thời lượng mong muốn?
-                                    </label>
-                                    <div class="d-flex flex-wrap gap-2">
-                                        <input type="radio" class="btn-check" name="duration" id="dur1" value="3h" autocomplete="off">
-                                        <label class="btn btn-outline-primary rounded-pill px-4" for="dur1">3-4 Tiếng</label>
-
-                                        <input type="radio" class="btn-check" name="duration" id="dur2" value="1d" checked autocomplete="off">
-                                        <label class="btn btn-outline-primary rounded-pill px-4" for="dur2">Trọn ngày</label>
-
-                                        <input type="radio" class="btn-check" name="duration" id="dur3" value="custom" autocomplete="off">
-                                        <label class="btn btn-outline-primary rounded-pill px-4" for="dur3">Tự do</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-6 ps-md-4">
-                                    <label class="form-label fw-bold mb-3 d-flex align-items-center">
-                                        <i class="bi bi-calendar-check text-primary me-2 fs-5"></i> Thời điểm khởi hành?
-                                    </label>
-                                    <select class="form-select bg-white border-0 rounded-3 p-3 shadow-sm" name="when" required>
-                                        <option value="now">Ngay lúc này</option>
-                                        <option value="weekend">Cuối tuần tới</option>
-                                        <option value="season">Mùa lễ hội</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <input type="hidden" name="moods" id="moods-input-bs" required>
-
-                        <!-- Actions -->
-                        <div class="text-center">
-                            <button type="submit" class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg" id="submit-btn-bs">
-                                TẠO LỘ TRÌNH CỦA TÔI ➔
-                            </button>
-                            <p class="mt-4 text-muted small">Chúng tôi sẽ tính toán quãng đường tối ưu nhất dựa trên sở thích của bạn.</p>
-                        </div>
-                    </div>
-                </form>
+    <div class="container">
+        <!-- Header Section -->
+        <div class="row justify-content-center mb-5 reveal-up">
+            <div class="col-lg-8 text-center">
+                <span class="badge bg-primary rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold" style="letter-spacing: 1px;">Step 1: Mood Selection</span>
+                <h1 class="display-4 fw-bold mb-3" style="color: var(--v5-primary); font-family: 'Playfair Display', serif;">Hôm nay bạn muốn<br>đi kiểu gì?</h1>
+                <p class="lead text-muted">Hãy chọn tâm trạng hiện tại để chúng tôi thiết kế lộ trình chữa lành phù hợp nhất.</p>
             </div>
         </div>
+
+        <form id="eliteOnboardingForm" class="row justify-content-center">
+            <div class="col-xl-10">
+                <!-- Vibe Grid -->
+                <div class="row g-4 mb-5">
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('chill', this)">
+                            <div class="fs-1 mb-2">🌿</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Sống chậm</h6>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('peace', this)">
+                            <div class="fs-1 mb-2">🛕</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Tĩnh lặng</h6>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('culture', this)">
+                            <div class="fs-1 mb-2">🎨</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Khám phá</h6>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('history', this)">
+                            <div class="fs-1 mb-2">🏛</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Cội nguồn</h6>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4 col-lg-2-5">
+                        <div class="vibe-card-bs card h-100 border-2 reveal-up text-center p-4 cursor-pointer" onclick="selectVibeBS('family', this)">
+                            <div class="fs-1 mb-2">👨‍👩‍👧‍👦</div>
+                            <h6 class="fw-bold mb-0 text-uppercase small">Gắn kết</h6>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Filters -->
+                <div class="row g-4 mb-5 reveal-up">
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm rounded-4">
+                            <label class="form-label fw-bold mb-3"><i class="bi bi-clock me-2"></i>Quy mô hành trình?</label>
+                            <select class="form-select form-select-lg border-0 bg-light rounded-3" name="duration" required>
+                                <option value="3h">Dạo quanh (3-4 tiếng)</option>
+                                <option value="1d" selected>Trọn vẹn 1 ngày</option>
+                                <option value="custom">Tự do khám phá</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card p-4 border-0 shadow-sm rounded-4">
+                            <label class="form-label fw-bold mb-3"><i class="bi bi-calendar-event me-2"></i>Khởi hành lúc nào?</label>
+                            <select class="form-select form-select-lg border-0 bg-light rounded-3" name="when" required>
+                                <option value="now">Ngay lúc này</option>
+                                <option value="weekend">Cuối tuần tới</option>
+                                <option value="season">Mùa lễ hội</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <input type="hidden" name="moods" id="moods-input-bs" required>
+
+                <div class="text-center mt-4 reveal-up">
+                    <button type="submit" class="btn btn-primary btn-lg px-5 py-3 rounded-pill fw-bold shadow-lg" id="submit-btn-bs">
+                        BẮT ĐẦU HÀNH TRÌNH CHỮA LÀNH ➔
+                    </button>
+                </div>
+            </div>
+        </form>
     </div>
 </section>
 
 <style>
     .vibe-card-bs { transition: all 0.3s ease; border-color: #eee; cursor: pointer; }
-    .vibe-card-bs:hover { transform: translateY(-8px); border-color: var(--v5-primary); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-    .vibe-card-bs.active { border-color: var(--v5-primary); background-color: #f1f7f1; color: var(--v5-primary); border-width: 2px; }
+    .vibe-card-bs:hover { transform: translateY(-10px); border-color: var(--v5-primary); box-shadow: 0 15px 30px rgba(0,0,0,0.05); }
+    .vibe-card-bs.active { border-color: var(--v5-primary); background-color: rgba(92, 138, 94, 0.05); color: var(--v5-primary); }
     .col-lg-2-5 { flex: 0 0 auto; width: 20%; }
-    .rounded-5 { border-radius: 2.5rem !important; }
-    @media (min-width: 768px) { .border-end-md { border-right: 1px solid #dee2e6; } }
     @media (max-width: 992px) { .col-lg-2-5 { width: 33.333%; } }
     @media (max-width: 576px) { .col-lg-2-5 { width: 50%; } }
 </style>
@@ -113,7 +96,7 @@
     let selectedVibesBS = [];
 
     document.addEventListener('DOMContentLoaded', () => {
-        gsap.to('.reveal-up', { opacity: 1, y: 0, duration: 1, ease: 'power3.out' });
+        gsap.to('.reveal-up', { opacity: 1, y: 0, stagger: 0.15, duration: 1, ease: 'power3.out' });
     });
 
     function selectVibeBS(vibe, el) {
@@ -137,7 +120,7 @@
 
         const btn = document.getElementById('submit-btn-bs');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang phân tích dữ liệu...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang phân tích...';
 
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
