@@ -26,9 +26,7 @@
         <a class="nav-link <%= typeof title !== 'undefined' && title.includes('Điểm đến') ? 'active' : '' %>"
           href="/destinations">Địa điểm</a>
       </li>
-      <li class="nav-item">
-        <a class="nav-link" href="/hanh-trinh-cua-toi">Hành trình</a>
-      </li>
+
       <li class="nav-item">
         <a class="nav-link" href="/map">Bản đồ</a>
       </li>
@@ -59,7 +57,7 @@
             <li><a class="dropdown-item small py-2 text-danger" href="/auth/logout">Đăng xuất</a></li>
           </ul>
         </div>
-        <a class="btn btn-primary-bl btn-pill px-4 d-none d-md-inline-block" href="/onboarding">Bắt đầu ✦</a>
+
         <% } else { %>
           <a class="btn btn-primary-bl btn-pill px-4" href="/auth/login">Đăng nhập</a>
           <% } %>
@@ -78,7 +76,7 @@
     <div class="list-group list-group-flush">
       <a href="/" class="list-group-item list-group-item-action py-3 fw-bold">Trang chủ</a>
       <a href="/destinations" class="list-group-item list-group-item-action py-3 fw-bold">Khám phá</a>
-      <a href="/journey" class="list-group-item list-group-item-action py-3 fw-bold">Hành trình</a>
+
       <a href="/map" class="list-group-item list-group-item-action py-3 fw-bold">Bản đồ</a>
       <a href="/checkin" class="list-group-item list-group-item-action py-3 fw-bold">Check-in</a>
       <a href="/summary" class="list-group-item list-group-item-action py-3 fw-bold">Huy hiệu</a>
