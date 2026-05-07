@@ -1,184 +1,207 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;600;800&display=swap');
+/* 
+   BÌNH LỢI HEALING V5 - ULTRA CLEAN PREMIUM 
+   Optimized for Render & Local Stability
+*/
 
 :root {
-    --v5-primary: #0d9488;
-    --v5-primary-dark: #0b7a6e;
-    --v5-primary-soft: rgba(13, 148, 136, 0.08);
-    --v5-bg: #f8fafc;
-    --v5-text: #0f172a;
+    --v5-primary: #059669;
+    --v5-primary-dark: #065f46;
+    --v5-accent: #f59e0b;
+    --v5-bg: #ffffff;
+    --v5-surface: #f8fafc;
+    --v5-border: #e2e8f0;
+    --v5-text: #1e293b;
     --v5-text-light: #64748b;
-    --v5-font-heading: 'Playfair Display', serif;
-    --v5-font-body: 'Outfit', sans-serif;
-    --v5-radius: 24px;
-    --v5-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+    --v5-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --v5-shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1);
 }
 
 body {
-    font-family: var(--v5-font-body);
     background-color: var(--v5-bg);
     color: var(--v5-text);
-    margin: 0;
-    padding: 0;
-    overflow-x: hidden;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
 }
 
-.container-site {
-    max-width: 1200px;
+.container-custom {
+    max-width: 1100px;
     margin: 0 auto;
-    padding: 0 20px;
+    padding: 0 24px;
 }
 
 /* ==========================================================================
-   WIZARD & CARDS (FIXED)
+   WIZARD / ONBOARDING
    ========================================================================== */
-.v5-wizard-container {
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+.new-wizard-wrapper {
     padding: 60px 0;
 }
 
-.v5-vibe-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 25px;
-    width: 100%;
-    max-width: 1000px;
-    margin-top: 50px;
+.onboard-title {
+    font-weight: 800;
+    font-size: 2.5rem;
+    letter-spacing: -1px;
+    margin-bottom: 1rem;
+    color: var(--v5-text);
 }
 
-.v5-card-item {
-    background: #ffffff;
-    border-radius: var(--v5-radius);
-    padding: 40px 30px;
+.onboard-subtitle {
+    color: var(--v5-text-light);
+    font-size: 1.1rem;
+    margin-bottom: 3rem;
+}
+
+.vibe-selection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+}
+
+.vibe-card-new {
+    background: white;
+    border: 2px solid var(--v5-border);
+    border-radius: 20px;
+    padding: 30px 20px;
     text-align: center;
     cursor: pointer;
-    border: 1px solid rgba(0, 0, 0, 0.05);
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition: all 0.2s ease;
+}
+
+.vibe-card-new:hover {
+    border-color: var(--v5-primary);
+    transform: translateY(-4px);
     box-shadow: var(--v5-shadow);
 }
 
-.v5-card-item:hover {
-    transform: translateY(-12px);
+.vibe-card-new.active {
     border-color: var(--v5-primary);
-    box-shadow: 0 30px 60px rgba(13, 148, 136, 0.15);
+    background: #f0fdf4;
 }
 
-.v5-card-item.selected {
-    background: var(--v5-primary-soft);
-    border-color: var(--v5-primary);
-    border-width: 2px;
-}
-
-.v5-icon-circle {
-    width: 80px;
-    height: 80px;
-    background: var(--v5-primary-soft);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
+.vibe-icon-new {
     font-size: 2.5rem;
+    margin-bottom: 15px;
+    display: block;
 }
 
-.btn-v5-next {
-    background: var(--v5-primary);
-    color: white;
-    padding: 18px 50px;
-    border-radius: 100px;
-    font-weight: 800;
+.vibe-name-new {
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 2px;
-    border: none;
-    margin-top: 50px;
-    box-shadow: 0 15px 30px rgba(13, 148, 136, 0.3);
-    transition: all 0.3s ease;
-}
-
-.btn-v5-next:hover {
-    background: var(--v5-primary-dark);
-    transform: scale(1.05);
+    letter-spacing: 1px;
 }
 
 /* ==========================================================================
-   TIMELINE & MAP (DASHBOARD)
+   DASHBOARD
    ========================================================================== */
-.v5-dashboard-header {
-    background: #fff;
+.journey-header-new {
+    background: var(--v5-surface);
+    border-bottom: 1px solid var(--v5-border);
     padding: 40px 0;
-    border-bottom: 1px solid #eee;
 }
 
-.v5-route-bar {
-    background: #fff;
-    padding: 25px 0;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.02);
-    position: sticky;
-    top: 85px;
-    z-index: 1000;
-}
-
-.v5-map-box {
-    height: 550px;
-    border-radius: 40px;
+.stats-grid-new {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--v5-border);
+    border: 1px solid var(--v5-border);
+    border-radius: 16px;
     overflow: hidden;
-    box-shadow: 0 40px 80px rgba(0, 0, 0, 0.1);
-    border: 1px solid #eee;
+    margin-bottom: 40px;
 }
 
-.v5-timeline-node {
-    width: 40px;
-    height: 40px;
-    background: #fff;
-    border: 2px solid #eee;
+.stat-item-new {
+    background: white;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-value-new {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--v5-primary);
+}
+
+.stat-label-new {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--v5-text-light);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.map-container-new {
+    height: 500px;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1px solid var(--v5-border);
+    box-shadow: var(--v5-shadow-lg);
+    margin-bottom: 40px;
+}
+
+.timeline-list-new {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.step-card-new {
+    background: white;
+    border: 1px solid var(--v5-border);
+    border-radius: 16px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.step-card-new:hover {
+    border-color: var(--v5-primary);
+}
+
+.step-card-new.active {
+    border-left: 5px solid var(--v5-primary);
+    background: #f0fdf4;
+}
+
+.step-number-new {
+    width: 36px;
+    height: 36px;
+    background: var(--v5-primary);
+    color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 900;
-    color: #ccc;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    font-weight: 800;
+    flex-shrink: 0;
 }
 
-.v5-timeline-node.active {
+.step-info-new h4 {
+    margin: 0;
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.step-info-new p {
+    margin: 2px 0 0;
+    font-size: 0.85rem;
+    color: var(--v5-text-light);
+}
+
+/* Utils */
+.btn-primary-v5 {
     background: var(--v5-primary);
-    color: #fff;
-    border-color: var(--v5-primary);
-    box-shadow: 0 0 0 8px var(--v5-primary-soft);
+    color: white;
+    padding: 14px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    border: none;
+    transition: all 0.2s ease;
 }
 
-.v5-timeline-card {
-    background: #fff;
-    border-radius: 30px;
-    padding: 25px;
-    margin-bottom: 20px;
-    border: 1px solid rgba(0, 0, 0, 0.03);
-    display: flex;
-    gap: 20px;
-    align-items: center;
-    transition: all 0.3s ease;
-}
-
-.v5-timeline-card:hover {
-    transform: translateX(10px);
-    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
-}
-
-/* Utilities */
-.fw-black {
-    font-weight: 900;
-}
-
-.text-primary {
-    color: var(--v5-primary) !important;
-}
-
-.display-3 {
-    font-family: var(--v5-font-heading);
-    font-weight: 900;
-    letter-spacing: -2px;
+.btn-primary-v5:hover {
+    background: var(--v5-primary-dark);
+    transform: scale(1.02);
 }
