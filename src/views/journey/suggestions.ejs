@@ -1,0 +1,52 @@
+<div class="py-5 bg-light min-vh-100">
+    <div class="container py-lg-5">
+        <div class="text-center mb-5 reveal-up">
+            <span class="badge bg-primary px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm">Giai đoạn 2: Lựa chọn lộ trình</span>
+            <h1 class="display-4 fw-bold" style="font-family: 'Playfair Display', serif;">Chúng tôi tìm thấy 3 hành trình cho bạn</h1>
+            <p class="text-muted">Hãy chọn lộ trình mà bạn cảm thấy hứng thú nhất để bắt đầu.</p>
+        </div>
+
+        <div class="row g-4 justify-content-center">
+            <% suggestions.forEach((sug, i) => { %>
+                <div class="col-md-4 reveal-up" style="transition-delay: <%= i * 0.2 %>s">
+                    <div class="card h-100 border-0 shadow-lg rounded-5 overflow-hidden transition-hover">
+                        <div class="position-relative">
+                            <img src="/images/hero-<%= (i % 2) + 1 %>.png" class="card-img-top" style="height: 200px; object-fit: cover;" alt="<%= sug.name %>">
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <span class="badge bg-white text-primary rounded-pill shadow-sm"><%= sug.stops.length %> Điểm dừng</span>
+                            </div>
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="mb-2">
+                                <% sug.tags.forEach(tag => { %>
+                                    <span class="badge bg-soft-primary text-primary small me-1"><%= tag %></span>
+                                <% }) %>
+                            </div>
+                            <h4 class="fw-bold mb-3"><%= sug.name %></h4>
+                            <p class="text-muted small mb-4"><%= sug.desc %></p>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-4 small text-muted">
+                                <span><i class="bi bi-clock me-1"></i><%= sug.duration %></span>
+                                <span><i class="bi bi-geo-alt me-1"></i><%= sug.km %> km</span>
+                            </div>
+
+                            <form action="/journey/confirm" method="POST">
+                                <input type="hidden" name="journeyData" value='<%= JSON.stringify(sug) %>'>
+                                <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">CHỌN LỘ TRÌNH NÀY</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="/onboarding" class="text-decoration-none text-muted fw-bold small"><i class="bi bi-arrow-left me-2"></i>Quay lại chọn tâm trạng</a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .transition-hover:hover { transform: translateY(-15px); }
+    .bg-soft-primary { background: rgba(92, 138, 94, 0.1); }
+</style>

@@ -24,6 +24,8 @@ router.get('/destinations', ExploreController.list);
 router.get('/explore/:slug', ExploreController.show);
 router.get('/journey', JourneyController.index);
 router.get('/hanh-trinh-cua-toi', JourneyController.index);
+router.get('/journey/suggestions', JourneyController.suggestions);
+router.post('/journey/confirm', JourneyController.confirm);
 router.get('/journey/preset/:theme', JourneyController.preset);
 
 // Manager Routes

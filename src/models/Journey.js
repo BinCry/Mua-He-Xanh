@@ -217,6 +217,57 @@ class Journey extends Model {
             total_minutes: totalMinutes
         });
     }
+
+    /** Get random stops for suggestion based on mood */
+    async getRandomStops(mood, count) {
+        let results = [];
+        if (mood === 'all') {
+            [results] = await this.db.query("SELECT * FROM destinations WHERE active = 1 ORDER BY RAND() LIMIT ?", [count]);
+        } else {
+            [results] = await this.db.query(
+                "SELECT * FROM destinations WHERE active = 1 AND (mood_fit LIKE ? OR type = ?) ORDER BY RAND() LIMIT ?",
+                [`%${mood}%`, mood, count]
+            );
+        }
+        
+        // Ensure at least some results
+        if (results.length === 0) {
+            [results] = await this.db.query("SELECT * FROM destinations WHERE active = 1 LIMIT ?", [count]);
+        }
+        return results;
+    }
+
+    /** Create a journey from a suggestion data */
+    async createFromSuggestion(sessionId, data) {
+        // Mark old active journeys as replaced
+        await this.db.query(
+            "UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'",
+            [sessionId]
+        );
+
+        // Create the new journey record
+        const journeyId = await this.create({
+            session_id: sessionId,
+            mood: data.name, // Use the suggestion name as the mood title
+            duration: data.duration,
+            total_km: data.km,
+            total_minutes: parseInt(data.duration.replace(/\D/g, '')) * 60 || 180,
+            status: 'active',
+            interests: JSON.stringify(data.tags)
+        });
+
+        // Add stops
+        for (let idx = 0; idx < data.stops.length; idx++) {
+            await JourneyStop.create({
+                journey_id: journeyId,
+                destination_id: data.stops[idx].id,
+                stop_order: idx,
+                is_completed: 0
+            });
+        }
+
+        return journeyId;
+    }
 }
 
 module.exports = new Journey();
