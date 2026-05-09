@@ -1,7 +1,7 @@
 const passport = require('passport');
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
-const db = require('../core/Database');
+const db = require('../core/database');
 
 // Serialization: How to save user into session
 passport.serializeUser((user, done) => {

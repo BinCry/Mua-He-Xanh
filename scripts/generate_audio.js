@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const googleTTS = require('google-tts-api');
 const axios = require('axios');
-const db = require('../src/core/Database');
+const db = require('../src/core/database');
 
 const mediaDir = path.join(__dirname, '../public/media');
 
