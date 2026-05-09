@@ -46,6 +46,8 @@ class ExploreController {
             console.error("Explore show error:", error);
             res.status(500).send("Internal Server Error");
         }
+    }
+
     /** Show audio storytelling player */
     async audio(req, res) {
         try {
