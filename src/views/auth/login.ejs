@@ -25,20 +25,20 @@
                 </div>
             <% } %>
 
-            <!-- One Click Login Zone -->
+            <!-- Real OAuth One Click Login Zone -->
             <div class="one-click-zone mb-4">
-                <button onclick="handleGoogleLogin()" class="btn btn-glass-social w-100 rounded-pill mb-3 position-relative overflow-hidden">
+                <a href="<%= baseUrl %>/auth/google" class="btn btn-glass-social w-100 rounded-pill mb-3 position-relative overflow-hidden text-decoration-none">
                     <div class="d-flex align-items-center justify-content-center gap-3 position-relative z-index-1">
                         <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google" width="24" height="24">
                         <span class="fw-bold">Tiếp tục với Google</span>
                     </div>
-                </button>
-                <button onclick="alert('Facebook Login coming soon...')" class="btn btn-glass-social w-100 rounded-pill position-relative overflow-hidden">
+                </a>
+                <a href="<%= baseUrl %>/auth/facebook" class="btn btn-glass-social w-100 rounded-pill position-relative overflow-hidden text-decoration-none">
                     <div class="d-flex align-items-center justify-content-center gap-3 position-relative z-index-1">
                         <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png" alt="Facebook" width="24" height="24">
                         <span class="fw-bold">Tiếp tục với Facebook</span>
                     </div>
-                </button>
+                </a>
             </div>
 
             <div class="d-flex align-items-center mb-4">
@@ -79,39 +79,7 @@
     </div>
 </section>
 
-<!-- Include GSI for mock processing -->
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script>
-    function handleGoogleLogin() {
-        const btn = document.querySelector('.btn-glass-social');
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm text-white me-2"></span> Đang đồng bộ Profile...';
-        
-        setTimeout(() => {
-            const mockData = {
-                platform: 'google',
-                email: 'visitor@gmail.com',
-                name: 'Guest User',
-                avatar: 'https://i.pravatar.cc/150?img=33',
-                id: 'google-123',
-                phone: '0901234567',
-                city: 'TP. Hồ Chí Minh'
-            };
-            
-            fetch('/auth/social', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(mockData)
-            }).then(r => r.json()).then(data => {
-                if(data.success) {
-                    window.location.href = data.redirect;
-                } else {
-                    alert('Lỗi đăng nhập');
-                    location.reload();
-                }
-            });
-        }, 1500); // Fake delay for UX
-    }
-</script>
+<!-- No longer need the fake mock processing script -->
 
 <style>
 /* Glassmorphism Auth UI */

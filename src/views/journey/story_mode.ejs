@@ -54,54 +54,41 @@
                     </div>
                 </div>
 
-                <!-- Desktop Vertical List -->
-                <div id="sortable-timeline" class="d-none d-md-block timeline-journey position-relative ps-4">
+                <!-- Unified Responsive Timeline List -->
+                <div id="sortable-timeline" class="timeline-journey position-relative ps-3 ps-md-4 mt-3 mt-lg-0">
                     <div class="position-absolute top-0 bottom-0 border-start border-2 border-primary opacity-25" style="left: 15px; z-index: 0;"></div>
                     
                     <% journey.stops.forEach((stop, i) => { %>
                         <div class="position-relative mb-4 reveal-up" data-id="<%= stop.destination_id %>" id="card-<%= i %>">
                             <!-- Timeline Dot -->
-                            <div class="position-absolute bg-primary rounded-circle border border-4 border-white shadow-sm d-flex align-items-center justify-content-center text-white fw-bold" style="width: 35px; height: 35px; left: -34px; top: 15px; z-index: 2;">
+                            <div class="position-absolute bg-primary rounded-circle border border-4 border-white shadow-sm d-flex align-items-center justify-content-center text-white fw-bold" style="width: 35px; height: 35px; left: -22px; top: 15px; z-index: 2;">
                                 <%= i + 1 %>
                             </div>
                             
-                            <div class="card-bl border-0 p-0 shadow-sm rounded-4 journey-stop-card bg-white overflow-hidden group-hover" onclick="focusStop(<%= i %>)">
-                                <div class="d-flex">
-                                    <div class="drag-handle d-none bg-light p-2 d-flex align-items-center justify-content-center text-muted" style="width: 40px; cursor: grab;">
-                                        <i class="bi bi-grip-vertical fs-5"></i>
+                            <div class="card-bl border-0 p-0 shadow-sm rounded-4 journey-stop-card bg-white overflow-hidden group-hover w-100" onclick="focusStop(<%= i %>)">
+                                <div class="d-flex flex-column flex-sm-row">
+                                    <!-- Mobile top image, Desktop side image -->
+                                    <div class="position-relative">
+                                        <div class="drag-handle d-none position-absolute top-0 start-0 m-2 bg-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; z-index: 10; cursor: grab;">
+                                            <i class="bi bi-grip-vertical text-muted"></i>
+                                        </div>
+                                        <img src="<%= fixImg(stop.cover_image) %>" class="object-fit-cover" style="width: 100%; height: 160px;" alt="<%= stop.name %>">
                                     </div>
-                                    <div class="d-flex flex-grow-1 p-3 gap-3">
-                                        <img src="<%= fixImg(stop.cover_image) %>" class="rounded-3 object-fit-cover" style="width: 100px; height: 100px;">
-                                        <div class="flex-grow-1">
-                                            <div class="d-flex justify-content-between align-items-start">
-                                                <div>
-                                                    <h6 class="fw-bold mb-1 text-dark"><%= stop.name %></h6>
-                                                    <span class="badge bg-light text-primary border x-small mb-2"><%= stop.type %></span>
-                                                </div>
-                                                <button class="btn btn-danger btn-sm rounded-circle delete-stop d-none shadow-sm" onclick="removeStop(<%= stop.destination_id %>, event)"><i class="bi bi-x"></i></button>
+                                    
+                                    <div class="flex-grow-1 p-3 p-md-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <div>
+                                                <h5 class="fw-bold mb-1 text-dark"><%= stop.name %></h5>
+                                                <span class="badge bg-light text-primary border x-small"><%= stop.type %></span>
                                             </div>
-                                            <p class="text-muted x-small mb-0 line-clamp-2"><%= stop.short_description %></p>
+                                            <button class="btn btn-danger btn-sm rounded-circle delete-stop d-none shadow-sm flex-shrink-0" onclick="removeStop(<%= stop.destination_id %>, event)"><i class="bi bi-trash-fill"></i></button>
+                                        </div>
+                                        <p class="text-muted small mb-3 line-clamp-2"><%= stop.short_description %></p>
+                                        <div class="d-flex gap-2">
+                                            <a href="/explore/<%= stop.slug %>" class="btn btn-outline-primary btn-sm rounded-pill px-3">Chi tiết</a>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    <% }) %>
-                </div>
-
-                <!-- Mobile Swipe Card UI -->
-                <div class="d-md-none overflow-auto d-flex gap-3 pb-3 snap-x no-scrollbar" id="mobile-swipe-container">
-                    <% journey.stops.forEach((stop, i) => { %>
-                        <div class="card-bl border-0 shadow-sm rounded-4 flex-shrink-0 snap-center bg-white position-relative" style="width: 85vw;" onclick="focusStop(<%= i %>)" id="m-card-<%= i %>">
-                            <img src="<%= fixImg(stop.cover_image) %>" class="w-100 rounded-top-4 object-fit-cover" style="height: 180px;">
-                            <div class="position-absolute top-0 start-0 m-3">
-                                <span class="badge bg-primary rounded-pill shadow-sm"><%= i + 1 %> / <%= journey.stops.length %></span>
-                            </div>
-                            <div class="p-3">
-                                <h5 class="fw-bold mb-1 text-dark"><%= stop.name %></h5>
-                                <span class="badge bg-light text-primary border x-small mb-2"><%= stop.type %></span>
-                                <p class="text-muted x-small mb-3 line-clamp-2"><%= stop.short_description %></p>
-                                <a href="/explore/<%= stop.slug %>" class="btn btn-outline-primary btn-sm rounded-pill w-100">Chi tiết</a>
                             </div>
                         </div>
                     <% }) %>
@@ -114,10 +101,10 @@
                 </div>
             </div>
 
-            <!-- Right: Interactive Map -->
-            <div class="col-lg-7">
-                <div class="sticky-top pt-4 pt-lg-0" style="top: 80px;">
-                    <div class="card-bl border-0 shadow-lg rounded-5 overflow-hidden position-relative p-1 bg-white" style="height: calc(100vh - 120px); min-height: 500px;">
+            <!-- Right: Interactive Map (Moved to top on Mobile) -->
+            <div class="col-lg-7 order-first order-lg-last mb-4 mb-lg-0">
+                <div class="sticky-top pt-2 pt-lg-0" style="top: 80px;">
+                    <div class="card-bl border-0 shadow-lg rounded-5 overflow-hidden position-relative p-1 bg-white" style="height: 50vh; min-height: 400px;">
                         
                         <!-- Map Container -->
                         <div id="map-premium" class="w-100 h-100 rounded-4"></div>
@@ -152,9 +139,14 @@
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     
     .journey-stop-card { transition: all 0.3s; border: 2px solid transparent; }
-    .journey-stop-card.active { border-color: var(--v5-primary); transform: translateX(10px); }
-    #mobile-swipe-container .card-bl { transition: all 0.3s; border: 2px solid transparent; }
-    #mobile-swipe-container .card-bl.active { border-color: var(--v5-primary); }
+    .journey-stop-card.active { border-color: var(--v5-primary); transform: translateX(10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
+    @media (max-width: 575px) {
+        .journey-stop-card img { height: 200px !important; }
+        .journey-stop-card.active { transform: scale(1.02); }
+        .timeline-journey > .position-absolute { display: none; } /* Hide vertical line on mobile */
+        .timeline-journey .rounded-circle { left: -10px !important; top: -10px !important; }
+        .ps-md-4 { padding-left: 0 !important; }
+    }
     
     .node-dot { transition: all 0.4s; }
     .node-dot.active { background-color: var(--v5-primary) !important; transform: scale(1.5); }
@@ -211,18 +203,14 @@
     }
 
     function focusStop(idx) {
-        // Desktop List update
+        // Unified UI update
         document.querySelectorAll('.journey-stop-card').forEach((c, i) => {
-            c.classList.remove('active');
-            if (i === idx) c.classList.add('active');
-        });
-        
-        // Mobile Swipe Card update
-        document.querySelectorAll('#mobile-swipe-container .card-bl').forEach((c, i) => {
             c.classList.remove('active');
             if (i === idx) {
                 c.classList.add('active');
-                c.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+                if(window.innerWidth < 992) {
+                    c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
             }
         });
 

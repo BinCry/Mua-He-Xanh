@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const passport = require('passport');
 const HomeController = require('../controllers/HomeController');
 const ApiController = require('../controllers/ApiController');
 
@@ -46,6 +47,13 @@ router.get('/auth/login', AuthController.loginPage);
 router.post('/auth/login', AuthController.handleLogin);
 router.post('/auth/social', AuthController.handleSocialLogin);
 router.get('/auth/logout', AuthController.logout);
+
+// Real OAuth Routes
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/auth/login' }), AuthController.oauthCallback);
+
+router.get('/auth/facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email'] }));
+router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/auth/login' }), AuthController.oauthCallback);
 
 // API Routes
 router.all('/api/session', ApiController.session);

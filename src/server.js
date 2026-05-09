@@ -4,6 +4,7 @@ const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const expressLayouts = require('express-ejs-layouts');
+const passport = require('./config/passport');
 require('dotenv').config();
 
 const app = express();
@@ -34,6 +35,9 @@ app.use(session({
     }
 }));
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Static files
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -52,7 +56,7 @@ app.use((req, res, next) => {
     res.locals.baseUrl = baseUrl;
     res.locals.appName = 'Bình Lợi – Miền Tây giữa lòng Sài Gòn';
     res.locals.session = req.session;
-    res.locals.user = req.session.user || null;
+    res.locals.user = req.user || req.session.user || null;
     
     // Cache Buster for assets
     res.locals.assetV = '1.1.0_' + Date.now(); 

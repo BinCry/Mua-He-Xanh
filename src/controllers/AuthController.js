@@ -63,6 +63,15 @@ const AuthController = {
         }
     },
 
+    oauthCallback: async (req, res) => {
+        // Passport already put user in req.user
+        // We still run establishSession to sync with our custom user_sessions table if needed
+        if (req.user) {
+            await AuthController.establishSession(req, res, req.user);
+        }
+        res.redirect('/summary');
+    },
+
     establishSession: async (req, res, user) => {
         let sessionUuid = req.cookies.session_uuid;
         if (!sessionUuid) {
