@@ -115,7 +115,7 @@ function onScanSuccess(decodedText, decodedResult) {
     verifyCheckin(slug, 'qr');
 }
 
-let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250 });
+let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250, videoConstraints: { facingMode: "environment" } });
 html5QrcodeScanner.render(onScanSuccess);
 
 // GPS Logic

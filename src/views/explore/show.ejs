@@ -54,17 +54,21 @@
             <div class="card-bl p-4 p-md-5 mb-5 shadow-lg border-0 rounded-4">
                 <!-- QR Storytelling Component -->
                 <div class="qr-story-badge d-flex flex-column flex-md-row align-items-md-center gap-3 p-4 rounded-4 mb-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(200, 169, 110, 0.1) 0%, rgba(92, 138, 94, 0.1) 100%); border: 1px solid rgba(200, 169, 110, 0.3);">
-                    <div class="position-absolute top-0 end-0 opacity-10 m-n4">
-                        <i class="bi bi-mic-fill" style="font-size: 8rem;"></i>
+                    <!-- Background Icon -->
+                    <div class="position-absolute top-50 end-0 translate-middle-y opacity-10 pe-3" style="z-index: 0; pointer-events: none;">
+                        <i class="bi bi-mic-fill" style="font-size: 10rem;"></i>
                     </div>
-                    <div class="qr-icon-wrapper bg-white p-3 rounded-circle shadow-sm position-relative z-index-1 flex-shrink-0">
+                    
+                    <div class="qr-icon-wrapper bg-white p-3 rounded-circle shadow-sm position-relative flex-shrink-0" style="z-index: 2;">
                         <i class="bi bi-headphones fs-3 text-primary"></i>
                     </div>
-                    <div class="position-relative z-index-1 flex-grow-1">
-                        <h5 class="mb-1 fw-black text-dark">Audio Storytelling</h5>
-                        <p class="small text-muted mb-0">Quét mã QR tại điểm đến để lắng nghe giọng đọc truyền cảm về lịch sử và văn hóa nơi đây.</p>
+                    
+                    <div class="position-relative flex-grow-1 pe-md-5" style="z-index: 2;">
+                        <h5 class="mb-1 fw-black text-dark" style="font-family: var(--font-heading);">Audio Storytelling</h5>
+                        <p class="small text-muted mb-0 line-clamp-2">Quét mã QR tại điểm đến để lắng nghe câu chuyện văn hóa truyền cảm.</p>
                     </div>
-                    <button class="btn btn-primary-bl rounded-pill px-4 py-2 position-relative z-index-1 fw-bold flex-shrink-0 shadow-sm" onclick="startStorytelling()">
+                    
+                    <button class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold shadow-sm flex-shrink-0 mt-2 mt-md-0 position-relative" style="z-index: 2;" onclick="startStorytelling()">
                         Nghe thử <i class="bi bi-play-circle-fill ms-1"></i>
                     </button>
                 </div>
