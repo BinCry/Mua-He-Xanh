@@ -19,78 +19,126 @@
     <!-- Animate.css -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="/css/style-v5.css?v=1.0.6">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/css/style-v5.css?v=1.0.7">
+    <!-- GSAP for Cinematic Animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
 
 <body>
-    <div id="v4-indicator"
-        style="position:fixed; top:10px; right:10px; z-index:9999; background:rgba(13, 148, 136, 0.9); color:#fff; padding:8px 15px; border-radius:50px; font-size:11px; font-weight:800; pointer-events:none; box-shadow: 0 10px 20px rgba(0,0,0,0.2);">
-        v5.0.0 - PREMIUM READY</div>
-
     <!-- Page Loader -->
     <div id="page-loader">
-        <div class="loader-spinner"></div>
+        <div class="text-center">
+            <div class="loader-spinner mb-3 mx-auto"></div>
+            <div class="text-white fw-bold small text-uppercase tracking-widest animate__animated animate__pulse animate__infinite" style="letter-spacing: 3px;">Bình Lợi Healing</div>
+        </div>
     </div>
 
     <!-- Navbar -->
     <%- include('../partials/navbar') %>
 
-        <!-- Main Content -->
-        <main class="animate__animated animate__fadeIn">
-            <%- body %>
-        </main>
+    <!-- Floating QR Scan Button -->
+    <a href="/checkin" class="fab-qr" title="Quét mã QR">
+        <i class="bi bi-qr-code-scan"></i>
+    </a>
 
-        <!-- Footer -->
-        <%- include('../partials/footer') %>
+    <!-- Main Content -->
+    <main>
+        <%- body %>
+    </main>
 
-            <!-- Back to Top -->
-            <div id="back-to-top">
-                <i class="bi bi-arrow-up"></i>
-            </div>
+    <!-- Footer -->
+    <%- include('../partials/footer') %>
 
-            <!-- Scripts -->
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-            <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-            <script src="https://unpkg.com/html5-qrcode"></script>
-            <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <!-- Back to Top -->
+    <div id="back-to-top">
+        <i class="bi bi-arrow-up"></i>
+    </div>
 
-            <script>
-                // Global App Config
-                window.APP_CONFIG = {
-                    baseUrl: '<%= baseUrl %>',
-                    apiUrl: '<%= baseUrl %>/api'
-                };
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-nav glass-panel border-0 rounded-0 py-2">
+        <a href="/" class="text-center text-decoration-none <%= typeof title !== 'undefined' && title.includes('Trang chủ') ? 'text-primary' : 'text-muted' %>">
+            <i class="bi bi-house-door fs-5 d-block"></i>
+            <span style="font-size: 10px;">Trang chủ</span>
+        </a>
+        <a href="/map" class="text-center text-decoration-none text-muted">
+            <i class="bi bi-map fs-5 d-block"></i>
+            <span style="font-size: 10px;">Bản đồ</span>
+        </a>
+        <a href="/checkin" class="text-center text-decoration-none text-muted">
+            <i class="bi bi-qr-code-scan fs-5 d-block text-primary"></i>
+            <span style="font-size: 10px;">Quét mã</span>
+        </a>
+        <a href="/market" class="text-center text-decoration-none text-muted">
+            <i class="bi bi-bag fs-5 d-block"></i>
+            <span style="font-size: 10px;">Chợ OCOP</span>
+        </a>
+        <a href="/passport" class="text-center text-decoration-none text-muted">
+            <i class="bi bi-person fs-5 d-block"></i>
+            <span style="font-size: 10px;">Tôi</span>
+        </a>
+    </div>
 
-                // Page Loader & Back to Top Logic
-                const hideLoader = () => {
-                    const loader = document.getElementById('page-loader');
-                    if (loader && loader.style.visibility !== 'hidden') {
-                        loader.style.opacity = '0';
-                        setTimeout(() => {
-                            loader.style.visibility = 'hidden';
-                            loader.style.display = 'none';
-                        }, 500);
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Global Reveal Animation
+        const reveal = () => {
+            const items = document.querySelectorAll('.reveal-up');
+            items.forEach(item => {
+                gsap.fromTo(item, 
+                    { opacity: 0, y: 50 },
+                    { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 1, 
+                        ease: "power3.out",
+                        scrollTrigger: {
+                            trigger: item,
+                            start: "top 85%",
+                            toggleActions: "play none none none"
+                        }
                     }
-                };
+                );
+            });
+        };
 
-                window.addEventListener('load', hideLoader);
-                setTimeout(hideLoader, 3000);
+        // Page Loader
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('page-loader');
+            gsap.to(loader, {
+                opacity: 0,
+                duration: 0.8,
+                onComplete: () => {
+                    loader.style.display = 'none';
+                    reveal(); // Trigger reveal animations after loader is gone
+                }
+            });
+        });
 
-                const btt = document.getElementById('back-to-top');
-                window.addEventListener('scroll', () => {
-                    if (window.scrollY > 300) {
-                        btt.classList.add('show');
-                    } else {
-                        btt.classList.remove('show');
-                    }
-                });
-                btt.addEventListener('click', () => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                });
-            </script>
-            <script src="/js/app.js?v=1.0.6"></script>
+        // Back to Top
+        const btt = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                btt.classList.add('show');
+            } else {
+                btt.classList.remove('show');
+            }
+        });
+        btt.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+    <script src="/js/app.js?v=1.0.7"></script>
 
-            <%- typeof scripts !=='undefined' ? scripts : '' %>
+    <%- typeof scripts !=='undefined' ? scripts : '' %>
 
 </body>
 

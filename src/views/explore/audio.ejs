@@ -1,0 +1,108 @@
+<main class="min-vh-100 d-flex align-items-center justify-content-center py-5" style="background: linear-gradient(135deg, #1a4d2e, #4f6f52);">
+    <div class="container text-center">
+        <div class="glass-panel p-5 mx-auto shadow-2xl animate__animated animate__fadeInUp" style="max-width: 600px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">
+            
+            <a href="/explore/<%= dest.slug %>" class="btn btn-link text-white opacity-75 text-decoration-none mb-4 d-inline-block">
+                <i class="bi bi-arrow-left me-2"></i>Quay lại <%= dest.name %>
+            </a>
+
+            <!-- Cover Art -->
+            <div class="mb-5 position-relative">
+                <img src="<%= dest.cover_image %>" class="rounded-circle shadow-lg pulse-border" style="width: 250px; height: 250px; object-fit: cover; border: 8px solid rgba(255,255,255,0.1);">
+                <div class="position-absolute top-50 start-50 translate-middle">
+                    <i class="bi bi-soundwave text-white display-1 opacity-25"></i>
+                </div>
+            </div>
+
+            <h1 class="display-5 text-white fw-bold mb-2" style="font-family: var(--font-heading);"><%= dest.name %></h1>
+            <p class="text-white opacity-75 mb-5 fw-light" style="letter-spacing: 2px;">AUDIO STORYTELLING • BÌNH LỢI</p>
+
+            <!-- Audio Player UI -->
+            <div class="audio-player text-white px-lg-5">
+                <audio id="main-audio" src="<%= dest.audio_url || '/audio/default_story.mp3' %>"></audio>
+                
+                <div class="progress bg-white bg-opacity-20 mb-4" style="height: 6px; cursor: pointer;" id="progress-container">
+                    <div class="progress-bar bg-warning" id="progress-bar" style="width: 0%;"></div>
+                </div>
+
+                <div class="d-flex justify-content-between small opacity-50 mb-4">
+                    <span id="current-time">0:00</span>
+                    <span id="duration">0:00</span>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-center gap-5">
+                    <button class="btn btn-link text-white opacity-75 p-0 fs-3" onclick="skip(-10)"><i class="bi bi-arrow-counterclockwise"></i></button>
+                    <button class="btn btn-white rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 80px; height: 80px;" id="play-btn" onclick="togglePlay()">
+                        <i class="bi bi-play-fill display-4 text-primary ms-1"></i>
+                    </button>
+                    <button class="btn btn-link text-white opacity-75 p-0 fs-3" onclick="skip(10)"><i class="bi bi-arrow-clockwise"></i></button>
+                </div>
+            </div>
+
+            <!-- Story Snippet -->
+            <div class="mt-5 text-white bg-white bg-opacity-10 p-4 rounded-4 text-start">
+                <h6 class="fw-bold mb-2"><i class="bi bi-quote me-2"></i>Lời dẫn</h6>
+                <p class="small opacity-75 mb-0 italic">
+                    "Lắng nghe nhịp thở của vùng đất Bình Lợi qua câu chuyện về <%= dest.name %>. Hãy nhắm mắt lại và để âm thanh dẫn dắt bạn trở về với những giá trị nguyên bản..."
+                </p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<style>
+    .pulse-border { animation: pulseBorder 3s infinite; }
+    @keyframes pulseBorder {
+        0% { box-shadow: 0 0 0 0 rgba(255,255,255,0.4); }
+        70% { box-shadow: 0 0 0 30px rgba(255,255,255,0); }
+        100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); }
+    }
+    .btn-white { background: white; border: none; transition: all 0.3s ease; }
+    .btn-white:hover { transform: scale(1.1); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+</style>
+
+<script>
+    const audio = document.getElementById('main-audio');
+    const playBtn = document.getElementById('play-btn');
+    const progressBar = document.getElementById('progress-bar');
+    const progressContainer = document.getElementById('progress-container');
+    const currentTimeEl = document.getElementById('current-time');
+    const durationEl = document.getElementById('duration');
+
+    function togglePlay() {
+        if (audio.paused) {
+            audio.play();
+            playBtn.innerHTML = '<i class="bi bi-pause-fill display-4 text-primary"></i>';
+        } else {
+            audio.pause();
+            playBtn.innerHTML = '<i class="bi bi-play-fill display-4 text-primary ms-1"></i>';
+        }
+    }
+
+    audio.addEventListener('timeupdate', () => {
+        const percent = (audio.currentTime / audio.duration) * 100;
+        progressBar.style.width = percent + '%';
+        currentTimeEl.innerText = formatTime(audio.currentTime);
+    });
+
+    audio.addEventListener('loadedmetadata', () => {
+        durationEl.innerText = formatTime(audio.duration);
+    });
+
+    progressContainer.addEventListener('click', (e) => {
+        const width = progressContainer.clientWidth;
+        const clickX = e.offsetX;
+        const duration = audio.duration;
+        audio.currentTime = (clickX / width) * duration;
+    });
+
+    function formatTime(time) {
+        const min = Math.floor(time / 60);
+        const sec = Math.floor(time % 60);
+        return `${min}:${sec < 10 ? '0' + sec : sec}`;
+    }
+
+    function skip(seconds) {
+        audio.currentTime += seconds;
+    }
+</script>

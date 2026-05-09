@@ -11,7 +11,7 @@ class CheckinController {
             }
 
             res.render('checkin/index', {
-                title: 'Check-in tại điểm',
+                title: 'Passport Check-in định vị thực tế',
                 dest: dest,
                 slug: slug
             });

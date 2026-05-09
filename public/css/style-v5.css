@@ -1,127 +1,266 @@
-/* 
-   BÌNH LỢI HEALING - TRADITIONAL PREMIUM EDITION
-   Sage Green Theme & Classic Layout
-*/
-
 :root {
-    --v5-primary: #5c8a5e;
-    --v5-primary-dark: #3e5c3f;
-    --v5-accent: #d4a373;
-    --v5-bg: #fdfdfb;
+    /* Core Palette: Nature Healing (Mekong Modern) */
+    --v5-primary: #1a4d2e; /* Deep Nature Green */
+    --v5-primary-light: #4f6f52;
+    --v5-secondary: #ffc107; /* Vàng Mai */
+    --v5-accent: #8d6e63; /* Nâu đất */
+    --v5-bg: #fdfdfb; /* Kem nhạt */
     --v5-surface: #ffffff;
-    --v5-border: #eeeeee;
+    --v5-border: #e8ece9;
     --v5-text: #1a1a1a;
-    --v5-text-light: #666666;
-    --v5-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    --v5-text-light: #6c757d;
+    
+    /* Seasonal Dynamic Colors */
+    --season-spring: #ffeb3b; /* Vàng Mai */
+    --season-summer: #4caf50; /* Miệt vườn xanh */
+    --season-autumn: #ff5722; /* Hoa đăng rực rỡ */
+    
+    --v5-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+    --v5-glass: rgba(255, 255, 255, 0.75);
     
     --font-heading: 'Playfair Display', serif;
     --font-body: 'Outfit', sans-serif;
+    --font-accent: 'Montserrat', sans-serif;
+
+    /* Gradation */
+    --grad-nature: linear-gradient(135deg, #1a4d2e, #4f6f52);
+    --grad-gold: linear-gradient(135deg, #ffc107, #ff9800);
+    --grad-healing: linear-gradient(to bottom, rgba(253, 253, 251, 0), rgba(253, 253, 251, 1));
 }
 
+/* Base Styles */
 body {
     background-color: var(--v5-bg);
     color: var(--v5-text);
     font-family: var(--font-body);
-    line-height: 1.7;
+    line-height: 1.8;
+    overflow-x: hidden;
+    scroll-behavior: smooth;
 }
 
-.container-elite {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
+h1, h2, h3, h4, h5 {
+    font-family: var(--font-heading);
+    font-weight: 900;
+    letter-spacing: -0.5px;
 }
+
+.text-accent { font-family: var(--font-accent); }
 
 /* ==========================================================================
-   NAVBAR (CLASSIC WHITE)
+   PREMIUM GLASS UI
    ========================================================================== */
-.navbar-elite-glass {
-    background: #ffffff !important;
-    border-bottom: 1px solid var(--v5-border);
-    padding: 15px 0 !important;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.02);
-}
 
-.navbar-elite-glass .nav-link {
-    color: var(--v5-text) !important;
-    font-weight: 800 !important;
-    font-size: 0.8rem !important;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    padding: 10px 20px !important;
-    transition: all 0.3s ease;
-}
-
-.navbar-elite-glass .nav-link:hover, 
-.navbar-elite-glass .nav-link.active {
-    color: var(--v5-primary) !important;
-    background: rgba(92, 138, 94, 0.05);
-    border-radius: 12px;
-}
-
-.nav-user-avatar { border: 2px solid var(--v5-primary); }
-
-/* ==========================================================================
-   UTILITIES
-   ========================================================================== */
-.text-primary { color: var(--v5-primary) !important; }
-.bg-primary { background-color: var(--v5-primary) !important; }
-.fw-black { font-weight: 900; }
-
-.btn-primary {
-    background-color: var(--v5-primary) !important;
-    border-color: var(--v5-primary) !important;
-    color: #fff !important;
-    border-radius: 100px;
-    padding: 12px 30px;
-    font-weight: 700;
-    transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-    background-color: var(--v5-primary-dark) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(92, 138, 94, 0.2);
-}
-
-/* ==========================================================================
-   COMPONENTS
-   ========================================================================== */
 .glass-panel {
-    background: #ffffff;
-    border: 1px solid var(--v5-border);
-    border-radius: 24px;
+    background: var(--v5-glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 35px;
     box-shadow: var(--v5-shadow);
 }
 
-.elite-title {
-    font-family: var(--font-heading);
-    font-weight: 900;
+.glass-dark {
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+/* ==========================================================================
+   BUTTONS & ACTIONS
+   ========================================================================== */
+
+.btn-premium {
+    background: var(--grad-nature);
+    color: white;
+    border: none;
+    border-radius: 100px;
+    padding: 16px 45px;
+    font-weight: 800;
+    font-family: var(--font-accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    font-size: 0.85rem;
+    transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 10px 30px rgba(26, 77, 46, 0.2);
+}
+
+.btn-premium:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 0 20px 45px rgba(26, 77, 46, 0.3);
+    color: white;
+}
+
+.btn-mai {
+    background: var(--grad-gold);
     color: var(--v5-primary);
+    border: none;
+    border-radius: 100px;
 }
 
-.vibe-card-elite {
-    background: #fff;
-    border: 2px solid var(--v5-border);
-    border-radius: 24px;
-    padding: 40px 20px;
+/* Floating Action Button (QR Scan) */
+.fab-qr {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 70px;
+    height: 70px;
+    background: var(--grad-nature);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    box-shadow: 0 15px 40px rgba(26, 77, 46, 0.4);
+    z-index: 1001;
+    transition: all 0.4s ease;
+    border: 4px solid white;
+}
+
+.fab-qr:hover {
+    transform: rotate(90deg) scale(1.1);
+}
+
+/* ==========================================================================
+   HERO CINEMATIC
+   ========================================================================== */
+
+.hero-cinematic {
+    height: 100vh;
+    width: 100%;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+}
+
+.hero-video-bg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    object-fit: cover;
+    opacity: 0.7;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 10;
     text-align: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
+    color: white;
+    padding: 0 20px;
 }
 
-.vibe-card-elite.active {
-    background: #f1f7f1;
-    border-color: var(--v5-primary);
+.hero-slogan {
+    font-size: clamp(1rem, 3vw, 1.5rem);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    font-family: var(--font-accent);
+    margin-bottom: 20px;
+    opacity: 0.9;
 }
 
-.elite-step-card.active {
-    border-left: 8px solid var(--v5-primary);
-    background: #f8faf8;
+.hero-title {
+    font-size: clamp(3rem, 10vw, 7rem);
+    line-height: 1;
+    margin-bottom: 30px;
+    text-shadow: 0 10px 30px rgba(0,0,0,0.5);
 }
 
-.step-num-circle {
-    width: 35px; height: 35px;
-    background: var(--v5-primary); color: #fff;
-    border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    font-weight: 900;
+/* ==========================================================================
+   CARDS & GRID
+   ========================================================================== */
+
+.card-healing {
+    border: none;
+    border-radius: 40px;
+    overflow: hidden;
+    background: white;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.04);
+    transition: all 0.6s cubic-bezier(0.165, 0.84, 0.44, 1);
+}
+
+.card-healing:hover {
+    transform: translateY(-15px);
+    box-shadow: 0 30px 60px rgba(0,0,0,0.1);
+}
+
+.card-img-wrapper {
+    overflow: hidden;
+    position: relative;
+}
+
+.card-img-wrapper img {
+    transition: transform 1s ease;
+}
+
+.card-healing:hover .card-img-wrapper img {
+    transform: scale(1.1);
+}
+
+/* ==========================================================================
+   ANIMATIONS
+   ========================================================================== */
+
+.reveal-up {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 1s ease;
+}
+
+.reveal-up.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   UI UTILITIES
+   ========================================================================== */
+
+.bg-soft-green { background-color: #f1f8f3; }
+.text-mai { color: var(--v5-secondary); }
+
+/* Custom Scrollbar */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--v5-bg); }
+::-webkit-scrollbar-thumb { background: var(--v5-primary-light); border-radius: 10px; }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .btn-premium { padding: 12px 30px; font-size: 0.75rem; }
+    .hero-title { font-size: 3.5rem; }
+}
+
+/* Page Loader */
+#page-loader {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: var(--v5-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.8s ease, visibility 0.8s ease;
+}
+
+.loader-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(255,255,255,0.1);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }

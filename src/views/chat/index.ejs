@@ -1,0 +1,128 @@
+<div class="container py-5 mt-5">
+    <div class="row g-4">
+        <!-- Chat Sidebar: Contacts -->
+        <div class="col-lg-4">
+            <div class="glass-panel p-4 h-100">
+                <h4 class="fw-bold mb-4" style="font-family: var(--font-heading);">Hỗ trợ du lịch</h4>
+                <div class="list-group list-group-flush">
+                    <a href="#" class="list-group-item bg-transparent border-0 px-0 py-3 d-flex gap-3 active-chat-item">
+                        <div class="position-relative">
+                            <img src="/images/manager-avatar.png" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                            <span class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle" style="width: 12px; height: 12px;"></span>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Ban quản lý Bình Lợi</h6>
+                            <small class="text-muted">Đang trực tuyến</small>
+                        </div>
+                    </a>
+                    <a href="#" class="list-group-item bg-transparent border-0 px-0 py-3 d-flex gap-3">
+                        <div class="position-relative">
+                            <img src="/images/local-resident.png" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                            <span class="position-absolute bottom-0 end-0 bg-secondary border border-white border-2 rounded-circle" style="width: 12px; height: 12px;"></span>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0">Chủ vườn Mai (Anh Ba)</h6>
+                            <small class="text-muted">Ngoại tuyến</small>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Window -->
+        <div class="col-lg-8">
+            <div class="glass-panel d-flex flex-column" style="height: 600px;">
+                <!-- Header -->
+                <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="/images/manager-avatar.png" class="rounded-circle" style="width: 40px; height: 40px;">
+                        <div>
+                            <h6 class="fw-bold mb-0">Ban quản lý Bình Lợi</h6>
+                            <small class="text-success fw-bold" style="font-size: 10px;">• ONLINE</small>
+                        </div>
+                    </div>
+                    <div class="d-flex gap-3">
+                        <button class="btn btn-light rounded-circle p-2"><i class="bi bi-telephone"></i></button>
+                        <button class="btn btn-light rounded-circle p-2"><i class="bi bi-info-circle"></i></button>
+                    </div>
+                </div>
+
+                <!-- Messages Body -->
+                <div class="flex-grow-1 p-4 overflow-auto" id="chat-messages">
+                    <div class="text-center mb-4"><span class="badge bg-light text-muted px-3 rounded-pill">Hôm nay</span></div>
+                    
+                    <div class="message-received mb-4 d-flex gap-3">
+                        <img src="/images/manager-avatar.png" class="rounded-circle mt-auto" style="width: 30px; height: 30px;">
+                        <div class="message-bubble p-3 rounded-4 bg-light" style="max-width: 70%;">
+                            Xin chào <%= user.full_name %>, chúng tôi có thể giúp gì cho bạn trong hành trình khám phá Bình Lợi hôm nay?
+                        </div>
+                    </div>
+
+                    <div class="message-sent mb-4 d-flex gap-3 justify-content-end">
+                        <div class="message-bubble p-3 rounded-4 bg-primary text-white" style="max-width: 70%;">
+                            Cho mình hỏi xưởng nhang hôm nay có đón khách không ạ?
+                        </div>
+                    </div>
+
+                    <div class="message-received mb-4 d-flex gap-3">
+                        <img src="/images/manager-avatar.png" class="rounded-circle mt-auto" style="width: 30px; height: 30px;">
+                        <div class="message-bubble p-3 rounded-4 bg-light" style="max-width: 70%;">
+                            Dạ có ạ! Xưởng nhang hoạt động đến 17:00 chiều nay. Bạn có thể ghé qua trải nghiệm làm nhang thủ công nhé.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Footer -->
+                <div class="p-4 border-top">
+                    <form id="chat-form" class="d-flex gap-3">
+                        <button type="button" class="btn btn-light rounded-circle p-2"><i class="bi bi-plus-lg"></i></button>
+                        <input type="text" class="form-control rounded-pill border-0 bg-light px-4" placeholder="Nhập tin nhắn..." id="chat-input">
+                        <button type="submit" class="btn btn-premium rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                            <i class="bi bi-send-fill text-white"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .active-chat-item { background: rgba(26, 77, 46, 0.05) !important; border-radius: 15px; }
+    #chat-messages::-webkit-scrollbar { width: 5px; }
+    #chat-messages::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
+    .message-bubble { box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
+</style>
+
+<script>
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const chatMessages = document.getElementById('chat-messages');
+
+    chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const msg = chatInput.value.trim();
+        if (!msg) return;
+
+        // Append sent message
+        appendMessage(msg, 'sent');
+        chatInput.value = '';
+
+        // Auto reply simulation
+        setTimeout(() => {
+            appendMessage('Cảm ơn bạn, yêu cầu của bạn đang được xử lý...', 'received');
+        }, 1000);
+    });
+
+    function appendMessage(text, type) {
+        const div = document.createElement('div');
+        div.className = `message-${type} mb-4 d-flex gap-3 ${type === 'sent' ? 'justify-content-end' : ''}`;
+        
+        const bubble = `<div class="message-bubble p-3 rounded-4 ${type === 'sent' ? 'bg-primary text-white' : 'bg-light'}" style="max-width: 70%;">${text}</div>`;
+        const avatar = type === 'received' ? '<img src="/images/manager-avatar.png" class="rounded-circle mt-auto" style="width: 30px; height: 30px;">' : '';
+        
+        div.innerHTML = type === 'received' ? avatar + bubble : bubble;
+        chatMessages.appendChild(div);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+</script>

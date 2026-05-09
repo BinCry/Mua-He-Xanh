@@ -46,6 +46,24 @@ class ExploreController {
             console.error("Explore show error:", error);
             res.status(500).send("Internal Server Error");
         }
+    /** Show audio storytelling player */
+    async audio(req, res) {
+        try {
+            const { slug } = req.params;
+            const dest = await Destination.findBySlug(slug);
+            
+            if (!dest) {
+                return res.status(404).render('errors/404', { title: 'Không tìm thấy địa điểm' });
+            }
+
+            res.render('explore/audio', {
+                title: 'Audio Storytelling: ' + dest.name,
+                dest: dest
+            });
+        } catch (error) {
+            console.error("Explore audio error:", error);
+            res.status(500).send("Internal Server Error");
+        }
     }
 }
 

@@ -11,6 +11,10 @@ const SummaryController = require('../controllers/SummaryController');
 const MapController = require('../controllers/MapController');
 
 const ManagerController = require('../controllers/ManagerController');
+const PassportController = require('../controllers/PassportController');
+const ChatController = require('../controllers/ChatController');
+const MarketController = require('../controllers/MarketController');
+const FestivalController = require('../controllers/FestivalController');
 const AuthController = require('../controllers/AuthController');
 const { ensureAuthenticated, ensureManager, restrictToManagers } = require('../middleware/auth');
 
@@ -18,10 +22,15 @@ const { ensureAuthenticated, ensureManager, restrictToManagers } = require('../m
 router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
 router.get('/checkin', CheckinController.index);
+router.get('/passport', ensureAuthenticated, PassportController.index);
+router.get('/chat', ensureAuthenticated, ChatController.index);
+router.get('/market', MarketController.index);
+router.get('/festivals', FestivalController.index);
 router.get('/summary', SummaryController.index);
 router.get('/map', MapController.index);
 router.get('/destinations', ExploreController.list);
 router.get('/explore/:slug', ExploreController.show);
+router.get('/audio/:slug', ExploreController.audio);
 router.get('/journey', JourneyController.index);
 router.get('/hanh-trinh-cua-toi', JourneyController.index);
 router.get('/journey/suggestions', JourneyController.suggestions);

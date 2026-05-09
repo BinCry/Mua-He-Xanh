@@ -1,0 +1,48 @@
+<div class="container py-5 mt-5">
+    <!-- Festival Header -->
+    <div class="glass-panel p-5 mb-5 text-center overflow-hidden position-relative">
+        <h1 class="display-3 fw-bold mb-3" style="font-family: var(--font-heading);">Lễ hội & Sự kiện</h1>
+        <p class="lead text-muted mx-auto" style="max-width: 800px;">Hòa mình vào không gian văn hóa đặc sắc và những lễ hội truyền thống mang đậm bản sắc vùng sông nước Bình Lợi.</p>
+        <div class="d-inline-block mt-4 p-3 bg-primary bg-opacity-10 rounded-4">
+            <h5 class="fw-bold mb-1 text-primary"><i class="bi bi-calendar-check me-2"></i>Sắp diễn ra: Hội Hoa Mai Vàng 2026</h5>
+            <p class="small mb-0 text-muted">Còn 12 ngày nữa - Hãy đăng ký tham gia ngay!</p>
+        </div>
+    </div>
+
+    <!-- Festival Timeline / List -->
+    <div class="row g-5">
+        <% festivals.forEach((fest, i) => { %>
+        <div class="col-12">
+            <div class="card-healing p-0 overflow-hidden border-0 shadow-lg reveal-up">
+                <div class="row g-0">
+                    <div class="col-lg-5">
+                        <img src="<%= fest.image %>" class="w-100 h-100" style="object-fit: cover; min-height: 300px;">
+                    </div>
+                    <div class="col-lg-7 p-5 d-flex flex-column justify-content-center">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="badge <%= fest.status === 'Upcoming' ? 'bg-danger' : 'bg-primary' %> rounded-pill px-3 py-2 text-uppercase fw-bold" style="letter-spacing: 1px;"><%= fest.status %></span>
+                            <span class="text-muted fw-bold"><i class="bi bi-clock me-2"></i><%= fest.date %></span>
+                        </div>
+                        <h2 class="fw-bold mb-3" style="font-family: var(--font-heading);"><%= fest.name %></h2>
+                        <p class="lead text-muted mb-4"><%= fest.desc %></p>
+                        <div class="d-flex gap-3">
+                            <button class="btn btn-premium rounded-pill px-4 py-2 fw-bold" onclick="alert('Đăng ký thành công!')">ĐĂNG KÝ THAM GIA</button>
+                            <button class="btn btn-outline-primary rounded-pill px-4 py-2 fw-bold">CHI TIẾT SỰ KIỆN</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <% }) %>
+    </div>
+
+    <!-- Festival Newsletter -->
+    <div class="glass-panel p-5 mt-5 text-center bg-dark text-white shadow-2xl">
+        <h3 class="fw-bold mb-3">Đừng bỏ lỡ bất kỳ sự kiện nào</h3>
+        <p class="opacity-75 mb-4">Để lại email để nhận thông báo sớm nhất về các lễ hội và chương trình khuyến mãi du lịch Bình Lợi.</p>
+        <form class="d-flex gap-2 justify-content-center mx-auto" style="max-width: 500px;">
+            <input type="email" class="form-control rounded-pill border-0 px-4" placeholder="Email của bạn...">
+            <button class="btn btn-premium rounded-pill px-4 fw-bold">ĐĂNG KÝ</button>
+        </form>
+    </div>
+</div>
