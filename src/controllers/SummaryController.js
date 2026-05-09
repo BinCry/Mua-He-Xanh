@@ -12,13 +12,21 @@ class SummaryController {
             const session = await UserSession.findByUuid(uuid);
             if (!session) return res.redirect('/onboarding');
 
+            // Load full user if logged in
+            let fullUser = null;
+            if (session.user_id) {
+                const User = require('../models/User');
+                fullUser = await User.findById(session.user_id);
+            }
+
             const allBadges = await Badge.getAll();
             const unlockedBadges = await UserBadge.getUnlockedBySession(session.id);
             const history = await CheckIn.getBySession(session.id);
 
             res.render('summary/index', {
-                title: 'Hộ chiếu Du lịch Bình Lợi',
+                title: 'Hồ sơ Du khách',
                 session: session,
+                fullUser: fullUser,
                 allBadges: allBadges,
                 unlockedBadges: unlockedBadges,
                 history: history

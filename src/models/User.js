@@ -18,17 +18,23 @@ class User extends Model {
     }
 
     async createFromSocial(data) {
-        const { email, fullName, avatar, googleId, facebookId } = data;
+        const { email, fullName, avatar, googleId, facebookId, phone, city } = data;
         
         // Check if email already exists
         if (email) {
             const existing = await this.findByEmail(email);
             if (existing) {
-                // Link social ID to existing account
+                // Link social ID and sync avatar to existing account
                 const updateData = {};
                 if (googleId) updateData.google_id = googleId;
                 if (facebookId) updateData.facebook_id = facebookId;
-                await this.update(existing.id, updateData);
+                if (avatar) updateData.avatar = avatar; // Sync avatar
+                if (phone && !existing.phone) updateData.phone = phone;
+                if (city && !existing.city) updateData.city = city;
+                
+                if (Object.keys(updateData).length > 0) {
+                    await this.update(existing.id, updateData);
+                }
                 return this.findById(existing.id);
             }
         }
@@ -41,6 +47,8 @@ class User extends Model {
             avatar,
             google_id: googleId,
             facebook_id: facebookId,
+            phone: phone || null,
+            city: city || null,
             role: 'user'
         });
 

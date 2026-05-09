@@ -1,132 +1,249 @@
-<section class="auth-page-fix">
-    <div class="auth-box">
-        <div class="auth-header">
-            <img src="<%= baseUrl %>/images/logo.png" alt="Logo">
-            <h2>Bình Lợi Healing</h2>
-            <p>Đăng nhập để nhận Passport số</p>
-        </div>
+<section class="auth-page-glass">
+    <!-- Background Elements -->
+    <div class="auth-bg-image"></div>
+    <div class="auth-overlay"></div>
+    
+    <!-- Floating Orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-        <% if (error) { %>
-            <div class="auth-alert"><%= error %></div>
-        <% } %>
-
-        <form action="<%= baseUrl %>/auth/login" method="POST">
-            <div class="auth-input-group">
-                <label>Email</label>
-                <input type="email" name="email" placeholder="email@example.com" required>
+    <div class="container d-flex align-items-center justify-content-center min-vh-100 position-relative z-index-1">
+        <div class="auth-glass-box shadow-premium p-4 p-md-5">
+            
+            <!-- Branding -->
+            <div class="text-center mb-4">
+                <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm p-3 mb-3" style="width: 80px; height: 80px;">
+                    <img src="<%= baseUrl %>/images/logo.png" alt="Logo" class="w-100 h-100 object-fit-contain">
+                </div>
+                <h3 class="fw-black text-white letter-spacing-sm">BÌNH LỢI HEALING</h3>
+                <p class="text-white-50 small mb-0">Hệ sinh thái Du lịch Trải nghiệm số</p>
             </div>
-            <div class="auth-input-group">
-                <label>Mật khẩu</label>
-                <input type="password" name="password" placeholder="••••••••" required>
+
+            <% if (typeof error !== 'undefined' && error) { %>
+                <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-4 small text-center mb-4 backdrop-blur-md">
+                    <i class="bi bi-exclamation-circle me-1"></i> <%= error %>
+                </div>
+            <% } %>
+
+            <!-- One Click Login Zone -->
+            <div class="one-click-zone mb-4">
+                <button onclick="handleGoogleLogin()" class="btn btn-glass-social w-100 rounded-pill mb-3 position-relative overflow-hidden">
+                    <div class="d-flex align-items-center justify-content-center gap-3 position-relative z-index-1">
+                        <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google" width="24" height="24">
+                        <span class="fw-bold">Tiếp tục với Google</span>
+                    </div>
+                </button>
+                <button onclick="alert('Facebook Login coming soon...')" class="btn btn-glass-social w-100 rounded-pill position-relative overflow-hidden">
+                    <div class="d-flex align-items-center justify-content-center gap-3 position-relative z-index-1">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png" alt="Facebook" width="24" height="24">
+                        <span class="fw-bold">Tiếp tục với Facebook</span>
+                    </div>
+                </button>
             </div>
-            <button type="submit" class="auth-submit">Đăng nhập</button>
-        </form>
 
-        <div class="auth-divider">
-            <span>Hoặc đăng nhập với</span>
-        </div>
+            <div class="d-flex align-items-center mb-4">
+                <hr class="flex-grow-1 border-white opacity-25">
+                <span class="px-3 text-white-50 x-small text-uppercase tracking-widest">Hoặc dùng Email</span>
+                <hr class="flex-grow-1 border-white opacity-25">
+            </div>
 
-        <div class="auth-social">
-            <button onclick="handleGoogleLogin()" class="btn-google">
-                <i class="bi bi-google"></i> Google
-            </button>
-            <button onclick="alert('Facebook Login coming soon...')" class="btn-facebook">
-                <i class="bi bi-facebook"></i> Facebook
-            </button>
-        </div>
-
-        <script src="https://accounts.google.com/gsi/client" async defer></script>
-        <script>
-            function handleGoogleLogin() {
-                // In a real production app, you'd use the Google Identity Services SDK here
-                // For this demo, we'll simulate the successful response and redirect
-                const mockData = {
-                    platform: 'google',
-                    email: 'visitor@gmail.com',
-                    name: 'Guest User',
-                    avatar: 'https://lh3.googleusercontent.com/a/ACg8ocL...',
-                    id: 'google-123'
-                };
+            <!-- Standard Form -->
+            <form action="<%= baseUrl %>/auth/login" method="POST">
+                <div class="form-floating mb-3">
+                    <input type="email" name="email" class="form-control form-control-glass rounded-4" id="floatingEmail" placeholder="name@example.com" required>
+                    <label for="floatingEmail" class="text-white-50">Email / Số điện thoại</label>
+                </div>
+                <div class="form-floating mb-4">
+                    <input type="password" name="password" class="form-control form-control-glass rounded-4" id="floatingPassword" placeholder="Password" required>
+                    <label for="floatingPassword" class="text-white-50">Mật khẩu / OTP</label>
+                </div>
                 
-                fetch('/auth/social', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(mockData)
-                }).then(r => r.json()).then(data => {
-                    if(data.success) window.location.href = data.redirect;
-                });
-            }
-        </script>
+                <div class="d-flex justify-content-between align-items-center mb-4 text-white-50 small">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMe" checked>
+                        <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
+                    </div>
+                    <a href="#" class="text-white text-decoration-none fw-bold">Quên mật khẩu?</a>
+                </div>
 
-        <div class="auth-footer">
-            Chưa có tài khoản? <a href="#">Đăng ký</a>
+                <button type="submit" class="btn btn-primary-bl w-100 py-3 rounded-pill fw-black text-uppercase shadow-lg">
+                    Đăng nhập hệ thống
+                </button>
+            </form>
+
+            <div class="text-center mt-4">
+                <span class="text-white-50 small">Chưa có tài khoản?</span>
+                <a href="#" class="text-white fw-bold ms-1 text-decoration-none">Đăng ký ngay</a>
+            </div>
         </div>
     </div>
 </section>
 
+<!-- Include GSI for mock processing -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script>
+    function handleGoogleLogin() {
+        const btn = document.querySelector('.btn-glass-social');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm text-white me-2"></span> Đang đồng bộ Profile...';
+        
+        setTimeout(() => {
+            const mockData = {
+                platform: 'google',
+                email: 'visitor@gmail.com',
+                name: 'Guest User',
+                avatar: 'https://i.pravatar.cc/150?img=33',
+                id: 'google-123',
+                phone: '0901234567',
+                city: 'TP. Hồ Chí Minh'
+            };
+            
+            fetch('/auth/social', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(mockData)
+            }).then(r => r.json()).then(data => {
+                if(data.success) {
+                    window.location.href = data.redirect;
+                } else {
+                    alert('Lỗi đăng nhập');
+                    location.reload();
+                }
+            });
+        }, 1500); // Fake delay for UX
+    }
+</script>
+
 <style>
-.auth-page-fix {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: #f8f9fa;
-    padding: 20px;
+/* Glassmorphism Auth UI */
+.auth-page-glass {
+    position: relative;
+    overflow: hidden;
+    background-color: #1a1a2e;
 }
-.auth-box {
-    background: #fff;
+
+.auth-bg-image {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('/images/hero-1.png');
+    background-size: cover;
+    background-position: center;
+    filter: blur(8px) brightness(0.8);
+    transform: scale(1.05); /* hide blurred edges */
+    z-index: 0;
+}
+
+.auth-overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(135deg, rgba(20, 40, 20, 0.6) 0%, rgba(10, 20, 30, 0.8) 100%);
+    z-index: 1;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    z-index: 2;
+    animation: float 10s ease-in-out infinite alternate;
+}
+
+.orb-1 {
+    top: -10%; left: -10%;
+    width: 400px; height: 400px;
+    background: rgba(103, 178, 111, 0.4);
+}
+
+.orb-2 {
+    bottom: -10%; right: -10%;
+    width: 300px; height: 300px;
+    background: rgba(200, 169, 110, 0.4);
+    animation-delay: -5s;
+}
+
+@keyframes float {
+    0% { transform: translate(0, 0); }
+    100% { transform: translate(50px, 50px); }
+}
+
+.z-index-1 { z-index: 10; }
+
+.auth-glass-box {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 30px;
     width: 100%;
-    max-width: 400px;
-    padding: 40px 30px;
-    border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.05);
-    border: 1px solid #eee;
-}
-.auth-header { text-align: center; margin-bottom: 30px; }
-.auth-header img { height: 60px; margin-bottom: 15px; }
-.auth-header h2 { font-weight: 800; color: #5c8a5e; margin-bottom: 5px; font-size: 1.5rem; }
-.auth-header p { color: #666; font-size: 0.9rem; }
-
-.auth-alert { 
-    background: #fff5f5; color: #e53e3e; padding: 10px; border-radius: 10px; 
-    font-size: 0.85rem; text-align: center; margin-bottom: 20px; border: 1px solid #feb2b2;
+    max-width: 450px;
+    position: relative;
+    overflow: hidden;
 }
 
-.auth-input-group { margin-bottom: 20px; }
-.auth-input-group label { display: block; font-weight: 700; font-size: 0.8rem; margin-bottom: 8px; color: #444; }
-.auth-input-group input { 
-    width: 100%; padding: 12px 15px; border-radius: 12px; border: 1px solid #ddd; 
-    font-size: 0.95rem; outline: none; transition: border 0.3s;
+/* Shine effect */
+.auth-glass-box::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
+    transform: skewX(-20deg);
+    animation: shine 6s infinite;
 }
-.auth-input-group input:focus { border-color: #5c8a5e; }
 
-.auth-submit { 
-    width: 100%; padding: 12px; border-radius: 12px; border: none; 
-    background: #5c8a5e; color: #fff; font-weight: 700; cursor: pointer; transition: 0.3s;
+@keyframes shine {
+    0% { left: -100%; }
+    20% { left: 200%; }
+    100% { left: 200%; }
 }
-.auth-submit:hover { background: #4a6d4b; }
 
-.auth-divider { position: relative; text-align: center; margin: 30px 0; }
-.auth-divider::before { content: ""; position: absolute; top: 50%; left: 0; width: 100%; height: 1px; background: #eee; }
-.auth-divider span { position: relative; background: #fff; padding: 0 15px; color: #999; font-size: 0.75rem; }
-
-.auth-social { display: flex; gap: 15px; margin-bottom: 30px; }
-.auth-social button { 
-    flex: 1; padding: 12px; border-radius: 12px; border: 1px solid #eee; 
-    background: #fff; font-size: 0.9rem; cursor: pointer; transition: 0.3s;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    font-weight: 700;
+.btn-glass-social {
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    border: 1px solid rgba(255,255,255,0.5);
+    padding: 14px 20px;
+    transition: all 0.3s;
 }
-.btn-google { color: #db4437; border-color: #fbd5d2 !important; }
-.btn-google:hover { background: #fdf2f1 !important; }
-.btn-facebook { color: #4267b2; border-color: #d1d9eb !important; }
-.btn-facebook:hover { background: #f0f2f5 !important; }
 
-.auth-footer { text-align: center; font-size: 0.85rem; color: #666; }
-.auth-footer a { color: #5c8a5e; font-weight: 700; text-decoration: none; }
+.btn-glass-social:hover {
+    background: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
 
-@media (max-width: 450px) {
-    .auth-box { padding: 30px 20px; border-radius: 0; box-shadow: none; border: none; max-width: 100%; height: 100%; }
-    .auth-page-fix { padding: 0; background: #fff; }
+.form-control-glass {
+    background: rgba(0, 0, 0, 0.2) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: white !important;
+}
+
+.form-control-glass:focus {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05) !important;
+}
+
+.form-control-glass::placeholder { color: transparent; }
+
+/* Customizing Form Floating label for dark background */
+.form-floating > .form-control-glass:focus ~ label,
+.form-floating > .form-control-glass:not(:placeholder-shown) ~ label {
+    color: rgba(255, 255, 255, 0.8) !important;
+    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+    background-color: transparent !important;
+}
+.form-floating > label {
+    padding-left: 1.25rem;
+}
+
+@media (max-width: 575.98px) {
+    .auth-glass-box {
+        border-radius: 0;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        border: none;
+        background: rgba(255, 255, 255, 0.05);
+    }
 }
 </style>

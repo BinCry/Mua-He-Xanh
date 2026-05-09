@@ -41,12 +41,14 @@ const AuthController = {
 
     handleSocialLogin: async (req, res) => {
         try {
-            const { platform, email, name, avatar, id } = req.body;
+            const { platform, email, name, avatar, id, phone, city } = req.body;
             
             const data = {
                 email,
                 fullName: name,
                 avatar,
+                phone,
+                city,
                 googleId: platform === 'google' ? id : null,
                 facebookId: platform === 'facebook' ? id : null
             };

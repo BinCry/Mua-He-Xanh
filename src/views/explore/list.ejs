@@ -1,59 +1,82 @@
-<section class="site-section pt-5">
+<section class="site-section pt-5 min-vh-100">
+    <!-- Hero Header -->
+    <div class="position-relative overflow-hidden mb-5 rounded-4 mx-3 mx-lg-5" style="height: 350px; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('/images/hero-1.png') center/cover;">
+        <div class="position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
+            <span class="badge bg-primary text-white rounded-pill px-3 py-2 mb-3 fw-bold tracking-widest text-uppercase"><i class="bi bi-compass me-1"></i> Khám phá Điểm đến</span>
+            <h1 class="display-3 fw-black text-white mb-2 letter-spacing-sm">BẢN SẮC BÌNH LỢI</h1>
+            <p class="text-white-50 lead mx-auto" style="max-width: 600px;">Tìm kiếm những không gian chữa lành và trải nghiệm văn hóa độc bản.</p>
+        </div>
+    </div>
+
     <div class="container-site">
-        <div class="text-center mb-5 animate__animated animate__fadeIn">
-            <span class="text-primary fw-bold mb-2 d-block">🌟 HỆ THỐNG ĐIỂM ĐẾN</span>
-            <h2 class="display-text">Khám phá Bản sắc Bình Lợi</h2>
-            <p class="text-muted mx-auto" style="max-width: 700px;">Từ những ngôi chùa cổ an nhiên đến những làng nghề truyền thống rực rỡ và không gian sinh thái miệt vườn đặc trưng.</p>
+        <!-- Advanced Search & Filter Bar -->
+        <div class="bg-white p-3 rounded-pill shadow-premium d-flex align-items-center gap-2 mb-5 mx-auto border" style="max-width: 900px; transform: translateY(-50px);">
+            <form action="/explore" method="GET" class="d-flex w-100 align-items-center m-0">
+                <i class="bi bi-search text-muted fs-5 ms-3"></i>
+                <input type="text" name="q" class="form-control border-0 shadow-none bg-transparent px-3" placeholder="Tìm kiếm địa điểm, không gian..." value="<%= searchQuery || '' %>">
+                
+                <div class="vr mx-2 opacity-10 d-none d-md-block"></div>
+                
+                <button type="button" class="btn btn-light rounded-pill px-4 fw-bold text-nowrap d-none d-md-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
+                    <i class="bi bi-sliders"></i> Bộ lọc nâng cao
+                </button>
+                
+                <button class="btn btn-primary-bl rounded-pill px-4 px-md-5 fw-bold" type="submit">TÌM</button>
+            </form>
+            <!-- Mobile Filter Button -->
+            <button class="btn btn-light rounded-circle p-2 d-md-none" data-bs-toggle="offcanvas" data-bs-target="#filterOffcanvas">
+                <i class="bi bi-sliders"></i>
+            </button>
         </div>
 
-        <!-- Search and Filter -->
-        <div class="row justify-content-center mb-5">
-            <div class="col-md-6">
-                <form action="<%= baseUrl %>/destinations" method="GET" class="input-group card-bl p-1 shadow-sm">
-                    <input type="text" name="q" class="form-control border-0 px-3" placeholder="Tìm tên điểm đến, câu chuyện..." value="<%= searchQuery || '' %>">
-                    <button class="btn btn-primary-bl rounded-3" type="submit"><i class="bi bi-search"></i></button>
-                </form>
-                <% if (searchQuery) { %>
-                    <div class="text-center mt-3 animate__animated animate__fadeIn">
-                        <small class="text-muted">Kết quả tìm kiếm cho: <strong>"<%= searchQuery %>"</strong></small>
-                        <a href="<%= baseUrl %>/destinations" class="ms-2 small text-primary text-decoration-none">Xóa tìm kiếm</a>
-                    </div>
-                <% } %>
+        <% if (searchQuery) { %>
+            <div class="text-center mt-n4 mb-5 animate__animated animate__fadeIn">
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill shadow-sm">
+                    Kết quả cho: <strong class="text-primary">"<%= searchQuery %>"</strong>
+                    <a href="/explore" class="text-danger ms-2 text-decoration-none"><i class="bi bi-x-circle-fill"></i></a>
+                </span>
             </div>
-        </div>
+        <% } %>
 
-        <!-- Filter tabs -->
-        <div class="mb-5">
-            <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
-                <a href="<%= baseUrl %>/destinations" class="btn <%= !currentType && !currentSeason ? 'btn-primary-bl' : 'btn-outline-bl' %> btn-sm px-4">Tất cả</a>
-                <a href="<%= baseUrl %>/destinations?type=temple" class="btn <%= currentType == 'temple' ? 'btn-primary-bl' : 'btn-outline-bl' %> btn-sm px-4">Chùa cổ</a>
-                <a href="<%= baseUrl %>/destinations?type=park" class="btn <%= currentType == 'park' ? 'btn-primary-bl' : 'btn-outline-bl' %> btn-sm px-4">Công viên</a>
-                <a href="<%= baseUrl %>/destinations?type=craft" class="btn <%= currentType == 'craft' ? 'btn-primary-bl' : 'btn-outline-bl' %> btn-sm px-4">Làng nghề</a>
-                <a href="<%= baseUrl %>/destinations?type=nature" class="btn <%= currentType == 'nature' ? 'btn-primary-bl' : 'btn-outline-bl' %> btn-sm px-4">Sinh thái</a>
-            </div>
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <span class="small text-muted w-100 text-center mb-2">Gợi ý theo mùa (Marketing LOMAR):</span>
-                <a href="<%= baseUrl %>/destinations?season=winter_spring" class="btn <%= currentSeason == 'winter_spring' ? 'btn-secondary text-white' : 'btn-outline-secondary' %> btn-sm px-3 rounded-pill">🌸 Du xuân Bình Lợi</a>
-                <a href="<%= baseUrl %>/destinations?season=summer" class="btn <%= currentSeason == 'summer' ? 'btn-secondary text-white' : 'btn-outline-secondary' %> btn-sm px-3 rounded-pill">🥥 Miệt vườn giữa Phố</a>
-                <a href="<%= baseUrl %>/destinations?season=autumn_winter" class="btn <%= currentSeason == 'autumn_winter' ? 'btn-secondary text-white' : 'btn-outline-secondary' %> btn-sm px-3 rounded-pill">🏮 Lễ hội mùa Thu</a>
-            </div>
-        </div>
-
-        <div class="grid-3col">
+        <div class="row g-4">
             <% destinations.forEach(dest => { %>
-                <div class="card-bl animate__animated animate__fadeInUp">
-                    <div class="position-relative">
-                        <img src="<%= fixImg(dest.cover_image) %>" class="card-bl-img" alt="<%= dest.name %>">
-                        <div class="position-absolute top-0 end-0 m-3">
-                             <span class="badge bg-white text-primary rounded-pill shadow-sm">+<%= dest.points %> ✨</span>
+                <div class="col-md-6 col-xl-4">
+                    <div class="card-bl h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative group-hover">
+                        <!-- Card Image -->
+                        <div class="ratio ratio-4x3 overflow-hidden position-relative">
+                            <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= dest.name %>">
+                            <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-t"></div>
+                            
+                            <!-- Badges -->
+                            <div class="position-absolute top-0 start-0 m-3 d-flex flex-column gap-2">
+                                <span class="badge bg-primary rounded-pill shadow-sm text-uppercase x-small tracking-widest px-3 py-2"><%= dest.type %></span>
+                                <% if (dest.is_active) { %>
+                                    <span class="badge bg-success bg-opacity-75 rounded-pill shadow-sm text-uppercase x-small px-3 py-2"><i class="bi bi-record-circle-fill me-1"></i>Mở cửa</span>
+                                <% } %>
+                            </div>
+                            
+                            <div class="position-absolute top-0 end-0 m-3">
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm" style="width: 35px; height: 35px; padding: 0;"><i class="bi bi-heart text-danger"></i></button>
+                            </div>
+
+                            <!-- Reward Points -->
+                            <div class="position-absolute bottom-0 start-0 m-3">
+                                <span class="badge bg-dark bg-opacity-75 backdrop-blur-md text-warning rounded-pill px-3 py-2 border border-white border-opacity-25 shadow-sm">
+                                    <i class="bi bi-stars me-1"></i> +<%= dest.points %> Điểm
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div class="card-bl-body">
-                        <span class="card-bl-tag tag-<%= dest.type %>"><%= dest.type.toUpperCase() %></span>
-                        <h3 class="card-bl-title"><%= dest.name %></h3>
-                        <p class="card-bl-desc text-truncate-2" style="min-height: 40px;"><%= dest.short_desc %></p>
-                        <div class="d-grid mt-3">
-                            <a href="<%= baseUrl %>/explore/<%= dest.slug %>" class="btn btn-outline-bl btn-sm py-2">Khám phá chi tiết</a>
+
+                        <!-- Card Body -->
+                        <div class="card-bl-body p-4 bg-white position-relative">
+                            <h4 class="fw-bold mb-2"><a href="/explore/<%= dest.slug %>" class="text-dark text-decoration-none stretched-link"><%= dest.name %></a></h4>
+                            
+                            <div class="d-flex align-items-center gap-3 mb-3 x-small text-muted fw-bold text-uppercase tracking-widest">
+                                <span><i class="bi bi-clock text-primary me-1"></i> <%= dest.open_hours || '07:00 - 18:00' %></span>
+                                <span><i class="bi bi-geo-alt text-primary me-1"></i> Bình Lợi</span>
+                            </div>
+                            
+                            <p class="text-muted small mb-0 line-clamp-2"><%= dest.short_desc || dest.highlight %></p>
                         </div>
                     </div>
                 </div>
@@ -61,16 +84,98 @@
         </div>
 
         <!-- Pagination -->
-        <div class="mt-5 pt-3">
+        <div class="mt-5 pt-4 border-top">
             <% 
             let queryParts = [];
             if (currentType) queryParts.push(`type=${currentType}`);
             if (currentSeason) queryParts.push(`season=${currentSeason}`);
             if (searchQuery) queryParts.push(`q=${encodeURIComponent(searchQuery)}`);
-            let paginationUrl = baseUrl + '/destinations' + (queryParts.length > 0 ? '?' + queryParts.join('&') : '');
-
+            let paginationUrl = '/explore' + (queryParts.length > 0 ? '?' + queryParts.join('&') : '');
             %>
             <%- include('../partials/pagination', { pagination: pagination, paginationUrl: paginationUrl }) %>
         </div>
     </div>
 </section>
+
+<!-- Smart Filter Offcanvas -->
+<div class="offcanvas offcanvas-end rounded-start-4 shadow-lg border-0" tabindex="-1" id="filterOffcanvas" style="width: 400px;">
+    <div class="offcanvas-header border-bottom p-4">
+        <h5 class="offcanvas-title fw-black"><i class="bi bi-sliders me-2 text-primary"></i>Bộ lọc nâng cao</h5>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-4">
+        <form action="/explore" method="GET">
+            <input type="hidden" name="q" value="<%= searchQuery || '' %>">
+            
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase tracking-widest text-muted mb-3">Loại hình trải nghiệm</label>
+                <div class="d-flex flex-wrap gap-2">
+                    <input type="radio" class="btn-check" name="type" id="typeAll" value="" <%= !currentType ? 'checked' : '' %>>
+                    <label class="btn btn-outline-primary rounded-pill btn-sm" for="typeAll">Tất cả</label>
+
+                    <input type="radio" class="btn-check" name="type" id="typeTemple" value="temple" <%= currentType === 'temple' ? 'checked' : '' %>>
+                    <label class="btn btn-outline-primary rounded-pill btn-sm" for="typeTemple">Tâm linh</label>
+
+                    <input type="radio" class="btn-check" name="type" id="typePark" value="park" <%= currentType === 'park' ? 'checked' : '' %>>
+                    <label class="btn btn-outline-primary rounded-pill btn-sm" for="typePark">Sinh thái</label>
+
+                    <input type="radio" class="btn-check" name="type" id="typeCraft" value="craft" <%= currentType === 'craft' ? 'checked' : '' %>>
+                    <label class="btn btn-outline-primary rounded-pill btn-sm" for="typeCraft">Làng nghề</label>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase tracking-widest text-muted mb-3">Hành trình theo mùa</label>
+                <select name="season" class="form-select form-select-lg rounded-4 bg-light border-0">
+                    <option value="">Khám phá tự do</option>
+                    <option value="winter_spring" <%= currentSeason === 'winter_spring' ? 'selected' : '' %>>🌸 Du xuân Bình Lợi (Mùa Đông-Xuân)</option>
+                    <option value="summer" <%= currentSeason === 'summer' ? 'selected' : '' %>>🥥 Miệt vườn giữa Phố (Mùa Hạ)</option>
+                    <option value="autumn_winter" <%= currentSeason === 'autumn_winter' ? 'selected' : '' %>>🏮 Healing & Hoa đăng (Mùa Thu-Đông)</option>
+                </select>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase tracking-widest text-muted mb-3">Khoảng cách</label>
+                <input type="range" class="form-range" min="0" max="50" step="5" id="distanceRange">
+                <div class="d-flex justify-content-between x-small text-muted fw-bold">
+                    <span>Gần nhất</span>
+                    <span><span id="distVal">25</span> km</span>
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label small fw-bold text-uppercase tracking-widest text-muted mb-3">Tiện ích đặc biệt</label>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" role="switch" id="f1" checked>
+                    <label class="form-check-label small" for="f1">Có Workshop trải nghiệm</label>
+                </div>
+                <div class="form-check form-switch mb-2">
+                    <input class="form-check-input" type="checkbox" role="switch" id="f2">
+                    <label class="form-check-label small" for="f2">Phù hợp gia đình</label>
+                </div>
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" role="switch" id="f3" checked>
+                    <label class="form-check-label small" for="f3">Hỗ trợ Check-in QR</label>
+                </div>
+            </div>
+
+            <div class="d-grid mt-5">
+                <button type="submit" class="btn btn-primary-bl rounded-pill py-3 fw-bold shadow-sm">ÁP DỤNG BỘ LỌC</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('distanceRange')?.addEventListener('input', function(e) {
+        document.getElementById('distVal').innerText = e.target.value;
+    });
+</script>
+
+<style>
+    .bg-gradient-to-t {
+        background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+    }
+    .group-hover-scale { transition: transform 0.5s ease; }
+    .group-hover:hover .group-hover-scale { transform: scale(1.05); }
+</style>
