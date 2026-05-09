@@ -84,7 +84,8 @@ class JourneyController {
 
             res.render('journey/suggestions', {
                 title: 'Đề xuất hành trình',
-                suggestions: suggestions
+                suggestions: suggestions,
+                session: session
             });
         } catch (error) {
             console.error("Suggestions error:", error);

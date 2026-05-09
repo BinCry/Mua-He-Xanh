@@ -1,126 +1,246 @@
-<section class="site-section">
-    <div class="container-site">
-        <div class="text-center mb-5 animate__animated animate__fadeIn">
-            <span class="text-primary fw-bold mb-2 d-block">BẢN ĐỒ THÔNG MINH</span>
-            <h2 class="display-text">Lộ trình của bạn</h2>
-            <p class="text-muted mx-auto" style="max-width: 600px;">Công viên Văn hóa Láng Le là trung tâm kết nối các tuyến tham quan xung quanh.</p>
-        </div>
-
-        <!-- Filters & Tools -->
-        <div class="row g-3 mb-4">
-            <div class="col-md-8">
-                <div class="d-flex gap-2 overflow-auto pb-2">
-                    <button class="btn btn-outline-bl btn-sm px-4 rounded-pill active">Tất cả</button>
-                    <button class="btn btn-outline-bl btn-sm px-4 rounded-pill">Tâm linh</button>
-                    <button class="btn btn-outline-bl btn-sm px-4 rounded-pill">Sinh thái</button>
-                    <button class="btn btn-outline-bl btn-sm px-4 rounded-pill">Làng nghề</button>
+<section class="min-vh-100 d-flex flex-column pt-5 mt-4">
+    <!-- Map UI Layout: Sidebar + Full Map -->
+    <div class="row g-0 flex-grow-1 position-relative">
+        
+        <!-- Left Sidebar (Destinations List) -->
+        <div class="col-lg-3 bg-white shadow-lg z-index-10 d-flex flex-column" style="height: calc(100vh - 80px);">
+            <div class="p-4 border-bottom bg-light">
+                <h5 class="fw-black text-primary mb-1"><i class="bi bi-map-fill me-2"></i>Bản đồ Tương tác</h5>
+                <p class="small text-muted mb-3">Khám phá và định vị không gian Bình Lợi</p>
+                
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
+                    <input type="text" id="mapSearch" class="form-control border-start-0 rounded-end-pill px-0 shadow-none" placeholder="Tìm địa điểm..." onkeyup="filterMapList()">
+                </div>
+                
+                <div class="d-flex gap-2 overflow-auto pb-2 mt-3 no-scrollbar">
+                    <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 active filter-btn" data-type="all">Tất cả</button>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="temple">Tâm linh</button>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="park">Sinh thái</button>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="craft">Làng nghề</button>
                 </div>
             </div>
-            <div class="col-md-4 text-md-end">
-                <button class="btn btn-secondary text-dark btn-sm rounded-pill" onclick="locateMe()">
-                    <i class="bi bi-geo-fill me-1"></i> Tìm vị trí của tôi
+
+            <!-- Destinations List -->
+            <div class="flex-grow-1 overflow-auto p-3" id="mapDestList">
+                <% allDests.forEach(dest => { %>
+                    <div class="card-bl border-0 shadow-sm p-2 mb-3 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" onclick="focusMarker(<%= dest.lat || 10.74 %>, <%= dest.lng || 106.5 %>, '<%= dest.slug %>')">
+                        <div class="d-flex gap-3">
+                            <div class="rounded-3 overflow-hidden shadow-sm" style="width: 70px; height: 70px; flex-shrink: 0;">
+                                <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-1 text-dark small"><%= dest.name %></h6>
+                                <p class="x-small text-muted mb-2 line-clamp-1"><%= dest.short_desc %></p>
+                                <span class="badge bg-light text-primary border"><%= dest.type %></span>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            </div>
+
+            <!-- Active Journey Widget (if any) -->
+            <% if (journey && journey.stops.length > 0) { %>
+                <div class="p-3 border-top bg-light">
+                    <div class="card-bl border-0 shadow-sm p-3 bg-white position-relative overflow-hidden">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-primary opacity-5"></div>
+                        <h6 class="fw-bold text-primary mb-2 small"><i class="bi bi-signpost-split-fill me-1"></i> Lộ trình hiện tại</h6>
+                        <p class="x-small text-muted mb-2">Đang có <%= journey.stops.length %> điểm đến trong hành trình của bạn.</p>
+                        <button class="btn btn-primary-bl btn-sm w-100 rounded-pill" onclick="showJourneyRoute()">Xem lộ trình thực tế</button>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+
+        <!-- Right Side: The Map -->
+        <div class="col-lg-9 position-relative">
+            <div id="map" style="width: 100%; height: calc(100vh - 80px); z-index: 1;"></div>
+            
+            <!-- Map Controls Overlay -->
+            <div class="position-absolute top-0 end-0 m-4 d-flex flex-column gap-2" style="z-index: 1000;">
+                <button class="btn btn-white rounded-circle shadow-lg p-0 map-control-btn" style="width: 45px; height: 45px;" onclick="locateMe()" title="Vị trí của tôi">
+                    <i class="bi bi-geo-fill text-primary fs-5"></i>
                 </button>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <div class="col-lg-8">
-                <div class="map-container card-bl p-2 shadow-lg animate__animated animate__zoomIn">
-                    <div id="gps-indicator" class="position-absolute bg-primary text-white rounded-circle shadow pulse d-none" style="width:15px; height:15px; z-index: 20; border: 2px solid white;"></div>
-                    
-                    <svg viewBox="0 0 400 350" xmlns="http://www.w3.org/2000/svg" class="w-100 h-auto">
-                        <!-- Sông ngòi (Background) -->
-                        <path d="M0,50 Q100,60 150,150 T400,200" fill="none" stroke="#B2EBF2" stroke-width="12" opacity="0.4" />
-                        <path d="M100,0 Q120,100 80,350" fill="none" stroke="#B2EBF2" stroke-width="8" opacity="0.3" />
-                        
-                        <!-- Đường đi (Background) -->
-                        <path d="M50,350 L100,200 L250,180 L350,100" fill="none" stroke="#eee" stroke-width="6" />
-                        
-                        <!-- Tuyến đường hành trình -->
-                        <% 
-                        let points = [];
-                        journey.stops.forEach(stop => {
-                            points.push(`${stop.map_x},${stop.map_y}`);
-                        });
-                        %>
-                        <polyline points="<%= points.join(' ') %>" fill="none" stroke="var(--color-primary)" stroke-width="3" stroke-dasharray="8,4" opacity="0.6">
-                            <animate attributeName="stroke-dashoffset" from="100" to="0" dur="5s" repeatCount="indefinite" />
-                        </polyline>
-
-                        <!-- Markers -->
-                        <% journey.stops.forEach((stop, idx) => { %>
-                            <g class="map-marker" style="cursor:pointer" onclick="window.location.href='<%= baseUrl %>/explore/<%= stop.slug %>'">
-                                <% if (stop.is_hub) { %>
-                                    <circle cx="<%= stop.map_x %>" cy="<%= stop.map_y %>" r="15" fill="var(--color-secondary)" opacity="0.2">
-                                        <animate attributeName="r" values="15;22;15" dur="3s" repeatCount="indefinite" />
-                                    </circle>
-                                <% } %>
-                                
-                                <circle cx="<%= stop.map_x %>" cy="<%= stop.map_y %>" r="8" fill="<%= stop.is_completed ? '#5c8a5e' : 'white' %>" stroke="var(--color-primary)" stroke-width="2" />
-                                
-                                <text x="<%= stop.map_x %>" y="<%= stop.map_y - 15 %>" font-size="10" font-weight="900" text-anchor="middle" fill="var(--color-accent)"><%= idx + 1 %>. <%= stop.name %></text>
-                            </g>
-                        <% }) %>
-                    </svg>
-                </div>
-            </div>
-
-            <div class="col-lg-4">
-                <div class="card-bl p-4 h-100 shadow-sm border-0 bg-light">
-                    <h5 class="mb-4 text-uppercase letter-spacing-lg"><i class="bi bi-cursor-fill me-2"></i> Trình hướng dẫn</h5>
-                    <% 
-                    let nextStop = journey.stops.find(s => !s.is_completed);
-                    %>
-
-                    <% if (nextStop) { %>
-                        <div class="animate__animated animate__fadeIn">
-                            <div class="rounded-4 overflow-hidden mb-3 shadow-sm">
-                                <img src="<%= fixImg(nextStop.cover_image) %>" class="w-100" style="height:180px; object-fit:cover;">
-                            </div>
-                            <span class="badge bg-secondary text-dark mb-2"><%= nextStop.type.toUpperCase() %></span>
-                            <h4 class="mb-2"><%= nextStop.name %></h4>
-                            <p class="small text-muted mb-4"><%= nextStop.short_desc %></p>
-                            
-                            <div class="d-grid gap-2">
-                                <a href="<%= baseUrl %>/explore/<%= nextStop.slug %>" class="btn btn-primary-bl">Xem câu chuyện & Chỉ đường</a>
-                                <a href="<%= baseUrl %>/checkin?slug=<%= nextStop.slug %>" class="btn btn-outline-bl btn-sm">Tôi đã đến đây! (Check-in)</a>
-                            </div>
-                        </div>
-                    <% } else { %>
-                        <div class="text-center py-5">
-                            <div class="display-1 mb-4">🏆</div>
-                            <h4 class="mb-3">Hành trình tuyệt vời!</h4>
-                            <p class="small text-muted mb-5">Bạn đã khám phá hết các mảnh ghép di sản trong hành trình chữa lành này.</p>
-                            <a href="<%= baseUrl %>/summary" class="btn btn-primary-bl w-100">Xem tổng kết & Huy hiệu</a>
-                        </div>
-                    <% } %>
-                </div>
+                <button class="btn btn-white rounded-circle shadow-lg p-0 map-control-btn" style="width: 45px; height: 45px;" onclick="toggleHeatmap()" title="Bản đồ nhiệt">
+                    <i class="bi bi-fire text-danger fs-5"></i>
+                </button>
             </div>
         </div>
     </div>
 </section>
 
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 <script>
-function locateMe() {
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            const indicator = document.getElementById('gps-indicator');
-            indicator.classList.remove('d-none');
-            // Giả lập tọa độ trên SVG (thực tế cần phép chiếu bản đồ)
-            indicator.style.left = '50%';
-            indicator.style.top = '50%';
-            alert('Đã tìm thấy vị trí của bạn gần Công viên Văn hóa Láng Le!');
+    // Initialize Map centered roughly around Binh Loi, Binh Chanh
+    const map = L.map('map', { zoomControl: false }).setView([10.7431, 106.5028], 13);
+    
+    // Add Zoom Control at bottom right
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // Custom Map Tile (CartoDB Positron for clean UI)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+        maxZoom: 19
+    }).addTo(map);
+
+    // Custom Icon Definition
+    const customIcon = L.divIcon({
+        className: 'custom-div-icon',
+        html: `<div style="background-color: var(--v5-primary); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3);"><i class="bi bi-geo-alt-fill"></i></div>`,
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -30]
+    });
+
+    const markers = {};
+    const destData = <%- JSON.stringify(allDests) %>;
+
+    // Add Markers
+    destData.forEach(dest => {
+        // Fallback coordinates if none exist
+        const lat = dest.lat || (10.74 + (Math.random() * 0.05 - 0.025));
+        const lng = dest.lng || (106.5 + (Math.random() * 0.05 - 0.025));
+        
+        const popupContent = `
+            <div style="width: 200px; padding: 5px;">
+                <img src="${dest.cover_image && dest.cover_image.startsWith('http') ? dest.cover_image : '/images/hero-1.png'}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
+                <span class="badge bg-light text-dark mb-1">${dest.type}</span>
+                <h6 style="margin: 0 0 5px 0; font-weight: bold; font-family: 'Inter', sans-serif;">${dest.name}</h6>
+                <a href="/explore/${dest.slug}" class="btn btn-primary btn-sm w-100 mt-2" style="border-radius: 20px;">Khám phá chi tiết</a>
+            </div>
+        `;
+        
+        const marker = L.marker([lat, lng], {icon: customIcon})
+            .bindPopup(popupContent, { className: 'custom-popup' })
+            .addTo(map);
+            
+        markers[dest.slug] = marker;
+    });
+
+    // Sidebar Interactions
+    function focusMarker(lat, lng, slug) {
+        // Zoom and pan
+        map.flyTo([lat, lng], 16, { duration: 1.5 });
+        
+        // Open popup
+        setTimeout(() => {
+            if(markers[slug]) markers[slug].openPopup();
+        }, 1500);
+    }
+
+    // Filter Logic
+    function filterMapList() {
+        const query = document.getElementById('mapSearch').value.toLowerCase();
+        const activeFilter = document.querySelector('.filter-btn.active').getAttribute('data-type');
+        
+        document.querySelectorAll('.dest-item').forEach(item => {
+            const name = item.getAttribute('data-name');
+            const type = item.getAttribute('data-type');
+            
+            const matchesQuery = name.includes(query);
+            const matchesType = activeFilter === 'all' || type === activeFilter;
+            
+            if (matchesQuery && matchesType) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
         });
     }
-}
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active', 'btn-primary'));
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.add('btn-outline-primary'));
+            
+            e.target.classList.remove('btn-outline-primary');
+            e.target.classList.add('active', 'btn-primary');
+            
+            filterMapList();
+        });
+    });
+
+    // Locate Me
+    function locateMe() {
+        if (!navigator.geolocation) {
+            alert('Trình duyệt không hỗ trợ định vị.');
+            return;
+        }
+        
+        map.locate({setView: true, maxZoom: 16});
+        
+        map.on('locationfound', function(e) {
+            const radius = e.accuracy / 2;
+            L.circle(e.latlng, radius, {
+                color: '#2b8a3e',
+                fillColor: '#5c8a5e',
+                fillOpacity: 0.2
+            }).addTo(map);
+            
+            L.marker(e.latlng, {
+                icon: L.divIcon({
+                    className: 'custom-div-icon',
+                    html: `<div style="background-color: #2b8a3e; width: 20px; height: 20px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(43,138,62,0.5);"></div>`,
+                    iconSize: [20, 20]
+                })
+            }).bindPopup("Vị trí của bạn").addTo(map).openPopup();
+        });
+        
+        map.on('locationerror', function(e) {
+            alert("Không thể tìm thấy vị trí. Vui lòng cấp quyền vị trí cho trang web.");
+        });
+    }
+
+    // Routing Mock
+    <% if (journey && journey.stops.length > 0) { %>
+        const journeyStops = <%- JSON.stringify(journey.stops) %>;
+        let routeLayer = null;
+        
+        function showJourneyRoute() {
+            if (routeLayer) {
+                map.removeLayer(routeLayer);
+                routeLayer = null;
+                return;
+            }
+            
+            const latlngs = journeyStops.map(stop => {
+                return [
+                    stop.lat || (10.74 + (Math.random() * 0.05 - 0.025)), 
+                    stop.lng || (106.5 + (Math.random() * 0.05 - 0.025))
+                ];
+            });
+            
+            routeLayer = L.polyline(latlngs, {
+                color: '#ff6b6b', 
+                weight: 5, 
+                opacity: 0.8, 
+                dashArray: '10, 10'
+            }).addTo(map);
+            
+            map.fitBounds(routeLayer.getBounds(), { padding: [50, 50] });
+        }
+    <% } %>
+
+    function toggleHeatmap() {
+        alert("Tính năng Bản đồ nhiệt (Hiển thị khu vực đông đúc) đang được phát triển.");
+    }
 </script>
 
 <style>
-.map-container { position: relative; background: #fff; }
-.letter-spacing-lg { letter-spacing: 2px; font-size: 0.8rem; font-weight: 900; color: var(--color-primary); }
-.pulse { animation: pulse-animation 2s infinite; }
-@keyframes pulse-animation {
-  0% { box-shadow: 0 0 0 0px rgba(92, 138, 94, 0.7); }
-  100% { box-shadow: 0 0 0 15px rgba(92, 138, 94, 0); }
-}
+    /* Reset layout for full height */
+    body { overflow-x: hidden; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .z-index-10 { z-index: 10; }
+    
+    .map-control-btn { transition: all 0.2s; }
+    .map-control-btn:hover { transform: scale(1.1); background: var(--v5-light) !important; }
+    
+    /* Leaflet Popup Customization */
+    .leaflet-popup-content-wrapper { border-radius: 15px; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+    .leaflet-popup-tip { box-shadow: 0 15px 35px rgba(0,0,0,0.1); }
+    .leaflet-popup-close-button { color: #fff !important; background: rgba(0,0,0,0.3); border-radius: 50%; padding: 4px !important; right: 10px !important; top: 10px !important; }
 </style>

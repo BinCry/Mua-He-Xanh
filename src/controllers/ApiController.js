@@ -22,8 +22,11 @@ class ApiController {
             }
             
             const data = {
-                mood: body.mood || null,
+                mood: body.moods || body.mood || null,
                 duration: body.duration || null,
+                pax: body.pax || 1,
+                budget: body.budget || 'medium',
+                season: body.season || 'now',
                 interests: body.interests ? JSON.stringify(body.interests) : null
             };
             

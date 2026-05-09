@@ -4,19 +4,24 @@ const Journey = require('../models/Journey');
 class MapController {
     async index(req, res) {
         try {
-            const uuid = req.cookies.session_uuid;
-            if (!uuid) return res.redirect('/onboarding');
+            const Destination = require('../models/Destination');
+            const allDests = await Destination.findAll();
 
-            const session = await UserSession.findByUuid(uuid);
-            if (!session) return res.redirect('/onboarding');
-
-            const journey = await Journey.getActiveBySession(session.id);
-            if (!journey) return res.redirect('/onboarding');
-            
-            const journeyWithStops = await Journey.getWithStops(journey.id);
+            const uuid = req.cookies ? req.cookies.session_uuid : null;
+            let journeyWithStops = null;
+            if (uuid) {
+                const session = await UserSession.findByUuid(uuid);
+                if (session) {
+                    const journey = await Journey.getActiveBySession(session.id);
+                    if (journey) {
+                        journeyWithStops = await Journey.getWithStops(journey.id);
+                    }
+                }
+            }
 
             res.render('map/index', {
-                title: 'Bản đồ cảm xúc',
+                title: 'Bản đồ Tương tác Bình Lợi',
+                allDests: allDests,
                 journey: journeyWithStops
             });
         } catch (error) {
