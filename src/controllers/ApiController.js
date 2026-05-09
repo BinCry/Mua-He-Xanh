@@ -198,6 +198,25 @@ class ApiController {
 
         res.json({ success: true, message: 'Đã gửi tin nhắn đến quản lý địa điểm.' });
     }
+
+    async replyMessage(req, res) {
+        const { messageId, replyText } = req.body;
+        const manager = req.session.user;
+
+        if (!manager || (manager.role !== 'manager' && manager.role !== 'admin')) {
+            return res.status(403).json({ success: false, message: 'Unauthorized' });
+        }
+
+        const [originalMsg] = await UserSession.db.query("SELECT * FROM messages WHERE id = ?", [messageId]);
+        if (originalMsg.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
+
+        await UserSession.db.query(
+            "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message) VALUES (?, ?, ?, ?, ?)",
+            [uuidv4(), manager.id, originalMsg[0].sender_id, originalMsg[0].destination_id, replyText]
+        );
+
+        res.json({ success: true, message: 'Đã gửi phản hồi.' });
+    }
 }
 
 module.exports = new ApiController();

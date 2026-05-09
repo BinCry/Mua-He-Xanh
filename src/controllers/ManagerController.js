@@ -57,15 +57,21 @@ class ManagerController {
     async updateDestination(req, res) {
         try {
             const user = req.session.user;
-            const { story, open_hours, cost, highlight, checkin_tip, cover_image } = req.body;
+            const { dest_id, open_hours, cost, cover_image, highlight, checkin_tip, story, zen_walk_desc, best_time, short_desc } = req.body;
             
-            await Destination.update(user.managed_destination_id, {
-                story,
+            let targetDestId = user.managed_destination_id;
+            if (user.role === 'admin' && dest_id) targetDestId = dest_id;
+
+            await Destination.update(targetDestId, {
                 open_hours,
                 cost,
+                cover_image,
                 highlight,
                 checkin_tip,
-                cover_image
+                story,
+                zen_walk_desc,
+                best_time,
+                short_desc
             });
 
             res.redirect('/manager?success=Đã cập nhật thông tin địa điểm');

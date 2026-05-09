@@ -1,4 +1,6 @@
 const Destination = require('../models/Destination');
+const UserSession = require('../models/UserSession');
+const Message = require('../models/Message');
 
 class ExploreController {
     /** List all destinations */
@@ -37,10 +39,24 @@ class ExploreController {
 
             const related = await Destination.getRelated(dest.type, dest.id);
 
+            // Get chat history for current session
+            let messages = [];
+            const sessionUuid = req.cookies.session_uuid;
+            if (sessionUuid) {
+                const session = await UserSession.findByUuid(sessionUuid);
+                if (session) {
+                    [messages] = await UserSession.db.query(
+                        "SELECT * FROM messages WHERE destination_id = ? AND (sender_id = ? OR receiver_id = ?) ORDER BY created_at ASC",
+                        [dest.id, session.id, session.id]
+                    );
+                }
+            }
+
             res.render('explore/show', {
                 title: dest.name,
                 dest: dest,
-                related: related
+                related: related,
+                messages: messages
             });
         } catch (error) {
             console.error("Explore show error:", error);

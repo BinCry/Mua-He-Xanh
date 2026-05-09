@@ -55,5 +55,6 @@ router.post('/api/journey', ApiController.journey);
 router.post('/api/journey/update-stop', ApiController.updateJourneyStop);
 router.post('/api/checkin', ApiController.checkin);
 router.post('/api/send-message', ApiController.sendMessage);
+router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
 
 module.exports = router;

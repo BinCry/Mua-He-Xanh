@@ -24,9 +24,11 @@ const AuthController = {
             console.log("LOGIN DEBUG - User lookup done:", user ? user.email : "Not found");
 
             if (user && user.password === password) {
-                // Call establishSession directly from the object
                 await AuthController.establishSession(req, res, user);
-                console.log("LOGIN DEBUG - Session done");
+                
+                if (user.role === 'admin' || user.role === 'manager') {
+                    return res.redirect('/manager');
+                }
                 return res.redirect('/summary');
             }
             
