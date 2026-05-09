@@ -19,7 +19,7 @@ class ManagerController {
                     return res.render('manager/admin_list', { 
                         title: 'Quản trị hệ thống', 
                         allDests,
-                        layout: 'layouts/admin'
+                        layout: 'layouts/manager'
                     });
                 }
                 return res.redirect('/auth/login?error=Bạn không có quyền quản lý địa điểm nào');
@@ -51,7 +51,7 @@ class ManagerController {
                     checkins: checkinStats[0].total
                 },
                 messages,
-                layout: 'layouts/admin'
+                layout: 'layouts/manager'
             });
         } catch (error) {
             console.error("Manager index error:", error);
