@@ -57,12 +57,15 @@ class ManagerController {
     async updateDestination(req, res) {
         try {
             const user = req.session.user;
-            const { story, open_hours, cost } = req.body;
+            const { story, open_hours, cost, highlight, checkin_tip, cover_image } = req.body;
             
             await Destination.update(user.managed_destination_id, {
                 story,
                 open_hours,
-                cost
+                cost,
+                highlight,
+                checkin_tip,
+                cover_image
             });
 
             res.redirect('/manager?success=Đã cập nhật thông tin địa điểm');

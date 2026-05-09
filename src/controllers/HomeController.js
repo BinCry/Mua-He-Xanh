@@ -41,9 +41,36 @@ class HomeController {
 
             // Social Feed Mockup (Trending Check-ins)
             const socialFeed = [
-                { user: 'Minh Anh', location: 'Chùa Pháp Tạng', text: 'Không gian thật tịnh tâm, cảm ơn Bình Lợi!', image: '/images/social1.jpg', time: '2 giờ trước' },
-                { user: 'Hoàng Long', location: 'Xưởng Nhang Minh', text: 'Workshop làm nhang rất thú vị.', image: '/images/social2.jpg', time: '5 giờ trước' },
-                { user: 'Thảo Vy', location: 'Vườn Mai Bình Lợi', text: 'Mai năm nay nở sớm quá đẹp.', image: '/images/social3.jpg', time: '1 ngày trước' }
+                {
+                    id: 1,
+                    user: 'Minh Tuấn',
+                    avatar: 'https://i.pravatar.cc/150?u=1',
+                    image: '/images/chua-phap-tang-1.png',
+                    caption: 'Một buổi sáng thanh tịnh tại Chùa Pháp Tạng. Cảm giác thật an nhiên! #BinhLoiHealing #Zen',
+                    likes: 124,
+                    location: 'Chùa Pháp Tạng',
+                    slug: 'chua-phap-tang'
+                },
+                {
+                    id: 2,
+                    user: 'Hà Anh',
+                    avatar: 'https://i.pravatar.cc/150?u=2',
+                    image: '/images/xuong-nhang-1.png',
+                    caption: 'Lần đầu được tự tay làm nhang, mùi thảo mộc thơm dịu cả một vùng. #CraftVillage',
+                    likes: 89,
+                    location: 'Xưởng Nhang Minh',
+                    slug: 'xuong-nhang-minh'
+                },
+                {
+                    id: 3,
+                    user: 'Quốc Bảo',
+                    avatar: 'https://i.pravatar.cc/150?u=3',
+                    image: '/images/cau-chu-z-1.png',
+                    caption: 'Hoàng hôn rực rỡ tại Cầu chữ Z. Góc chill không thể bỏ qua tại Bình Lợi.',
+                    likes: 215,
+                    location: 'Cầu Chữ Z',
+                    slug: 'cau-chu-z'
+                }
             ];
 
             res.render('home/index', {

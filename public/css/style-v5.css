@@ -52,18 +52,48 @@ h1, h2, h3, h4, h5 {
 
 .glass-panel {
     background: var(--v5-glass);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.4);
-    border-radius: 35px;
-    box-shadow: var(--v5-shadow);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    border-radius: 20px;
+    padding: 12px 25px;
 }
 
-.glass-dark {
-    background: rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: white;
+.shadow-premium {
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.navbar-premium {
+    transition: all 0.4s ease;
+    z-index: 1050;
+}
+
+.navbar-premium.scrolled {
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+}
+
+.navbar-premium .nav-link {
+    font-family: var(--font-accent);
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    color: var(--v5-primary) !important;
+    padding: 10px 15px !important;
+}
+
+.navbar-premium .nav-link:hover {
+    color: var(--v5-primary-light) !important;
+}
+
+/* Fix main content padding for fixed-top navbar */
+main {
+    padding-top: 0;
+}
+
+.hero-cinematic {
+    margin-top: 0;
 }
 
 /* ==========================================================================
