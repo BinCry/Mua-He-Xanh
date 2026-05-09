@@ -67,6 +67,10 @@ class ManagerController {
             let targetDestId = user.managed_destination_id;
             if (user.role === 'admin' && dest_id) targetDestId = dest_id;
 
+            if (!targetDestId) {
+                return res.redirect('/manager?error=Không xác định được địa điểm cần cập nhật');
+            }
+
             await Destination.update(targetDestId, {
                 open_hours: open_hours || '',
                 cost: cost || '',
@@ -79,9 +83,15 @@ class ManagerController {
                 short_desc: short_desc || ''
             });
 
-            res.redirect('/manager?success=Đã cập nhật thông tin địa điểm');
+            // Redirect back to the specific destination if admin, or just /manager if manager
+            if (user.role === 'admin') {
+                res.redirect(`/manager?dest_id=${targetDestId}&success=Đã cập nhật thông tin địa điểm`);
+            } else {
+                res.redirect('/manager?success=Đã cập nhật thông tin địa điểm');
+            }
         } catch (error) {
-            res.redirect('/manager?error=' + error.message);
+            console.error("Update Destination Error:", error);
+            res.redirect('/manager?error=' + encodeURIComponent(error.message));
         }
     }
 }

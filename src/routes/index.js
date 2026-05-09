@@ -28,7 +28,7 @@ router.get('/market', MarketController.index);
 router.get('/festivals', FestivalController.index);
 router.get('/summary', SummaryController.index);
 router.get('/map', MapController.index);
-router.get('/destinations', ExploreController.list);
+router.get('/explore', ExploreController.list);
 router.get('/explore/:slug', ExploreController.show);
 router.get('/audio/:slug', ExploreController.audio);
 router.get('/journey', JourneyController.index);
