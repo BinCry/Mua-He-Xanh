@@ -16,7 +16,11 @@ class ManagerController {
             if (!destId) {
                 if (user.role === 'admin') {
                     const allDests = await Destination.findAll();
-                    return res.render('manager/admin_list', { title: 'Quản trị hệ thống', allDests });
+                    return res.render('manager/admin_list', { 
+                        title: 'Quản trị hệ thống', 
+                        allDests,
+                        layout: 'layouts/admin'
+                    });
                 }
                 return res.redirect('/auth/login?error=Bạn không có quyền quản lý địa điểm nào');
             }
@@ -46,7 +50,8 @@ class ManagerController {
                 stats: {
                     checkins: checkinStats[0].total
                 },
-                messages
+                messages,
+                layout: 'layouts/admin'
             });
         } catch (error) {
             console.error("Manager index error:", error);
@@ -63,15 +68,15 @@ class ManagerController {
             if (user.role === 'admin' && dest_id) targetDestId = dest_id;
 
             await Destination.update(targetDestId, {
-                open_hours,
-                cost,
-                cover_image,
-                highlight,
-                checkin_tip,
-                story,
-                zen_walk_desc,
-                best_time,
-                short_desc
+                open_hours: open_hours || '',
+                cost: cost || '',
+                cover_image: cover_image || '',
+                highlight: highlight || '',
+                checkin_tip: checkin_tip || '',
+                story: story || '',
+                zen_walk_desc: zen_walk_desc || '',
+                best_time: best_time || '',
+                short_desc: short_desc || ''
             });
 
             res.redirect('/manager?success=Đã cập nhật thông tin địa điểm');
