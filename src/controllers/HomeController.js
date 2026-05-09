@@ -41,9 +41,9 @@ class HomeController {
 
             // Social Feed Mockup (Trending Check-ins)
             const socialFeed = [
-                { user: 'Minh Anh', location: 'Chùa Thanh Tâm', text: 'Không gian thật tịnh tâm, cảm ơn Bình Lợi!', image: '/images/social1.jpg', time: '2 giờ trước' },
-                { user: 'Hoàng Long', location: 'Làng nghề nhang', text: 'Workshop làm nhang rất thú vị.', image: '/images/social2.jpg', time: '5 giờ trước' },
-                { user: 'Thảo Vy', location: 'Vườn Mai', text: 'Mai năm nay nở sớm quá đẹp.', image: '/images/social3.jpg', time: '1 ngày trước' }
+                { user: 'Minh Anh', location: 'Chùa Pháp Tạng', text: 'Không gian thật tịnh tâm, cảm ơn Bình Lợi!', image: '/images/social1.jpg', time: '2 giờ trước' },
+                { user: 'Hoàng Long', location: 'Xưởng Nhang Minh', text: 'Workshop làm nhang rất thú vị.', image: '/images/social2.jpg', time: '5 giờ trước' },
+                { user: 'Thảo Vy', location: 'Vườn Mai Bình Lợi', text: 'Mai năm nay nở sớm quá đẹp.', image: '/images/social3.jpg', time: '1 ngày trước' }
             ];
 
             res.render('home/index', {

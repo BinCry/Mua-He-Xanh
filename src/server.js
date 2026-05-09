@@ -39,12 +39,23 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // Global variables for templates
 app.use((req, res, next) => {
-    // Use BASE_URL from env, fallback to auto-detect
-    const baseUrl = process.env.BASE_URL || `http://localhost:${PORT}`;
+    // Dynamic Base URL detection (Prioritize current request host for local testing)
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.get('host');
+    const autoBaseUrl = `${protocol}://${host}`;
+    
+    // Use env BASE_URL only if we are in production and it's set
+    const baseUrl = (process.env.NODE_ENV === 'production' && process.env.BASE_URL) 
+        ? process.env.BASE_URL 
+        : autoBaseUrl;
+
     res.locals.baseUrl = baseUrl;
-    res.locals.appName = 'Bình Lợi Healing';
+    res.locals.appName = 'Bình Lợi – Miền Tây giữa lòng Sài Gòn';
     res.locals.session = req.session;
     res.locals.user = req.session.user || null;
+    
+    // Cache Buster for assets
+    res.locals.assetV = '1.1.0_' + Date.now(); 
 
     // Helper: fix image paths from database (strips 'public/' prefix)
     res.locals.fixImg = (imgPath, fallback) => {
