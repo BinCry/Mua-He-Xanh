@@ -33,13 +33,7 @@
 </head>
 
 <body>
-    <!-- Page Loader -->
-    <div id="page-loader">
-        <div class="text-center">
-            <div class="loader-spinner mb-3 mx-auto"></div>
-            <div class="text-white fw-bold small text-uppercase tracking-widest animate__animated animate__pulse animate__infinite" style="letter-spacing: 3px;">Bình Lợi Healing</div>
-        </div>
-    </div>
+    <!-- No Page Loader to prevent infinite spinning delays -->
 
     <!-- Navbar -->
     <%- include('../partials/navbar') %>
@@ -92,17 +86,9 @@
             });
         };
 
-        // Page Loader
-        window.addEventListener('load', () => {
-            const loader = document.getElementById('page-loader');
-            gsap.to(loader, {
-                opacity: 0,
-                duration: 0.8,
-                onComplete: () => {
-                    loader.style.display = 'none';
-                    reveal(); // Trigger reveal animations after loader is gone
-                }
-            });
+        // Run reveal immediately on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(reveal, 100);
         });
 
         // Navbar Scroll Effect (Fixed top without detached spacing)
