@@ -43,33 +43,36 @@ class HomeController {
             const socialFeed = [
                 {
                     id: 1,
-                    user: 'Minh Tuấn',
+                    user: 'Phạm Minh',
                     avatar: 'https://i.pravatar.cc/150?u=1',
                     image: '/images/chua-phap-tang-1.png',
-                    caption: 'Một buổi sáng thanh tịnh tại Chùa Pháp Tạng. Cảm giác thật an nhiên! #BinhLoiHealing #Zen',
-                    likes: 124,
+                    text: 'Bình yên là khi được nghe tiếng chuông chùa Pháp Tạng vang vọng giữa sớm mai. Một trải nghiệm thật sự chữa lành tâm hồn.',
                     location: 'Chùa Pháp Tạng',
-                    slug: 'chua-phap-tang'
+                    slug: 'chua-phap-tang',
+                    time: '1 giờ trước',
+                    likes: 156
                 },
                 {
                     id: 2,
-                    user: 'Hà Anh',
+                    user: 'Khánh Vy',
                     avatar: 'https://i.pravatar.cc/150?u=2',
                     image: '/images/xuong-nhang-1.png',
-                    caption: 'Lần đầu được tự tay làm nhang, mùi thảo mộc thơm dịu cả một vùng. #CraftVillage',
-                    likes: 89,
+                    text: 'Lần đầu tiên được tận mắt thấy quy trình làm nhang thủ công. Mùi hương thảo mộc thật sự rất dễ chịu.',
                     location: 'Xưởng Nhang Minh',
-                    slug: 'xuong-nhang-minh'
+                    slug: 'xuong-nhang-minh',
+                    time: '3 giờ trước',
+                    likes: 89
                 },
                 {
                     id: 3,
-                    user: 'Quốc Bảo',
+                    user: 'Đức Anh',
                     avatar: 'https://i.pravatar.cc/150?u=3',
                     image: '/images/cau-chu-z-1.png',
-                    caption: 'Hoàng hôn rực rỡ tại Cầu chữ Z. Góc chill không thể bỏ qua tại Bình Lợi.',
-                    likes: 215,
+                    text: 'Hoàng hôn tại Cầu chữ Z chưa bao giờ làm mình thất vọng. Một góc chill cực phẩm ngay tại Bình Lợi.',
                     location: 'Cầu Chữ Z',
-                    slug: 'cau-chu-z'
+                    slug: 'cau-chu-z',
+                    time: '5 giờ trước',
+                    likes: 234
                 }
             ];
 

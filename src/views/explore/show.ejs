@@ -153,20 +153,32 @@
                     </div>
                 </div>
 
+                <!-- Floating Chat Toggle (Mobile Friendly) -->
+                <div class="fixed-bottom p-4 text-end" style="z-index: 1000;">
+                    <button class="btn btn-primary-bl rounded-circle shadow-lg p-0" style="width: 60px; height: 60px;" data-bs-toggle="modal" data-bs-target="#chatModal">
+                        <i class="bi bi-chat-fill fs-3"></i>
+                    </button>
+                </div>
+
                 <!-- Chat Modal -->
                 <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
-                    <div class="modal-dialog modal-dialog-centered">
-                        <div class="modal-content border-0 rounded-4 shadow-lg">
-                            <div class="modal-header bg-primary text-white border-0 py-3">
-                                <h5 class="modal-title fw-bold"><i class="bi bi-chat-dots me-2"></i> Chat với <%= dest.name %></h5>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body p-4">
-                                <p class="small text-muted mb-4">Quản lý địa điểm sẽ trả lời các câu hỏi của bạn về dịch vụ, giờ mở cửa hoặc hỗ trợ khác.</p>
-                                <div class="mb-3">
-                                    <textarea id="chat-message" class="form-control border-light bg-light" rows="4" placeholder="Nhập câu hỏi của bạn..."></textarea>
+                    <div class="modal-dialog modal-dialog-centered modal-sm">
+                        <div class="modal-content border-0 rounded-5 shadow-premium overflow-hidden">
+                            <div class="modal-header bg-primary text-white border-0 p-4">
+                                <div>
+                                    <h5 class="modal-title fw-black mb-0">Hỏi đáp trực tiếp</h5>
+                                    <small class="opacity-75">Liên hệ với Quản lý <%= dest.name %></small>
                                 </div>
-                                <button class="btn btn-primary-bl w-100 rounded-pill py-2" onclick="sendChatMessage('<%= dest.id %>')">Gửi tin nhắn</button>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body p-4 bg-light">
+                                <div class="chat-bubble-received bg-white p-3 rounded-4 mb-4 small shadow-sm">
+                                    Chào bạn! Tôi là quản lý tại đây. Bạn cần hỗ trợ gì về thông tin tham quan không?
+                                </div>
+                                <textarea id="chat-message" class="form-control border-0 rounded-4 p-3 shadow-sm mb-3" rows="3" placeholder="Nhập câu hỏi của bạn..."></textarea>
+                                <button class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold" onclick="sendChatMessage('<%= dest.id %>')">
+                                    GỬI YÊU CẦU ➔
+                                </button>
                             </div>
                         </div>
                     </div>

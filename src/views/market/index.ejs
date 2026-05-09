@@ -1,65 +1,63 @@
-<div class="container py-5 mt-5">
-    <!-- Market Header -->
-    <div class="glass-panel p-5 mb-5 text-center position-relative overflow-hidden">
-        <h1 class="display-4 fw-bold mb-2" style="font-family: var(--font-heading);">Chợ OCOP Bình Lợi</h1>
-        <p class="lead text-muted mx-auto" style="max-width: 700px;">Mang tinh hoa làng nghề và nông sản sạch Bình Lợi về ngôi nhà của bạn.</p>
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <div class="badge bg-white text-primary border px-3 py-2 rounded-pill fw-bold"><i class="bi bi-patch-check-fill me-1"></i>CHỨNG NHẬN OCOP 3-5 SAO</div>
-            <div class="badge bg-white text-primary border px-3 py-2 rounded-pill fw-bold"><i class="bi bi-truck me-1"></i>GIAO HÀNG TOÀN QUỐC</div>
+<section class="market-hero py-5 bg-dark text-white position-relative overflow-hidden">
+    <div class="container py-5 text-center position-relative" style="z-index: 10;">
+        <span class="badge bg-secondary text-dark px-3 py-2 rounded-pill mb-3">OCOP BÌNH LỢI</span>
+        <h1 class="display-3 fw-black mb-3">Tinh Hoa Đặc Sản Địa Phương</h1>
+        <p class="lead opacity-75 mx-auto" style="max-width: 700px;">Mỗi sản phẩm là một câu chuyện về tâm huyết của người nông dân Bình Lợi, được chứng nhận OCOP quốc gia.</p>
+    </div>
+    <div class="hero-overlay-dark"></div>
+    <div class="bg-pattern position-absolute top-0 start-0 w-100 h-100 opacity-10"></div>
+</section>
+
+<div class="container py-5">
+    <!-- Filter Bar -->
+    <div class="d-flex justify-content-between align-items-center mb-5 flex-wrap gap-3">
+        <div class="btn-group shadow-sm rounded-pill overflow-hidden">
+            <button class="btn btn-primary-bl px-4">Tất cả</button>
+            <button class="btn btn-light px-4">Cây cảnh</button>
+            <button class="btn btn-light px-4">Thực phẩm</button>
+            <button class="btn btn-light px-4">Thủ công</button>
         </div>
-        <i class="bi bi-shop position-absolute top-50 start-0 text-primary opacity-05" style="font-size: 15rem; transform: translate(-30%, -50%);"></i>
+        <div class="text-muted small">Hiển thị <%= products.length %> sản phẩm</div>
     </div>
 
+    <!-- Product Grid -->
     <div class="row g-4">
-        <!-- Sidebar Filters -->
-        <div class="col-lg-3">
-            <div class="glass-panel p-4 sticky-top" style="top: 100px;">
-                <h5 class="fw-bold mb-4">Danh mục</h5>
-                <div class="list-group list-group-flush mb-5">
-                    <a href="#" class="list-group-item bg-transparent border-0 px-0 py-2 d-flex justify-content-between align-items-center active fw-bold text-primary">Tất cả sản phẩm <span class="badge bg-primary rounded-pill">24</span></a>
-                    <a href="#" class="list-group-item bg-transparent border-0 px-0 py-2 d-flex justify-content-between align-items-center">Cây cảnh & Hoa <span class="badge bg-light text-muted rounded-pill">12</span></a>
-                    <a href="#" class="list-group-item bg-transparent border-0 px-0 py-2 d-flex justify-content-between align-items-center">Nông sản sạch <span class="badge bg-light text-muted rounded-pill">8</span></a>
-                    <a href="#" class="list-group-item bg-transparent border-0 px-0 py-2 d-flex justify-content-between align-items-center">Thủ công mỹ nghệ <span class="badge bg-light text-muted rounded-pill">4</span></a>
-                </div>
-
-                <h5 class="fw-bold mb-4">Khoảng giá</h5>
-                <input type="range" class="form-range mb-3" min="0" max="2000000" step="50000">
-                <div class="d-flex justify-content-between small text-muted">
-                    <span>0đ</span>
-                    <span>2.000.000đ+</span>
-                </div>
-            </div>
-        </div>
-
-        <!-- Product Grid -->
-        <div class="col-lg-9">
-            <div class="row g-4">
-                <% products.forEach(product => { %>
-                <div class="col-md-6 col-xl-4">
-                    <div class="card-healing p-0 overflow-hidden h-100 border-0 shadow-sm">
-                        <div class="position-relative">
-                            <img src="<%= product.image %>" class="w-100" style="height: 250px; object-fit: cover;">
-                            <span class="position-absolute top-0 end-0 m-3 badge bg-warning text-dark fw-bold rounded-pill shadow">OCOP ★★★</span>
-                        </div>
-                        <div class="p-4">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="fw-bold mb-0 text-truncate" style="max-width: 150px;"><%= product.name %></h6>
-                                <span class="text-primary fw-bold"><%= product.price.toLocaleString() %>đ</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-1 mb-3">
-                                <i class="bi bi-star-fill text-warning small"></i>
-                                <span class="small fw-bold"><%= product.rating %></span>
-                                <span class="text-muted small ms-1">(Đã bán <%= product.sold %>)</span>
-                            </div>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-premium btn-sm rounded-pill py-2">MUA NGAY</button>
-                                <button class="btn btn-light btn-sm rounded-pill py-2"><i class="bi bi-cart-plus me-1"></i>THÊM GIỎ HÀNG</button>
-                            </div>
-                        </div>
+        <% products.forEach(product => { %>
+        <div class="col-6 col-lg-3">
+            <div class="card-bl h-100 shadow-sm border-0 overflow-hidden hover-up transition-all">
+                <div class="position-relative overflow-hidden" style="height: 200px;">
+                    <img src="<%= product.image %>" class="w-100 h-100 object-fit-cover" alt="<%= product.name %>">
+                    <div class="position-absolute top-0 start-0 m-2">
+                        <span class="badge bg-warning text-dark shadow-sm">OCOP 4⭐</span>
                     </div>
                 </div>
-                <% }) %>
+                <div class="p-3 p-md-4">
+                    <h6 class="fw-bold mb-1 text-truncate"><%= product.name %></h6>
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                        <div class="text-warning small">
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-fill"></i>
+                            <i class="bi bi-star-half"></i>
+                        </div>
+                        <span class="x-small text-muted">(<%= product.sold %> đã bán)</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-black text-primary"><%= product.price.toLocaleString() %>đ</span>
+                        <button class="btn btn-outline-bl btn-sm rounded-circle" style="width: 32px; height: 32px; padding: 0;">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
+        <% }) %>
     </div>
 </div>
+
+<style>
+.market-hero { height: 40vh; display: flex; align-items: center; }
+.hover-up:hover { transform: translateY(-10px); }
+.fw-black { font-weight: 900; }
+</style>

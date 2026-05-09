@@ -5,10 +5,10 @@ class MarketController {
         try {
             // Mock OCOP products
             const products = [
-                { id: 1, name: 'Mai Vàng Bình Lợi (Chậu)', price: 1500000, image: '/images/product-mai.jpg', rating: 4.8, sold: 120 },
-                { id: 2, name: 'Trà Sen Tháp Mười', price: 120000, image: '/images/product-tra.jpg', rating: 4.9, sold: 450 },
-                { id: 3, name: 'Mật Ong Hoa Nhãn', price: 250000, image: '/images/product-matong.jpg', rating: 4.7, sold: 89 },
-                { id: 4, name: 'Bánh Tráng Thủ Công', price: 35000, image: '/images/product-banhtrang.jpg', rating: 4.6, sold: 1200 },
+                { id: 1, name: 'Mai Vàng Bình Lợi (Bonsai)', price: 2500000, image: '/images/product-mai.png', rating: 4.8, sold: 156 },
+                { id: 2, name: 'Nhang Thảo Mộc Bình Lợi', price: 45000, image: '/images/product-incense.png', rating: 4.9, sold: 1204 },
+                { id: 3, name: 'Mật Ong Hoa Tràm Tự Nhiên', price: 350000, image: '/images/product-honey.png', rating: 4.7, sold: 432 },
+                { id: 4, name: 'Bưởi Da Xanh Loại 1', price: 65000, image: '/images/product-grapefruit.png', rating: 4.6, sold: 867 },
             ];
 
             res.render('market/index', {

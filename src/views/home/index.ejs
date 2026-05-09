@@ -1,8 +1,10 @@
 <!-- Hero Section: Cinematic & Immersive -->
 <section class="hero-cinematic position-relative bg-dark">
-    <!-- Background Video -->
-    <video autoplay muted loop playsinline class="hero-video-bg">
+    <!-- Background Video with Fallback -->
+    <video autoplay muted loop playsinline class="hero-video-bg" poster="/images/hero-1.png">
         <source src="<%= season.video %>" type="video/mp4">
+        <!-- Fallback Image if Video fails -->
+        <img src="/images/hero-1.png" class="w-100 h-100 object-fit-cover" alt="Bình Lợi Hero">
     </video>
     
     <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100 dark-overlay" style="z-index: 5;"></div>
@@ -104,28 +106,36 @@
 </section>
 
 <!-- Trending Check-in: Social Wall -->
-<section class="py-5 bg-light">
+<section class="py-5 bg-light overflow-hidden">
     <div class="container py-5">
         <div class="text-center mb-5 reveal-up">
-            <span class="text-primary fw-bold mb-2 d-block text-uppercase" style="letter-spacing: 2px;">Community Feed</span>
-            <h2 class="display-4 fw-bold" style="font-family: var(--font-heading);">Khoảnh khắc Bình Lợi</h2>
-            <p class="text-muted">Được chia sẻ bởi những "Người khám phá Bình Lợi" thực thụ.</p>
+            <span class="text-primary fw-bold mb-2 d-block text-uppercase tracking-widest" style="font-size: 0.8rem;">Live from Bình Lợi</span>
+            <h2 class="display-4 fw-black mb-3">Khoảnh khắc Chữa lành</h2>
+            <p class="text-muted mx-auto" style="max-width: 600px;">Những câu chuyện thật, hình ảnh thật được cộng đồng du khách chia sẻ trực tiếp từ hành trình khám phá.</p>
         </div>
         
         <div class="row g-4 mb-5">
             <% socialFeed.forEach((item, index) => { %>
             <div class="col-md-4 reveal-up">
-                <div class="card-healing h-100 position-relative overflow-hidden">
-                    <img src="<%= item.image || '/images/checkin-' + (index + 1) + '.png' %>" class="w-100 h-100 object-fit-cover" style="min-height: 400px;" alt="Checkin">
-                    <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white dark-overlay">
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <img src="https://i.pravatar.cc/150?u=<%= index %>" class="rounded-circle" style="width: 30px; height: 30px; border: 2px solid white;">
-                            <span class="small fw-bold">@<%= item.user.toLowerCase().replace(' ', '') %></span>
+                <div class="social-card h-100 shadow-premium rounded-5 overflow-hidden bg-white">
+                    <div class="social-img-wrapper position-relative" style="height: 450px;">
+                        <img src="<%= fixImg(item.image) %>" class="w-100 h-100 object-fit-cover transition-all" alt="Moment">
+                        <div class="social-overlay"></div>
+                        <div class="position-absolute top-0 end-0 m-3" style="z-index: 10;">
+                            <span class="badge glass-panel text-white border-0"><i class="bi bi-heart-fill text-danger me-1"></i> <%= item.likes %></span>
                         </div>
-                        <p class="small mb-1"><%= item.text %></p>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <small class="opacity-75"><i class="bi bi-geo-alt me-1"></i><%= item.location %></small>
-                            <small class="opacity-75"><%= item.time %></small>
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white" style="z-index: 10;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <img src="<%= item.avatar %>" class="rounded-circle border border-2 border-white shadow-sm" style="width: 40px; height: 40px;">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">@<%= item.user.toLowerCase().replace(' ', '') %></h6>
+                                    <small class="opacity-75"><%= item.time %></small>
+                                </div>
+                            </div>
+                            <p class="small mb-2 line-clamp-3"><%= item.text %></p>
+                            <div class="d-flex align-items-center gap-1 x-small text-secondary">
+                                <i class="bi bi-geo-alt-fill"></i> <%= item.location %>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -134,10 +144,24 @@
         </div>
         
         <div class="text-center reveal-up">
-            <a href="#" class="btn btn-outline-primary btn-lg rounded-pill px-5 fw-bold">XEM THÊM TRÊN TIKTOK / REELS</a>
+            <button class="btn btn-premium btn-lg rounded-pill px-5 shadow-lg">CHIA SẺ KHOẢNH KHẮC CỦA BẠN</button>
         </div>
     </div>
 </section>
+
+<style>
+.social-card { transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+.social-card:hover { transform: translateY(-15px); }
+.social-img-wrapper:hover img { transform: scale(1.1); }
+.social-overlay {
+    position: absolute;
+    bottom: 0; left: 0; width: 100%; height: 60%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+    z-index: 5;
+}
+.tracking-widest { letter-spacing: 3px; }
+.shadow-premium { box-shadow: 0 20px 40px rgba(0,0,0,0.1); }
+</style>
 
 <!-- Destinations Section -->
 <section class="py-5 bg-white"><div class="container py-5">
@@ -156,7 +180,7 @@
         <div class="col-md-4">
             <div class="card-healing h-100 shadow-sm">
                 <div class="position-relative overflow-hidden" style="height: 250px;">
-                    <img src="<%= dest.cover_image %>" class="w-100 h-100 object-fit-cover transition-all" alt="<%= dest.name %>">
+                    <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover transition-all" alt="<%= dest.name %>">
                     <div class="position-absolute top-0 end-0 m-3">
                         <span class="badge bg-white text-dark shadow-sm px-3 py-2 rounded-pill fw-bold">
                             <i class="bi bi-star-fill text-warning me-1"></i>4.9

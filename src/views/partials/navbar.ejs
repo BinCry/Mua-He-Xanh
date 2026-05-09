@@ -1,70 +1,81 @@
-<nav class="navbar navbar-expand-lg navbar-premium fixed-top py-3">
-  <div class="container glass-panel shadow-premium">
-    
-    <!-- Brand -->
-    <a class="navbar-brand d-flex align-items-center" href="/">
-      <img src="/images/logo.png" alt="Logo" style="height: 40px;">
-      <div class="ms-2 d-none d-sm-block">
-        <span class="d-block fw-bold text-primary lh-1" style="font-size: 1.1rem; text-transform: uppercase;">Bình Lợi</span>
-        <small class="text-muted" style="font-size: 0.7rem; letter-spacing: 1px;">SMART TOURISM</small>
-      </div>
-    </a>
-
-    <!-- Toggle Button for Mobile -->
-    <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Menu Links -->
-    <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
-        <li class="nav-item"><a class="nav-link px-3" href="/">Trang chủ</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="/destinations">Khám phá</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="/map">Bản đồ</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="/passport">Passport</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="/market">Chợ OCOP</a></li>
-        <li class="nav-item"><a class="nav-link px-3" href="/festivals">Festival</a></li>
-      </ul>
-
-      <!-- Right Side: Auth / Profile -->
-      <div class="d-flex align-items-center gap-3">
-        <% if (user) { %>
-          <div class="dropdown">
-            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle text-dark" data-bs-toggle="dropdown">
-              <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-2 border-primary" style="width: 38px; height: 38px; object-fit: cover;">
-              <div class="ms-2 d-none d-md-block text-start">
-                <span class="d-block fw-bold small"><%= user.full_name %></span>
-                <small class="text-primary fw-bold" style="font-size: 10px;"><%= (user.points || 0).toLocaleString() %> XP</small>
-              </div>
+<nav class="navbar navbar-expand-lg navbar-premium fixed-top transition-all">
+    <div class="container">
+        <div class="glass-panel w-100 d-flex align-items-center justify-content-between shadow-premium py-2 px-4 mt-3" style="transition: all 0.4s ease;">
+            <!-- Brand -->
+            <a class="navbar-brand d-flex align-items-center" href="/">
+                <img src="/images/logo.png" alt="Logo" style="height: 40px;" class="me-2 d-none d-md-block">
+                <div class="brand-text">
+                    <span class="d-block fw-black text-primary lh-1" style="font-size: 1.2rem;">BÌNH LỢI</span>
+                    <span class="d-block text-muted x-small tracking-widest text-uppercase">Healing Journey</span>
+                </div>
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-3 p-2 rounded-4">
-              <li><a class="dropdown-item py-2 rounded-3" href="/passport"><i class="bi bi-qr-code-scan me-2 text-primary"></i>Passport & Stamps</a></li>
-              <li><a class="dropdown-item py-2 rounded-3" href="/hanh-trinh-cua-toi"><i class="bi bi-map me-2 text-primary"></i>Hành trình</a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item py-2 rounded-3 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
-            </ul>
-          </div>
-        <% } else { %>
-          <a href="/auth/login" class="btn btn-premium btn-sm rounded-pill px-4">Tham gia ngay</a>
-        <% } %>
-      </div>
-    </div>
 
-  </div>
+            <!-- Toggle -->
+            <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <!-- Nav -->
+            <div class="collapse navbar-collapse" id="navbarMain">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-3">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/explore">Khám phá</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/festival">Lễ hội</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/market">Chợ OCOP</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/passport">Passport</a>
+                    </li>
+                </ul>
+                
+                <div class="d-flex align-items-center gap-3">
+                    <% if (user) { %>
+                        <div class="dropdown">
+                            <a href="#" class="nav-link dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown">
+                                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-2 border-primary" style="width: 35px; height: 35px; object-fit: cover;">
+                                <span class="d-none d-xl-inline small fw-bold"><%= user.full_name %></span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2 mt-3">
+                                <li><a class="dropdown-item py-2 rounded-3" href="/passport"><i class="bi bi-person me-2"></i>Cá nhân</a></li>
+                                <% if (user.role === 'admin' || user.role === 'manager') { %>
+                                    <li><a class="dropdown-item py-2 rounded-3" href="/manager"><i class="bi bi-speedometer2 me-2"></i>Quản lý</a></li>
+                                <% } %>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item py-2 rounded-3 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                            </ul>
+                        </div>
+                    <% } else { %>
+                        <a href="/auth/login" class="btn btn-premium btn-sm rounded-pill px-4 fw-bold">ĐĂNG NHẬP</a>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
 </nav>
 
 <style>
-  .navbar-premium .nav-link { 
-    font-size: 0.85rem; 
-    font-weight: 700; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px; 
-    color: var(--v5-text) !important;
-    padding: 10px 15px !important;
-    transition: all 0.3s ease;
-  }
-  .navbar-premium .nav-link:hover { color: var(--v5-primary) !important; background: rgba(0,0,0,0.03); border-radius: 12px; }
-  .navbar-premium { background: transparent !important; border: none !important; }
-  .navbar-premium.scrolled { background: transparent !important; }
-  .navbar-premium.scrolled .glass-panel { background: rgba(255,255,255,0.9); }
+    .navbar-premium .nav-link {
+        font-family: var(--font-accent);
+        font-weight: 700;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 1px;
+        color: var(--v5-primary) !important;
+        padding: 10px 15px !important;
+    }
+    .navbar-premium .nav-link:hover {
+        color: var(--v5-primary-light) !important;
+        background: rgba(0,0,0,0.03);
+        border-radius: 12px;
+    }
+    .navbar-premium { background: transparent !important; }
+    .x-small { font-size: 0.65rem; }
+    .fw-black { font-weight: 900; }
 </style>
