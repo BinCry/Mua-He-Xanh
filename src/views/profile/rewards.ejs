@@ -1,0 +1,48 @@
+<% /* Rewards Page - Chương 5.15 */ %>
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container" style="max-width: 900px;">
+        <div class="text-center mb-5">
+            <h2 class="fw-black"><i class="bi bi-gift text-warning me-2"></i>Điểm Thưởng</h2>
+            <div class="display-3 fw-black text-warning mt-3"><%= currentPoints %></div>
+            <p class="text-muted">điểm hiện có</p>
+        </div>
+        <h4 class="fw-bold mb-3">🎁 Phần thưởng có thể đổi</h4>
+        <div class="row g-3 mb-5">
+            <% availableRewards.forEach(r => { %>
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5 class="fw-bold mb-1"><%= r.title %></h5>
+                            <p class="text-muted small mb-2"><%= r.description %></p>
+                            <span class="badge bg-warning text-dark rounded-pill"><%= r.points_required %> điểm</span>
+                        </div>
+                        <button class="btn btn-sm btn-primary rounded-pill px-3 <%= currentPoints < r.points_required ? 'disabled' : '' %>"
+                                onclick="redeem('<%= r.id %>', '<%= r.title %>')">Đổi</button>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+        <% if (myRewards.length > 0) { %>
+        <h4 class="fw-bold mb-3">📜 Phần thưởng đã đổi</h4>
+        <% myRewards.forEach(r => { %>
+        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-2">
+            <span class="badge bg-success rounded-pill"><%= r.status %></span>
+            <span class="fw-bold"><%= r.title %></span>
+            <small class="text-muted ms-auto"><%= new Date(r.redeemed_at).toLocaleDateString('vi-VN') %></small>
+        </div>
+        <% }); %>
+        <% } %>
+    </div>
+</section>
+<script>
+async function redeem(id, title) {
+    if (!confirm('Đổi "' + title + '"?')) return;
+    try {
+        const res = await axios.post('/api/redeem-reward', { reward_id: id });
+        alert(res.data.message);
+        if (res.data.success) location.reload();
+    } catch(e) { alert('Lỗi'); }
+}
+</script>

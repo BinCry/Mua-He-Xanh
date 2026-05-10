@@ -1,0 +1,28 @@
+<% /* Admin Reviews - Chương 7 */ %>
+<section class="py-4" style="margin-top: 80px; background: #f8f9fa; min-height: 100vh;">
+    <div class="container-fluid px-4">
+        <a href="/admin" class="text-decoration-none text-muted small"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
+        <h2 class="fw-black mb-4 mt-1">💬 Duyệt Đánh Giá</h2>
+        <div class="row g-3">
+            <% reviews.forEach(r => { %>
+            <div class="col-md-6 col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <div class="d-flex gap-2 mb-2">
+                        <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width:35px;height:35px;object-fit:cover;">
+                        <div>
+                            <span class="fw-bold small"><%= r.full_name %></span>
+                            <br><small class="text-muted"><%= r.destination_name || '-' %></small>
+                        </div>
+                        <span class="ms-auto text-warning small"><% for(let i=0;i<(r.rating||5);i++){%><i class="bi bi-star-fill"></i><%}%></span>
+                    </div>
+                    <p class="small mb-2" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;"><%= r.content %></p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></small>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill"><i class="bi bi-heart me-1"></i><%= r.likes_count || 0 %></span>
+                    </div>
+                </div>
+            </div>
+            <% }); %>
+        </div>
+    </div>
+</section>

@@ -1,0 +1,73 @@
+<% /* Profile Edit - Chương 5.2 */ %>
+
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container" style="max-width: 700px;">
+        <div class="card border-0 shadow-lg rounded-4 p-5">
+            <h3 class="fw-bold mb-4 text-center"><i class="bi bi-person-gear text-primary me-2"></i>Chỉnh sửa hồ sơ</h3>
+
+            <form id="editProfileForm">
+                <div class="text-center mb-4">
+                    <img src="<%= profileUser.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-3 border-primary" 
+                         style="width: 100px; height: 100px; object-fit: cover;">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Họ và tên</label>
+                    <input type="text" class="form-control rounded-3" name="full_name" value="<%= profileUser.full_name || '' %>" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Số điện thoại</label>
+                    <input type="tel" class="form-control rounded-3" name="phone" value="<%= profileUser.phone || '' %>" placeholder="09xxxxxxxx">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Thành phố</label>
+                    <input type="text" class="form-control rounded-3" name="city" value="<%= profileUser.city || '' %>" placeholder="TP.HCM">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Sở thích du lịch</label>
+                    <input type="text" class="form-control rounded-3" name="preferences" value="<%= profileUser.preferences || '' %>" placeholder="Thiền, Sinh thái, Ẩm thực...">
+                </div>
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Phong cách trải nghiệm</label>
+                    <select class="form-select rounded-3" name="travel_style">
+                        <option value="healing" <%= profileUser.travel_style === 'healing' ? 'selected' : '' %>>🧘 Healing & Chữa lành</option>
+                        <option value="tamlinh" <%= profileUser.travel_style === 'tamlinh' ? 'selected' : '' %>>🕉️ Tâm linh</option>
+                        <option value="sinhthai" <%= profileUser.travel_style === 'sinhthai' ? 'selected' : '' %>>🌿 Sinh thái</option>
+                        <option value="checkin" <%= profileUser.travel_style === 'checkin' ? 'selected' : '' %>>📸 Check-in & Khám phá</option>
+                        <option value="giadinh" <%= profileUser.travel_style === 'giadinh' ? 'selected' : '' %>>👨‍👩‍👧 Gia đình</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-premium btn-lg w-100 rounded-pill" id="btnSave">
+                    <i class="bi bi-check-circle me-2"></i>Lưu thay đổi
+                </button>
+            </form>
+
+            <div id="saveResult" class="mt-3 d-none"></div>
+        </div>
+    </div>
+</section>
+
+<script>
+document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnSave');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu...';
+
+    try {
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+        const res = await axios.post('/profile/update', data);
+        
+        const resultEl = document.getElementById('saveResult');
+        resultEl.classList.remove('d-none');
+        resultEl.innerHTML = `<div class="alert alert-success rounded-3"><i class="bi bi-check-circle me-2"></i>${res.data.message}</div>`;
+        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đã lưu!';
+    } catch (err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Lưu thay đổi';
+        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+});
+</script>

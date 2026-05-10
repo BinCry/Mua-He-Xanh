@@ -1,0 +1,141 @@
+<% /* Profile Page - Chương 5.2: Hồ sơ Du khách */ %>
+
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container">
+        <!-- Profile Header -->
+        <div class="card border-0 shadow-lg rounded-4 overflow-hidden mb-4">
+            <div class="position-relative" style="height: 180px; background: linear-gradient(135deg, var(--v5-primary) 0%, #0d4f22 100%);">
+                <div class="position-absolute bottom-0 start-0 w-100 p-4 d-flex align-items-end gap-4" style="transform: translateY(50%);">
+                    <img src="<%= profileUser.avatar || '/images/default-avatar.png' %>" 
+                         class="rounded-circle border border-4 border-white shadow" 
+                         style="width: 120px; height: 120px; object-fit: cover; background: white;">
+                    <div class="pb-2">
+                        <h2 class="fw-black mb-0 text-white" style="text-shadow: 0 2px 8px rgba(0,0,0,0.3);"><%= profileUser.full_name %></h2>
+                        <span class="badge bg-white text-primary rounded-pill px-3 mt-1"><%= profileUser.role === 'admin' ? '👑 Quản trị viên' : profileUser.role === 'manager' ? '🏠 Quản lý' : '🎒 Du khách' %></span>
+                    </div>
+                </div>
+            </div>
+            <div class="p-4" style="padding-top: 80px !important;">
+                <div class="row g-3">
+                    <div class="col-6 col-md-2 text-center">
+                        <div class="display-6 fw-black text-primary"><%= stats.checkins %></div>
+                        <small class="text-muted">Check-in</small>
+                    </div>
+                    <div class="col-6 col-md-2 text-center">
+                        <div class="display-6 fw-black text-primary"><%= stats.badges %></div>
+                        <small class="text-muted">Huy hiệu</small>
+                    </div>
+                    <div class="col-6 col-md-2 text-center">
+                        <div class="display-6 fw-black text-primary"><%= stats.journeys %></div>
+                        <small class="text-muted">Hành trình</small>
+                    </div>
+                    <div class="col-6 col-md-2 text-center">
+                        <div class="display-6 fw-black text-primary"><%= stats.reviews %></div>
+                        <small class="text-muted">Đánh giá</small>
+                    </div>
+                    <div class="col-6 col-md-2 text-center">
+                        <div class="display-6 fw-black text-warning"><%= stats.points %></div>
+                        <small class="text-muted">Điểm thưởng</small>
+                    </div>
+                    <div class="col-6 col-md-2 text-center">
+                        <div class="display-6 fw-black text-success"><%= stats.workshopsDone %></div>
+                        <small class="text-muted">Workshop</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Thông tin cá nhân -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-person-vcard text-primary me-2"></i>Thông tin</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-envelope text-muted"></i>
+                            <span class="small"><%= profileUser.email || 'Chưa cập nhật' %></span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-phone text-muted"></i>
+                            <span class="small"><%= profileUser.phone || 'Chưa cập nhật' %></span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-geo text-muted"></i>
+                            <span class="small"><%= profileUser.city || 'Chưa cập nhật' %></span>
+                        </li>
+                        <li class="mb-3 d-flex align-items-center gap-2">
+                            <i class="bi bi-heart text-muted"></i>
+                            <span class="small"><%= profileUser.travel_style || 'Healing, Sinh thái' %></span>
+                        </li>
+                    </ul>
+                    <a href="/profile/edit" class="btn btn-outline-primary btn-sm rounded-pill mt-3 w-100">
+                        <i class="bi bi-pencil me-1"></i>Chỉnh sửa
+                    </a>
+                </div>
+            </div>
+
+            <!-- Huy hiệu -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-award text-warning me-2"></i>Huy hiệu</h5>
+                    <% if (badges.length > 0) { %>
+                        <div class="d-flex flex-wrap gap-2">
+                            <% badges.forEach(b => { %>
+                                <span class="badge bg-warning bg-opacity-10 text-warning rounded-pill px-3 py-2" title="<%= b.description %>">
+                                    <%= b.icon || '🏅' %> <%= b.name %>
+                                </span>
+                            <% }); %>
+                        </div>
+                    <% } else { %>
+                        <p class="text-muted small">Check-in tại các điểm du lịch để nhận huy hiệu!</p>
+                    <% } %>
+                    <a href="/passport" class="btn btn-outline-warning btn-sm rounded-pill mt-3 w-100">
+                        <i class="bi bi-passport me-1"></i>Xem Passport
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="col-lg-4">
+                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-lightning text-primary me-2"></i>Hành động nhanh</h5>
+                    <div class="d-grid gap-2">
+                        <a href="/workshops" class="btn btn-light rounded-3 text-start"><i class="bi bi-palette me-2 text-primary"></i>Đặt Workshop</a>
+                        <a href="/reviews" class="btn btn-light rounded-3 text-start"><i class="bi bi-chat-heart me-2 text-danger"></i>Viết Đánh giá</a>
+                        <a href="/profile/rewards" class="btn btn-light rounded-3 text-start"><i class="bi bi-gift me-2 text-warning"></i>Đổi Điểm Thưởng</a>
+                        <a href="/journey" class="btn btn-light rounded-3 text-start"><i class="bi bi-map me-2 text-success"></i>Tạo Hành trình</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Workshop Bookings -->
+        <% if (workshopBookings.length > 0) { %>
+        <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
+            <h5 class="fw-bold mb-3"><i class="bi bi-ticket-perforated text-primary me-2"></i>Workshop gần đây</h5>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr><th>Workshop</th><th>Ngày</th><th>Số người</th><th>Trạng thái</th><th>Mã vé</th></tr>
+                    </thead>
+                    <tbody>
+                        <% workshopBookings.forEach(b => { %>
+                        <tr>
+                            <td class="fw-bold"><%= b.workshop_title %></td>
+                            <td><%= new Date(b.booking_date).toLocaleDateString('vi-VN') %></td>
+                            <td><%= b.num_people %></td>
+                            <td>
+                                <span class="badge bg-<%= b.status === 'confirmed' ? 'success' : b.status === 'completed' ? 'primary' : b.status === 'cancelled' ? 'danger' : 'warning' %> rounded-pill">
+                                    <%= b.status === 'confirmed' ? 'Đã xác nhận' : b.status === 'completed' ? 'Hoàn thành' : b.status === 'cancelled' ? 'Đã hủy' : 'Chờ xác nhận' %>
+                                </span>
+                            </td>
+                            <td><code class="small"><%= b.qr_ticket %></code></td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <% } %>
+    </div>
+</section>

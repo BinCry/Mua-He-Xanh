@@ -1,0 +1,197 @@
+<% /* Workshop Detail + Booking - Chương 5.11 */ %>
+
+<!-- Hero -->
+<section class="position-relative" style="height: 400px; overflow: hidden;">
+    <img src="<%= fixImg(workshop.image) %>" class="w-100 h-100" style="object-fit: cover; filter: brightness(0.6);" alt="<%= workshop.title %>">
+    <div class="position-absolute bottom-0 start-0 w-100 p-5" style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
+        <div class="container">
+            <span class="badge bg-primary rounded-pill px-3 py-2 mb-3"><%= workshop.type %></span>
+            <h1 class="text-white fw-black display-5" style="font-family: var(--font-display);"><%= workshop.title %></h1>
+            <p class="text-white-50"><i class="bi bi-geo-alt me-2"></i><%= workshop.destination_name || 'Bình Lợi' %></p>
+        </div>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Main Content -->
+            <div class="col-lg-7">
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                    <h3 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Giới thiệu</h3>
+                    <p class="text-muted lh-lg"><%= workshop.description %></p>
+                </div>
+
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+                    <h3 class="fw-bold mb-3"><i class="bi bi-list-check text-primary me-2"></i>Thông tin chi tiết</h3>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center">
+                                <i class="bi bi-clock display-6 text-primary"></i>
+                                <div class="fw-bold mt-2"><%= workshop.duration_minutes %> phút</div>
+                                <small class="text-muted">Thời lượng</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center">
+                                <i class="bi bi-people display-6 text-primary"></i>
+                                <div class="fw-bold mt-2">Tối đa <%= workshop.max_participants %></div>
+                                <small class="text-muted">Người tham gia</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center">
+                                <i class="bi bi-tag display-6 text-warning"></i>
+                                <div class="fw-bold mt-2"><%= workshop.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %></div>
+                                <small class="text-muted">Giá/người</small>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 bg-light rounded-3 text-center">
+                                <i class="bi bi-calendar-week display-6 text-success"></i>
+                                <div class="fw-bold mt-2 small"><%= workshop.schedule_note || 'Liên hệ' %></div>
+                                <small class="text-muted">Lịch trình</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <% if (stats && stats.avg_rating) { %>
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h3 class="fw-bold mb-3"><i class="bi bi-star text-warning me-2"></i>Đánh giá</h3>
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <span class="display-4 fw-black text-warning"><%= parseFloat(stats.avg_rating).toFixed(1) %></span>
+                        <div>
+                            <div class="text-warning">
+                                <% for (let i = 0; i < 5; i++) { %>
+                                    <i class="bi bi-star<%= i < Math.round(stats.avg_rating) ? '-fill' : '' %>"></i>
+                                <% } %>
+                            </div>
+                            <small class="text-muted"><%= stats.completed || 0 %> lượt hoàn thành</small>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+            </div>
+
+            <!-- Sidebar: Booking Form -->
+            <div class="col-lg-5">
+                <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 100px;">
+                    <h4 class="fw-bold mb-4 text-center"><i class="bi bi-calendar-check me-2"></i>Đăng ký tham gia</h4>
+                    
+                    <% if (user) { %>
+                        <form id="bookingForm">
+                            <input type="hidden" name="workshop_id" value="<%= workshop.id %>">
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Ngày tham gia</label>
+                                <input type="date" class="form-control rounded-3" name="booking_date" required 
+                                       min="<%= new Date().toISOString().split('T')[0] %>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Giờ</label>
+                                <select class="form-select rounded-3" name="booking_time">
+                                    <option value="08:00">08:00 Sáng</option>
+                                    <option value="09:00">09:00 Sáng</option>
+                                    <option value="14:00">14:00 Chiều</option>
+                                    <option value="15:00">15:00 Chiều</option>
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Số người</label>
+                                <input type="number" class="form-control rounded-3" name="num_people" value="1" min="1" max="<%= workshop.max_participants %>">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Ghi chú</label>
+                                <textarea class="form-control rounded-3" name="note" rows="2" placeholder="Yêu cầu đặc biệt..."></textarea>
+                            </div>
+
+                            <div class="p-3 bg-light rounded-3 mb-3">
+                                <div class="d-flex justify-content-between">
+                                    <span>Giá</span>
+                                    <span class="fw-bold" id="totalPrice"><%= workshop.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %></span>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-premium btn-lg w-100 rounded-pill" id="btnBook">
+                                <i class="bi bi-check-circle me-2"></i>Đăng Ký Ngay
+                            </button>
+                        </form>
+
+                        <div id="bookingResult" class="mt-3 d-none"></div>
+                    <% } else { %>
+                        <div class="text-center py-4">
+                            <i class="bi bi-person-circle display-3 text-muted"></i>
+                            <p class="mt-3 text-muted">Đăng nhập để đặt chỗ workshop</p>
+                            <a href="/auth/login" class="btn btn-premium rounded-pill px-5">Đăng nhập</a>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- My Bookings -->
+                <% if (userBookings && userBookings.length > 0) { %>
+                <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-ticket-perforated me-2"></i>Vé của bạn</h5>
+                    <% userBookings.forEach(b => { %>
+                        <div class="p-3 bg-light rounded-3 mb-2">
+                            <div class="d-flex justify-content-between">
+                                <span class="fw-bold"><%= new Date(b.booking_date).toLocaleDateString('vi-VN') %></span>
+                                <span class="badge bg-<%= b.status === 'confirmed' ? 'success' : b.status === 'completed' ? 'primary' : 'warning' %> rounded-pill"><%= b.status %></span>
+                            </div>
+                            <small class="text-muted">Mã: <%= b.qr_ticket %></small>
+                        </div>
+                    <% }); %>
+                </div>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</section>
+
+<%- typeof scripts !== 'undefined' ? '' : '' %>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('bookingForm');
+    if (!form) return;
+
+    const pricePerPerson = <%= workshop.price %>;
+    const numInput = form.querySelector('[name="num_people"]');
+    const totalEl = document.getElementById('totalPrice');
+
+    numInput?.addEventListener('input', () => {
+        const total = pricePerPerson * parseInt(numInput.value || 1);
+        totalEl.textContent = total === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(total) + 'đ';
+    });
+
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('btnBook');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+        try {
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            const res = await axios.post('/api/workshop/book', data);
+            
+            const resultEl = document.getElementById('bookingResult');
+            resultEl.classList.remove('d-none');
+            
+            if (res.data.success) {
+                resultEl.innerHTML = `
+                    <div class="alert alert-success rounded-3">
+                        <i class="bi bi-check-circle-fill me-2"></i>${res.data.message}
+                    </div>`;
+                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đã đăng ký!';
+            } else {
+                resultEl.innerHTML = `<div class="alert alert-danger rounded-3">${res.data.message}</div>`;
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đăng Ký Ngay';
+            }
+        } catch (err) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đăng Ký Ngay';
+            alert('Lỗi: ' + (err.response?.data?.message || err.message));
+        }
+    });
+});
+</script>

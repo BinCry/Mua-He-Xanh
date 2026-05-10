@@ -6,8 +6,12 @@ class Festival extends Model {
     }
 
     async findAll() {
-        const [rows] = await this.db.query('SELECT * FROM festivals WHERE status != "cancelled" ORDER BY date ASC');
-        return rows;
+        try {
+            const [rows] = await this.db.query('SELECT * FROM festivals ORDER BY date ASC');
+            return rows;
+        } catch (e) {
+            return [];
+        }
     }
 
     async createBooking(data) {

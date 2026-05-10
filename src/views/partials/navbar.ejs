@@ -34,10 +34,13 @@
                             <a class="nav-link" href="/explore"><i class="bi bi-compass d-lg-none me-2"></i>Khám phá</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/festivals"><i class="bi bi-calendar-event d-lg-none me-2"></i>Lễ hội</a>
+                            <a class="nav-link" href="/workshops"><i class="bi bi-palette d-lg-none me-2"></i>Workshop</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="/market"><i class="bi bi-shop d-lg-none me-2"></i>Chợ OCOP</a>
+                            <a class="nav-link" href="/reviews"><i class="bi bi-chat-heart d-lg-none me-2"></i>Cộng đồng</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/market"><i class="bi bi-shop d-lg-none me-2"></i>OCOP</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/passport"><i class="bi bi-passport d-lg-none me-2"></i>Passport</a>
@@ -56,9 +59,15 @@
                                     <span class="d-none d-lg-inline small fw-bold"><%= user.full_name %></span>
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2 mt-3 w-100">
-                                    <li><a class="dropdown-item py-2 rounded-3" href="/summary"><i class="bi bi-person me-2"></i>Hồ sơ du khách</a></li>
-                                    <% if (user.role === 'admin' || user.role === 'manager') { %>
-                                        <li><a class="dropdown-item py-2 rounded-3" href="/manager"><i class="bi bi-speedometer2 me-2"></i>Trang Quản lý</a></li>
+                                    <li><a class="dropdown-item py-2 rounded-3" href="/profile"><i class="bi bi-person me-2"></i>Hồ sơ du khách</a></li>
+                                    <li><a class="dropdown-item py-2 rounded-3" href="/my-workshops"><i class="bi bi-ticket-perforated me-2"></i>Workshop của tôi</a></li>
+                                    <li><a class="dropdown-item py-2 rounded-3" href="/profile/rewards"><i class="bi bi-gift me-2"></i>Điểm thưởng</a></li>
+                                    <% if (user.role === 'manager' || user.role === 'admin') { %>
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item py-2 rounded-3" href="/manager"><i class="bi bi-speedometer2 me-2"></i>Quản lý Địa điểm</a></li>
+                                    <% } %>
+                                    <% if (user.role === 'admin') { %>
+                                        <li><a class="dropdown-item py-2 rounded-3 text-primary fw-bold" href="/admin"><i class="bi bi-shield-check me-2"></i>Admin Dashboard</a></li>
                                     <% } %>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item py-2 rounded-3 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>

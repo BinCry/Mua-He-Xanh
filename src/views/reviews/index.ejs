@@ -1,0 +1,143 @@
+<% /* Reviews / Social Feed - Chương 5.13 */ %>
+
+<section class="hero-mini" style="background: linear-gradient(135deg, #e11d48, #be123c); padding: 100px 0 60px; color: white;">
+    <div class="container text-center">
+        <h1 class="display-4 fw-black" style="font-family: var(--font-display);">Cộng Đồng Du Khách</h1>
+        <p class="lead opacity-75">Chia sẻ trải nghiệm, kết nối cộng đồng</p>
+    </div>
+</section>
+
+<section class="py-5">
+    <div class="container" style="max-width: 800px;">
+        
+        <!-- Post Form -->
+        <% if (user) { %>
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
+            <form id="reviewForm">
+                <div class="d-flex gap-3 mb-3">
+                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width:45px;height:45px;object-fit:cover;">
+                    <div class="flex-grow-1">
+                        <textarea class="form-control border-0 bg-light rounded-3" name="content" rows="3" placeholder="Chia sẻ trải nghiệm tại Bình Lợi..." required></textarea>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm rounded-pill" name="destination_id" style="width: auto;" required>
+                            <option value="">📍 Chọn địa điểm</option>
+                            <% destinations.forEach(d => { %>
+                                <option value="<%= d.id %>"><%= d.name %></option>
+                            <% }); %>
+                        </select>
+                        <select class="form-select form-select-sm rounded-pill" name="rating" style="width: auto;">
+                            <option value="5">⭐⭐⭐⭐⭐</option>
+                            <option value="4">⭐⭐⭐⭐</option>
+                            <option value="3">⭐⭐⭐</option>
+                            <option value="2">⭐⭐</option>
+                            <option value="1">⭐</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary rounded-pill px-4">
+                        <i class="bi bi-send me-1"></i>Đăng
+                    </button>
+                </div>
+            </form>
+        </div>
+        <% } %>
+
+        <!-- Feed -->
+        <% if (reviews.length === 0) { %>
+            <div class="text-center py-5">
+                <i class="bi bi-chat-heart display-1 text-muted"></i>
+                <p class="text-muted mt-3">Chưa có bài đăng nào. Hãy là người đầu tiên chia sẻ!</p>
+            </div>
+        <% } %>
+
+        <% reviews.forEach(r => { %>
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 reveal-up">
+            <div class="d-flex gap-3 mb-3">
+                <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width:45px;height:45px;object-fit:cover;">
+                <div>
+                    <span class="fw-bold"><%= r.full_name %></span>
+                    <br>
+                    <small class="text-muted">
+                        <i class="bi bi-geo-alt me-1"></i><%= r.destination_name || 'Bình Lợi' %>
+                        · <%= new Date(r.created_at).toLocaleDateString('vi-VN') %>
+                    </small>
+                </div>
+                <div class="ms-auto">
+                    <span class="text-warning">
+                        <% for (let i = 0; i < (r.rating || 5); i++) { %><i class="bi bi-star-fill"></i><% } %>
+                    </span>
+                </div>
+            </div>
+
+            <p class="mb-3"><%= r.content %></p>
+
+            <div class="d-flex gap-3">
+                <button class="btn btn-sm btn-outline-danger rounded-pill like-btn" data-id="<%= r.id %>">
+                    <i class="bi bi-heart<%= r.isLiked ? '-fill' : '' %> me-1"></i>
+                    <span class="like-count"><%= r.likes_count || 0 %></span>
+                </button>
+                <button class="btn btn-sm btn-outline-primary rounded-pill" onclick="toggleComment('<%= r.id %>')">
+                    <i class="bi bi-chat me-1"></i>Bình luận
+                </button>
+            </div>
+
+            <!-- Comment Form -->
+            <div class="comment-section d-none mt-3 pt-3 border-top" id="comments-<%= r.id %>">
+                <% if (user) { %>
+                <form class="d-flex gap-2 mb-2" onsubmit="postComment(event, '<%= r.id %>')">
+                    <input type="text" class="form-control form-control-sm rounded-pill" placeholder="Viết bình luận..." required>
+                    <button type="submit" class="btn btn-sm btn-primary rounded-pill px-3"><i class="bi bi-send"></i></button>
+                </form>
+                <% } %>
+            </div>
+        </div>
+        <% }); %>
+    </div>
+</section>
+
+<script>
+document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData);
+    try {
+        const res = await axios.post('/api/reviews', data);
+        if (res.data.success) { location.reload(); }
+        else { alert(res.data.message); }
+    } catch (err) { alert('Lỗi: ' + (err.response?.data?.message || err.message)); }
+});
+
+document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const reviewId = btn.dataset.id;
+        try {
+            const res = await axios.post('/api/reviews/like', { review_id: reviewId });
+            if (res.data.success) {
+                const icon = btn.querySelector('i');
+                const count = btn.querySelector('.like-count');
+                icon.className = res.data.liked ? 'bi bi-heart-fill me-1' : 'bi bi-heart me-1';
+                count.textContent = parseInt(count.textContent) + (res.data.liked ? 1 : -1);
+            }
+        } catch (err) { console.error(err); }
+    });
+});
+
+function toggleComment(id) {
+    document.getElementById('comments-' + id)?.classList.toggle('d-none');
+}
+
+async function postComment(e, reviewId) {
+    e.preventDefault();
+    const input = e.target.querySelector('input');
+    try {
+        await axios.post('/api/reviews/comment', { review_id: reviewId, content: input.value });
+        input.value = '';
+        const div = document.createElement('div');
+        div.className = 'small text-muted mt-1';
+        div.textContent = '✅ Đã bình luận!';
+        e.target.after(div);
+    } catch (err) { console.error(err); }
+}
+</script>

@@ -1,0 +1,146 @@
+<% /* Admin Dashboard - Chương 7: Hệ thống Admin Tổng */ %>
+<% /* Pattern: Relioo superAdminDashboard */ %>
+
+<section class="py-4" style="margin-top: 80px; background: #f8f9fa; min-height: 100vh;">
+    <div class="container-fluid px-4">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h2 class="fw-black mb-0">🏠 Bảng Điều Khiển Admin</h2>
+                <small class="text-muted">Tổng quan hệ sinh thái du lịch Bình Lợi</small>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/admin/users" class="btn btn-outline-primary rounded-pill"><i class="bi bi-people me-1"></i>Users</a>
+                <a href="/admin/workshops" class="btn btn-outline-success rounded-pill"><i class="bi bi-palette me-1"></i>Workshops</a>
+                <a href="/admin/reviews" class="btn btn-outline-warning rounded-pill"><i class="bi bi-chat me-1"></i>Reviews</a>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <i class="bi bi-people display-5 text-primary"></i>
+                    <div class="display-6 fw-black mt-2"><%= stats.users %></div>
+                    <small class="text-muted">Người dùng</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <i class="bi bi-geo-alt display-5 text-success"></i>
+                    <div class="display-6 fw-black mt-2"><%= stats.destinations %></div>
+                    <small class="text-muted">Địa điểm</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <i class="bi bi-qr-code display-5 text-warning"></i>
+                    <div class="display-6 fw-black mt-2"><%= stats.checkins %></div>
+                    <small class="text-muted">Check-in</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <i class="bi bi-palette display-5 text-info"></i>
+                    <div class="display-6 fw-black mt-2"><%= stats.workshops %></div>
+                    <small class="text-muted">Workshop</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <i class="bi bi-calendar-check display-5 text-purple" style="color: #7c3aed;"></i>
+                    <div class="display-6 fw-black mt-2"><%= stats.bookings %></div>
+                    <small class="text-muted">Lượt đặt WS</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <i class="bi bi-chat-heart display-5 text-danger"></i>
+                    <div class="display-6 fw-black mt-2"><%= stats.reviews %></div>
+                    <small class="text-muted">Đánh giá</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <i class="bi bi-shop display-5 text-orange" style="color: #ea580c;"></i>
+                    <div class="display-6 fw-black mt-2"><%= stats.products %></div>
+                    <small class="text-muted">Sản phẩm OCOP</small>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center bg-success bg-opacity-10">
+                    <i class="bi bi-currency-dollar display-5 text-success"></i>
+                    <div class="display-6 fw-black mt-2"><%= new Intl.NumberFormat('vi-VN').format((stats.workshopRevenue || 0) + (stats.ocopRevenue || 0)) %>đ</div>
+                    <small class="text-muted">Tổng doanh thu</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Top Destinations -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-trophy text-warning me-2"></i>Top Địa Điểm</h5>
+                    <% topDests.forEach((d, i) => { %>
+                        <div class="d-flex align-items-center gap-3 mb-3 p-2 rounded-3 bg-light">
+                            <span class="badge bg-primary rounded-circle p-2" style="width: 35px; height: 35px; line-height: 20px;"><%= i + 1 %></span>
+                            <div class="flex-grow-1">
+                                <span class="fw-bold"><%= d.name %></span>
+                            </div>
+                            <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill"><%= d.checkin_count %> check-in</span>
+                        </div>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Recent Users -->
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-person-plus text-primary me-2"></i>Người dùng mới</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="table-light"><tr><th>Tên</th><th>Email</th><th>Vai trò</th><th>Ngày</th></tr></thead>
+                            <tbody>
+                                <% recentUsers.slice(0, 5).forEach(u => { %>
+                                <tr>
+                                    <td class="d-flex align-items-center gap-2">
+                                        <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width:30px;height:30px;object-fit:cover;">
+                                        <span class="fw-bold"><%= u.full_name %></span>
+                                    </td>
+                                    <td class="text-muted"><%= u.email %></td>
+                                    <td><span class="badge bg-<%= u.role === 'admin' ? 'danger' : u.role === 'manager' ? 'warning' : 'primary' %> rounded-pill"><%= u.role || 'user' %></span></td>
+                                    <td class="text-muted"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Bookings -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h5 class="fw-bold mb-3"><i class="bi bi-ticket-perforated text-success me-2"></i>Đặt Workshop Gần Đây</h5>
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="table-light"><tr><th>Du khách</th><th>Workshop</th><th>Ngày</th><th>Số người</th><th>Trạng thái</th><th>Mã vé</th></tr></thead>
+                            <tbody>
+                                <% recentBookings.forEach(b => { %>
+                                <tr>
+                                    <td class="fw-bold"><%= b.user_name %></td>
+                                    <td><%= b.workshop_title %></td>
+                                    <td><%= new Date(b.booking_date).toLocaleDateString('vi-VN') %></td>
+                                    <td><%= b.num_people %></td>
+                                    <td><span class="badge bg-<%= b.status === 'confirmed' ? 'success' : b.status === 'completed' ? 'primary' : 'warning' %> rounded-pill"><%= b.status %></span></td>
+                                    <td><code class="small"><%= b.qr_ticket %></code></td>
+                                </tr>
+                                <% }); %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

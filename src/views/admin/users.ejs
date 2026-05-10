@@ -1,0 +1,120 @@
+<% /* Admin Users - Chương 7 (Pattern: Relioo Admin users.php) */ %>
+
+<section class="py-4" style="margin-top: 80px; background: #f8f9fa; min-height: 100vh;">
+    <div class="container-fluid px-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <a href="/admin" class="text-decoration-none text-muted small"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
+                <h2 class="fw-black mb-0 mt-1">👥 Quản lý Người dùng</h2>
+            </div>
+            <form class="d-flex gap-2" action="/admin/users" method="GET">
+                <input type="text" class="form-control rounded-pill" name="q" value="<%= searchQuery %>" placeholder="Tìm theo tên, email...">
+                <button class="btn btn-primary rounded-pill px-4"><i class="bi bi-search"></i></button>
+            </form>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Người dùng</th>
+                            <th>Email</th>
+                            <th>Vai trò</th>
+                            <th>Địa điểm quản lý</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% users.forEach(u => { %>
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;">
+                                    <div>
+                                        <span class="fw-bold"><%= u.full_name %></span>
+                                        <br><small class="text-muted"><%= u.id.substring(0,8) %>...</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><%= u.email || '-' %></td>
+                            <td>
+                                <select class="form-select form-select-sm rounded-pill" style="width: 140px;" onchange="updateUser('<%= u.id %>', 'role_id', this.value)">
+                                    <% roles.forEach(r => { %>
+                                        <option value="<%= r.id %>" <%= u.role_id == r.id ? 'selected' : '' %>><%= r.role_name %></option>
+                                    <% }); %>
+                                </select>
+                            </td>
+                            <td>
+                                <select class="form-select form-select-sm rounded-pill" style="width: 160px;" onchange="updateUser('<%= u.id %>', 'managed_destination_id', this.value)">
+                                    <option value="">-- Không --</option>
+                                    <% destinations.forEach(d => { %>
+                                        <option value="<%= d.id %>" <%= u.managed_destination_id == d.id ? 'selected' : '' %>><%= d.name %></option>
+                                    <% }); %>
+                                </select>
+                            </td>
+                            <td>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" <%= u.is_active ? 'checked' : '' %> onchange="updateUser('<%= u.id %>', 'is_active', this.checked ? 1 : 0)">
+                                </div>
+                            </td>
+                            <td>
+                                <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="deleteUser('<%= u.id %>', '<%= u.full_name %>')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <% if (totalPages > 1) { %>
+            <div class="d-flex justify-content-center p-3">
+                <nav>
+                    <ul class="pagination mb-0">
+                        <% for (let p = 1; p <= totalPages; p++) { %>
+                            <li class="page-item <%= p === currentPage ? 'active' : '' %>">
+                                <a class="page-link rounded-pill mx-1" href="/admin/users?page=<%= p %>&q=<%= searchQuery %>"><%= p %></a>
+                            </li>
+                        <% } %>
+                    </ul>
+                </nav>
+            </div>
+            <% } %>
+        </div>
+    </div>
+</section>
+
+<script>
+async function updateUser(id, field, value) {
+    try {
+        const data = { id };
+        data[field] = value;
+        const res = await axios.post('/api/admin/update-user', data);
+        if (res.data.success) {
+            // Brief success flash
+            const toast = document.createElement('div');
+            toast.className = 'position-fixed bottom-0 end-0 m-3 alert alert-success shadow-lg rounded-3';
+            toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + res.data.message;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2000);
+        }
+    } catch (err) {
+        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+}
+
+async function deleteUser(id, name) {
+    if (!confirm(`Xóa người dùng "${name}"? Hành động này không thể hoàn tác.`)) return;
+    try {
+        const res = await axios.post('/api/admin/delete-user', { id });
+        if (res.data.success) location.reload();
+        else alert(res.data.message);
+    } catch (err) {
+        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+}
+</script>
