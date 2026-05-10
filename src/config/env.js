@@ -1,5 +1,5 @@
 const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+const dotenvResult = require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const calculatedBaseUrl = process.env.NODE_ENV === 'production' 
     ? (process.env.BASE_URL || 'https://binh-loi-healing.onrender.com') 

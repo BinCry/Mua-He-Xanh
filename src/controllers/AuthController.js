@@ -5,9 +5,11 @@ const { v4: uuidv4 } = require('uuid');
 const AuthController = {
     
     loginPage: (req, res) => {
+        const config = require('../config/env');
         res.render('auth/login', {
             title: 'Đăng nhập - Bình Lợi Healing',
-            error: req.query.error || null
+            error: req.query.error || null,
+            facebookConfigured: !!(config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID')
         });
     },
 
