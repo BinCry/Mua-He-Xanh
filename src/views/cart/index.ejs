@@ -1,0 +1,116 @@
+<% /* Cart Page - Chương 5.12 */ %>
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container" style="max-width: 900px;">
+        <h2 class="fw-black mb-4"><i class="bi bi-cart3 text-primary me-2"></i>Giỏ hàng OCOP</h2>
+
+        <% if (items.length === 0) { %>
+            <div class="text-center py-5">
+                <i class="bi bi-cart display-1 text-muted"></i>
+                <p class="text-muted mt-3">Giỏ hàng trống</p>
+                <a href="/market" class="btn btn-premium rounded-pill px-5">Mua sắm OCOP</a>
+            </div>
+        <% } else { %>
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light"><tr><th>Sản phẩm</th><th>Giá</th><th>Số lượng</th><th>Tổng</th><th></th></tr></thead>
+                        <tbody>
+                            <% items.forEach(item => { %>
+                            <tr id="item-<%= item.id %>">
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="<%= fixImg(item.image) %>" class="rounded-3" style="width:60px;height:60px;object-fit:cover;">
+                                        <div>
+                                            <span class="fw-bold"><%= item.name %></span>
+                                            <br><small class="text-muted"><%= item.origin || item.category || '' %></small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><%= new Intl.NumberFormat('vi-VN').format(item.price) %>đ</td>
+                                <td style="width: 120px;">
+                                    <div class="input-group input-group-sm">
+                                        <button class="btn btn-outline-secondary" onclick="updateQty('<%= item.id %>', <%= item.quantity - 1 %>)">-</button>
+                                        <input type="text" class="form-control text-center" value="<%= item.quantity %>" readonly>
+                                        <button class="btn btn-outline-secondary" onclick="updateQty('<%= item.id %>', <%= item.quantity + 1 %>)">+</button>
+                                    </div>
+                                </td>
+                                <td class="fw-bold"><%= new Intl.NumberFormat('vi-VN').format(item.price * item.quantity) %>đ</td>
+                                <td><button class="btn btn-sm btn-outline-danger rounded-pill" onclick="removeItem('<%= item.id %>')"><i class="bi bi-trash"></i></button></td>
+                            </tr>
+                            <% }); %>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Checkout -->
+            <div class="card border-0 shadow-lg rounded-4 p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h4 class="fw-bold mb-0">Tổng cộng</h4>
+                    <h3 class="fw-black text-primary mb-0"><%= new Intl.NumberFormat('vi-VN').format(total) %>đ</h3>
+                </div>
+                <form id="checkoutForm">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Nơi nhận hàng</label>
+                        <select class="form-select rounded-3" name="pickup_location">
+                            <option value="Chợ OCOP Bình Lợi">Chợ OCOP Bình Lợi</option>
+                            <option value="Vườn Mai Bình Lợi">Vườn Mai Bình Lợi</option>
+                            <option value="Xưởng Nhang Minh">Xưởng Nhang Minh</option>
+                            <option value="Chùa Thanh Tâm">Chùa Thanh Tâm</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Ghi chú</label>
+                        <textarea class="form-control rounded-3" name="note" rows="2" placeholder="Yêu cầu đặc biệt..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-premium btn-lg w-100 rounded-pill" id="btnCheckout">
+                        <i class="bi bi-bag-check me-2"></i>Đặt hàng
+                    </button>
+                </form>
+                <div id="checkoutResult" class="mt-3 d-none"></div>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<script>
+async function updateQty(itemId, qty) {
+    try {
+        await axios.post('/api/cart/update', { item_id: itemId, quantity: qty });
+        location.reload();
+    } catch(e) { alert('Lỗi'); }
+}
+
+async function removeItem(itemId) {
+    try {
+        await axios.post('/api/cart/remove', { item_id: itemId });
+        document.getElementById('item-' + itemId)?.remove();
+        location.reload();
+    } catch(e) { alert('Lỗi'); }
+}
+
+document.getElementById('checkoutForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnCheckout');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+    try {
+        const formData = new FormData(e.target);
+        const res = await axios.post('/api/cart/checkout', Object.fromEntries(formData));
+        const resultEl = document.getElementById('checkoutResult');
+        resultEl.classList.remove('d-none');
+        if (res.data.success) {
+            resultEl.innerHTML = `<div class="alert alert-success rounded-3"><i class="bi bi-check-circle-fill me-2"></i>${res.data.message}</div>`;
+            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đã đặt!';
+        } else {
+            resultEl.innerHTML = `<div class="alert alert-danger rounded-3">${res.data.message}</div>`;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-bag-check me-2"></i>Đặt hàng';
+        }
+    } catch(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-bag-check me-2"></i>Đặt hàng';
+        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+});
+</script>

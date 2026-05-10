@@ -22,6 +22,7 @@ const WorkshopController = require('../controllers/WorkshopController');
 const ProfileController = require('../controllers/ProfileController');
 const AdminController = require('../controllers/AdminController');
 const ReviewController = require('../controllers/ReviewController');
+const CartController = require('../controllers/CartController');
 
 // Middleware
 const { ensureAuthenticated, ensureManager, ensureAdmin, restrictToManagers } = require('../middleware/auth');
@@ -31,6 +32,11 @@ router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
 router.get('/checkin', CheckinController.index);
 router.get('/market', MarketController.index);
+router.get('/market/:id', MarketController.detail);
+
+// ===== CART & ORDERS (Chương 5.12) =====
+router.get('/cart', ensureAuthenticated, CartController.index);
+router.get('/my-orders', ensureAuthenticated, CartController.orders);
 router.get('/festivals', FestivalController.index);
 router.get('/map', MapController.index);
 router.get('/explore', ExploreController.list);
@@ -128,6 +134,12 @@ router.post('/api/reviews/comment', ensureAuthenticated, ReviewController.commen
 
 // Profile API (Chương 5.15)
 router.post('/api/redeem-reward', ensureAuthenticated, ProfileController.redeemReward);
+
+// Cart API (Chương 5.12)
+router.post('/api/cart/add', ensureAuthenticated, CartController.add);
+router.post('/api/cart/update', ensureAuthenticated, CartController.update);
+router.post('/api/cart/remove', ensureAuthenticated, CartController.remove);
+router.post('/api/cart/checkout', ensureAuthenticated, CartController.checkout);
 
 // Admin API (Chương 7 - Pattern Relioo apiUpdateUser, apiDeleteUser)
 router.post('/api/admin/update-user', ensureAdmin, AdminController.updateUser);

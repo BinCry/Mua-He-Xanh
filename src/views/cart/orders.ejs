@@ -1,0 +1,39 @@
+<% /* My Orders - Chương 5.12 */ %>
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container" style="max-width: 900px;">
+        <h2 class="fw-black mb-4"><i class="bi bi-bag text-primary me-2"></i>Đơn hàng của tôi</h2>
+        <% if (orders.length === 0) { %>
+            <div class="text-center py-5">
+                <i class="bi bi-bag-x display-1 text-muted"></i>
+                <p class="text-muted mt-3">Chưa có đơn hàng nào</p>
+                <a href="/market" class="btn btn-premium rounded-pill px-5">Mua sắm OCOP</a>
+            </div>
+        <% } else { %>
+            <% orders.forEach(o => { %>
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-1">Đơn #<%= o.id.substring(0,8).toUpperCase() %></h5>
+                        <small class="text-muted"><%= new Date(o.created_at).toLocaleDateString('vi-VN') %> · <%= o.pickup_location %></small>
+                    </div>
+                    <span class="badge bg-<%= o.status === 'completed' ? 'success' : o.status === 'confirmed' ? 'primary' : o.status === 'ready' ? 'info' : o.status === 'cancelled' ? 'danger' : 'warning' %> rounded-pill px-3 py-2">
+                        <%= o.status === 'completed' ? 'Hoàn thành' : o.status === 'confirmed' ? 'Đã xác nhận' : o.status === 'ready' ? 'Sẵn sàng nhận' : o.status === 'cancelled' ? 'Đã hủy' : 'Chờ xác nhận' %>
+                    </span>
+                </div>
+                <% if (o.itemList && o.itemList.length > 0) { %>
+                    <% o.itemList.forEach(item => { %>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span><%= item.name %> x<%= item.quantity %></span>
+                            <span class="text-muted"><%= new Intl.NumberFormat('vi-VN').format(item.price * item.quantity) %>đ</span>
+                        </div>
+                    <% }); %>
+                <% } %>
+                <div class="d-flex justify-content-between mt-3 pt-2">
+                    <span class="fw-bold">Tổng cộng</span>
+                    <span class="fw-black text-primary"><%= new Intl.NumberFormat('vi-VN').format(o.total_amount) %>đ</span>
+                </div>
+            </div>
+            <% }); %>
+        <% } %>
+    </div>
+</section>

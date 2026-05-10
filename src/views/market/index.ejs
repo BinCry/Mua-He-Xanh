@@ -178,6 +178,11 @@
         
         renderCart();
         
+        // Save to server cart too
+        try {
+            await axios.post('/api/cart/add', { product_id: id, quantity: 1 });
+        } catch(e) { /* fallback to client cart */ }
+
         // Notification
         const btn = document.querySelector(`[onclick="addToCart(${id}, '${name}', ${price}, '${img}')"]`);
         const originalHtml = btn.innerHTML;
@@ -245,10 +250,7 @@
 
     function checkout() {
         if(cart.length === 0) return alert('Giỏ hàng trống!');
-        alert('Cảm ơn bạn đã mua hàng OCOP! Chức năng thanh toán đang được nâng cấp.');
-        cart = [];
-        renderCart();
-        bootstrap.Offcanvas.getInstance(document.getElementById('cartOffcanvas')).hide();
+        window.location.href = '/cart';
     }
 </script>
 
