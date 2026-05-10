@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const passport = require('passport');
+const config = require('../config/env');
 const HomeController = require('../controllers/HomeController');
 const ApiController = require('../controllers/ApiController');
 
@@ -44,16 +45,36 @@ router.post('/manager/update', ensureManager, ManagerController.updateDestinatio
 
 // Auth Routes
 router.get('/auth/login', AuthController.loginPage);
-router.post('/auth/login', AuthController.handleLogin);
+router.post('/auth/register', AuthController.handleRegister);
+router.post('/auth/login', passport.authenticate('local', { failureRedirect: '/auth/login?error=Sai email hoặc mật khẩu' }), AuthController.oauthCallback);
+router.post('/auth/bypass', AuthController.devBypass);
 router.post('/auth/social', AuthController.handleSocialLogin);
 router.get('/auth/logout', AuthController.logout);
 
 // Real OAuth Routes
-router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
-router.get('/auth/google/callback', passport.authenticate('google', { failureRedirect: '/auth/login' }), AuthController.oauthCallback);
+router.get('/auth/google', (req, res, next) => {
+    if (!config.auth.google.clientId || config.auth.google.clientId === 'MISSING_CLIENT_ID') {
+        return res.redirect('/auth/login?error=Lỗi cấu hình Google: Thiếu Client ID trên Server.');
+    }
+    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+});
 
-router.get('/auth/facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email'] }));
-router.get('/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/auth/login' }), AuthController.oauthCallback);
+router.get('/auth/google/callback', 
+    passport.authenticate('google', { failureRedirect: '/auth/login' }), 
+    AuthController.oauthCallback
+);
+
+router.get('/auth/facebook', (req, res, next) => {
+    if (!config.auth.facebook.appId || config.auth.facebook.appId === 'MISSING_APP_ID') {
+        return res.redirect('/auth/login?error=Lỗi cấu hình Facebook: Thiếu App ID trên Server.');
+    }
+    passport.authenticate('facebook', { scope: ['public_profile', 'email'] })(req, res, next);
+});
+
+router.get('/auth/facebook/callback', 
+    passport.authenticate('facebook', { failureRedirect: '/auth/login' }), 
+    AuthController.oauthCallback
+);
 
 // API Routes
 router.all('/api/session', ApiController.session);
@@ -64,5 +85,6 @@ router.post('/api/journey/update-stop', ApiController.updateJourneyStop);
 router.post('/api/checkin', ApiController.checkin);
 router.post('/api/send-message', ApiController.sendMessage);
 router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
+router.post('/api/festival/book', FestivalController.book);
 
 module.exports = router;

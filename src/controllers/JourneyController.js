@@ -1,5 +1,6 @@
 const UserSession = require('../models/UserSession');
 const Journey = require('../models/Journey');
+const Destination = require('../models/Destination');
 
 class JourneyController {
     async index(req, res) {
@@ -52,33 +53,34 @@ class JourneyController {
             const session = await UserSession.findByUuid(uuid);
             if (!session || !session.mood) return res.redirect('/onboarding');
 
+            const mood = session.mood || 'all';
             const suggestions = [
                 {
                     id: 'opt1',
-                    name: 'Hành trình "Sâu sắc bản địa"',
-                    desc: 'Tập trung vào các làng nghề truyền thống và trải nghiệm văn hóa địa phương.',
+                    name: 'Hành trình "Khám phá bản địa"',
+                    desc: 'Tập trung vào các làng nghề truyền thống và văn hóa đặc trưng.',
                     tags: ['Văn hóa', 'Làng nghề'],
                     duration: '4-5 tiếng',
-                    km: 12,
-                    stops: await Journey.getRandomStops(session.mood, 3)
+                    km: 8.5,
+                    stops: await Destination.getForJourney(mood, ['craft'], [])
                 },
                 {
                     id: 'opt2',
-                    name: 'Hành trình "Chữa lành sinh thái"',
-                    desc: 'Sự kết hợp hoàn hảo giữa không gian xanh và sự tĩnh lặng.',
-                    tags: ['Sinh thái', 'Tâm linh'],
+                    name: 'Hành trình "Chữa lành & Xanh"',
+                    desc: 'Sự kết hợp hoàn hảo giữa không gian xanh và sự tĩnh lặng của thiên nhiên.',
+                    tags: ['Sinh thái', 'Thiên nhiên'],
                     duration: '6 tiếng',
-                    km: 15,
-                    stops: await Journey.getRandomStops('peace', 4)
+                    km: 12.2,
+                    stops: await Destination.getForJourney(mood, ['nature'], [])
                 },
                 {
                     id: 'opt3',
-                    name: 'Hành trình "Khám phá trọn vẹn"',
-                    desc: 'Dành cho những ai muốn đi hết các điểm nổi bật trong một ngày.',
-                    tags: ['Tổng hợp', 'Gia đình'],
-                    duration: '8 tiếng',
-                    km: 22,
-                    stops: await Journey.getRandomStops('all', 5)
+                    name: 'Hành trình "Tâm linh & Nguồn cội"',
+                    desc: 'Dành cho những ai tìm kiếm sự bình an tại các ngôi chùa cổ kính.',
+                    tags: ['Tâm linh', 'Lịch sử'],
+                    duration: '5 tiếng',
+                    km: 6.8,
+                    stops: await Destination.getForJourney(mood, ['temple'], [])
                 }
             ];
 

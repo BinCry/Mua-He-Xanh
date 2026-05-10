@@ -11,31 +11,75 @@ const AuthController = {
         });
     },
 
-    handleLogin: async (req, res) => {
+    handleRegister: async (req, res) => {
         try {
-            console.log("LOGIN DEBUG - Start");
-            const { email, password } = req.body;
-            
-            if (!email || !password) {
-                return res.redirect('/auth/login?error=Vui lòng nhập đầy đủ thông tin');
+            const { fullName, email, password } = req.body;
+            if (!email || !password || !fullName) {
+                return res.redirect('/auth/login?error=Vui lòng điền đầy đủ thông tin');
             }
 
-            const user = await User.findByEmail(email);
-            console.log("LOGIN DEBUG - User lookup done:", user ? user.email : "Not found");
+            const existingUser = await User.findByEmail(email);
+            if (existingUser) {
+                return res.redirect('/auth/login?error=Email này đã được sử dụng');
+            }
 
-            if (user && user.password === password) {
-                await AuthController.establishSession(req, res, user);
-                
-                if (user.role === 'admin' || user.role === 'manager') {
-                    return res.redirect('/manager');
-                }
+            const bcrypt = require('bcryptjs');
+            const salt = await bcrypt.genSalt(10);
+            const hashedPassword = await bcrypt.hash(password, salt);
+
+            const newUser = {
+                id: uuidv4(),
+                full_name: fullName,
+                email: email,
+                password: hashedPassword,
+                role: 'user',
+                points: 0
+            };
+
+            await UserSession.db.query(
+                'INSERT INTO users (id, full_name, email, password, role, points) VALUES (?, ?, ?, ?, ?, ?)',
+                [newUser.id, newUser.full_name, newUser.email, newUser.password, newUser.role, newUser.points]
+            );
+
+            // Log them in immediately
+            req.login(newUser, async (err) => {
+                if (err) return res.redirect('/auth/login?error=Lỗi đăng nhập sau khi đăng ký');
+                await AuthController.establishSession(req, res, newUser);
                 return res.redirect('/summary');
-            }
-            
-            res.redirect('/auth/login?error=Sai email hoặc mật khẩu');
+            });
         } catch (error) {
-            console.error("LOGIN DEBUG - CRITICAL ERROR:", error);
-            res.status(500).send("Lỗi đăng nhập: " + error.message);
+            console.error("Register Error:", error);
+            res.redirect('/auth/login?error=Lỗi hệ thống khi đăng ký');
+        }
+    },
+
+    devBypass: async (req, res) => {
+        try {
+            // Find or create an admin user
+            const [admins] = await UserSession.db.query("SELECT * FROM users WHERE role = 'admin' LIMIT 1");
+            let adminUser = admins[0];
+            
+            if (!adminUser) {
+                adminUser = {
+                    id: uuidv4(),
+                    full_name: 'Bypass Admin',
+                    email: 'admin@binhloi.local',
+                    role: 'admin',
+                    points: 9999
+                };
+                await UserSession.db.query(
+                    'INSERT INTO users (id, full_name, email, role, points) VALUES (?, ?, ?, ?, ?)',
+                    [adminUser.id, adminUser.full_name, adminUser.email, adminUser.role, adminUser.points]
+                );
+            }
+
+            req.login(adminUser, async (err) => {
+                if (err) return res.redirect('/auth/login?error=Bypass failed');
+                await AuthController.establishSession(req, res, adminUser);
+                return res.redirect('/manager'); // Admins go to manager
+            });
+        } catch (error) {
+            res.status(500).send(error.message);
         }
     },
 

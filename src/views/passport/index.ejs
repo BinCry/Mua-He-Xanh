@@ -1,142 +1,149 @@
-<div class="container py-5 mt-5">
-    <!-- Passport Header -->
-    <div class="glass-panel p-5 mb-5 overflow-hidden position-relative reveal-up">
-        <div class="row align-items-center position-relative" style="z-index: 5;">
-            <div class="col-md-2 text-center mb-4 mb-md-0">
-                <img src="<%= user.avatar || 'https://i.pravatar.cc/150?u=' + user.id %>" class="rounded-circle border border-5 border-white shadow-lg animate__animated animate__zoomIn" style="width: 140px; height: 140px; object-fit: cover;">
-            </div>
-            <div class="col-md-7">
-                <div class="d-flex align-items-center gap-2 mb-2">
-                    <span class="badge bg-primary px-3 py-2 rounded-pill text-uppercase" style="letter-spacing: 2px; font-size: 10px;">Lvl <%= stats.level %> Explorer</span>
-                    <span class="badge bg-mai text-dark px-3 py-2 rounded-pill text-uppercase" style="letter-spacing: 2px; font-size: 10px;">Premium Access</span>
-                </div>
-                <h1 class="display-3 fw-bold mb-1" style="font-family: var(--font-heading);"><%= user.full_name %></h1>
-                <p class="lead text-muted mb-0"><i class="bi bi-geo-alt-fill me-1 text-primary"></i>Người giữ hồn quê Bình Lợi</p>
-                <div class="d-flex gap-4 mt-4">
-                    <div class="text-start">
-                        <h4 class="fw-bold mb-0 text-primary"><%= stats.points.toLocaleString() %></h4>
-                        <small class="text-uppercase text-muted fw-bold" style="font-size: 10px;">Reward Points</small>
+<section class="passport-page min-vh-100 py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-xl-10">
+                <!-- Passport Cover / Identity Card -->
+                <div class="passport-card shadow-premium rounded-5 overflow-hidden position-relative mb-5">
+                    <div class="passport-header p-4 p-md-5 text-white d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-4">
+                        <div class="d-flex align-items-center gap-4">
+                            <div class="passport-avatar-wrapper">
+                                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="passport-avatar" alt="Avatar">
+                                <div class="level-badge"><%= level %></div>
+                            </div>
+                            <div>
+                                <h2 class="fw-black mb-1 text-uppercase letter-spacing-sm"><%= user.full_name %></h2>
+                                <p class="mb-0 opacity-75 fw-bold"><i class="bi bi-shield-check me-2"></i>Du khách hạng <%= level > 5 ? 'Elite' : 'Premium' %></p>
+                                <div class="passport-id mt-2 x-small opacity-50"><%= passportNum %></div>
+                            </div>
+                        </div>
+                        <div class="text-md-end">
+                            <div class="xp-label mb-1 x-small text-uppercase tracking-widest fw-bold opacity-75">Tiến trình Level</div>
+                            <div class="progress bg-white bg-opacity-20 rounded-pill mb-1" style="height: 10px; width: 200px;">
+                                <div class="progress-bar bg-warning" style="width: <%= progress %>%"></div>
+                            </div>
+                            <div class="x-small fw-bold text-white-50"><%= xp %> / <%= nextLevelXp %> XP</div>
+                        </div>
                     </div>
-                    <div class="border-start ps-4 text-start">
-                        <h4 class="fw-bold mb-0 text-primary"><%= stats.collected_count %>/<%= stats.total_stamps %></h4>
-                        <small class="text-uppercase text-muted fw-bold" style="font-size: 10px;">Stamps Collected</small>
-                    </div>
-                    <div class="border-start ps-4 text-start">
-                        <h4 class="fw-bold mb-0 text-primary"><%= badges.length %></h4>
-                        <small class="text-uppercase text-muted fw-bold" style="font-size: 10px;">Badges Earned</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 text-md-end mt-4 mt-md-0">
-                <button class="btn btn-premium rounded-pill px-4" onclick="window.print()">
-                    <i class="bi bi-printer me-2"></i>XUẤT PASSPORT
-                </button>
-            </div>
-        </div>
-        <i class="bi bi-globe-central-south-asia position-absolute top-50 end-0 text-primary opacity-05" style="font-size: 25rem; transform: translate(30%, -50%);"></i>
-    </div>
 
-    <div class="row g-5">
-        <!-- Stamp Collection -->
-        <div class="col-lg-8">
-            <div class="d-flex justify-content-between align-items-end mb-4 reveal-up">
-                <div>
-                    <h3 class="fw-bold mb-0" style="font-family: var(--font-heading);">Bộ sưu tập Stamp</h3>
-                    <p class="text-muted small mb-0">Quét mã QR tại các điểm đến thực tế để nhận dấu.</p>
-                </div>
-                <a href="/checkin" class="btn btn-outline-primary btn-sm rounded-pill px-4 fw-bold">QUÉT QR NGAY</a>
-            </div>
-            
-            <div class="row g-4 reveal-up">
-                <% stamps.forEach(stamp => { %>
-                <div class="col-md-4">
-                    <div class="card-healing p-4 text-center <%= stamp.is_collected ? 'border-primary shadow-lg' : 'opacity-40 grayscale border-dashed' %>" style="border: 2px dashed #ccc; transition: all 0.4s ease;">
-                        <div class="stamp-icon mb-3">
-                            <% if (stamp.is_collected) { %>
-                                <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto shadow-lg animate__animated animate__bounceIn" style="width: 80px; height: 80px; border: 5px double rgba(255,255,255,0.3);">
-                                    <i class="bi bi-patch-check-fill fs-2"></i>
+                    <div class="passport-body bg-white p-4 p-md-5">
+                        <div class="row g-4">
+                            <!-- Left: Stats & QR -->
+                            <div class="col-lg-4 border-end-md">
+                                <div class="text-center mb-4">
+                                    <div class="bg-light p-3 rounded-4 d-inline-block mb-3">
+                                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<%= user.id %>" class="img-fluid" alt="QR ID">
+                                    </div>
+                                    <h6 class="fw-bold mb-1">MÃ ĐỊNH DANH DU KHÁCH</h6>
+                                    <p class="x-small text-muted mb-0">Quét tại các điểm check-in để tích điểm</p>
                                 </div>
-                            <% } else { %>
-                                <div class="bg-light text-muted rounded-circle d-flex align-items-center justify-content-center mx-auto" style="width: 80px; height: 80px;">
-                                    <i class="bi bi-qr-code fs-2"></i>
+
+                                <div class="stats-grid row g-2">
+                                    <div class="col-6">
+                                        <div class="stat-item p-3 bg-light rounded-4 text-center">
+                                            <div class="h3 fw-black text-primary mb-0"><%= history.length %></div>
+                                            <div class="x-small text-muted text-uppercase fw-bold">Điểm đến</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="stat-item p-3 bg-light rounded-4 text-center">
+                                            <div class="h3 fw-black text-success mb-0"><%= unlockedBadges.length %></div>
+                                            <div class="x-small text-muted text-uppercase fw-bold">Huy hiệu</div>
+                                        </div>
+                                    </div>
                                 </div>
-                            <% } %>
-                        </div>
-                        <h6 class="fw-bold mb-1"><%= stamp.name %></h6>
-                        <p class="small text-muted mb-0">
-                            <%= stamp.is_collected ? 'Sưu tập: ' + new Date(stamp.collected_at).toLocaleDateString('vi-VN') : 'Chưa mở khóa' %>
-                        </p>
-                    </div>
-                <% }) %>
-                </div>
-            </div>
-        </div>
+                            </div>
 
-        <!-- Sidebar: Missions & Badges -->
-        <div class="col-lg-4">
-            <!-- Active Missions -->
-            <div class="glass-panel p-4 mb-5 reveal-up" style="background: rgba(26, 77, 46, 0.03);">
-                <h5 class="fw-bold mb-4 d-flex justify-content-between">
-                    Nhiệm vụ đang làm
-                    <span class="badge bg-primary rounded-pill"><%= missions.length %></span>
-                </h5>
-                <div class="d-flex flex-column gap-4">
-                    <% missions.forEach(mission => { %>
-                    <div>
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <h6 class="fw-bold mb-0" style="font-size: 14px;"><%= mission.name %></h6>
-                            <span class="badge bg-white text-primary border rounded-pill shadow-sm"><%= mission.reward %></span>
-                        </div>
-                        <p class="small text-muted mb-2"><%= mission.desc %></p>
-                        <div class="progress" style="height: 6px; border-radius: 10px;">
-                            <div class="progress-bar bg-primary" style="width: <%= mission.progress %>%"></div>
+                            <!-- Right: Badges & Rewards -->
+                            <div class="col-lg-8 ps-lg-5">
+                                <h5 class="fw-black mb-4 d-flex align-items-center gap-2">
+                                    <i class="bi bi-award-fill text-warning"></i> BỘ SƯU TẬP HUY HIỆU
+                                </h5>
+                                <div class="row g-3">
+                                    <% allBadges.forEach(badge => { 
+                                        const isUnlocked = unlockedBadges.some(ub => ub.badge_id === badge.id);
+                                    %>
+                                        <div class="col-md-4 col-6">
+                                            <div class="badge-card p-3 rounded-4 text-center h-100 <%= isUnlocked ? 'unlocked' : 'locked' %>">
+                                                <div class="badge-icon mb-2">
+                                                    <span class="fs-1"><%= badge.icon || '🏆' %></span>
+                                                </div>
+                                                <h6 class="small fw-bold mb-1"><%= badge.name %></h6>
+                                                <div class="x-small opacity-75"><%= isUnlocked ? 'Đã nhận' : 'Chưa mở' %></div>
+                                            </div>
+                                        </div>
+                                    <% }) %>
+                                </div>
+                                
+                                <div class="mt-5 p-4 bg-primary bg-opacity-10 border border-primary border-opacity-25 rounded-4">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="fs-1">🎁</div>
+                                        <div>
+                                            <h6 class="fw-black mb-1">ƯU ĐÃI THÀNH VIÊN</h6>
+                                            <p class="small text-muted mb-0">Bạn đang được giảm giá 5% khi mua sắm tại Chợ OCOP Bình Lợi.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <% }) %>
                 </div>
-            </div>
 
-            <!-- Badges Gallery -->
-            <h5 class="fw-bold mb-4 reveal-up">Huy hiệu vinh danh</h5>
-            <div class="row g-3 reveal-up">
-                <% if (badges && badges.length > 0) { %>
-                    <% badges.forEach(ub => { %>
-                    <div class="col-4 text-center">
-                        <div class="bg-white p-3 rounded-4 shadow-sm mb-2 hover-up">
-                            <img src="/images/badge-<%= ub.badge_id || 'default' %>.png" class="img-fluid" onerror="this.src='/images/badge-explorer.png'">
-                        </div>
-                        <small class="fw-bold d-block text-truncate"><%= ub.badge_name %></small>
+                <!-- Activity Timeline -->
+                <div class="timeline-section">
+                    <h4 class="fw-black mb-4 px-3">LỊCH SỬ HÀNH TRÌNH</h4>
+                    <div class="card-bl p-4 p-md-5 rounded-5 shadow-sm bg-white border-0">
+                        <% if (history.length > 0) { %>
+                            <div class="journey-timeline">
+                                <% history.forEach((entry, idx) => { %>
+                                    <div class="timeline-row d-flex gap-4 mb-4">
+                                        <div class="time-col text-end pt-2" style="width: 80px;">
+                                            <div class="fw-bold text-dark small"><%= new Date(entry.checked_in_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) %></div>
+                                            <div class="x-small text-muted"><%= new Date(entry.checked_in_at).toLocaleDateString('vi-VN') %></div>
+                                        </div>
+                                        <div class="icon-col position-relative">
+                                            <div class="timeline-dot bg-primary shadow-sm"></div>
+                                            <% if (idx < history.length - 1) { %><div class="timeline-line"></div><% } %>
+                                        </div>
+                                        <div class="content-col bg-light p-3 rounded-4 flex-grow-1">
+                                            <div class="d-flex justify-content-between align-items-center">
+                                                <h6 class="fw-bold mb-0 text-primary"><%= entry.destination_name %></h6>
+                                                <span class="badge bg-white text-success border border-success border-opacity-25 small">+<%= entry.points_earned %> XP</span>
+                                            </div>
+                                            <p class="x-small text-muted mb-0 mt-1">Đã hoàn thành check-in tại địa điểm.</p>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="bi bi-compass display-1 text-muted opacity-25"></i>
+                                <p class="mt-3 text-muted">Hành trình của bạn đang chờ bắt đầu...</p>
+                                <a href="/explore" class="btn btn-primary-bl rounded-pill px-5 mt-3">BẮT ĐẦU NGAY</a>
+                            </div>
+                        <% } %>
                     </div>
-                    <% }) %>
-                <% } else { %>
-                    <div class="col-12 text-center py-4 glass-panel border-dashed">
-                        <i class="bi bi-award display-4 text-light mb-2"></i>
-                        <p class="small text-muted mb-0">Hãy bắt đầu hành trình đầu tiên để nhận huy hiệu.</p>
-                    </div>
-                <% } %>
-            </div>
-
-            <!-- Reward CTA -->
-            <div class="mt-5 p-4 rounded-5 bg-dark text-white shadow-2xl reveal-up position-relative overflow-hidden">
-                <div class="position-relative" style="z-index: 5;">
-                    <h5 class="fw-bold mb-3">Đổi điểm thưởng</h5>
-                    <p class="small opacity-75 mb-4">Sử dụng <%= stats.points %> PTS của bạn để đổi Voucher Workshop hoặc Đặc sản OCOP.</p>
-                    <a href="/market" class="btn btn-mai btn-sm w-100 py-2 fw-bold rounded-pill">GHÉ CHỢ OCOP ➔</a>
                 </div>
-                <i class="bi bi-gift position-absolute bottom-0 end-0 text-white opacity-10" style="font-size: 8rem; transform: translate(20%, 20%);"></i>
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <style>
-    .opacity-40 { opacity: 0.4; }
-    .grayscale { filter: grayscale(1); }
-    .border-dashed { border: 2px dashed #ddd !important; background: transparent !important; }
-    .hover-up { transition: transform 0.3s ease; }
-    .hover-up:hover { transform: translateY(-5px); }
-    @media print {
-        .navbar, .btn-premium, .fab-qr, .mobile-nav { display: none !important; }
-        .glass-panel { border: 1px solid #000; box-shadow: none; backdrop-filter: none; }
-    }
+    .passport-page { background: #f0f2f5; }
+    .passport-card { border: none; }
+    .passport-header { background: linear-gradient(135deg, #1a4d2e 0%, #34a853 100%); }
+    .passport-avatar-wrapper { position: relative; }
+    .passport-avatar { width: 100px; height: 100px; border-radius: 25px; border: 4px solid rgba(255,255,255,0.3); object-fit: cover; }
+    .level-badge { position: absolute; bottom: -10px; right: -10px; background: #ffc107; color: #000; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; border: 3px solid #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+    
+    .badge-card { transition: all 0.3s; border: 1px solid #eee; }
+    .badge-card.unlocked { background: #f8fff9; border-color: #d1e7dd; }
+    .badge-card.locked { opacity: 0.5; filter: grayscale(1); background: #f8f9fa; }
+    .badge-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+
+    .timeline-dot { width: 16px; height: 16px; border-radius: 50%; border: 4px solid #fff; z-index: 2; position: relative; margin-top: 10px; }
+    .timeline-line { position: absolute; top: 20px; bottom: -20px; left: 7px; width: 2px; background: #dee2e6; z-index: 1; }
+    
+    .border-end-md { border-right: 1px solid #eee; }
+    @media (max-width: 991.98px) { .border-end-md { border-right: none; border-bottom: 1px solid #eee; padding-bottom: 2rem; margin-bottom: 2rem; } }
 </style>

@@ -1,217 +1,136 @@
-<section class="auth-page-glass">
-    <!-- Background Elements -->
-    <div class="auth-bg-image"></div>
-    <div class="auth-overlay"></div>
-    
-    <!-- Floating Orbs -->
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
+<section class="auth-section min-vh-100 d-flex align-items-center position-relative overflow-hidden py-5">
+    <!-- Cinematic Background -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('/images/hero-3.png') center/cover; z-index: 0; filter: brightness(0.4);"></div>
 
-    <div class="container d-flex align-items-center justify-content-center min-vh-100 position-relative z-index-1">
-        <div class="auth-glass-box shadow-premium p-4 p-md-5">
-            
-            <!-- Branding -->
-            <div class="text-center mb-4">
-                <div class="d-inline-flex align-items-center justify-content-center bg-white rounded-circle shadow-sm p-3 mb-3" style="width: 80px; height: 80px;">
-                    <img src="<%= baseUrl %>/images/logo.png" alt="Logo" class="w-100 h-100 object-fit-contain">
-                </div>
-                <h3 class="fw-black text-white letter-spacing-sm">BÌNH LỢI HEALING</h3>
-                <p class="text-white-50 small mb-0">Hệ sinh thái Du lịch Trải nghiệm số</p>
-            </div>
-
-            <% if (typeof error !== 'undefined' && error) { %>
-                <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-4 small text-center mb-4 backdrop-blur-md">
-                    <i class="bi bi-exclamation-circle me-1"></i> <%= error %>
-                </div>
-            <% } %>
-
-            <!-- Real OAuth One Click Login Zone -->
-            <div class="one-click-zone mb-4">
-                <a href="<%= baseUrl %>/auth/google" class="btn btn-glass-social w-100 rounded-pill mb-3 position-relative overflow-hidden text-decoration-none">
-                    <div class="d-flex align-items-center justify-content-center gap-3 position-relative z-index-1">
-                        <img src="https://cdn-icons-png.flaticon.com/512/300/300221.png" alt="Google" width="24" height="24">
-                        <span class="fw-bold">Tiếp tục với Google</span>
-                    </div>
-                </a>
-                <a href="<%= baseUrl %>/auth/facebook" class="btn btn-glass-social w-100 rounded-pill position-relative overflow-hidden text-decoration-none">
-                    <div class="d-flex align-items-center justify-content-center gap-3 position-relative z-index-1">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/2048px-2021_Facebook_icon.svg.png" alt="Facebook" width="24" height="24">
-                        <span class="fw-bold">Tiếp tục với Facebook</span>
-                    </div>
-                </a>
-            </div>
-
-            <div class="d-flex align-items-center mb-4">
-                <hr class="flex-grow-1 border-white opacity-25">
-                <span class="px-3 text-white-50 x-small text-uppercase tracking-widest">Hoặc dùng Email</span>
-                <hr class="flex-grow-1 border-white opacity-25">
-            </div>
-
-            <!-- Standard Form -->
-            <form action="<%= baseUrl %>/auth/login" method="POST">
-                <div class="form-floating mb-3">
-                    <input type="email" name="email" class="form-control form-control-glass rounded-4" id="floatingEmail" placeholder="name@example.com" required>
-                    <label for="floatingEmail" class="text-white-50">Email / Số điện thoại</label>
-                </div>
-                <div class="form-floating mb-4">
-                    <input type="password" name="password" class="form-control form-control-glass rounded-4" id="floatingPassword" placeholder="Password" required>
-                    <label for="floatingPassword" class="text-white-50">Mật khẩu / OTP</label>
-                </div>
+    <div class="container position-relative z-index-10">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-8">
                 
-                <div class="d-flex justify-content-between align-items-center mb-4 text-white-50 small">
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox" id="rememberMe" checked>
-                        <label class="form-check-label" for="rememberMe">Ghi nhớ đăng nhập</label>
-                    </div>
-                    <a href="#" class="text-white text-decoration-none fw-bold">Quên mật khẩu?</a>
+                <div class="text-center mb-4 reveal-up">
+                    <img src="/images/logo.png" alt="Logo" height="60" class="mb-3" onerror="this.style.display='none'">
+                    <h2 class="text-white fw-black tracking-widest text-uppercase">Bình Lợi Healing</h2>
+                    <p class="text-white-50 small">Khởi đầu hành trình chữa lành của bạn</p>
                 </div>
 
-                <button type="submit" class="btn btn-primary-bl w-100 py-3 rounded-pill fw-black text-uppercase shadow-lg">
-                    Đăng nhập hệ thống
-                </button>
-            </form>
+                <div class="card-bl border-0 shadow-premium rounded-5 overflow-hidden bg-white bg-opacity-10 backdrop-blur-lg reveal-up" style="transition-delay: 0.1s">
+                    <div class="p-4 p-md-5">
+                        
+                        <!-- Social Logins (Primary) -->
+                        <div class="row g-2 mb-4">
+                            <div class="col-6">
+                                <a href="/auth/google" class="btn btn-light w-100 rounded-pill shadow-sm py-2 d-flex align-items-center justify-content-center gap-2">
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" height="20" alt="Google">
+                                    <span class="fw-bold text-dark small">Google</span>
+                                </a>
+                            </div>
+                            <div class="col-6">
+                                <a href="/auth/facebook" class="btn btn-primary w-100 rounded-pill shadow-sm py-2 border-0 d-flex align-items-center justify-content-center gap-2" style="background-color: #1877F2;">
+                                    <i class="bi bi-facebook fs-5"></i>
+                                    <span class="fw-bold small">Facebook</span>
+                                </a>
+                            </div>
+                        </div>
 
-            <div class="text-center mt-4">
-                <span class="text-white-50 small">Chưa có tài khoản?</span>
-                <a href="#" class="text-white fw-bold ms-1 text-decoration-none">Đăng ký ngay</a>
+                        <div class="d-flex align-items-center mb-4 mt-2">
+                            <div class="flex-grow-1 border-bottom border-white border-opacity-25"></div>
+                            <span class="px-3 text-white-50 small x-small text-uppercase tracking-widest">Hoặc dùng Email</span>
+                            <div class="flex-grow-1 border-bottom border-white border-opacity-25"></div>
+                        </div>
+
+                        <!-- Tabs -->
+                        <ul class="nav nav-pills nav-fill gap-2 p-1 bg-white bg-opacity-25 rounded-pill mb-4" id="authTabs" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active rounded-pill text-white fw-bold" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">Đăng Nhập</button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link rounded-pill text-white fw-bold" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" role="tab">Đăng Ký</button>
+                            </li>
+                        </ul>
+
+                        <% if (typeof error !== 'undefined' && error) { %>
+                            <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-4 small text-center mb-4 animate__animated animate__shakeX">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> <%= error %>
+                            </div>
+                        <% } %>
+
+                        <div class="tab-content" id="authTabsContent">
+                            <!-- Login Form -->
+                            <div class="tab-pane fade show active" id="login-pane" role="tabpanel" tabindex="0">
+                                <form action="/auth/login" method="POST">
+                                    <div class="form-floating mb-3">
+                                        <input type="email" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="loginEmail" name="email" placeholder="name@example.com" required>
+                                        <label for="loginEmail" class="text-white-50">Email của bạn</label>
+                                    </div>
+                                    <div class="form-floating mb-4">
+                                        <input type="password" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="loginPassword" name="password" placeholder="Password" required>
+                                        <label for="loginPassword" class="text-white-50">Mật khẩu</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest mb-3">ĐĂNG NHẬP BẰNG EMAIL</button>
+                                </form>
+                            </div>
+
+                            <!-- Register Form -->
+                            <div class="tab-pane fade" id="register-pane" role="tabpanel" tabindex="0">
+                                <form action="/auth/register" method="POST">
+                                    <div class="form-floating mb-3">
+                                        <input type="text" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="regName" name="fullName" placeholder="Họ và tên" required>
+                                        <label for="regName" class="text-white-50">Họ và tên</label>
+                                    </div>
+                                    <div class="form-floating mb-3">
+                                        <input type="email" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="regEmail" name="email" placeholder="name@example.com" required>
+                                        <label for="regEmail" class="text-white-50">Email</label>
+                                    </div>
+                                    <div class="form-floating mb-4">
+                                        <input type="password" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="regPassword" name="password" placeholder="Password" required minlength="6">
+                                        <label for="regPassword" class="text-white-50">Mật khẩu (tối thiểu 6 ký tự)</label>
+                                    </div>
+                                    <button type="submit" class="btn btn-success w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest mb-3">TẠO TÀI KHOẢN</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- DEV BYPASS (The ultimate fallback) -->
+                        <div class="text-center border-top border-white border-opacity-25 pt-3 mt-3">
+                            <form action="/auth/bypass" method="POST">
+                                <button type="submit" class="btn btn-sm btn-outline-light rounded-pill opacity-50 hover-opacity-100 transition-all">
+                                    <i class="bi bi-rocket-takeoff-fill me-1"></i> Bỏ qua Đăng nhập (Vào thẳng bằng quyền Quản trị)
+                                </button>
+                            </form>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- No longer need the fake mock processing script -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
+        
+        // Form styling focus
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', () => {
+                input.classList.remove('bg-opacity-25');
+                input.classList.add('bg-opacity-100', 'text-dark');
+            });
+            input.addEventListener('blur', () => {
+                if(!input.value) {
+                    input.classList.add('bg-opacity-25');
+                    input.classList.remove('bg-opacity-100', 'text-dark');
+                }
+            });
+        });
+    });
+</script>
 
 <style>
-/* Glassmorphism Auth UI */
-.auth-page-glass {
-    position: relative;
-    overflow: hidden;
-    background-color: #1a1a2e;
-}
-
-.auth-bg-image {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url('/images/hero-1.png');
-    background-size: cover;
-    background-position: center;
-    filter: blur(8px) brightness(0.8);
-    transform: scale(1.05); /* hide blurred edges */
-    z-index: 0;
-}
-
-.auth-overlay {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: linear-gradient(135deg, rgba(20, 40, 20, 0.6) 0%, rgba(10, 20, 30, 0.8) 100%);
-    z-index: 1;
-}
-
-.orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(80px);
-    z-index: 2;
-    animation: float 10s ease-in-out infinite alternate;
-}
-
-.orb-1 {
-    top: -10%; left: -10%;
-    width: 400px; height: 400px;
-    background: rgba(103, 178, 111, 0.4);
-}
-
-.orb-2 {
-    bottom: -10%; right: -10%;
-    width: 300px; height: 300px;
-    background: rgba(200, 169, 110, 0.4);
-    animation-delay: -5s;
-}
-
-@keyframes float {
-    0% { transform: translate(0, 0); }
-    100% { transform: translate(50px, 50px); }
-}
-
-.z-index-1 { z-index: 10; }
-
-.auth-glass-box {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 30px;
-    width: 100%;
-    max-width: 450px;
-    position: relative;
-    overflow: hidden;
-}
-
-/* Shine effect */
-.auth-glass-box::before {
-    content: '';
-    position: absolute;
-    top: 0; left: -100%;
-    width: 50%; height: 100%;
-    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0) 100%);
-    transform: skewX(-20deg);
-    animation: shine 6s infinite;
-}
-
-@keyframes shine {
-    0% { left: -100%; }
-    20% { left: 200%; }
-    100% { left: 200%; }
-}
-
-.btn-glass-social {
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
-    border: 1px solid rgba(255,255,255,0.5);
-    padding: 14px 20px;
-    transition: all 0.3s;
-}
-
-.btn-glass-social:hover {
-    background: #fff;
-    transform: translateY(-2px);
-    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-}
-
-.form-control-glass {
-    background: rgba(0, 0, 0, 0.2) !important;
-    border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    color: white !important;
-}
-
-.form-control-glass:focus {
-    background: rgba(0, 0, 0, 0.3) !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
-    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.05) !important;
-}
-
-.form-control-glass::placeholder { color: transparent; }
-
-/* Customizing Form Floating label for dark background */
-.form-floating > .form-control-glass:focus ~ label,
-.form-floating > .form-control-glass:not(:placeholder-shown) ~ label {
-    color: rgba(255, 255, 255, 0.8) !important;
-    transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
-    background-color: transparent !important;
-}
-.form-floating > label {
-    padding-left: 1.25rem;
-}
-
-@media (max-width: 575.98px) {
-    .auth-glass-box {
-        border-radius: 0;
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        border: none;
-        background: rgba(255, 255, 255, 0.05);
-    }
-}
+    .backdrop-blur-lg { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+    .nav-pills .nav-link.active { background-color: var(--v5-primary); }
+    .form-floating > label { color: rgba(255,255,255,0.6); }
+    .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.2); }
+    .hover-opacity-100:hover { opacity: 1 !important; background: rgba(255,255,255,0.1); }
+    .tracking-widest { letter-spacing: 2px; }
 </style>

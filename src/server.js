@@ -5,10 +5,10 @@ const session = require('express-session');
 const cookieParser = require('cookie-parser');
 const expressLayouts = require('express-ejs-layouts');
 const passport = require('./config/passport');
-require('dotenv').config();
+const config = require('./config/env');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = config.port;
 
 // Trust proxy for Render (required for secure cookies behind proxy)
 app.set('trust proxy', 1);

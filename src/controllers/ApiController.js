@@ -194,12 +194,22 @@ class ApiController {
         );
         const receiverId = managers.length > 0 ? managers[0].id : null;
 
+        // Save user message
         await UserSession.db.query(
             "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message) VALUES (?, ?, ?, ?, ?)",
             [uuidv4(), session.id, receiverId, destinationId, message]
         );
 
-        res.json({ success: true, message: 'Đã gửi tin nhắn đến quản lý địa điểm.' });
+        // Generate and save AI response
+        const AIBrain = require('../core/AIBrain');
+        const aiReply = await AIBrain.generateResponse(message, destinationId);
+        
+        await UserSession.db.query(
+            "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message, is_ai) VALUES (?, ?, ?, ?, ?, ?)",
+            [uuidv4(), null, session.id, destinationId, aiReply, 1]
+        );
+
+        res.json({ success: true, message: aiReply });
     }
 
     async replyMessage(req, res) {

@@ -1,17 +1,17 @@
 const mysql = require('mysql2/promise');
-require('dotenv').config();
+const config = require('../config/env');
 
 const pool = mysql.createPool({
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    user: process.env.DB_USER || 'root',
-    password: process.env.DB_PASS || '',
-    database: process.env.DB_NAME || 'binhloi_tourism',
+    host: config.db.host || 'localhost',
+    port: config.db.port,
+    user: config.db.user || 'root',
+    password: config.db.pass || '',
+    database: config.db.name || 'binhloi_tourism',
     waitForConnections: true,
     connectionLimit: 10,
     queueLimit: 0,
     charset: 'utf8mb4',
-    ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: false } : null
+    ssl: config.db.ssl ? { rejectUnauthorized: false } : null
 });
 
 module.exports = pool;

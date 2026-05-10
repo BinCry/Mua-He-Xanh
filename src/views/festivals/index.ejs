@@ -124,24 +124,44 @@
     document.addEventListener('DOMContentLoaded', () => {
         gsap.from('.reveal-up', { opacity: 0, y: 40, stagger: 0.15, duration: 1, ease: 'power3.out' });
         
-        document.getElementById('bookingForm').addEventListener('submit', (e) => {
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const btn = e.target.querySelector('button');
+            const festId = btn.getAttribute('data-fest-id');
+            const name = e.target.querySelector('input[type="text"]').value;
+            const phone = e.target.querySelector('input[type="tel"]').value;
+            const tickets = parseInt(e.target.querySelector('select').value) || 1;
+
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
             btn.classList.replace('btn-primary-bl', 'btn-success');
             
-            setTimeout(() => {
-                alert('Đăng ký nhận vé thành công! E-Ticket đã được gửi qua Zalo của bạn.');
-                bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
+            try {
+                const res = await fetch('/api/festival/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ festivalId: festId, fullName: name, phone: phone, tickets: tickets })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert(data.message || 'Đăng ký nhận vé thành công! E-Ticket đã được lưu vào Passport số.');
+                    bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
+                    e.target.reset();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (err) {
+                alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+            } finally {
                 btn.innerHTML = 'XÁC NHẬN ĐĂNG KÝ';
                 btn.classList.replace('btn-success', 'btn-primary-bl');
-                e.target.reset();
-            }, 1500);
+            }
         });
     });
 
     function showBookingModal(id, name) {
         document.getElementById('modal-fest-name').innerText = name;
+        document.querySelector('#bookingForm button').setAttribute('data-fest-id', id);
         new bootstrap.Modal(document.getElementById('bookingModal')).show();
     }
 </script>

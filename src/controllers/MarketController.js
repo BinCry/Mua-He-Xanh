@@ -1,23 +1,41 @@
-const Destination = require('../models/Destination');
+const Product = require('../models/Product');
 
 class MarketController {
     async index(req, res) {
         try {
-            // Mock OCOP products
-            const products = [
-                { id: 1, name: 'Mai Vàng Bình Lợi (Bonsai)', price: 2500000, image: '/images/product-mai.png', rating: 4.8, sold: 156 },
-                { id: 2, name: 'Nhang Thảo Mộc Bình Lợi', price: 45000, image: '/images/product-incense.png', rating: 4.9, sold: 1204 },
-                { id: 3, name: 'Mật Ong Hoa Tràm Tự Nhiên', price: 350000, image: '/images/product-honey.png', rating: 4.7, sold: 432 },
-                { id: 4, name: 'Bưởi Da Xanh Loại 1', price: 65000, image: '/images/product-grapefruit.png', rating: 4.6, sold: 867 },
-            ];
+            const page = parseInt(req.query.page) || 1;
+            const limit = 8;
+            const category = req.query.category || null;
+
+            // Get products from DB
+            const products = await Product.findAllActive(category);
+            const categories = await Product.getCategories();
 
             res.render('market/index', {
                 title: 'Chợ OCOP Bình Lợi',
-                products: products
+                products: products,
+                categories: categories,
+                selectedCategory: category
             });
         } catch (error) {
             console.error("Market index error:", error);
             res.status(500).send("Internal Server Error");
+        }
+    }
+
+    async detail(req, res) {
+        try {
+            const { id } = req.params;
+            const product = await Product.findById(id);
+            if (!product) return res.redirect('/market');
+
+            res.render('market/detail', {
+                title: product.name,
+                product: product
+            });
+        } catch (error) {
+            console.error("Market detail error:", error);
+            res.redirect('/market');
         }
     }
 }
