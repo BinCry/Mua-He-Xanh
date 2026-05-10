@@ -84,12 +84,12 @@ passport.use(new GoogleStrategy({
               email: email,
               avatar: profile.photos[0]?.value,
               role: 'user',
-              points: 0
+              total_points: 0
           };
           
           await db.query(
-              'INSERT INTO users (id, google_id, full_name, email, avatar, role, points) VALUES (?, ?, ?, ?, ?, ?, ?)',
-              [newUser.id, newUser.google_id, newUser.full_name, newUser.email, newUser.avatar, newUser.role, newUser.points]
+              'INSERT INTO users (id, google_id, full_name, email, avatar, role, total_points) VALUES (?, ?, ?, ?, ?, ?, ?)',
+              [newUser.id, newUser.google_id, newUser.full_name, newUser.email, newUser.avatar, newUser.role, newUser.total_points]
           );
           
           return cb(null, newUser);
@@ -127,12 +127,12 @@ passport.use(new FacebookStrategy({
               email: email,
               avatar: profile.photos ? profile.photos[0].value : null,
               role: 'user',
-              points: 0
+              total_points: 0
           };
           
           await db.query(
-              'INSERT INTO users (id, facebook_id, full_name, email, avatar, role, points) VALUES (?, ?, ?, ?, ?, ?, ?)',
-              [newUser.id, newUser.facebook_id, newUser.full_name, newUser.email, newUser.avatar, newUser.role, newUser.points]
+              'INSERT INTO users (id, facebook_id, full_name, email, avatar, role, total_points) VALUES (?, ?, ?, ?, ?, ?, ?)',
+              [newUser.id, newUser.facebook_id, newUser.full_name, newUser.email, newUser.avatar, newUser.role, newUser.total_points]
           );
           
           return cb(null, newUser);
