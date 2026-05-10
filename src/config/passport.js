@@ -46,101 +46,106 @@ passport.use(new LocalStrategy(
     }
 ));
 
-// --- GOOGLE OAUTH STRATEGY ---
-passport.use(new GoogleStrategy({
-    clientID: config.auth.google.clientId || 'MISSING_CLIENT_ID',
-    clientSecret: config.auth.google.clientSecret || 'MISSING_CLIENT_SECRET',
-    callbackURL: config.auth.google.callbackUrl,
-    proxy: true
-  },
-  async function(accessToken, refreshToken, profile, cb) {
-      try {
-          // Check if user exists based on google_id
-          const [existingUsers] = await db.query('SELECT * FROM users WHERE google_id = ?', [profile.id]);
-          
-          if (existingUsers.length > 0) {
-              return cb(null, existingUsers[0]);
-          }
-
-          // If not exists, check if email exists to link accounts
-          const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
-          if (email) {
-              const [emailUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-              if (emailUsers.length > 0) {
-                  // Update existing user with google_id
-                  await db.query('UPDATE users SET google_id = ?, avatar = ? WHERE id = ?', 
-                      [profile.id, profile.photos[0]?.value, emailUsers[0].id]);
-                  const [updatedUser] = await db.query('SELECT * FROM users WHERE id = ?', [emailUsers[0].id]);
-                  return cb(null, updatedUser[0]);
+// --- GOOGLE OAUTH STRATEGY (Safe init - won't crash if keys missing) ---
+if (config.auth.google.clientId && config.auth.google.clientId !== 'MISSING_CLIENT_ID') {
+    passport.use(new GoogleStrategy({
+        clientID: config.auth.google.clientId,
+        clientSecret: config.auth.google.clientSecret,
+        callbackURL: config.auth.google.callbackUrl,
+        proxy: true
+      },
+      async function(accessToken, refreshToken, profile, cb) {
+          try {
+              const [existingUsers] = await db.query('SELECT * FROM users WHERE google_id = ?', [profile.id]);
+              
+              if (existingUsers.length > 0) {
+                  return cb(null, existingUsers[0]);
               }
+
+              const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+              if (email) {
+                  const [emailUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+                  if (emailUsers.length > 0) {
+                      await db.query('UPDATE users SET google_id = ?, avatar = ? WHERE id = ?', 
+                          [profile.id, profile.photos[0]?.value, emailUsers[0].id]);
+                      const [updatedUser] = await db.query('SELECT * FROM users WHERE id = ?', [emailUsers[0].id]);
+                      return cb(null, updatedUser[0]);
+                  }
+              }
+
+              const { v4: uuidv4 } = require('uuid');
+              const newUser = {
+                  id: uuidv4(),
+                  google_id: profile.id,
+                  full_name: profile.displayName,
+                  email: email,
+                  avatar: profile.photos[0]?.value,
+                  role: 'user',
+                  role_id: 3
+              };
+              
+              await db.query(
+                  'INSERT INTO users (id, google_id, full_name, email, avatar, role, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                  [newUser.id, newUser.google_id, newUser.full_name, newUser.email, newUser.avatar, newUser.role, newUser.role_id]
+              );
+              
+              return cb(null, newUser);
+
+          } catch (err) {
+              return cb(err, null);
           }
-
-          // Create new user with UUID
-          const { v4: uuidv4 } = require('uuid');
-          const newUser = {
-              id: uuidv4(),
-              google_id: profile.id,
-              full_name: profile.displayName,
-              email: email,
-              avatar: profile.photos[0]?.value,
-              role: 'user',
-              total_points: 0
-          };
-          
-          await db.query(
-              'INSERT INTO users (id, google_id, full_name, email, avatar, role, total_points) VALUES (?, ?, ?, ?, ?, ?, ?)',
-              [newUser.id, newUser.google_id, newUser.full_name, newUser.email, newUser.avatar, newUser.role, newUser.total_points]
-          );
-          
-          return cb(null, newUser);
-
-      } catch (err) {
-          return cb(err, null);
       }
-  }
-));
+    ));
+    console.log('✅ Google OAuth Strategy loaded');
+} else {
+    console.log('⚠️  Google OAuth: Chưa cấu hình Client ID — Bỏ qua');
+}
 
-// --- FACEBOOK OAUTH STRATEGY ---
-passport.use(new FacebookStrategy({
-    clientID: config.auth.facebook.appId || 'MISSING_APP_ID',
-    clientSecret: config.auth.facebook.appSecret || 'MISSING_APP_SECRET',
-    callbackURL: config.auth.facebook.callbackUrl,
-    profileFields: ['id', 'displayName', 'photos', 'email'],
-    proxy: true
-  },
-  async function(accessToken, refreshToken, profile, cb) {
-      try {
-          // Check if user exists based on facebook_id
-          const [existingUsers] = await db.query('SELECT * FROM users WHERE facebook_id = ?', [profile.id]);
-          
-          if (existingUsers.length > 0) {
-              return cb(null, existingUsers[0]);
+// --- FACEBOOK OAUTH STRATEGY (Safe init - won't crash if keys missing) ---
+if (config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID') {
+    passport.use(new FacebookStrategy({
+        clientID: config.auth.facebook.appId,
+        clientSecret: config.auth.facebook.appSecret,
+        callbackURL: config.auth.facebook.callbackUrl,
+        profileFields: ['id', 'displayName', 'photos', 'email'],
+        proxy: true
+      },
+      async function(accessToken, refreshToken, profile, cb) {
+          try {
+              const [existingUsers] = await db.query('SELECT * FROM users WHERE facebook_id = ?', [profile.id]);
+              
+              if (existingUsers.length > 0) {
+                  return cb(null, existingUsers[0]);
+              }
+
+              const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
+              
+              const { v4: uuidv4 } = require('uuid');
+              const newUser = {
+                  id: uuidv4(),
+                  facebook_id: profile.id,
+                  full_name: profile.displayName,
+                  email: email,
+                  avatar: profile.photos ? profile.photos[0].value : null,
+                  role: 'user',
+                  role_id: 3
+              };
+              
+              await db.query(
+                  'INSERT INTO users (id, facebook_id, full_name, email, avatar, role, role_id) VALUES (?, ?, ?, ?, ?, ?, ?)',
+                  [newUser.id, newUser.facebook_id, newUser.full_name, newUser.email, newUser.avatar, newUser.role, newUser.role_id]
+              );
+              
+              return cb(null, newUser);
+
+          } catch (err) {
+              return cb(err, null);
           }
-
-          const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
-          
-          const { v4: uuidv4 } = require('uuid');
-          const newUser = {
-              id: uuidv4(),
-              facebook_id: profile.id,
-              full_name: profile.displayName,
-              email: email,
-              avatar: profile.photos ? profile.photos[0].value : null,
-              role: 'user',
-              total_points: 0
-          };
-          
-          await db.query(
-              'INSERT INTO users (id, facebook_id, full_name, email, avatar, role, total_points) VALUES (?, ?, ?, ?, ?, ?, ?)',
-              [newUser.id, newUser.facebook_id, newUser.full_name, newUser.email, newUser.avatar, newUser.role, newUser.total_points]
-          );
-          
-          return cb(null, newUser);
-
-      } catch (err) {
-          return cb(err, null);
       }
-  }
-));
+    ));
+    console.log('✅ Facebook OAuth Strategy loaded');
+} else {
+    console.log('⚠️  Facebook OAuth: Chưa cấu hình App ID — Bỏ qua');
+}
 
 module.exports = passport;
