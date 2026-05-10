@@ -23,6 +23,7 @@ const ProfileController = require('../controllers/ProfileController');
 const AdminController = require('../controllers/AdminController');
 const ReviewController = require('../controllers/ReviewController');
 const CartController = require('../controllers/CartController');
+const NotificationController = require('../controllers/NotificationController');
 
 // Middleware
 const { ensureAuthenticated, ensureManager, ensureAdmin, restrictToManagers } = require('../middleware/auth');
@@ -144,5 +145,9 @@ router.post('/api/cart/checkout', ensureAuthenticated, CartController.checkout);
 // Admin API (Chương 7 - Pattern Relioo apiUpdateUser, apiDeleteUser)
 router.post('/api/admin/update-user', ensureAdmin, AdminController.updateUser);
 router.post('/api/admin/delete-user', ensureAdmin, AdminController.deleteUser);
+
+// Notification API (Chương 5.14)
+router.get('/api/notifications', NotificationController.getAll);
+router.post('/api/notifications/read', ensureAuthenticated, NotificationController.markRead);
 
 module.exports = router;

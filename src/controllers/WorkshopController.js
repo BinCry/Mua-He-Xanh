@@ -4,6 +4,7 @@
  */
 const Workshop = require('../models/Workshop');
 const db = require('../core/database');
+const NotificationController = require('./NotificationController');
 
 const WorkshopController = {
 
@@ -108,6 +109,14 @@ const WorkshopController = {
             await db.query(
                 'UPDATE users SET total_points = COALESCE(total_points, 0) + 50 WHERE id = ?',
                 [user.id]
+            );
+
+            // Send notification
+            await NotificationController.create(
+                user.id, 'workshop',
+                `Đặt workshop thành công!`,
+                `Bạn đã đăng ký "${workshop.title}". Mã vé: ${booking.qr_ticket}. +50 điểm`,
+                '/my-workshops'
             );
 
             res.json({

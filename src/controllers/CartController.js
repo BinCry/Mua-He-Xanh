@@ -4,6 +4,7 @@
  */
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
+const NotificationController = require('./NotificationController');
 
 const CartController = {
 
@@ -136,9 +137,18 @@ const CartController = {
             // Award points
             await db.query('UPDATE users SET total_points = COALESCE(total_points, 0) + 30 WHERE id = ?', [user.id]);
 
+            // Send notification
+            const orderCode = orderId.substring(0, 8).toUpperCase();
+            await NotificationController.create(
+                user.id, 'voucher',
+                `Đơn hàng OCOP #${orderCode}`,
+                `Đặt ${items.length} sản phẩm, tổng ${new Intl.NumberFormat('vi-VN').format(total)}đ. Nhận tại: ${pickup_location || 'Tại chỗ'}. +30 điểm`,
+                '/my-orders'
+            );
+
             res.json({
                 success: true,
-                message: `Đặt hàng thành công! Mã: #${orderId.substring(0, 8).toUpperCase()}. +30 điểm 🎁`,
+                message: `Đặt hàng thành công! Mã: #${orderCode}. +30 điểm 🎁`,
                 orderId
             });
         } catch (error) {
