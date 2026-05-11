@@ -1,41 +1,56 @@
-<% /* Rewards Page - Chương 5.15 */ %>
+<!-- Rewards — Chương 5.15 -->
 <section class="py-5" style="margin-top: 80px;">
-    <div class="container" style="max-width: 900px;">
-        <div class="text-center mb-5">
-            <h2 class="fw-black"><i class="bi bi-gift text-warning me-2"></i>Điểm Thưởng</h2>
-            <div class="display-3 fw-black text-warning mt-3"><%= currentPoints %></div>
-            <p class="text-muted">điểm hiện có</p>
-        </div>
-        <h4 class="fw-bold mb-3">🎁 Phần thưởng có thể đổi</h4>
-        <div class="row g-3 mb-5">
-            <% availableRewards.forEach(r => { %>
-            <div class="col-md-6">
-                <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <h5 class="fw-bold mb-1"><%= r.title %></h5>
-                            <p class="text-muted small mb-2"><%= r.description %></p>
-                            <span class="badge bg-warning text-dark rounded-pill"><%= r.points_required %> điểm</span>
-                        </div>
-                        <button class="btn btn-sm btn-primary rounded-pill px-3 <%= currentPoints < r.points_required ? 'disabled' : '' %>"
-                                onclick="redeem('<%= r.id %>', '<%= r.title %>')">Đổi</button>
-                    </div>
+    <div class="container py-4" style="max-width: 860px;">
+        <!-- Points Header -->
+        <div class="text-center mb-5 reveal-up">
+            <span class="section-label">PHẦN THƯỞNG</span>
+            <h2 class="section-title">Điểm Healing</h2>
+            <div class="d-inline-flex align-items-center gap-3 mt-3 p-4 rounded-2xl" style="background: var(--grad-nature);">
+                <i class="bi bi-star-fill text-warning fs-3"></i>
+                <div class="text-start">
+                    <div class="text-white fw-black font-display" style="font-size: 2.5rem; line-height: 1;"><%= currentPoints %></div>
+                    <span class="text-white opacity-60" style="font-size: 0.82rem;">điểm hiện có</span>
                 </div>
             </div>
-            <% }); %>
         </div>
+
+        <!-- Available Rewards -->
+        <div class="mb-5">
+            <h5 class="fw-bold mb-4"><i class="bi bi-gift me-2" style="color: var(--accent);"></i>Phần thưởng có thể đổi</h5>
+            <div class="row g-3">
+                <% availableRewards.forEach(r => { %>
+                <div class="col-md-6 reveal-up">
+                    <div class="p-4 rounded-xl d-flex justify-content-between align-items-center" style="background: var(--surface); border: 1px solid var(--border-light); transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--primary-100)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border-light)';this.style.transform='none'">
+                        <div>
+                            <h6 class="fw-bold mb-1" style="font-size: 0.95rem;"><%= r.title %></h6>
+                            <p class="text-muted mb-2" style="font-size: 0.82rem;"><%= r.description %></p>
+                            <span class="badge-gold"><i class="bi bi-star-fill me-1"></i><%= r.points_required %> điểm</span>
+                        </div>
+                        <button class="btn btn-primary-bl btn-sm rounded-pill px-3 flex-shrink-0 ms-3 <%= currentPoints < r.points_required ? 'disabled' : '' %>" onclick="redeem('<%= r.id %>', '<%= r.title %>')">Đổi</button>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+
+        <!-- Redeemed -->
         <% if (myRewards.length > 0) { %>
-        <h4 class="fw-bold mb-3">📜 Phần thưởng đã đổi</h4>
-        <% myRewards.forEach(r => { %>
-        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 mb-2">
-            <span class="badge bg-success rounded-pill"><%= r.status %></span>
-            <span class="fw-bold"><%= r.title %></span>
-            <small class="text-muted ms-auto"><%= new Date(r.redeemed_at).toLocaleDateString('vi-VN') %></small>
+        <div class="reveal-up">
+            <h5 class="fw-bold mb-4"><i class="bi bi-check-circle me-2" style="color: var(--success);"></i>Đã đổi</h5>
+            <div class="d-flex flex-column gap-2">
+                <% myRewards.forEach(r => { %>
+                <div class="d-flex align-items-center gap-3 p-3 rounded-lg" style="background: var(--surface-alt);">
+                    <span class="badge rounded-pill" style="background: rgba(16,185,129,0.1); color: var(--success); font-size: 0.72rem; padding: 4px 10px;"><%= r.status %></span>
+                    <span class="fw-bold flex-grow-1" style="font-size: 0.88rem;"><%= r.title %></span>
+                    <span class="text-muted" style="font-size: 0.78rem;"><%= new Date(r.redeemed_at).toLocaleDateString('vi-VN') %></span>
+                </div>
+                <% }) %>
+            </div>
         </div>
-        <% }); %>
         <% } %>
     </div>
 </section>
+
 <script>
 async function redeem(id, title) {
     if (!confirm('Đổi "' + title + '"?')) return;
