@@ -1,26 +1,37 @@
-<% /* Admin Workshops - Chương 7 */ %>
-<section class="py-4" style="margin-top: 80px; background: #f8f9fa; min-height: 100vh;">
-    <div class="container-fluid px-4">
-        <a href="/admin" class="text-decoration-none text-muted small"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
-        <h2 class="fw-black mb-4 mt-1">🎨 Quản lý Workshop</h2>
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light"><tr><th>Workshop</th><th>Địa điểm</th><th>Giá</th><th>Lượt đặt</th><th>Rating</th><th>Trạng thái</th></tr></thead>
-                    <tbody>
-                        <% workshops.forEach(w => { %>
-                        <tr>
-                            <td class="fw-bold"><%= w.title %></td>
-                            <td class="text-muted"><%= w.destination_name || '-' %></td>
-                            <td><%= w.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(w.price) + 'đ' %></td>
-                            <td><span class="badge bg-primary rounded-pill"><%= w.booking_count || 0 %></span></td>
-                            <td><% if (w.avg_rating) { %><span class="text-warning"><i class="bi bi-star-fill"></i> <%= parseFloat(w.avg_rating).toFixed(1) %></span><% } else { %>-<% } %></td>
-                            <td><span class="badge bg-<%= w.is_active ? 'success' : 'secondary' %> rounded-pill"><%= w.is_active ? 'Active' : 'Inactive' %></span></td>
-                        </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+<!-- Admin Workshops Management -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Quản lý Workshop</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Danh sách tất cả workshop trên hệ thống</p>
     </div>
-</section>
+</div>
+
+<div class="admin-table">
+    <table class="table table-dark table-borderless mb-0">
+        <thead><tr>
+            <th>Workshop</th>
+            <th>Địa điểm</th>
+            <th>Giá</th>
+            <th>Lượt đặt</th>
+            <th>Trạng thái</th>
+        </tr></thead>
+        <tbody>
+            <% workshops.forEach(w => { %>
+            <tr>
+                <td class="fw-bold" style="font-size: 0.88rem;"><%= w.title %></td>
+                <td style="font-size: 0.85rem; color: var(--admin-muted);"><%= w.destination_name || 'N/A' %></td>
+                <td class="fw-bold" style="color: var(--admin-accent);"><%= w.price ? w.price.toLocaleString() + 'đ' : 'Miễn phí' %></td>
+                <td><span class="badge rounded-pill" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><%= w.booking_count %> đặt</span></td>
+                <td>
+                    <span class="badge rounded-pill" style="background: <%= w.is_active ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)' %>; color: <%= w.is_active ? '#10b981' : '#ef4444' %>;">
+                        <%= w.is_active ? 'Hoạt động' : 'Tạm ẩn' %>
+                    </span>
+                </td>
+            </tr>
+            <% }) %>
+            <% if (workshops.length === 0) { %>
+            <tr><td colspan="5" class="text-center py-4" style="color: var(--admin-muted);">Chưa có workshop nào</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>

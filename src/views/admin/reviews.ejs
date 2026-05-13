@@ -1,28 +1,79 @@
-<% /* Admin Reviews - Chương 7 */ %>
-<section class="py-4" style="margin-top: 80px; background: #f8f9fa; min-height: 100vh;">
-    <div class="container-fluid px-4">
-        <a href="/admin" class="text-decoration-none text-muted small"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
-        <h2 class="fw-black mb-4 mt-1">💬 Duyệt Đánh Giá</h2>
-        <div class="row g-3">
-            <% reviews.forEach(r => { %>
-            <div class="col-md-6 col-lg-4">
-                <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-                    <div class="d-flex gap-2 mb-2">
-                        <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width:35px;height:35px;object-fit:cover;">
-                        <div>
-                            <span class="fw-bold small"><%= r.full_name %></span>
-                            <br><small class="text-muted"><%= r.destination_name || '-' %></small>
-                        </div>
-                        <span class="ms-auto text-warning small"><% for(let i=0;i<(r.rating||5);i++){%><i class="bi bi-star-fill"></i><%}%></span>
-                    </div>
-                    <p class="small mb-2" style="display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;"><%= r.content %></p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></small>
-                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill"><i class="bi bi-heart me-1"></i><%= r.likes_count || 0 %></span>
-                    </div>
-                </div>
-            </div>
-            <% }); %>
-        </div>
+<!-- Admin Reviews Management -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Duyệt Đánh giá</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý đánh giá và bình luận của du khách</p>
     </div>
-</section>
+</div>
+
+<div class="admin-table">
+    <table class="table table-dark table-borderless mb-0">
+        <thead><tr>
+            <th>Người dùng</th>
+            <th>Địa điểm</th>
+            <th>Nội dung</th>
+            <th>Đánh giá</th>
+            <th>Ngày</th>
+            <th>Thao tác</th>
+        </tr></thead>
+        <tbody>
+            <% reviews.forEach(r => { %>
+            <tr id="review-<%= r.id %>">
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                        <div>
+                            <div class="fw-bold" style="font-size: 0.85rem;"><%= r.full_name %></div>
+                        </div>
+                    </div>
+                </td>
+                <td style="font-size: 0.85rem;"><%= r.destination_name || 'N/A' %></td>
+                <td style="max-width: 300px;">
+                    <div class="text-truncate-2" style="font-size: 0.85rem; color: var(--admin-text);"><%= r.content || r.comment %></div>
+                </td>
+                <td>
+                    <div class="text-warning small">
+                        <% for(let i=0; i<5; i++) { %>
+                            <i class="bi bi-star<%= i < (r.rating || 5) ? '-fill' : '' %>"></i>
+                        <% } %>
+                    </div>
+                </td>
+                <td style="font-size: 0.82rem; color: var(--admin-muted);"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></td>
+                <td>
+                    <button class="btn btn-sm rounded-pill" style="background: rgba(239,68,68,0.15); color: #ef4444; font-size: 0.78rem;" onclick="deleteReview('<%= r.id %>')">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </td>
+            </tr>
+            <% }) %>
+            <% if (reviews.length === 0) { %>
+            <tr><td colspan="6" class="text-center py-4" style="color: var(--admin-muted);">Chưa có đánh giá nào</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<style>
+.text-truncate-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+</style>
+
+<script>
+async function deleteReview(id) {
+    if (!confirm('Bạn chắc chắn muốn xóa đánh giá này?')) return;
+    try {
+        // reuse general api if exists or just a placeholder for now
+        const res = await axios.post('/api/reviews/delete', { id });
+        if (res.data.success) {
+            document.getElementById('review-' + id).remove();
+        }
+    } catch (err) {
+        console.error(err);
+        alert('Tính năng xóa đánh giá đang được cập nhật.');
+    }
+}
+</script>

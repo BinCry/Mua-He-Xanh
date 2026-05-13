@@ -35,9 +35,7 @@ router.get('/checkin', CheckinController.index);
 router.get('/market', MarketController.index);
 router.get('/market/:id', MarketController.detail);
 
-// ===== CART & ORDERS (Chương 5.12) =====
-router.get('/cart', ensureAuthenticated, CartController.index);
-router.get('/my-orders', ensureAuthenticated, CartController.orders);
+// ===== FESTIVALS =====
 router.get('/festivals', FestivalController.index);
 router.get('/map', MapController.index);
 router.get('/explore', ExploreController.list);
@@ -74,9 +72,11 @@ router.get('/profile/rewards', ensureAuthenticated, ProfileController.rewards);
 router.get('/manager', ensureManager, ManagerController.index);
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 
-// ===== ADMIN (Chương 7 - Pattern Relioo checkSuperAdminAccess) =====
+// ===== ADMIN (Cấp Xã) =====
 router.get('/admin', ensureAdmin, AdminController.dashboard);
 router.get('/admin/users', ensureAdmin, AdminController.users);
+router.get('/admin/destinations', ensureAdmin, AdminController.destinations);
+router.get('/admin/settings', ensureAdmin, AdminController.siteSettings);
 router.get('/admin/workshops', ensureAdmin, AdminController.workshops);
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 
@@ -84,7 +84,7 @@ router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/auth/login', AuthController.loginPage);
 router.post('/auth/register', AuthController.handleRegister);
 router.post('/auth/login', passport.authenticate('local', { failureRedirect: '/auth/login?error=Sai email hoặc mật khẩu' }), AuthController.oauthCallback);
-router.post('/auth/bypass', AuthController.devBypass);
+// bypass removed for security
 router.post('/auth/social', AuthController.handleSocialLogin);
 router.get('/auth/logout', AuthController.logout);
 
@@ -136,15 +136,13 @@ router.post('/api/reviews/comment', ensureAuthenticated, ReviewController.commen
 // Profile API (Chương 5.15)
 router.post('/api/redeem-reward', ensureAuthenticated, ProfileController.redeemReward);
 
-// Cart API (Chương 5.12)
-router.post('/api/cart/add', ensureAuthenticated, CartController.add);
-router.post('/api/cart/update', ensureAuthenticated, CartController.update);
-router.post('/api/cart/remove', ensureAuthenticated, CartController.remove);
-router.post('/api/cart/checkout', ensureAuthenticated, CartController.checkout);
+// Cart removed — OCOP is suggestion-only within destinations
 
-// Admin API (Chương 7 - Pattern Relioo apiUpdateUser, apiDeleteUser)
+// Admin API
 router.post('/api/admin/update-user', ensureAdmin, AdminController.updateUser);
 router.post('/api/admin/delete-user', ensureAdmin, AdminController.deleteUser);
+router.post('/api/admin/toggle-destination', ensureAdmin, AdminController.toggleDestination);
+router.post('/api/admin/update-settings', ensureAdmin, AdminController.updateSettings);
 
 // Notification API (Chương 5.14)
 router.get('/api/notifications', NotificationController.getAll);

@@ -55,36 +55,6 @@ const AuthController = {
         }
     },
 
-    devBypass: async (req, res) => {
-        try {
-            // Find or create an admin user
-            const [admins] = await UserSession.db.query("SELECT * FROM users WHERE role = 'admin' LIMIT 1");
-            let adminUser = admins[0];
-            
-            if (!adminUser) {
-                adminUser = {
-                    id: uuidv4(),
-                    full_name: 'Bypass Admin',
-                    email: 'admin@binhloi.local',
-                    role: 'admin',
-                    points: 9999
-                };
-                await UserSession.db.query(
-                    'INSERT INTO users (id, full_name, email, role, points) VALUES (?, ?, ?, ?, ?)',
-                    [adminUser.id, adminUser.full_name, adminUser.email, adminUser.role, adminUser.points]
-                );
-            }
-
-            req.login(adminUser, async (err) => {
-                if (err) return res.redirect('/auth/login?error=Bypass failed');
-                await AuthController.establishSession(req, res, adminUser);
-                return res.redirect('/manager'); // Admins go to manager
-            });
-        } catch (error) {
-            res.status(500).send(error.message);
-        }
-    },
-
     handleSocialLogin: async (req, res) => {
         try {
             const { platform, email, name, avatar, id, phone, city } = req.body;

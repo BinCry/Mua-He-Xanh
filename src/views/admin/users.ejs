@@ -1,120 +1,102 @@
-<% /* Admin Users - Chương 7 (Pattern: Relioo Admin users.php) */ %>
-
-<section class="py-4" style="margin-top: 80px; background: #f8f9fa; min-height: 100vh;">
-    <div class="container-fluid px-4">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <a href="/admin" class="text-decoration-none text-muted small"><i class="bi bi-arrow-left me-1"></i>Dashboard</a>
-                <h2 class="fw-black mb-0 mt-1">👥 Quản lý Người dùng</h2>
-            </div>
-            <form class="d-flex gap-2" action="/admin/users" method="GET">
-                <input type="text" class="form-control rounded-pill" name="q" value="<%= searchQuery %>" placeholder="Tìm theo tên, email...">
-                <button class="btn btn-primary rounded-pill px-4"><i class="bi bi-search"></i></button>
-            </form>
-        </div>
-
-        <div class="card border-0 shadow-sm rounded-4">
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Người dùng</th>
-                            <th>Email</th>
-                            <th>Vai trò</th>
-                            <th>Địa điểm quản lý</th>
-                            <th>Trạng thái</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% users.forEach(u => { %>
-                        <tr>
-                            <td>
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width:40px;height:40px;object-fit:cover;">
-                                    <div>
-                                        <span class="fw-bold"><%= u.full_name %></span>
-                                        <br><small class="text-muted"><%= u.id.substring(0,8) %>...</small>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><%= u.email || '-' %></td>
-                            <td>
-                                <select class="form-select form-select-sm rounded-pill" style="width: 140px;" onchange="updateUser('<%= u.id %>', 'role_id', this.value)">
-                                    <% roles.forEach(r => { %>
-                                        <option value="<%= r.id %>" <%= u.role_id == r.id ? 'selected' : '' %>><%= r.role_name %></option>
-                                    <% }); %>
-                                </select>
-                            </td>
-                            <td>
-                                <select class="form-select form-select-sm rounded-pill" style="width: 160px;" onchange="updateUser('<%= u.id %>', 'managed_destination_id', this.value)">
-                                    <option value="">-- Không --</option>
-                                    <% destinations.forEach(d => { %>
-                                        <option value="<%= d.id %>" <%= u.managed_destination_id == d.id ? 'selected' : '' %>><%= d.name %></option>
-                                    <% }); %>
-                                </select>
-                            </td>
-                            <td>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" <%= u.is_active ? 'checked' : '' %> onchange="updateUser('<%= u.id %>', 'is_active', this.checked ? 1 : 0)">
-                                </div>
-                            </td>
-                            <td>
-                                <button class="btn btn-outline-danger btn-sm rounded-pill" onclick="deleteUser('<%= u.id %>', '<%= u.full_name %>')">
-                                    <i class="bi bi-trash"></i>
-                                </button>
-                            </td>
-                        </tr>
-                        <% }); %>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Pagination -->
-            <% if (totalPages > 1) { %>
-            <div class="d-flex justify-content-center p-3">
-                <nav>
-                    <ul class="pagination mb-0">
-                        <% for (let p = 1; p <= totalPages; p++) { %>
-                            <li class="page-item <%= p === currentPage ? 'active' : '' %>">
-                                <a class="page-link rounded-pill mx-1" href="/admin/users?page=<%= p %>&q=<%= searchQuery %>"><%= p %></a>
-                            </li>
-                        <% } %>
-                    </ul>
-                </nav>
-            </div>
-            <% } %>
-        </div>
+<!-- Admin Users Management -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Quản lý Người dùng</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Phân quyền và quản lý tài khoản hệ thống</p>
     </div>
-</section>
+    <form action="/admin/users" method="GET" class="d-flex gap-2">
+        <input type="text" name="q" class="form-control admin-input" placeholder="Tìm kiếm..." value="<%= searchQuery %>" style="width: 220px;">
+        <button type="submit" class="btn btn-sm rounded-pill px-3" style="background: var(--admin-primary); color: white;"><i class="bi bi-search"></i></button>
+    </form>
+</div>
+
+<div class="admin-table">
+    <table class="table table-dark table-borderless mb-0">
+        <thead><tr>
+            <th>Người dùng</th>
+            <th>Email</th>
+            <th>Vai trò</th>
+            <th>Địa điểm quản lý</th>
+            <th>Điểm</th>
+            <th>Ngày tạo</th>
+            <th>Thao tác</th>
+        </tr></thead>
+        <tbody>
+            <% users.forEach(u => { %>
+            <tr id="user-<%= u.id %>">
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                        <span class="fw-bold" style="font-size: 0.88rem;"><%= u.full_name %></span>
+                    </div>
+                </td>
+                <td style="font-size: 0.85rem; color: var(--admin-muted);"><%= u.email %></td>
+                <td>
+                    <select class="form-select form-select-sm admin-input" style="width: 120px; font-size: 0.8rem;" id="role-<%= u.id %>" onchange="updateUser('<%= u.id %>')">
+                        <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>Du khách</option>
+                        <option value="manager" <%= u.role === 'manager' ? 'selected' : '' %>>Quản lý</option>
+                        <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="form-select form-select-sm admin-input" style="width: 160px; font-size: 0.8rem;" id="dest-<%= u.id %>" onchange="updateUser('<%= u.id %>')">
+                        <option value="">— Không —</option>
+                        <% destinations.forEach(d => { %>
+                        <option value="<%= d.id %>" <%= u.managed_destination_id === d.id ? 'selected' : '' %>><%= d.name %></option>
+                        <% }) %>
+                    </select>
+                </td>
+                <td class="fw-bold"><%= u.total_points || 0 %></td>
+                <td style="font-size: 0.82rem; color: var(--admin-muted);"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
+                <td>
+                    <button class="btn btn-sm rounded-pill" style="background: rgba(239,68,68,0.15); color: #ef4444; font-size: 0.78rem;" onclick="deleteUser('<%= u.id %>', '<%= u.full_name %>')">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+                </td>
+            </tr>
+            <% }) %>
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+<% if (totalPages > 1) { %>
+<div class="d-flex justify-content-center mt-4 gap-2">
+    <% for (let p = 1; p <= totalPages; p++) { %>
+    <a href="/admin/users?page=<%= p %>&q=<%= searchQuery %>" class="btn btn-sm rounded-pill px-3 <%= p === currentPage ? '' : '' %>" style="<%= p === currentPage ? 'background: var(--admin-primary); color: white;' : 'background: var(--admin-surface); color: var(--admin-muted); border: 1px solid var(--admin-border);' %>"><%= p %></a>
+    <% } %>
+</div>
+<% } %>
 
 <script>
-async function updateUser(id, field, value) {
+async function updateUser(id) {
+    const role = document.getElementById('role-' + id).value;
+    const dest = document.getElementById('dest-' + id).value;
     try {
-        const data = { id };
-        data[field] = value;
-        const res = await axios.post('/api/admin/update-user', data);
+        const res = await axios.post('/api/admin/update-user', {
+            id, role, managed_destination_id: dest || null
+        });
         if (res.data.success) {
-            // Brief success flash
-            const toast = document.createElement('div');
-            toast.className = 'position-fixed bottom-0 end-0 m-3 alert alert-success shadow-lg rounded-3';
-            toast.innerHTML = '<i class="bi bi-check-circle me-2"></i>' + res.data.message;
-            document.body.appendChild(toast);
-            setTimeout(() => toast.remove(), 2000);
+            const row = document.getElementById('user-' + id);
+            row.style.background = 'rgba(16,185,129,0.08)';
+            setTimeout(() => row.style.background = '', 1500);
         }
     } catch (err) {
-        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+        alert('Lỗi: ' + err.message);
     }
 }
 
 async function deleteUser(id, name) {
-    if (!confirm(`Xóa người dùng "${name}"? Hành động này không thể hoàn tác.`)) return;
+    if (!confirm('Bạn chắc chắn muốn xóa "' + name + '"?')) return;
     try {
         const res = await axios.post('/api/admin/delete-user', { id });
-        if (res.data.success) location.reload();
-        else alert(res.data.message);
+        if (res.data.success) {
+            document.getElementById('user-' + id).remove();
+        } else {
+            alert(res.data.message);
+        }
     } catch (err) {
-        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+        alert('Lỗi: ' + err.message);
     }
 }
 </script>

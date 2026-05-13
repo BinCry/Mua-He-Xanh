@@ -1,104 +1,196 @@
-<!-- Admin Dashboard — Chương 7 -->
-<section class="py-5" style="margin-top: 80px; background: var(--bg); min-height: 100vh;">
-    <div class="container-fluid px-4 py-3">
-        <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-5">
-            <div>
-                <h2 class="fw-black font-display mb-1">Admin Dashboard</h2>
-                <p class="text-muted mb-0" style="font-size: 0.88rem;">Tổng quan hệ thống Bình Lợi Healing</p>
-            </div>
-            <div class="d-flex gap-2">
-                <a href="/admin/workshops" class="btn btn-ghost btn-sm rounded-pill px-3"><i class="bi bi-palette me-1"></i>Workshop</a>
-                <a href="/admin/reviews" class="btn btn-ghost btn-sm rounded-pill px-3"><i class="bi bi-chat me-1"></i>Đánh giá</a>
-                <a href="/admin/users" class="btn btn-primary-bl btn-sm rounded-pill px-3"><i class="bi bi-people me-1"></i>Users</a>
-            </div>
-        </div>
+<!-- Admin Dashboard — Biểu đồ & Thống kê -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Dashboard</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Tổng quan hệ thống Bình Lợi Healing</p>
+    </div>
+    <span class="badge rounded-pill" style="background: rgba(240,165,0,0.15); color: var(--admin-accent); padding: 8px 16px;">
+        <i class="bi bi-shield-check me-1"></i>Quản trị viên Xã
+    </span>
+</div>
 
-        <!-- Stats Grid -->
-        <div class="row g-4 mb-5">
-            <div class="col-md-6 col-xl-3">
-                <div class="p-4 rounded-2xl" style="background: var(--grad-nature); color: white;">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-1 opacity-75" style="font-size: 0.82rem;">Tổng người dùng</p>
-                            <h2 class="fw-black mb-0 font-display"><%= analytics.totalUsers || 0 %></h2>
-                        </div>
-                        <div class="rounded-xl p-2" style="background: rgba(255,255,255,0.15);"><i class="bi bi-people-fill fs-4"></i></div>
-                    </div>
-                </div>
+<!-- Stats Grid -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-xl-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="bi bi-people-fill"></i></div>
             </div>
-            <div class="col-md-6 col-xl-3">
-                <div class="p-4 rounded-2xl" style="background: var(--surface); border: 1px solid var(--border-light);">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-1 text-muted" style="font-size: 0.82rem;">Tổng check-in</p>
-                            <h2 class="fw-black mb-0 font-display" style="color: var(--primary);"><%= analytics.totalCheckins || 0 %></h2>
-                        </div>
-                        <div class="rounded-xl p-2" style="background: var(--primary-50); color: var(--primary);"><i class="bi bi-geo-alt-fill fs-4"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-xl-3">
-                <div class="p-4 rounded-2xl" style="background: var(--surface); border: 1px solid var(--border-light);">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-1 text-muted" style="font-size: 0.82rem;">Tổng đánh giá</p>
-                            <h2 class="fw-black mb-0 font-display" style="color: var(--accent);"><%= analytics.totalReviews || 0 %></h2>
-                        </div>
-                        <div class="rounded-xl p-2" style="background: rgba(240,165,0,0.1); color: var(--accent);"><i class="bi bi-chat-heart-fill fs-4"></i></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 col-xl-3">
-                <div class="p-4 rounded-2xl" style="background: var(--surface); border: 1px solid var(--border-light);">
-                    <div class="d-flex justify-content-between align-items-start">
-                        <div>
-                            <p class="mb-1 text-muted" style="font-size: 0.82rem;">Đặt workshop</p>
-                            <h2 class="fw-black mb-0 font-display" style="color: var(--info);"><%= analytics.totalBookings || 0 %></h2>
-                        </div>
-                        <div class="rounded-xl p-2" style="background: rgba(59,130,246,0.1); color: var(--info);"><i class="bi bi-ticket-fill fs-4"></i></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Users Table -->
-        <div class="rounded-2xl overflow-hidden" style="background: var(--surface); border: 1px solid var(--border-light);">
-            <div class="p-4 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--border-light);">
-                <h5 class="fw-bold mb-0"><i class="bi bi-people me-2" style="color: var(--primary);"></i>Người dùng gần đây</h5>
-                <a href="/admin/users" class="btn btn-sm btn-ghost rounded-pill px-3">Xem tất cả</a>
-            </div>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle mb-0">
-                    <thead><tr style="font-size: 0.78rem; color: var(--text-muted); letter-spacing: 0.5px;">
-                        <th class="border-0 py-3 px-4">NGƯỜI DÙNG</th>
-                        <th class="border-0 py-3">EMAIL</th>
-                        <th class="border-0 py-3">VAI TRÒ</th>
-                        <th class="border-0 py-3">ĐIỂM</th>
-                        <th class="border-0 py-3">NGÀY THAM GIA</th>
-                    </tr></thead>
-                    <tbody>
-                        <% recentUsers.forEach(u => { %>
-                        <tr>
-                            <td class="px-4 py-3">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
-                                    <span class="fw-bold" style="font-size: 0.88rem;"><%= u.full_name %></span>
-                                </div>
-                            </td>
-                            <td style="font-size: 0.85rem; color: var(--text-secondary);"><%= u.email %></td>
-                            <td>
-                                <span class="px-2 py-1 rounded-pill" style="font-size: 0.72rem; font-weight: 600; background: <%= u.role === 'admin' ? 'var(--primary-50)' : u.role === 'manager' ? 'rgba(240,165,0,0.1)' : 'var(--surface-alt)' %>; color: <%= u.role === 'admin' ? 'var(--primary)' : u.role === 'manager' ? 'var(--accent-dark)' : 'var(--text-secondary)' %>;">
-                                    <%= u.role %>
-                                </span>
-                            </td>
-                            <td class="fw-bold" style="font-size: 0.88rem;"><%= u.total_points || 0 %></td>
-                            <td style="font-size: 0.82rem; color: var(--text-muted);"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
-                        </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
-            </div>
+            <h3><%= stats.users %></h3>
+            <small>Người dùng</small>
         </div>
     </div>
-</section>
+    <div class="col-6 col-xl-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-geo-alt-fill"></i></div>
+            </div>
+            <h3><%= stats.destinations %></h3>
+            <small>Địa điểm</small>
+        </div>
+    </div>
+    <div class="col-6 col-xl-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background: rgba(240,165,0,0.15); color: #f0a500;"><i class="bi bi-qr-code"></i></div>
+            </div>
+            <h3><%= stats.checkins %></h3>
+            <small>Check-ins</small>
+        </div>
+    </div>
+    <div class="col-6 col-xl-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background: rgba(168,85,247,0.15); color: #a855f7;"><i class="bi bi-chat-heart-fill"></i></div>
+            </div>
+            <h3><%= stats.reviews %></h3>
+            <small>Đánh giá</small>
+        </div>
+    </div>
+    <div class="col-6 col-xl-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;"><i class="bi bi-palette-fill"></i></div>
+            </div>
+            <h3><%= stats.workshops %></h3>
+            <small>Workshop</small>
+        </div>
+    </div>
+    <div class="col-6 col-xl-2">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+                <div class="stat-icon" style="background: rgba(34,211,238,0.15); color: #22d3ee;"><i class="bi bi-envelope-fill"></i></div>
+            </div>
+            <h3><%= stats.messages %></h3>
+            <small>Tin nhắn</small>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="chart-card">
+            <h6 class="fw-bold mb-3"><i class="bi bi-graph-up me-2" style="color: var(--admin-primary);"></i>Lượt truy cập Website (14 ngày)</h6>
+            <canvas id="viewsChart" height="100"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="chart-card">
+            <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2" style="color: #10b981;"></i>Check-in theo tháng</h6>
+            <canvas id="checkinChart" height="200"></canvas>
+        </div>
+    </div>
+</div>
+
+<!-- Top Destinations + Recent Users -->
+<div class="row g-3">
+    <div class="col-lg-5">
+        <div class="chart-card">
+            <h6 class="fw-bold mb-3"><i class="bi bi-trophy-fill me-2" style="color: var(--admin-accent);"></i>Top Địa điểm</h6>
+            <% topDests.forEach((d, i) => { %>
+            <div class="d-flex justify-content-between align-items-center py-2 <%= i < topDests.length - 1 ? 'border-bottom' : '' %>" style="border-color: var(--admin-border) !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="fw-bold" style="color: var(--admin-muted); width: 20px;">#<%= i+1 %></span>
+                    <span style="font-size: 0.88rem;"><%= d.name %></span>
+                </div>
+                <span class="badge rounded-pill" style="background: rgba(16,185,129,0.15); color: #10b981;"><%= d.checkin_count %> check-in</span>
+            </div>
+            <% }) %>
+            <% if (topDests.length === 0) { %>
+            <p class="text-center mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Chưa có dữ liệu</p>
+            <% } %>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="admin-table">
+            <div class="p-3 d-flex justify-content-between align-items-center">
+                <h6 class="fw-bold mb-0"><i class="bi bi-people me-2" style="color: var(--admin-primary);"></i>Người dùng gần đây</h6>
+                <a href="/admin/users" style="color: var(--admin-primary); font-size: 0.82rem; text-decoration: none;">Xem tất cả →</a>
+            </div>
+            <table class="table table-dark table-borderless mb-0">
+                <thead><tr>
+                    <th>Người dùng</th><th>Vai trò</th><th>Điểm</th><th>Ngày</th>
+                </tr></thead>
+                <tbody>
+                    <% recentUsers.forEach(u => { %>
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                                <div>
+                                    <div class="fw-bold" style="font-size: 0.85rem;"><%= u.full_name %></div>
+                                    <div style="font-size: 0.72rem; color: var(--admin-muted);"><%= u.email %></div>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="role-badge role-<%= u.role %>"><%= u.role %></span></td>
+                        <td class="fw-bold"><%= u.points || 0 %></td>
+                        <td style="font-size: 0.82rem; color: var(--admin-muted);"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
+                    </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Page Views Chart
+    const viewsData = <%- JSON.stringify(chartData.dailyViews) %>;
+    const viewsLabels = viewsData.map(d => {
+        const date = new Date(d.day);
+        return date.getDate() + '/' + (date.getMonth()+1);
+    });
+    
+    new Chart(document.getElementById('viewsChart'), {
+        type: 'line',
+        data: {
+            labels: viewsLabels.length ? viewsLabels : ['Chưa có dữ liệu'],
+            datasets: [{
+                label: 'Lượt xem',
+                data: viewsData.map(d => d.count),
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59,130,246,0.1)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4,
+                pointBackgroundColor: '#3b82f6'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 11 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 11 } }, beginAtZero: true }
+            }
+        }
+    });
+
+    // Check-in Chart
+    const checkinData = <%- JSON.stringify(chartData.monthlyCheckins) %>;
+    new Chart(document.getElementById('checkinChart'), {
+        type: 'bar',
+        data: {
+            labels: checkinData.map(d => d.month),
+            datasets: [{
+                label: 'Check-ins',
+                data: checkinData.map(d => d.count),
+                backgroundColor: '#10b981',
+                borderRadius: 8,
+                barThickness: 24
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 11 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 11 } }, beginAtZero: true }
+            }
+        }
+    });
+});
+</script>

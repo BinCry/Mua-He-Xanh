@@ -1,0 +1,111 @@
+<!-- Admin Site Settings -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Cài đặt Trang web</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Thay đổi nội dung hiển thị trên trang chủ và thông tin giới thiệu</p>
+    </div>
+</div>
+
+<form id="settingsForm" onsubmit="saveSettings(event)">
+    <div class="row g-4">
+        <!-- Hero Section -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-image me-2" style="color: var(--admin-accent);"></i>Hero Section (Trang chủ)</h6>
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Tiêu đề chính</label>
+                    <input type="text" name="hero_title" class="form-control admin-input" value="<%= settings.hero_title || 'Bình Lợi – Miền Tây giữa lòng Sài Gòn' %>" placeholder="Tiêu đề hero...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Slogan</label>
+                    <input type="text" name="hero_slogan" class="form-control admin-input" value="<%= settings.hero_slogan || 'Miệt vườn giữa phố, trải nghiệm bản sắc' %>" placeholder="Slogan...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">URL Ảnh Hero</label>
+                    <input type="text" name="hero_image" class="form-control admin-input" value="<%= settings.hero_image || '/images/hero-1.png' %>" placeholder="/images/hero.jpg">
+                    <small style="color: var(--admin-muted);">Đường dẫn ảnh nền trang chủ</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2" style="color: var(--admin-primary);"></i>Giới thiệu Chung</h6>
+                
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Tên trang web</label>
+                    <input type="text" name="site_name" class="form-control admin-input" value="<%= settings.site_name || 'Bình Lợi Healing' %>">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Mô tả</label>
+                    <textarea name="site_description" class="form-control admin-input" rows="3" placeholder="Mô tả ngắn về trang web..."><%= settings.site_description || 'Nền tảng du lịch chữa lành tại xã Bình Lợi, huyện Bình Chánh, TP.HCM' %></textarea>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Liên hệ</label>
+                    <input type="text" name="contact_phone" class="form-control admin-input" value="<%= settings.contact_phone || '' %>" placeholder="Số điện thoại...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Email</label>
+                    <input type="email" name="contact_email" class="form-control admin-input" value="<%= settings.contact_email || '' %>" placeholder="email@example.com">
+                </div>
+            </div>
+        </div>
+
+        <!-- Social & SEO -->
+        <div class="col-12">
+            <div class="chart-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-globe me-2" style="color: #10b981;"></i>Mạng xã hội & SEO</h6>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Facebook</label>
+                        <input type="text" name="social_facebook" class="form-control admin-input" value="<%= settings.social_facebook || '' %>" placeholder="URL Facebook...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">YouTube</label>
+                        <input type="text" name="social_youtube" class="form-control admin-input" value="<%= settings.social_youtube || '' %>" placeholder="URL YouTube...">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">TikTok</label>
+                        <input type="text" name="social_tiktok" class="form-control admin-input" value="<%= settings.social_tiktok || '' %>" placeholder="URL TikTok...">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4 text-end">
+        <button type="submit" class="btn px-5 py-2 rounded-pill fw-bold" style="background: var(--admin-primary); color: white;" id="saveBtn">
+            <i class="bi bi-check-circle me-2"></i>Lưu Cài Đặt
+        </button>
+    </div>
+</form>
+
+<script>
+async function saveSettings(e) {
+    e.preventDefault();
+    const btn = document.getElementById('saveBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-hourglass-split me-2"></i>Đang lưu...';
+    
+    try {
+        const formData = new FormData(e.target);
+        const data = Object.fromEntries(formData);
+        const res = await axios.post('/api/admin/update-settings', data);
+        if (res.data.success) {
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>Đã lưu!';
+            btn.style.background = '#10b981';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Lưu Cài Đặt';
+                btn.style.background = 'var(--admin-primary)';
+                btn.disabled = false;
+            }, 2000);
+        }
+    } catch (err) {
+        alert('Lỗi: ' + err.message);
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Lưu Cài Đặt';
+    }
+}
+</script>
