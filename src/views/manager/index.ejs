@@ -1,15 +1,67 @@
 <!-- Manager Chat Panel -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Hộp thư Hỗ trợ: <%= dest.name %></h4>
-        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Giải đáp thắc mắc và tương tác trực tiếp với du khách tại địa điểm</p>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;"><%= user.role === 'admin' ? 'Chỉnh sửa & Hỗ trợ: ' + dest.name : 'Hộp thư Hỗ trợ: ' + dest.name %></h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;"><%= user.role === 'admin' ? 'Quản lý thông tin và giải đáp thắc mắc du khách' : 'Giải đáp thắc mắc và tương tác trực tiếp với du khách tại địa điểm' %></p>
     </div>
     <a href="/explore/<%= dest.slug %>" target="_blank" class="btn btn-sm rounded-pill px-3" style="background: rgba(255,255,255,0.05); color: var(--admin-muted);">
         <i class="bi bi-eye me-1"></i>Xem địa điểm
     </a>
 </div>
 
-<!-- Quick Stats (Read Only) -->
+<% if (user.role === 'admin') { %>
+<div class="row g-3 mb-4">
+    <div class="col-xl-12">
+        <div class="chart-card">
+            <h6 class="fw-bold mb-4 text-uppercase tracking-widest small" style="color: var(--admin-primary);">Chỉnh sửa Thông tin (Chỉ dành cho Admin)</h6>
+            
+            <form action="/manager/update" method="POST" id="updateForm">
+                <input type="hidden" name="dest_id" value="<%= dest.id %>">
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Giờ hoạt động</label>
+                        <input type="text" name="open_hours" class="form-control admin-input" value="<%= dest.open_hours %>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Chi phí dự kiến</label>
+                        <input type="text" name="cost" class="form-control admin-input" value="<%= dest.cost %>">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Ảnh Đại diện (Cover)</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <img id="cover_preview" src="<%= fixImg(dest.cover_image) %>" class="rounded-3" style="width: 60px; height: 40px; object-fit: cover; border: 1px solid var(--admin-border);">
+                            <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('cover_file').click()">
+                                <i class="bi bi-upload"></i>
+                            </button>
+                            <input type="file" id="cover_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'cover_image', 'cover_preview')">
+                        </div>
+                        <input type="hidden" name="cover_image" id="cover_image" value="<%= dest.cover_image %>">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Mô tả ngắn</label>
+                    <input type="text" name="short_desc" class="form-control admin-input" value="<%= dest.short_desc %>">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Nội dung Câu chuyện (Story)</label>
+                    <textarea name="story" class="form-control admin-input" rows="4"><%= dest.story %></textarea>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill fw-bold">
+                        <i class="bi bi-check-circle me-2"></i>CẬP NHẬT TRANG WEB
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<% } %>
+
+<!-- Stats -->
 <div class="row g-3 mb-4">
     <div class="col-md-6 col-lg-3">
         <div class="stat-card">
@@ -98,6 +150,36 @@
 </div>
 
 <script>
+async function uploadFile(input, targetId, previewId) {
+    if (!input.files || !input.files[0]) return;
+    
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            document.getElementById(targetId).value = res.data.path; 
+            if (previewId) document.getElementById(previewId).src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
 function openReplyModal(msgId, guestId) {
     document.getElementById('reply-msg-id').value = msgId;
     document.getElementById('reply-to-id').innerText = guestId.toUpperCase();

@@ -251,6 +251,83 @@
     </div>
 </section>
 
+<!-- FLOATING CHAT WIDGET (GLOBAL) -->
+<div class="fixed-bottom p-4 text-end" style="z-index: 1050;">
+    <button class="btn btn-primary-bl rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center ms-auto animate__animated animate__bounceIn" 
+            style="width: 60px; height: 60px; border: 2px solid rgba(255,255,255,0.2);" 
+            data-bs-toggle="modal" data-bs-target="#globalChatModal">
+        <i class="bi bi-chat-heart-fill fs-3"></i>
+    </button>
+</div>
+
+<!-- Global Chat Modal -->
+<div class="modal fade" id="globalChatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm modal-dialog-scrollable" style="max-width: 400px;">
+        <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
+            <div class="modal-header bg-dark text-white border-0 p-3">
+                <div class="d-flex align-items-center gap-2">
+                    <img src="/images/logo.png" height="30" onerror="this.style.display='none'">
+                    <div>
+                        <h6 class="modal-title fw-bold mb-0">Hỗ trợ Bình Lợi</h6>
+                        <small class="opacity-50 x-small text-uppercase">Phản hồi bởi Ban Quản Trị</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-3 bg-light" style="height: 400px;">
+                <div id="global-chat-history" class="overflow-auto h-100">
+                    <div class="text-center mb-4"><span class="badge bg-white text-muted rounded-pill shadow-sm py-1 px-3 x-small">Hôm nay</span></div>
+                    <div class="d-flex justify-content-start mb-3">
+                        <div class="p-3 rounded-4 small shadow-sm bg-white text-dark" style="max-width: 85%; line-height: 1.5;">
+                            Chào mừng bạn đến với <strong>Bình Lợi Healing</strong>! 🌿<br><br>
+                            Ban quản trị xã luôn sẵn sàng giải đáp mọi thắc mắc của bạn về hành trình khám phá.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-white p-2">
+                <div class="input-group">
+                    <input type="text" id="global-chat-input" class="form-control border-0 bg-light rounded-pill ps-4 py-2 small" placeholder="Nhập câu hỏi..." onkeypress="if(event.key === 'Enter') sendGlobalChat()">
+                    <button class="btn btn-primary-bl rounded-circle ms-2 p-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="sendGlobalChat()">
+                        <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function sendGlobalChat() {
+    const input = document.getElementById('global-chat-input');
+    const message = input.value.trim();
+    if (!message) return;
+
+    input.value = '';
+    const history = document.getElementById('global-chat-history');
+    
+    // Optimistic UI
+    const userMsgHtml = `
+        <div class="d-flex justify-content-end mb-3">
+            <div class="p-3 rounded-4 small shadow-sm bg-primary text-white" style="max-width: 85%;">
+                ${message}
+            </div>
+        </div>
+    `;
+    history.insertAdjacentHTML('beforeend', userMsgHtml);
+    history.scrollTop = history.scrollHeight;
+
+    try {
+        const res = await axios.post('/api/send-message', { message });
+        if (res.data.success) {
+            // Admin will reply later, or we could add a "Received" status
+        }
+    } catch (err) {
+        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+    }
+}
+</script>
+
 <!-- COUNTDOWN SCRIPT -->
 <script>
     const festivalDate = new Date("<%= festival.date %>").getTime();

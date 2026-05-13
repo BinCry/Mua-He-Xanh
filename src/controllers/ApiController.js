@@ -181,35 +181,48 @@ class ApiController {
         const { destinationId, message } = req.body;
         const sessionUuid = req.cookies.session_uuid;
         
-        if (!sessionUuid || !destinationId || !message) {
+        if (!sessionUuid || !message) {
             return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ' });
         }
 
         const session = await UserSession.findByUuid(sessionUuid);
         if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
 
-        const [managers] = await UserSession.db.query(
-            "SELECT id FROM users WHERE managed_destination_id = ? AND role = 'manager' LIMIT 1",
-            [destinationId]
-        );
-        const receiverId = managers.length > 0 ? managers[0].id : null;
+        let receiverId = null;
+        if (destinationId) {
+            // Route to Manager
+            const [managers] = await UserSession.db.query(
+                "SELECT id FROM users WHERE managed_destination_id = ? AND role = 'manager' LIMIT 1",
+                [destinationId]
+            );
+            receiverId = managers.length > 0 ? managers[0].id : null;
+        } else {
+            // Route to Admin
+            const [admins] = await UserSession.db.query(
+                "SELECT id FROM users WHERE role = 'admin' LIMIT 1"
+            );
+            receiverId = admins.length > 0 ? admins[0].id : null;
+        }
 
-        // Save user message
+        // Save user message (use session_uuid for guest identification in sender_uuid field if needed)
         await UserSession.db.query(
-            "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message) VALUES (?, ?, ?, ?, ?)",
-            [uuidv4(), session.id, receiverId, destinationId, message]
+            "INSERT INTO messages (id, sender_id, sender_uuid, receiver_id, destination_id, message) VALUES (?, ?, ?, ?, ?, ?)",
+            [uuidv4(), session.user_id || null, session.id, receiverId, destinationId || null, message]
         );
 
-        // Generate and save AI response
-        const AIBrain = require('../core/AIBrain');
-        const aiReply = await AIBrain.generateResponse(message, destinationId);
-        
-        await UserSession.db.query(
-            "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message, is_ai) VALUES (?, ?, ?, ?, ?, ?)",
-            [uuidv4(), null, session.id, destinationId, aiReply, 1]
-        );
+        // Optional AI Brain response (only for destination-specific chat)
+        let aiReply = null;
+        if (destinationId) {
+            const AIBrain = require('../core/AIBrain');
+            aiReply = await AIBrain.generateResponse(message, destinationId);
+            
+            await UserSession.db.query(
+                "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message, is_ai) VALUES (?, ?, ?, ?, ?, ?)",
+                [uuidv4(), null, session.id, destinationId, aiReply, 1]
+            );
+        }
 
-        res.json({ success: true, message: aiReply });
+        res.json({ success: true, message: aiReply || 'Tin nhắn đã được gửi đến quản trị viên.' });
     }
 
     async replyMessage(req, res) {

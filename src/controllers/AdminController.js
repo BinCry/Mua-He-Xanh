@@ -75,7 +75,13 @@ const AdminController = {
                     monthlyUsers
                 },
                 topDests,
-                recentUsers
+                recentUsers,
+                globalMessages: await db.query(`
+                    SELECT m.*, DATE_FORMAT(m.created_at, '%H:%i %d/%m') as time_display
+                    FROM messages m 
+                    WHERE m.destination_id IS NULL AND m.sender_uuid IS NOT NULL
+                    ORDER BY m.created_at DESC LIMIT 20
+                `).then(r => r[0])
             });
         } catch (error) {
             console.error('Admin dashboard error:', error);
