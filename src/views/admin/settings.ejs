@@ -31,7 +31,17 @@
                         <input type="file" id="hero_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'hero_image', 'hero_preview')">
                     </div>
                     <input type="hidden" name="hero_image" id="hero_image" value="<%= settings.hero_image || '/images/hero-1.png' %>">
-                    <small style="color: var(--admin-muted);">Định dạng JPG, PNG. Dung lượng tối đa 5MB.</small>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Background Giới thiệu</label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <img id="about_preview" src="<%= settings.about_bg || '/images/nature-bg.jpg' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('about_file').click()">
+                            <i class="bi bi-upload me-1"></i>Chọn ảnh
+                        </button>
+                        <input type="file" id="about_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'about_bg', 'about_preview')">
+                    </div>
+                    <input type="hidden" name="about_bg" id="about_bg" value="<%= settings.about_bg || '/images/nature-bg.jpg' %>">
                 </div>
             </div>
         </div>

@@ -63,11 +63,15 @@ class ManagerController {
 
     async updateDestination(req, res) {
         try {
+            // Check if user is Admin, as Managers are now chat-only
+            if (req.session.user.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Chỉ Admin mới có quyền cập nhật thông tin địa điểm.' });
+            }
+
             const user = req.session.user;
             const { dest_id, open_hours, cost, cover_image, highlight, checkin_tip, story, zen_walk_desc, best_time, short_desc } = req.body;
             
-            let targetDestId = user.managed_destination_id;
-            if (user.role === 'admin' && dest_id) targetDestId = dest_id;
+            let targetDestId = dest_id;
 
             if (!targetDestId) {
                 return res.redirect('/manager?error=Không xác định được địa điểm cần cập nhật');
