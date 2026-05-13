@@ -1,185 +1,137 @@
-<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 gap-3">
+<!-- Manager Destination Edit -->
+<div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-bold mb-2 tracking-widest x-small text-uppercase">Bảng điều khiển</span>
-        <h2 class="fw-black mb-1 text-dark" style="font-family: 'Outfit', sans-serif;"><%= dest.name %></h2>
-        <p class="text-muted mb-0 small">Quản lý hiển thị, tiện ích và tương tác trực tiếp với du khách số.</p>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;"><%= dest.name %></h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý thông tin hiển thị và tương tác du khách</p>
     </div>
-    <div>
-        <a href="/explore/<%= dest.slug %>" target="_blank" class="btn btn-outline-primary rounded-pill fw-bold shadow-sm px-4">
-            <i class="bi bi-box-arrow-up-right me-2"></i>Xem thực tế
-        </a>
-    </div>
+    <a href="/explore/<%= dest.slug %>" target="_blank" class="btn btn-sm rounded-pill px-3" style="background: rgba(255,255,255,0.05); color: var(--admin-muted);">
+        <i class="bi bi-eye me-1"></i>Xem thực tế
+    </a>
 </div>
 
-<% if (typeof req !== 'undefined' && req.query.success) { %>
-    <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4 bg-success text-white" role="alert">
-        <i class="bi bi-check-circle-fill me-2"></i> <%= req.query.success %>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-    </div>
-<% } %>
-<% if (typeof req !== 'undefined' && req.query.error) { %>
-    <div class="alert alert-danger alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4 bg-danger text-white" role="alert">
-        <i class="bi bi-exclamation-triangle-fill me-2"></i> <%= req.query.error %>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-    </div>
-<% } %>
-
-<div class="row g-4 mb-4">
-    <!-- Quick Stats -->
+<!-- Stats -->
+<div class="row g-3 mb-4">
     <div class="col-md-4">
-        <div class="card card-stat border-0 h-100 p-4 bg-white position-relative overflow-hidden">
-            <div class="position-absolute top-0 end-0 p-3 opacity-10">
-                <i class="bi bi-qr-code-scan display-1 text-primary"></i>
-            </div>
-            <div class="d-flex align-items-center mb-3">
-                <div class="bg-primary bg-opacity-10 p-2 rounded-3 me-3 text-primary">
-                    <i class="bi bi-person-check-fill fs-4"></i>
-                </div>
-                <h6 class="fw-bold mb-0 text-muted">Lượt Check-in</h6>
-            </div>
-            <h2 class="display-5 fw-black text-dark mb-0"><%= stats.checkins %> <span class="fs-6 fw-normal text-success"><i class="bi bi-arrow-up-short"></i>12%</span></h2>
+        <div class="stat-card">
+            <div class="stat-icon mb-2" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="bi bi-qr-code-scan"></i></div>
+            <h3><%= stats.checkins %></h3>
+            <small>Lượt Check-in</small>
         </div>
     </div>
-    
     <div class="col-md-4">
-        <div class="card card-stat border-0 h-100 p-4 bg-white position-relative overflow-hidden">
-            <div class="position-absolute top-0 end-0 p-3 opacity-10">
-                <i class="bi bi-heart-fill display-1 text-danger"></i>
-            </div>
-            <div class="d-flex align-items-center mb-3">
-                <div class="bg-danger bg-opacity-10 p-2 rounded-3 me-3 text-danger">
-                    <i class="bi bi-bookmark-heart-fill fs-4"></i>
-                </div>
-                <h6 class="fw-bold mb-0 text-muted">Lượt Lưu/Yêu thích</h6>
-            </div>
-            <h2 class="display-5 fw-black text-dark mb-0">1,204 <span class="fs-6 fw-normal text-success"><i class="bi bi-arrow-up-short"></i>5%</span></h2>
+        <div class="stat-card">
+            <div class="stat-icon mb-2" style="background: rgba(239,68,68,0.15); color: #ef4444;"><i class="bi bi-heart-fill"></i></div>
+            <h3>1,204</h3>
+            <small>Lượt Yêu thích</small>
         </div>
     </div>
-
     <div class="col-md-4">
-        <div class="card card-stat border-0 h-100 p-4 bg-primary text-white position-relative overflow-hidden shadow-premium">
-            <div class="position-absolute top-0 end-0 p-3 opacity-10">
-                <i class="bi bi-chat-dots-fill display-1 text-white"></i>
-            </div>
-            <div class="d-flex align-items-center mb-3">
-                <div class="bg-white bg-opacity-25 p-2 rounded-3 me-3 text-white">
-                    <i class="bi bi-envelope-open-fill fs-4"></i>
-                </div>
-                <h6 class="fw-bold mb-0 text-white-50">Tin nhắn mới</h6>
-            </div>
-            <h2 class="display-5 fw-black text-white mb-0"><%= messages ? messages.filter(m => m.sender_uuid).length : 0 %></h2>
-            <a href="#inbox" class="stretched-link"></a>
+        <div class="stat-card">
+            <div class="stat-icon mb-2" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-chat-dots-fill"></i></div>
+            <h3><%= messages ? messages.filter(m => m.sender_uuid).length : 0 %></h3>
+            <small>Tin nhắn mới</small>
         </div>
     </div>
 </div>
 
-<div class="row g-4">
-    <!-- Configuration Form -->
-    <div class="col-xl-8" id="destinations">
-        <div class="card border-0 shadow-sm rounded-4 bg-white p-0 h-100 overflow-hidden">
-            <div class="card-header bg-white border-bottom p-4">
-                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-pencil-square me-2 text-primary"></i>Chỉnh sửa Không gian số</h5>
-            </div>
-            <div class="card-body p-4">
-                <form action="/manager/update" method="POST">
-                    <input type="hidden" name="dest_id" value="<%= dest.id %>">
-                    
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Giờ hoạt động</label>
-                            <input type="text" name="open_hours" class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none" value="<%= dest.open_hours %>">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Chi phí dự kiến</label>
-                            <input type="text" name="cost" class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none" value="<%= dest.cost %>">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Thời điểm đẹp nhất</label>
-                            <input type="text" name="best_time" class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none" value="<%= dest.best_time %>">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Mô tả ngắn (Hiển thị thẻ)</label>
-                            <input type="text" name="short_desc" class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none" value="<%= dest.short_desc %>">
-                        </div>
+<div class="row g-3">
+    <div class="col-xl-7">
+        <div class="chart-card h-100">
+            <h6 class="fw-bold mb-4 text-uppercase tracking-widest small" style="color: var(--admin-primary);">Chỉnh sửa Thông tin</h6>
+            
+            <form action="/manager/update" method="POST" id="updateForm">
+                <input type="hidden" name="dest_id" value="<%= dest.id %>">
+                
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Giờ hoạt động</label>
+                        <input type="text" name="open_hours" class="form-control admin-input" value="<%= dest.open_hours %>">
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Chi phí dự kiến</label>
+                        <input type="text" name="cost" class="form-control admin-input" value="<%= dest.cost %>">
+                    </div>
+                </div>
 
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Ảnh Cover (URL / Link)</label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-light border-0"><i class="bi bi-image text-muted"></i></span>
-                            <input type="text" name="cover_image" class="form-control bg-light border-0 shadow-none" value="<%= dest.cover_image %>">
-                        </div>
-                        <% if(dest.cover_image) { %>
-                            <div class="mt-2 rounded-3 overflow-hidden" style="height: 100px; width: 200px;">
-                                <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
-                            </div>
-                        <% } %>
-                    </div>
-
-                    <div class="row g-4 mb-4">
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Điểm nhấn chính (Highlight)</label>
-                            <textarea name="highlight" class="form-control bg-light border-0 rounded-3 shadow-none" rows="3"><%= dest.highlight %></textarea>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Mẹo Check-in góc đẹp (Tip)</label>
-                            <textarea name="checkin_tip" class="form-control bg-light border-0 rounded-3 shadow-none" rows="3"><%= dest.checkin_tip %></textarea>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Ảnh Đại diện (Cover)</label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <img id="cover_preview" src="<%= fixImg(dest.cover_image) %>" class="rounded-3" style="width: 120px; height: 80px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <div>
+                            <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('cover_file').click()">
+                                <i class="bi bi-upload me-1"></i>Tải ảnh lên
+                            </button>
+                            <input type="file" id="cover_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'cover_image', 'cover_preview')">
+                            <p class="mb-0 mt-1 x-small text-muted" style="font-size: 0.7rem;">Kích thước gợi ý: 1200x800px</p>
                         </div>
                     </div>
+                    <input type="hidden" name="cover_image" id="cover_image" value="<%= dest.cover_image %>">
+                </div>
 
-                    <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Mô tả Zen Walk (Âm thanh/Thiền)</label>
-                        <textarea name="zen_walk_desc" class="form-control bg-light border-0 rounded-3 shadow-none" rows="2"><%= dest.zen_walk_desc %></textarea>
-                    </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Mô tả ngắn</label>
+                    <input type="text" name="short_desc" class="form-control admin-input" value="<%= dest.short_desc %>">
+                </div>
 
-                    <div class="mb-5">
-                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Nội dung Câu chuyện chi tiết (Story)</label>
-                        <textarea name="story" class="form-control bg-light border-0 rounded-3 shadow-none" rows="6"><%= dest.story %></textarea>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Điểm nhấn (Highlight)</label>
+                        <textarea name="highlight" class="form-control admin-input" rows="3"><%= dest.highlight %></textarea>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Mẹo Check-in (Tip)</label>
+                        <textarea name="checkin_tip" class="form-control admin-input" rows="3"><%= dest.checkin_tip %></textarea>
+                    </div>
+                </div>
 
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary-bl btn-lg px-5 rounded-pill fw-bold shadow-premium">
-                            LƯU THÔNG TIN <i class="bi bi-check2 ms-2"></i>
-                        </button>
-                    </div>
-                </form>
-            </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Nội dung Câu chuyện (Story)</label>
+                    <textarea name="story" class="form-control admin-input" rows="5"><%= dest.story %></textarea>
+                </div>
+
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary px-5 py-2 rounded-pill fw-bold">
+                        <i class="bi bi-check-circle me-2"></i>LƯU THÔNG TIN
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    <!-- Live Chat Inbox -->
-    <div class="col-xl-4" id="inbox">
-        <div class="card border-0 shadow-sm rounded-4 bg-white h-100 d-flex flex-column">
-            <div class="card-header bg-white border-bottom p-4 d-flex justify-content-between align-items-center">
-                <h5 class="fw-bold mb-0 text-dark"><i class="bi bi-headset me-2 text-primary"></i>Hộp thư trực tuyến</h5>
-                <span class="badge bg-danger rounded-pill"><%= messages ? messages.filter(m => m.sender_uuid).length : 0 %> Mới</span>
+    <div class="col-xl-5">
+        <div class="chart-card h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h6 class="fw-bold mb-0 small text-uppercase tracking-widest" style="color: var(--admin-accent);">Tin nhắn & Chat</h6>
+                <span class="badge rounded-pill bg-danger" style="font-size: 0.65rem;"><%= messages ? messages.filter(m => m.sender_uuid).length : 0 %> Mới</span>
             </div>
-            <div class="card-body p-0 flex-grow-1 overflow-auto message-list" style="max-height: 800px; background: #fdfdfb;">
+            
+            <div class="flex-grow-1 overflow-auto pe-2" id="chat-box" style="max-height: 500px;">
                 <% if (messages && messages.length > 0) { %>
-                    <div class="p-3">
-                        <% messages.forEach(msg => { %>
-                            <% const isReply = !msg.sender_uuid; %>
-                            <div class="d-flex flex-column mb-3 <%= isReply ? 'align-items-end' : 'align-items-start' %>">
-                                <span class="x-small text-muted mb-1 px-2 fw-bold text-uppercase">
-                                    <%= isReply ? 'Bạn' : 'Khách #' + msg.sender_uuid.substring(0,6) %>
-                                    • <%= new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) %>
-                                </span>
-                                <div class="p-3 rounded-4 <%= isReply ? 'bg-primary text-white shadow-sm' : 'bg-white border shadow-sm' %>" style="max-width: 85%;">
-                                    <p class="mb-0 small"><%= msg.message %></p>
+                    <% messages.forEach(msg => { %>
+                        <% const isReply = !msg.sender_uuid; %>
+                        <div class="mb-3 <%= isReply ? 'text-end' : '' %>">
+                            <div class="d-inline-block p-3 rounded-4 <%= isReply ? 'bg-primary text-white' : 'bg-dark' %>" style="max-width: 85%; border: <%= isReply ? 'none' : '1px solid var(--admin-border)' %>;">
+                                <div class="d-flex justify-content-between align-items-center mb-1 gap-4">
+                                    <span class="fw-bold" style="font-size: 0.65rem; color: <%= isReply ? 'rgba(255,255,255,0.7)' : 'var(--admin-muted)' %>;">
+                                        <%= isReply ? 'BẠN' : 'KHÁCH #' + msg.sender_uuid.slice(0,6).toUpperCase() %>
+                                    </span>
+                                    <span style="font-size: 0.6rem; color: <%= isReply ? 'rgba(255,255,255,0.5)' : 'var(--admin-muted)' %>;">
+                                        <%= new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour:'2-digit', minute:'2-digit'}) %>
+                                    </span>
                                 </div>
+                                <p class="mb-0 small"><%= msg.message %></p>
                                 <% if (!isReply) { %>
-                                    <button class="btn btn-link btn-sm text-primary x-small text-decoration-none mt-1 p-0 px-2" onclick="openReplyModal('<%= msg.id %>', '<%= msg.sender_uuid.substring(0, 6) %>')">
-                                        <i class="bi bi-reply-fill"></i> Trả lời
+                                    <button class="btn btn-link btn-sm p-0 mt-2 text-primary text-decoration-none fw-bold" style="font-size: 0.7rem;" onclick="openReplyModal('<%= msg.id %>', '<%= msg.sender_uuid.slice(0,6) %>')">
+                                        <i class="bi bi-reply-fill me-1"></i>Trả lời ngay
                                     </button>
                                 <% } %>
                             </div>
-                        <% }) %>
-                    </div>
+                        </div>
+                    <% }) %>
                 <% } else { %>
-                    <div class="h-100 d-flex flex-column justify-content-center align-items-center opacity-50 p-5 text-center">
-                        <i class="bi bi-inbox display-1 text-muted mb-3"></i>
-                        <h6 class="fw-bold text-muted">Hộp thư trống</h6>
-                        <p class="small text-muted mb-0">Chưa có tin nhắn hỗ trợ nào từ du khách.</p>
+                    <div class="text-center py-5">
+                        <i class="bi bi-chat-dots display-4 d-block mb-3 opacity-10"></i>
+                        <p class="text-muted small">Hộp thư trống</p>
                     </div>
                 <% } %>
             </div>
@@ -190,40 +142,58 @@
 <!-- Reply Modal -->
 <div class="modal fade" id="replyModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg">
-            <div class="modal-header bg-white border-bottom p-4">
-                <h5 class="modal-title fw-bold"><i class="bi bi-reply-all-fill text-primary me-2"></i>Phản hồi Khách #<span id="reply-to-id" class="text-primary"></span></h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface); border: 1px solid var(--admin-border) !important;">
+            <div class="modal-header border-bottom p-4" style="border-color: var(--admin-border) !important;">
+                <h5 class="modal-title fw-bold" style="color: var(--admin-text);">Phản hồi Khách #<span id="reply-to-id" class="text-primary"></span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-4 bg-light">
+            <div class="modal-body p-4">
                 <input type="hidden" id="reply-msg-id">
-                <div class="form-floating mb-4 shadow-sm">
-                    <textarea id="reply-text" class="form-control border-0 rounded-3 shadow-none" style="height: 120px" placeholder="Nhập nội dung..."></textarea>
-                    <label for="reply-text">Nội dung phản hồi từ Quản lý</label>
+                <div class="mb-4">
+                    <textarea id="reply-text" class="form-control admin-input" style="height: 120px" placeholder="Nhập nội dung phản hồi..."></textarea>
                 </div>
-                <button class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest" onclick="sendReply()">
-                    GỬI PHẢN HỒI NAY <i class="bi bi-send ms-2"></i>
+                <button class="btn btn-primary w-100 rounded-pill py-2 fw-bold" onclick="sendReply()">
+                    GỬI PHẢN HỒI <i class="bi bi-send ms-2"></i>
                 </button>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .tracking-widest { letter-spacing: 1px; }
-    .x-small { font-size: 0.75rem; }
-    
-    .message-list::-webkit-scrollbar { width: 6px; }
-    .message-list::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
-    .message-list::-webkit-scrollbar-track { background: transparent; }
-    
-    .form-control:focus { background-color: #fff !important; box-shadow: 0 0 0 4px rgba(92, 138, 94, 0.1) !important; border: 1px solid var(--v5-primary) !important; }
-</style>
-
 <script>
+async function uploadFile(input, targetId, previewId) {
+    if (!input.files || !input.files[0]) return;
+    
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            document.getElementById(targetId).value = res.data.path; 
+            if (previewId) document.getElementById(previewId).src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
 function openReplyModal(msgId, guestId) {
     document.getElementById('reply-msg-id').value = msgId;
-    document.getElementById('reply-to-id').innerText = guestId;
+    document.getElementById('reply-to-id').innerText = guestId.toUpperCase();
     new bootstrap.Modal(document.getElementById('replyModal')).show();
 }
 
@@ -243,4 +213,10 @@ function sendReply() {
         alert('Lỗi: ' + (err.response?.data?.message || err.message));
     });
 }
+
+// Auto scroll to bottom of chat
+document.addEventListener('DOMContentLoaded', () => {
+    const chatBox = document.getElementById('chat-box');
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+});
 </script>

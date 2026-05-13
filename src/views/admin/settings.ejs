@@ -22,9 +22,16 @@
                     <input type="text" name="hero_slogan" class="form-control admin-input" value="<%= settings.hero_slogan || 'Miệt vườn giữa phố, trải nghiệm bản sắc' %>" placeholder="Slogan...">
                 </div>
                 <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">URL Ảnh Hero</label>
-                    <input type="text" name="hero_image" class="form-control admin-input" value="<%= settings.hero_image || '/images/hero-1.png' %>" placeholder="/images/hero.jpg">
-                    <small style="color: var(--admin-muted);">Đường dẫn ảnh nền trang chủ</small>
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Ảnh Hero (Trang chủ)</label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <img id="hero_preview" src="<%= settings.hero_image || '/images/hero-1.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('hero_file').click()">
+                            <i class="bi bi-upload me-1"></i>Chọn ảnh
+                        </button>
+                        <input type="file" id="hero_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'hero_image', 'hero_preview')">
+                    </div>
+                    <input type="hidden" name="hero_image" id="hero_image" value="<%= settings.hero_image || '/images/hero-1.png' %>">
+                    <small style="color: var(--admin-muted);">Định dạng JPG, PNG. Dung lượng tối đa 5MB.</small>
                 </div>
             </div>
         </div>
@@ -83,6 +90,36 @@
 </form>
 
 <script>
+async function uploadFile(input, targetId, previewId) {
+    if (!input.files || !input.files[0]) return;
+    
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            document.getElementById(targetId).value = res.data.url;
+            if (previewId) document.getElementById(previewId).src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
 async function saveSettings(e) {
     e.preventDefault();
     const btn = document.getElementById('saveBtn');

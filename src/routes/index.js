@@ -15,15 +15,14 @@ const MapController = require('../controllers/MapController');
 const ManagerController = require('../controllers/ManagerController');
 const PassportController = require('../controllers/PassportController');
 const ChatController = require('../controllers/ChatController');
-const MarketController = require('../controllers/MarketController');
-const FestivalController = require('../controllers/FestivalController');
 const AuthController = require('../controllers/AuthController');
 const WorkshopController = require('../controllers/WorkshopController');
 const ProfileController = require('../controllers/ProfileController');
 const AdminController = require('../controllers/AdminController');
 const ReviewController = require('../controllers/ReviewController');
-const CartController = require('../controllers/CartController');
-const NotificationController = require('../controllers/NotificationController');
+const UploadController = require('../controllers/UploadController');
+const upload = require('../middleware/upload');
+const FestivalController = require('../controllers/FestivalController');
 
 // Middleware
 const { ensureAuthenticated, ensureManager, ensureAdmin, restrictToManagers } = require('../middleware/auth');
@@ -32,8 +31,8 @@ const { ensureAuthenticated, ensureManager, ensureAdmin, restrictToManagers } = 
 router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
 router.get('/checkin', CheckinController.index);
-router.get('/market', MarketController.index);
-router.get('/market/:id', MarketController.detail);
+router.get('/market', (req, res) => res.render('market/index', { title: 'Sản phẩm OCOP' })); // Simple view
+router.get('/market/:id', (req, res) => res.redirect('/market'));
 
 // ===== FESTIVALS =====
 router.get('/festivals', FestivalController.index);
@@ -144,8 +143,8 @@ router.post('/api/admin/delete-user', ensureAdmin, AdminController.deleteUser);
 router.post('/api/admin/toggle-destination', ensureAdmin, AdminController.toggleDestination);
 router.post('/api/admin/update-settings', ensureAdmin, AdminController.updateSettings);
 
-// Notification API (Chương 5.14)
-router.get('/api/notifications', NotificationController.getAll);
-router.post('/api/notifications/read', ensureAuthenticated, NotificationController.markRead);
+// General Upload API
+router.post('/api/upload', ensureAuthenticated, upload.single('image'), UploadController.uploadImage);
 
+// Notification API removed
 module.exports = router;
