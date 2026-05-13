@@ -1,197 +1,164 @@
-<% /* Workshop Detail + Booking - Chương 5.11 */ %>
-
-<!-- Hero -->
-<section class="position-relative" style="height: 400px; overflow: hidden;">
-    <img src="<%= fixImg(workshop.image) %>" class="w-100 h-100" style="object-fit: cover; filter: brightness(0.6);" alt="<%= workshop.title %>">
-    <div class="position-absolute bottom-0 start-0 w-100 p-5" style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
-        <div class="container">
-            <span class="badge bg-primary rounded-pill px-3 py-2 mb-3"><%= workshop.type %></span>
-            <h1 class="text-white fw-black display-5" style="font-family: var(--font-display);"><%= workshop.title %></h1>
-            <p class="text-white-50"><i class="bi bi-geo-alt me-2"></i><%= workshop.destination_name || 'Bình Lợi' %></p>
-        </div>
-    </div>
-</section>
-
-<section class="py-5">
-    <div class="container">
+<!-- Workshop Detail — Chương 5.11 -->
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container py-4">
         <div class="row g-5">
-            <!-- Main Content -->
+            <!-- Left: Gallery + Info -->
             <div class="col-lg-7">
-                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-                    <h3 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Giới thiệu</h3>
-                    <p class="text-muted lh-lg"><%= workshop.description %></p>
+                <!-- Image -->
+                <div class="rounded-2xl overflow-hidden mb-4 reveal-up" style="height: 400px;">
+                    <img src="<%= fixImg(workshop.image) %>" class="w-100 h-100 object-fit-cover" alt="<%= workshop.title %>">
                 </div>
-
-                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-                    <h3 class="fw-bold mb-3"><i class="bi bi-list-check text-primary me-2"></i>Thông tin chi tiết</h3>
-                    <div class="row g-3">
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded-3 text-center">
-                                <i class="bi bi-clock display-6 text-primary"></i>
-                                <div class="fw-bold mt-2"><%= workshop.duration_minutes %> phút</div>
-                                <small class="text-muted">Thời lượng</small>
+                
+                <!-- Info -->
+                <div class="reveal-up">
+                    <div class="d-flex gap-2 mb-3 flex-wrap">
+                        <span class="badge-nature"><%= workshop.type %></span>
+                        <% if (stats && stats.avg_rating) { %>
+                        <span class="badge-gold"><i class="bi bi-star-fill me-1"></i><%= parseFloat(stats.avg_rating).toFixed(1) %> (<%= stats.total_reviews || 0 %> đánh giá)</span>
+                        <% } %>
+                    </div>
+                    <h1 class="fw-black font-display mb-3" style="font-size: 2rem;"><%= workshop.title %></h1>
+                    <p style="font-size: 0.95rem; line-height: 1.9; color: var(--text-secondary);"><%= workshop.description %></p>
+                    
+                    <!-- Meta -->
+                    <div class="row g-3 mt-4">
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 rounded-xl text-center" style="background: var(--surface-alt);">
+                                <i class="bi bi-clock d-block mb-1" style="color: var(--primary);"></i>
+                                <span class="fw-bold d-block" style="font-size: 0.82rem;"><%= workshop.duration || '2-3 giờ' %></span>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded-3 text-center">
-                                <i class="bi bi-people display-6 text-primary"></i>
-                                <div class="fw-bold mt-2">Tối đa <%= workshop.max_participants %></div>
-                                <small class="text-muted">Người tham gia</small>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 rounded-xl text-center" style="background: var(--surface-alt);">
+                                <i class="bi bi-people d-block mb-1" style="color: var(--primary);"></i>
+                                <span class="fw-bold d-block" style="font-size: 0.82rem;">Tối đa <%= workshop.max_participants || 20 %></span>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded-3 text-center">
-                                <i class="bi bi-tag display-6 text-warning"></i>
-                                <div class="fw-bold mt-2"><%= workshop.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %></div>
-                                <small class="text-muted">Giá/người</small>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 rounded-xl text-center" style="background: var(--surface-alt);">
+                                <i class="bi bi-ticket d-block mb-1" style="color: var(--primary);"></i>
+                                <span class="fw-bold d-block" style="font-size: 0.82rem;"><%= stats ? stats.total_bookings || 0 : 0 %> đã đặt</span>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="p-3 bg-light rounded-3 text-center">
-                                <i class="bi bi-calendar-week display-6 text-success"></i>
-                                <div class="fw-bold mt-2 small"><%= workshop.schedule_note || 'Liên hệ' %></div>
-                                <small class="text-muted">Lịch trình</small>
+                        <div class="col-6 col-md-3">
+                            <div class="p-3 rounded-xl text-center" style="background: var(--surface-alt);">
+                                <i class="bi bi-geo-alt d-block mb-1" style="color: var(--primary);"></i>
+                                <span class="fw-bold d-block" style="font-size: 0.82rem;">Bình Lợi</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <% if (stats && stats.avg_rating) { %>
-                <div class="card border-0 shadow-sm rounded-4 p-4">
-                    <h3 class="fw-bold mb-3"><i class="bi bi-star text-warning me-2"></i>Đánh giá</h3>
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        <span class="display-4 fw-black text-warning"><%= parseFloat(stats.avg_rating).toFixed(1) %></span>
-                        <div>
-                            <div class="text-warning">
-                                <% for (let i = 0; i < 5; i++) { %>
-                                    <i class="bi bi-star<%= i < Math.round(stats.avg_rating) ? '-fill' : '' %>"></i>
-                                <% } %>
-                            </div>
-                            <small class="text-muted"><%= stats.completed || 0 %> lượt hoàn thành</small>
+                <!-- Related -->
+                <% if (relatedWorkshops && relatedWorkshops.length > 0) { %>
+                <div class="mt-5 reveal-up">
+                    <h5 class="fw-bold mb-3">Workshop liên quan</h5>
+                    <div class="row g-3">
+                        <% relatedWorkshops.slice(0, 2).forEach(rw => { %>
+                        <div class="col-6">
+                            <a href="/workshops/<%= rw.id %>" class="text-decoration-none">
+                                <div class="card-heal">
+                                    <div class="card-img" style="height: 140px;"><img src="<%= fixImg(rw.image) %>" alt="<%= rw.title %>"></div>
+                                    <div class="p-3"><h6 class="fw-bold mb-0" style="font-size: 0.85rem; color: var(--text);"><%= rw.title %></h6></div>
+                                </div>
+                            </a>
                         </div>
+                        <% }) %>
                     </div>
                 </div>
                 <% } %>
             </div>
 
-            <!-- Sidebar: Booking Form -->
+            <!-- Right: Booking Form -->
             <div class="col-lg-5">
-                <div class="card border-0 shadow-lg rounded-4 p-4 sticky-top" style="top: 100px;">
-                    <h4 class="fw-bold mb-4 text-center"><i class="bi bi-calendar-check me-2"></i>Đăng ký tham gia</h4>
-                    
-                    <% if (user) { %>
-                        <form id="bookingForm">
-                            <input type="hidden" name="workshop_id" value="<%= workshop.id %>">
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Ngày tham gia</label>
-                                <input type="date" class="form-control rounded-3" name="booking_date" required 
-                                       min="<%= new Date().toISOString().split('T')[0] %>">
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Giờ</label>
-                                <select class="form-select rounded-3" name="booking_time">
-                                    <option value="08:00">08:00 Sáng</option>
-                                    <option value="09:00">09:00 Sáng</option>
-                                    <option value="14:00">14:00 Chiều</option>
-                                    <option value="15:00">15:00 Chiều</option>
+                <div class="p-4 rounded-2xl reveal-up" style="background: var(--surface); border: 1px solid var(--border-light); position: sticky; top: 100px;">
+                    <!-- Price -->
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid var(--border-light);">
+                        <div>
+                            <% if (workshop.price === 0) { %>
+                                <span class="fw-black font-display" style="font-size: 1.8rem; color: var(--success);">Miễn phí</span>
+                            <% } else { %>
+                                <span class="fw-black font-display" style="font-size: 1.8rem; color: var(--primary);"><%= new Intl.NumberFormat('vi-VN').format(workshop.price) %>đ</span>
+                                <span class="text-muted">/người</span>
+                            <% } %>
+                        </div>
+                        <span class="text-muted" style="font-size: 0.82rem;">+50 điểm</span>
+                    </div>
+
+                    <!-- Form -->
+                    <form id="bookingForm">
+                        <input type="hidden" name="workshop_id" value="<%= workshop.id %>">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-size: 0.82rem; color: var(--text-secondary);">Ngày tham gia</label>
+                            <input type="date" class="form-control rounded-lg border-0" name="booking_date" style="background: var(--surface-alt); padding: 12px;" required>
+                        </div>
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label fw-bold" style="font-size: 0.82rem; color: var(--text-secondary);">Giờ</label>
+                                <select class="form-select rounded-lg border-0" name="booking_time" style="background: var(--surface-alt); padding: 12px;">
+                                    <option>08:00</option><option>09:00</option><option>10:00</option><option>14:00</option>
                                 </select>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Số người</label>
-                                <input type="number" class="form-control rounded-3" name="num_people" value="1" min="1" max="<%= workshop.max_participants %>">
+                            <div class="col-6">
+                                <label class="form-label fw-bold" style="font-size: 0.82rem; color: var(--text-secondary);">Số người</label>
+                                <input type="number" class="form-control rounded-lg border-0" name="num_people" value="1" min="1" max="10" style="background: var(--surface-alt); padding: 12px;">
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label fw-bold">Ghi chú</label>
-                                <textarea class="form-control rounded-3" name="note" rows="2" placeholder="Yêu cầu đặc biệt..."></textarea>
-                            </div>
-
-                            <div class="p-3 bg-light rounded-3 mb-3">
-                                <div class="d-flex justify-content-between">
-                                    <span>Giá</span>
-                                    <span class="fw-bold" id="totalPrice"><%= workshop.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %></span>
-                                </div>
-                            </div>
-
-                            <button type="submit" class="btn btn-premium btn-lg w-100 rounded-pill" id="btnBook">
-                                <i class="bi bi-check-circle me-2"></i>Đăng Ký Ngay
-                            </button>
-                        </form>
-
-                        <div id="bookingResult" class="mt-3 d-none"></div>
-                    <% } else { %>
-                        <div class="text-center py-4">
-                            <i class="bi bi-person-circle display-3 text-muted"></i>
-                            <p class="mt-3 text-muted">Đăng nhập để đặt chỗ workshop</p>
-                            <a href="/auth/login" class="btn btn-premium rounded-pill px-5">Đăng nhập</a>
                         </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="font-size: 0.82rem; color: var(--text-secondary);">Ghi chú</label>
+                            <textarea class="form-control rounded-lg border-0" name="note" rows="2" placeholder="Yêu cầu đặc biệt..." style="background: var(--surface-alt); padding: 12px; resize: none;"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-premium w-100 py-3" id="btnBook">
+                            <i class="bi bi-calendar-check me-2"></i>Đặt chỗ ngay
+                        </button>
+                    </form>
+                    <div id="bookingResult" class="mt-3 d-none"></div>
+                    
+                    <!-- User's existing bookings -->
+                    <% if (userBookings && userBookings.length > 0) { %>
+                    <div class="mt-4 pt-3" style="border-top: 1px solid var(--border-light);">
+                        <h6 class="fw-bold mb-3" style="font-size: 0.85rem;">Vé của bạn</h6>
+                        <% userBookings.forEach(b => { %>
+                        <div class="d-flex align-items-center gap-2 p-2 rounded-lg mb-2" style="background: var(--primary-50);">
+                            <i class="bi bi-qr-code" style="color: var(--primary);"></i>
+                            <div class="flex-grow-1">
+                                <span class="fw-bold d-block" style="font-size: 0.78rem;"><%= b.qr_ticket %></span>
+                                <span class="text-muted" style="font-size: 0.7rem;"><%= new Date(b.booking_date).toLocaleDateString('vi-VN') %></span>
+                            </div>
+                            <span class="badge rounded-pill" style="font-size: 0.65rem; background: rgba(16,185,129,0.1); color: var(--success);"><%= b.status %></span>
+                        </div>
+                        <% }) %>
+                    </div>
                     <% } %>
                 </div>
-
-                <!-- My Bookings -->
-                <% if (userBookings && userBookings.length > 0) { %>
-                <div class="card border-0 shadow-sm rounded-4 p-4 mt-4">
-                    <h5 class="fw-bold mb-3"><i class="bi bi-ticket-perforated me-2"></i>Vé của bạn</h5>
-                    <% userBookings.forEach(b => { %>
-                        <div class="p-3 bg-light rounded-3 mb-2">
-                            <div class="d-flex justify-content-between">
-                                <span class="fw-bold"><%= new Date(b.booking_date).toLocaleDateString('vi-VN') %></span>
-                                <span class="badge bg-<%= b.status === 'confirmed' ? 'success' : b.status === 'completed' ? 'primary' : 'warning' %> rounded-pill"><%= b.status %></span>
-                            </div>
-                            <small class="text-muted">Mã: <%= b.qr_ticket %></small>
-                        </div>
-                    <% }); %>
-                </div>
-                <% } %>
             </div>
         </div>
     </div>
 </section>
 
-<%- typeof scripts !== 'undefined' ? '' : '' %>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('bookingForm');
-    if (!form) return;
-
-    const pricePerPerson = <%= workshop.price %>;
-    const numInput = form.querySelector('[name="num_people"]');
-    const totalEl = document.getElementById('totalPrice');
-
-    numInput?.addEventListener('input', () => {
-        const total = pricePerPerson * parseInt(numInput.value || 1);
-        totalEl.textContent = total === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(total) + 'đ';
-    });
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('btnBook');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
-
-        try {
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData);
-            const res = await axios.post('/api/workshop/book', data);
-            
-            const resultEl = document.getElementById('bookingResult');
-            resultEl.classList.remove('d-none');
-            
-            if (res.data.success) {
-                resultEl.innerHTML = `
-                    <div class="alert alert-success rounded-3">
-                        <i class="bi bi-check-circle-fill me-2"></i>${res.data.message}
-                    </div>`;
-                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đã đăng ký!';
-            } else {
-                resultEl.innerHTML = `<div class="alert alert-danger rounded-3">${res.data.message}</div>`;
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đăng Ký Ngay';
-            }
-        } catch (err) {
+document.getElementById('bookingForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnBook');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+    try {
+        const formData = new FormData(e.target);
+        const res = await axios.post('/api/workshop/book', Object.fromEntries(formData));
+        const el = document.getElementById('bookingResult');
+        el.classList.remove('d-none');
+        if (res.data.success) {
+            el.innerHTML = `<div class="alert border-0 rounded-xl p-3" style="background: var(--primary-50); color: var(--primary);"><i class="bi bi-check-circle-fill me-2"></i>${res.data.message}</div>`;
+            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đã đặt thành công!';
+        } else {
+            el.innerHTML = `<div class="alert alert-danger border-0 rounded-xl p-3">${res.data.message}</div>`;
             btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đăng Ký Ngay';
-            alert('Lỗi: ' + (err.response?.data?.message || err.message));
+            btn.innerHTML = '<i class="bi bi-calendar-check me-2"></i>Đặt chỗ ngay';
         }
-    });
+    } catch(err) {
+        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-calendar-check me-2"></i>Đặt chỗ ngay';
+    }
 });
 </script>

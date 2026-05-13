@@ -24,6 +24,7 @@ const AdminController = require('../controllers/AdminController');
 const ReviewController = require('../controllers/ReviewController');
 const CartController = require('../controllers/CartController');
 const NotificationController = require('../controllers/NotificationController');
+const MediaController = require('../controllers/MediaController');
 
 // Middleware
 const { ensureAuthenticated, ensureManager, ensureAdmin, restrictToManagers } = require('../middleware/auth');
@@ -79,6 +80,7 @@ router.get('/admin', ensureAdmin, AdminController.dashboard);
 router.get('/admin/users', ensureAdmin, AdminController.users);
 router.get('/admin/workshops', ensureAdmin, AdminController.workshops);
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
+router.get('/admin/products', ensureAdmin, AdminController.products);
 
 // ===== AUTH ROUTES (Chương 5.1) =====
 router.get('/auth/login', AuthController.loginPage);
@@ -145,9 +147,16 @@ router.post('/api/cart/checkout', ensureAuthenticated, CartController.checkout);
 // Admin API (Chương 7 - Pattern Relioo apiUpdateUser, apiDeleteUser)
 router.post('/api/admin/update-user', ensureAdmin, AdminController.updateUser);
 router.post('/api/admin/delete-user', ensureAdmin, AdminController.deleteUser);
+router.post('/api/admin/update-settings', ensureAdmin, AdminController.updateSettings);
+router.post('/api/admin/update-product', ensureAdmin, AdminController.updateProduct);
 
 // Notification API (Chương 5.14)
 router.get('/api/notifications', NotificationController.getAll);
 router.post('/api/notifications/read', ensureAuthenticated, NotificationController.markRead);
+
+// Media API (Chương 7)
+router.get('/api/admin/media', restrictToManagers, MediaController.list);
+router.post('/api/admin/upload', restrictToManagers, MediaController.upload);
+router.delete('/api/admin/media/:id', restrictToManagers, MediaController.delete);
 
 module.exports = router;

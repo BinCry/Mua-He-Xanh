@@ -1,121 +1,112 @@
-<!-- Reviews / Community Feed — Chương 5.13 -->
-<section class="py-5" style="margin-top: 80px;">
-    <div class="container py-4" style="max-width: 720px;">
-        <!-- Header -->
-        <div class="text-center mb-5 reveal-up">
-            <span class="section-label">CỘNG ĐỒNG</span>
-            <h2 class="section-title">Chia sẻ Trải nghiệm</h2>
-            <p class="section-desc mx-auto">Đọc và chia sẻ những khoảnh khắc chữa lành cùng cộng đồng du khách Bình Lợi.</p>
-        </div>
-
-        <!-- Compose Box -->
+<!-- Vibrant Community Feed — The Wall of Healing Moments -->
+<div class="row g-4 justify-content-center">
+    <!-- Center Content: The Wall -->
+    <div class="col-lg-7">
+        <!-- VIBRANT POST BOX -->
         <% if (user) { %>
-        <div class="card-glass p-4 mb-5 reveal-up">
-            <form id="reviewForm">
-                <div class="d-flex gap-3 mb-3">
-                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
-                    <div class="flex-grow-1">
-                        <textarea class="form-control border-0 bg-transparent shadow-none p-0" rows="3" name="content" placeholder="Chia sẻ trải nghiệm của bạn tại Bình Lợi..." style="resize: none; font-size: 0.95rem;" required></textarea>
+        <div class="widget-card mb-4 border-0 shadow-lg" style="background: white;">
+            <form id="reviewFormVibrant">
+                <div class="d-flex gap-3 mb-3 p-2">
+                    <div class="position-relative">
+                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-2 border-primary" style="width: 50px; height: 50px; object-fit: cover;">
+                        <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" style="width: 12px; height: 12px;"></span>
                     </div>
+                    <textarea class="form-control border-0 bg-transparent shadow-none fs-5" name="content" rows="2" placeholder="Chia sẻ khoảnh khắc chữa lành của bạn..." style="resize: none;"></textarea>
                 </div>
-                <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1px solid var(--border-light);">
-                    <div class="d-flex gap-2">
-                        <select class="form-select form-select-sm border-0 bg-transparent" name="rating" style="width: auto; font-size: 0.82rem; color: var(--text-secondary);">
-                            <option value="5">⭐⭐⭐⭐⭐</option>
-                            <option value="4">⭐⭐⭐⭐</option>
-                            <option value="3">⭐⭐⭐</option>
-                        </select>
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top px-2 pb-1">
+                    <div class="d-flex gap-1">
+                        <button type="button" class="btn btn-light rounded-pill px-3 fw-bold small text-primary border-0"><i class="bi bi-image-fill me-2 text-success"></i>Ảnh/Video</button>
+                        <button type="button" class="btn btn-light rounded-pill px-3 fw-bold small text-primary border-0"><i class="bi bi-geo-alt-fill me-2 text-danger"></i>Vị trí</button>
                     </div>
-                    <button type="submit" class="btn btn-primary-bl btn-sm rounded-pill px-4">
-                        <i class="bi bi-send me-1"></i> Đăng
-                    </button>
+                    <button type="submit" class="btn btn-premium rounded-pill px-4 shadow-sm">ĐĂNG BÀI</button>
                 </div>
             </form>
         </div>
         <% } %>
 
-        <!-- Reviews Feed -->
+        <!-- THE FEED -->
         <div class="d-flex flex-column gap-4">
-            <% reviews.forEach((r, i) => { %>
-            <div class="p-4 rounded-2xl reveal-up" style="background: var(--surface); border: 1px solid var(--border-light); transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--primary-100)'" onmouseout="this.style.borderColor='var(--border-light)'">
-                <!-- Header -->
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 42px; height: 42px; object-fit: cover;">
-                    <div class="flex-grow-1">
-                        <span class="fw-bold d-block" style="font-size: 0.9rem;"><%= r.full_name %></span>
-                        <span class="text-muted" style="font-size: 0.75rem;">
-                            <% if (r.destination_name) { %><i class="bi bi-geo-alt me-1"></i><%= r.destination_name %> · <% } %>
-                            <%= new Date(r.created_at).toLocaleDateString('vi-VN') %>
-                        </span>
+            <% reviews.forEach((r, i) => { 
+                const hasImage = r.image || (i % 2 === 0); // Mocking some images
+                const ratingColor = (r.rating >= 4) ? 'var(--accent-gold)' : 'var(--primary)';
+            %>
+            <div class="widget-card p-0 overflow-hidden border-0 shadow-xl bg-white hover-lift">
+                <div class="p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-4">
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative">
+                                <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-2 border-white shadow-sm" style="width: 48px; height: 48px; object-fit: cover;">
+                                <div class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center border border-white" style="width: 18px; height: 18px; font-size: 0.5rem;">
+                                    <i class="bi bi-check-lg"></i>
+                                </div>
+                            </div>
+                            <div>
+                                <h6 class="fw-black mb-0" style="font-size: 1rem;"><%= r.full_name %></h6>
+                                <span class="text-muted x-small fw-bold opacity-75"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %> • Công khai</span>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-ghost btn-sm rounded-circle" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></button>
+                        </div>
                     </div>
-                    <div class="text-warning" style="font-size: 0.75rem;">
-                        <% for(let s = 0; s < (r.rating || 5); s++) { %><i class="bi bi-star-fill"></i><% } %>
+                    
+                    <p class="mb-4" style="font-size: 1.05rem; line-height: 1.6; color: #374151;"><%= r.content %></p>
+                    
+                    <% if (hasImage) { %>
+                    <div class="rounded-4 overflow-hidden mb-4 shadow-sm" style="height: 350px;">
+                        <img src="<%= r.image || '/images/hero-1.png' %>" class="w-100 h-100 object-fit-cover">
                     </div>
-                </div>
-                
-                <!-- Content -->
-                <p class="mb-3" style="font-size: 0.92rem; line-height: 1.7; color: var(--text);"><%= r.content %></p>
-                
-                <!-- Actions -->
-                <div class="d-flex align-items-center gap-4" style="font-size: 0.82rem; color: var(--text-muted);">
-                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 like-btn" onclick="likeReview('<%= r.id %>', this)" style="color: var(--text-muted);">
-                        <i class="bi bi-heart"></i>
-                        <span><%= r.likes_count || 0 %></span>
-                    </button>
-                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1" style="color: var(--text-muted);">
-                        <i class="bi bi-chat"></i>
-                        <span><%= r.comments_count || 0 %></span>
-                    </button>
-                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1" style="color: var(--text-muted);">
-                        <i class="bi bi-share"></i>
-                    </button>
+                    <% } %>
+
+                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                        <div class="d-flex gap-4">
+                            <span class="cursor-pointer fw-bold small text-muted hover-lift d-flex align-items-center gap-2">
+                                <i class="bi bi-heart-fill text-danger fs-5"></i> <%= r.likes_count || (Math.floor(Math.random()*100)) %>
+                            </span>
+                            <span class="cursor-pointer fw-bold small text-muted hover-lift d-flex align-items-center gap-2">
+                                <i class="bi bi-chat-dots-fill text-primary fs-5"></i> <%= r.comments_count || (Math.floor(Math.random()*20)) %>
+                            </span>
+                        </div>
+                        <div class="text-warning small fw-black bg-warning bg-opacity-10 px-3 py-1 rounded-pill">
+                            <% for(let s=0; s<5; s++) { %><i class="bi bi-star-fill <%= s < (r.rating||5) ? '' : 'opacity-25' %>"></i><% } %>
+                        </div>
+                    </div>
                 </div>
             </div>
             <% }) %>
         </div>
-
-        <% if (reviews.length === 0) { %>
-        <div class="text-center py-5">
-            <i class="bi bi-chat-heart display-1" style="color: var(--border);"></i>
-            <p class="text-muted mt-3">Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ!</p>
-        </div>
-        <% } %>
     </div>
-</section>
 
-<script>
-async function likeReview(id, btn) {
-    try {
-        const res = await axios.post('/api/review/like', { review_id: id });
-        if (res.data.success) {
-            const icon = btn.querySelector('i');
-            const count = btn.querySelector('span');
-            icon.classList.toggle('bi-heart');
-            icon.classList.toggle('bi-heart-fill');
-            btn.style.color = icon.classList.contains('bi-heart-fill') ? 'var(--danger)' : 'var(--text-muted)';
-            count.textContent = res.data.likes;
-        }
-    } catch(e) { console.error(e); }
-}
+    <!-- Right Sidebar: Community Spotlight -->
+    <div class="col-lg-4">
+        <!-- VIBRANT RANKING WIDGET -->
+        <div class="widget-card p-4 mb-4 border-0 shadow-lg" style="background: var(--grad-main); color: white;">
+            <h5 class="fw-black font-display mb-4 text-white">Top Du khách Elite</h5>
+            <div class="d-flex flex-column gap-3">
+                <% ['Tuấn Anh', 'Minh Ngọc', 'Hoàng Nam'].forEach((name, i) => { %>
+                <div class="d-flex align-items-center justify-content-between p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="fw-black text-warning fs-5">#<%= i+1 %></span>
+                        <img src="/images/default-avatar.png" class="rounded-circle border border-2 border-white" style="width: 32px; height: 32px;">
+                        <span class="fw-bold small text-white"><%= name %></span>
+                    </div>
+                    <span class="badge bg-warning text-dark rounded-pill fw-black" style="font-size: 0.6rem;"><%= 500 - (i*50) %> XP</span>
+                </div>
+                <% }) %>
+            </div>
+            <button class="btn btn-outline-light btn-sm w-100 rounded-pill mt-4 border-2 fw-bold">XEM BẢNG XẾP HẠNG</button>
+        </div>
 
-document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang đăng...';
-    try {
-        const res = await axios.post('/api/review/create', {
-            content: form.content.value,
-            rating: form.rating.value
-        });
-        if (res.data.success) location.reload();
-        else alert(res.data.message || 'Lỗi');
-    } catch(e) {
-        alert('Lỗi: ' + (e.response?.data?.message || e.message));
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-send me-1"></i> Đăng';
-    }
-});
-</script>
+        <!-- TRENDING HASHTAGS -->
+        <div class="widget-card p-4 border-0 shadow-lg">
+            <h6 class="fw-black mb-4 text-primary text-uppercase tracking-widest">Chủ đề thịnh hành</h6>
+            <div class="d-flex flex-wrap gap-2">
+                <span class="badge bg-light text-primary rounded-pill px-3 py-2 fw-bold hover-lift cursor-pointer">#BinhLoiHealing</span>
+                <span class="badge bg-light text-primary rounded-pill px-3 py-2 fw-bold hover-lift cursor-pointer">#VườnMaiVàng</span>
+                <span class="badge bg-light text-primary rounded-pill px-3 py-2 fw-bold hover-lift cursor-pointer">#XôngTrầm</span>
+                <span class="badge bg-light text-primary rounded-pill px-3 py-2 fw-bold hover-lift cursor-pointer">#ZenWalk</span>
+                <span class="badge bg-light text-primary rounded-pill px-3 py-2 fw-bold hover-lift cursor-pointer">#OCOP_BinhLoi</span>
+            </div>
+        </div>
+    </div>
+</div>

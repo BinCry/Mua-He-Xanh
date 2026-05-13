@@ -1,75 +1,110 @@
-<!-- Workshop Listing — Chương 5.11 -->
-<section class="py-5" style="margin-top: 80px;">
-    <div class="container py-4">
-        <!-- Header -->
-        <div class="row align-items-end mb-5">
-            <div class="col-lg-7 reveal-up">
-                <span class="section-label">TRẢI NGHIỆM</span>
-                <h2 class="section-title">Workshop & Hoạt Động</h2>
-                <p class="section-desc">Học làm nhang, chăm mai, nặn bánh dân gian — trải nghiệm làng nghề truyền thống cùng nghệ nhân địa phương.</p>
-            </div>
-            <div class="col-lg-5 reveal-up">
-                <div class="d-flex gap-2 flex-wrap justify-content-lg-end">
-                    <a href="/workshops" class="btn btn-sm <%= !typeFilter ? 'btn-primary-bl' : 'btn-ghost' %> rounded-pill px-3" style="font-size: 0.82rem;">Tất cả</a>
-                    <% Object.entries(typeLabels).forEach(([key, label]) => { %>
-                        <a href="/workshops?type=<%= key %>" class="btn btn-sm <%= typeFilter === key ? 'btn-primary-bl' : 'btn-ghost' %> rounded-pill px-3" style="font-size: 0.82rem;"><%= label %></a>
-                    <% }) %>
+<!-- Vibrant Workshop Dashboard — Crafting Your Memories -->
+<div class="row g-4">
+    <!-- Main Workshop Grid -->
+    <div class="col-lg-8">
+        <div class="widget-card p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-3">
+                <div>
+                    <h3 class="fw-black font-display mb-1" style="color: var(--primary);">Workshop Nghệ nhân</h3>
+                    <p class="text-muted small mb-0">Học nghề truyền thống từ những đôi bàn tay tài hoa nhất</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary-bl rounded-pill px-4 shadow-sm">Tất cả</button>
+                    <button class="btn btn-outline-warning rounded-pill px-4 fw-bold">Thủ công</button>
+                    <button class="btn btn-outline-primary rounded-pill px-4 fw-bold">Ẩm thực</button>
                 </div>
             </div>
-        </div>
 
-        <!-- Grid -->
-        <div class="row g-4">
-            <% workshops.forEach((ws, i) => { %>
-            <div class="col-md-6 col-lg-4 reveal-up">
-                <div class="card-heal h-100 d-flex flex-column">
-                    <div class="card-img position-relative" style="height: 220px;">
-                        <img src="<%= fixImg(ws.image) %>" alt="<%= ws.title %>">
-                        <div class="position-absolute top-0 start-0 m-3" style="z-index: 5;">
-                            <span class="badge-nature"><%= typeLabels[ws.type] || ws.type %></span>
-                        </div>
-                        <% if (ws.stats && ws.stats.avg_rating) { %>
-                        <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
-                            <span class="badge-gold"><i class="bi bi-star-fill me-1"></i><%= parseFloat(ws.stats.avg_rating).toFixed(1) %></span>
-                        </div>
-                        <% } %>
-                    </div>
-                    <div class="p-4 d-flex flex-column flex-grow-1">
-                        <h5 class="fw-bold mb-2"><%= ws.title %></h5>
-                        <p class="text-muted line-clamp-2 mb-3" style="font-size: 0.88rem;"><%= ws.description %></p>
-                        
-                        <div class="mt-auto">
-                            <div class="d-flex align-items-center gap-3 mb-3 flex-wrap" style="font-size: 0.8rem; color: var(--text-secondary);">
-                                <span><i class="bi bi-clock me-1"></i><%= ws.duration || '2-3 giờ' %></span>
-                                <span><i class="bi bi-people me-1"></i><%= ws.max_participants || 20 %> người</span>
-                                <% if (ws.stats) { %>
-                                <span><i class="bi bi-ticket me-1"></i><%= ws.stats.total_bookings || 0 %> đặt</span>
-                                <% } %>
+            <div class="row g-4">
+                <% workshops.forEach(ws => { 
+                    const isCraft = ws.type === 'Thủ công';
+                    const wsColor = isCraft ? '#f59e0b' : '#3b82f6';
+                %>
+                <div class="col-md-6">
+                    <div class="card-heal p-0 overflow-hidden border-0 shadow-lg h-100 d-flex flex-column group">
+                        <div class="position-relative" style="height: 200px;">
+                            <img src="<%= fixImg(ws.image) %>" class="w-100 h-100 object-fit-cover group-hover-scale">
+                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.4), transparent);"></div>
+                            <div class="position-absolute top-0 start-0 m-3">
+                                <span class="badge rounded-pill px-3 py-2 fw-black shadow-lg" 
+                                      style="background: <%= wsColor %>; color: white; font-size: 0.65rem; letter-spacing: 1px;">
+                                    <%= ws.type.toUpperCase() %>
+                                </span>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <% if (ws.price === 0) { %>
-                                        <span class="fw-black" style="color: var(--success); font-size: 1.1rem;">Miễn phí</span>
-                                    <% } else { %>
-                                        <span class="fw-black" style="color: var(--primary); font-size: 1.1rem;"><%= new Intl.NumberFormat('vi-VN').format(ws.price) %>đ</span>
-                                        <span class="text-muted" style="font-size: 0.75rem;">/người</span>
-                                    <% } %>
+                        </div>
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <h5 class="fw-black font-display mb-2"><%= ws.title %></h5>
+                            <p class="text-muted small mb-4 line-clamp-2"><%= ws.description %></p>
+                            
+                            <div class="mt-auto">
+                                <div class="d-flex flex-wrap gap-2 mb-4">
+                                    <span class="p-2 rounded-3 bg-light text-muted x-small fw-bold"><i class="bi bi-clock me-1 text-primary"></i> <%= ws.duration || '2.5h' %></span>
+                                    <span class="p-2 rounded-3 bg-light text-muted x-small fw-bold"><i class="bi bi-lightning-charge me-1 text-warning"></i> +50 XP</span>
+                                    <span class="p-2 rounded-3 bg-light text-muted x-small fw-bold"><i class="bi bi-award me-1 text-info"></i> Chứng nhận</span>
                                 </div>
-                                <a href="/workshops/<%= ws.id %>" class="btn btn-primary-bl btn-sm rounded-pill px-3">Chi tiết <i class="bi bi-arrow-right ms-1"></i></a>
+                                <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+                                    <span class="fw-black fs-4" style="color: var(--primary);"><%= ws.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(ws.price) + 'đ' %></span>
+                                    <a href="/workshops/<%= ws.id %>" class="btn btn-premium px-4 py-2 rounded-pill shadow-sm">ĐĂNG KÝ</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
+                <% }) %>
             </div>
-            <% }) %>
+        </div>
+    </div>
+
+    <!-- Right Sidebar: Learning Path & Tickets -->
+    <div class="col-lg-4">
+        <!-- VIBRANT LEARNING PATH -->
+        <div class="widget-card p-4 mb-4 border-0 shadow-lg text-white" style="background: var(--grad-main);">
+            <h5 class="fw-black font-display mb-4 text-white">Lịch học của tôi</h5>
+            <div class="d-flex flex-column gap-3">
+                <% if (typeof myWorkshops !== 'undefined' && myWorkshops.length > 0) { %>
+                    <% myWorkshops.forEach(ticket => { %>
+                    <div class="p-3 rounded-4 bg-white bg-opacity-10 border border-white border-opacity-10">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="fw-bold mb-0 text-white small"><%= ticket.workshop_title %></h6>
+                            <i class="bi bi-qr-code text-warning"></i>
+                        </div>
+                        <div class="d-flex justify-content-between x-small opacity-75">
+                            <span><i class="bi bi-calendar3 me-1"></i><%= new Date(ticket.booking_date).toLocaleDateString('vi-VN') %></span>
+                            <span class="text-warning fw-black">ID: <%= ticket.qr_ticket %></span>
+                        </div>
+                    </div>
+                    <% }) %>
+                <% } else { %>
+                    <div class="text-center py-5 opacity-50">
+                        <div class="rounded-circle bg-white bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 70px; height: 70px;">
+                            <i class="bi bi-calendar-x fs-1"></i>
+                        </div>
+                        <p class="fw-bold small mb-0">Bạn chưa có lịch học nào</p>
+                    </div>
+                <% } %>
+            </div>
+            <a href="/my-workshops" class="btn btn-warning w-100 rounded-pill py-3 mt-4 fw-black text-dark" style="background: var(--accent-gold);">QUẢN LÝ VÉ HỌC</a>
         </div>
 
-        <% if (workshops.length === 0) { %>
-        <div class="text-center py-5">
-            <i class="bi bi-palette display-1" style="color: var(--border);"></i>
-            <p class="text-muted mt-3">Chưa có workshop nào trong danh mục này.</p>
-            <a href="/workshops" class="btn btn-premium rounded-pill px-4">Xem tất cả Workshop</a>
+        <!-- Crafting Skill Widget -->
+        <div class="widget-card p-4 border-0 shadow-lg" style="background: white;">
+            <h6 class="fw-black mb-3 text-primary">Kỹ năng đạt được</h6>
+            <div class="d-flex flex-column gap-3">
+                <div class="d-flex justify-content-between align-items-center p-2">
+                    <span class="small fw-bold">Nghệ thuật Thủ công</span>
+                    <span class="badge bg-primary rounded-pill">LV 2</span>
+                </div>
+                <div class="progress rounded-pill mb-3" style="height: 6px; background: var(--bg-body);">
+                    <div class="progress-bar bg-primary" style="width: 45%;"></div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center p-2">
+                    <span class="small fw-bold">Ẩm thực Truyền thống</span>
+                    <span class="badge bg-warning text-dark rounded-pill">LV 1</span>
+                </div>
+                <div class="progress rounded-pill" style="height: 6px; background: var(--bg-body);">
+                    <div class="progress-bar bg-warning" style="width: 20%;"></div>
+                </div>
+            </div>
         </div>
-        <% } %>
     </div>
-</section>
+</div>

@@ -1,275 +1,85 @@
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
-<main class="py-5 bg-light min-vh-100 mt-5">
-    <div class="container-fluid px-lg-5">
+<!-- Vibrant Journey Story Mode — Immersive Healing Experience -->
+<div class="row g-0 h-100 overflow-hidden" style="margin: -2rem;">
+    <!-- Main Story Canvas -->
+    <div class="col-12 position-relative" style="height: calc(100vh - 100px);">
         
-        <!-- Journey Dashboard Header -->
-        <div class="card-bl border-0 p-4 p-md-5 mb-4 shadow-sm rounded-5 bg-white reveal-up position-relative overflow-hidden">
-            <div class="position-absolute top-0 end-0 opacity-10 m-n5 d-none d-md-block">
-                <i class="bi bi-compass-fill" style="font-size: 20rem; color: var(--v5-primary);"></i>
-            </div>
+        <!-- Story Background (Dynamic) -->
+        <div id="story-bg" class="position-absolute top-0 start-0 w-100 h-100 bg-dark">
+            <img src="/images/hero-1.png" class="w-100 h-100 object-fit-cover opacity-50" style="filter: blur(5px);">
+        </div>
+
+        <!-- Story Content Overlay -->
+        <div class="position-relative h-100 d-flex flex-column justify-content-center align-items-center p-4" style="z-index: 10;">
             
-            <div class="row align-items-center position-relative z-index-1">
-                <div class="col-lg-7">
-                    <span class="badge bg-primary px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm tracking-widest"><i class="bi bi-stars me-1"></i>Hành trình cá nhân hóa</span>
-                    <h1 class="display-4 fw-black mb-2 text-dark letter-spacing-sm"><%= journey.mood.replace(/_/g, ' ').toUpperCase() %></h1>
-                    <p class="lead text-muted mb-0">Thiết kế bởi Bình Lợi AI dành riêng cho bạn.</p>
+            <!-- Progress Indicators (Top) -->
+            <div class="d-flex gap-2 w-100 px-lg-5 mb-5" style="max-width: 1000px;">
+                <% (journey.stops || [1,2,3,4]).forEach((s, i) => { %>
+                <div class="flex-grow-1 rounded-pill" style="height: 4px; background: <%= i === 0 ? 'var(--accent-gold)' : 'rgba(255,255,255,0.2)' %>;"></div>
+                <% }) %>
+            </div>
+
+            <div class="widget-card p-5 border-0 shadow-2xl text-center text-white backdrop-blur-xl" 
+                 style="background: rgba(15, 61, 46, 0.4); max-width: 800px; border-radius: 40px; border: 1px solid rgba(255,255,255,0.1);">
+                
+                <span class="badge rounded-pill bg-warning text-dark fw-black mb-3 px-4 py-2" style="letter-spacing: 2px;">CHẶNG 1: KHỞI ĐẦU XANH</span>
+                
+                <h1 class="fw-black font-display mb-4" style="font-size: 3.5rem; line-height: 1;">Chào mừng đến với Vườn Mai Vàng 1</h1>
+                
+                <p class="fs-5 opacity-90 mb-5 px-lg-4" style="line-height: 1.8;">
+                    Nơi đây không chỉ có những gốc mai quý hiếm, mà còn là khởi nguồn cho sự tĩnh lặng trong tâm hồn. Hãy hít một hơi thật sâu và cảm nhận mùi hương của phù sa và gió sông.
+                </p>
+
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="/checkin" class="btn btn-premium px-5 py-3 rounded-pill fs-4">QUÉT MÃ CHECK-IN <i class="bi bi-qr-code-scan ms-2"></i></a>
+                    <button class="btn btn-outline-light rounded-pill px-5 py-3 fw-bold border-2" style="background: rgba(255,255,255,0.1);">XEM HƯỚNG DẪN ZEN WALK</button>
                 </div>
-                <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
-                    <div class="d-inline-flex gap-4 p-3 bg-light rounded-4 border shadow-sm">
-                        <div class="text-center px-3 border-end">
-                            <h3 class="fw-black mb-0 text-primary"><%= journey.total_km %></h3>
-                            <small class="text-uppercase text-muted fw-bold x-small">KM Dự kiến</small>
-                        </div>
-                        <div class="text-center px-3 border-end">
-                            <h3 class="fw-black mb-0 text-primary"><%= journey.total_minutes %></h3>
-                            <small class="text-uppercase text-muted fw-bold x-small">Phút</small>
-                        </div>
-                        <div class="text-center px-3">
-                            <h3 class="fw-black mb-0 text-primary"><%= journey.stops.length %></h3>
-                            <small class="text-uppercase text-muted fw-bold x-small">Điểm dừng</small>
-                        </div>
-                    </div>
-                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <div class="position-absolute top-50 start-0 translate-middle-y ps-4 d-none d-lg-block">
+                <button class="btn btn-white rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;"><i class="bi bi-chevron-left fs-3"></i></button>
+            </div>
+            <div class="position-absolute top-50 end-0 translate-middle-y pe-4 d-none d-lg-block">
+                <button class="btn btn-white rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;"><i class="bi bi-chevron-right fs-3"></i></button>
             </div>
         </div>
 
-        <div class="row g-4 reveal-up">
-            <!-- Left: Timeline Journey List & Mobile Swipe -->
-            <div class="col-lg-5">
-                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-                    <h3 class="fw-black mb-0">Chi tiết Lộ trình</h3>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-sliders me-1"></i>Tùy chỉnh
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2 mt-2">
-                            <li><a class="dropdown-item py-2 rounded-3" href="#" onclick="toggleEditMode()"><i class="bi bi-arrows-move me-2"></i>Sắp xếp & Xóa điểm</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item py-2 rounded-3 text-danger" href="/onboarding"><i class="bi bi-trash-fill me-2"></i>Làm mới hành trình</a></li>
-                        </ul>
-                    </div>
+        <!-- BOTTOM NAVIGATION: FULL JOURNEY PREVIEW -->
+        <div class="position-absolute bottom-0 start-0 w-100 p-4" style="z-index: 20; background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+            <div class="d-flex justify-content-center gap-4">
+                <div class="d-flex flex-column align-items-center">
+                    <div class="rounded-circle bg-warning text-dark fw-black d-flex align-items-center justify-content-center shadow-lg" style="width: 40px; height: 40px;">1</div>
+                    <span class="text-white x-small fw-bold mt-2">Vườn Mai</span>
                 </div>
-
-                <!-- Unified Responsive Timeline List -->
-                <div id="sortable-timeline" class="timeline-journey position-relative ps-3 ps-md-4 mt-3 mt-lg-0">
-                    <div class="position-absolute top-0 bottom-0 border-start border-2 border-primary opacity-25" style="left: 15px; z-index: 0;"></div>
-                    
-                    <% journey.stops.forEach((stop, i) => { %>
-                        <div class="position-relative mb-4 reveal-up" data-id="<%= stop.destination_id %>" id="card-<%= i %>">
-                            <!-- Timeline Dot -->
-                            <div class="position-absolute bg-primary rounded-circle border border-4 border-white shadow-sm d-flex align-items-center justify-content-center text-white fw-bold" style="width: 35px; height: 35px; left: -22px; top: 15px; z-index: 2;">
-                                <%= i + 1 %>
-                            </div>
-                            
-                            <div class="card-bl border-0 p-0 shadow-sm rounded-4 journey-stop-card bg-white overflow-hidden group-hover w-100" onclick="focusStop(<%= i %>)">
-                                <div class="d-flex flex-column flex-sm-row">
-                                    <!-- Mobile top image, Desktop side image -->
-                                    <div class="position-relative">
-                                        <div class="drag-handle d-none position-absolute top-0 start-0 m-2 bg-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; z-index: 10; cursor: grab;">
-                                            <i class="bi bi-grip-vertical text-muted"></i>
-                                        </div>
-                                        <img src="<%= fixImg(stop.cover_image) %>" class="object-fit-cover" style="width: 100%; height: 160px;" alt="<%= stop.name %>">
-                                    </div>
-                                    
-                                    <div class="flex-grow-1 p-3 p-md-4">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <div>
-                                                <h5 class="fw-bold mb-1 text-dark"><%= stop.name %></h5>
-                                                <span class="badge bg-light text-primary border x-small"><%= stop.type %></span>
-                                            </div>
-                                            <button class="btn btn-danger btn-sm rounded-circle delete-stop d-none shadow-sm flex-shrink-0" onclick="removeStop(<%= stop.destination_id %>, event)"><i class="bi bi-trash-fill"></i></button>
-                                        </div>
-                                        <p class="text-muted small mb-3 line-clamp-2"><%= stop.short_description %></p>
-                                        <div class="d-flex gap-2">
-                                            <a href="/explore/<%= stop.slug %>" class="btn btn-outline-primary btn-sm rounded-pill px-3">Chi tiết</a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    <% }) %>
+                <div class="d-flex flex-column align-items-center opacity-50">
+                    <div class="rounded-circle bg-white text-dark fw-black d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">2</div>
+                    <span class="text-white x-small fw-bold mt-2">Xưởng Nhang</span>
                 </div>
-
-                <div class="d-grid mt-4">
-                    <button class="btn btn-primary-bl btn-lg py-3 rounded-pill shadow-premium fw-black text-uppercase tracking-widest" onclick="startJourney()" id="btn-start">
-                        BẮT ĐẦU DI CHUYỂN <i class="bi bi-arrow-right ms-2"></i>
-                    </button>
+                <div class="d-flex flex-column align-items-center opacity-50">
+                    <div class="rounded-circle bg-white text-dark fw-black d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">3</div>
+                    <span class="text-white x-small fw-bold mt-2">Bánh Tráng</span>
                 </div>
-            </div>
-
-            <!-- Right: Interactive Map (Moved to top on Mobile) -->
-            <div class="col-lg-7 order-first order-lg-last mb-4 mb-lg-0">
-                <div class="sticky-top pt-2 pt-lg-0" style="top: 80px;">
-                    <div class="card-bl border-0 shadow-lg rounded-5 overflow-hidden position-relative p-1 bg-white" style="height: 50vh; min-height: 400px;">
-                        
-                        <!-- Map Container -->
-                        <div id="map-premium" class="w-100 h-100 rounded-4"></div>
-                        
-                        <!-- Animated Top Timeline Progress -->
-                        <div class="position-absolute top-0 start-0 w-100 p-3" style="z-index: 1000;">
-                            <div class="bg-white bg-opacity-75 backdrop-blur-md rounded-pill p-2 shadow-sm border">
-                                <div class="progress bg-transparent position-relative" style="height: 8px;">
-                                    <div class="route-line-progress bg-primary rounded-pill" style="width: 0%; transition: width 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);"></div>
-                                    <!-- Dots -->
-                                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-between align-items-center px-1">
-                                        <% journey.stops.forEach((stop, i) => { %>
-                                            <div class="bg-white border border-2 border-primary rounded-circle node-dot" style="width: 12px; height: 12px;" id="dot-<%= i %>"></div>
-                                        <% }) %>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
+                <div class="d-flex flex-column align-items-center opacity-50">
+                    <div class="rounded-circle bg-white text-dark fw-black d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">4</div>
+                    <span class="text-white x-small fw-bold mt-2">Kết thúc</span>
                 </div>
             </div>
         </div>
     </div>
-</main>
+</div>
 
 <style>
-    .tracking-widest { letter-spacing: 1px; }
-    .snap-x { scroll-snap-type: x mandatory; }
-    .snap-center { scroll-snap-align: center; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    .journey-stop-card { transition: all 0.3s; border: 2px solid transparent; }
-    .journey-stop-card.active { border-color: var(--v5-primary); transform: translateX(10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
-    @media (max-width: 575px) {
-        .journey-stop-card img { height: 200px !important; }
-        .journey-stop-card.active { transform: scale(1.02); }
-        .timeline-journey > .position-absolute { display: none; } /* Hide vertical line on mobile */
-        .timeline-journey .rounded-circle { left: -10px !important; top: -10px !important; }
-        .ps-md-4 { padding-left: 0 !important; }
+    .backdrop-blur-xl {
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
     }
-    
-    .node-dot { transition: all 0.4s; }
-    .node-dot.active { background-color: var(--v5-primary) !important; transform: scale(1.5); }
+    .shadow-2xl {
+        box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.5);
+    }
+    #story-bg img {
+        transition: transform 10s linear;
+    }
+    .col-12:hover #story-bg img {
+        transform: scale(1.1);
+    }
 </style>
-
-<script>
-    let map, markers = [], polyline, sortable;
-    const journeyId = '<%= journey.id %>';
-    let isEditMode = false;
-
-    document.addEventListener('DOMContentLoaded', () => {
-        initMap();
-        initSortable();
-        gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
-        
-        // Focus first stop initially
-        if(markers.length > 0) focusStop(0);
-    });
-
-    function initMap() {
-        map = L.map('map-premium', { zoomControl: false }).setView([10.796, 106.524], 14);
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
-        refreshRoute();
-    }
-
-    function refreshRoute() {
-        markers.forEach(m => map.removeLayer(m));
-        if (polyline) map.removeLayer(polyline);
-        markers = [];
-        
-        const stops = <%- JSON.stringify(journey.stops) %>;
-        const coords = stops.map(s => [
-            s.lat || (10.74 + (Math.random() * 0.05 - 0.025)), 
-            s.lng || (106.5 + (Math.random() * 0.05 - 0.025))
-        ]);
-
-        const customIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style="background-color: var(--v5-primary); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 12px; font-weight: bold;"></div>`,
-            iconSize: [24, 24], iconAnchor: [12, 24]
-        });
-
-        stops.forEach((stop, i) => {
-            const m = L.marker(coords[i], { icon: customIcon }).addTo(map);
-            m.bindPopup(`<b class="text-primary">${i+1}. ${stop.name}</b>`);
-            markers.push(m);
-        });
-
-        if (coords.length > 1) {
-            polyline = L.polyline(coords, { color: 'var(--v5-primary)', weight: 5, dashArray: '10, 10', opacity: 0.8 }).addTo(map);
-            map.fitBounds(polyline.getBounds().pad(0.2));
-        }
-    }
-
-    function focusStop(idx) {
-        // Unified UI update
-        document.querySelectorAll('.journey-stop-card').forEach((c, i) => {
-            c.classList.remove('active');
-            if (i === idx) {
-                c.classList.add('active');
-                if(window.innerWidth < 992) {
-                    c.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }
-        });
-
-        // Map update
-        if (markers[idx]) {
-            map.flyTo(markers[idx].getLatLng(), 15, { duration: 1.5 });
-            markers[idx].openPopup();
-        }
-
-        // Timeline Progress update
-        document.querySelectorAll('.node-dot').forEach((node, i) => {
-            node.classList.remove('active');
-            if (i <= idx) node.classList.add('active');
-        });
-        
-        if (markers.length > 1) {
-            const prog = (idx / (markers.length - 1)) * 100;
-            document.querySelector('.route-line-progress').style.width = prog + '%';
-        }
-    }
-
-    function startJourney() {
-        const btn = document.getElementById('btn-start');
-        btn.innerHTML = '<span class="spinner-grow spinner-grow-sm me-2"></span> ĐANG DI CHUYỂN';
-        btn.classList.replace('btn-primary-bl', 'btn-success');
-        
-        // Start animation loop simulating movement
-        let currentIdx = 0;
-        setInterval(() => {
-            currentIdx = (currentIdx + 1) % markers.length;
-            focusStop(currentIdx);
-        }, 5000);
-    }
-
-    function toggleEditMode() {
-        isEditMode = !isEditMode;
-        document.querySelectorAll('.drag-handle, .delete-stop').forEach(el => el.classList.toggle('d-none', !isEditMode));
-        sortable.option('disabled', !isEditMode);
-    }
-
-    function initSortable() {
-        const el = document.getElementById('sortable-timeline');
-        if (!el) return;
-        sortable = Sortable.create(el, {
-            handle: '.drag-handle', animation: 250, disabled: true,
-            onEnd: function() {
-                const order = sortable.toArray();
-                axios.post('/api/journey/update-stop', { journeyId, action: 'reorder', order })
-                     .then(() => location.reload())
-                     .catch(e => alert("Lỗi cập nhật thứ tự"));
-            }
-        });
-    }
-
-    function removeStop(destId, event) {
-        event.stopPropagation();
-        if(confirm("Xóa điểm đến này khỏi lộ trình?")) {
-            axios.post('/api/journey/update-stop', { journeyId, action: 'remove', destinationId: destId })
-                 .then(() => location.reload());
-        }
-    }
-</script>

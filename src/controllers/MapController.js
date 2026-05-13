@@ -21,7 +21,7 @@ class MapController {
 
             res.render('map/index', {
                 title: 'Bản đồ Tương tác Bình Lợi',
-                allDests: allDests,
+                destinations: allDests,
                 journey: journeyWithStops
             });
         } catch (error) {

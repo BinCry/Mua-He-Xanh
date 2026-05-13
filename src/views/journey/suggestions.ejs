@@ -1,132 +1,46 @@
-<section class="py-5 bg-light min-vh-100 mt-5">
-    <div class="container py-lg-4">
-        <!-- AI Processing Header -->
+<!-- Journey Suggestions — Chương 4.3 -->
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container py-4">
         <div class="text-center mb-5 reveal-up">
-            <div class="d-inline-flex align-items-center justify-content-center bg-white shadow-sm p-3 rounded-circle mb-3 border border-primary">
-                <i class="bi bi-robot fs-2 text-primary"></i>
-            </div>
-            <h1 class="display-5 fw-black text-dark mb-3 letter-spacing-sm">AI Đã Hoàn Tất Phân Tích</h1>
-            <p class="lead text-muted mx-auto" style="max-width: 600px;">Dựa trên dữ liệu cung cấp, chúng tôi đã tính toán và tối ưu hóa 3 lộ trình dành riêng cho bạn.</p>
+            <span class="section-label">GỢI Ý LỘ TRÌNH</span>
+            <h2 class="section-title">Hành trình dành riêng cho bạn</h2>
+            <p class="section-desc mx-auto">Dựa trên sở thích của bạn, chúng tôi đề xuất 3 hành trình tối ưu nhất để trải nghiệm trọn vẹn Bình Lợi.</p>
         </div>
 
-        <!-- Selected Criteria Display -->
-        <div class="card-bl border-0 shadow-sm rounded-4 p-4 mb-5 mx-auto bg-white reveal-up" style="max-width: 800px;">
-            <h6 class="fw-bold text-muted text-uppercase tracking-widest mb-3 text-center x-small">Tiêu chí Hành trình của bạn</h6>
-            <div class="row g-3 text-center">
-                <div class="col-6 col-md-3">
-                    <div class="bg-light p-3 rounded-4 h-100">
-                        <i class="bi bi-emoji-smile text-primary fs-4 mb-2 d-block"></i>
-                        <span class="d-block small fw-bold text-dark"><%= session.mood.replace(/,/g, ' & ').toUpperCase() %></span>
-                        <span class="x-small text-muted">Tâm trạng</span>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="bg-light p-3 rounded-4 h-100">
-                        <i class="bi bi-people-fill text-primary fs-4 mb-2 d-block"></i>
-                        <span class="d-block small fw-bold text-dark"><%= session.pax %> Người</span>
-                        <span class="x-small text-muted">Quy mô</span>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="bg-light p-3 rounded-4 h-100">
-                        <i class="bi bi-wallet2 text-primary fs-4 mb-2 d-block"></i>
-                        <span class="d-block small fw-bold text-dark">
-                            <%= session.budget === 'low' ? 'Tiết kiệm' : (session.budget === 'high' ? 'Cao cấp' : 'Tiêu chuẩn') %>
-                        </span>
-                        <span class="x-small text-muted">Ngân sách</span>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="bg-light p-3 rounded-4 h-100">
-                        <i class="bi bi-cloud-sun-fill text-primary fs-4 mb-2 d-block"></i>
-                        <span class="d-block small fw-bold text-dark">
-                            <%= session.season === 'spring' ? 'Lễ hội' : (session.season === 'summer' ? 'Mùa hè' : 'Hôm nay') %>
-                        </span>
-                        <span class="x-small text-muted">Khởi hành</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Journey Options -->
-        <div class="row g-4 justify-content-center">
-            <% suggestions.forEach((sug, i) => { %>
-                <div class="col-md-4 reveal-up" style="transition-delay: <%= i * 0.15 %>s">
-                    <div class="card-bl h-100 border-0 shadow-premium rounded-5 overflow-hidden transition-hover position-relative group-hover bg-white">
-                        <!-- Top Image -->
-                        <div class="position-relative ratio ratio-16x9">
-                            <img src="/images/hero-<%= (i % 2) + 1 %>.png" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= sug.name %>">
-                            <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-t"></div>
-                            
-                            <% if (i === 0) { %>
-                                <div class="position-absolute top-0 start-0 m-3">
-                                    <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3 py-2 fw-bold text-uppercase tracking-widest x-small"><i class="bi bi-star-fill me-1"></i>Đề xuất Cao nhất</span>
-                                </div>
-                            <% } %>
-                            
-                            <div class="position-absolute bottom-0 start-0 m-3 text-white">
-                                <h4 class="fw-black mb-1 text-shadow-sm"><%= sug.name %></h4>
-                            </div>
+        <div class="row g-4">
+            <% routes.forEach((route, i) => { %>
+            <div class="col-lg-4 reveal-up">
+                <div class="card-heal h-100">
+                    <div class="card-img position-relative" style="height: 200px;">
+                        <img src="<%= route.image %>" class="w-100 h-100 object-fit-cover">
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge-gold"><%= route.match_score %>% Phù hợp</span>
                         </div>
-
-                        <!-- Content -->
-                        <div class="card-bl-body p-4 d-flex flex-column h-100">
-                            <p class="text-muted small mb-4 line-clamp-3"><%= sug.desc %></p>
-                            
-                            <div class="mb-4">
-                                <% sug.tags.forEach(tag => { %>
-                                    <span class="badge bg-light border text-dark fw-bold px-2 py-1 me-1 mb-1"><%= tag %></span>
-                                <% }) %>
-                            </div>
-                            
-                            <div class="mt-auto border-top pt-4">
-                                <div class="row text-center mb-4 g-2">
-                                    <div class="col-4 border-end">
-                                        <div class="fs-5 text-primary mb-1"><i class="bi bi-geo-alt-fill"></i></div>
-                                        <div class="fw-bold small"><%= sug.stops.length %> Điểm</div>
-                                    </div>
-                                    <div class="col-4 border-end">
-                                        <div class="fs-5 text-primary mb-1"><i class="bi bi-clock-fill"></i></div>
-                                        <div class="fw-bold small"><%= sug.duration %></div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="fs-5 text-primary mb-1"><i class="bi bi-signpost-split-fill"></i></div>
-                                        <div class="fw-bold small"><%= sug.km %> km</div>
-                                    </div>
+                    </div>
+                    <div class="p-4">
+                        <h5 class="fw-bold mb-3 font-display"><%= route.name %></h5>
+                        <div class="d-flex flex-column gap-3 mb-4">
+                            <% route.stops.forEach((stop, j) => { %>
+                            <div class="d-flex gap-3 align-items-start">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 24px; height: 24px; background: var(--primary-50); color: var(--primary); font-size: 0.7rem; font-weight: 700;">
+                                    <%= j + 1 %>
                                 </div>
-
-                                <form action="/journey/confirm" method="POST">
-                                    <input type="hidden" name="journeyData" value='<%= JSON.stringify(sug).replace(/'/g, "&#39;") %>'>
-                                    <button type="submit" class="btn <%= i===0 ? 'btn-primary-bl' : 'btn-outline-bl' %> w-100 rounded-pill py-3 fw-bold text-uppercase tracking-widest shadow-sm">
-                                        CHỌN LỘ TRÌNH NÀY
-                                    </button>
-                                </form>
+                                <span style="font-size: 0.88rem; color: var(--text-secondary);"><%= stop.name %></span>
                             </div>
+                            <% }) %>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mt-auto pt-3" style="border-top: 1px solid var(--border-light);">
+                            <div class="text-muted small"><i class="bi bi-clock me-1"></i><%= route.duration %></div>
+                            <a href="/journey/start?route=<%= route.id %>" class="btn btn-primary-bl btn-sm rounded-pill px-4">Bắt đầu ngay</a>
                         </div>
                     </div>
                 </div>
+            </div>
             <% }) %>
         </div>
-
-        <div class="text-center mt-5">
-            <a href="/onboarding" class="text-decoration-none text-muted fw-bold small"><i class="bi bi-arrow-left me-2"></i>Chỉnh sửa tiêu chí</a>
+        
+        <div class="text-center mt-5 reveal-up">
+            <a href="/onboarding" class="text-muted text-decoration-none small"><i class="bi bi-arrow-left me-1"></i> Chọn lại sở thích của bạn</a>
         </div>
     </div>
 </section>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        gsap.from('.reveal-up', { opacity: 0, y: 40, stagger: 0.15, duration: 1, ease: 'power3.out' });
-    });
-</script>
-
-<style>
-    .transition-hover { transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease; }
-    .transition-hover:hover { transform: translateY(-15px); box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important; }
-    .bg-gradient-to-t { background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%); }
-    .group-hover-scale { transition: transform 0.5s ease; }
-    .group-hover:hover .group-hover-scale { transform: scale(1.05); }
-    .text-shadow-sm { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .tracking-widest { letter-spacing: 1px; }
-</style>

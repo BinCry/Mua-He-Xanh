@@ -1,128 +1,128 @@
-<div class="container py-5 mt-5">
-    <div class="row g-4">
-        <!-- Chat Sidebar: Contacts -->
-        <div class="col-lg-4">
-            <div class="glass-panel p-4 h-100">
-                <h4 class="fw-bold mb-4" style="font-family: var(--font-heading);">Hỗ trợ du lịch</h4>
-                <div class="list-group list-group-flush">
-                    <a href="#" class="list-group-item bg-transparent border-0 px-0 py-3 d-flex gap-3 active-chat-item">
-                        <div class="position-relative">
-                            <img src="/images/manager-avatar.png" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                            <span class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle" style="width: 12px; height: 12px;"></span>
+<!-- Vibrant Chat Dashboard — Connected in Nature -->
+<div class="widget-card p-0 overflow-hidden border-0 shadow-2xl" style="height: calc(100vh - 160px); border-radius: 30px;">
+    <div class="d-flex h-100">
+        <!-- Vibrant Inner Sidebar -->
+        <div class="d-none d-lg-flex flex-column" style="width: 280px; background: var(--grad-main); border-right: 1px solid rgba(255,255,255,0.05);">
+            <div class="p-4 border-bottom border-white border-opacity-10">
+                <h5 class="fw-black text-white mb-0 font-display">Cộng đồng</h5>
+                <span class="x-small text-warning fw-bold tracking-widest uppercase">BÌNH LỢI HEALING</span>
+            </div>
+            
+            <div class="p-3 overflow-auto flex-grow-1 custom-scrollbar">
+                <div class="nav flex-column gap-2 mb-5">
+                    <a href="#" class="nav-link active p-3 rounded-4 glass-item d-flex align-items-center gap-3 text-white fw-bold shadow-sm">
+                        <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 32px; height: 32px;">
+                            <i class="bi bi-hash fs-5"></i>
                         </div>
-                        <div>
-                            <h6 class="fw-bold mb-0">Ban quản lý Bình Lợi</h6>
-                            <small class="text-muted">Đang trực tuyến</small>
-                        </div>
+                        Chung
                     </a>
-                    <a href="#" class="list-group-item bg-transparent border-0 px-0 py-3 d-flex gap-3">
-                        <div class="position-relative">
-                            <img src="/images/local-resident.png" class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
-                            <span class="position-absolute bottom-0 end-0 bg-secondary border border-white border-2 rounded-circle" style="width: 12px; height: 12px;"></span>
+                    <a href="#" class="nav-link p-3 rounded-4 d-flex align-items-center gap-3 text-white opacity-50 hover-lift">
+                        <div class="bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="bi bi-hash fs-5"></i>
                         </div>
-                        <div>
-                            <h6 class="fw-bold mb-0">Chủ vườn Mai (Anh Ba)</h6>
-                            <small class="text-muted">Ngoại tuyến</small>
-                        </div>
+                        Lễ hội
                     </a>
+                    <a href="#" class="nav-link p-3 rounded-4 d-flex align-items-center gap-3 text-white opacity-50 hover-lift">
+                        <div class="bg-white bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                            <i class="bi bi-hash fs-5"></i>
+                        </div>
+                        Mua sắm
+                    </a>
+                </div>
+                
+                <div class="px-3 mb-3 x-small text-white opacity-50 text-uppercase tracking-widest fw-black">DU KHÁCH ONLINE (12)</div>
+                <div class="d-flex flex-column gap-3 px-2">
+                    <% [1,2,3].forEach(i => { %>
+                    <div class="d-flex align-items-center gap-3 hover-lift cursor-pointer">
+                        <div class="position-relative">
+                            <img src="/images/default-avatar.png" class="rounded-circle border border-2 border-white border-opacity-20 shadow-sm" style="width: 36px; height: 36px; object-fit: cover;">
+                            <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle shadow-sm" style="width: 10px; height: 10px;"></span>
+                        </div>
+                        <div class="overflow-hidden">
+                            <span class="d-block fw-bold text-white small text-truncate">Du khách <%= i %></span>
+                            <span class="d-block x-small text-white opacity-50">Đang hoạt động</span>
+                        </div>
+                    </div>
+                    <% }) %>
                 </div>
             </div>
         </div>
 
-        <!-- Chat Window -->
-        <div class="col-lg-8">
-            <div class="glass-panel d-flex flex-column" style="height: 600px;">
-                <!-- Header -->
-                <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center gap-3">
-                        <img src="/images/manager-avatar.png" class="rounded-circle" style="width: 40px; height: 40px;">
-                        <div>
-                            <h6 class="fw-bold mb-0">Ban quản lý Bình Lợi</h6>
-                            <small class="text-success fw-bold" style="font-size: 10px;">• ONLINE</small>
-                        </div>
+        <!-- Vibrant Chat Area -->
+        <div class="flex-grow-1 d-flex flex-column bg-white">
+            <!-- Chat Header -->
+            <div class="p-4 border-bottom d-flex justify-content-between align-items-center shadow-sm" style="z-index: 10;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="d-lg-none p-2 rounded-circle bg-light me-2"><i class="bi bi-list fs-4"></i></div>
+                    <div class="bg-primary-50 p-2 rounded-circle text-primary">
+                        <i class="bi bi-hash fs-4"></i>
                     </div>
-                    <div class="d-flex gap-3">
-                        <button class="btn btn-light rounded-circle p-2"><i class="bi bi-telephone"></i></button>
-                        <button class="btn btn-light rounded-circle p-2"><i class="bi bi-info-circle"></i></button>
+                    <div>
+                        <h6 class="fw-black mb-0">Phòng Chung</h6>
+                        <span class="text-success x-small fw-bold"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> 12 du khách trực tuyến</span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-light rounded-circle shadow-sm" style="width: 40px; height: 40px;"><i class="bi bi-search"></i></button>
+                    <button class="btn btn-light rounded-circle shadow-sm" style="width: 40px; height: 40px;"><i class="bi bi-gear-fill"></i></button>
+                </div>
+            </div>
+
+            <!-- Vibrant Message Bubbles -->
+            <div id="chat-messages-vibrant" class="flex-grow-1 p-4 overflow-auto custom-scrollbar d-flex flex-column gap-4" style="background: #f8fafc;">
+                <!-- System Message -->
+                <div class="text-center my-3">
+                    <span class="px-3 py-1 bg-white rounded-pill x-small fw-bold text-muted border shadow-sm">Bắt đầu phiên thảo luận hành trình</span>
+                </div>
+
+                <!-- Received -->
+                <div class="d-flex gap-3">
+                    <img src="/images/default-avatar.png" class="rounded-circle shadow-sm" style="width: 40px; height: 40px;">
+                    <div style="max-width: 70%;">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <span class="fw-black small text-primary">Admin</span>
+                            <span class="text-muted" style="font-size: 0.65rem;">HÔM NAY 08:30</span>
+                        </div>
+                        <div class="p-3 rounded-4 shadow-sm bg-white" style="border-top-left-radius: 0; line-height: 1.5;">
+                            Chào mừng mọi người đến với Bình Lợi Healing! Mọi người đã chọn được Vibe cho hành trình hôm nay chưa?
+                        </div>
                     </div>
                 </div>
 
-                <!-- Messages Body -->
-                <div class="flex-grow-1 p-4 overflow-auto" id="chat-messages">
-                    <div class="text-center mb-4"><span class="badge bg-light text-muted px-3 rounded-pill">Hôm nay</span></div>
-                    
-                    <div class="message-received mb-4 d-flex gap-3">
-                        <img src="/images/manager-avatar.png" class="rounded-circle mt-auto" style="width: 30px; height: 30px;">
-                        <div class="message-bubble p-3 rounded-4 bg-light" style="max-width: 70%;">
-                            Xin chào <%= user.full_name %>, chúng tôi có thể giúp gì cho bạn trong hành trình khám phá Bình Lợi hôm nay?
+                <!-- Sent (Self) -->
+                <div class="d-flex flex-row-reverse gap-3">
+                    <img src="<%= user ? user.avatar : '/images/default-avatar.png' %>" class="rounded-circle shadow-sm border border-2 border-warning" style="width: 40px; height: 40px;">
+                    <div class="text-end" style="max-width: 70%;">
+                        <div class="d-flex flex-row-reverse align-items-center gap-2 mb-2">
+                            <span class="fw-black small text-primary">Tôi</span>
+                            <span class="text-muted" style="font-size: 0.65rem;">08:32</span>
                         </div>
-                    </div>
-
-                    <div class="message-sent mb-4 d-flex gap-3 justify-content-end">
-                        <div class="message-bubble p-3 rounded-4 bg-primary text-white" style="max-width: 70%;">
-                            Cho mình hỏi xưởng nhang hôm nay có đón khách không ạ?
-                        </div>
-                    </div>
-
-                    <div class="message-received mb-4 d-flex gap-3">
-                        <img src="/images/manager-avatar.png" class="rounded-circle mt-auto" style="width: 30px; height: 30px;">
-                        <div class="message-bubble p-3 rounded-4 bg-light" style="max-width: 70%;">
-                            Dạ có ạ! Xưởng nhang hoạt động đến 17:00 chiều nay. Bạn có thể ghé qua trải nghiệm làm nhang thủ công nhé.
+                        <div class="p-3 rounded-4 shadow-lg text-white" style="background: var(--grad-main); border-top-right-radius: 0; line-height: 1.5;">
+                            Tôi vừa check-in tại Vườn Mai Vàng, khung cảnh thật sự tuyệt vời! 🌿✨
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Input Footer -->
-                <div class="p-4 border-top">
-                    <form id="chat-form" class="d-flex gap-3">
-                        <button type="button" class="btn btn-light rounded-circle p-2"><i class="bi bi-plus-lg"></i></button>
-                        <input type="text" class="form-control rounded-pill border-0 bg-light px-4" placeholder="Nhập tin nhắn..." id="chat-input">
-                        <button type="submit" class="btn btn-premium rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
-                            <i class="bi bi-send-fill text-white"></i>
-                        </button>
-                    </form>
-                </div>
+            <!-- Vibrant Input Area -->
+            <div class="p-4 bg-white border-top shadow-lg">
+                <form id="chatFormVibrant" class="d-flex gap-3 align-items-center">
+                    <button type="button" class="btn btn-light rounded-circle shadow-sm" style="width: 46px; height: 46px;"><i class="bi bi-plus-lg fs-5"></i></button>
+                    <div class="flex-grow-1 position-relative">
+                        <input type="text" id="chatInputVibrant" 
+                               class="form-control rounded-pill border-0 px-4 py-3 bg-light shadow-none fs-6" 
+                               placeholder="Gửi tin nhắn tới #Chung..." 
+                               style="background: #f1f5f9 !important;">
+                        <div class="position-absolute end-0 top-50 translate-middle-y pe-3">
+                            <i class="bi bi-emoji-smile text-muted cursor-pointer fs-5"></i>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-premium rounded-circle shadow-lg d-flex align-items-center justify-content-center" 
+                            style="width: 50px; height: 50px; background: var(--grad-main); color: white;">
+                        <i class="bi bi-send-fill fs-5"></i>
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-
-<style>
-    .active-chat-item { background: rgba(26, 77, 46, 0.05) !important; border-radius: 15px; }
-    #chat-messages::-webkit-scrollbar { width: 5px; }
-    #chat-messages::-webkit-scrollbar-thumb { background: #eee; border-radius: 10px; }
-    .message-bubble { box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-</style>
-
-<script>
-    const chatForm = document.getElementById('chat-form');
-    const chatInput = document.getElementById('chat-input');
-    const chatMessages = document.getElementById('chat-messages');
-
-    chatForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const msg = chatInput.value.trim();
-        if (!msg) return;
-
-        // Append sent message
-        appendMessage(msg, 'sent');
-        chatInput.value = '';
-
-        // Auto reply simulation
-        setTimeout(() => {
-            appendMessage('Cảm ơn bạn, yêu cầu của bạn đang được xử lý...', 'received');
-        }, 1000);
-    });
-
-    function appendMessage(text, type) {
-        const div = document.createElement('div');
-        div.className = `message-${type} mb-4 d-flex gap-3 ${type === 'sent' ? 'justify-content-end' : ''}`;
-        
-        const bubble = `<div class="message-bubble p-3 rounded-4 ${type === 'sent' ? 'bg-primary text-white' : 'bg-light'}" style="max-width: 70%;">${text}</div>`;
-        const avatar = type === 'received' ? '<img src="/images/manager-avatar.png" class="rounded-circle mt-auto" style="width: 30px; height: 30px;">' : '';
-        
-        div.innerHTML = type === 'received' ? avatar + bubble : bubble;
-        chatMessages.appendChild(div);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-</script>

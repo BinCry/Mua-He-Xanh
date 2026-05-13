@@ -11,6 +11,8 @@
     </div>
 </div>
 
+<%- include('../partials/media_library_modal') %>
+
 <% if (typeof req !== 'undefined' && req.query.success) { %>
     <div class="alert alert-success alert-dismissible fade show rounded-4 border-0 shadow-sm mb-4 bg-success text-white" role="alert">
         <i class="bi bi-check-circle-fill me-2"></i> <%= req.query.success %>
@@ -87,59 +89,70 @@
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Giờ hoạt động</label>
-                            <input type="text" name="open_hours" class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none" value="<%= dest.open_hours %>">
+                            <input type="text" name="open_hours" class="form-control form-control-lg glass-card border-0 rounded-3 shadow-none" value="<%= dest.open_hours %>" placeholder="Ví dụ: 06:00 - 21:00">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Chi phí dự kiến</label>
-                            <input type="text" name="cost" class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none" value="<%= dest.cost %>">
+                            <input type="text" name="cost" class="form-control form-control-lg glass-card border-0 rounded-3 shadow-none" value="<%= dest.cost %>" placeholder="Ví dụ: Miễn phí hoặc 50.000đ">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Thời điểm đẹp nhất</label>
-                            <input type="text" name="best_time" class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none" value="<%= dest.best_time %>">
+                            <input type="text" name="best_time" class="form-control form-control-lg glass-card border-0 rounded-3 shadow-none" value="<%= dest.best_time %>" placeholder="Ví dụ: Sáng sớm hoặc Hoàng hôn">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Mô tả ngắn (Hiển thị thẻ)</label>
-                            <input type="text" name="short_desc" class="form-control form-control-lg bg-light border-0 rounded-3 shadow-none" value="<%= dest.short_desc %>">
+                            <input type="text" name="short_desc" class="form-control form-control-lg glass-card border-0 rounded-3 shadow-none" value="<%= dest.short_desc %>">
                         </div>
                     </div>
 
                     <div class="mb-4">
-                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Ảnh Cover (URL / Link)</label>
-                        <div class="input-group input-group-lg">
-                            <span class="input-group-text bg-light border-0"><i class="bi bi-image text-muted"></i></span>
-                            <input type="text" name="cover_image" class="form-control bg-light border-0 shadow-none" value="<%= dest.cover_image %>">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Ảnh Cover (Đường dẫn tệp)</label>
+                        <div class="input-group input-group-lg shadow-sm rounded-3 overflow-hidden">
+                            <span class="input-group-text bg-white border-0"><i class="bi bi-image text-primary"></i></span>
+                            <input type="text" name="cover_image" id="cover_image_input" class="form-control border-0 shadow-none" value="<%= dest.cover_image %>" onchange="updatePreview(this.value)">
+                            <button class="btn btn-primary" type="button" onclick="openMediaLibrary('cover_image')">
+                                <i class="bi bi-images me-2"></i>Thư viện
+                            </button>
+                            <button class="btn btn-outline-primary" type="button" onclick="document.getElementById('directUploadInput').click()">
+                                <i class="bi bi-cloud-arrow-up me-2"></i>Tải ảnh mới
+                            </button>
+                            <input type="file" id="directUploadInput" class="d-none" accept="image/*" onchange="handleDirectUpload(this)">
                         </div>
-                        <% if(dest.cover_image) { %>
-                            <div class="mt-2 rounded-3 overflow-hidden" style="height: 100px; width: 200px;">
-                                <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                        <div class="mt-3 p-3 glass-card d-flex align-items-center gap-3">
+                            <div id="image-preview-container" class="rounded-3 overflow-hidden shadow-sm" style="width: 160px; height: 90px; flex-shrink: 0;">
+                                <img id="dest-image-preview" src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
                             </div>
-                        <% } %>
+                            <div>
+                                <h6 class="mb-1 fw-bold x-small">Xem trước hình ảnh</h6>
+                                <p class="mb-0 x-small text-muted">Vui lòng nhập đường dẫn ảnh (ví dụ: /images/chua-phap-tang-1.png)</p>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="row g-4 mb-4">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Điểm nhấn chính (Highlight)</label>
-                            <textarea name="highlight" class="form-control bg-light border-0 rounded-3 shadow-none" rows="3"><%= dest.highlight %></textarea>
+                            <textarea name="highlight" class="form-control glass-card border-0 rounded-3 shadow-none" rows="3" placeholder="Điều gì làm nên sự đặc biệt của địa điểm này?"><%= dest.highlight %></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Mẹo Check-in góc đẹp (Tip)</label>
-                            <textarea name="checkin_tip" class="form-control bg-light border-0 rounded-3 shadow-none" rows="3"><%= dest.checkin_tip %></textarea>
+                            <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Mẹo Check-in (Tip)</label>
+                            <textarea name="checkin_tip" class="form-control glass-card border-0 rounded-3 shadow-none" rows="3" placeholder="Gợi ý góc chụp hoặc thời điểm check-in..."><%= dest.checkin_tip %></textarea>
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Mô tả Zen Walk (Âm thanh/Thiền)</label>
-                        <textarea name="zen_walk_desc" class="form-control bg-light border-0 rounded-3 shadow-none" rows="2"><%= dest.zen_walk_desc %></textarea>
+                        <textarea name="zen_walk_desc" class="form-control glass-card border-0 rounded-3 shadow-none" rows="2" placeholder="Nội dung cho trải nghiệm chữa lành..."><%= dest.zen_walk_desc %></textarea>
                     </div>
 
                     <div class="mb-5">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Nội dung Câu chuyện chi tiết (Story)</label>
-                        <textarea name="story" class="form-control bg-light border-0 rounded-3 shadow-none" rows="6"><%= dest.story %></textarea>
+                        <textarea name="story" class="form-control glass-card border-0 rounded-3 shadow-none" rows="6" placeholder="Kể câu chuyện về lịch sử, con người và bản sắc..."><%= dest.story %></textarea>
                     </div>
 
                     <div class="text-end">
                         <button type="submit" class="btn btn-primary-bl btn-lg px-5 rounded-pill fw-bold shadow-premium">
-                            LƯU THÔNG TIN <i class="bi bi-check2 ms-2"></i>
+                            CẬP NHẬT KHÔNG GIAN <i class="bi bi-cloud-upload ms-2"></i>
                         </button>
                     </div>
                 </form>
@@ -221,6 +234,20 @@
 </style>
 
 <script>
+function updatePreview(val) {
+    const img = document.getElementById('dest-image-preview');
+    if (val) {
+        // Handle local paths and full URLs
+        img.src = val.startsWith('/') ? val : val;
+    }
+}
+
+function previewMedia(name) {
+    if (name === 'cover_image') {
+        updatePreview(document.getElementById('cover_image_input').value);
+    }
+}
+
 function openReplyModal(msgId, guestId) {
     document.getElementById('reply-msg-id').value = msgId;
     document.getElementById('reply-to-id').innerText = guestId;
@@ -242,5 +269,34 @@ function sendReply() {
     }).catch(err => {
         alert('Lỗi: ' + (err.response?.data?.message || err.message));
     });
+}
+
+async function handleDirectUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+
+    const btn = input.previousElementSibling;
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const res = await axios.post('/api/admin/upload?category=destinations', formData);
+        if (res.data.success) {
+            const url = res.data.data.url;
+            document.getElementById('cover_image_input').value = url;
+            updatePreview(url);
+            alert('Đã tải và tối ưu ảnh thành công!');
+        }
+    } catch (err) {
+        alert('Lỗi upload: ' + (err.response?.data?.message || err.message));
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+        input.value = '';
+    }
 }
 </script>

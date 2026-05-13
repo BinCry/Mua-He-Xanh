@@ -1,269 +1,151 @@
-<section class="position-relative pt-5 mt-4 min-vh-100 bg-light">
-    <!-- Hero Banner -->
-    <div class="container-fluid px-lg-5 mb-5 reveal-up">
-        <div class="card-bl border-0 shadow-sm rounded-5 overflow-hidden position-relative bg-dark text-white">
-            <div class="position-absolute top-0 start-0 w-100 h-100 opacity-50" style="background: url('/images/hero-2.png') center/cover;"></div>
-            <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-r"></div>
-            
-            <div class="position-relative p-4 p-md-5 d-flex align-items-center" style="min-height: 300px; z-index: 10;">
-                <div class="col-lg-6">
-                    <span class="badge bg-warning text-dark px-3 py-2 rounded-pill fw-bold mb-3 tracking-widest text-uppercase shadow-sm">
-                        <i class="bi bi-star-fill me-1"></i>OCOP Quốc Gia
-                    </span>
-                    <h1 class="display-4 fw-black mb-3 text-shadow">Tinh Hoa Đặc Sản<br>Bình Lợi</h1>
-                    <p class="lead opacity-75 mb-0">Hỗ trợ nông dân địa phương bằng cách mang hương vị làng nghề đích thực về nhà bạn.</p>
+<!-- Vibrant Market Dashboard — The Gift of Nature -->
+<div class="row g-4">
+    <!-- Products Main Area -->
+    <div class="col-lg-8">
+        <div class="widget-card p-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-center mb-5 gap-3">
+                <div>
+                    <h3 class="fw-black font-display mb-1" style="color: var(--primary);">Đặc sản Bình Lợi</h3>
+                    <p class="text-muted small mb-0">Sản phẩm OCOP tinh hoa từ làng nghề bản địa</p>
                 </div>
-                <div class="col-lg-6 text-end d-none d-lg-block">
-                    <i class="bi bi-basket-fill opacity-25" style="font-size: 15rem;"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="container-fluid px-lg-5 pb-5">
-        <div class="row g-4">
-            <!-- Left Sidebar Filter -->
-            <div class="col-lg-3 reveal-up">
-                <div class="sticky-top" style="top: 100px;">
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <h4 class="fw-black mb-0 text-dark">Danh mục</h4>
-                    </div>
-                    
-                    <div class="card-bl border-0 shadow-sm rounded-4 p-3 bg-white mb-4">
-                        <ul class="nav flex-column gap-2" id="market-filter">
-                            <li class="nav-item">
-                                <a href="#" class="nav-link active rounded-3 fw-bold bg-primary text-white" data-filter="all">
-                                    <i class="bi bi-grid-fill me-2"></i>Tất cả Sản phẩm
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link text-muted rounded-3 hover-bg-light" data-filter="plant">
-                                    <i class="bi bi-tree-fill me-2 text-success"></i>Cây Kiểng & Bonsai
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link text-muted rounded-3 hover-bg-light" data-filter="food">
-                                    <i class="bi bi-basket2-fill me-2 text-warning"></i>Nông sản Sạch
-                                </a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="#" class="nav-link text-muted rounded-3 hover-bg-light" data-filter="craft">
-                                    <i class="bi bi-tools me-2 text-secondary"></i>Thủ công Mỹ nghệ
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div class="card-bl border-0 shadow-sm rounded-4 p-4 bg-primary text-white bg-opacity-75">
-                        <h6 class="fw-bold mb-2"><i class="bi bi-truck me-2"></i>Giao hàng tận nơi</h6>
-                        <p class="small opacity-75 mb-0">Miễn phí giao hàng trong nội thành cho đơn hàng từ 500k.</p>
-                    </div>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary-bl rounded-pill px-4 shadow-sm">Tất cả</button>
+                    <button class="btn btn-outline-success rounded-pill px-4 fw-bold">Thực phẩm</button>
+                    <button class="btn btn-outline-warning rounded-pill px-4 fw-bold">Thủ công</button>
                 </div>
             </div>
 
-            <!-- Product Grid -->
-            <div class="col-lg-9">
-                <div class="d-flex justify-content-between align-items-center mb-4 reveal-up">
-                    <p class="text-muted small fw-bold text-uppercase tracking-widest mb-0">Tìm thấy <span class="text-primary"><%= products.length %></span> sản phẩm</p>
-                    
-                    <button class="btn btn-white shadow-sm rounded-pill fw-bold px-4" type="button" data-bs-toggle="offcanvas" data-bs-target="#cartOffcanvas">
-                        <i class="bi bi-cart3 fs-5 me-2"></i>Giỏ hàng <span class="badge bg-danger ms-1 rounded-pill" id="cart-badge">0</span>
-                    </button>
-                </div>
-
-                <div class="row g-4">
-                    <% products.forEach((product, i) => { %>
-                    <div class="col-sm-6 col-md-4 reveal-up" style="transition-delay: <%= i * 0.1 %>s">
-                        <div class="card-bl h-100 shadow-sm border-0 overflow-hidden group-hover transition-hover bg-white position-relative">
-                            
-                            <div class="position-absolute top-0 end-0 m-3 z-index-10">
-                                <button class="btn btn-light rounded-circle shadow-sm" style="width: 35px; height: 35px; padding: 0;">
-                                    <i class="bi bi-heart text-muted"></i>
-                                </button>
+            <div class="row g-4">
+                <% products.forEach(p => { 
+                    const isFood = p.category === 'Thực phẩm';
+                    const themeColor = isFood ? '#10b981' : '#f59e0b';
+                %>
+                <div class="col-6 col-md-4">
+                    <div class="card-heal p-0 overflow-hidden border-2 transition-all hover-lift h-100 d-flex flex-column" 
+                         style="border-bottom: 4px solid <%= themeColor %>;">
+                        <div class="position-relative" style="height: 180px;">
+                            <img src="<%= fixImg(p.image) %>" class="w-100 h-100 object-fit-cover">
+                            <div class="position-absolute top-0 start-0 m-2">
+                                <span class="badge rounded-pill px-3 py-2 fw-black shadow-sm" 
+                                      style="background: <%= themeColor %>; color: white; font-size: 0.6rem; letter-spacing: 1px;">
+                                    <%= p.category.toUpperCase() %>
+                                </span>
                             </div>
-
-                            <div class="position-relative overflow-hidden bg-light rounded-bottom-4" style="height: 220px;">
-                                <img src="<%= product.image %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= product.name %>" onerror="this.src='/images/product-placeholder.png'">
-                                <% if (product.rating > 4.7) { %>
-                                    <div class="position-absolute bottom-0 start-0 m-3">
-                                        <span class="badge bg-danger shadow-sm px-2 py-1"><i class="bi bi-fire me-1"></i>Bán chạy</span>
-                                    </div>
-                                <% } %>
-                            </div>
+                        </div>
+                        <div class="p-3 d-flex flex-column flex-grow-1">
+                            <h6 class="fw-black mb-1 line-clamp-1" style="font-size: 1rem;"><%= p.name %></h6>
+                            <p class="text-muted x-small mb-3"><i class="bi bi-geo-alt-fill me-1" style="color: <%= themeColor %>;"></i><%= p.origin %></p>
                             
-                            <div class="p-4 d-flex flex-column flex-grow-1">
-                                <div class="mb-1 d-flex align-items-center gap-1">
-                                    <div class="text-warning x-small">
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-fill"></i>
-                                        <i class="bi bi-star-half"></i>
-                                    </div>
-                                    <span class="text-muted x-small">(<%= product.sold %>)</span>
-                                </div>
-                                <h6 class="fw-bold mb-3 text-dark line-clamp-2"><%= product.name %></h6>
-                                
-                                <div class="mt-auto d-flex justify-content-between align-items-end">
-                                    <div>
-                                        <span class="d-block text-muted text-decoration-line-through x-small"><%= (product.price * 1.2).toLocaleString() %>đ</span>
-                                        <h5 class="fw-black text-primary mb-0"><%= product.price.toLocaleString() %>đ</h5>
-                                    </div>
-                                    <button class="btn btn-primary-bl rounded-circle shadow-sm" style="width: 45px; height: 45px; padding: 0;" onclick="addToCart(<%= product.id %>, '<%= product.name %>', <%= product.price %>, '<%= product.image %>')">
+                            <div class="mt-auto">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-black fs-5" style="color: var(--primary);"><%= new Intl.NumberFormat('vi-VN').format(p.price) %>đ</span>
+                                    <button onclick="addToCart(<%= p.id %>, '<%= p.name %>', <%= p.price %>, '<%= p.image %>')" 
+                                            class="btn rounded-circle d-flex align-items-center justify-content-center shadow-sm" 
+                                            style="width: 38px; height: 38px; background: <%= themeColor %>; color: white; border: none;">
                                         <i class="bi bi-plus-lg fs-5"></i>
                                     </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <% }) %>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Sidebar: Vibrant Cart & Discovery -->
+    <div class="col-lg-4">
+        <!-- VIBRANT CART WIDGET -->
+        <div class="widget-card p-4 mb-4 border-0 shadow-lg" style="background: white;">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-black font-display mb-0 text-primary">Giỏ hàng OCOP</h5>
+                <i class="bi bi-bag-heart-fill fs-4 text-warning"></i>
+            </div>
+            
+            <div id="cart-items-vibrant" class="d-flex flex-column gap-3 mb-4 custom-scrollbar" style="max-height: 400px; overflow-y: auto;">
+                <!-- JS Rendered -->
+                <div class="text-center py-5 text-muted opacity-50" id="empty-cart-vibrant">
+                    <div class="rounded-circle bg-light d-flex align-items-center justify-content-center mx-auto mb-3" style="width: 80px; height: 80px;">
+                        <i class="bi bi-cart3 fs-1"></i>
+                    </div>
+                    <p class="fw-bold">Chưa có đặc sản nào được chọn</p>
+                </div>
+            </div>
+
+            <div class="pt-4 border-top">
+                <div class="p-3 rounded-4 mb-4" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="x-small fw-bold text-success text-uppercase tracking-widest">Tổng thanh toán</span>
+                        <span class="fw-black text-success fs-3" id="total-price-vibrant">0đ</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 x-small fw-bold text-success opacity-75">
+                        <i class="bi bi-star-fill"></i> Tích lũy <span id="reward-points-vibrant">0</span> XP
+                    </div>
+                </div>
+                <a href="/cart" class="btn btn-premium w-100 py-3 rounded-pill shadow-lg">THANH TOÁN ĐƠN HÀNG</a>
+            </div>
+        </div>
+
+        <!-- Trust Badge Widget -->
+        <div class="widget-card p-4 border-0" style="background: var(--grad-main); color: white;">
+            <div class="d-flex gap-3 align-items-start mb-3">
+                <i class="bi bi-shield-check fs-2 text-warning"></i>
+                <div>
+                    <h6 class="fw-bold mb-1 text-white">Cam kết chất lượng</h6>
+                    <p class="x-small opacity-75 mb-0">Sản phẩm được chứng nhận OCOP 3-4 sao, đảm bảo an toàn vệ sinh và nguồn gốc bản địa.</p>
                 </div>
             </div>
         </div>
     </div>
-</section>
-
-<!-- Cart Offcanvas -->
-<div class="offcanvas offcanvas-end border-0 shadow-lg" tabindex="-1" id="cartOffcanvas" style="width: 400px;">
-    <div class="offcanvas-header border-bottom p-4">
-        <h5 class="offcanvas-title fw-black"><i class="bi bi-basket2-fill text-primary me-2"></i>Giỏ hàng của bạn</h5>
-        <button type="button" class="btn-close bg-light rounded-circle p-2" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body p-4 d-flex flex-column bg-light">
-        <div id="cart-items" class="flex-grow-1 overflow-auto no-scrollbar">
-            <div class="text-center py-5 opacity-50" id="empty-cart-msg">
-                <i class="bi bi-cart-x display-1 mb-3"></i>
-                <p>Giỏ hàng đang trống.</p>
-            </div>
-        </div>
-        
-        <div class="mt-auto pt-4 border-top bg-white p-4 rounded-4 shadow-sm">
-            <div class="d-flex justify-content-between mb-3">
-                <span class="text-muted fw-bold">Tổng cộng:</span>
-                <h4 class="fw-black text-primary mb-0" id="cart-total">0đ</h4>
-            </div>
-            <button class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold text-uppercase tracking-widest shadow-premium" onclick="checkout()">
-                THANH TOÁN NGAY
-            </button>
-        </div>
-    </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
-        
-        // Filter UI
-        document.querySelectorAll('#market-filter .nav-link').forEach(link => {
-            link.addEventListener('click', (e) => {
-                e.preventDefault();
-                document.querySelectorAll('#market-filter .nav-link').forEach(l => {
-                    l.classList.remove('active', 'bg-primary', 'text-white');
-                    l.classList.add('text-muted');
-                });
-                e.target.closest('.nav-link').classList.remove('text-muted');
-                e.target.closest('.nav-link').classList.add('active', 'bg-primary', 'text-white');
-            });
-        });
-    });
+    let cart = JSON.parse(localStorage.getItem('bl_cart') || '[]');
+    renderVibrantCart();
 
-    // Mock Cart System
-    let cart = [];
-
-    function addToCart(id, name, price, img) {
+    async function addToCart(id, name, price, img) {
         const item = cart.find(i => i.id === id);
         if (item) item.qty++;
         else cart.push({ id, name, price, img, qty: 1 });
+        localStorage.setItem('bl_cart', JSON.stringify(cart));
+        renderVibrantCart();
         
-        renderCart();
-        
-        // Save to server cart too
-        try {
-            await axios.post('/api/cart/add', { product_id: id, quantity: 1 });
-        } catch(e) { /* fallback to client cart */ }
-
-        // Notification
-        const btn = document.querySelector(`[onclick="addToCart(${id}, '${name}', ${price}, '${img}')"]`);
-        const originalHtml = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check-lg"></i>';
-        btn.classList.replace('btn-primary-bl', 'btn-success');
-        setTimeout(() => {
-            btn.innerHTML = originalHtml;
-            btn.classList.replace('btn-success', 'btn-primary-bl');
-        }, 1000);
-        
-        // Bounce badge
-        const badge = document.getElementById('cart-badge');
-        gsap.fromTo(badge, { scale: 1.5 }, { scale: 1, duration: 0.3, ease: 'back.out' });
+        // Save to server
+        try { await axios.post('/api/cart/add', { product_id: id, quantity: 1 }); } catch(e) {}
     }
 
-    function updateQty(id, delta) {
-        const item = cart.find(i => i.id === id);
-        if (item) {
-            item.qty += delta;
-            if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
-        }
-        renderCart();
-    }
-
-    function renderCart() {
-        const container = document.getElementById('cart-items');
-        const emptyMsg = document.getElementById('empty-cart-msg');
-        const badge = document.getElementById('cart-badge');
-        const totalEl = document.getElementById('cart-total');
+    function renderVibrantCart() {
+        const container = document.getElementById('cart-items-vibrant');
+        const emptyMsg = document.getElementById('empty-cart-vibrant');
+        const totalEl = document.getElementById('total-price-vibrant');
+        const pointsEl = document.getElementById('reward-points-vibrant');
         
-        const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
         const totalPrice = cart.reduce((sum, item) => sum + (item.qty * item.price), 0);
-        
-        badge.innerText = totalQty;
         totalEl.innerText = totalPrice.toLocaleString() + 'đ';
+        pointsEl.innerText = Math.floor(totalPrice / 10000);
         
         if (cart.length === 0) {
             emptyMsg.style.display = 'block';
-            document.querySelectorAll('.cart-item-row').forEach(e => e.remove());
+            document.querySelectorAll('.cart-row-vibrant').forEach(e => e.remove());
             return;
         }
         
         emptyMsg.style.display = 'none';
+        document.querySelectorAll('.cart-row-vibrant').forEach(e => e.remove());
         
-        // Re-render items
-        document.querySelectorAll('.cart-item-row').forEach(e => e.remove());
         cart.forEach(item => {
             const html = `
-                <div class="cart-item-row bg-white p-3 rounded-4 shadow-sm mb-3 d-flex gap-3 align-items-center">
-                    <img src="${item.img}" class="rounded-3 object-fit-cover" style="width: 60px; height: 60px;">
-                    <div class="flex-grow-1">
-                        <h6 class="fw-bold mb-1 x-small line-clamp-2">${item.name}</h6>
-                        <span class="text-primary fw-bold small">${item.price.toLocaleString()}đ</span>
+                <div class="cart-row-vibrant d-flex gap-3 align-items-center p-3 rounded-4 border bg-white hover-lift">
+                    <img src="${item.img}" class="rounded-3 object-fit-cover shadow-sm" style="width: 50px; height: 50px;">
+                    <div class="flex-grow-1 overflow-hidden">
+                        <span class="fw-bold d-block text-truncate small">${item.name}</span>
+                        <span class="text-primary fw-black" style="font-size: 0.85rem;">${item.price.toLocaleString()}đ</span>
                     </div>
-                    <div class="d-flex align-items-center gap-2 bg-light rounded-pill p-1">
-                        <button class="btn btn-sm btn-white rounded-circle shadow-sm" style="width:25px;height:25px;padding:0;" onclick="updateQty(${item.id}, -1)">-</button>
-                        <span class="fw-bold x-small">${item.qty}</span>
-                        <button class="btn btn-sm btn-white rounded-circle shadow-sm" style="width:25px;height:25px;padding:0;" onclick="updateQty(${item.id}, 1)">+</button>
-                    </div>
+                    <div class="badge bg-light text-dark rounded-pill px-2">x${item.qty}</div>
                 </div>
             `;
             container.insertAdjacentHTML('beforeend', html);
         });
     }
-
-    function checkout() {
-        if(cart.length === 0) return alert('Giỏ hàng trống!');
-        window.location.href = '/cart';
-    }
 </script>
-
-<style>
-    .bg-gradient-to-r { background: linear-gradient(to right, rgba(0,0,0,0.8) 0%, transparent 100%); }
-    .tracking-widest { letter-spacing: 1px; }
-    .text-shadow { text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-    .hover-bg-light:hover { background-color: rgba(0,0,0,0.05); }
-    .transition-hover { transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease; }
-    .transition-hover:hover { transform: translateY(-10px); box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important; }
-    .group-hover-scale { transition: transform 0.5s ease; }
-    .group-hover:hover .group-hover-scale { transform: scale(1.05); }
-    .x-small { font-size: 0.75rem; }
-    .z-index-10 { z-index: 10; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-</style>

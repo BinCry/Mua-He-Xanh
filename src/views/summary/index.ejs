@@ -1,145 +1,71 @@
-<section class="site-section bg-light min-vh-100 pt-5 pt-lg-5">
-    <!-- Profile Header -->
-    <div class="profile-header text-white mb-5 position-relative" style="background: linear-gradient(135deg, var(--v5-primary) 0%, var(--v5-secondary) 100%); border-radius: 0 0 40px 40px; margin-top: -3rem; padding-top: 6rem; padding-bottom: 3rem;">
-        <div class="container-site position-relative z-index-1">
-            <div class="row align-items-center">
-                <div class="col-md-8 d-flex align-items-center gap-4">
-                    <div class="position-relative">
-                        <img src="<%= fullUser && fullUser.avatar ? fullUser.avatar : '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-white shadow-lg" style="width: 120px; height: 120px; object-fit: cover;">
-                        <% if (fullUser && fullUser.role === 'admin') { %>
-                            <span class="position-absolute bottom-0 end-0 bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center border border-2 border-white" style="width: 35px; height: 35px; transform: translate(10%, 10%);" title="Quản trị viên">
-                                <i class="bi bi-star-fill small"></i>
-                            </span>
-                        <% } %>
-                    </div>
-                    <div>
-                        <h1 class="fw-black mb-1"><%= fullUser ? fullUser.full_name : 'Du khách Vô danh' %></h1>
-                        <p class="mb-2 opacity-75 d-flex align-items-center gap-2">
-                            <i class="bi bi-geo-alt-fill"></i> <%= fullUser && fullUser.city ? fullUser.city : 'Chưa cập nhật địa điểm' %>
-                        </p>
-                        <div class="d-flex gap-2 flex-wrap">
-                            <% if (fullUser && fullUser.travel_style) { %>
-                                <span class="badge bg-white text-primary rounded-pill px-3 py-2"><i class="bi bi-heart-fill text-danger me-1"></i> Phong cách: <%= fullUser.travel_style %></span>
-                            <% } else { %>
-                                <span class="badge bg-white text-primary rounded-pill px-3 py-2"><i class="bi bi-heart-fill text-danger me-1"></i> Healing & Tâm linh</span>
-                            <% } %>
-                            <span class="badge bg-dark bg-opacity-25 rounded-pill px-3 py-2 border border-light"><%= session.uuid.substring(0,8).toUpperCase() %></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 mt-4 mt-md-0">
-                    <div class="bg-white bg-opacity-10 backdrop-blur-md rounded-4 p-3 border border-white border-opacity-25 text-center">
-                        <div class="text-uppercase x-small tracking-widest mb-1 fw-bold opacity-75">Điểm tích lũy</div>
-                        <div class="display-4 fw-black text-warning text-shadow-sm"><i class="bi bi-coin small me-1"></i><%= fullUser && fullUser.total_points ? fullUser.total_points : session.total_points %></div>
-                    </div>
-                </div>
+<!-- Vibrant Journey Summary — Celebrate Your Healing Success -->
+<div class="row g-4 justify-content-center align-items-center py-5">
+    <div class="col-lg-8 text-center">
+        <!-- CELEBRATION CARD -->
+        <div class="widget-card p-5 border-0 shadow-2xl position-relative overflow-hidden" 
+             style="background: white; border-radius: 40px;">
+            
+            <!-- Confetti Decoration (Simulated with Icons) -->
+            <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25 pointer-events-none">
+                <i class="bi bi-stars text-warning position-absolute" style="top: 10%; left: 10%; font-size: 2rem;"></i>
+                <i class="bi bi-stars text-primary position-absolute" style="top: 20%; right: 15%; font-size: 1.5rem;"></i>
+                <i class="bi bi-stars text-success position-absolute" style="bottom: 25%; left: 20%; font-size: 1.8rem;"></i>
             </div>
-        </div>
-        <!-- Decorative bg -->
-        <div class="position-absolute top-0 start-0 w-100 h-100 overflow-hidden" style="border-radius: 0 0 40px 40px;">
-            <div class="position-absolute rounded-circle bg-white opacity-10" style="width: 300px; height: 300px; top: -100px; right: -50px; filter: blur(40px);"></div>
-        </div>
-    </div>
 
-    <div class="container-site">
-        <div class="row g-5">
-            <!-- Left Column: Stats & Timeline -->
-            <div class="col-lg-8">
-                <!-- Stats Overview -->
+            <div class="position-relative" style="z-index: 10;">
+                <div class="rounded-circle bg-warning bg-opacity-10 d-flex align-items-center justify-content-center mx-auto mb-4 shadow-sm" 
+                     style="width: 120px; height: 120px;">
+                    <i class="bi bi-trophy-fill text-warning" style="font-size: 4rem;"></i>
+                </div>
+
+                <h1 class="fw-black font-display mb-2 text-primary" style="font-size: 3rem;">Chúc mừng, Du khách!</h1>
+                <p class="text-muted fs-5 mb-5 px-lg-5">Bạn vừa hoàn thành một chặng đường tuyệt vời. Cảm ơn bạn đã đồng hành cùng Bình Lợi trong hành trình tìm lại sự cân bằng.</p>
+
+                <!-- REWARDS DASHBOARD -->
                 <div class="row g-4 mb-5">
-                    <div class="col-md-4 col-6">
-                        <div class="card-bl p-4 text-center h-100 border-0 shadow-sm rounded-4">
-                            <div class="display-5 fw-black text-primary mb-2"><%= history.length %></div>
-                            <div class="text-muted small fw-bold text-uppercase tracking-widest">Check-in</div>
+                    <div class="col-md-4">
+                        <div class="p-4 rounded-4 shadow-sm border-2 border-primary border" style="background: var(--bg-body);">
+                            <span class="d-block x-small fw-black text-muted tracking-widest mb-2">ĐIỂM THƯỞNG</span>
+                            <h2 class="fw-black text-primary mb-0">+50 XP</h2>
                         </div>
                     </div>
-                    <div class="col-md-4 col-6">
-                        <div class="card-bl p-4 text-center h-100 border-0 shadow-sm rounded-4">
-                            <div class="display-5 fw-black text-success mb-2"><%= unlockedBadges.length %></div>
-                            <div class="text-muted small fw-bold text-uppercase tracking-widest">Huy hiệu</div>
+                    <div class="col-md-4">
+                        <div class="p-4 rounded-4 shadow-sm border-2 border-warning border" style="background: var(--bg-body);">
+                            <span class="d-block x-small fw-black text-muted tracking-widest mb-2">STAMP MỚI</span>
+                            <h2 class="fw-black text-warning mb-0">+1</h2>
                         </div>
                     </div>
-                    <div class="col-md-4 col-12">
-                        <div class="card-bl p-4 text-center h-100 border-0 shadow-sm rounded-4 bg-primary text-white position-relative overflow-hidden">
-                            <i class="bi bi-award position-absolute opacity-25" style="font-size: 6rem; top: -10px; right: -10px;"></i>
-                            <div class="position-relative z-index-1">
-                                <div class="display-5 fw-black mb-2"><%= history.length * 10 %></div>
-                                <div class="small fw-bold text-uppercase tracking-widest opacity-75">Kinh nghiệm</div>
-                            </div>
+                    <div class="col-md-4">
+                        <div class="p-4 rounded-4 shadow-sm border-2 border-success border" style="background: var(--bg-body);">
+                            <span class="d-block x-small fw-black text-muted tracking-widest mb-2">HẠNG MỚI</span>
+                            <h2 class="fw-black text-success mb-0">#85</h2>
                         </div>
                     </div>
                 </div>
 
-                <!-- Journey Timeline -->
-                <h4 class="fw-black mb-4">Nhật ký Hành trình</h4>
-                <div class="card-bl p-4 p-md-5 border-0 shadow-sm rounded-4 mb-5">
-                    <% if (history.length > 0) { %>
-                        <div class="timeline-container">
-                            <% history.forEach((entry, idx) => { %>
-                                <div class="timeline-item d-flex gap-4 mb-4 position-relative">
-                                    <div class="timeline-line position-absolute top-0 bottom-0 border-start border-2 border-primary" style="left: 20px; z-index: 0; <%= idx === history.length - 1 ? 'display: none;' : '' %>"></div>
-                                    <div class="timeline-icon bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow-sm position-relative z-index-1 flex-shrink-0" style="width: 42px; height: 42px;">
-                                        <i class="bi bi-geo-alt-fill"></i>
-                                    </div>
-                                    <div class="timeline-content bg-light rounded-4 p-3 flex-grow-1">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <h6 class="fw-bold mb-0 text-dark"><%= entry.destination_name %></h6>
-                                            <span class="badge bg-white text-muted border"><%= new Date(entry.checked_in_at).toLocaleDateString('vi-VN') %></span>
-                                        </div>
-                                        <p class="small text-muted mb-0"><i class="bi bi-clock me-1"></i> <%= new Date(entry.checked_in_at).toLocaleTimeString('vi-VN') %></p>
-                                    </div>
-                                </div>
-                            <% }) %>
-                        </div>
-                    <% } else { %>
-                        <div class="text-center py-5">
-                            <img src="https://cdn-icons-png.flaticon.com/512/8280/8280802.png" alt="Empty" width="80" class="mb-3 opacity-50">
-                            <h5 class="fw-bold text-muted">Chưa có hành trình nào</h5>
-                            <p class="text-muted small">Hãy bắt đầu khám phá Bình Lợi để lấp đầy nhật ký của bạn.</p>
-                            <a href="/explore" class="btn btn-outline-primary rounded-pill px-4 mt-2 fw-bold">Khám phá ngay</a>
-                        </div>
-                    <% } %>
-                </div>
-            </div>
-
-            <!-- Right Column: Badges & Passport -->
-            <div class="col-lg-4">
-                <h4 class="fw-black mb-4">Bộ sưu tập Huy hiệu</h4>
-                <div class="card-bl p-4 border-0 shadow-sm rounded-4 mb-4">
-                    <div class="row g-3">
-                        <% allBadges.forEach(badge => { 
-                            const isUnlocked = unlockedBadges.some(ub => ub.badge_id === badge.id);
-                        %>
-                            <div class="col-6 text-center">
-                                <div class="badge-item p-3 rounded-4 <%= isUnlocked ? 'bg-light' : '' %>" style="transition: all 0.3s; <%= !isUnlocked ? 'opacity: 0.4; filter: grayscale(100%);' : '' %>">
-                                    <img src="<%= baseUrl %><%= badge.icon_url %>" class="img-fluid mb-2 drop-shadow-sm" style="height: 60px; object-fit: contain;">
-                                    <h6 class="small fw-bold mb-1 text-truncate"><%= badge.name %></h6>
-                                    <span class="x-small text-muted"><%= isUnlocked ? 'Đã mở khóa' : badge.requirement_desc %></span>
-                                </div>
-                            </div>
-                        <% }) %>
-                    </div>
-                </div>
-
-                <div class="card-bl border-0 shadow-sm rounded-4 overflow-hidden position-relative bg-dark text-white p-4">
-                    <div class="position-relative z-index-1">
-                        <h5 class="fw-bold text-warning mb-2"><i class="bi bi-qr-code-scan me-2"></i>Passport Định danh</h5>
-                        <p class="small text-white-50 mb-4">Sử dụng mã QR này để check-in nhanh tại các sự kiện và Lễ hội Bình Lợi.</p>
-                        <div class="bg-white p-2 rounded-3 d-inline-block">
-                            <!-- Mock QR Code -->
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=<%= session.uuid %>" alt="QR Code" class="img-fluid rounded-2">
-                        </div>
-                    </div>
-                    <i class="bi bi-fingerprint position-absolute opacity-10" style="font-size: 15rem; bottom: -50px; right: -50px; z-index: 0;"></i>
+                <!-- NEXT STEPS (SHOW ALL) -->
+                <div class="d-flex flex-wrap justify-content-center gap-3">
+                    <a href="/market" class="btn btn-premium px-5 py-3 rounded-pill fs-5 shadow-lg">MUA QUÀ LƯU NIỆM <i class="bi bi-bag-heart-fill ms-2"></i></a>
+                    <a href="/reviews" class="btn btn-outline-primary px-5 py-3 rounded-pill fw-bold border-2">CHIA SẺ CẢM XÚC</a>
                 </div>
             </div>
         </div>
+
+        <div class="mt-5">
+            <a href="/" class="text-primary fw-black text-decoration-none fs-5"><i class="bi bi-arrow-left-circle me-2"></i> Quay về Dashboard chính</a>
+        </div>
     </div>
-</section>
+</div>
 
 <style>
-    .tracking-widest { letter-spacing: 0.1em; }
-    .text-shadow-sm { text-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-    .drop-shadow-sm { filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1)); }
-    .timeline-item:hover .timeline-icon { transform: scale(1.1); transition: 0.3s; }
+    .shadow-2xl {
+        box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.1);
+    }
+    .widget-card {
+        animation: cardPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    @keyframes cardPop {
+        0% { transform: scale(0.9); opacity: 0; }
+        100% { transform: scale(1); opacity: 1; }
+    }
 </style>
