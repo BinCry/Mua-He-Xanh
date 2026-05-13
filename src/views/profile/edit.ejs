@@ -7,8 +7,16 @@
 
             <form id="editProfileForm">
                 <div class="text-center mb-4">
-                    <img src="<%= profileUser.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-3 border-primary" 
-                         style="width: 100px; height: 100px; object-fit: cover;">
+                    <div class="position-relative d-inline-block">
+                        <img id="avatar_preview" src="<%= profileUser.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-3 border-primary shadow" 
+                             style="width: 120px; height: 120px; object-fit: cover;">
+                        <button type="button" class="btn btn-sm btn-primary rounded-circle position-absolute bottom-0 end-0 p-2 shadow" 
+                                onclick="document.getElementById('avatar_file').click()">
+                            <i class="bi bi-camera-fill"></i>
+                        </button>
+                        <input type="file" id="avatar_file" class="d-none" accept="image/*" onchange="uploadAvatar(this)">
+                    </div>
+                    <input type="hidden" name="avatar" id="avatar_url" value="<%= profileUser.avatar || '' %>">
                 </div>
 
                 <div class="mb-3">
@@ -49,6 +57,34 @@
 </section>
 
 <script>
+async function uploadAvatar(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+    
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            document.getElementById('avatar_url').value = res.data.url;
+            document.getElementById('avatar_preview').src = res.data.url;
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = oldHtml;
+    }
+}
+
 document.getElementById('editProfileForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     const btn = document.getElementById('btnSave');

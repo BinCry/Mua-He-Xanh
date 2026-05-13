@@ -47,7 +47,7 @@ const AuthController = {
             req.login(newUser, async (err) => {
                 if (err) return res.redirect('/auth/login?error=Lỗi đăng nhập sau khi đăng ký');
                 await AuthController.establishSession(req, res, newUser);
-                return res.redirect('/summary');
+                return res.redirect('/');
             });
         } catch (error) {
             console.error("Register Error:", error);
@@ -72,7 +72,7 @@ const AuthController = {
             const user = await User.createFromSocial(data);
             await AuthController.establishSession(req, res, user);
             
-            res.json({ success: true, redirect: '/summary' });
+            res.json({ success: true, redirect: '/' });
         } catch (error) {
             console.error("Social login error:", error);
             res.status(500).json({ success: false, message: error.message });
@@ -85,7 +85,12 @@ const AuthController = {
         if (req.user) {
             await AuthController.establishSession(req, res, req.user);
         }
-        res.redirect('/summary');
+        
+        // Redirect based on role
+        if (req.user && req.user.role === 'manager') {
+            return res.redirect('/manager');
+        }
+        res.redirect('/');
     },
 
     establishSession: async (req, res, user) => {
