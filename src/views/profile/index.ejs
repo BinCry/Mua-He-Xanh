@@ -1,99 +1,83 @@
-<!-- Profile Dashboard — Show All Features -->
-<div class="row g-4">
-    <!-- Left: Profile Summary -->
-    <div class="col-lg-4">
-        <div class="widget-card text-center">
-            <div class="position-relative d-inline-block mb-4">
-                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-white shadow-lg" style="width: 120px; height: 120px; object-fit: cover;">
-                <button class="btn btn-sm btn-primary-bl rounded-circle position-absolute bottom-0 end-0" style="width: 32px; height: 32px;"><i class="bi bi-camera"></i></button>
+<!-- Profile Dashboard — Chương 5.2 -->
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container py-4" style="max-width: 960px;">
+        <!-- Profile Header -->
+        <div class="card-heal overflow-hidden mb-5 reveal-up">
+            <!-- Cover -->
+            <div class="position-relative" style="height: 180px; background: var(--grad-nature);">
+                <div class="position-absolute bottom-0 start-0 w-100" style="height: 60px; background: linear-gradient(to top, var(--surface), transparent);"></div>
             </div>
-            <h5 class="fw-black mb-1"><%= user.full_name %></h5>
-            <p class="text-muted small mb-4"><%= user.email %></p>
-            
-            <div class="d-flex flex-column gap-2">
-                <div class="p-3 rounded-4 bg-light d-flex justify-content-between align-items-center">
-                    <span class="x-small fw-bold text-muted">ID DU KHÁCH</span>
-                    <span class="fw-bold text-primary">#<%= user.id %></span>
-                </div>
-                <div class="p-3 rounded-4 bg-light d-flex justify-content-between align-items-center">
-                    <span class="x-small fw-bold text-muted">HÀNH TRÌNH</span>
-                    <span class="fw-bold text-primary">Cấp độ <%= Math.floor((user.total_points || 0) / 100) + 1 %></span>
-                </div>
-            </div>
-            <hr class="my-4 opacity-10">
-            <a href="/auth/logout" class="btn btn-outline-danger btn-sm w-100 rounded-pill">Đăng xuất tài khoản</a>
-        </div>
-    </div>
-
-    <!-- Right: Settings Area -->
-    <div class="col-lg-8">
-        <div class="widget-card">
-            <h5 class="fw-bold mb-4">Cài đặt tài khoản</h5>
-            
-            <ul class="nav nav-pills gap-2 mb-4 p-1 rounded-pill bg-light" style="width: fit-content;">
-                <li class="nav-item">
-                    <a class="nav-link active rounded-pill px-4 small fw-bold" data-bs-toggle="pill" href="#tab-info">Thông tin</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link rounded-pill px-4 small fw-bold" data-bs-toggle="pill" href="#tab-security">Bảo mật</a>
-                </li>
-            </ul>
-
-            <div class="tab-content">
-                <!-- Info Tab -->
-                <div class="tab-pane fade show active" id="tab-info">
-                    <form action="/profile/update" method="POST">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label x-small fw-bold">HỌ VÀ TÊN</label>
-                                <input type="text" name="full_name" class="form-control rounded-pill bg-light border-0 px-3" value="<%= user.full_name %>">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label x-small fw-bold">EMAIL</label>
-                                <input type="email" class="form-control rounded-pill bg-light border-0 px-3" value="<%= user.email %>" disabled>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label x-small fw-bold">SỐ ĐIỆN THOẠI</label>
-                                <input type="tel" name="phone" class="form-control rounded-pill bg-light border-0 px-3" value="<%= user.phone %>">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label x-small fw-bold">NGÀY SINH</label>
-                                <input type="date" name="birthday" class="form-control rounded-pill bg-light border-0 px-3" value="<%= user.birthday %>">
-                            </div>
-                            <div class="col-12">
-                                <label class="form-label x-small fw-bold">GIỚI THIỆU BẢN THÂN</label>
-                                <textarea name="bio" class="form-control rounded-4 bg-light border-0 px-3 py-2" rows="3"><%= user.bio %></textarea>
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-primary-bl rounded-pill px-5 fw-bold">Cập nhật thông tin</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Security Tab -->
-                <div class="tab-pane fade" id="tab-security">
-                    <form action="/profile/password" method="POST">
-                        <div class="row g-3">
-                            <div class="col-12">
-                                <label class="form-label x-small fw-bold">MẬT KHẨU HIỆN TẠI</label>
-                                <input type="password" name="old_password" class="form-control rounded-pill bg-light border-0 px-3">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label x-small fw-bold">MẬT KHẨU MỚI</label>
-                                <input type="password" name="new_password" class="form-control rounded-pill bg-light border-0 px-3">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label x-small fw-bold">XÁC NHẬN MẬT KHẨU MỚI</label>
-                                <input type="password" name="confirm_password" class="form-control rounded-pill bg-light border-0 px-3">
-                            </div>
-                        </div>
-                        <div class="mt-4 pt-3 border-top">
-                            <button type="submit" class="btn btn-primary-bl rounded-pill px-5 fw-bold">Đổi mật khẩu</button>
-                        </div>
-                    </form>
+            <!-- Profile Info -->
+            <div class="p-4 pt-0 position-relative">
+                <div class="d-flex flex-column flex-md-row align-items-md-end gap-3" style="margin-top: -50px;">
+                    <img src="<%= profile.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-white shadow" style="width: 96px; height: 96px; object-fit: cover; z-index: 5;">
+                    <div class="flex-grow-1 pb-1">
+                        <h3 class="fw-black mb-0 font-display"><%= profile.full_name %></h3>
+                        <p class="text-muted mb-0" style="font-size: 0.88rem;"><%= profile.email %></p>
+                    </div>
+                    <a href="/profile/edit" class="btn btn-ghost btn-sm rounded-pill px-4"><i class="bi bi-pencil me-1"></i>Chỉnh sửa</a>
                 </div>
             </div>
         </div>
+
+        <!-- Stats Row -->
+        <div class="row g-3 mb-5">
+            <div class="col-6 col-md-3 reveal-up">
+                <div class="card-stat">
+                    <div class="stat-icon" style="background: var(--primary-50); color: var(--primary);"><i class="bi bi-star-fill"></i></div>
+                    <div class="stat-value"><%= dashStats.totalPoints || 0 %></div>
+                    <div class="stat-label">Điểm thưởng</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 reveal-up">
+                <div class="card-stat">
+                    <div class="stat-icon" style="background: rgba(240,165,0,0.1); color: var(--accent);"><i class="bi bi-ticket-perforated-fill"></i></div>
+                    <div class="stat-value"><%= dashStats.totalBookings || 0 %></div>
+                    <div class="stat-label">Workshop</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 reveal-up">
+                <div class="card-stat">
+                    <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="bi bi-geo-alt-fill"></i></div>
+                    <div class="stat-value"><%= dashStats.totalCheckins || 0 %></div>
+                    <div class="stat-label">Check-in</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 reveal-up">
+                <div class="card-stat">
+                    <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: var(--info);"><i class="bi bi-chat-heart-fill"></i></div>
+                    <div class="stat-value"><%= dashStats.totalReviews || 0 %></div>
+                    <div class="stat-label">Đánh giá</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="row g-3 reveal-up">
+            <div class="col-6 col-md-3">
+                <a href="/my-workshops" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
+                    <i class="bi bi-palette-fill d-block mb-2" style="font-size: 1.5rem; color: var(--primary);"></i>
+                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Workshop của tôi</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="/my-orders" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
+                    <i class="bi bi-bag-fill d-block mb-2" style="font-size: 1.5rem; color: var(--accent);"></i>
+                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Đơn hàng</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="/profile/rewards" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
+                    <i class="bi bi-gift-fill d-block mb-2" style="font-size: 1.5rem; color: var(--danger);"></i>
+                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Điểm thưởng</span>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="/passport" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
+                    <i class="bi bi-qr-code d-block mb-2" style="font-size: 1.5rem; color: var(--info);"></i>
+                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Passport số</span>
+                </a>
+            </div>
+        </div>
     </div>
-</div>
+</section>

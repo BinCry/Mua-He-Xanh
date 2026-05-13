@@ -1,42 +1,88 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= typeof title !=='undefined' ? title + " | " + appName : appName %></title>
-    
+    <title>
+        <%= typeof title !=='undefined' ? title + " | " + appName : appName %>
+    </title>
+
+    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Outfit:wght@300;400;600;800&family=Montserrat:wght@400;700;900&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <!-- Animate.css -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <!-- Custom CSS -->
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/style-v5.css?v=<%= assetV %>">
-    
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+    <script>
+        window.APP_CONFIG = {
+            baseUrl: '<%= baseUrl %>',
+            apiUrl: '<%= baseUrl %>/api'
+        };
+    </script>
 </head>
+
 <body>
+    <!-- No Page Loader to prevent infinite spinning delays -->
 
-    <!-- Platform Sidebar (Desktop Only) -->
-    <%- include('../partials/sidebar') %>
+    <!-- Navbar -->
+    <%- include('../partials/navbar') %>
 
-    <!-- Top Header -->
-    <%- include('../partials/header_platform') %>
+    <!-- Floating QR Scan Button -->
+    <a href="/checkin" class="fab-qr d-none d-lg-flex" title="Quét mã QR">
+        <i class="bi bi-qr-code-scan"></i>
+    </a>
 
-    <!-- Main Content Wrapper -->
-    <main class="content-wrapper">
+    <!-- Notification Bell (Chương 5.14) -->
+    <% if (user) { %>
+    <div class="position-fixed" style="bottom: 90px; right: 20px; z-index: 1040;" id="notifBell">
+        <button class="btn btn-primary rounded-circle shadow-lg position-relative" style="width: 50px; height: 50px;" onclick="toggleNotifications()">
+            <i class="bi bi-bell-fill"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notifBadge">0</span>
+        </button>
+        <div class="position-absolute bottom-100 end-0 mb-2 d-none" id="notifPanel" style="width: 320px; max-height: 400px;">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="card-header bg-primary text-white border-0 p-3 d-flex justify-content-between">
+                    <span class="fw-bold"><i class="bi bi-bell me-2"></i>Thông báo</span>
+                    <button class="btn btn-sm btn-light rounded-pill px-2 py-0" onclick="markAllRead()">Đọc hết</button>
+                </div>
+                <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;" id="notifList">
+                    <div class="text-center py-4 text-muted small">Không có thông báo mới</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <% } %>
+
+    <!-- Main Content -->
+    <main>
         <%- body %>
     </main>
 
-    <!-- Mobile Bottom Navigation (Always Visible on Mobile) -->
+    <!-- Footer -->
+    <%- include('../partials/footer') %>
+
+    <!-- Back to Top -->
+    <div id="back-to-top" class="d-none d-lg-block">
+        <i class="bi bi-arrow-up"></i>
+    </div>
+
+    <!-- Mobile Bottom Navigation (Chương 5.16) -->
     <nav class="d-lg-none position-fixed bottom-0 start-0 w-100 bg-white border-top shadow-lg" style="z-index: 1050; padding-bottom: env(safe-area-inset-bottom, 0);">
         <div class="d-flex justify-content-around align-items-center py-2">
             <a href="/" class="text-center text-decoration-none text-muted px-2">
                 <i class="bi bi-house-door d-block fs-5"></i>
-                <span style="font-size: 0.65rem;">Home</span>
+                <span style="font-size: 0.65rem;">Trang chủ</span>
             </a>
             <a href="/explore" class="text-center text-decoration-none text-muted px-2">
                 <i class="bi bi-compass d-block fs-5"></i>
@@ -46,42 +92,142 @@
                 <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center shadow" style="width: 50px; height: 50px; margin: 0 auto;">
                     <i class="bi bi-qr-code-scan fs-4"></i>
                 </div>
+                <span style="font-size: 0.65rem;" class="text-primary">Check-in</span>
             </a>
-            <a href="/market" class="text-center text-decoration-none text-muted px-2">
-                <i class="bi bi-bag d-block fs-5"></i>
-                <span style="font-size: 0.65rem;">Chợ</span>
+            <a href="/workshops" class="text-center text-decoration-none text-muted px-2">
+                <i class="bi bi-palette d-block fs-5"></i>
+                <span style="font-size: 0.65rem;">Workshop</span>
             </a>
             <a href="<%= user ? '/profile' : '/auth/login' %>" class="text-center text-decoration-none text-muted px-2">
                 <i class="bi bi-person d-block fs-5"></i>
-                <span style="font-size: 0.65rem;">Tôi</span>
+                <span style="font-size: 0.65rem;"><%= user ? 'Tôi' : 'Đăng nhập' %></span>
             </a>
         </div>
     </nav>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
     <script>
-        // Set Active Nav Link
-        const currentPath = window.location.pathname;
-        document.querySelectorAll('.nav-item-platform').forEach(link => {
-            if (link.getAttribute('href') === currentPath) {
-                link.classList.add('active');
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Global Reveal Animation
+        const reveal = () => {
+            const items = document.querySelectorAll('.reveal-up');
+            items.forEach(item => {
+                gsap.fromTo(item, 
+                    { opacity: 0, y: 50 },
+                    { 
+                        opacity: 1, 
+                        y: 0, 
+                        duration: 1, 
+                        ease: "power3.out",
+                        scrollTrigger: {
+                            trigger: item,
+                            start: "top 85%",
+                            toggleActions: "play none none none"
+                        }
+                    }
+                );
+            });
+        };
+
+        // Run reveal immediately on DOMContentLoaded
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(reveal, 100);
+        });
+
+        // Navbar Scroll Effect (Fixed top without detached spacing)
+        const nav = document.querySelector('.navbar-premium');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled', 'shadow-premium');
+                nav.style.background = 'rgba(255, 255, 255, 0.95)';
+                nav.style.backdropFilter = 'blur(10px)';
             } else {
-                link.classList.remove('active');
+                nav.classList.remove('scrolled', 'shadow-premium');
+                nav.style.background = 'transparent';
+                nav.style.backdropFilter = 'none';
             }
         });
 
-        // Dynamic Title
-        const pageTitle = document.querySelector('h1')?.textContent || document.title.split('|')[0];
-        const platformTitle = document.getElementById('platform-page-title');
-        if (platformTitle && pageTitle) platformTitle.textContent = pageTitle;
-
-        // Initialize AOS
-        AOS.init({
-            duration: 1000,
-            once: true,
-            offset: 100
+        // Back to Top
+        const btt = document.getElementById('back-to-top');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 300) {
+                btt.classList.add('show');
+            } else {
+                btt.classList.remove('show');
+            }
+        });
+        btt.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     </script>
+    <script src="/js/app.js?v=<%= assetV %>"></script>
+
+    <!-- Notification System JS (Chương 5.14) -->
+    <% if (user) { %>
+    <script>
+        async function loadNotifications() {
+            try {
+                const res = await axios.get('/api/notifications');
+                if (res.data.success) {
+                    const badge = document.getElementById('notifBadge');
+                    if (res.data.unreadCount > 0) {
+                        badge.classList.remove('d-none');
+                        badge.textContent = res.data.unreadCount;
+                    } else {
+                        badge.classList.add('d-none');
+                    }
+                    const list = document.getElementById('notifList');
+                    if (res.data.notifications.length === 0) {
+                        list.innerHTML = '<div class="text-center py-4 text-muted small">Không có thông báo mới</div>';
+                    } else {
+                        list.innerHTML = res.data.notifications.map(n => `
+                            <div class="p-3 border-bottom ${n.is_read ? '' : 'bg-primary bg-opacity-10'}" style="cursor:pointer;" onclick="readNotif('${n.id}', '${n.link || ''}')">
+                                <div class="fw-bold small">${n.title}</div>
+                                <div class="text-muted" style="font-size:0.75rem;">${n.message}</div>
+                                <div class="text-muted" style="font-size:0.65rem;">${new Date(n.created_at).toLocaleDateString('vi-VN')}</div>
+                            </div>
+                        `).join('');
+                    }
+                }
+            } catch(e) {}
+        }
+        function toggleNotifications() {
+            const panel = document.getElementById('notifPanel');
+            panel.classList.toggle('d-none');
+            if (!panel.classList.contains('d-none')) loadNotifications();
+        }
+        async function markAllRead() {
+            await axios.post('/api/notifications/read', {});
+            loadNotifications();
+        }
+        async function readNotif(id, link) {
+            await axios.post('/api/notifications/read', { id });
+            if (link) window.location.href = link;
+            else loadNotifications();
+        }
+        // Auto-load on page load
+        setTimeout(loadNotifications, 2000);
+    </script>
+    <% } %>
+
+    <!-- Mobile bottom nav spacing -->
+    <style>
+        @media (max-width: 991.98px) {
+            body { padding-bottom: 70px; }
+            .fab-qr { display: none !important; }
+            #notifBell { bottom: 80px !important; }
+        }
+    </style>
+
+    <%- typeof scripts !=='undefined' ? scripts : '' %>
+
 </body>
+
 </html>

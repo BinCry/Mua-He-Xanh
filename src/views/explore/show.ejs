@@ -1,110 +1,345 @@
-<!-- Destination Detail — Chương 5.3 -->
-<section class="position-relative" style="margin-top: 60px;">
-    <!-- Hero Image Section -->
-    <div class="position-relative" style="height: 60vh; min-height: 400px; overflow: hidden;">
-        <img src="<%= fixImg(destination.cover_image) %>" class="w-100 h-100 object-fit-cover reveal-up" alt="<%= destination.name %>">
-        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, var(--bg) 0%, transparent 50%, rgba(0,0,0,0.4) 100%);"></div>
-        
-        <div class="position-absolute bottom-0 start-0 w-100 p-4 p-md-5">
-            <div class="container">
-                <div class="reveal-up">
-                    <span class="badge-gold mb-3 d-inline-block"><i class="bi bi-geo-alt-fill me-1"></i><%= destination.type %></span>
-                    <h1 class="text-white fw-black font-display mb-2" style="font-size: clamp(2rem, 5vw, 3.5rem); text-shadow: 0 4px 12px rgba(0,0,0,0.3);"><%= destination.name %></h1>
-                    <p class="text-white opacity-90 mb-0" style="max-width: 600px; font-size: 1.1rem;"><%= destination.short_description %></p>
-                </div>
-            </div>
-        </div>
+<section class="explore-hero-premium position-relative overflow-hidden" style="height: 80vh;">
+    <!-- Cinematic Background -->
+    <div class="hero-bg animate__animated animate__zoomIn" style="animation-duration: 20s;">
+        <img src="<%= fixImg(dest.cover_image, '/images/hero-3.png') %>" class="w-100 h-100 object-fit-cover" alt="<%= dest.name %>">
     </div>
-
-    <!-- Content Section -->
-    <div class="container py-5">
-        <div class="row g-5">
-            <!-- Left: Description & Media -->
-            <div class="col-lg-8">
-                <div class="card-glass p-4 p-md-5 mb-5 reveal-up">
-                    <h3 class="fw-bold font-display mb-4">Câu chuyện di sản</h3>
-                    <div class="content-body" style="font-size: 1.05rem; line-height: 1.8; color: var(--text-secondary);">
-                        <%- destination.description.replace(/\n/g, '<br>') %>
-                    </div>
+    <div class="hero-overlay-dark" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%);"></div>
+    
+    <div class="hero-content container-site text-white d-flex flex-column justify-content-end h-100 pb-5">
+        <div class="row align-items-end">
+            <div class="col-lg-8 animate__animated animate__fadeInUp">
+                <span class="badge bg-white text-dark mb-3 px-3 py-2 rounded-pill fw-bold tracking-widest text-uppercase shadow-sm"><i class="bi bi-tag-fill text-primary me-1"></i> <%= dest.type %></span>
+                <h1 class="display-1 fw-black mb-3 letter-spacing-sm text-shadow-lg"><%= dest.name %></h1>
+                <p class="lead opacity-90 d-flex align-items-center gap-2 mb-4">
+                    <i class="bi bi-geo-alt-fill text-danger"></i> <%= dest.short_desc %>
+                </p>
+                
+                <!-- Interactive Actions -->
+                <div class="d-flex flex-wrap gap-3 mb-4">
+                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="toggleLike(this)">
+                        <i class="bi bi-heart text-danger"></i> Thích
+                    </button>
+                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-bookmark-fill text-primary"></i> Lưu điểm đến
+                    </button>
+                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2">
+                        <i class="bi bi-share-fill text-success"></i> Chia sẻ
+                    </button>
+                    <button class="btn btn-primary-bl rounded-pill px-4 fw-bold shadow-lg d-flex align-items-center gap-2">
+                        <i class="bi bi-signpost-split-fill"></i> Thêm vào hành trình
+                    </button>
                 </div>
-
-                <!-- Gallery if exists -->
-                <% if (destination.gallery) { %>
-                <div class="mb-5 reveal-up">
-                    <h4 class="fw-bold mb-4">Hình ảnh thực tế</h4>
-                    <div class="row g-3">
-                        <% JSON.parse(destination.gallery).forEach(img => { %>
-                        <div class="col-6 col-md-4">
-                            <div class="rounded-xl overflow-hidden" style="height: 160px;">
-                                <img src="<%= fixImg(img) %>" class="w-100 h-100 object-fit-cover hover-lift">
-                            </div>
-                        </div>
-                        <% }) %>
-                    </div>
-                </div>
+                
+                <% if (user && (user.role === 'manager' || user.role === 'admin') && user.managed_destination_id === dest.id) { %>
+                    <a href="/manager" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold backdrop-blur-md">
+                        <i class="bi bi-pencil-square me-1"></i> Quản lý điểm đến
+                    </a>
                 <% } %>
             </div>
-
-            <!-- Right: Sidebar Info & Actions -->
-            <div class="col-lg-4">
-                <div class="sticky-top" style="top: 100px;">
-                    <!-- Actions Card -->
-                    <div class="card-heal p-4 mb-4 reveal-up">
-                        <h5 class="fw-bold mb-4">Trải nghiệm ngay</h5>
-                        <div class="d-grid gap-3">
-                            <% if (user) { %>
-                            <a href="/checkin?dest=<%= destination.id %>" class="btn btn-premium py-3">
-                                <i class="bi bi-qr-code-scan me-2"></i>CHECK-IN & TÍCH ĐIỂM
-                            </a>
-                            <% } else { %>
-                            <a href="/auth/login" class="btn btn-premium py-3">
-                                ĐĂNG NHẬP ĐỂ CHECK-IN
-                            </a>
-                            <% } %>
-                            
-                            <button class="btn btn-ghost py-3" onclick="playAudioGuide()">
-                                <i class="bi bi-headphones me-2"></i>AUDIO STORYTELLING
-                            </button>
-                        </div>
-                        
-                        <hr class="my-4 opacity-5">
-                        
-                        <div class="d-flex flex-column gap-3">
-                            <div class="d-flex gap-3 align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: var(--primary-50); color: var(--primary);">
-                                    <i class="bi bi-clock"></i>
-                                </div>
-                                <div>
-                                    <span class="d-block fw-bold" style="font-size: 0.85rem;">Giờ mở cửa</span>
-                                    <span class="text-muted" style="font-size: 0.8rem;"><%= destination.open_time || '07:30 - 17:30' %></span>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-3 align-items-center">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: rgba(240,165,0,0.1); color: var(--accent);">
-                                    <i class="bi bi-geo-alt"></i>
-                                </div>
-                                <div>
-                                    <span class="d-block fw-bold" style="font-size: 0.85rem;">Vị trí</span>
-                                    <span class="text-muted" style="font-size: 0.8rem;"><%= destination.address || 'Bình Lợi, Bình Chánh' %></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Map Embed Placeholder -->
-                    <div class="card-heal overflow-hidden reveal-up" style="height: 200px;">
-                        <iframe width="100%" height="100%" frameborder="0" style="border:0" 
-                            src="https://www.google.com/maps/embed/v1/place?key=<%= process.env.GOOGLE_MAPS_KEY %>&q=<%= encodeURIComponent(destination.name + ' Bình Lợi Bình Chánh') %>" allowfullscreen>
-                        </iframe>
-                    </div>
-                </div>
+            
+            <div class="col-lg-4 text-lg-end mt-4 mt-lg-0 animate__animated animate__fadeInUp animate__delay-1s">
+                <button class="btn btn-outline-light rounded-circle p-0 d-inline-flex align-items-center justify-content-center backdrop-blur-md border-2 play-video-btn" style="width: 80px; height: 80px; transition: all 0.3s;" data-bs-toggle="modal" data-bs-target="#videoModal">
+                    <i class="bi bi-play-fill fs-1 ms-1"></i>
+                </button>
+                <div class="mt-2 small fw-bold tracking-widest text-uppercase">Xem Flycam</div>
             </div>
         </div>
     </div>
 </section>
 
+<div class="container-site mt-5 position-relative" style="z-index: 100;">
+    <div class="row g-5">
+        <!-- Main Content: Storytelling -->
+        <div class="col-lg-8">
+            <div class="card-bl p-4 p-md-5 mb-5 shadow-lg border-0 rounded-4">
+                <!-- QR Storytelling Component -->
+                <div class="qr-story-badge d-flex flex-column flex-md-row align-items-md-center gap-3 p-4 rounded-4 mb-5 position-relative overflow-hidden" style="background: linear-gradient(135deg, rgba(200, 169, 110, 0.1) 0%, rgba(92, 138, 94, 0.1) 100%); border: 1px solid rgba(200, 169, 110, 0.3);">
+                    <!-- Background Icon -->
+                    <div class="position-absolute top-50 end-0 translate-middle-y opacity-10 pe-3" style="z-index: 0; pointer-events: none;">
+                        <i class="bi bi-mic-fill" style="font-size: 10rem;"></i>
+                    </div>
+                    
+                    <div class="qr-icon-wrapper bg-white p-3 rounded-circle shadow-sm position-relative flex-shrink-0" style="z-index: 2;">
+                        <i class="bi bi-headphones fs-3 text-primary"></i>
+                    </div>
+                    
+                    <div class="position-relative flex-grow-1 pe-md-5" style="z-index: 2;">
+                        <h5 class="mb-1 fw-black text-dark" style="font-family: var(--font-heading);">Audio Storytelling</h5>
+                        <p class="small text-muted mb-0 line-clamp-2">Quét mã QR tại điểm đến để lắng nghe câu chuyện văn hóa truyền cảm.</p>
+                    </div>
+                    
+                    <button class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold shadow-sm flex-shrink-0 mt-2 mt-md-0 position-relative" style="z-index: 2;" onclick="startStorytelling()">
+                        Nghe thử <i class="bi bi-play-circle-fill ms-1"></i>
+                    </button>
+                </div>
+
+                <h2 class="display-text text-primary mb-4 border-bottom pb-3">Câu chuyện Văn hóa</h2>
+                <div class="story-text-rich" style="font-size: 1.15rem; line-height: 2.2; color: #444; text-align: justify;">
+                    <%- dest.story.replace(/\n/g, '<br><br>') %>
+                </div>
+
+                <!-- Highlight Box -->
+                <div class="highlight-quote p-5 rounded-4 mt-5 position-relative overflow-hidden bg-light border-start border-5 border-secondary">
+                    <i class="bi bi-quote display-1 position-absolute top-0 end-0 opacity-10 m-3 text-secondary"></i>
+                    <h4 class="mb-3 fw-black text-dark"><i class="bi bi-stars text-warning me-2"></i> Trải nghiệm tinh hoa</h4>
+                    <p class="mb-0 fst-italic lead text-muted" style="line-height: 1.8;"><%= dest.highlight %></p>
+                </div>
+            </div>
+
+            <!-- Zen Walk Section -->
+            <% if (dest.zen_walk_desc) { %>
+            <div class="zen-section p-5 rounded-4 mb-5 text-center text-white position-relative overflow-hidden shadow-premium">
+                <div class="zen-overlay" style="background: linear-gradient(45deg, rgba(46, 76, 48, 0.9), rgba(92, 138, 94, 0.8));"></div>
+                <div class="position-relative" style="z-index: 5;">
+                    <div class="d-inline-flex bg-white bg-opacity-25 rounded-circle p-3 mb-4 backdrop-blur-md">
+                        <i class="bi bi-wind fs-1"></i>
+                    </div>
+                    <h2 class="display-text text-white mb-3">Zen Walk Healing</h2>
+                    <p class="lead opacity-90 mx-auto mb-5" style="max-width: 600px; line-height: 1.8;"><%= dest.zen_walk_desc %></p>
+                    
+                    <div class="audio-player-mockup bg-white bg-opacity-10 backdrop-blur-md p-3 rounded-pill d-inline-flex align-items-center gap-4 text-white border border-white border-opacity-25">
+                        <button class="btn btn-white rounded-circle p-2 text-primary shadow-sm" style="width:50px; height:50px;"><i class="bi bi-play-fill fs-3"></i></button>
+                        <div class="text-start pe-4">
+                            <span class="d-block small fw-bold tracking-widest text-uppercase">Bản hòa tấu thiên nhiên</span>
+                            <div class="progress bg-dark bg-opacity-50" style="height: 4px; width: 200px; margin-top: 8px;">
+                                <div class="progress-bar bg-white" style="width: 45%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- Image Gallery -->
+            <div class="mb-5">
+                <div class="d-flex justify-content-between align-items-end mb-4">
+                    <h3 class="display-text mb-0">Góc nhìn Nghệ thuật</h3>
+                    <button class="btn btn-outline-secondary rounded-pill btn-sm fw-bold">Xem tất cả ảnh</button>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <div class="rounded-4 overflow-hidden shadow-sm ratio ratio-16x9 position-relative group-hover">
+                            <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="Gallery 1">
+                            <div class="position-absolute bottom-0 start-0 w-100 p-4 bg-gradient-to-t text-white opacity-0 group-hover-opacity-100 transition-opacity">
+                                <h5 class="mb-0 fw-bold">Cảnh quan chính</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex flex-column gap-3 h-100">
+                            <div class="rounded-4 overflow-hidden shadow-sm flex-grow-1 ratio ratio-4x3 position-relative group-hover">
+                                <img src="<%= baseUrl %>/images/hero-1.png" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="Gallery 2">
+                            </div>
+                            <div class="rounded-4 overflow-hidden shadow-sm flex-grow-1 ratio ratio-4x3 position-relative group-hover">
+                                <img src="<%= baseUrl %>/images/hero-2.png" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="Gallery 3">
+                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-60 d-flex align-items-center justify-content-center text-white backdrop-blur-sm transition-all hover-opacity-80 cursor-pointer">
+                                    <div class="text-center">
+                                        <i class="bi bi-images fs-2 mb-1"></i>
+                                        <div class="fw-bold tracking-widest text-uppercase x-small">+12 Ảnh</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar: Actions -->
+        <div class="col-lg-4">
+            <div class="sticky-top" style="top: 100px;">
+                <!-- Info Card -->
+                <div class="card-bl p-4 mb-4 shadow-sm border-0 rounded-4 bg-white">
+                    <h6 class="text-primary fw-black mb-4 text-uppercase tracking-widest border-bottom pb-3"><i class="bi bi-info-circle-fill me-2"></i> Thông tin hữu ích</h6>
+                    
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <div class="bg-light p-3 rounded-circle text-primary"><i class="bi bi-clock-fill fs-5"></i></div>
+                        <div>
+                            <div class="x-small text-muted fw-bold text-uppercase">Giờ mở cửa</div>
+                            <div class="fw-bold text-dark"><%= dest.open_hours || 'Cả ngày' %></div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <div class="bg-light p-3 rounded-circle text-success"><i class="bi bi-ticket-perforated-fill fs-5"></i></div>
+                        <div>
+                            <div class="x-small text-muted fw-bold text-uppercase">Chi phí dự kiến</div>
+                            <div class="fw-bold text-dark"><%= dest.cost || 'Miễn phí' %></div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex align-items-start gap-3 mb-4">
+                        <div class="bg-light p-3 rounded-circle text-warning"><i class="bi bi-sun-fill fs-5"></i></div>
+                        <div>
+                            <div class="x-small text-muted fw-bold text-uppercase">Thời điểm đẹp nhất</div>
+                            <div class="fw-bold text-dark"><%= dest.best_time || 'Sáng sớm / Hoàng hôn' %></div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-light p-3 rounded-4 mt-4 border-start border-4 border-primary">
+                        <div class="small fw-bold text-dark mb-1"><i class="bi bi-lightbulb-fill text-warning me-1"></i> Mẹo Check-in</div>
+                        <p class="x-small text-muted mb-0"><%= dest.checkin_tip || 'Hãy mang trang phục thoải mái để dễ dàng trải nghiệm.' %></p>
+                    </div>
+                </div>
+
+                <!-- Action Card -->
+                <div class="card-bl p-4 mb-4 shadow-xl border-0 rounded-4" style="background: linear-gradient(145deg, #ffffff, #f0f4f1);">
+                    <div class="text-center mb-4">
+                        <div class="bg-warning text-dark d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill fw-black mb-3 shadow-sm border border-white">
+                            <i class="bi bi-star-fill"></i> +<%= dest.points %> POINTS
+                        </div>
+                        <h5 class="fw-black text-primary">Xác thực Check-in</h5>
+                        <p class="small text-muted mb-0">Quét mã QR tại điểm để nhận điểm thưởng và huy hiệu.</p>
+                    </div>
+                    
+                    <div class="d-grid gap-3">
+                        <a href="<%= baseUrl %>/checkin?slug=<%= dest.slug %>" class="btn btn-primary-bl btn-lg shadow-md rounded-pill fw-bold">
+                            <i class="bi bi-qr-code-scan me-2"></i> QUÉT QR NGAY
+                        </a>
+                        <a href="https://www.google.com/maps/dir/?api=1&destination=<%= dest.lat %>,<%= dest.lng %>" target="_blank" class="btn btn-light border btn-lg rounded-pill fw-bold text-dark shadow-sm">
+                            <i class="bi bi-cursor-fill text-primary me-2"></i> Chỉ đường Maps
+                        </a>
+                        <button class="btn btn-outline-secondary btn-lg rounded-pill fw-bold mt-2 d-none d-md-block" data-bs-toggle="modal" data-bs-target="#chatModal">
+                            <i class="bi bi-chat-dots-fill me-2"></i> Hỏi đáp Quản lý
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Floating Chat Toggle (Mobile Friendly) -->
+            <div class="fixed-bottom p-4 text-end d-md-none" style="z-index: 1000;">
+                <button class="btn btn-primary-bl rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center ms-auto" style="width: 65px; height: 65px;" data-bs-toggle="modal" data-bs-target="#chatModal">
+                    <i class="bi bi-chat-fill fs-3"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Video Modal -->
+<div class="modal fade" id="videoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content bg-transparent border-0">
+            <div class="modal-header border-0 pb-0 justify-content-end">
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="ratio ratio-16x9 rounded-4 overflow-hidden shadow-lg bg-black d-flex align-items-center justify-content-center">
+                    <div class="text-white text-center">
+                        <i class="bi bi-camera-video fs-1 mb-3"></i>
+                        <h5>Đang tải Video Cinematic...</h5>
+                        <p class="small text-white-50">Tích hợp Youtube/Vimeo API tại đây</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chat Modal (Same as before but with minor UI polish) -->
+<div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden h-100">
+            <div class="modal-header bg-primary text-white border-0 p-4">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="bg-white rounded-circle p-2 d-flex align-items-center justify-content-center text-primary" style="width: 40px; height: 40px;">
+                        <i class="bi bi-headset fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-black mb-0">Hỗ trợ Trực tuyến</h5>
+                        <small class="opacity-75">Quản lý <%= dest.name %></small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 bg-light">
+                <div id="chat-history" class="mb-4 overflow-auto" style="height: 350px;">
+                    <% if (messages && messages.length > 0) { %>
+                        <% messages.forEach(msg => { %>
+                            <div class="mb-3 d-flex <%= msg.sender_id.length > 10 ? 'justify-content-end' : 'justify-content-start' %>">
+                                <div class="p-3 rounded-4 small shadow-sm <%= msg.sender_id.length > 10 ? 'bg-primary text-white' : 'bg-white text-dark' %>" style="max-width: 85%;">
+                                    <%= msg.message %>
+                                    <div class="x-small opacity-50 mt-1 text-end"><%= new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) %></div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="text-center mb-4">
+                            <span class="badge bg-secondary text-dark rounded-pill px-3 py-1">Hôm nay</span>
+                        </div>
+                        <div class="d-flex justify-content-start mb-3">
+                            <div class="p-3 rounded-4 small shadow-sm bg-white text-dark" style="max-width: 85%;">
+                                <strong>👋 Chào bạn!</strong><br>
+                                Tôi là quản lý tại đây. Bạn cần hỗ trợ thông tin gì về giá cả, thời gian mở cửa, hay đặt chỗ trước không?
+                            </div>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            <div class="modal-footer border-0 bg-white p-3">
+                <div class="input-group">
+                    <input type="text" id="chat-message" class="form-control border-0 bg-light rounded-pill ps-4 py-3" placeholder="Nhập tin nhắn..." onkeypress="if(event.key === 'Enter') sendChatMessage('<%= dest.id %>')">
+                    <button class="btn btn-primary-bl rounded-circle ms-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;" onclick="sendChatMessage('<%= dest.id %>')">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    function playAudioGuide() {
-        alert('Tính năng Audio Storytelling đang được kích hoạt tại điểm đến. Vui lòng quét mã QR tại chỗ để nghe thuyết minh chi tiết bằng giọng đọc AI.');
+function toggleLike(btn) {
+    const icon = btn.querySelector('i');
+    if (icon.classList.contains('bi-heart')) {
+        icon.classList.replace('bi-heart', 'bi-heart-fill');
+        btn.classList.add('text-danger');
+    } else {
+        icon.classList.replace('bi-heart-fill', 'bi-heart');
+        btn.classList.remove('text-danger');
     }
+}
+
+function startStorytelling() {
+    alert('Đang kết nối thư viện Audio... Chào mừng bạn đến với <%= dest.name %>. Hãy đeo tai nghe để trải nghiệm không gian âm thanh thực tế!');
+}
+
+function sendChatMessage(destinationId) {
+    const message = document.getElementById('chat-message').value;
+    if (!message) return;
+
+    axios.post(window.APP_CONFIG.apiUrl + '/send-message', {
+        destinationId,
+        message
+    }).then(res => {
+        if (res.data.success) {
+            location.reload(); // Quick reload to show message
+        }
+    }).catch(err => {
+        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+    });
+}
+
+// Auto scroll chat to bottom
+document.addEventListener('DOMContentLoaded', function() {
+    const chatHistory = document.getElementById('chat-history');
+    if(chatHistory) {
+        chatHistory.scrollTop = chatHistory.scrollHeight;
+    }
+});
 </script>
+
+<style>
+.play-video-btn:hover {
+    transform: scale(1.1) !important;
+    background: white;
+    color: var(--v5-primary) !important;
+}
+.group-hover-scale { transition: transform 0.5s ease; }
+.group-hover:hover .group-hover-scale { transform: scale(1.05); }
+.group-hover-opacity-100 { opacity: 0; }
+.group-hover:hover .group-hover-opacity-100 { opacity: 1; }
+.transition-opacity { transition: opacity 0.3s ease; }
+.bg-gradient-to-t { background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%); }
+.text-shadow-lg { text-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+</style>

@@ -1,75 +1,39 @@
-<!-- Orders Dashboard — Show All Features -->
-<div class="row g-4">
-    <!-- Orders List Area -->
-    <div class="col-lg-8">
-        <div class="widget-card">
-            <h5 class="fw-bold mb-4">Lịch sử mua hàng</h5>
-            
-            <% if (orders.length === 0) { %>
+<% /* My Orders - Chương 5.12 */ %>
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container" style="max-width: 900px;">
+        <h2 class="fw-black mb-4"><i class="bi bi-bag text-primary me-2"></i>Đơn hàng của tôi</h2>
+        <% if (orders.length === 0) { %>
             <div class="text-center py-5">
-                <i class="bi bi-bag-x display-4 opacity-10 mb-3 d-block"></i>
-                <p class="text-muted">Bạn chưa có đơn hàng nào.</p>
-                <a href="/market" class="btn btn-primary-bl rounded-pill px-4">Khám phá sản phẩm OCOP</a>
+                <i class="bi bi-bag-x display-1 text-muted"></i>
+                <p class="text-muted mt-3">Chưa có đơn hàng nào</p>
+                <a href="/market" class="btn btn-premium rounded-pill px-5">Mua sắm OCOP</a>
             </div>
-            <% } else { %>
-            <div class="d-flex flex-column gap-4">
-                <% orders.forEach(o => { %>
-                <div class="p-4 rounded-4 border" style="background: var(--bg);">
-                    <div class="d-flex justify-content-between align-items-center mb-3 pb-3 border-bottom">
-                        <div>
-                            <span class="fw-black text-primary">#<%= o.id.substring(0,8).toUpperCase() %></span>
-                            <span class="text-muted small ms-2"><%= new Date(o.created_at).toLocaleDateString('vi-VN') %></span>
-                        </div>
-                        <span class="badge rounded-pill px-3 py-2" style="background: <%= o.status === 'completed' ? 'rgba(16,185,129,0.1)' : 'rgba(240,165,0,0.1)' %>; color: <%= o.status === 'completed' ? 'var(--success)' : 'var(--accent)' %>; font-size: 0.7rem; font-weight: 700;">
-                            <%= o.status === 'completed' ? 'HOÀN THÀNH' : 'ĐANG XỬ LÝ' %>
-                        </span>
+        <% } else { %>
+            <% orders.forEach(o => { %>
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <h5 class="fw-bold mb-1">Đơn #<%= o.id.substring(0,8).toUpperCase() %></h5>
+                        <small class="text-muted"><%= new Date(o.created_at).toLocaleDateString('vi-VN') %> · <%= o.pickup_location %></small>
                     </div>
-                    
-                    <div class="d-flex flex-column gap-2 mb-3">
-                        <% (o.itemList || []).forEach(item => { %>
-                        <div class="d-flex justify-content-between small">
-                            <span><%= item.name %> <span class="text-muted">×<%= item.quantity %></span></span>
-                            <span class="fw-bold"><%= new Intl.NumberFormat('vi-VN').format(item.price * item.quantity) %>đ</span>
-                        </div>
-                        <% }) %>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-                        <div class="x-small text-muted"><i class="bi bi-geo-alt me-1"></i><%= o.pickup_location %></div>
-                        <div class="text-end">
-                            <span class="d-block x-small text-muted">Tổng cộng</span>
-                            <span class="fw-black text-primary fs-5"><%= new Intl.NumberFormat('vi-VN').format(o.total_amount) %>đ</span>
-                        </div>
-                    </div>
-                </div>
-                <% }) %>
-            </div>
-            <% } %>
-        </div>
-    </div>
-
-    <!-- Right Sidebar: Order Stats -->
-    <div class="col-lg-4">
-        <div class="widget-card mb-4">
-            <h6 class="fw-bold mb-3">Tổng quan mua sắm</h6>
-            <div class="d-flex flex-column gap-3">
-                <div class="p-3 rounded-4 d-flex justify-content-between align-items-center" style="background: var(--surface-alt);">
-                    <span class="small fw-bold">Tổng đơn hàng</span>
-                    <span class="fw-black text-primary fs-4"><%= orders.length %></span>
-                </div>
-                <div class="p-3 rounded-4 d-flex justify-content-between align-items-center" style="background: var(--surface-alt);">
-                    <span class="small fw-bold">Tổng chi tiêu</span>
-                    <span class="fw-black text-primary fs-5">
-                        <%= new Intl.NumberFormat('vi-VN').format(orders.reduce((sum, o) => sum + (o.total_amount || 0), 0)) %>đ
+                    <span class="badge bg-<%= o.status === 'completed' ? 'success' : o.status === 'confirmed' ? 'primary' : o.status === 'ready' ? 'info' : o.status === 'cancelled' ? 'danger' : 'warning' %> rounded-pill px-3 py-2">
+                        <%= o.status === 'completed' ? 'Hoàn thành' : o.status === 'confirmed' ? 'Đã xác nhận' : o.status === 'ready' ? 'Sẵn sàng nhận' : o.status === 'cancelled' ? 'Đã hủy' : 'Chờ xác nhận' %>
                     </span>
                 </div>
+                <% if (o.itemList && o.itemList.length > 0) { %>
+                    <% o.itemList.forEach(item => { %>
+                        <div class="d-flex justify-content-between py-1 border-bottom">
+                            <span><%= item.name %> x<%= item.quantity %></span>
+                            <span class="text-muted"><%= new Intl.NumberFormat('vi-VN').format(item.price * item.quantity) %>đ</span>
+                        </div>
+                    <% }); %>
+                <% } %>
+                <div class="d-flex justify-content-between mt-3 pt-2">
+                    <span class="fw-bold">Tổng cộng</span>
+                    <span class="fw-black text-primary"><%= new Intl.NumberFormat('vi-VN').format(o.total_amount) %>đ</span>
+                </div>
             </div>
-        </div>
-
-        <div class="widget-card" style="background: var(--grad-nature); color: white; border: none;">
-            <h6 class="fw-bold mb-3">Hỗ trợ đơn hàng?</h6>
-            <p class="x-small opacity-75 mb-3">Nếu bạn có bất kỳ thắc mắc nào về đơn hàng, vui lòng liên hệ hotline hoặc chat trực tiếp với đội ngũ hỗ trợ.</p>
-            <a href="/chat" class="btn btn-light btn-sm w-100 rounded-pill fw-bold">Nhắn tin ngay</a>
-        </div>
+            <% }); %>
+        <% } %>
     </div>
-</div>
+</section>

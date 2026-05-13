@@ -1,90 +1,179 @@
-<!-- Festivals Dashboard — Show All Features -->
-<div class="row g-4">
-    <!-- Left: Festival List -->
-    <div class="col-lg-8">
-        <div class="widget-card">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <h5 class="fw-bold mb-0">Lễ hội & Sự kiện Văn hóa</h5>
-                <span class="badge-nature"><%= festivals.length %> Sự kiện</span>
-            </div>
-
-            <div class="d-flex flex-column gap-4">
-                <% festivals.forEach(f => { %>
-                <div class="card-heal p-0 overflow-hidden">
-                    <div class="row g-0">
-                        <div class="col-md-4">
-                            <div class="h-100" style="min-height: 160px;">
-                                <img src="<%= fixImg(f.image) %>" class="w-100 h-100 object-fit-cover">
-                            </div>
+<section class="position-relative min-vh-100 bg-light pt-5 mt-4">
+    <!-- Featured Festival Hero -->
+    <div class="container-fluid px-lg-5 mb-5 reveal-up">
+        <div class="card-bl border-0 shadow-lg rounded-5 overflow-hidden position-relative text-white" style="min-height: 500px;">
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('/images/vuon-mai-1.png') center/cover; transform: scale(1.05); transition: transform 10s ease;"></div>
+            <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-t-dark"></div>
+            
+            <div class="position-relative h-100 p-4 p-lg-5 d-flex flex-column justify-content-end" style="z-index: 10;">
+                <div class="row align-items-end">
+                    <div class="col-lg-8">
+                        <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold mb-3 tracking-widest text-uppercase shadow-sm">
+                            <i class="bi bi-fire me-1"></i>Sắp diễn ra
+                        </span>
+                        <h1 class="display-3 fw-black mb-3 text-shadow">Hội Hoa Mai Vàng Bình Lợi 2026</h1>
+                        <p class="lead opacity-90 mb-4" style="max-width: 600px;">Sự kiện thường niên lớn nhất khu vực với hàng vạn gốc mai khoe sắc. Trải nghiệm không gian văn hóa Tết cổ truyền Nam Bộ độc đáo.</p>
+                        
+                        <div class="d-flex flex-wrap gap-3 align-items-center">
+                            <button class="btn btn-primary-bl btn-lg rounded-pill px-5 fw-bold shadow-premium" onclick="showBookingModal(1, 'Hội Hoa Mai Vàng Bình Lợi 2026')">
+                                ĐẶT VÉ MIỄN PHÍ <i class="bi bi-ticket-perforated ms-2"></i>
+                            </button>
+                            <span class="text-white-50 small fw-bold tracking-widest text-uppercase"><i class="bi bi-clock me-1"></i>Chỉ còn 12 ngày</span>
                         </div>
-                        <div class="col-md-8 p-4">
-                            <div class="d-flex justify-content-between align-items-start mb-2">
-                                <h6 class="fw-bold mb-0 fs-5"><%= f.name %></h6>
-                                <span class="badge-gold"><%= new Date(f.date).toLocaleDateString('vi-VN') %></span>
-                            </div>
-                            <p class="text-muted small mb-3 line-clamp-2"><%= f.description %></p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="x-small text-muted"><i class="bi bi-geo-alt me-1"></i><%= f.location || 'Bình Lợi' %></span>
-                                <a href="/festivals/<%= f.id %>" class="btn btn-primary-bl btn-sm rounded-pill px-4">Đăng ký tham gia</a>
-                            </div>
+                    </div>
+                    
+                    <div class="col-lg-4 text-lg-end mt-4 mt-lg-0">
+                        <div class="glass-panel p-4 rounded-4 text-start d-inline-block border-light border-opacity-25">
+                            <h6 class="fw-bold mb-3 text-uppercase tracking-widest x-small text-white-50">Lịch trình nổi bật</h6>
+                            <ul class="list-unstyled mb-0 small">
+                                <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>08:00 - Khai mạc Lễ hội</li>
+                                <li class="mb-2"><i class="bi bi-check2-circle text-primary me-2"></i>10:00 - Hội thi Mai Vàng</li>
+                                <li><i class="bi bi-check2-circle text-primary me-2"></i>19:00 - Đêm nhạc Acoustic</li>
+                            </ul>
                         </div>
                     </div>
                 </div>
-                <% }) %>
             </div>
         </div>
     </div>
 
-    <!-- Right: Countdown & Stats -->
-    <div class="col-lg-4">
-        <!-- Next Event Countdown -->
-        <% if (festivals.length > 0) { %>
-        <div class="widget-card mb-4 text-center" style="background: var(--grad-nature); color: white; border: none;">
-            <h6 class="fw-bold mb-3 opacity-75">SỰ KIỆN SẮP TỚI</h6>
-            <h5 class="fw-black mb-3"><%= festivals[0].name %></h5>
-            <div class="d-flex justify-content-center gap-3 mb-4">
-                <div class="p-2 rounded-3 bg-white bg-opacity-10" style="min-width: 60px;">
-                    <div class="fw-black fs-4" id="cd-days">--</div>
-                    <span class="x-small opacity-50">Ngày</span>
-                </div>
-                <div class="p-2 rounded-3 bg-white bg-opacity-10" style="min-width: 60px;">
-                    <div class="fw-black fs-4" id="cd-hours">--</div>
-                    <span class="x-small opacity-50">Giờ</span>
-                </div>
+    <!-- Festival List -->
+    <div class="container-fluid px-lg-5 pb-5">
+        <div class="d-flex justify-content-between align-items-center mb-5 reveal-up">
+            <div>
+                <h3 class="fw-black text-dark mb-1">Lịch Sự kiện 2026</h3>
+                <p class="text-muted small mb-0">Lưu lại những ngày hội văn hóa đặc sắc tại Bình Lợi.</p>
             </div>
-            <p class="x-small mb-0 opacity-75">Hãy chuẩn bị tinh thần để hòa mình vào không khí lễ hội!</p>
+            <div class="btn-group bg-white rounded-pill shadow-sm border p-1">
+                <button class="btn btn-primary-bl rounded-pill btn-sm px-4 fw-bold">Nổi bật</button>
+                <button class="btn btn-white rounded-pill btn-sm px-4 fw-bold text-muted">Tất cả</button>
+            </div>
         </div>
-        <% } %>
 
-        <!-- Cultural Facts Widget -->
-        <div class="widget-card">
-            <h6 class="fw-bold mb-3 d-flex align-items-center gap-2">
-                <i class="bi bi-book text-primary"></i> Bạn có biết?
-            </h6>
-            <div class="p-3 rounded-4" style="background: var(--surface-alt);">
-                <p class="x-small mb-0 text-muted" style="line-height: 1.6;">
-                    Làng Bình Lợi nổi tiếng với truyền thống hiếu học và nghề trồng Mai vàng lớn nhất TP.HCM. Các lễ hội tại đây thường gắn liền với lòng biết ơn thiên nhiên và tổ tiên.
-                </p>
+        <div class="row g-4">
+            <% festivals.forEach((fest, i) => { %>
+                <div class="col-lg-4 reveal-up" style="transition-delay: <%= i * 0.1 %>s">
+                    <div class="card-bl h-100 border-0 shadow-sm rounded-5 overflow-hidden bg-white group-hover transition-hover d-flex flex-column">
+                        <div class="position-relative" style="height: 250px;">
+                            <img src="<%= fest.image %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= fest.name %>">
+                            <div class="position-absolute top-0 start-0 m-3">
+                                <span class="badge <%= fest.status === 'Sắp diễn ra' ? 'bg-danger' : (fest.status === 'Đang chuẩn bị' ? 'bg-primary' : 'bg-secondary') %> rounded-pill px-3 py-2 shadow-sm fw-bold">
+                                    <%= fest.status %>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-4 d-flex flex-column flex-grow-1">
+                            <span class="text-primary fw-bold small mb-2"><i class="bi bi-calendar-event me-2"></i><%= fest.date %></span>
+                            <h4 class="fw-bold mb-3 text-dark"><%= fest.name %></h4>
+                            <p class="text-muted small mb-4 line-clamp-3"><%= fest.desc %></p>
+                            
+                            <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
+                                <button class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-4" onclick="showBookingModal(<%= fest.id %>, '<%= fest.name %>')">
+                                    <i class="bi bi-bookmark-plus me-1"></i> Đăng ký
+                                </button>
+                                <button class="btn btn-light btn-sm rounded-circle shadow-sm" style="width: 35px; height: 35px; padding: 0;">
+                                    <i class="bi bi-share text-muted"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% }) %>
+        </div>
+    </div>
+</section>
+
+<!-- Booking Modal -->
+<div class="modal fade" id="bookingModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-5 shadow-premium overflow-hidden">
+            <div class="modal-header border-0 bg-primary bg-opacity-10 p-4">
+                <h5 class="modal-title fw-black text-primary"><i class="bi bi-ticket-detailed-fill me-2"></i>Đăng ký Sự kiện</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <hr class="my-3 opacity-10">
-            <div class="d-flex align-items-center gap-2 x-small fw-bold text-primary">
-                <i class="bi bi-info-circle"></i> Xem thêm di tích lịch sử
+            <div class="modal-body p-4 p-md-5">
+                <h6 class="fw-bold mb-4 text-dark" id="modal-fest-name">Tên sự kiện</h6>
+                
+                <form id="bookingForm">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Họ và tên</label>
+                        <input type="text" class="form-control bg-light border-0 rounded-3 p-3 shadow-none" required placeholder="Nhập tên của bạn">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Số điện thoại</label>
+                        <input type="tel" class="form-control bg-light border-0 rounded-3 p-3 shadow-none" required placeholder="Nhập SĐT nhận vé (Zalo)">
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Số lượng vé</label>
+                        <select class="form-select bg-light border-0 rounded-3 p-3 shadow-none">
+                            <option>1 Người</option>
+                            <option>2 Người</option>
+                            <option>Gia đình (4 người)</option>
+                            <option>Đoàn đông (>5 người)</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest">XÁC NHẬN ĐĂNG KÝ</button>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
-    // Simple Countdown logic
-    <% if (festivals.length > 0) { %>
-    const eventDate = new Date('<%= festivals[0].date %>').getTime();
-    setInterval(() => {
-        const now = new Date().getTime();
-        const diff = eventDate - now;
-        if (diff > 0) {
-            document.getElementById('cd-days').innerText = Math.floor(diff / (1000 * 60 * 60 * 24));
-            document.getElementById('cd-hours').innerText = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        }
-    }, 1000);
-    <% } %>
+    document.addEventListener('DOMContentLoaded', () => {
+        gsap.from('.reveal-up', { opacity: 0, y: 40, stagger: 0.15, duration: 1, ease: 'power3.out' });
+        
+        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const festId = btn.getAttribute('data-fest-id');
+            const name = e.target.querySelector('input[type="text"]').value;
+            const phone = e.target.querySelector('input[type="tel"]').value;
+            const tickets = parseInt(e.target.querySelector('select').value) || 1;
+
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+            btn.classList.replace('btn-primary-bl', 'btn-success');
+            
+            try {
+                const res = await fetch('/api/festival/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ festivalId: festId, fullName: name, phone: phone, tickets: tickets })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    alert(data.message || 'Đăng ký nhận vé thành công! E-Ticket đã được lưu vào Passport số.');
+                    bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
+                    e.target.reset();
+                } else {
+                    alert('Lỗi: ' + data.message);
+                }
+            } catch (err) {
+                alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
+            } finally {
+                btn.innerHTML = 'XÁC NHẬN ĐĂNG KÝ';
+                btn.classList.replace('btn-success', 'btn-primary-bl');
+            }
+        });
+    });
+
+    function showBookingModal(id, name) {
+        document.getElementById('modal-fest-name').innerText = name;
+        document.querySelector('#bookingForm button').setAttribute('data-fest-id', id);
+        new bootstrap.Modal(document.getElementById('bookingModal')).show();
+    }
 </script>
+
+<style>
+    .bg-gradient-to-t-dark { background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.4) 50%, transparent 100%); }
+    .tracking-widest { letter-spacing: 1px; }
+    .text-shadow { text-shadow: 0 4px 15px rgba(0,0,0,0.5); }
+    .transition-hover { transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease; }
+    .transition-hover:hover { transform: translateY(-15px); box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important; }
+    .group-hover-scale { transition: transform 0.5s ease; }
+    .group-hover:hover .group-hover-scale { transform: scale(1.08); }
+    .x-small { font-size: 0.75rem; }
+    .glass-panel { background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+</style>

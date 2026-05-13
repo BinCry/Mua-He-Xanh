@@ -1,31 +1,29 @@
 const Destination = require('../models/Destination');
 const CheckIn = require('../models/CheckIn');
-const db = require('../core/database');
 
 class HomeController {
     async index(req, res) {
         try {
-            // Get settings from database
-            const [rows] = await db.query("SELECT * FROM settings WHERE category IN ('home', 'stats')");
-            const settings = rows.reduce((acc, row) => {
-                acc[row.key_name] = row.key_value;
-                return acc;
-            }, {});
-
             // Determine current season and campaign
             const now = new Date();
             const month = now.getMonth() + 1;
             
-            let seasonType = 'summer';
-            if (month >= 11 || month <= 3) seasonType = 'spring';
-            else if (month >= 7 && month <= 10) seasonType = 'autumn';
+            let season = 'summer';
+            let seasonTitle = 'Bình Lợi – Miền Tây giữa lòng Sài Gòn';
+            let seasonSlogan = 'Miệt vườn giữa phố, trải nghiệm bản sắc';
+            let heroVideo = '/videos/summer_healing.mp4'; // Fallback to placeholder if not exists
 
-            const seasonData = {
-                type: seasonType,
-                title: settings[`home_hero_${seasonType}_title`] || 'Bình Lợi – Miền Tây giữa lòng Sài Gòn',
-                slogan: settings[`home_hero_${seasonType}_slogan`] || 'Miệt vườn giữa phố, trải nghiệm bản sắc',
-                video: settings[`home_hero_${seasonType}_video`] || `/videos/${seasonType}_healing.mp4`
-            };
+            if (month >= 11 || month <= 3) {
+                season = 'spring';
+                seasonTitle = 'Xuân Bình Lợi – Sắc Mai Vàng';
+                seasonSlogan = 'Hồn quê giữa thành phố mới';
+                heroVideo = '/videos/spring_mai.mp4';
+            } else if (month >= 7 && month <= 10) {
+                season = 'autumn';
+                seasonTitle = 'Mùa Hoa Đăng – Bình Lợi Chữa Lành';
+                seasonSlogan = 'Bình từ tâm – Lợi từ tầm';
+                heroVideo = '/videos/autumn_healing.mp4';
+            }
 
             // Get featured destinations
             const featured = await Destination.getActive(6);
@@ -58,7 +56,7 @@ class HomeController {
                     id: 2,
                     user: 'Khánh Vy',
                     avatar: 'https://i.pravatar.cc/150?u=2',
-                    image: '/images/xuong-nhang-3.jpg',
+                    image: '/images/xuong-nhang-1.png',
                     text: 'Lần đầu tiên được tận mắt thấy quy trình làm nhang thủ công. Mùi hương thảo mộc thật sự rất dễ chịu.',
                     location: 'Xưởng Nhang Minh',
                     slug: 'xuong-nhang-minh',
@@ -81,12 +79,17 @@ class HomeController {
             res.render('home/index', {
                 title: 'Bình Lợi – Miền Tây giữa lòng Sài Gòn',
                 featured: featured,
-                season: seasonData,
+                season: {
+                    type: season,
+                    title: seasonTitle,
+                    slogan: seasonSlogan,
+                    video: heroVideo
+                },
                 festival: nextFestival,
                 stats: {
-                    checkins: (totalCheckins || 0) + parseInt(settings.home_stats_checkins_offset || 5240),
+                    checkins: (totalCheckins || 0) + 5240,
                     destinations: activeDestinations,
-                    visitors: parseInt(settings.home_stats_visitors || 18500),
+                    visitors: 18500,
                     communities: 12
                 },
                 socialFeed: socialFeed

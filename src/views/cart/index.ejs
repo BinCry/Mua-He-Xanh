@@ -1,159 +1,110 @@
-<!-- Checkout Dashboard — Show All Features -->
-<div class="row g-4">
-    <!-- Items & Payment -->
-    <div class="col-lg-8">
-        <div class="widget-card mb-4">
-            <h5 class="fw-bold mb-4">Giỏ hàng của bạn</h5>
-            <div id="cart-table-wrapper" class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead>
-                        <tr class="x-small fw-bold text-muted text-uppercase">
-                            <th>Sản phẩm</th>
-                            <th class="text-center">Số lượng</th>
-                            <th class="text-end">Đơn giá</th>
-                            <th class="text-end">Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody id="checkout-list">
-                        <!-- JS Rendered -->
-                    </tbody>
-                </table>
-                <div id="checkout-empty" class="text-center py-5 d-none">
-                    <p class="text-muted">Giỏ hàng đang trống.</p>
-                    <a href="/market" class="btn btn-primary-bl rounded-pill px-4">Đi mua sắm ngay</a>
-                </div>
-            </div>
+<!-- Cart Page — Chương 5.12 -->
+<section class="py-5" style="margin-top: 80px;">
+    <div class="container py-4" style="max-width: 960px;">
+        <div class="mb-5 reveal-up">
+            <span class="section-label">GIỎ HÀNG</span>
+            <h2 class="section-title">Sản phẩm OCOP đã chọn</h2>
         </div>
 
-        <div class="widget-card">
-            <h5 class="fw-bold mb-4">Thông tin nhận hàng</h5>
-            <form id="checkoutForm">
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label x-small fw-bold">HỌ TÊN</label>
-                        <input type="text" class="form-control rounded-pill bg-light border-0 px-3" value="<%= user ? user.full_name : '' %>" required>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label x-small fw-bold">SỐ ĐIỆN THOẠI</label>
-                        <input type="tel" class="form-control rounded-pill bg-light border-0 px-3" value="<%= user ? user.phone : '' %>" required>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label x-small fw-bold">ĐỊA CHỈ NHẬN HÀNG (HOẶC ĐIỂM HẸN TẠI BÌNH LỢI)</label>
-                        <textarea class="form-control rounded-4 bg-light border-0 px-3 py-2" rows="2" placeholder="Ví dụ: Vườn Mai 1, Bình Lợi..."></textarea>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label x-small fw-bold">PHƯƠNG THỨC THANH TOÁN</label>
-                        <div class="d-flex gap-3">
-                            <label class="flex-grow-1 cursor-pointer">
-                                <input type="radio" name="payment" value="cod" class="d-none peer" checked>
-                                <div class="p-3 rounded-4 border text-center peer-checked-primary">
-                                    <i class="bi bi-cash-coin d-block fs-4 mb-1"></i>
-                                    <span class="x-small fw-bold">Tiền mặt (COD)</span>
-                                </div>
-                            </label>
-                            <label class="flex-grow-1 cursor-pointer">
-                                <input type="radio" name="payment" value="momo" class="d-none peer">
-                                <div class="p-3 rounded-4 border text-center peer-checked-primary">
-                                    <i class="bi bi-qr-code d-block fs-4 mb-1"></i>
-                                    <span class="x-small fw-bold">Chuyển khoản / MoMo</span>
-                                </div>
-                            </label>
+        <% if (items.length === 0) { %>
+            <div class="text-center py-5 reveal-up">
+                <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-4" style="width: 80px; height: 80px; background: var(--surface-alt);">
+                    <i class="bi bi-bag" style="font-size: 2rem; color: var(--text-muted);"></i>
+                </div>
+                <p class="text-muted mb-4">Giỏ hàng trống</p>
+                <a href="/market" class="btn btn-premium rounded-pill px-5">Mua sắm OCOP</a>
+            </div>
+        <% } else { %>
+        <div class="row g-4">
+            <!-- Items -->
+            <div class="col-lg-7">
+                <div class="d-flex flex-column gap-3">
+                    <% items.forEach(item => { %>
+                    <div class="d-flex gap-3 p-3 rounded-xl align-items-center reveal-up" id="item-<%= item.id %>" style="background: var(--surface); border: 1px solid var(--border-light);">
+                        <img src="<%= fixImg(item.image) %>" class="rounded-lg flex-shrink-0" style="width: 72px; height: 72px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <h6 class="fw-bold mb-1" style="font-size: 0.9rem;"><%= item.name %></h6>
+                            <span class="text-muted" style="font-size: 0.78rem;"><%= item.origin || item.category || '' %></span>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; background: var(--surface-alt); border: 1px solid var(--border);" onclick="updateQty('<%= item.id %>', <%= item.quantity - 1 %>)">
+                                <i class="bi bi-dash" style="font-size: 0.8rem;"></i>
+                            </button>
+                            <span class="fw-bold" style="min-width: 24px; text-align: center;"><%= item.quantity %></span>
+                            <button class="btn btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; background: var(--surface-alt); border: 1px solid var(--border);" onclick="updateQty('<%= item.id %>', <%= item.quantity + 1 %>)">
+                                <i class="bi bi-plus" style="font-size: 0.8rem;"></i>
+                            </button>
+                        </div>
+                        <div class="text-end" style="min-width: 90px;">
+                            <span class="fw-black d-block" style="color: var(--primary);"><%= new Intl.NumberFormat('vi-VN').format(item.price * item.quantity) %>đ</span>
+                            <button class="btn btn-sm p-0 border-0 bg-transparent" style="color: var(--text-muted); font-size: 0.75rem;" onclick="removeItem('<%= item.id %>')"><i class="bi bi-trash3 me-1"></i>Xóa</button>
                         </div>
                     </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Summary Sidebar -->
-    <div class="col-lg-4">
-        <div class="widget-card sticky-top" style="top: 100px;">
-            <h6 class="fw-bold mb-4">Tóm tắt đơn hàng</h6>
-            <div class="d-flex flex-column gap-3 mb-4">
-                <div class="d-flex justify-content-between small">
-                    <span class="text-muted">Tạm tính</span>
-                    <span class="fw-bold" id="checkout-subtotal">0đ</span>
-                </div>
-                <div class="d-flex justify-content-between small">
-                    <span class="text-muted">Phí giao hàng</span>
-                    <span class="text-success fw-bold">Miễn phí</span>
-                </div>
-                <div class="d-flex justify-content-between small">
-                    <span class="text-muted">Giảm giá</span>
-                    <span class="text-danger fw-bold">-0đ</span>
-                </div>
-                <hr class="my-0 opacity-10">
-                <div class="d-flex justify-content-between align-items-center">
-                    <span class="fw-bold">TỔNG CỘNG</span>
-                    <span class="fw-black font-display text-primary fs-3" id="checkout-total">0đ</span>
-                </div>
-            </div>
-            
-            <div class="p-3 rounded-4 mb-4" style="background: var(--primary-50); border: 1px dashed var(--primary);">
-                <div class="d-flex align-items-center gap-2 small text-primary fw-bold">
-                    <i class="bi bi-star-fill"></i>
-                    Tích lũy <span id="checkout-points">0</span> điểm Healing
+                    <% }) %>
                 </div>
             </div>
 
-            <button class="btn btn-premium w-100 rounded-pill py-3 fw-bold shadow-lg" onclick="placeOrder()">ĐẶT HÀNG NGAY</button>
-            <p class="text-center x-small text-muted mt-3 mb-0"><i class="bi bi-shield-check me-1"></i> Giao dịch bảo mật & an toàn</p>
+            <!-- Checkout Sidebar -->
+            <div class="col-lg-5">
+                <div class="p-4 rounded-2xl reveal-up" style="background: var(--surface); border: 1px solid var(--border-light); position: sticky; top: 100px;">
+                    <h5 class="fw-bold mb-4">Thông tin đặt hàng</h5>
+                    <form id="checkoutForm">
+                        <div class="mb-3">
+                            <label class="form-label fw-bold" style="font-size: 0.82rem; color: var(--text-secondary);">Nơi nhận hàng</label>
+                            <select class="form-select rounded-lg border-0" name="pickup_location" style="background: var(--surface-alt); padding: 12px;">
+                                <option value="Chợ OCOP Bình Lợi">Chợ OCOP Bình Lợi</option>
+                                <option value="Vườn Mai Bình Lợi">Vườn Mai Bình Lợi</option>
+                                <option value="Xưởng Nhang Minh">Xưởng Nhang Minh</option>
+                                <option value="Chùa Thanh Tâm">Chùa Thanh Tâm</option>
+                            </select>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-bold" style="font-size: 0.82rem; color: var(--text-secondary);">Ghi chú</label>
+                            <textarea class="form-control rounded-lg border-0" name="note" rows="2" placeholder="Yêu cầu đặc biệt..." style="background: var(--surface-alt); padding: 12px; resize: none;"></textarea>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-4 pb-3" style="border-bottom: 1px solid var(--border-light);">
+                            <span class="text-muted">Tổng cộng</span>
+                            <span class="fw-black font-display" style="font-size: 1.5rem; color: var(--primary);"><%= new Intl.NumberFormat('vi-VN').format(total) %>đ</span>
+                        </div>
+                        <button type="submit" class="btn btn-premium w-100 py-3" id="btnCheckout">
+                            <i class="bi bi-bag-check me-2"></i>Đặt hàng
+                        </button>
+                    </form>
+                    <div id="checkoutResult" class="mt-3 d-none"></div>
+                    <p class="text-center text-muted mt-3 mb-0" style="font-size: 0.75rem;"><i class="bi bi-shield-check me-1"></i>Thanh toán tại điểm nhận hàng · +30 điểm thưởng</p>
+                </div>
+            </div>
         </div>
+        <% } %>
     </div>
-</div>
-
-<style>
-    .peer-checked-primary { border-color: var(--border); transition: all 0.2s; }
-    input:checked + .peer-checked-primary { border-color: var(--primary); background: var(--primary-50); color: var(--primary); }
-    .cursor-pointer { cursor: pointer; }
-</style>
+</section>
 
 <script>
-    let cart = JSON.parse(localStorage.getItem('bl_cart') || '[]');
-    
-    function renderCheckout() {
-        const list = document.getElementById('checkout-list');
-        const empty = document.getElementById('checkout-empty');
-        const subtotalEl = document.getElementById('checkout-subtotal');
-        const totalEl = document.getElementById('checkout-total');
-        const pointsEl = document.getElementById('checkout-points');
-        
-        if (cart.length === 0) {
-            document.getElementById('cart-table-wrapper').classList.add('d-none');
-            empty.classList.remove('d-none');
-            return;
+async function updateQty(itemId, qty) {
+    await axios.post('/api/cart/update', { item_id: itemId, quantity: qty });
+    location.reload();
+}
+async function removeItem(itemId) {
+    await axios.post('/api/cart/remove', { item_id: itemId });
+    location.reload();
+}
+document.getElementById('checkoutForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('btnCheckout');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+    try {
+        const formData = new FormData(e.target);
+        const res = await axios.post('/api/cart/checkout', Object.fromEntries(formData));
+        const el = document.getElementById('checkoutResult');
+        el.classList.remove('d-none');
+        if (res.data.success) {
+            el.innerHTML = `<div class="alert border-0 rounded-xl p-3 text-center" style="background: var(--primary-50); color: var(--primary);"><i class="bi bi-check-circle-fill me-2"></i>${res.data.message}</div>`;
+            btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đã đặt!';
         }
-
-        let total = 0;
-        list.innerHTML = cart.map(item => {
-            total += item.price * item.qty;
-            return `
-                <tr>
-                    <td>
-                        <div class="d-flex align-items-center gap-3">
-                            <img src="${item.img}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
-                            <span class="fw-bold small">${item.name}</span>
-                        </div>
-                    </td>
-                    <td class="text-center small">${item.qty}</td>
-                    <td class="text-end small">${item.price.toLocaleString()}đ</td>
-                    <td class="text-end fw-bold text-primary">${(item.price * item.qty).toLocaleString()}đ</td>
-                </tr>
-            `;
-        }).join('');
-
-        subtotalEl.innerText = total.toLocaleString() + 'đ';
-        totalEl.innerText = total.toLocaleString() + 'đ';
-        pointsEl.innerText = Math.floor(total / 10000);
+    } catch(err) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-bag-check me-2"></i>Đặt hàng';
     }
-
-    async function placeOrder() {
-        if(cart.length === 0) return alert('Giỏ hàng trống!');
-        // Logic đặt hàng...
-        alert('Cảm ơn bạn! Đơn hàng đã được ghi nhận. Chúng tôi sẽ liên hệ sớm nhất.');
-        localStorage.removeItem('bl_cart');
-        window.location.href = '/cart/orders';
-    }
-
-    document.addEventListener('DOMContentLoaded', renderCheckout);
+});
 </script>
