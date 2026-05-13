@@ -162,6 +162,7 @@
             <% socialFeed.forEach((item, index) => { %>
             <div class="col-md-4 reveal-up">
                 <div class="card-heal h-100">
+                    <% if (item.image) { %>
                     <div class="card-img position-relative" style="height: 420px;">
                         <img src="<%= fixImg(item.image) %>" alt="Moment">
                         <!-- Overlay gradient -->
@@ -185,6 +186,22 @@
                             <span class="opacity-50" style="font-size: 0.75rem;"><i class="bi bi-geo-alt-fill me-1"></i><%= item.location %></span>
                         </div>
                     </div>
+                    <% } else { %>
+                    <div class="card-glass p-4">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <img src="<%= item.avatar %>" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid var(--primary-50);">
+                            <div>
+                                <span class="fw-bold d-block text-dark">@<%= item.user.toLowerCase().replace(' ', '') %></span>
+                                <span class="opacity-60 d-block small"><%= item.time %></span>
+                            </div>
+                        </div>
+                        <p class="mb-3 line-clamp-4 text-dark" style="font-style: italic;">"<%= item.text %>"</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="small text-muted"><i class="bi bi-geo-alt-fill me-1"></i><%= item.location %></span>
+                            <span class="badge bg-light text-danger"><i class="bi bi-heart-fill me-1"></i><%= item.likes %></span>
+                        </div>
+                    </div>
+                    <% } %>
                 </div>
             </div>
             <% }) %>
