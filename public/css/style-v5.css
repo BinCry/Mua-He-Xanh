@@ -405,7 +405,8 @@ img { max-width: 100%; }
     line-height: 1.05;
     font-weight: 800;
     margin-bottom: 24px;
-    text-shadow: 0 4px 24px rgba(0,0,0,0.3);
+    color: var(--accent); /* Golden text for a premium look */
+    text-shadow: 0 4px 32px rgba(0,0,0,0.5);
 }
 
 .hero-desc {
