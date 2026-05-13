@@ -43,6 +43,17 @@
                     </div>
                     <input type="hidden" name="about_bg" id="about_bg" value="<%= settings.about_bg || '/images/nature-bg.jpg' %>">
                 </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Background Đăng nhập</label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <img id="login_preview" src="<%= settings.login_bg || '/images/hero-1.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('login_file').click()">
+                            <i class="bi bi-upload me-1"></i>Chọn ảnh
+                        </button>
+                        <input type="file" id="login_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'login_bg', 'login_preview')">
+                    </div>
+                    <input type="hidden" name="login_bg" id="login_url" value="<%= settings.login_bg || '/images/hero-1.png' %>">
+                </div>
             </div>
         </div>
 
