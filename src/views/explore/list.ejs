@@ -41,7 +41,7 @@
         <div class="row g-4">
             <% destinations.forEach(dest => { %>
                 <div class="col-md-6 col-xl-4">
-                    <div class="card-bl h-100 border-0 shadow-sm rounded-4 overflow-hidden position-relative group-hover">
+                    <div class="card-explore group-hover">
                         <!-- Card Image -->
                         <div class="ratio ratio-4x3 overflow-hidden position-relative">
                             <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= dest.name %>">
@@ -68,7 +68,7 @@
                         </div>
 
                         <!-- Card Body -->
-                        <div class="card-bl-body p-4 bg-white position-relative">
+                        <div class="card-body bg-white position-relative">
                             <h4 class="fw-bold mb-2"><a href="/explore/<%= dest.slug %>" class="text-dark text-decoration-none stretched-link"><%= dest.name %></a></h4>
                             
                             <div class="d-flex align-items-center gap-3 mb-3 x-small text-muted fw-bold text-uppercase tracking-widest">

@@ -240,20 +240,17 @@ img { max-width: 100%; }
    ========================================================================== */
 .card-heal {
     height: 100%;
-    min-height: 480px;
     display: flex;
     flex-direction: column;
-    background: var(--surface);
+    background: transparent; /* No background for bento overlay look */
     border-radius: var(--radius-lg);
     overflow: hidden;
-    box-shadow: var(--shadow-sm);
     transition: all 0.4s var(--ease-out);
-    border: 1px solid rgba(255,255,255,0.1);
     position: relative;
 }
 
 .card-heal .card-img {
-    height: 280px; /* Fixed height for consistency */
+    height: 100%; /* Fill the whole card in bento */
     width: 100%;
     overflow: hidden;
     position: relative;
@@ -290,15 +287,25 @@ img { max-width: 100%; }
     margin-bottom: 40px;
     max-width: 800px;
 }
-.card-heal .card-desc {
-    font-size: 0.9rem;
-    color: var(--text-muted);
-    margin-bottom: 20px;
-    line-height: 1.6;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
+/* Explore Card Variant (with white body) */
+.card-explore {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
     overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    height: 100%;
+    min-height: 480px;
+    display: flex;
+    flex-direction: column;
+}
+.card-explore .card-img {
+    height: 280px;
+    width: 100%;
+    object-fit: cover;
+}
+.card-explore .card-body {
+    padding: 24px;
+    flex-grow: 1;
 }
 
 /* Match hero style with a subtle overlay */

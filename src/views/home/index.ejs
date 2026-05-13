@@ -76,8 +76,8 @@
             <% featured.forEach((dest, i) => { %>
             <div class="col-md-<%= i === 0 ? '8' : '4' %> reveal-up">
                 <a href="/explore/<%= dest.slug %>" class="text-decoration-none">
-                    <div class="card-heal h-100">
-                        <div class="card-img position-relative" style="height: <%= i === 0 ? '380px' : '280px' %>;">
+                    <div class="card-heal h-100" style="background: none !important; box-shadow: none !important;">
+                        <div class="card-img position-relative" style="height: 320px;">
                             <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>">
                             <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
                                 <span class="badge-gold"><i class="bi bi-star-fill me-1"></i>4.9</span>
