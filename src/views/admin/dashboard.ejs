@@ -1,213 +1,147 @@
-<!-- Admin Dashboard — Biểu đồ & Thống kê -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Dashboard</h4>
-        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Tổng quan hệ thống Bình Lợi Healing</p>
-    </div>
-    <span class="badge rounded-pill" style="background: rgba(240,165,0,0.15); color: var(--admin-accent); padding: 8px 16px;">
-        <i class="bi bi-shield-check me-1"></i>Quản trị viên Xã
-    </span>
+<!-- Admin Dashboard — Real Analytics -->
+<div class="mb-4">
+    <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Dashboard</h4>
+    <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Tổng quan hệ thống du lịch Bình Lợi — Dữ liệu thời gian thực.</p>
 </div>
 
-<!-- Stats Grid -->
+<!-- Stats Row -->
 <div class="row g-3 mb-4">
-    <div class="col-6 col-xl-2">
+    <div class="col-md-3 col-6">
         <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="bi bi-people-fill"></i></div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="bi bi-eye-fill"></i></div>
+                <div>
+                    <h3><%= stats.pageViews.toLocaleString() %></h3>
+                    <small>Lượt xem trang</small>
+                </div>
             </div>
-            <h3><%= stats.users %></h3>
-            <small>Người dùng</small>
         </div>
     </div>
-    <div class="col-6 col-xl-2">
+    <div class="col-md-3 col-6">
         <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-geo-alt-fill"></i></div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-people-fill"></i></div>
+                <div>
+                    <h3><%= stats.uniqueVisitors.toLocaleString() %></h3>
+                    <small>Khách truy cập</small>
+                </div>
             </div>
-            <h3><%= stats.destinations %></h3>
-            <small>Địa điểm</small>
         </div>
     </div>
-    <div class="col-6 col-xl-2">
+    <div class="col-md-3 col-6">
         <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: rgba(240,165,0,0.15); color: #f0a500;"><i class="bi bi-qr-code"></i></div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(240,165,0,0.15); color: #f0a500;"><i class="bi bi-geo-alt-fill"></i></div>
+                <div>
+                    <h3><%= stats.checkins.toLocaleString() %></h3>
+                    <small>Lượt Check-in</small>
+                </div>
             </div>
-            <h3><%= stats.checkins %></h3>
-            <small>Check-ins</small>
         </div>
     </div>
-    <div class="col-6 col-xl-2">
+    <div class="col-md-3 col-6">
         <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: rgba(168,85,247,0.15); color: #a855f7;"><i class="bi bi-chat-heart-fill"></i></div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: #ef4444;"><i class="bi bi-person-fill"></i></div>
+                <div>
+                    <h3><%= stats.users.toLocaleString() %></h3>
+                    <small>Người dùng</small>
+                </div>
             </div>
-            <h3><%= stats.reviews %></h3>
-            <small>Đánh giá</small>
         </div>
     </div>
-    <div class="col-6 col-xl-2">
+</div>
+
+<!-- Secondary Stats -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
         <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;"><i class="bi bi-palette-fill"></i></div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;"><i class="bi bi-chat-heart-fill"></i></div>
+                <div>
+                    <h3><%= stats.reviews %></h3>
+                    <small>Bài đánh giá</small>
+                </div>
             </div>
-            <h3><%= stats.workshops %></h3>
-            <small>Workshop</small>
         </div>
     </div>
-    <div class="col-6 col-xl-2">
+    <div class="col-md-3 col-6">
         <div class="stat-card">
-            <div class="d-flex justify-content-between align-items-start mb-2">
-                <div class="stat-icon" style="background: rgba(34,211,238,0.15); color: #22d3ee;"><i class="bi bi-envelope-fill"></i></div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;"><i class="bi bi-map-fill"></i></div>
+                <div>
+                    <h3><%= stats.destinations %></h3>
+                    <small>Địa điểm</small>
+                </div>
             </div>
-            <h3><%= stats.messages %></h3>
-            <small>Tin nhắn</small>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(34,211,238,0.15); color: #22d3ee;"><i class="bi bi-palette-fill"></i></div>
+                <div>
+                    <h3><%= stats.workshops %></h3>
+                    <small>Workshop</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(251,191,36,0.15); color: #fbbf24;"><i class="bi bi-clock-fill"></i></div>
+                <div>
+                    <h3><%= stats.avgDuration %>s</h3>
+                    <small>TG phản hồi TB</small>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <!-- Charts Row -->
-<div class="row g-3 mb-4">
+<div class="row g-4 mb-4">
     <div class="col-lg-8">
         <div class="chart-card">
-            <h6 class="fw-bold mb-3"><i class="bi bi-graph-up me-2" style="color: var(--admin-primary);"></i>Lượt truy cập Website (14 ngày)</h6>
-            <canvas id="viewsChart" height="100"></canvas>
+            <h6 class="fw-bold mb-3" style="font-family: 'Outfit', sans-serif;">Lượt truy cập (14 ngày gần nhất)</h6>
+            <canvas id="viewsChart" height="240"></canvas>
         </div>
     </div>
     <div class="col-lg-4">
         <div class="chart-card">
-            <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-2" style="color: #10b981;"></i>Check-in theo tháng</h6>
-            <canvas id="checkinChart" height="200"></canvas>
-        </div>
-    </div>
-</div>
-
-<!-- Global Messages Row -->
-<div class="row g-3 mb-4">
-    <div class="col-12">
-        <div class="chart-card">
-            <h6 class="fw-bold mb-4 text-uppercase tracking-widest small" style="color: var(--admin-accent);">
-                <i class="bi bi-chat-heart-fill me-2"></i>Tin nhắn du khách (Toàn sàn)
-            </h6>
-            <div class="overflow-auto" style="max-height: 400px;">
-                <table class="table table-dark table-borderless mb-0">
-                    <thead>
-                        <tr style="border-bottom: 1px solid var(--admin-border);">
-                            <th>Khách hàng</th>
-                            <th>Nội dung</th>
-                            <th>Thời gian</th>
-                            <th>Hành động</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% globalMessages.forEach(msg => { %>
-                        <tr>
-                            <td>
-                                <span class="badge bg-dark border border-secondary">
-                                    #<%= msg.sender_uuid.slice(0,6).toUpperCase() %>
-                                </span>
-                            </td>
-                            <td class="small" style="max-width: 300px;"><%= msg.message %></td>
-                            <td class="x-small text-muted"><%= msg.time_display %></td>
-                            <td>
-                                <button class="btn btn-sm btn-primary rounded-pill px-3" 
-                                        onclick="openAdminReplyModal('<%= msg.id %>', '<%= msg.sender_uuid.slice(0,6) %>')">
-                                    <i class="bi bi-reply-fill"></i> Phản hồi
-                                </button>
-                            </td>
-                        </tr>
-                        <% }) %>
-                        <% if (globalMessages.length === 0) { %>
-                        <tr>
-                            <td colspan="4" class="text-center py-4 text-muted small">Chưa có tin nhắn mới</td>
-                        </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Admin Reply Modal -->
-<div class="modal fade" id="adminReplyModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface); border: 1px solid var(--admin-border) !important;">
-            <div class="modal-header border-bottom p-4" style="border-color: var(--admin-border) !important;">
-                <h5 class="modal-title fw-bold" style="color: var(--admin-text);"><i class="bi bi-reply-fill me-2 text-primary"></i>Phản hồi Khách #<span id="reply-to-id"></span></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4">
-                <input type="hidden" id="reply-msg-id">
-                <div class="mb-4">
-                    <label class="form-label small fw-bold text-muted text-uppercase mb-2">Nội dung giải đáp</label>
-                    <textarea id="reply-text" class="form-control admin-input" style="height: 150px" placeholder="Nhập thông tin hỗ trợ du khách..."></textarea>
-                </div>
-                <button class="btn btn-primary w-100 rounded-pill py-3 fw-bold shadow-sm" onclick="sendAdminReply()">
-                    GỬI PHẢN HỒI <i class="bi bi-send ms-2"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-function openAdminReplyModal(msgId, guestId) {
-    document.getElementById('reply-msg-id').value = msgId;
-    document.getElementById('reply-to-id').innerText = guestId.toUpperCase();
-    new bootstrap.Modal(document.getElementById('adminReplyModal')).show();
-}
-
-async function sendAdminReply() {
-    const msgId = document.getElementById('reply-msg-id').value;
-    const text = document.getElementById('reply-text').value;
-    if (!text) return alert('Vui lòng nhập nội dung');
-
-    try {
-        const res = await axios.post('/api/reply-message', {
-            messageId: msgId,
-            replyText: text
-        });
-        if (res.data.success) {
-            alert('Đã gửi phản hồi!');
-            location.reload();
-        }
-    } catch (err) {
-        alert('Lỗi: ' + (err.response?.data?.message || err.message));
-    }
-}
-</script>
-
-<!-- Top Destinations + Recent Users -->
-<div class="row g-3">
-    <div class="col-lg-5">
-        <div class="chart-card">
-            <h6 class="fw-bold mb-3"><i class="bi bi-trophy-fill me-2" style="color: var(--admin-accent);"></i>Top Địa điểm</h6>
+            <h6 class="fw-bold mb-3" style="font-family: 'Outfit', sans-serif;">Top Điểm đến</h6>
             <% topDests.forEach((d, i) => { %>
-            <div class="d-flex justify-content-between align-items-center py-2 <%= i < topDests.length - 1 ? 'border-bottom' : '' %>" style="border-color: var(--admin-border) !important;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
                 <div class="d-flex align-items-center gap-2">
-                    <span class="fw-bold" style="color: var(--admin-muted); width: 20px;">#<%= i+1 %></span>
-                    <span style="font-size: 0.88rem;"><%= d.name %></span>
+                    <span class="badge rounded-pill" style="background: rgba(59,130,246,0.15); color: #3b82f6; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;"><%= i + 1 %></span>
+                    <span class="small fw-bold"><%= d.name %></span>
                 </div>
-                <span class="badge rounded-pill" style="background: rgba(16,185,129,0.15); color: #10b981;"><%= d.checkin_count %> check-in</span>
+                <span class="small" style="color: var(--admin-muted);"><%= d.checkin_count %> check-ins</span>
             </div>
             <% }) %>
             <% if (topDests.length === 0) { %>
-            <p class="text-center mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Chưa có dữ liệu</p>
+            <p class="text-center small" style="color: var(--admin-muted);">Chưa có dữ liệu check-in</p>
             <% } %>
         </div>
     </div>
-    <div class="col-lg-7">
+</div>
+
+<!-- Recent Users & Check-in Trends -->
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="chart-card">
+            <h6 class="fw-bold mb-3" style="font-family: 'Outfit', sans-serif;">Check-in theo tháng</h6>
+            <canvas id="checkinChart" height="200"></canvas>
+        </div>
+    </div>
+    <div class="col-lg-6">
         <div class="admin-table">
-            <div class="p-3 d-flex justify-content-between align-items-center">
-                <h6 class="fw-bold mb-0"><i class="bi bi-people me-2" style="color: var(--admin-primary);"></i>Người dùng gần đây</h6>
-                <a href="/admin/users" style="color: var(--admin-primary); font-size: 0.82rem; text-decoration: none;">Xem tất cả →</a>
+            <div class="p-3 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--admin-border);">
+                <h6 class="fw-bold mb-0" style="font-family: 'Outfit', sans-serif;">Người dùng mới nhất</h6>
+                <a href="/admin/users" class="small" style="color: var(--admin-primary); text-decoration: none;">Xem tất cả →</a>
             </div>
-            <table class="table table-dark table-borderless mb-0">
-                <thead><tr>
-                    <th>Người dùng</th><th>Vai trò</th><th>Điểm</th><th>Ngày</th>
-                </tr></thead>
+            <table class="table table-borderless mb-0">
                 <tbody>
                     <% recentUsers.forEach(u => { %>
                     <tr>
@@ -215,14 +149,13 @@ async function sendAdminReply() {
                             <div class="d-flex align-items-center gap-2">
                                 <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
                                 <div>
-                                    <div class="fw-bold" style="font-size: 0.85rem;"><%= u.full_name %></div>
-                                    <div style="font-size: 0.72rem; color: var(--admin-muted);"><%= u.email %></div>
+                                    <div class="small fw-bold"><%= u.full_name %></div>
+                                    <div style="font-size: 0.72rem; color: var(--admin-muted);"><%= u.phone || u.email %></div>
                                 </div>
                             </div>
                         </td>
                         <td><span class="role-badge role-<%= u.role %>"><%= u.role %></span></td>
-                        <td class="fw-bold"><%= u.points || 0 %></td>
-                        <td style="font-size: 0.82rem; color: var(--admin-muted);"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
+                        <td class="small" style="color: var(--admin-muted);"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
                     </tr>
                     <% }) %>
                 </tbody>
@@ -232,26 +165,22 @@ async function sendAdminReply() {
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Page Views Chart
-    const viewsData = <%- JSON.stringify(chartData.dailyViews) %>;
-    const viewsLabels = viewsData.map(d => {
-        const date = new Date(d.day);
-        return date.getDate() + '/' + (date.getMonth()+1);
-    });
-    
+document.addEventListener('DOMContentLoaded', () => {
+    // Daily Views Chart
+    const dailyData = <%- JSON.stringify(chartData.dailyViews) %>;
     new Chart(document.getElementById('viewsChart'), {
         type: 'line',
         data: {
-            labels: viewsLabels.length ? viewsLabels : ['Chưa có dữ liệu'],
+            labels: dailyData.map(d => { const date = new Date(d.day); return date.getDate() + '/' + (date.getMonth()+1); }),
             datasets: [{
                 label: 'Lượt xem',
-                data: viewsData.map(d => d.count),
+                data: dailyData.map(d => d.count),
                 borderColor: '#3b82f6',
                 backgroundColor: 'rgba(59,130,246,0.1)',
                 fill: true,
                 tension: 0.4,
-                pointRadius: 4,
+                borderWidth: 2,
+                pointRadius: 3,
                 pointBackgroundColor: '#3b82f6'
             }]
         },
@@ -265,18 +194,19 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Check-in Chart
-    const checkinData = <%- JSON.stringify(chartData.monthlyCheckins) %>;
+    // Monthly Check-in Chart
+    const monthlyData = <%- JSON.stringify(chartData.monthlyCheckins) %>;
     new Chart(document.getElementById('checkinChart'), {
         type: 'bar',
         data: {
-            labels: checkinData.map(d => d.month),
+            labels: monthlyData.map(d => d.month),
             datasets: [{
                 label: 'Check-ins',
-                data: checkinData.map(d => d.count),
-                backgroundColor: '#10b981',
-                borderRadius: 8,
-                barThickness: 24
+                data: monthlyData.map(d => d.count),
+                backgroundColor: 'rgba(240,165,0,0.4)',
+                borderColor: '#f0a500',
+                borderWidth: 1,
+                borderRadius: 8
             }]
         },
         options: {

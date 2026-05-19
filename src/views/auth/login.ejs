@@ -12,7 +12,7 @@
                     <p class="text-white-50 small">Khởi đầu hành trình chữa lành của bạn</p>
                 </div>
 
-                <div class="card-bl border-0 shadow-premium rounded-5 overflow-hidden bg-white bg-opacity-10 backdrop-blur-lg reveal-up" style="transition-delay: 0.1s">
+                <div class="auth-card border-0 shadow-premium rounded-5 overflow-hidden reveal-up" style="transition-delay: 0.1s">
                     <div class="p-4 p-md-5">
                         
                         <!-- Social Logins (Primary) -->
@@ -20,7 +20,7 @@
                             <div class="col-<%= (typeof facebookConfigured !== 'undefined' && facebookConfigured) ? '6' : '12' %>">
                                 <a href="/auth/google" class="btn btn-light w-100 rounded-pill shadow-sm py-2 d-flex align-items-center justify-content-center gap-2">
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" height="20" alt="Google">
-                                    <span class="fw-bold text-dark small">Google</span>
+                                    <span class="fw-bold text-dark small">Đăng nhập Google</span>
                                 </a>
                             </div>
                             <% if (typeof facebookConfigured !== 'undefined' && facebookConfigured) { %>
@@ -34,13 +34,13 @@
                         </div>
 
                         <div class="d-flex align-items-center mb-4 mt-2">
-                            <div class="flex-grow-1 border-bottom border-white border-opacity-25"></div>
-                            <span class="px-3 text-white-50 small x-small text-uppercase tracking-widest">Hoặc dùng Email</span>
-                            <div class="flex-grow-1 border-bottom border-white border-opacity-25"></div>
+                            <div class="flex-grow-1" style="border-bottom: 1px solid rgba(255,255,255,0.2);"></div>
+                            <span class="px-3 small x-small text-uppercase tracking-widest" style="color: rgba(255,255,255,0.5);">Hoặc</span>
+                            <div class="flex-grow-1" style="border-bottom: 1px solid rgba(255,255,255,0.2);"></div>
                         </div>
 
                         <!-- Tabs -->
-                        <ul class="nav nav-pills nav-fill gap-2 p-1 bg-white bg-opacity-25 rounded-pill mb-4" id="authTabs" role="tablist">
+                        <ul class="nav nav-pills nav-fill gap-2 p-1 rounded-pill mb-4" id="authTabs" role="tablist" style="background: rgba(255,255,255,0.15);">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active rounded-pill text-white fw-bold" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">Đăng Nhập</button>
                             </li>
@@ -59,32 +59,42 @@
                             <!-- Login Form -->
                             <div class="tab-pane fade show active" id="login-pane" role="tabpanel" tabindex="0">
                                 <form action="/auth/login" method="POST">
-                                    <div class="form-floating mb-3">
-                                        <input type="email" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="loginEmail" name="email" placeholder="name@example.com" required>
-                                        <label for="loginEmail" class="text-white-50">Email của bạn</label>
+                                    <div class="mb-3">
+                                        <label for="loginEmail" class="form-label small fw-bold" style="color: rgba(255,255,255,0.7);">Email</label>
+                                        <input type="email" class="form-control auth-input" id="loginEmail" name="email" placeholder="name@example.com" required>
                                     </div>
-                                    <div class="form-floating mb-4">
-                                        <input type="password" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="loginPassword" name="password" placeholder="Password" required>
-                                        <label for="loginPassword" class="text-white-50">Mật khẩu</label>
+                                    <div class="mb-4">
+                                        <label for="loginPassword" class="form-label small fw-bold" style="color: rgba(255,255,255,0.7);">Mật khẩu</label>
+                                        <div class="position-relative">
+                                            <input type="password" class="form-control auth-input pe-5" id="loginPassword" name="password" placeholder="••••••" required>
+                                            <button type="button" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0" onclick="togglePwd('loginPassword', this)" style="background: none;">
+                                                <i class="bi bi-eye text-white opacity-50 fs-5"></i>
+                                            </button>
+                                        </div>
                                     </div>
-                                    <button type="submit" class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest mb-3">ĐĂNG NHẬP BẰNG EMAIL</button>
+                                    <button type="submit" class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest mb-3">ĐĂNG NHẬP</button>
                                 </form>
                             </div>
 
                             <!-- Register Form -->
                             <div class="tab-pane fade" id="register-pane" role="tabpanel" tabindex="0">
                                 <form action="/auth/register" method="POST">
-                                    <div class="form-floating mb-3">
-                                        <input type="text" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="regName" name="fullName" placeholder="Họ và tên" required>
-                                        <label for="regName" class="text-white-50">Họ và tên</label>
+                                    <div class="mb-3">
+                                        <label for="regName" class="form-label small fw-bold" style="color: rgba(255,255,255,0.7);">Họ và tên</label>
+                                        <input type="text" class="form-control auth-input" id="regName" name="fullName" placeholder="Nguyễn Văn A" required>
                                     </div>
-                                    <div class="form-floating mb-3">
-                                        <input type="email" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="regEmail" name="email" placeholder="name@example.com" required>
-                                        <label for="regEmail" class="text-white-50">Email</label>
+                                    <div class="mb-3">
+                                        <label for="regPhone" class="form-label small fw-bold" style="color: rgba(255,255,255,0.7);">Số điện thoại</label>
+                                        <input type="tel" class="form-control auth-input" id="regPhone" name="phone" placeholder="0901234567" required pattern="[0-9]{10,11}" title="Số điện thoại 10-11 chữ số">
                                     </div>
-                                    <div class="form-floating mb-4">
-                                        <input type="password" class="form-control bg-white bg-opacity-25 border-0 text-white rounded-4" id="regPassword" name="password" placeholder="Password" required minlength="6">
-                                        <label for="regPassword" class="text-white-50">Mật khẩu (tối thiểu 6 ký tự)</label>
+                                    <div class="mb-4">
+                                        <label for="regPassword" class="form-label small fw-bold" style="color: rgba(255,255,255,0.7);">Mật khẩu (tối thiểu 6 ký tự)</label>
+                                        <div class="position-relative">
+                                            <input type="password" class="form-control auth-input pe-5" id="regPassword" name="password" placeholder="••••••" required minlength="6">
+                                            <button type="button" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0" onclick="togglePwd('regPassword', this)" style="background: none;">
+                                                <i class="bi bi-eye text-white opacity-50 fs-5"></i>
+                                            </button>
+                                        </div>
                                     </div>
                                     <button type="submit" class="btn btn-success w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest mb-3">TẠO TÀI KHOẢN</button>
                                 </form>
@@ -102,29 +112,44 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
-        
-        // Form styling focus
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('focus', () => {
-                input.classList.remove('bg-opacity-25');
-                input.classList.add('bg-opacity-100', 'text-dark');
-            });
-            input.addEventListener('blur', () => {
-                if(!input.value) {
-                    input.classList.add('bg-opacity-25');
-                    input.classList.remove('bg-opacity-100', 'text-dark');
-                }
-            });
-        });
     });
+
+    function togglePwd(inputId, btn) {
+        const input = document.getElementById(inputId);
+        const icon = btn.querySelector('i');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.replace('bi-eye', 'bi-eye-slash');
+        } else {
+            input.type = 'password';
+            icon.classList.replace('bi-eye-slash', 'bi-eye');
+        }
+    }
 </script>
 
 <style>
-    .backdrop-blur-lg { backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); }
+    .auth-card { 
+        background: rgba(0,0,0,0.45); 
+        backdrop-filter: blur(20px); 
+        -webkit-backdrop-filter: blur(20px); 
+        border: 1px solid rgba(255,255,255,0.1); 
+    }
+    .auth-input {
+        background: rgba(255,255,255,0.12) !important;
+        border: 1px solid rgba(255,255,255,0.15) !important;
+        color: #fff !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        font-size: 0.95rem;
+    }
+    .auth-input::placeholder { color: rgba(255,255,255,0.35) !important; }
+    .auth-input:focus { 
+        background: rgba(255,255,255,0.18) !important; 
+        border-color: rgba(255,255,255,0.3) !important; 
+        box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.1) !important;
+        color: #fff !important;
+    }
     .nav-pills .nav-link.active { background-color: var(--primary); }
-    .form-floating > label { color: rgba(255,255,255,0.6); }
-    .form-control:focus { box-shadow: 0 0 0 0.25rem rgba(255,255,255,0.2); }
-    .hover-opacity-100:hover { opacity: 1 !important; background: rgba(255,255,255,0.1); }
     .tracking-widest { letter-spacing: 2px; }
     .z-index-10 { z-index: 10; }
 </style>

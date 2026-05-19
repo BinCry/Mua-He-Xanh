@@ -1,56 +1,68 @@
-<!-- Admin Users Management -->
+<!-- Admin: Users Management -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Quản lý Người dùng</h4>
-        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Phân quyền và quản lý tài khoản hệ thống</p>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Tạo, chỉnh sửa và quản lý tài khoản du khách.</p>
     </div>
-    <form action="/admin/users" method="GET" class="d-flex gap-2">
-        <input type="text" name="q" class="form-control admin-input" placeholder="Tìm kiếm..." value="<%= searchQuery %>" style="width: 220px;">
-        <button type="submit" class="btn btn-sm rounded-pill px-3" style="background: var(--admin-primary); color: white;"><i class="bi bi-search"></i></button>
+    <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#userModal" onclick="openUserForm()">
+        <i class="bi bi-plus-lg me-1"></i> Thêm Người dùng
+    </button>
+</div>
+
+<!-- Search -->
+<div class="mb-4">
+    <form method="GET" action="/admin/users" class="d-flex gap-2">
+        <input type="text" name="q" class="form-control admin-input" value="<%= searchQuery %>" placeholder="Tìm theo tên, email, SĐT..." style="max-width: 400px;">
+        <button type="submit" class="btn btn-outline-primary rounded-pill px-4"><i class="bi bi-search me-1"></i> Tìm</button>
+        <% if (searchQuery) { %>
+        <a href="/admin/users" class="btn btn-outline-secondary rounded-pill px-3">Xóa lọc</a>
+        <% } %>
     </form>
 </div>
 
+<!-- Users Table -->
 <div class="admin-table">
-    <table class="table table-dark table-borderless mb-0">
-        <thead><tr>
-            <th>Người dùng</th>
-            <th>Email</th>
-            <th>Vai trò</th>
-            <th>Địa điểm quản lý</th>
-            <th>Điểm</th>
-            <th>Ngày tạo</th>
-            <th>Thao tác</th>
-        </tr></thead>
+    <table class="table table-borderless mb-0">
+        <thead>
+            <tr>
+                <th>Người dùng</th>
+                <th>SĐT</th>
+                <th>Vai trò</th>
+                <th>Điểm</th>
+                <th>Ngày tạo</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
         <tbody>
             <% users.forEach(u => { %>
-            <tr id="user-<%= u.id %>">
+            <tr>
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
-                        <span class="fw-bold" style="font-size: 0.88rem;"><%= u.full_name %></span>
+                        <div>
+                            <div class="fw-bold small"><%= u.full_name %></div>
+                            <div style="font-size: 0.72rem; color: var(--admin-muted);"><%= u.email %></div>
+                        </div>
                     </div>
                 </td>
-                <td style="font-size: 0.85rem; color: var(--admin-muted);"><%= u.email %></td>
+                <td class="small"><%= u.phone || '-' %></td>
+                <td><span class="role-badge role-<%= u.role %>"><%= u.role %></span></td>
+                <td><%= u.total_points || 0 %></td>
+                <td class="small" style="color: var(--admin-muted);"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
                 <td>
-                    <select class="form-select form-select-sm admin-input" style="width: 120px; font-size: 0.8rem;" id="role-<%= u.id %>" onchange="updateUser('<%= u.id %>')">
-                        <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>Du khách</option>
-                        <option value="manager" <%= u.role === 'manager' ? 'selected' : '' %>>Quản lý</option>
-                        <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
-                    </select>
+                    <% if (u.is_active !== 0) { %>
+                        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Active</span>
+                    <% } else { %>
+                        <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-3">Inactive</span>
+                    <% } %>
                 </td>
                 <td>
-                    <select class="form-select form-select-sm admin-input" style="width: 160px; font-size: 0.8rem;" id="dest-<%= u.id %>" onchange="updateUser('<%= u.id %>')">
-                        <option value="">— Không —</option>
-                        <% destinations.forEach(d => { %>
-                        <option value="<%= d.id %>" <%= u.managed_destination_id === d.id ? 'selected' : '' %>><%= d.name %></option>
-                        <% }) %>
-                    </select>
-                </td>
-                <td class="fw-bold"><%= u.total_points || 0 %></td>
-                <td style="font-size: 0.82rem; color: var(--admin-muted);"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
-                <td>
-                    <button class="btn btn-sm rounded-pill" style="background: rgba(239,68,68,0.15); color: #ef4444; font-size: 0.78rem;" onclick="deleteUser('<%= u.id %>', '<%= u.full_name %>')">
-                        <i class="bi bi-trash3"></i>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick='editUser(<%- JSON.stringify({id: u.id, full_name: u.full_name, email: u.email, phone: u.phone, role: u.role, is_active: u.is_active, managed_destination_id: u.managed_destination_id}) %>)'>
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteUser('<%= u.id %>', '<%= u.full_name %>')">
+                        <i class="bi bi-trash"></i>
                     </button>
                 </td>
             </tr>
@@ -63,40 +75,114 @@
 <% if (totalPages > 1) { %>
 <div class="d-flex justify-content-center mt-4 gap-2">
     <% for (let p = 1; p <= totalPages; p++) { %>
-    <a href="/admin/users?page=<%= p %>&q=<%= searchQuery %>" class="btn btn-sm rounded-pill px-3 <%= p === currentPage ? '' : '' %>" style="<%= p === currentPage ? 'background: var(--admin-primary); color: white;' : 'background: var(--admin-surface); color: var(--admin-muted); border: 1px solid var(--admin-border);' %>"><%= p %></a>
+        <a href="/admin/users?page=<%= p %><%= searchQuery ? '&q=' + searchQuery : '' %>" 
+           class="btn btn-sm <%= p === currentPage ? 'btn-primary' : 'btn-outline-secondary' %> rounded-pill px-3"><%= p %></a>
     <% } %>
 </div>
 <% } %>
 
+<!-- User Modal -->
+<div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="userModalTitle">Thêm Người dùng</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="u_id" name="id">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Họ và tên</label>
+                        <input type="text" class="form-control admin-input" id="u_full_name" name="full_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Số điện thoại</label>
+                        <input type="tel" class="form-control admin-input" id="u_phone" name="phone">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Email</label>
+                        <input type="email" class="form-control admin-input" id="u_email" name="email">
+                    </div>
+                    <div class="mb-3" id="passwordGroup">
+                        <label class="form-label small fw-bold">Mật khẩu</label>
+                        <input type="password" class="form-control admin-input" id="u_password" name="password" minlength="6">
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Vai trò</label>
+                            <select class="form-select admin-input" id="u_role" name="role">
+                                <option value="user">User</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Trạng thái</label>
+                            <select class="form-select admin-input" id="u_is_active" name="is_active">
+                                <option value="1">Active</option>
+                                <option value="0">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary rounded-pill px-4 fw-bold" onclick="saveUser()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-async function updateUser(id) {
-    const role = document.getElementById('role-' + id).value;
-    const dest = document.getElementById('dest-' + id).value;
+let editingUser = false;
+
+function openUserForm() {
+    editingUser = false;
+    document.getElementById('userModalTitle').textContent = 'Thêm Người dùng';
+    document.getElementById('userForm').reset();
+    document.getElementById('u_id').value = '';
+    document.getElementById('passwordGroup').style.display = 'block';
+}
+
+function editUser(user) {
+    editingUser = true;
+    document.getElementById('userModalTitle').textContent = 'Sửa Người dùng';
+    document.getElementById('u_id').value = user.id;
+    document.getElementById('u_full_name').value = user.full_name;
+    document.getElementById('u_email').value = user.email;
+    document.getElementById('u_phone').value = user.phone || '';
+    document.getElementById('u_role').value = user.role;
+    document.getElementById('u_is_active').value = user.is_active !== 0 ? '1' : '0';
+    document.getElementById('passwordGroup').style.display = 'none';
+    new bootstrap.Modal(document.getElementById('userModal')).show();
+}
+
+async function saveUser() {
+    const data = {
+        id: document.getElementById('u_id').value,
+        full_name: document.getElementById('u_full_name').value,
+        email: document.getElementById('u_email').value,
+        phone: document.getElementById('u_phone').value,
+        role: document.getElementById('u_role').value,
+        is_active: parseInt(document.getElementById('u_is_active').value),
+        password: document.getElementById('u_password')?.value
+    };
+    
+    const url = editingUser ? '/api/admin/update-user' : '/api/admin/create-user';
     try {
-        const res = await axios.post('/api/admin/update-user', {
-            id, role, managed_destination_id: dest || null
-        });
-        if (res.data.success) {
-            const row = document.getElementById('user-' + id);
-            row.style.background = 'rgba(16,185,129,0.08)';
-            setTimeout(() => row.style.background = '', 1500);
-        }
-    } catch (err) {
-        alert('Lỗi: ' + err.message);
-    }
+        const res = await axios.post(url, data);
+        if (res.data.success) { alert(res.data.message); location.reload(); }
+        else alert(res.data.message);
+    } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
 }
 
 async function deleteUser(id, name) {
-    if (!confirm('Bạn chắc chắn muốn xóa "' + name + '"?')) return;
+    if (!confirm(`Xóa người dùng "${name}"?`)) return;
     try {
         const res = await axios.post('/api/admin/delete-user', { id });
-        if (res.data.success) {
-            document.getElementById('user-' + id).remove();
-        } else {
-            alert(res.data.message);
-        }
-    } catch (err) {
-        alert('Lỗi: ' + err.message);
-    }
+        if (res.data.success) location.reload();
+        else alert(res.data.message);
+    } catch (e) { alert('Lỗi'); }
 }
 </script>

@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const UserSession = require('../models/UserSession');
 const { v4: uuidv4 } = require('uuid');
+const db = require('../core/database');
 
 const AuthController = {
     
@@ -15,14 +16,20 @@ const AuthController = {
 
     handleRegister: async (req, res) => {
         try {
-            const { fullName, email, password } = req.body;
-            if (!email || !password || !fullName) {
+            const { fullName, phone, password } = req.body;
+            if (!phone || !password || !fullName) {
                 return res.redirect('/auth/login?error=Vui lòng điền đầy đủ thông tin');
             }
 
-            const existingUser = await User.findByEmail(email);
-            if (existingUser) {
-                return res.redirect('/auth/login?error=Email này đã được sử dụng');
+            // Validate phone format
+            if (!/^[0-9]{10,11}$/.test(phone)) {
+                return res.redirect('/auth/login?error=Số điện thoại không hợp lệ (10-11 chữ số)');
+            }
+
+            // Check if phone already exists
+            const [existingPhone] = await db.query('SELECT id FROM users WHERE phone = ?', [phone]);
+            if (existingPhone.length > 0) {
+                return res.redirect('/auth/login?error=Số điện thoại này đã được sử dụng');
             }
 
             const bcrypt = require('bcryptjs');
@@ -32,15 +39,16 @@ const AuthController = {
             const newUser = {
                 id: uuidv4(),
                 full_name: fullName,
-                email: email,
+                email: phone + '@phone.local', // Internal email placeholder
+                phone: phone,
                 password: hashedPassword,
                 role: 'user',
                 points: 0
             };
 
-            await UserSession.db.query(
-                'INSERT INTO users (id, full_name, email, password, role, points) VALUES (?, ?, ?, ?, ?, ?)',
-                [newUser.id, newUser.full_name, newUser.email, newUser.password, newUser.role, newUser.points]
+            await db.query(
+                'INSERT INTO users (id, full_name, email, phone, password, role, total_points, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
+                [newUser.id, newUser.full_name, newUser.email, newUser.phone, newUser.password, newUser.role, newUser.points]
             );
 
             // Log them in immediately
@@ -81,14 +89,13 @@ const AuthController = {
 
     oauthCallback: async (req, res) => {
         // Passport already put user in req.user
-        // We still run establishSession to sync with our custom user_sessions table if needed
         if (req.user) {
             await AuthController.establishSession(req, res, req.user);
         }
         
         // Redirect based on role
-        if (req.user && req.user.role === 'manager') {
-            return res.redirect('/manager');
+        if (req.user && req.user.role === 'admin') {
+            return res.redirect('/admin');
         }
         res.redirect('/');
     },
@@ -101,7 +108,7 @@ const AuthController = {
         }
 
         const session = await UserSession.findOrCreate(sessionUuid, req);
-        await UserSession.db.query(
+        await db.query(
             "UPDATE user_sessions SET user_id = ? WHERE id = ?",
             [user.id, session.id]
         );
@@ -113,6 +120,7 @@ const AuthController = {
             full_name: user.full_name,
             role: user.role,
             avatar: user.avatar,
+            phone: user.phone,
             managed_destination_id: user.managed_destination_id
         };
     },

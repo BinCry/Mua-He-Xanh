@@ -25,13 +25,22 @@ passport.deserializeUser(async (id, done) => {
     }
 });
 
-// --- LOCAL OAUTH STRATEGY ---
+// --- LOCAL OAUTH STRATEGY (supports email or phone login) ---
 passport.use(new LocalStrategy(
     { usernameField: 'email', passwordField: 'password' },
-    async (email, password, done) => {
+    async (emailOrPhone, password, done) => {
         try {
-            const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
-            if (rows.length === 0) return done(null, false, { message: 'Email không tồn tại.' });
+            // Try email first, then phone
+            let [rows] = await db.query("SELECT * FROM users WHERE email = ?", [emailOrPhone]);
+            if (rows.length === 0) {
+                // Try phone match
+                [rows] = await db.query("SELECT * FROM users WHERE phone = ?", [emailOrPhone]);
+            }
+            if (rows.length === 0) {
+                // Try phone@phone.local pattern
+                [rows] = await db.query("SELECT * FROM users WHERE email = ?", [emailOrPhone + '@phone.local']);
+            }
+            if (rows.length === 0) return done(null, false, { message: 'Tài khoản không tồn tại.' });
 
             const user = rows[0];
             if (!user.password) return done(null, false, { message: 'Tài khoản này được đăng ký qua Google/Facebook.' });

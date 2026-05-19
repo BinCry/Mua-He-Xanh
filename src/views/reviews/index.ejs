@@ -1,50 +1,79 @@
-<!-- Reviews / Community Feed — Chương 5.13 -->
-<section class="py-5" style="margin-top: 80px;">
-    <div class="container py-4" style="max-width: 720px;">
+<!-- Community Feed — Social Media Style -->
+<section class="py-5" style="margin-top: 80px; background: var(--surface-alt);">
+    <div class="container py-4" style="max-width: 680px;">
         <!-- Header -->
         <div class="text-center mb-5 reveal-up">
-            <span class="section-label">CỘNG ĐỒNG</span>
-            <h2 class="section-title">Chia sẻ Trải nghiệm</h2>
-            <p class="section-desc mx-auto">Đọc và chia sẻ những khoảnh khắc chữa lành cùng cộng đồng du khách Bình Lợi.</p>
+            <span class="section-label">CỘNG ĐỒNG BÌNH LỢI</span>
+            <h2 class="section-title">Bảng tin Check-in</h2>
+            <p class="section-desc mx-auto">Chia sẻ khoảnh khắc, hình ảnh và câu chuyện của bạn tại Bình Lợi.</p>
         </div>
 
         <!-- Compose Box -->
         <% if (user) { %>
-        <div class="card-glass p-4 mb-5 reveal-up">
-            <form id="reviewForm">
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 reveal-up bg-white">
+            <form id="reviewForm" enctype="multipart/form-data">
                 <div class="d-flex gap-3 mb-3">
-                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
+                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid var(--primary-100);">
                     <div class="flex-grow-1">
-                        <textarea class="form-control border-0 bg-transparent shadow-none p-0" rows="3" name="content" placeholder="Chia sẻ trải nghiệm của bạn tại Bình Lợi..." style="resize: none; font-size: 0.95rem;" required></textarea>
+                        <div class="fw-bold mb-1" style="font-size: 0.9rem;"><%= user.full_name %></div>
+                        <textarea class="form-control border-0 bg-transparent shadow-none p-0" rows="3" name="content" placeholder="Bạn đang nghĩ gì về Bình Lợi? Chia sẻ trải nghiệm..." style="resize: none; font-size: 0.95rem;" required></textarea>
                     </div>
                 </div>
+
+                <!-- Image Preview -->
+                <div id="imagePreview" class="mb-3 d-none">
+                    <div class="position-relative d-inline-block">
+                        <img id="previewImg" src="" class="rounded-3 border" style="max-height: 200px; max-width: 100%; object-fit: cover;">
+                        <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;" onclick="clearImage()">
+                            <i class="bi bi-x"></i>
+                        </button>
+                    </div>
+                </div>
+
                 <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1px solid var(--border-light);">
-                    <div class="d-flex gap-2">
+                    <div class="d-flex gap-1">
+                        <!-- Upload Photo -->
+                        <label class="btn btn-light btn-sm rounded-pill px-3 d-flex align-items-center gap-1 mb-0" style="cursor: pointer; font-size: 0.82rem;">
+                            <i class="bi bi-image text-success"></i> Ảnh
+                            <input type="file" name="image" accept="image/*" class="d-none" id="imageInput" onchange="previewImage(this)">
+                        </label>
+                        <!-- Camera -->
+                        <label class="btn btn-light btn-sm rounded-pill px-3 d-flex align-items-center gap-1 mb-0" style="cursor: pointer; font-size: 0.82rem;">
+                            <i class="bi bi-camera text-primary"></i> Chụp
+                            <input type="file" name="camera" accept="image/*" capture="environment" class="d-none" onchange="previewImage(this)">
+                        </label>
+                        <!-- Rating -->
                         <select class="form-select form-select-sm border-0 bg-transparent" name="rating" style="width: auto; font-size: 0.82rem; color: var(--text-secondary);">
                             <option value="5">⭐⭐⭐⭐⭐</option>
                             <option value="4">⭐⭐⭐⭐</option>
                             <option value="3">⭐⭐⭐</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary-bl btn-sm rounded-pill px-4">
+                    <button type="submit" class="btn btn-primary-bl btn-sm rounded-pill px-4 fw-bold">
                         <i class="bi bi-send me-1"></i> Đăng
                     </button>
                 </div>
             </form>
+        </div>
+        <% } else { %>
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center bg-white">
+            <p class="text-muted mb-3">Đăng nhập để chia sẻ trải nghiệm của bạn</p>
+            <a href="/auth/login" class="btn btn-primary-bl rounded-pill px-4">Đăng nhập</a>
         </div>
         <% } %>
 
         <!-- Reviews Feed -->
         <div class="d-flex flex-column gap-4">
             <% reviews.forEach((r, i) => { %>
-            <div class="p-4 rounded-2xl reveal-up" style="background: var(--surface); border: 1px solid var(--border-light); transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--primary-100)'" onmouseout="this.style.borderColor='var(--border-light)'">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden reveal-up bg-white">
                 <!-- Header -->
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 42px; height: 42px; object-fit: cover;">
+                <div class="d-flex align-items-center gap-3 p-4 pb-2">
+                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
                     <div class="flex-grow-1">
-                        <span class="fw-bold d-block" style="font-size: 0.9rem;"><%= r.full_name %></span>
+                        <span class="fw-bold d-block" style="font-size: 0.92rem;"><%= r.full_name %></span>
                         <span class="text-muted" style="font-size: 0.75rem;">
-                            <% if (r.destination_name) { %><i class="bi bi-geo-alt me-1"></i><%= r.destination_name %> · <% } %>
+                            <% if (r.destination_name) { %><i class="bi bi-geo-alt me-1 text-danger"></i><%= r.destination_name %> · <% } %>
+                            <% if (r.location_name) { %><i class="bi bi-pin-map me-1"></i><%= r.location_name %> · <% } %>
                             <%= new Date(r.created_at).toLocaleDateString('vi-VN') %>
                         </span>
                     </div>
@@ -54,10 +83,28 @@
                 </div>
                 
                 <!-- Content -->
-                <p class="mb-3" style="font-size: 0.92rem; line-height: 1.7; color: var(--text);"><%= r.content %></p>
+                <div class="px-4 pb-2">
+                    <p class="mb-0" style="font-size: 0.93rem; line-height: 1.7; color: var(--text);"><%= r.content %></p>
+                </div>
+
+                <!-- Images -->
+                <% if (r.images) { 
+                    let imgs = [];
+                    try { imgs = JSON.parse(r.images); } catch(e) {}
+                    if (imgs.length > 0) { %>
+                <div class="px-4 py-2">
+                    <div class="row g-2">
+                        <% imgs.slice(0, 3).forEach((img, idx) => { %>
+                        <div class="col-<%= imgs.length === 1 ? '12' : (idx === 0 && imgs.length > 2 ? '12' : '6') %>">
+                            <img src="<%= img.startsWith('http') ? img : fixImg(img) %>" class="rounded-3 w-100" style="height: <%= imgs.length === 1 ? '300px' : '180px' %>; object-fit: cover;" alt="Review image">
+                        </div>
+                        <% }) %>
+                    </div>
+                </div>
+                <% } } %>
                 
                 <!-- Actions -->
-                <div class="d-flex align-items-center gap-4" style="font-size: 0.82rem; color: var(--text-muted);">
+                <div class="d-flex align-items-center gap-4 px-4 py-3" style="font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border-light);">
                     <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 like-btn" onclick="likeReview('<%= r.id %>', this)" style="color: var(--text-muted);">
                         <i class="bi bi-heart"></i>
                         <span><%= r.likes_count || 0 %></span>
@@ -66,9 +113,11 @@
                         <i class="bi bi-chat"></i>
                         <span><%= r.comments_count || 0 %></span>
                     </button>
-                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1" style="color: var(--text-muted);">
-                        <i class="bi bi-share"></i>
-                    </button>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(baseUrl + '/reviews') %>&quote=<%= encodeURIComponent(r.content.substring(0, 100)) %>" 
+                       target="_blank" class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1" style="color: var(--text-muted);">
+                        <i class="bi bi-facebook"></i>
+                        <span>Chia sẻ</span>
+                    </a>
                 </div>
             </div>
             <% }) %>
@@ -77,16 +126,37 @@
         <% if (reviews.length === 0) { %>
         <div class="text-center py-5">
             <i class="bi bi-chat-heart display-1" style="color: var(--border);"></i>
-            <p class="text-muted mt-3">Chưa có đánh giá nào. Hãy là người đầu tiên chia sẻ!</p>
+            <p class="text-muted mt-3">Chưa có bài đăng nào. Hãy là người đầu tiên chia sẻ!</p>
         </div>
         <% } %>
     </div>
 </section>
 
 <script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('previewImg').src = e.target.result;
+            document.getElementById('imagePreview').classList.remove('d-none');
+            // Copy to main image input if from camera
+            if (input.name === 'camera') {
+                const mainInput = document.getElementById('imageInput');
+                mainInput.files = input.files;
+            }
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function clearImage() {
+    document.getElementById('imagePreview').classList.add('d-none');
+    document.getElementById('imageInput').value = '';
+}
+
 async function likeReview(id, btn) {
     try {
-        const res = await axios.post('/api/review/like', { review_id: id });
+        const res = await axios.post('/api/reviews/like', { review_id: id });
         if (res.data.success) {
             const icon = btn.querySelector('i');
             const count = btn.querySelector('span');
@@ -104,10 +174,33 @@ document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
     const btn = form.querySelector('button[type="submit"]');
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang đăng...';
+    
     try {
-        const res = await axios.post('/api/review/create', {
-            content: form.content.value,
-            rating: form.rating.value
+        const formData = new FormData();
+        formData.append('content', form.content.value);
+        formData.append('rating', form.rating.value);
+        
+        // Add image if present
+        const imageInput = document.getElementById('imageInput');
+        if (imageInput.files.length > 0) {
+            formData.append('image', imageInput.files[0]);
+        }
+
+        // Auto detect location
+        if (navigator.geolocation) {
+            try {
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
+                });
+                formData.append('lat', pos.coords.latitude);
+                formData.append('lng', pos.coords.longitude);
+            } catch(geoErr) {
+                // Location not available, continue without it
+            }
+        }
+
+        const res = await axios.post('/api/reviews', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
         });
         if (res.data.success) location.reload();
         else alert(res.data.message || 'Lỗi');

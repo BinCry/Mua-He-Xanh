@@ -21,10 +21,16 @@ const ProfileController = {
 
             // Thống kê
             const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins WHERE user_id = ?', [user.id]);
-            const [journeyCount] = await db.query('SELECT COUNT(*) as total FROM journeys WHERE user_id = ?', [user.id]);
+            const [journeyCount] = await db.query(`
+                SELECT COUNT(*) as total FROM journeys j 
+                JOIN user_sessions us ON j.session_id = us.session_uuid 
+                WHERE us.user_id = ?
+            `, [user.id]).catch(() => [[{total: 0}]]);
             const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews WHERE user_id = ?', [user.id]);
-            const badges = await UserBadge.getUserBadges(user.id);
-            const workshopBookings = await Workshop.getBookingsByUser(user.id);
+            let badges = [];
+            try { badges = await UserBadge.getUserBadges(user.id); } catch(e) {}
+            let workshopBookings = [];
+            try { workshopBookings = await Workshop.getBookingsByUser(user.id); } catch(e) {}
 
             // Rewards
             const [rewards] = await db.query(`

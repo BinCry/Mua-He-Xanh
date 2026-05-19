@@ -1,79 +1,74 @@
-<!-- Admin Reviews Management -->
+<!-- Admin: Reviews Management -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Duyệt Đánh giá</h4>
-        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý đánh giá và bình luận của du khách</p>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Duyệt Đánh giá Cộng đồng</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý, lọc và xóa bài đánh giá từ du khách.</p>
     </div>
 </div>
 
+<!-- Filter by Destination -->
+<div class="mb-4 d-flex gap-2 flex-wrap">
+    <a href="/admin/reviews" class="btn btn-sm <%= !currentDestination ? 'btn-primary' : 'btn-outline-secondary' %> rounded-pill px-3">Tất cả</a>
+    <% destinations.forEach(d => { %>
+        <a href="/admin/reviews?destination=<%= d.id %>" class="btn btn-sm <%= currentDestination === d.id ? 'btn-primary' : 'btn-outline-secondary' %> rounded-pill px-3"><%= d.name %></a>
+    <% }) %>
+</div>
+
+<!-- Reviews Table -->
 <div class="admin-table">
-    <table class="table table-dark table-borderless mb-0">
-        <thead><tr>
-            <th>Người dùng</th>
-            <th>Địa điểm</th>
-            <th>Nội dung</th>
-            <th>Đánh giá</th>
-            <th>Ngày</th>
-            <th>Thao tác</th>
-        </tr></thead>
+    <table class="table table-borderless mb-0">
+        <thead>
+            <tr>
+                <th>Người dùng</th>
+                <th>Nội dung</th>
+                <th>Địa điểm</th>
+                <th>Rating</th>
+                <th>Likes</th>
+                <th>Ngày</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
         <tbody>
             <% reviews.forEach(r => { %>
-            <tr id="review-<%= r.id %>">
+            <tr>
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
-                        <div>
-                            <div class="fw-bold" style="font-size: 0.85rem;"><%= r.full_name %></div>
-                        </div>
+                        <span class="small fw-bold"><%= r.full_name %></span>
                     </div>
                 </td>
-                <td style="font-size: 0.85rem;"><%= r.destination_name || 'N/A' %></td>
                 <td style="max-width: 300px;">
-                    <div class="text-truncate-2" style="font-size: 0.85rem; color: var(--admin-text);"><%= r.content || r.comment %></div>
+                    <p class="small mb-0" style="overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;"><%= r.content %></p>
                 </td>
+                <td class="small"><%= r.destination_name || r.location_name || '-' %></td>
                 <td>
-                    <div class="text-warning small">
-                        <% for(let i=0; i<5; i++) { %>
-                            <i class="bi bi-star<%= i < (r.rating || 5) ? '-fill' : '' %>"></i>
-                        <% } %>
-                    </div>
+                    <span class="text-warning small">
+                        <% for(let s = 0; s < (r.rating || 5); s++) { %>⭐<% } %>
+                    </span>
                 </td>
-                <td style="font-size: 0.82rem; color: var(--admin-muted);"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></td>
+                <td class="small"><%= r.likes_count || 0 %></td>
+                <td class="small" style="color: var(--admin-muted);"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></td>
                 <td>
-                    <button class="btn btn-sm rounded-pill" style="background: rgba(239,68,68,0.15); color: #ef4444; font-size: 0.78rem;" onclick="deleteReview('<%= r.id %>')">
-                        <i class="bi bi-trash3"></i>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteReview('<%= r.id %>')">
+                        <i class="bi bi-trash"></i> Xóa
                     </button>
                 </td>
             </tr>
             <% }) %>
             <% if (reviews.length === 0) { %>
-            <tr><td colspan="6" class="text-center py-4" style="color: var(--admin-muted);">Chưa có đánh giá nào</td></tr>
+            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có bài đánh giá nào.</td></tr>
             <% } %>
         </tbody>
     </table>
 </div>
 
-<style>
-.text-truncate-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-</style>
-
 <script>
 async function deleteReview(id) {
-    if (!confirm('Bạn chắc chắn muốn xóa đánh giá này?')) return;
+    if (!confirm('Xóa bài đánh giá này?')) return;
     try {
-        // reuse general api if exists or just a placeholder for now
-        const res = await axios.post('/api/reviews/delete', { id });
-        if (res.data.success) {
-            document.getElementById('review-' + id).remove();
-        }
-    } catch (err) {
-        console.error(err);
-        alert('Tính năng xóa đánh giá đang được cập nhật.');
-    }
+        const res = await axios.post('/api/admin/delete-review', { id });
+        if (res.data.success) location.reload();
+        else alert(res.data.message);
+    } catch (e) { alert('Lỗi'); }
 }
 </script>

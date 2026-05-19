@@ -59,7 +59,7 @@
 
         <!-- About Section -->
         <div class="col-lg-6">
-            <div class="chart-card">
+            <div class="chart-card mb-4">
                 <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2" style="color: var(--admin-primary);"></i>Giới thiệu Chung</h6>
                 
                 <div class="mb-3">
@@ -77,6 +77,24 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Email</label>
                     <input type="email" name="contact_email" class="form-control admin-input" value="<%= settings.contact_email || '' %>" placeholder="email@example.com">
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2" style="color: var(--admin-accent);"></i>Lễ hội Sắp tới</h6>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Tên Lễ hội</label>
+                    <input type="text" name="festival_name" class="form-control admin-input" value="<%= settings.festival_name || 'Lễ hội Mai Vàng Bình Lợi 2026' %>">
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Ngày tổ chức</label>
+                        <input type="text" name="festival_date" class="form-control admin-input" value="<%= settings.festival_date || '2026-02-15T08:00:00' %>" placeholder="YYYY-MM-DDTHH:mm:ss">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Địa điểm</label>
+                        <input type="text" name="festival_location" class="form-control admin-input" value="<%= settings.festival_location || 'Làng nghề Mai Vàng' %>">
+                    </div>
                 </div>
             </div>
         </div>

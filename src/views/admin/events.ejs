@@ -1,0 +1,181 @@
+<!-- Admin: Events Management -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Quản lý Sự kiện</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Thêm, sửa, xóa sự kiện nổi bật hiển thị trên trang chủ.</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#eventModal" onclick="openEventForm()">
+        <i class="bi bi-plus-lg me-1"></i> Thêm Sự kiện
+    </button>
+</div>
+
+<!-- Events Table -->
+<div class="admin-table">
+    <table class="table table-borderless mb-0">
+        <thead>
+            <tr>
+                <th>Tên sự kiện</th>
+                <th>Mùa</th>
+                <th>Ngày</th>
+                <th>Địa điểm</th>
+                <th>Nổi bật</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% events.forEach(evt => { %>
+            <tr>
+                <td class="fw-bold"><%= evt.title %></td>
+                <td>
+                    <span class="role-badge role-<%= evt.season === 'spring' ? 'admin' : (evt.season === 'summer' ? 'manager' : 'user') %>">
+                        <%= evt.season %>
+                    </span>
+                </td>
+                <td class="small"><%= evt.event_date ? new Date(evt.event_date).toLocaleDateString('vi-VN') : '-' %></td>
+                <td class="small"><%= evt.location || '-' %></td>
+                <td>
+                    <% if (evt.is_featured) { %><span class="text-warning"><i class="bi bi-star-fill"></i></span>
+                    <% } else { %><span class="text-muted">-</span><% } %>
+                </td>
+                <td>
+                    <% if (evt.is_active) { %>
+                        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Hoạt động</span>
+                    <% } else { %>
+                        <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill px-3">Ẩn</span>
+                    <% } %>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick='editEvent(<%- JSON.stringify(evt) %>)'>
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteEvent('<%= evt.id %>')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </td>
+            </tr>
+            <% }) %>
+            <% if (events.length === 0) { %>
+            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có sự kiện nào.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<!-- Event Modal -->
+<div class="modal fade" id="eventModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="eventModalTitle">Thêm Sự kiện</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <input type="hidden" id="evt_id" name="id">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Tên sự kiện</label>
+                            <input type="text" class="form-control admin-input" id="evt_title" name="title" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Mô tả</label>
+                            <textarea class="form-control admin-input" id="evt_description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Mùa</label>
+                            <select class="form-select admin-input" id="evt_season" name="season">
+                                <option value="spring">Xuân</option>
+                                <option value="summer">Hè</option>
+                                <option value="autumn">Thu</option>
+                                <option value="winter">Đông</option>
+                                <option value="all">Tất cả</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Ngày bắt đầu</label>
+                            <input type="datetime-local" class="form-control admin-input" id="evt_event_date" name="event_date">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Địa điểm</label>
+                            <input type="text" class="form-control admin-input" id="evt_location" name="location">
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" id="evt_is_featured" name="is_featured">
+                                <label class="form-check-label small" for="evt_is_featured">Nổi bật trên trang chủ</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" id="evt_is_active" name="is_active" checked>
+                                <label class="form-check-label small" for="evt_is_active">Hoạt động</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary rounded-pill px-4 fw-bold" onclick="saveEvent()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let editingEvent = false;
+
+function openEventForm() {
+    editingEvent = false;
+    document.getElementById('eventModalTitle').textContent = 'Thêm Sự kiện';
+    document.getElementById('eventForm').reset();
+    document.getElementById('evt_id').value = '';
+    document.getElementById('evt_is_active').checked = true;
+}
+
+function editEvent(evt) {
+    editingEvent = true;
+    document.getElementById('eventModalTitle').textContent = 'Sửa Sự kiện';
+    document.getElementById('evt_id').value = evt.id;
+    document.getElementById('evt_title').value = evt.title;
+    document.getElementById('evt_description').value = evt.description || '';
+    document.getElementById('evt_season').value = evt.season;
+    document.getElementById('evt_location').value = evt.location || '';
+    document.getElementById('evt_is_featured').checked = evt.is_featured;
+    document.getElementById('evt_is_active').checked = evt.is_active;
+    if (evt.event_date) {
+        document.getElementById('evt_event_date').value = new Date(evt.event_date).toISOString().slice(0, 16);
+    }
+    new bootstrap.Modal(document.getElementById('eventModal')).show();
+}
+
+async function saveEvent() {
+    const data = {
+        id: document.getElementById('evt_id').value,
+        title: document.getElementById('evt_title').value,
+        description: document.getElementById('evt_description').value,
+        season: document.getElementById('evt_season').value,
+        event_date: document.getElementById('evt_event_date').value,
+        location: document.getElementById('evt_location').value,
+        is_featured: document.getElementById('evt_is_featured').checked,
+        is_active: document.getElementById('evt_is_active').checked
+    };
+    
+    const url = editingEvent ? '/api/admin/update-event' : '/api/admin/create-event';
+    try {
+        const res = await axios.post(url, data);
+        if (res.data.success) { alert(res.data.message); location.reload(); }
+        else alert(res.data.message);
+    } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
+}
+
+async function deleteEvent(id) {
+    if (!confirm('Xóa sự kiện này?')) return;
+    try {
+        const res = await axios.post('/api/admin/delete-event', { id });
+        if (res.data.success) location.reload();
+        else alert(res.data.message);
+    } catch (e) { alert('Lỗi'); }
+}
+</script>

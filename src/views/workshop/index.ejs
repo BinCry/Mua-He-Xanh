@@ -1,30 +1,30 @@
-<!-- Workshop Listing — Chương 5.11 -->
-<section class="py-5" style="margin-top: 80px;">
+<!-- Workshop Listing — Info & Introduction Only -->
+<section class="py-5" style="margin-top: 60px;">
+    <!-- Hero Header -->
+    <div class="position-relative overflow-hidden mb-5" style="height: 320px; background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.7)), url('/images/hero-2.png') center/cover;">
+        <div class="position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
+            <span class="badge bg-warning text-dark rounded-pill px-3 py-2 mb-3 fw-bold tracking-widest text-uppercase"><i class="bi bi-palette me-1"></i> Trải nghiệm làng nghề</span>
+            <h1 class="display-4 fw-black text-white mb-2">Workshop & Hoạt Động</h1>
+            <p class="text-white-50 lead mx-auto" style="max-width: 600px;">Học làm nhang, chăm mai, nặn bánh dân gian — trải nghiệm cùng nghệ nhân địa phương. Đến trong khung giờ là có thể tham gia!</p>
+        </div>
+    </div>
+
     <div class="container py-4">
-        <!-- Header -->
-        <div class="row align-items-end mb-5">
-            <div class="col-lg-7 reveal-up">
-                <span class="section-label">TRẢI NGHIỆM</span>
-                <h2 class="section-title">Workshop & Hoạt Động</h2>
-                <p class="section-desc">Học làm nhang, chăm mai, nặn bánh dân gian — trải nghiệm làng nghề truyền thống cùng nghệ nhân địa phương.</p>
-            </div>
-            <div class="col-lg-5 reveal-up">
-                <div class="d-flex gap-2 flex-wrap justify-content-lg-end">
-                    <a href="/workshops" class="btn btn-sm <%= !typeFilter ? 'btn-primary-bl' : 'btn-ghost' %> rounded-pill px-3" style="font-size: 0.82rem;">Tất cả</a>
-                    <% Object.entries(typeLabels).forEach(([key, label]) => { %>
-                        <a href="/workshops?type=<%= key %>" class="btn btn-sm <%= typeFilter === key ? 'btn-primary-bl' : 'btn-ghost' %> rounded-pill px-3" style="font-size: 0.82rem;"><%= label %></a>
-                    <% }) %>
-                </div>
-            </div>
+        <!-- Filter Tabs -->
+        <div class="d-flex gap-2 flex-wrap justify-content-center mb-5">
+            <a href="/workshops" class="btn btn-sm <%= !typeFilter ? 'btn-primary-bl' : 'btn-ghost' %> rounded-pill px-4" style="font-size: 0.85rem;">Tất cả</a>
+            <% Object.entries(typeLabels).forEach(([key, label]) => { %>
+                <a href="/workshops?type=<%= key %>" class="btn btn-sm <%= typeFilter === key ? 'btn-primary-bl' : 'btn-ghost' %> rounded-pill px-4" style="font-size: 0.85rem;"><%= label %></a>
+            <% }) %>
         </div>
 
         <!-- Grid -->
         <div class="row g-4">
             <% workshops.forEach((ws, i) => { %>
             <div class="col-md-6 col-lg-4 reveal-up">
-                <div class="card-heal h-100 d-flex flex-column">
-                    <div class="card-img position-relative" style="height: 220px;">
-                        <img src="<%= fixImg(ws.image) %>" alt="<%= ws.title %>">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 d-flex flex-column bg-white" style="transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.12)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
+                    <div class="position-relative" style="height: 220px; overflow: hidden;">
+                        <img src="<%= fixImg(ws.image) %>" alt="<%= ws.title %>" class="w-100 h-100" style="object-fit: cover;">
                         <div class="position-absolute top-0 start-0 m-3" style="z-index: 5;">
                             <span class="badge-nature"><%= typeLabels[ws.type] || ws.type %></span>
                         </div>
@@ -42,11 +42,8 @@
                             <div class="d-flex align-items-center gap-3 mb-3 flex-wrap" style="font-size: 0.8rem; color: var(--text-secondary);">
                                 <span><i class="bi bi-clock me-1"></i><%= ws.duration || '2-3 giờ' %></span>
                                 <span><i class="bi bi-people me-1"></i><%= ws.max_participants || 20 %> người</span>
-                                <% if (ws.stats) { %>
-                                <span><i class="bi bi-ticket me-1"></i><%= ws.stats.total_bookings || 0 %> đặt</span>
-                                <% } %>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center">
+                            <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1px solid var(--border-light);">
                                 <div>
                                     <% if (ws.price === 0) { %>
                                         <span class="fw-black" style="color: var(--success); font-size: 1.1rem;">Miễn phí</span>
@@ -55,7 +52,7 @@
                                         <span class="text-muted" style="font-size: 0.75rem;">/người</span>
                                     <% } %>
                                 </div>
-                                <a href="/workshops/<%= ws.id %>" class="btn btn-primary-bl btn-sm rounded-pill px-3">Chi tiết <i class="bi bi-arrow-right ms-1"></i></a>
+                                <a href="/workshops/<%= ws.id %>" class="btn btn-primary-bl btn-sm rounded-pill px-3">Xem chi tiết <i class="bi bi-arrow-right ms-1"></i></a>
                             </div>
                         </div>
                     </div>
@@ -71,5 +68,12 @@
             <a href="/workshops" class="btn btn-premium rounded-pill px-4">Xem tất cả Workshop</a>
         </div>
         <% } %>
+
+        <!-- Info Banner -->
+        <div class="mt-5 p-4 rounded-4 text-center" style="background: linear-gradient(135deg, rgba(92,138,94,0.1), rgba(200,169,110,0.1)); border: 1px dashed var(--primary-100);">
+            <i class="bi bi-info-circle-fill text-primary fs-3 mb-2 d-block"></i>
+            <h5 class="fw-bold mb-2">Không cần đăng ký trước!</h5>
+            <p class="text-muted mb-0" style="max-width: 500px; margin: 0 auto;">Workshop tại Bình Lợi hoạt động theo khung giờ cố định. Bạn chỉ cần đến đúng giờ là có thể tham gia ngay.</p>
+        </div>
     </div>
 </section>

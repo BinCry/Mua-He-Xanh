@@ -38,6 +38,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Analytics middleware — track real page views
+const analyticsMiddleware = require('./middleware/analytics');
+app.use(analyticsMiddleware);
+
 // Static files
 app.use(express.static(path.join(__dirname, '../public')));
 
@@ -69,10 +73,24 @@ app.use((req, res, next) => {
         // Strip 'public/' prefix if present
         let clean = imgPath.replace(/^public\//, '');
         if (!clean.startsWith('/')) clean = '/' + clean;
-        return clean;
+        
+        // Add cache buster for fresh updates
+        const v = res.locals.assetV || Date.now();
+        return clean + (clean.includes('?') ? '&' : '?') + 'v=' + v;
     };
 
-    next();
+    // Load Site Settings for all templates
+    const db = require('./core/database');
+    db.query('SELECT * FROM settings').then(([rows]) => {
+        const settings = {};
+        rows.forEach(s => { settings[s.key_name] = s.key_value; });
+        res.locals.settings = settings;
+        next();
+    }).catch(err => {
+        console.error("Settings load error:", err);
+        res.locals.settings = {};
+        next();
+    });
 });
 
 // Routes

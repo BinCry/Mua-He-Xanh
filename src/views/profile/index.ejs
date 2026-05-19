@@ -1,19 +1,20 @@
-<!-- Profile Dashboard — Chương 5.2 -->
+<!-- Profile Dashboard — Enhanced v2 -->
 <section class="py-5" style="margin-top: 80px;">
     <div class="container py-4" style="max-width: 960px;">
         <!-- Profile Header -->
-        <div class="card-heal overflow-hidden mb-5 reveal-up">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5 reveal-up bg-white">
             <!-- Cover -->
-            <div class="position-relative" style="height: 180px; background: var(--grad-nature);">
-                <div class="position-absolute bottom-0 start-0 w-100" style="height: 60px; background: linear-gradient(to top, var(--surface), transparent);"></div>
-            </div>
+            <div class="position-relative" style="height: 180px; background: var(--grad-nature);"></div>
             <!-- Profile Info -->
             <div class="p-4 pt-0 position-relative">
                 <div class="d-flex flex-column flex-md-row align-items-md-end gap-3" style="margin-top: -50px;">
-                    <img src="<%= profile.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-white shadow" style="width: 96px; height: 96px; object-fit: cover; z-index: 5;">
+                    <img src="<%= profileUser.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-white shadow" style="width: 96px; height: 96px; object-fit: cover; z-index: 5;">
                     <div class="flex-grow-1 pb-1">
-                        <h3 class="fw-black mb-0 font-display"><%= profile.full_name %></h3>
-                        <p class="text-muted mb-0" style="font-size: 0.88rem;"><%= profile.email %></p>
+                        <h3 class="fw-black mb-0 font-display"><%= profileUser.full_name %></h3>
+                        <p class="text-muted mb-0" style="font-size: 0.88rem;">
+                            <% if (profileUser.phone) { %><i class="bi bi-telephone me-1"></i><%= profileUser.phone %> · <% } %>
+                            <%= profileUser.email %>
+                        </p>
                     </div>
                     <a href="/profile/edit" class="btn btn-ghost btn-sm rounded-pill px-4"><i class="bi bi-pencil me-1"></i>Chỉnh sửa</a>
                 </div>
@@ -25,32 +26,48 @@
             <div class="col-6 col-md-3 reveal-up">
                 <div class="card-stat">
                     <div class="stat-icon" style="background: var(--primary-50); color: var(--primary);"><i class="bi bi-star-fill"></i></div>
-                    <div class="stat-value"><%= dashStats.totalPoints || 0 %></div>
+                    <div class="stat-value"><%= stats.points %></div>
                     <div class="stat-label">Điểm thưởng</div>
                 </div>
             </div>
             <div class="col-6 col-md-3 reveal-up">
                 <div class="card-stat">
-                    <div class="stat-icon" style="background: rgba(240,165,0,0.1); color: var(--accent);"><i class="bi bi-ticket-perforated-fill"></i></div>
-                    <div class="stat-value"><%= dashStats.totalBookings || 0 %></div>
-                    <div class="stat-label">Workshop</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3 reveal-up">
-                <div class="card-stat">
                     <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="bi bi-geo-alt-fill"></i></div>
-                    <div class="stat-value"><%= dashStats.totalCheckins || 0 %></div>
-                    <div class="stat-label">Check-in</div>
+                    <div class="stat-value"><%= stats.checkins %></div>
+                    <div class="stat-label">Lượt Check-in</div>
                 </div>
             </div>
             <div class="col-6 col-md-3 reveal-up">
                 <div class="card-stat">
-                    <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: var(--info);"><i class="bi bi-chat-heart-fill"></i></div>
-                    <div class="stat-value"><%= dashStats.totalReviews || 0 %></div>
-                    <div class="stat-label">Đánh giá</div>
+                    <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: var(--info);"><i class="bi bi-signpost-split-fill"></i></div>
+                    <div class="stat-value"><%= stats.journeys %></div>
+                    <div class="stat-label">Hành trình</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3 reveal-up">
+                <div class="card-stat">
+                    <div class="stat-icon" style="background: rgba(240,165,0,0.1); color: var(--accent);"><i class="bi bi-award-fill"></i></div>
+                    <div class="stat-value"><%= stats.badges %></div>
+                    <div class="stat-label">Huy hiệu</div>
                 </div>
             </div>
         </div>
+
+        <!-- Badges Section -->
+        <% if (badges && badges.length > 0) { %>
+        <div class="mb-5 reveal-up">
+            <h4 class="fw-bold mb-4"><i class="bi bi-award-fill text-warning me-2"></i>Huy hiệu Khám phá</h4>
+            <div class="d-flex gap-3 flex-wrap">
+                <% badges.forEach(b => { %>
+                <div class="text-center p-3 rounded-4" style="background: var(--surface); border: 1px solid var(--border-light); min-width: 100px;">
+                    <div class="mb-2" style="font-size: 2rem;"><%= b.icon || '🏅' %></div>
+                    <div class="fw-bold small"><%= b.name || b.badge_name %></div>
+                    <div class="x-small text-muted"><%= new Date(b.earned_at || b.created_at).toLocaleDateString('vi-VN') %></div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
 
         <!-- Quick Actions -->
         <div class="row g-3 reveal-up">
@@ -61,15 +78,15 @@
                 </a>
             </div>
             <div class="col-6 col-md-4">
-                <a href="/passport" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
-                    <i class="bi bi-qr-code d-block mb-2" style="font-size: 1.5rem; color: var(--info);"></i>
-                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Passport số</span>
+                <a href="/journey" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
+                    <i class="bi bi-signpost-split-fill d-block mb-2" style="font-size: 1.5rem; color: var(--primary);"></i>
+                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Tạo hành trình</span>
                 </a>
             </div>
             <div class="col-6 col-md-4">
-                <a href="/my-workshops" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
-                    <i class="bi bi-palette-fill d-block mb-2" style="font-size: 1.5rem; color: var(--primary);"></i>
-                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Workshop của tôi</span>
+                <a href="/reviews" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
+                    <i class="bi bi-camera-fill d-block mb-2" style="font-size: 1.5rem; color: var(--info);"></i>
+                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Chia sẻ ảnh</span>
                 </a>
             </div>
         </div>

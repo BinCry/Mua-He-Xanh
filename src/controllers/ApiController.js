@@ -227,21 +227,39 @@ class ApiController {
 
     async replyMessage(req, res) {
         const { messageId, replyText } = req.body;
-        const manager = req.session.user;
+        const manager = req.session.user || req.user;
 
         if (!manager || (manager.role !== 'manager' && manager.role !== 'admin')) {
             return res.status(403).json({ success: false, message: 'Unauthorized' });
         }
 
-        const [originalMsg] = await UserSession.db.query("SELECT * FROM messages WHERE id = ?", [messageId]);
-        if (originalMsg.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
+        const [rows] = await UserSession.db.query("SELECT * FROM messages WHERE id = ?", [messageId]);
+        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
+        const originalMsg = rows[0];
 
         await UserSession.db.query(
-            "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message) VALUES (?, ?, ?, ?, ?)",
-            [uuidv4(), manager.id, originalMsg[0].sender_id, originalMsg[0].destination_id, replyText]
+            "INSERT INTO messages (id, sender_id, receiver_id, receiver_uuid, destination_id, message) VALUES (?, ?, ?, ?, ?, ?)",
+            [uuidv4(), manager.id, originalMsg.sender_id, originalMsg.sender_uuid, originalMsg.destination_id, replyText]
         );
 
         res.json({ success: true, message: 'Đã gửi phản hồi.' });
+    }
+
+    async getMessages(req, res) {
+        const { destinationId } = req.query;
+        const sessionUuid = req.cookies.session_uuid;
+
+        if (!sessionUuid) return res.json({ success: true, data: [] });
+
+        const [messages] = await UserSession.db.query(
+            `SELECT * FROM messages 
+             WHERE (sender_uuid = ? OR receiver_uuid = ?)
+             AND (destination_id ${destinationId ? '= ?' : 'IS NULL'})
+             ORDER BY created_at ASC`,
+            destinationId ? [sessionUuid, sessionUuid, destinationId] : [sessionUuid, sessionUuid]
+        );
+
+        res.json({ success: true, data: messages });
     }
 }
 

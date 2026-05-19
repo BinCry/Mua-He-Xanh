@@ -1,67 +1,202 @@
-<!-- Admin Destinations Management -->
+<!-- Admin: Destinations Management -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Quản lý Địa điểm</h4>
-        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Bật/tắt và quản lý tất cả địa điểm trên hệ thống</p>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Thêm, sửa, xóa địa điểm du lịch. Thay đổi cập nhật tức thì trên trang chủ.</p>
     </div>
+    <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#destModal" onclick="openDestForm()">
+        <i class="bi bi-plus-lg me-1"></i> Thêm Địa điểm
+    </button>
 </div>
 
+<!-- Destinations Table -->
 <div class="admin-table">
-    <table class="table table-dark table-borderless mb-0">
-        <thead><tr>
-            <th style="width: 50px;">#</th>
-            <th>Địa điểm</th>
-            <th>Loại</th>
-            <th>Quản lý</th>
-            <th>Check-ins</th>
-            <th>Trạng thái</th>
-            <th>Thao tác</th>
-        </tr></thead>
+    <table class="table table-borderless mb-0">
+        <thead>
+            <tr>
+                <th>Địa điểm</th>
+                <th>Loại</th>
+                <th>Điểm thưởng</th>
+                <th>Check-ins</th>
+                <th>Views</th>
+                <th>Trạng thái</th>
+                <th>Thao tác</th>
+            </tr>
+        </thead>
         <tbody>
-            <% destinations.forEach((d, i) => { %>
-            <tr id="dest-<%= d.id %>">
-                <td class="fw-bold" style="color: var(--admin-muted);"><%= i + 1 %></td>
+            <% destinations.forEach(d => { %>
+            <tr>
                 <td>
-                    <div class="d-flex align-items-center gap-3">
-                        <img src="/<%= d.cover_image || 'images/placeholder.jpg' %>" class="rounded-3" style="width: 56px; height: 40px; object-fit: cover;">
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="<%= d.cover_image && d.cover_image.startsWith('http') ? d.cover_image : '/images/hero-1.png' %>" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
                         <div>
-                            <div class="fw-bold" style="font-size: 0.88rem;"><%= d.name %></div>
+                            <div class="fw-bold small"><%= d.name %></div>
                             <div style="font-size: 0.72rem; color: var(--admin-muted);">/<%= d.slug %></div>
                         </div>
                     </div>
                 </td>
-                <td><span class="badge rounded-pill" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><%= d.type || 'general' %></span></td>
-                <td style="font-size: 0.85rem;"><%= d.manager_name || '<span style="color:var(--admin-muted)">Chưa gán</span>' %></td>
-                <td class="fw-bold"><%= d.checkin_count %></td>
+                <td><span class="role-badge role-user"><%= d.type %></span></td>
+                <td><span class="text-warning"><i class="bi bi-star-fill me-1"></i><%= d.points || 0 %></span></td>
+                <td><%= d.checkin_count || 0 %></td>
+                <td><%= d.page_views || 0 %></td>
                 <td>
                     <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="toggle-<%= d.id %>" <%= d.is_active ? 'checked' : '' %> onchange="toggleDest('<%= d.id %>', this.checked)">
+                        <input class="form-check-input" type="checkbox" onchange="toggleDest('<%= d.id %>', this.checked)" <%= d.is_active ? 'checked' : '' %>>
                     </div>
                 </td>
                 <td>
-                    <a href="/manager?dest_id=<%= d.id %>" class="btn btn-sm rounded-pill" style="background: rgba(59,130,246,0.15); color: #3b82f6; font-size: 0.78rem;">
-                        <i class="bi bi-pencil me-1"></i>Sửa
-                    </a>
-                    <a href="/explore/<%= d.slug %>" target="_blank" class="btn btn-sm rounded-pill" style="background: rgba(255,255,255,0.05); color: var(--admin-muted); font-size: 0.78rem;">
-                        <i class="bi bi-eye me-1"></i>Xem
-                    </a>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick='editDest(<%- JSON.stringify({id: d.id, name: d.name, slug: d.slug, type: d.type, short_desc: d.short_desc, description: d.description, open_hours: d.open_hours, cost: d.cost, points: d.points, lat: d.lat, lng: d.lng, cover_image: d.cover_image}) %>)'>
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteDest('<%= d.id %>', '<%= d.name %>')">
+                        <i class="bi bi-trash"></i>
+                    </button>
                 </td>
             </tr>
             <% }) %>
+            <% if (destinations.length === 0) { %>
+            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có địa điểm nào.</td></tr>
+            <% } %>
         </tbody>
     </table>
 </div>
 
+<!-- Destination Modal -->
+<div class="modal fade" id="destModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="destModalTitle">Thêm Địa điểm</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="destForm">
+                    <input type="hidden" id="d_id" name="id">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label small fw-bold">Tên địa điểm</label>
+                            <input type="text" class="form-control admin-input" id="d_name" name="name" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Slug (URL)</label>
+                            <input type="text" class="form-control admin-input" id="d_slug" name="slug" placeholder="ten-dia-diem">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Loại</label>
+                            <select class="form-select admin-input" id="d_type" name="type">
+                                <option value="nature">Thiên nhiên</option>
+                                <option value="temple">Tâm linh</option>
+                                <option value="park">Sinh thái</option>
+                                <option value="craft">Làng nghề</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Điểm thưởng</label>
+                            <input type="number" class="form-control admin-input" id="d_points" name="points" value="10">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Giờ mở cửa</label>
+                            <input type="text" class="form-control admin-input" id="d_open_hours" name="open_hours" placeholder="07:00 - 18:00">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Mô tả ngắn</label>
+                            <input type="text" class="form-control admin-input" id="d_short_desc" name="short_desc">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Mô tả chi tiết / Câu chuyện</label>
+                            <textarea class="form-control admin-input" id="d_description" name="description" rows="4"></textarea>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Chi phí</label>
+                            <input type="text" class="form-control admin-input" id="d_cost" name="cost" placeholder="Miễn phí">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Latitude</label>
+                            <input type="text" class="form-control admin-input" id="d_lat" name="lat" placeholder="10.7431">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Longitude</label>
+                            <input type="text" class="form-control admin-input" id="d_lng" name="lng" placeholder="106.5028">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Link ảnh bìa</label>
+                            <input type="text" class="form-control admin-input" id="d_cover_image" name="cover_image" placeholder="https://... hoặc /images/...">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0">
+                <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary rounded-pill px-4 fw-bold" onclick="saveDest()">Lưu</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-async function toggleDest(id, isActive) {
+let editingDest = false;
+
+function openDestForm() {
+    editingDest = false;
+    document.getElementById('destModalTitle').textContent = 'Thêm Địa điểm';
+    document.getElementById('destForm').reset();
+    document.getElementById('d_id').value = '';
+}
+
+function editDest(d) {
+    editingDest = true;
+    document.getElementById('destModalTitle').textContent = 'Sửa Địa điểm';
+    document.getElementById('d_id').value = d.id;
+    document.getElementById('d_name').value = d.name || '';
+    document.getElementById('d_slug').value = d.slug || '';
+    document.getElementById('d_type').value = d.type || 'nature';
+    document.getElementById('d_short_desc').value = d.short_desc || '';
+    document.getElementById('d_description').value = d.description || '';
+    document.getElementById('d_open_hours').value = d.open_hours || '';
+    document.getElementById('d_cost').value = d.cost || '';
+    document.getElementById('d_points').value = d.points || 10;
+    document.getElementById('d_lat').value = d.lat || '';
+    document.getElementById('d_lng').value = d.lng || '';
+    document.getElementById('d_cover_image').value = d.cover_image || '';
+    new bootstrap.Modal(document.getElementById('destModal')).show();
+}
+
+async function saveDest() {
+    const data = {
+        id: document.getElementById('d_id').value,
+        name: document.getElementById('d_name').value,
+        slug: document.getElementById('d_slug').value || document.getElementById('d_name').value.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+        type: document.getElementById('d_type').value,
+        short_desc: document.getElementById('d_short_desc').value,
+        description: document.getElementById('d_description').value,
+        open_hours: document.getElementById('d_open_hours').value,
+        cost: document.getElementById('d_cost').value,
+        points: parseInt(document.getElementById('d_points').value) || 10,
+        lat: document.getElementById('d_lat').value,
+        lng: document.getElementById('d_lng').value,
+        cover_image: document.getElementById('d_cover_image').value
+    };
+    
+    const url = editingDest ? '/api/admin/update-destination' : '/api/admin/create-destination';
     try {
-        const res = await axios.post('/api/admin/toggle-destination', { id, is_active: isActive });
-        if (res.data.success) {
-            const row = document.getElementById('dest-' + id);
-            row.style.opacity = isActive ? '1' : '0.5';
-        }
-    } catch (err) {
-        alert('Lỗi: ' + err.message);
-    }
+        const res = await axios.post(url, data);
+        if (res.data.success) { alert(res.data.message); location.reload(); }
+        else alert(res.data.message);
+    } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
+}
+
+async function toggleDest(id, checked) {
+    try {
+        await axios.post('/api/admin/toggle-destination', { id, is_active: checked });
+    } catch (e) { alert('Lỗi'); location.reload(); }
+}
+
+async function deleteDest(id, name) {
+    if (!confirm(`Xóa địa điểm "${name}"? Hành động này không thể hoàn tác!`)) return;
+    try {
+        const res = await axios.post('/api/admin/delete-destination', { id });
+        if (res.data.success) location.reload();
+        else alert(res.data.message);
+    } catch (e) { alert('Lỗi'); }
 }
 </script>
