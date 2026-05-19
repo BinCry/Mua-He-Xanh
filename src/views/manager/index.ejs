@@ -23,6 +23,19 @@
         <div class="col-xl-5 col-lg-6">
             <div class="d-flex flex-column gap-4">
                 
+                <% if (typeof success !== 'undefined' && success) { %>
+                    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert" style="background: rgba(16,185,129,0.15); color: #86efac;">
+                        <i class="bi bi-check-circle-fill me-2 text-success"></i><%= success %>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+                <% if (typeof error !== 'undefined' && error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert" style="background: rgba(239,68,68,0.15); color: #fca5a5;">
+                        <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i><%= error %>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                <% } %>
+
                 <!-- 2x2 Stats Dashboard Grid -->
                 <div class="row g-3">
                     <!-- Page Views -->
@@ -69,6 +82,61 @@
                             <div class="stat-bg-glow" style="background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);"></div>
                         </div>
                     </div>
+                </div>
+
+                <!-- Config Destination Info Form -->
+                <div class="chart-card">
+                    <h6 class="fw-bold text-uppercase tracking-widest small mb-3" style="color: var(--admin-accent); font-size: 0.72rem; letter-spacing: 1px;">
+                        ⚙️ Cấu hình thông tin địa điểm (Destination Profile)
+                    </h6>
+                    <form action="/manager/update" method="POST" id="dest-update-form" class="mt-3">
+                        <input type="hidden" name="dest_id" value="<%= dest.id %>">
+                        
+                        <div class="row g-3">
+                            <!-- Open Hours -->
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold mb-1 d-block" style="font-size: 0.7rem;">⏰ Giờ mở cửa</label>
+                                <input type="text" name="open_hours" value="<%= dest.open_hours %>" class="form-control bg-dark border-secondary border-opacity-20 text-white rounded-3 small py-2" placeholder="Ví dụ: 08:00 - 17:00" style="font-size: 0.75rem;">
+                            </div>
+                            
+                            <!-- Expected Cost -->
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold mb-1 d-block" style="font-size: 0.7rem;">💵 Chi phí dự kiến</label>
+                                <input type="text" name="cost" value="<%= dest.cost %>" class="form-control bg-dark border-secondary border-opacity-20 text-white rounded-3 small py-2" placeholder="Ví dụ: Miễn phí / 50.000đ" style="font-size: 0.75rem;">
+                            </div>
+
+                            <!-- Cover Image Uploader -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-1 d-block" style="font-size: 0.7rem;">🖼️ Ảnh bìa địa điểm</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="position-relative overflow-hidden rounded-3 border border-secondary border-opacity-15 bg-dark bg-opacity-20 d-flex align-items-center justify-content-center" style="width: 120px; height: 80px; min-width: 120px;">
+                                        <img id="cover-preview" src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" id="cover-file-input" class="form-control form-control-sm bg-dark border-secondary border-opacity-20 text-white rounded-3 mb-1" accept="image/*" style="font-size: 0.7rem;">
+                                        <input type="hidden" name="cover_image" id="cover-image-path" value="<%= dest.cover_image %>">
+                                        <span id="upload-status" class="text-muted small" style="font-size: 0.65rem;">Hỗ trợ định dạng JPG, PNG, WEBP.</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Highlights -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-1 d-block" style="font-size: 0.7rem;">✨ Hoạt động nổi bật / Đặc sản trải nghiệm</label>
+                                <textarea name="highlight" class="form-control bg-dark border-secondary border-opacity-20 text-white rounded-3 small" rows="2" placeholder="Nhập các hoạt động nổi bật..." style="font-size: 0.75rem; line-height: 1.4;"><%= dest.highlight %></textarea>
+                            </div>
+
+                            <!-- Description -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-1 d-block" style="font-size: 0.7rem;">📖 Nội dung giới thiệu / Mô tả địa điểm</label>
+                                <textarea name="description" class="form-control bg-dark border-secondary border-opacity-20 text-white rounded-3 small" rows="3" placeholder="Nhập mô tả chi tiết địa điểm..." style="font-size: 0.75rem; line-height: 1.4;"><%= dest.description %></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-sm rounded-pill mt-3 w-100 fw-bold py-2 shadow-sm" style="background: var(--admin-accent); border: none; font-size: 0.78rem;">
+                            <i class="bi bi-save2-fill me-1"></i> LƯU THAY ĐỔI CẤU HÌNH
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Live Check-in Timeline -->
@@ -275,17 +343,6 @@
 
 <!-- STYLING INJECTIONS -->
 <style>
-    /* CSS variables override for Manager Page */
-    :root {
-        --admin-bg: #0f1117;
-        --admin-surface: #1a1d27;
-        --admin-border: rgba(255,255,255,0.06);
-        --admin-text: #e4e4e7;
-        --admin-muted: #71717a;
-        --admin-accent: #f0a500;
-        --admin-primary: #3b82f6;
-    }
-
     /* Stat Cards */
     .stat-card {
         background: var(--admin-surface);
@@ -589,6 +646,43 @@
     // Initialize on document ready
     document.addEventListener('DOMContentLoaded', () => {
         startAutoRefresh();
+
+        // Image uploader change event listener
+        const coverInput = document.getElementById('cover-file-input');
+        if (coverInput) {
+            coverInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const statusSpan = document.getElementById('upload-status');
+                statusSpan.innerText = '⏳ Đang tải ảnh...';
+                statusSpan.className = 'text-warning small d-block mt-1';
+
+                try {
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (result.success && result.url) {
+                        document.getElementById('cover-image-path').value = result.url;
+                        document.getElementById('cover-preview').src = result.url;
+                        statusSpan.innerText = '✅ Tải ảnh thành công!';
+                        statusSpan.className = 'text-success small d-block mt-1';
+                    } else {
+                        statusSpan.innerText = '❌ Lỗi: ' + (result.message || 'Không thể tải');
+                        statusSpan.className = 'text-danger small d-block mt-1';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    statusSpan.innerText = '❌ Lỗi kết nối';
+                    statusSpan.className = 'text-danger small d-block mt-1';
+                }
+            });
+        }
 
         // If there are conversations, load the first one by default
         <% if (conversations && conversations.length > 0) { %>

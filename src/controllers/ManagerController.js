@@ -133,6 +133,8 @@ class ManagerController {
                 recentCheckins,
                 recentReviews,
                 conversations,
+                success: req.query.success || null,
+                error: req.query.error || null,
                 layout: 'layouts/admin',
                 adminPage: 'manager'
             });
@@ -196,37 +198,40 @@ class ManagerController {
 
     async updateDestination(req, res) {
         try {
-            // Check if user is Admin, as Managers are now chat-only
-            if (req.session.user.role !== 'admin') {
-                return res.status(403).json({ success: false, message: 'Chỉ Admin mới có quyền cập nhật thông tin địa điểm.' });
+            const user = req.session.user || req.user;
+            if (!user || (user.role !== 'admin' && user.role !== 'manager')) {
+                return res.status(403).json({ success: false, message: 'Chỉ Admin hoặc Quản lý mới có quyền cập nhật thông tin địa điểm.' });
             }
 
-            const user = req.session.user;
-            const { dest_id, open_hours, cost, cover_image, highlight, checkin_tip, story, zen_walk_desc, best_time, short_desc } = req.body;
+            const { dest_id, open_hours, cost, cover_image, highlight, description, checkin_tip, story, zen_walk_desc, best_time, short_desc } = req.body;
             
             let targetDestId = dest_id;
-
-            if (!targetDestId) {
-                return res.redirect('/manager?error=Không xác định được địa điểm cần cập nhật');
+            if (user.role === 'manager') {
+                targetDestId = user.managed_destination_id;
             }
 
-            await Destination.update(targetDestId, {
-                open_hours: open_hours || '',
-                cost: cost || '',
-                cover_image: cover_image || '',
-                highlight: highlight || '',
-                checkin_tip: checkin_tip || '',
-                story: story || '',
-                zen_walk_desc: zen_walk_desc || '',
-                best_time: best_time || '',
-                short_desc: short_desc || ''
-            });
+            if (!targetDestId) {
+                return res.redirect('/manager?error=' + encodeURIComponent('Không xác định được địa điểm cần cập nhật'));
+            }
 
-            // Redirect back to the specific destination if admin, or just /manager if manager
+            const updateData = {};
+            if (typeof open_hours !== 'undefined') updateData.open_hours = open_hours || '';
+            if (typeof cost !== 'undefined') updateData.cost = cost || '';
+            if (typeof cover_image !== 'undefined') updateData.cover_image = cover_image || '';
+            if (typeof highlight !== 'undefined') updateData.highlight = highlight || '';
+            if (typeof description !== 'undefined') updateData.description = description || '';
+            if (typeof checkin_tip !== 'undefined') updateData.checkin_tip = checkin_tip || '';
+            if (typeof story !== 'undefined') updateData.story = story || '';
+            if (typeof zen_walk_desc !== 'undefined') updateData.zen_walk_desc = zen_walk_desc || '';
+            if (typeof best_time !== 'undefined') updateData.best_time = best_time || '';
+            if (typeof short_desc !== 'undefined') updateData.short_desc = short_desc || '';
+
+            await Destination.update(targetDestId, updateData);
+
             if (user.role === 'admin') {
-                res.redirect(`/manager?dest_id=${targetDestId}&success=Đã cập nhật thông tin địa điểm`);
+                res.redirect(`/manager?dest_id=${targetDestId}&success=${encodeURIComponent('Đã cập nhật thông tin địa điểm')}`);
             } else {
-                res.redirect('/manager?success=Đã cập nhật thông tin địa điểm');
+                res.redirect('/manager?success=' + encodeURIComponent('Đã cập nhật thông tin địa điểm'));
             }
         } catch (error) {
             console.error("Update Destination Error:", error);

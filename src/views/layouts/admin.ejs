@@ -11,13 +11,25 @@
     <style>
         :root {
             --sb-width: 260px;
-            --admin-bg: #0f1117;
-            --admin-surface: #1a1d27;
-            --admin-border: rgba(255,255,255,0.06);
-            --admin-text: #e4e4e7;
-            --admin-muted: #71717a;
-            --admin-accent: #f0a500;
-            --admin-primary: #3b82f6;
+            <% if (user.role === 'manager') { %>
+                /* Manager Panel: Healing Emerald Theme */
+                --admin-bg: #06140e;
+                --admin-surface: #0d241a;
+                --admin-border: rgba(16,185,129,0.15);
+                --admin-text: #f0fdf4;
+                --admin-muted: #86efac;
+                --admin-accent: #f59e0b;
+                --admin-primary: #10b981;
+            <% } else { %>
+                /* Admin Panel: Royal Indigo & Slate Theme */
+                --admin-bg: #0a0e17;
+                --admin-surface: #141a27;
+                --admin-border: rgba(99,102,241,0.15);
+                --admin-text: #f1f5f9;
+                --admin-muted: #94a3b8;
+                --admin-accent: #f59e0b;
+                --admin-primary: #6366f1;
+            <% } %>
         }
         * { box-sizing: border-box; }
         body { background: var(--admin-bg); color: var(--admin-text); font-family: 'Inter', sans-serif; margin: 0; }

@@ -93,6 +93,9 @@ const AuthController = {
         if (req.user && req.user.role === 'admin') {
             return res.redirect('/admin');
         }
+        if (req.user && req.user.role === 'manager') {
+            return res.redirect('/manager');
+        }
         res.redirect('/');
     },
 
