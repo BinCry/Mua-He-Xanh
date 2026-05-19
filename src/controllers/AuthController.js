@@ -47,16 +47,12 @@ const AuthController = {
             };
 
             await db.query(
-                'INSERT INTO users (id, full_name, email, phone, password, role, total_points, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
+                'INSERT INTO users (id, full_name, email, phone, password, role, total_points, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 0)',
                 [newUser.id, newUser.full_name, newUser.email, newUser.phone, newUser.password, newUser.role, newUser.points]
             );
 
-            // Log them in immediately
-            req.login(newUser, async (err) => {
-                if (err) return res.redirect('/auth/login?error=Lỗi đăng nhập sau khi đăng ký');
-                await AuthController.establishSession(req, res, newUser);
-                return res.redirect('/');
-            });
+            // Redirect user back with an informative pending approval alert
+            return res.redirect('/auth/login?error=Tạo+tài+khoản+thành+công!+Vui+lòng+chờ+Ban+Quản+trị+phê+duyệt+để+đăng+nhập.');
         } catch (error) {
             console.error("Register Error:", error);
             res.redirect('/auth/login?error=Lỗi hệ thống khi đăng ký');

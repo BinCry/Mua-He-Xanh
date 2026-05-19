@@ -78,7 +78,7 @@
 
                             <!-- Register Form -->
                             <div class="tab-pane fade" id="register-pane" role="tabpanel" tabindex="0">
-                                <form action="/auth/register" method="POST">
+                                <form id="registerForm" action="/auth/register" method="POST" onsubmit="handleRegistrationSubmit(event)">
                                     <div class="mb-3">
                                         <label for="regName" class="form-label small fw-bold text-white">Họ và tên</label>
                                         <input type="text" class="form-control auth-input" id="regName" name="fullName" placeholder="Nguyễn Văn A" required>
@@ -108,11 +108,90 @@
     </div>
 </section>
 
+<!-- SMS OTP Verification Modal -->
+<div class="modal fade" id="otpModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
+        <div class="modal-content border-0 rounded-4 shadow-premium bg-dark text-white p-4" style="border: 1px solid rgba(255,255,255,0.1) !important;">
+            <div class="text-center mb-4">
+                <div class="bg-success bg-opacity-25 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                    <i class="bi bi-shield-lock-fill fs-3"></i>
+                </div>
+                <h4 class="fw-black mb-1">Xác thực OTP</h4>
+                <p class="text-white-50 small mb-0">Mã OTP xác thực đã được gửi qua tin nhắn SMS tới số điện thoại của bạn.</p>
+                <div class="badge bg-light text-dark rounded-pill px-3 py-2 mt-3 fw-bold text-uppercase x-small" style="letter-spacing: 1px;">
+                    Nhập mã: <span class="text-success">1234</span> để xác nhận
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <div class="d-flex justify-content-center gap-2" id="otpInputContainer">
+                    <input type="text" maxlength="1" class="form-control text-center fs-2 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 50px; height: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, 'otp2')" id="otp1">
+                    <input type="text" maxlength="1" class="form-control text-center fs-2 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 50px; height: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, 'otp3')" id="otp2">
+                    <input type="text" maxlength="1" class="form-control text-center fs-2 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 50px; height: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, 'otp4')" id="otp3">
+                    <input type="text" maxlength="1" class="form-control text-center fs-2 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 50px; height: 60px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, null)" id="otp4">
+                </div>
+                <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-3 mt-3 py-2 px-3 small text-center d-none" id="otpErrorAlert">
+                    Mã xác thực OTP không chính xác. Vui lòng thử lại!
+                </div>
+            </div>
+
+            <div class="d-grid gap-2">
+                <button type="button" class="btn btn-success rounded-pill py-3 fw-bold text-uppercase tracking-widest" onclick="verifyOtpCode()">XÁC NHẬN KÍCH HOẠT</button>
+                <button type="button" class="btn btn-link text-white-50 text-decoration-none small text-center" data-bs-dismiss="modal">Hủy bỏ</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
     });
+
+    let otpModalInstance = null;
+
+    function handleRegistrationSubmit(event) {
+        event.preventDefault();
+        
+        // Show OTP Modal
+        if (!otpModalInstance) {
+            otpModalInstance = new bootstrap.Modal(document.getElementById('otpModal'));
+        }
+        
+        // Reset Inputs
+        document.querySelectorAll('.otp-box').forEach(el => el.value = '');
+        document.getElementById('otpErrorAlert').classList.add('d-none');
+        
+        otpModalInstance.show();
+        setTimeout(() => document.getElementById('otp1').focus(), 500);
+    }
+
+    function moveOtpFocus(current, nextId) {
+        if (current.value.length === 1 && nextId) {
+            document.getElementById(nextId).focus();
+        }
+    }
+
+    function verifyOtpCode() {
+        const o1 = document.getElementById('otp1').value;
+        const o2 = document.getElementById('otp2').value;
+        const o3 = document.getElementById('otp3').value;
+        const o4 = document.getElementById('otp4').value;
+        
+        const code = o1 + o2 + o3 + o4;
+        
+        if (code === '1234') {
+            otpModalInstance.hide();
+            // Programmatically submit form
+            document.getElementById('registerForm').submit();
+        } else {
+            const err = document.getElementById('otpErrorAlert');
+            err.classList.remove('d-none');
+            // Shake modal
+            gsap.to('#otpModal .modal-content', { x: 10, duration: 0.05, yoyo: true, repeat: 5 });
+        }
+    }
 
     function togglePwd(inputId, btn) {
         const input = document.getElementById(inputId);

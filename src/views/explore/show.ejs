@@ -63,37 +63,48 @@
 
 
 
-            <!-- Image Gallery -->
+            <!-- Image Gallery (Góc nhìn Nghệ thuật từ check-in thực tế của du khách) -->
             <div class="mb-5">
                 <div class="d-flex justify-content-between align-items-end mb-4">
-                    <h3 class="display-text mb-0">Góc nhìn Nghệ thuật</h3>
-                    <button class="btn btn-outline-secondary rounded-pill btn-sm fw-bold">Xem tất cả ảnh</button>
-                </div>
-                <div class="row g-3">
-                    <div class="col-md-8">
-                        <div class="rounded-4 overflow-hidden shadow-sm ratio ratio-16x9 position-relative group-hover">
-                            <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="Gallery 1">
-                            <div class="position-absolute bottom-0 start-0 w-100 p-4 bg-gradient-to-t text-white opacity-0 group-hover-opacity-100 transition-opacity">
-                                <h5 class="mb-0 fw-bold">Cảnh quan chính</h5>
-                            </div>
-                        </div>
+                    <div>
+                        <h3 class="display-text mb-1">Góc nhìn Nghệ thuật</h3>
+                        <p class="text-muted small mb-0"><i class="bi bi-camera-fill text-success me-1"></i> Khoảnh khắc được chụp thực tế tại điểm bởi du khách</p>
                     </div>
-                    <div class="col-md-4">
-                        <div class="d-flex flex-column gap-3 h-100">
-                            <div class="rounded-4 overflow-hidden shadow-sm flex-grow-1 ratio ratio-4x3 position-relative group-hover">
-                                <img src="<%= baseUrl %>/images/hero-1.png" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="Gallery 2">
-                            </div>
-                            <div class="rounded-4 overflow-hidden shadow-sm flex-grow-1 ratio ratio-4x3 position-relative group-hover">
-                                <img src="<%= baseUrl %>/images/hero-2.png" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="Gallery 3">
-                                <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark opacity-60 d-flex align-items-center justify-content-center text-white backdrop-blur-sm transition-all hover-opacity-80 cursor-pointer">
-                                    <div class="text-center">
-                                        <i class="bi bi-images fs-2 mb-1"></i>
-                                        <div class="fw-bold tracking-widest text-uppercase x-small">+12 Ảnh</div>
-                                    </div>
+                </div>
+                
+                <div class="row g-3">
+                    <% if (galleryImages && galleryImages.length > 0) { %>
+                        <div class="col-md-8">
+                            <div class="rounded-4 overflow-hidden shadow-premium ratio ratio-16x9 position-relative custom-gallery-card">
+                                <img src="<%= fixImg(galleryImages[0]) %>" class="w-100 h-100 object-fit-cover" alt="Artistic Perspective 1">
+                                <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);">
+                                    <h6 class="mb-0 fw-bold"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Góc nhìn chính từ check-in</h6>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        <div class="col-md-4">
+                            <div class="d-flex flex-column gap-3 h-100">
+                                <% if (galleryImages[1]) { %>
+                                <div class="rounded-4 overflow-hidden shadow-premium ratio ratio-4x3 position-relative custom-gallery-card flex-grow-1">
+                                    <img src="<%= fixImg(galleryImages[1]) %>" class="w-100 h-100 object-fit-cover" alt="Artistic Perspective 2">
+                                </div>
+                                <% } %>
+                                <% if (galleryImages[2]) { %>
+                                <div class="rounded-4 overflow-hidden shadow-premium ratio ratio-4x3 position-relative custom-gallery-card flex-grow-1">
+                                    <img src="<%= fixImg(galleryImages[2]) %>" class="w-100 h-100 object-fit-cover" alt="Artistic Perspective 3">
+                                    <% if (galleryImages.length > 3) { %>
+                                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center text-white backdrop-blur-sm">
+                                        <div class="text-center">
+                                            <i class="bi bi-images fs-3 mb-1"></i>
+                                            <div class="fw-bold tracking-widest text-uppercase x-small">+<%= galleryImages.length - 3 %> ẢNH</div>
+                                        </div>
+                                    </div>
+                                    <% } %>
+                                </div>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% } %>
                 </div>
             </div>
         </div>

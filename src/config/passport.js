@@ -45,6 +45,11 @@ passport.use(new LocalStrategy(
             const user = rows[0];
             if (!user.password) return done(null, false, { message: 'Tài khoản này được đăng ký qua Google/Facebook.' });
 
+            // Enforce administrative approval check
+            if (user.is_active === 0) {
+                return done(null, false, { message: 'Tài khoản của bạn đang chờ phê duyệt từ Ban quản trị.' });
+            }
+
             const isMatch = await bcrypt.compare(password, user.password);
             if (!isMatch) return done(null, false, { message: 'Mật khẩu không chính xác.' });
 

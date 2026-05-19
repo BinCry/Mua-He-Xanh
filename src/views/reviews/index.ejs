@@ -1,11 +1,14 @@
-<!-- Community Feed — Social Media Style -->
-<section class="py-5" style="margin-top: 80px; background: var(--surface-alt);">
+<!-- Premium Social Network Feed -->
+<section class="py-5" style="margin-top: 80px; background: #f4f6f5;">
     <div class="container py-4" style="max-width: 680px;">
+        
         <!-- Header -->
-        <div class="text-center mb-5 reveal-up">
-            <span class="section-label">CỘNG ĐỒNG BÌNH LỢI</span>
-            <h2 class="section-title">Bảng tin Check-in</h2>
-            <p class="section-desc mx-auto">Chia sẻ khoảnh khắc, hình ảnh và câu chuyện của bạn tại Bình Lợi.</p>
+        <div class="text-center mb-4 reveal-up">
+            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mb-2 text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.72rem;">
+                <i class="bi bi-chat-heart-fill"></i> Cộng đồng chữa lành
+            </span>
+            <h2 class="fw-black text-dark mb-1 letter-spacing-sm">Bảng Tin Check-in</h2>
+            <p class="text-muted small">Chia sẻ những khoảnh khắc tuyệt vời và bình yên của bạn tại Bình Lợi.</p>
         </div>
 
         <!-- Compose Box -->
@@ -13,110 +16,127 @@
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 reveal-up bg-white">
             <form id="reviewForm" enctype="multipart/form-data">
                 <div class="d-flex gap-3 mb-3">
-                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid var(--primary-100);">
+                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 46px; height: 46px; object-fit: cover; border: 2px solid var(--primary-100);">
                     <div class="flex-grow-1">
-                        <div class="fw-bold mb-1" style="font-size: 0.9rem;"><%= user.full_name %></div>
-                        <textarea class="form-control border-0 bg-transparent shadow-none p-0" rows="3" name="content" placeholder="Bạn đang nghĩ gì về Bình Lợi? Chia sẻ trải nghiệm..." style="resize: none; font-size: 0.95rem;" required></textarea>
+                        <div class="fw-bold mb-1" style="font-size: 0.9rem; color: #333;"><%= user.full_name %></div>
+                        <textarea class="form-control border-0 bg-transparent shadow-none p-0" rows="3" name="content" 
+                            placeholder="Chia sẻ khoảnh khắc chữa lành của bạn tại Bình Lợi..." style="resize: none; font-size: 0.95rem; color: #444;" required></textarea>
                     </div>
+                </div>
+
+                <!-- Geolocation Tag Indicator -->
+                <div id="locationBadge" class="mb-3 d-none">
+                    <span class="badge bg-light text-primary border rounded-pill px-3 py-2">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> <span id="locationText">Đang xác định vị trí...</span>
+                    </span>
                 </div>
 
                 <!-- Image Preview -->
                 <div id="imagePreview" class="mb-3 d-none">
                     <div class="position-relative d-inline-block">
-                        <img id="previewImg" src="" class="rounded-3 border" style="max-height: 200px; max-width: 100%; object-fit: cover;">
-                        <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;" onclick="clearImage()">
-                            <i class="bi bi-x"></i>
+                        <img id="previewImg" src="" class="rounded-3 border" style="max-height: 220px; max-width: 100%; object-fit: cover;">
+                        <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-2 p-0 d-flex align-items-center justify-content-center shadow" style="width: 28px; height: 28px;" onclick="clearImage()">
+                            <i class="bi bi-x fs-5"></i>
                         </button>
                     </div>
                 </div>
 
-                <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1px solid var(--border-light);">
-                    <div class="d-flex gap-1">
+                <!-- Actions Bar -->
+                <div class="d-flex justify-content-between align-items-center pt-3 border-top border-light">
+                    <div class="d-flex gap-2 align-items-center">
                         <!-- Upload Photo -->
-                        <label class="btn btn-light btn-sm rounded-pill px-3 d-flex align-items-center gap-1 mb-0" style="cursor: pointer; font-size: 0.82rem;">
-                            <i class="bi bi-image text-success"></i> Ảnh
+                        <label class="btn btn-light btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 0.8rem; font-weight: 600;">
+                            <i class="bi bi-image text-success fs-6"></i> Tải ảnh
                             <input type="file" name="image" accept="image/*" class="d-none" id="imageInput" onchange="previewImage(this)">
                         </label>
-                        <!-- Camera -->
-                        <label class="btn btn-light btn-sm rounded-pill px-3 d-flex align-items-center gap-1 mb-0" style="cursor: pointer; font-size: 0.82rem;">
-                            <i class="bi bi-camera text-primary"></i> Chụp
+                        
+                        <!-- Open Camera (Direct Capture integration for Mobile) -->
+                        <label class="btn btn-light btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 0.8rem; font-weight: 600;">
+                            <i class="bi bi-camera-fill text-primary fs-6"></i> Chụp ảnh
                             <input type="file" name="camera" accept="image/*" capture="environment" class="d-none" onchange="previewImage(this)">
                         </label>
-                        <!-- Rating -->
-                        <select class="form-select form-select-sm border-0 bg-transparent" name="rating" style="width: auto; font-size: 0.82rem; color: var(--text-secondary);">
+
+                        <!-- Rating Selector -->
+                        <select class="form-select form-select-sm rounded-pill border bg-light px-3 py-2" name="rating" style="width: auto; font-size: 0.8rem; font-weight: 600;">
                             <option value="5">⭐⭐⭐⭐⭐</option>
                             <option value="4">⭐⭐⭐⭐</option>
                             <option value="3">⭐⭐⭐</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn btn-primary-bl btn-sm rounded-pill px-4 fw-bold">
-                        <i class="bi bi-send me-1"></i> Đăng
+
+                    <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold" style="font-size: 0.85rem;">
+                        ĐĂNG BÀI
                     </button>
                 </div>
             </form>
         </div>
         <% } else { %>
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center bg-white">
-            <p class="text-muted mb-3">Đăng nhập để chia sẻ trải nghiệm của bạn</p>
-            <a href="/auth/login" class="btn btn-primary-bl rounded-pill px-4">Đăng nhập</a>
+            <p class="text-muted mb-3 small">Vui lòng đăng nhập tài khoản để đăng bài viết chia sẻ check-in của bạn.</p>
+            <a href="/auth/login" class="btn btn-primary-bl rounded-pill px-4 py-2">ĐĂNG NHẬP NGAY</a>
         </div>
         <% } %>
 
-        <!-- Reviews Feed -->
-        <div class="d-flex flex-column gap-4">
+        <!-- Feed List -->
+        <div class="d-flex flex-column gap-4" id="communityFeed">
             <% reviews.forEach((r, i) => { %>
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden reveal-up bg-white">
-                <!-- Header -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white reveal-up">
+                <!-- User Header -->
                 <div class="d-flex align-items-center gap-3 p-4 pb-2">
                     <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
                     <div class="flex-grow-1">
-                        <span class="fw-bold d-block" style="font-size: 0.92rem;"><%= r.full_name %></span>
-                        <span class="text-muted" style="font-size: 0.75rem;">
-                            <% if (r.destination_name) { %><i class="bi bi-geo-alt me-1 text-danger"></i><%= r.destination_name %> · <% } %>
-                            <% if (r.location_name) { %><i class="bi bi-pin-map me-1"></i><%= r.location_name %> · <% } %>
+                        <span class="fw-bold d-block" style="font-size: 0.92rem; color: #333;"><%= r.full_name %></span>
+                        <span class="text-muted" style="font-size: 0.72rem;">
+                            <% if (r.destination_name) { %>
+                                <span class="text-danger fw-bold"><i class="bi bi-geo-alt-fill me-1"></i><%= r.destination_name %></span> · 
+                            <% } else if (r.location_name) { %>
+                                <span class="text-secondary"><i class="bi bi-pin-map-fill me-1"></i><%= r.location_name %></span> · 
+                            <% } %>
                             <%= new Date(r.created_at).toLocaleDateString('vi-VN') %>
                         </span>
                     </div>
-                    <div class="text-warning" style="font-size: 0.75rem;">
+                    <div class="text-warning" style="font-size: 0.7rem;">
                         <% for(let s = 0; s < (r.rating || 5); s++) { %><i class="bi bi-star-fill"></i><% } %>
                     </div>
                 </div>
                 
-                <!-- Content -->
+                <!-- Content text -->
                 <div class="px-4 pb-2">
-                    <p class="mb-0" style="font-size: 0.93rem; line-height: 1.7; color: var(--text);"><%= r.content %></p>
+                    <p class="mb-0" style="font-size: 0.92rem; line-height: 1.7; color: #444;"><%= r.content %></p>
                 </div>
 
-                <!-- Images -->
+                <!-- Feed Images (always fully styled grid, no hidden elements) -->
                 <% if (r.images) { 
                     let imgs = [];
                     try { imgs = JSON.parse(r.images); } catch(e) {}
                     if (imgs.length > 0) { %>
                 <div class="px-4 py-2">
                     <div class="row g-2">
-                        <% imgs.slice(0, 3).forEach((img, idx) => { %>
-                        <div class="col-<%= imgs.length === 1 ? '12' : (idx === 0 && imgs.length > 2 ? '12' : '6') %>">
-                            <img src="<%= img.startsWith('http') ? img : fixImg(img) %>" class="rounded-3 w-100" style="height: <%= imgs.length === 1 ? '300px' : '180px' %>; object-fit: cover;" alt="Review image">
+                        <% imgs.forEach((img, idx) => { %>
+                        <div class="col-12">
+                            <img src="<%= img.startsWith('http') ? img : fixImg(img) %>" class="rounded-4 w-100 shadow-sm" style="max-height: 380px; object-fit: cover;" alt="Review checkin">
                         </div>
                         <% }) %>
                     </div>
                 </div>
                 <% } } %>
                 
-                <!-- Actions -->
-                <div class="d-flex align-items-center gap-4 px-4 py-3" style="font-size: 0.85rem; color: var(--text-muted); border-top: 1px solid var(--border-light);">
-                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 like-btn" onclick="likeReview('<%= r.id %>', this)" style="color: var(--text-muted);">
-                        <i class="bi bi-heart"></i>
-                        <span><%= r.likes_count || 0 %></span>
+                <!-- Footer Action Buttons (Instagram Style) -->
+                <div class="d-flex align-items-center gap-4 px-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
+                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="likeReview('<%= r.id %>', this)">
+                        <i class="bi bi-heart fs-5"></i>
+                        <span class="fw-bold"><%= r.likes_count || 0 %></span>
                     </button>
-                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1" style="color: var(--text-muted);">
-                        <i class="bi bi-chat"></i>
-                        <span><%= r.comments_count || 0 %></span>
+                    
+                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted">
+                        <i class="bi bi-chat fs-5"></i>
+                        <span class="fw-bold"><%= r.comments_count || 0 %></span>
                     </button>
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(baseUrl + '/reviews') %>&quote=<%= encodeURIComponent(r.content.substring(0, 100)) %>" 
-                       target="_blank" class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1" style="color: var(--text-muted);">
-                        <i class="bi bi-facebook"></i>
-                        <span>Chia sẻ</span>
+                    
+                    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(baseUrl + '/reviews') %>" 
+                       target="_blank" class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted ms-auto">
+                        <i class="bi bi-facebook fs-5 text-primary"></i>
+                        <span class="fw-bold">Chia sẻ</span>
                     </a>
                 </div>
             </div>
@@ -125,90 +145,110 @@
 
         <% if (reviews.length === 0) { %>
         <div class="text-center py-5">
-            <i class="bi bi-chat-heart display-1" style="color: var(--border);"></i>
-            <p class="text-muted mt-3">Chưa có bài đăng nào. Hãy là người đầu tiên chia sẻ!</p>
+            <i class="bi bi-chat-heart display-1 text-muted opacity-25"></i>
+            <p class="text-muted mt-3">Chưa có bài đăng check-in nào. Hãy là người đầu tiên!</p>
         </div>
         <% } %>
     </div>
 </section>
 
 <script>
-function previewImage(input) {
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            document.getElementById('previewImg').src = e.target.result;
-            document.getElementById('imagePreview').classList.remove('d-none');
-            // Copy to main image input if from camera
-            if (input.name === 'camera') {
-                const mainInput = document.getElementById('imageInput');
-                mainInput.files = input.files;
-            }
-        };
-        reader.readAsDataURL(input.files[0]);
+    // Preview selected image or captured photos instantly
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('imagePreview').classList.remove('d-none');
+                
+                // Copy camera file object to standard image input for backend consistency
+                if (input.name === 'camera') {
+                    const mainInput = document.getElementById('imageInput');
+                    const dataTransfer = new DataTransfer();
+                    dataTransfer.items.add(input.files[0]);
+                    mainInput.files = dataTransfer.files;
+                }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
     }
-}
 
-function clearImage() {
-    document.getElementById('imagePreview').classList.add('d-none');
-    document.getElementById('imageInput').value = '';
-}
+    function clearImage() {
+        document.getElementById('imagePreview').classList.add('d-none');
+        document.getElementById('imageInput').value = '';
+    }
 
-async function likeReview(id, btn) {
-    try {
-        const res = await axios.post('/api/reviews/like', { review_id: id });
-        if (res.data.success) {
-            const icon = btn.querySelector('i');
-            const count = btn.querySelector('span');
-            icon.classList.toggle('bi-heart');
-            icon.classList.toggle('bi-heart-fill');
-            btn.style.color = icon.classList.contains('bi-heart-fill') ? 'var(--danger)' : 'var(--text-muted)';
-            count.textContent = res.data.likes;
-        }
-    } catch(e) { console.error(e); }
-}
-
-document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const form = e.target;
-    const btn = form.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang đăng...';
-    
-    try {
-        const formData = new FormData();
-        formData.append('content', form.content.value);
-        formData.append('rating', form.rating.value);
-        
-        // Add image if present
-        const imageInput = document.getElementById('imageInput');
-        if (imageInput.files.length > 0) {
-            formData.append('image', imageInput.files[0]);
-        }
-
-        // Auto detect location
+    // Geolocation Tag Matching on compose box load
+    document.addEventListener('DOMContentLoaded', () => {
         if (navigator.geolocation) {
-            try {
-                const pos = await new Promise((resolve, reject) => {
-                    navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 5000 });
-                });
-                formData.append('lat', pos.coords.latitude);
-                formData.append('lng', pos.coords.longitude);
-            } catch(geoErr) {
-                // Location not available, continue without it
-            }
+            document.getElementById('locationBadge').classList.remove('d-none');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    document.getElementById('locationText').innerText = `Tự động gắn thẻ địa điểm (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                },
+                (err) => {
+                    document.getElementById('locationText').innerText = "Bình Lợi, Bình Chánh";
+                }
+            );
         }
+    });
 
-        const res = await axios.post('/api/reviews', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
-        if (res.data.success) location.reload();
-        else alert(res.data.message || 'Lỗi');
-    } catch(e) {
-        alert('Lỗi: ' + (e.response?.data?.message || e.message));
-    } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-send me-1"></i> Đăng';
+    // Handle Likes via API
+    async function likeReview(id, btn) {
+        try {
+            const res = await axios.post('/api/reviews/like', { review_id: id });
+            if (res.data.success) {
+                const icon = btn.querySelector('i');
+                const count = btn.querySelector('span');
+                icon.classList.toggle('bi-heart');
+                icon.classList.toggle('bi-heart-fill');
+                btn.style.color = icon.classList.contains('bi-heart-fill') ? '#dc3545' : 'inherit';
+                count.textContent = res.data.likes;
+            }
+        } catch(e) { console.error(e); }
     }
-});
+
+    // Submit form action
+    document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>ĐANG ĐĂNG...';
+        
+        try {
+            const formData = new FormData();
+            formData.append('content', form.content.value);
+            formData.append('rating', form.rating.value);
+            
+            const imageInput = document.getElementById('imageInput');
+            if (imageInput.files.length > 0) {
+                formData.append('image', imageInput.files[0]);
+            }
+
+            // Retrieve Location
+            if (navigator.geolocation) {
+                try {
+                    const pos = await new Promise((resolve, reject) => {
+                        navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 4000 });
+                    });
+                    formData.append('lat', pos.coords.latitude);
+                    formData.append('lng', pos.coords.longitude);
+                } catch(geoErr) {}
+            }
+
+            const res = await axios.post('/api/reviews', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.success) location.reload();
+            else alert(res.data.message || 'Lỗi đăng bài');
+        } catch(e) {
+            alert('Lỗi đăng bài: ' + (e.response?.data?.message || e.message));
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = 'ĐĂNG BÀI';
+        }
+    });
 </script>

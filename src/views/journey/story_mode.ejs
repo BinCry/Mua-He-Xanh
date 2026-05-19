@@ -1,91 +1,153 @@
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- Load dependencies -->
+<script src="https://maps.googleapis.com/maps/api/js?v=weekly"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<main class="py-5 bg-light min-vh-100 mt-5">
-    <div class="container-fluid px-lg-5">
+<main class="py-5 min-vh-100 mt-5" style="background: var(--surface);">
+    <div class="container py-lg-4">
         
-        <!-- Journey Dashboard Header -->
-        <div class="card-bl border-0 p-4 p-md-5 mb-4 shadow-sm rounded-5 bg-white reveal-up position-relative overflow-hidden">
-            <div class="position-absolute top-0 end-0 opacity-10 m-n5 d-none d-md-block">
-                <i class="bi bi-compass-fill" style="font-size: 20rem; color: var(--v5-primary);"></i>
+        <!-- Interactive Header with Locking State -->
+        <div class="row align-items-center mb-4">
+            <div class="col-lg-8">
+                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mb-2 fw-bold text-uppercase x-small" style="letter-spacing: 1px;">
+                    <i class="bi bi-compass me-1"></i> Hành trình thông minh của bạn
+                </span>
+                <h1 class="fw-black text-dark mb-1 letter-spacing-sm">
+                    <%= journey.mood.replace(/_/g, ' ').toUpperCase() %>
+                </h1>
+                <p class="text-muted mb-0" id="journey-subtitle">
+                    Gợi ý thời gian biểu tối ưu để trải nghiệm trọn vẹn Bình Lợi.
+                </p>
             </div>
-            
-            <div class="row align-items-center position-relative z-index-1">
-                <div class="col-lg-7">
-                    <span class="badge bg-primary px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm tracking-widest"><i class="bi bi-stars me-1"></i>Hành trình cá nhân hóa</span>
-                    <h1 class="display-4 fw-black mb-2 text-dark letter-spacing-sm"><%= journey.mood.replace(/_/g, ' ').toUpperCase() %></h1>
-                    <p class="lead text-muted mb-0">Thiết kế bởi Bình Lợi AI dành riêng cho bạn.</p>
-                </div>
-                <div class="col-lg-5 text-lg-end mt-4 mt-lg-0">
-                    <div class="d-inline-flex gap-4 p-3 bg-light rounded-4 border shadow-sm">
-                        <div class="text-center px-3 border-end">
-                            <h3 class="fw-black mb-0 text-primary"><%= journey.total_km %></h3>
-                            <small class="text-uppercase text-muted fw-bold x-small">KM Dự kiến</small>
-                        </div>
-                        <div class="text-center px-3 border-end">
-                            <h3 class="fw-black mb-0 text-primary"><%= journey.total_minutes %></h3>
-                            <small class="text-uppercase text-muted fw-bold x-small">Phút</small>
-                        </div>
-                        <div class="text-center px-3">
-                            <h3 class="fw-black mb-0 text-primary"><%= journey.stops.length %></h3>
-                            <small class="text-uppercase text-muted fw-bold x-small">Điểm dừng</small>
-                        </div>
-                    </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <!-- Timeline status badge -->
+                <div class="d-inline-flex gap-2 align-items-center bg-white border rounded-pill px-3 py-2 shadow-sm">
+                    <span class="badge bg-success rounded-circle p-1" id="lock-status-dot" style="width: 10px; height: 10px; display: inline-block;"></span>
+                    <span class="small fw-bold text-dark" id="lock-status-text">Hành trình đã chốt</span>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 ms-2" onclick="toggleTimelineLock()" id="btn-lock-toggle">
+                        <i class="bi bi-pencil-square me-1"></i>Thay đổi
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div class="row g-4 reveal-up">
-            <!-- Left: Timeline Journey List & Mobile Swipe -->
-            <div class="col-lg-5">
-                <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-                    <h3 class="fw-black mb-0">Chi tiết Lộ trình</h3>
-                    <div class="dropdown">
-                        <button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold dropdown-toggle" data-bs-toggle="dropdown">
-                            <i class="bi bi-sliders me-1"></i>Tùy chỉnh
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg rounded-4 p-2 mt-2">
-                            <li><a class="dropdown-item py-2 rounded-3" href="#" onclick="toggleEditMode()"><i class="bi bi-arrows-move me-2"></i>Sắp xếp & Xóa điểm</a></li>
-                            <li><hr class="dropdown-divider"></li>
-                            <li><a class="dropdown-item py-2 rounded-3 text-danger" href="/onboarding"><i class="bi bi-trash-fill me-2"></i>Làm mới hành trình</a></li>
-                        </ul>
+        <!-- Metrics Display -->
+        <div class="row g-3 mb-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="bg-white p-3 rounded-4 border shadow-sm h-100">
+                    <i class="bi bi-clock text-primary fs-3 mb-1 d-block"></i>
+                    <h4 class="fw-black text-dark mb-0"><%= journey.total_minutes %> Phút</h4>
+                    <span class="x-small text-muted fw-bold text-uppercase">Tổng thời gian</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="bg-white p-3 rounded-4 border shadow-sm h-100">
+                    <i class="bi bi-geo-alt text-primary fs-3 mb-1 d-block"></i>
+                    <h4 class="fw-black text-dark mb-0" id="metric-stops-count"><%= journey.stops.length %> Điểm</h4>
+                    <span class="x-small text-muted fw-bold text-uppercase">Điểm dừng chân</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="bg-white p-3 rounded-4 border shadow-sm h-100">
+                    <i class="bi bi-signpost text-primary fs-3 mb-1 d-block"></i>
+                    <h4 class="fw-black text-dark mb-0"><%= journey.total_km %> Km</h4>
+                    <span class="x-small text-muted fw-bold text-uppercase">Quãng đường dự kiến</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="bg-white p-3 rounded-4 border shadow-sm h-100">
+                    <i class="bi bi-stars text-warning fs-3 mb-1 d-block"></i>
+                    <h4 class="fw-black text-dark mb-0">+<%= journey.stops.reduce((sum, s) => sum + (s.points || 0), 0) %></h4>
+                    <span class="x-small text-muted fw-bold text-uppercase">Điểm thưởng tích lũy</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Left Panel: Interactive Itinerary (timeline form) -->
+            <div class="col-lg-6">
+                <!-- Timeline customization settings -->
+                <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 bg-white d-none" id="timeline-edit-panel">
+                    <h6 class="fw-bold mb-3 text-primary d-flex align-items-center gap-2">
+                        <i class="bi bi-sliders"></i> Công cụ điều chỉnh
+                    </h6>
+                    <div class="row g-2 align-items-center">
+                        <div class="col-md-7">
+                            <select class="form-select rounded-pill" id="select-new-destination">
+                                <option value="">-- Chọn địa điểm muốn thêm --</option>
+                                <% allDestinations.forEach(dest => { %>
+                                    <option value="<%= dest.id %>"><%= dest.name %> (<%= dest.type %>)</option>
+                                <% }) %>
+                            </select>
+                        </div>
+                        <div class="col-md-5">
+                            <button class="btn btn-primary-bl rounded-pill w-100 fw-bold" onclick="addDestinationToTimeline()">
+                                <i class="bi bi-plus-circle me-1"></i>Thêm vào lộ trình
+                            </button>
+                        </div>
+                    </div>
+                    <div class="mt-3 x-small text-muted">
+                        <i class="bi bi-info-circle me-1"></i> Bật chế độ thay đổi giúp bạn thêm/bớt địa điểm, thay đổi giờ khởi hành hoặc kéo thả để sắp xếp lại thứ tự.
                     </div>
                 </div>
 
-                <!-- Unified Responsive Timeline List -->
-                <div id="sortable-timeline" class="timeline-journey position-relative ps-3 ps-md-4 mt-3 mt-lg-0">
-                    <div class="position-absolute top-0 bottom-0 border-start border-2 border-primary opacity-25" style="left: 15px; z-index: 0;"></div>
+                <!-- Vertical Timeline -->
+                <div class="timeline-container position-relative ps-4" id="sortable-timeline">
+                    <!-- Vertical line in timeline -->
+                    <div class="position-absolute top-0 bottom-0 border-start border-3 border-success opacity-25" style="left: 15px; z-index: 1;"></div>
                     
                     <% journey.stops.forEach((stop, i) => { %>
-                        <div class="position-relative mb-4 reveal-up" data-id="<%= stop.destination_id %>" id="card-<%= i %>">
-                            <!-- Timeline Dot -->
-                            <div class="position-absolute bg-primary rounded-circle border border-4 border-white shadow-sm d-flex align-items-center justify-content-center text-white fw-bold" style="width: 35px; height: 35px; left: -22px; top: 15px; z-index: 2;">
+                        <div class="timeline-item position-relative mb-4" data-id="<%= stop.destination_id %>" id="stop-card-<%= i %>">
+                            <!-- Index dot with timeline marker -->
+                            <div class="timeline-badge bg-primary text-white rounded-circle border border-4 border-white shadow d-flex align-items-center justify-content-center fw-bold" 
+                                 style="width: 36px; height: 36px; position: absolute; left: -34px; top: 12px; z-index: 2; transition: all 0.3s;">
                                 <%= i + 1 %>
                             </div>
-                            
-                            <div class="card-bl border-0 p-0 shadow-sm rounded-4 journey-stop-card bg-white overflow-hidden group-hover w-100" onclick="focusStop(<%= i %>)">
-                                <div class="d-flex flex-column flex-sm-row">
-                                    <!-- Mobile top image, Desktop side image -->
-                                    <div class="position-relative">
-                                        <div class="drag-handle d-none position-absolute top-0 start-0 m-2 bg-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 30px; height: 30px; z-index: 10; cursor: grab;">
-                                            <i class="bi bi-grip-vertical text-muted"></i>
-                                        </div>
-                                        <img src="<%= fixImg(stop.cover_image) %>" class="object-fit-cover" style="width: 100%; height: 160px;" alt="<%= stop.name %>">
+
+                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="transition: all 0.3s;">
+                                <div class="row g-0 align-items-center">
+                                    <!-- Image (full visibility) -->
+                                    <div class="col-sm-4" style="height: 140px; min-height: 140px;">
+                                        <img src="<%= fixImg(stop.cover_image) %>" class="w-100 h-100" style="object-fit: cover;" alt="<%= stop.name %>">
                                     </div>
-                                    
-                                    <div class="flex-grow-1 p-3 p-md-4">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <div>
-                                                <h5 class="fw-bold mb-1 text-dark"><%= stop.name %></h5>
-                                                <span class="badge bg-light text-primary border x-small"><%= stop.type %></span>
+                                    <!-- Body content -->
+                                    <div class="col-sm-8 p-3 position-relative">
+                                        
+                                        <!-- Edit actions overlay (only shown when editing) -->
+                                        <div class="position-absolute top-0 end-0 m-2 d-flex gap-1 edit-actions d-none" style="z-index: 10;">
+                                            <div class="btn btn-light btn-sm rounded-circle drag-handle shadow-sm" style="cursor: grab;" title="Kéo thả đổi vị trí">
+                                                <i class="bi bi-arrows-move"></i>
                                             </div>
-                                            <button class="btn btn-danger btn-sm rounded-circle delete-stop d-none shadow-sm flex-shrink-0" onclick="removeStop(<%= stop.destination_id %>, event)"><i class="bi bi-trash-fill"></i></button>
+                                            <button class="btn btn-danger btn-sm rounded-circle shadow-sm" onclick="removeStopFromTimeline(<%= stop.destination_id %>)" title="Xóa khỏi lộ trình">
+                                                <i class="bi bi-trash-fill"></i>
+                                            </button>
                                         </div>
-                                        <p class="text-muted small mb-3 line-clamp-2"><%= stop.short_description %></p>
-                                        <div class="d-flex gap-2">
-                                            <a href="/explore/<%= stop.slug %>" class="btn btn-outline-primary btn-sm rounded-pill px-3">Chi tiết</a>
+
+                                        <!-- Custom timeframe -->
+                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1" style="font-size: 0.72rem;">
+                                                <i class="bi bi-clock-fill me-1"></i>
+                                                <% 
+                                                    // Dynamic hourly calculation based on index
+                                                    let startHour = 8 + (i * 1.5);
+                                                    let startHourStr = Math.floor(startHour).toString().padStart(2, '0') + ":" + ((startHour % 1) * 60).toString().padStart(2, '0');
+                                                    let endHour = startHour + 1.25;
+                                                    let endHourStr = Math.floor(endHour).toString().padStart(2, '0') + ":" + ((endHour % 1) * 60).toString().padStart(2, '0');
+                                                %>
+                                                <span class="stop-timeframe"><%= startHourStr %> - <%= endHourStr %></span>
+                                            </span>
+                                            <span class="text-muted x-small">Tối ưu bởi AI</span>
+                                        </div>
+
+                                        <h5 class="fw-bold mb-1 text-dark text-truncate" style="font-size: 0.95rem;"><%= stop.name %></h5>
+                                        
+                                        <p class="text-muted mb-2 line-clamp-2" style="font-size: 0.8rem;"><%= stop.short_description || stop.highlight %></p>
+                                        
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <a href="/explore/<%= stop.slug %>" class="btn btn-outline-primary btn-sm rounded-pill px-3 py-1" style="font-size: 0.75rem;">
+                                                Chi tiết <i class="bi bi-chevron-right ms-1"></i>
+                                            </a>
+                                            <span class="text-warning x-small fw-bold"><i class="bi bi-star-fill me-1"></i>+<%= stop.points %> Điểm</span>
                                         </div>
                                     </div>
                                 </div>
@@ -94,36 +156,31 @@
                     <% }) %>
                 </div>
 
-                <div class="d-grid mt-4">
-                    <button class="btn btn-primary-bl btn-lg py-3 rounded-pill shadow-premium fw-black text-uppercase tracking-widest" onclick="startJourney()" id="btn-start">
-                        BẮT ĐẦU DI CHUYỂN <i class="bi bi-arrow-right ms-2"></i>
+                <!-- Complete / Start Navigation Button -->
+                <div class="d-grid gap-2 mt-4">
+                    <button class="btn btn-primary-bl btn-lg py-3 rounded-pill shadow-premium fw-bold text-uppercase tracking-widest" id="btn-timeline-action" onclick="lockJourneyAndConfirm()">
+                        CHỐT & LƯU LỘ TRÌNH
                     </button>
                 </div>
             </div>
 
-            <!-- Right: Interactive Map (Moved to top on Mobile) -->
-            <div class="col-lg-7 order-first order-lg-last mb-4 mb-lg-0">
-                <div class="sticky-top pt-2 pt-lg-0" style="top: 80px;">
-                    <div class="card-bl border-0 shadow-lg rounded-5 overflow-hidden position-relative p-1 bg-white" style="height: 50vh; min-height: 400px;">
+            <!-- Right Panel: Standard Google Maps integration -->
+            <div class="col-lg-6">
+                <div class="sticky-top" style="top: 100px; z-index: 5;">
+                    <div class="card border-0 shadow-sm rounded-5 overflow-hidden p-1 bg-white" style="height: 60vh; min-height: 450px;">
+                        <!-- Google Map Container -->
+                        <div id="google-journey-map" class="w-100 h-100 rounded-4"></div>
                         
-                        <!-- Map Container -->
-                        <div id="map-premium" class="w-100 h-100 rounded-4"></div>
-                        
-                        <!-- Animated Top Timeline Progress -->
-                        <div class="position-absolute top-0 start-0 w-100 p-3" style="z-index: 1000;">
-                            <div class="bg-white bg-opacity-75 backdrop-blur-md rounded-pill p-2 shadow-sm border">
-                                <div class="progress bg-transparent position-relative" style="height: 8px;">
-                                    <div class="route-line-progress bg-primary rounded-pill" style="width: 0%; transition: width 0.8s cubic-bezier(0.165, 0.84, 0.44, 1);"></div>
-                                    <!-- Dots -->
-                                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex justify-content-between align-items-center px-1">
-                                        <% journey.stops.forEach((stop, i) => { %>
-                                            <div class="bg-white border border-2 border-primary rounded-circle node-dot" style="width: 12px; height: 12px;" id="dot-<%= i %>"></div>
-                                        <% }) %>
-                                    </div>
+                        <!-- Map Info floating card -->
+                        <div class="position-absolute bottom-0 start-0 w-100 p-3" style="z-index: 10;">
+                            <div class="bg-dark bg-opacity-80 backdrop-blur-md text-white p-3 rounded-4 shadow border border-secondary border-opacity-25">
+                                <div class="d-flex align-items-center justify-content-between mb-1">
+                                    <h6 class="fw-bold mb-0 text-success"><i class="bi bi-map me-1"></i>Google Maps Real-time Route</h6>
+                                    <span class="badge bg-success rounded-pill" style="font-size: 0.7rem;">Live</span>
                                 </div>
+                                <p class="x-small text-white-50 mb-0">Hỗ trợ định vị GPS trực quan. Bản đồ cập nhật tức thì khi bạn thay đổi các điểm đến.</p>
                             </div>
                         </div>
-
                     </div>
                 </div>
             </div>
@@ -132,144 +189,302 @@
 </main>
 
 <style>
-    .tracking-widest { letter-spacing: 1px; }
-    .snap-x { scroll-snap-type: x mandatory; }
-    .snap-center { scroll-snap-align: center; }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-    
-    .journey-stop-card { transition: all 0.3s; border: 2px solid transparent; }
-    .journey-stop-card.active { border-color: var(--v5-primary); transform: translateX(10px); box-shadow: 0 15px 30px rgba(0,0,0,0.1) !important; }
-    @media (max-width: 575px) {
-        .journey-stop-card img { height: 200px !important; }
-        .journey-stop-card.active { transform: scale(1.02); }
-        .timeline-journey > .position-absolute { display: none; } /* Hide vertical line on mobile */
-        .timeline-journey .rounded-circle { left: -10px !important; top: -10px !important; }
-        .ps-md-4 { padding-left: 0 !important; }
+    .timeline-badge.active {
+        background-color: var(--success) !important;
+        transform: scale(1.1);
     }
-    
-    .node-dot { transition: all 0.4s; }
-    .node-dot.active { background-color: var(--v5-primary) !important; transform: scale(1.5); }
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
 </style>
 
 <script>
-    let map, markers = [], polyline, sortable;
+    let map, markers = [], directionsService, directionsRenderer;
+    let isTimelineLocked = true;
     const journeyId = '<%= journey.id %>';
-    let isEditMode = false;
+    const stopsData = <%- JSON.stringify(journey.stops) %>;
 
     document.addEventListener('DOMContentLoaded', () => {
-        initMap();
-        initSortable();
-        gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
-        
-        // Focus first stop initially
-        if(markers.length > 0) focusStop(0);
+        initGoogleMap();
+        initTimelineReordering();
+        gsap.from('.timeline-item', { opacity: 0, x: -30, stagger: 0.1, duration: 0.6, ease: 'power2.out' });
     });
 
-    function initMap() {
-        map = L.map('map-premium', { zoomControl: false }).setView([10.796, 106.524], 14);
-        L.control.zoom({ position: 'bottomright' }).addTo(map);
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png').addTo(map);
-        refreshRoute();
-    }
+    // Initialize Standard Google Maps API
+    function initGoogleMap() {
+        try {
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer({
+                suppressMarkers: true,
+                polylineOptions: {
+                    strokeColor: '#0d9488',
+                    strokeOpacity: 0.8,
+                    strokeWeight: 6
+                }
+            });
 
-    function refreshRoute() {
-        markers.forEach(m => map.removeLayer(m));
-        if (polyline) map.removeLayer(polyline);
-        markers = [];
-        
-        const stops = <%- JSON.stringify(journey.stops) %>;
-        const coords = stops.map(s => [
-            s.lat || (10.74 + (Math.random() * 0.05 - 0.025)), 
-            s.lng || (106.5 + (Math.random() * 0.05 - 0.025))
-        ]);
+            // Center of Binh Loi
+            const centerPos = { lat: 10.796, lng: 106.524 };
+            map = new google.maps.Map(document.getElementById('google-journey-map'), {
+                zoom: 14,
+                center: centerPos,
+                styles: [
+                    {
+                        "featureType": "poi.park",
+                        "elementType": "geometry",
+                        "stylers": [{ "color": "#e3eedd" }]
+                    }
+                ],
+                disableDefaultUI: true,
+                zoomControl: true
+            });
 
-        const customIcon = L.divIcon({
-            className: 'custom-div-icon',
-            html: `<div style="background-color: var(--v5-primary); width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; border: 3px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.3); font-size: 12px; font-weight: bold;"></div>`,
-            iconSize: [24, 24], iconAnchor: [12, 24]
-        });
-
-        stops.forEach((stop, i) => {
-            const m = L.marker(coords[i], { icon: customIcon }).addTo(map);
-            m.bindPopup(`<b class="text-primary">${i+1}. ${stop.name}</b>`);
-            markers.push(m);
-        });
-
-        if (coords.length > 1) {
-            polyline = L.polyline(coords, { color: 'var(--v5-primary)', weight: 5, dashArray: '10, 10', opacity: 0.8 }).addTo(map);
-            map.fitBounds(polyline.getBounds().pad(0.2));
+            directionsRenderer.setMap(map);
+            renderRouteOnMap();
+        } catch (e) {
+            console.error("Google Maps failed to initialize", e);
         }
     }
 
-    function focusStop(idx) {
-        // Unified UI update
-        document.querySelectorAll('.journey-stop-card').forEach((c, i) => {
-            c.classList.remove('active');
-            if (i === idx) {
-                c.classList.add('active');
-                if(window.innerWidth < 992) {
-                    c.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // Render route with exact coords and custom numbering badges showing name and image
+    function renderRouteOnMap() {
+        // Clear old markers
+        markers.forEach(m => m.setMap(null));
+        markers = [];
+
+        if (!stopsData || stopsData.length === 0) return;
+
+        const waypoints = [];
+        const bounds = new google.maps.LatLngBounds();
+
+        stopsData.forEach((stop, i) => {
+            const stopLat = parseFloat(stop.lat) || (10.79 + (i * 0.005));
+            const stopLng = parseFloat(stop.lng) || (106.52 + (i * 0.005));
+            const pos = { lat: stopLat, lng: stopLng };
+            
+            bounds.extend(pos);
+
+            // Custom Marker with numeric badge, name and photo always fully visible or clean
+            const marker = new google.maps.Marker({
+                position: pos,
+                map: map,
+                title: stop.name,
+                label: {
+                    text: (i + 1).toString(),
+                    color: '#ffffff',
+                    fontWeight: 'bold'
+                },
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 14,
+                    fillColor: '#0d9488',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 3
                 }
+            });
+
+            // Prominent Info Window displaying image & text clearly (resolving hidden text issues)
+            const infoWindowHtml = `
+                <div style="width: 180px; font-family: sans-serif; padding: 4px;">
+                    <img src="${stop.cover_image ? '/' + stop.cover_image.replace(/^public\//, '') : '/images/placeholder.png'}" 
+                         style="width: 100%; height: 90px; object-fit: cover; border-radius: 8px;" class="mb-2">
+                    <h6 style="margin: 0 0 4px 0; font-weight: bold; font-size: 0.9rem; color: #0d9488;">${i + 1}. ${stop.name}</h6>
+                    <span style="font-size: 0.72rem; color: #666; font-weight: bold;">⏰ ${stop.open_hours || '07:00 - 18:00'}</span>
+                </div>
+            `;
+
+            const infowindow = new google.maps.InfoWindow({
+                content: infoWindowHtml
+            });
+
+            marker.addListener('click', () => {
+                markers.forEach(m => m.infowindow?.close());
+                infowindow.open(map, marker);
+                highlightTimelineStop(i);
+            });
+
+            marker.infowindow = infowindow;
+            markers.push(marker);
+
+            // Add intermediate waypoints for Directions Service
+            if (i > 0 && i < stopsData.length - 1) {
+                waypoints.push({
+                    location: pos,
+                    stopover: true
+                });
             }
         });
 
-        // Map update
-        if (markers[idx]) {
-            map.flyTo(markers[idx].getLatLng(), 15, { duration: 1.5 });
-            markers[idx].openPopup();
-        }
+        // Request Directions from Origin to Destination
+        if (stopsData.length >= 2) {
+            const originLat = parseFloat(stopsData[0].lat) || 10.79;
+            const originLng = parseFloat(stopsData[0].lng) || 106.52;
+            const destLat = parseFloat(stopsData[stopsData.length - 1].lat) || 10.79;
+            const destLng = parseFloat(stopsData[stopsData.length - 1].lng) || 106.52;
 
-        // Timeline Progress update
-        document.querySelectorAll('.node-dot').forEach((node, i) => {
-            node.classList.remove('active');
-            if (i <= idx) node.classList.add('active');
+            directionsService.route({
+                origin: { lat: originLat, lng: originLng },
+                destination: { lat: destLat, lng: destLng },
+                waypoints: waypoints,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, (response, status) => {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                } else {
+                    console.warn("Directions request failed due to " + status);
+                    map.fitBounds(bounds);
+                }
+            });
+        } else {
+            map.fitBounds(bounds);
+        }
+    }
+
+    // Interactive highlighted focus of timeline card and map markers
+    function highlightTimelineStop(idx) {
+        document.querySelectorAll('.timeline-badge').forEach((badge, i) => {
+            badge.classList.toggle('active', i === idx);
         });
-        
-        if (markers.length > 1) {
-            const prog = (idx / (markers.length - 1)) * 100;
-            document.querySelector('.route-line-progress').style.width = prog + '%';
+        const targetCard = document.getElementById(`stop-card-${idx}`);
+        if (targetCard) {
+            targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            targetCard.querySelector('.card').style.border = '2px solid var(--primary)';
+            setTimeout(() => {
+                targetCard.querySelector('.card').style.border = 'none';
+            }, 2500);
         }
     }
 
-    function startJourney() {
-        const btn = document.getElementById('btn-start');
-        btn.innerHTML = '<span class="spinner-grow spinner-grow-sm me-2"></span> ĐANG DI CHUYỂN';
-        btn.classList.replace('btn-primary-bl', 'btn-success');
-        
-        // Start animation loop simulating movement
-        let currentIdx = 0;
-        setInterval(() => {
-            currentIdx = (currentIdx + 1) % markers.length;
-            focusStop(currentIdx);
-        }, 5000);
-    }
-
-    function toggleEditMode() {
-        isEditMode = !isEditMode;
-        document.querySelectorAll('.drag-handle, .delete-stop').forEach(el => el.classList.toggle('d-none', !isEditMode));
-        sortable.option('disabled', !isEditMode);
-    }
-
-    function initSortable() {
+    // Sortable reordering setup
+    let sortableInstance;
+    function initTimelineReordering() {
         const el = document.getElementById('sortable-timeline');
         if (!el) return;
-        sortable = Sortable.create(el, {
-            handle: '.drag-handle', animation: 250, disabled: true,
+        sortableInstance = Sortable.create(el, {
+            handle: '.drag-handle',
+            animation: 250,
+            disabled: true,
             onEnd: function() {
-                const order = sortable.toArray();
-                axios.post('/api/journey/update-stop', { journeyId, action: 'reorder', order })
-                     .then(() => location.reload())
-                     .catch(e => alert("Lỗi cập nhật thứ tự"));
+                saveNewItineraryOrder();
             }
         });
     }
 
-    function removeStop(destId, event) {
-        event.stopPropagation();
-        if(confirm("Xóa điểm đến này khỏi lộ trình?")) {
-            axios.post('/api/journey/update-stop', { journeyId, action: 'remove', destinationId: destId })
-                 .then(() => location.reload());
+    // Toggle locks to change the journey plan
+    function toggleTimelineLock() {
+        isTimelineLocked = !isTimelineLocked;
+        
+        const dot = document.getElementById('lock-status-dot');
+        const text = document.getElementById('lock-status-text');
+        const btn = document.getElementById('btn-lock-toggle');
+        const actionBtn = document.getElementById('btn-timeline-action');
+        const editPanel = document.getElementById('timeline-edit-panel');
+
+        if (isTimelineLocked) {
+            // Locked mode
+            dot.className = 'badge bg-success rounded-circle p-1';
+            text.innerText = 'Hành trình đã chốt';
+            btn.innerHTML = '<i class="bi bi-pencil-square me-1"></i>Thay đổi';
+            actionBtn.innerText = 'BẮT ĐẦU DI CHUYỂN';
+            actionBtn.setAttribute('onclick', 'startNavigation()');
+            editPanel.classList.add('d-none');
+            document.querySelectorAll('.edit-actions').forEach(el => el.classList.add('d-none'));
+            sortableInstance.option('disabled', true);
+        } else {
+            // Edit mode
+            dot.className = 'badge bg-warning rounded-circle p-1';
+            text.innerText = 'Đang chỉnh sửa';
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Chốt';
+            actionBtn.innerText = 'LƯU HÀNH TRÌNH';
+            actionBtn.setAttribute('onclick', 'lockJourneyAndConfirm()');
+            editPanel.classList.remove('d-none');
+            document.querySelectorAll('.edit-actions').forEach(el => el.classList.remove('d-none'));
+            sortableInstance.option('disabled', false);
         }
+    }
+
+    // Save Reordered Route
+    function saveNewItineraryOrder() {
+        const order = sortableInstance.toArray();
+        axios.post('/api/journey/update-stop', {
+            journeyId: journeyId,
+            action: 'reorder',
+            order: order
+        }).then(() => {
+            location.reload();
+        }).catch(err => {
+            console.error(err);
+            alert("Lỗi khi cập nhật thứ tự lộ trình");
+        });
+    }
+
+    // Remove Stop from Timeline
+    function removeStopFromTimeline(destId) {
+        if (confirm("Bạn chắc chắn muốn loại bỏ địa điểm này khỏi hành trình?")) {
+            axios.post('/api/journey/update-stop', {
+                journeyId: journeyId,
+                action: 'remove',
+                destinationId: destId
+            }).then(() => {
+                location.reload();
+            }).catch(err => {
+                console.error(err);
+                alert("Lỗi khi loại bỏ địa điểm");
+            });
+        }
+    }
+
+    // Add Destination Stop
+    function addDestinationToTimeline() {
+        const selectEl = document.getElementById('select-new-destination');
+        const destId = selectEl.value;
+        if (!destId) {
+            alert("Vui lòng chọn một địa điểm!");
+            return;
+        }
+
+        axios.post('/api/journey/update-stop', {
+            journeyId: journeyId,
+            action: 'add',
+            destinationId: destId
+        }).then(() => {
+            location.reload();
+        }).catch(err => {
+            console.error(err);
+            alert("Lỗi khi thêm địa điểm");
+        });
+    }
+
+    // Complete / Lock Journey confirmation
+    function lockJourneyAndConfirm() {
+        toggleTimelineLock();
+        alert("Hành trình của bạn đã được chốt và tối ưu hóa thành công trên Google Maps!");
+    }
+
+    // Start Real-time navigation mode
+    function startNavigation() {
+        const actionBtn = document.getElementById('btn-timeline-action');
+        actionBtn.innerHTML = '<span class="spinner-grow spinner-grow-sm me-2"></span> ĐANG DI CHUYỂN...';
+        actionBtn.className = 'btn btn-success btn-lg py-3 rounded-pill w-100 fw-bold';
+        
+        let idx = 0;
+        const interval = setInterval(() => {
+            if (idx >= markers.length) {
+                clearInterval(interval);
+                actionBtn.innerText = 'ĐÃ HOÀN THÀNH HÀNH TRÌNH';
+                actionBtn.className = 'btn btn-outline-success btn-lg py-3 rounded-pill w-100 fw-bold';
+                return;
+            }
+            highlightTimelineStop(idx);
+            if (markers[idx]) {
+                map.panTo(markers[idx].getPosition());
+                markers[idx].infowindow.open(map, markers[idx]);
+            }
+            idx++;
+        }, 4000);
     }
 </script>

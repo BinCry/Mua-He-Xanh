@@ -1,20 +1,19 @@
-<!-- ============================================
-     HOMEPAGE — Bình Lợi Healing v7
-     ============================================ -->
-
 <!-- HERO: Full Viewport Cinematic -->
-<section class="hero-cinematic position-relative" style="background: url('<%= settings.hero_image || '/images/hero-1.png' %>') center/cover no-repeat;">
-    <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.3);"></div>
+<section class="hero-cinematic position-relative animate__animated animate__fadeIn" style="background: url('<%= settings.hero_image || '/images/hero-1.png' %>') center/cover no-repeat; height: 100vh; min-height: 600px;">
+    <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);"></div>
     
-    <div class="hero-content text-center">
-        <div class="hero-slogan reveal-up"><%= season.type.toUpperCase() %> EXPERIENCE</div>
-        <h1 class="hero-title reveal-up"><%= season.title %></h1>
-        <p class="hero-desc reveal-up">
-            Khám phá Miền Tây ngay giữa lòng Sài Gòn — Hệ sinh thái du lịch số thông minh kết nối bạn với thiên nhiên, văn hóa và con người Bình Lợi.
+    <div class="hero-content text-center px-3" style="max-width: 900px; margin: 0 auto;">
+        <span class="badge bg-success bg-opacity-25 text-white border border-success border-opacity-50 rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm" style="letter-spacing: 2px; font-size: 0.75rem;">
+            <i class="bi bi-compass-fill me-1"></i> BÌNH LỢI HEALING EXPERIENCE
+        </span>
+        <h1 class="hero-title reveal-up fw-black text-white display-3 mb-3" style="letter-spacing: -1px; text-shadow: 0 4px 15px rgba(0,0,0,0.3);"><%= season.title %></h1>
+        <p class="hero-desc reveal-up text-white-50 lead mb-4 mx-auto" style="max-width: 650px;">
+            Khám phá Miền Tây ngay giữa lòng Sài Sông — Hệ sinh thái du lịch chữa lành thông minh giúp bạn tìm lại sự tĩnh lặng và năng lượng tích cực từ thiên nhiên.
         </p>
-        <div class="d-flex gap-3 justify-content-center flex-wrap reveal-up">
-            <a href="/explore" class="btn btn-premium btn-lg">Khám phá địa điểm <i class="bi bi-arrow-right ms-2"></i></a>
-            <a href="/journey" class="btn btn-gold btn-lg">Tạo hành trình</a>
+        <div class="d-flex justify-content-center reveal-up">
+            <a href="/journey" class="btn btn-primary-bl btn-lg px-5 py-3 rounded-pill fw-bold text-uppercase tracking-widest shadow-premium">
+                BẮT ĐẦU HÀNH TRÌNH CHỮA LÀNH <i class="bi bi-arrow-right ms-2"></i>
+            </a>
         </div>
     </div>
     
@@ -27,30 +26,30 @@
 <!-- STATS: Real Data from Analytics -->
 <section class="position-relative" style="z-index: 20; margin-top: -48px;">
     <div class="container">
-        <div class="card-glass p-4 p-md-5">
-            <div class="row g-4">
-                <div class="col-6 col-md-3">
-                    <div class="text-center">
-                        <div class="stat-value font-display fw-black" style="color: var(--accent);"><%= stats.pageViews.toLocaleString() %></div>
-                        <div class="stat-label text-muted" style="font-size: 0.78rem; font-weight: 600; letter-spacing: 1px;">LƯỢT XEM TRANG</div>
+        <div class="card-glass p-4 p-md-5 bg-white border shadow-lg rounded-5">
+            <div class="row g-4 text-center">
+                <div class="col-6 col-md-3 border-end-md">
+                    <div>
+                        <div class="stat-value font-display fw-black text-primary fs-2"><%= stats.pageViews.toLocaleString() %></div>
+                        <div class="stat-label text-muted x-small fw-bold text-uppercase" style="letter-spacing: 1px;">LƯỢT XEM HỆ THỐNG</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 border-end-md">
+                    <div>
+                        <div class="stat-value font-display fw-black text-primary fs-2"><%= stats.visitors.toLocaleString() %></div>
+                        <div class="stat-label text-muted x-small fw-bold text-uppercase" style="letter-spacing: 1px;">KHÁCH TRUY CẬP THỰC</div>
+                    </div>
+                </div>
+                <div class="col-6 col-md-3 border-end-md">
+                    <div>
+                        <div class="stat-value font-display fw-black text-primary fs-2"><%= stats.checkins.toLocaleString() %></div>
+                        <div class="stat-label text-muted x-small fw-bold text-uppercase" style="letter-spacing: 1px;">LƯỢT CHECK-IN THÀNH CÔNG</div>
                     </div>
                 </div>
                 <div class="col-6 col-md-3">
-                    <div class="text-center">
-                        <div class="stat-value font-display fw-black" style="color: var(--accent);"><%= stats.visitors.toLocaleString() %></div>
-                        <div class="stat-label text-muted" style="font-size: 0.78rem; font-weight: 600; letter-spacing: 1px;">DU KHÁCH TRUY CẬP</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="text-center">
-                        <div class="stat-value font-display fw-black" style="color: var(--accent);"><%= stats.checkins.toLocaleString() %></div>
-                        <div class="stat-label text-muted" style="font-size: 0.78rem; font-weight: 600; letter-spacing: 1px;">LƯỢT CHECK-IN</div>
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <div class="text-center">
-                        <div class="stat-value font-display fw-black" style="color: var(--accent);"><%= stats.destinations %></div>
-                        <div class="stat-label text-muted" style="font-size: 0.78rem; font-weight: 600; letter-spacing: 1px;">ĐIỂM ĐẾN</div>
+                    <div>
+                        <div class="stat-value font-display fw-black text-primary fs-2"><%= stats.destinations %></div>
+                        <div class="stat-label text-muted x-small fw-bold text-uppercase" style="letter-spacing: 1px;">ĐIỂM ĐẾN TRỌNG TÂM</div>
                     </div>
                 </div>
             </div>
@@ -58,30 +57,32 @@
     </div>
 </section>
 
-<!-- DESTINATIONS: Bento Grid -->
+<!-- DESTINATIONS: Equal Bento Grid -->
 <section class="py-5 mt-4">
     <div class="container py-5">
         <div class="row align-items-end mb-5">
             <div class="col-md-8 reveal-up">
-                <span class="section-label">MUST-VISIT</span>
-                <h2 class="section-title">Điểm dừng chân trọng tâm</h2>
-                <p class="section-desc">Từ vườn mai cổ thụ đến xưởng nhang trăm tuổi, mỗi địa điểm là một câu chuyện chữa lành.</p>
+                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mb-2 fw-bold text-uppercase x-small" style="letter-spacing: 1px;">MUST-VISIT</span>
+                <h2 class="fw-black text-dark mb-1 letter-spacing-sm">Điểm dừng chân trọng tâm</h2>
+                <p class="text-muted">Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên chữa lành.</p>
             </div>
             <div class="col-md-4 text-md-end reveal-up">
-                <a href="/explore" class="btn btn-ghost">Xem tất cả <i class="bi bi-arrow-right ms-1"></i></a>
+                <a href="/explore" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-bold small">Xem tất cả địa điểm <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
         </div>
         
         <div class="row g-4">
             <% featured.forEach((dest, i) => { %>
             <div class="col-md-6 col-lg-4 reveal-up">
-                <a href="/explore/<%= dest.slug %>" class="text-decoration-none">
-                    <div class="position-relative overflow-hidden rounded-4" style="height: 300px;">
-                        <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100" style="object-fit: cover;">
-                        <div class="position-absolute bottom-0 start-0 w-100 p-4" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%); z-index: 5;">
-                            <span class="badge-nature mb-2 d-inline-block" style="font-size: 0.7rem;"><%= dest.type %></span>
-                            <h5 class="text-white fw-bold mb-1 font-display" style="font-size: 1.15rem;"><%= dest.name %></h5>
-                            <p class="text-white opacity-75 mb-0 line-clamp-1" style="font-size: 0.82rem;"><%= dest.short_desc || dest.short_description %></p>
+                <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift" style="height: 340px; transition: all 0.3s ease;">
+                        <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100" style="object-fit: cover; transition: transform 0.5s ease;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); z-index: 2;"></div>
+                        
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4" style="z-index: 5;">
+                            <span class="badge bg-success bg-opacity-25 text-white border border-success border-opacity-50 rounded-pill px-2 py-1 mb-2 d-inline-block x-small text-uppercase"><%= dest.type %></span>
+                            <h5 class="text-white fw-bold mb-1 font-display" style="font-size: 1.2rem;"><%= dest.name %></h5>
+                            <p class="text-white-50 mb-0 line-clamp-2" style="font-size: 0.8rem; line-height: 1.5;"><%= dest.short_desc || dest.short_description %></p>
                         </div>
                     </div>
                 </a>
@@ -91,57 +92,61 @@
     </div>
 </section>
 
-<!-- EVENTS & SEASONAL (from DB — admin managed) -->
-<section class="py-5" style="background: var(--grad-dark);">
+<!-- EVENTS & SEASONAL (Premium responsive styling) -->
+<section class="py-5" style="background: linear-gradient(135deg, #071912 0%, #030c08 100%);">
     <div class="container py-5">
         <div class="row align-items-center g-5">
             <div class="col-lg-6 reveal-up">
                 <% if (nextEvent) { %>
-                <div class="p-5 rounded-2xl position-relative overflow-hidden" style="background: var(--grad-nature);">
+                <div class="p-4 p-md-5 rounded-4 position-relative overflow-hidden border border-success border-opacity-25" style="background: rgba(255,255,255,0.03); backdrop-filter: blur(10px);">
                     <div class="position-relative" style="z-index: 5;">
-                        <span class="badge-gold mb-3 d-inline-block">Sự kiện nổi bật</span>
-                        <h2 class="text-white fw-black mb-3 font-display" style="font-size: 2rem; line-height: 1.15;"><%= nextEvent.title %></h2>
-                        <p class="text-white opacity-75 mb-4" style="font-size: 0.9rem;"><%= nextEvent.description %></p>
+                        <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-50 rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="letter-spacing: 1px;">SỰ KIỆN NỔI BẬT</span>
+                        <h2 class="text-white fw-black mb-3 font-display" style="font-size: 2.2rem; line-height: 1.2;"><%= nextEvent.title %></h2>
+                        <p class="text-white-50 mb-4" style="font-size: 0.9rem; line-height: 1.7;"><%= nextEvent.description %></p>
+                        
                         <div id="countdown" class="d-flex gap-3 mb-4 flex-wrap">
-                            <div class="text-center px-3 py-2 rounded-xl" style="background: rgba(255,255,255,0.12); min-width: 72px;">
-                                <h3 class="fw-black text-white mb-0" id="days">00</h3>
-                                <small class="text-white opacity-50" style="font-size: 0.7rem;">Ngày</small>
+                            <div class="text-center px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.08); min-width: 80px;">
+                                <h2 class="fw-black text-warning mb-0" id="days">00</h2>
+                                <small class="text-white-50 x-small text-uppercase">Ngày</small>
                             </div>
-                            <div class="text-center px-3 py-2 rounded-xl" style="background: rgba(255,255,255,0.12); min-width: 72px;">
-                                <h3 class="fw-black text-white mb-0" id="hours">00</h3>
-                                <small class="text-white opacity-50" style="font-size: 0.7rem;">Giờ</small>
+                            <div class="text-center px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.08); min-width: 80px;">
+                                <h2 class="fw-black text-warning mb-0" id="hours">00</h2>
+                                <small class="text-white-50 x-small text-uppercase">Giờ</small>
                             </div>
-                            <div class="text-center px-3 py-2 rounded-xl" style="background: rgba(255,255,255,0.12); min-width: 72px;">
-                                <h3 class="fw-black text-white mb-0" id="mins">00</h3>
-                                <small class="text-white opacity-50" style="font-size: 0.7rem;">Phút</small>
+                            <div class="text-center px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.08); min-width: 80px;">
+                                <h2 class="fw-black text-warning mb-0" id="mins">00</h2>
+                                <small class="text-white-50 x-small text-uppercase">Phút</small>
                             </div>
                         </div>
-                        <div class="d-flex align-items-center gap-2 text-white opacity-60" style="font-size: 0.85rem;">
-                            <i class="bi bi-geo-alt-fill"></i> <%= nextEvent.location %>
+                        
+                        <div class="d-flex align-items-center gap-2 text-white-50" style="font-size: 0.85rem;">
+                            <i class="bi bi-geo-alt-fill text-danger"></i> <%= nextEvent.location %>
                         </div>
                     </div>
                 </div>
                 <% } else { %>
-                <div class="p-5 rounded-2xl text-center" style="background: rgba(255,255,255,0.05);">
-                    <i class="bi bi-calendar-event display-3 text-white opacity-25 mb-3 d-block"></i>
-                    <h4 class="text-white opacity-50">Chưa có sự kiện nổi bật</h4>
-                    <p class="text-white opacity-30 small">Quản trị viên có thể thêm sự kiện từ Admin Panel.</p>
+                <div class="p-5 rounded-4 text-center border border-secondary border-opacity-25" style="background: rgba(255,255,255,0.02);">
+                    <i class="bi bi-calendar-event display-4 text-white opacity-25 mb-3 d-block"></i>
+                    <h4 class="text-white fw-bold">Chưa có sự kiện nổi bật sắp diễn ra</h4>
+                    <p class="text-white-50 small mb-0">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.</p>
                 </div>
                 <% } %>
             </div>
+            
             <div class="col-lg-6 reveal-up">
-                <span class="section-label text-white opacity-50">SEASONAL EXPERIENCE</span>
-                <h2 class="text-white fw-black mb-4 font-display" style="font-size: 2rem;">Trải nghiệm theo mùa</h2>
-                <p class="text-white opacity-60 mb-4">Mỗi mùa tại Bình Lợi mang một sắc thái riêng biệt.</p>
+                <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-50 rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="letter-spacing: 1px;">SEASONAL TOURISM</span>
+                <h2 class="text-white fw-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Trải nghiệm theo mùa độc đáo</h2>
+                <p class="text-white-50 mb-4" style="line-height: 1.7;">Mỗi mùa tại Bình Lợi đều được lập trình với các workshop, lễ hội và danh mục trải nghiệm độc nhất vô nhị để chữa lành tâm hồn bạn.</p>
+                
                 <div class="d-flex flex-column gap-3">
                     <% seasonalExperiences.forEach(se => { %>
-                    <div class="d-flex gap-3 align-items-start p-3 rounded-xl" style="background: rgba(255,255,255,0.06); transition: background 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">
-                        <div class="rounded-lg d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: rgba(255,255,255,0.1);">
-                            <i class="bi <%= se.icon %> text-<%= se.icon_color %>"></i>
+                    <div class="d-flex gap-3 align-items-center p-3 rounded-4 border border-success border-opacity-10" style="background: rgba(255,255,255,0.02); transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px; background: rgba(13, 148, 136, 0.15); color: #0d9488;">
+                            <i class="bi <%= se.icon %> fs-5"></i>
                         </div>
                         <div>
-                            <h6 class="text-white fw-bold mb-1" style="font-size: 0.9rem;"><%= se.title %></h6>
-                            <p class="text-white opacity-50 mb-0" style="font-size: 0.82rem;"><%= se.description %></p>
+                            <h6 class="text-white fw-bold mb-1" style="font-size: 0.95rem;"><%= se.title %></h6>
+                            <p class="text-white-50 mb-0 x-small" style="line-height: 1.5;"><%= se.description %></p>
                         </div>
                     </div>
                     <% }) %>

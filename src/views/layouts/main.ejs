@@ -78,7 +78,7 @@
     </div>
 
     <!-- Mobile Bottom: Only QR Scan Button (centered) -->
-    <div class="d-lg-none position-fixed bottom-0 start-50 translate-middle-x" style="z-index: 1050; margin-bottom: 20px; padding-bottom: env(safe-area-inset-bottom, 0);">
+    <div class="d-lg-none position-fixed bottom-0 start-50 translate-middle-x mobile-bottom-qr" style="z-index: 1050; margin-bottom: 20px; padding-bottom: env(safe-area-inset-bottom, 0);">
         <a href="/checkin" class="d-flex align-items-center justify-content-center text-white text-decoration-none rounded-circle shadow-lg" 
            style="width: 56px; height: 56px; background: var(--primary); transition: transform 0.2s;"
            onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
@@ -195,12 +195,54 @@
     </script>
     <% } %>
 
-    <!-- Mobile bottom nav spacing -->
+    <!-- Floating Buttons Vertical Column Alignment -->
     <style>
+        /* Desktop alignment */
+        .fab-qr {
+            position: fixed;
+            bottom: 32px !important;
+            right: 32px !important;
+            z-index: 1040;
+        }
+        #notifBell {
+            position: fixed !important;
+            bottom: 110px !important;
+            right: 32px !important;
+            z-index: 1040;
+        }
+        #back-to-top {
+            position: fixed !important;
+            bottom: 188px !important;
+            right: 32px !important;
+            left: auto !important; /* Move to right side */
+            z-index: 1040;
+        }
+
+        /* Mobile alignment */
         @media (max-width: 991.98px) {
-            body { padding-bottom: 20px; }
-            .fab-qr { display: none !important; }
-            #notifBell { bottom: 90px !important; }
+            body { padding-bottom: 80px; }
+            .fab-qr {
+                position: fixed !important;
+                bottom: 32px !important;
+                right: 20px !important;
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 1.2rem !important;
+            }
+            #notifBell {
+                position: fixed !important;
+                bottom: 95px !important;
+                right: 20px !important;
+            }
+            #back-to-top {
+                position: fixed !important;
+                bottom: 158px !important;
+                right: 20px !important;
+                width: 40px !important;
+                height: 40px !important;
+            }
+            /* Hide the centered floating bottom bar button so it doesn't double */
+            .mobile-bottom-qr { display: none !important; }
         }
     </style>
 

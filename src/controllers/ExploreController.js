@@ -52,11 +52,38 @@ class ExploreController {
                 }
             }
 
+            // Fetch real community check-in photos for this destination's artistic gallery
+            const [communityReviews] = await Destination.db.query(
+                "SELECT images FROM reviews WHERE destination_id = ? AND images IS NOT NULL",
+                [dest.id]
+            );
+            
+            let galleryImages = [];
+            communityReviews.forEach(r => {
+                try {
+                    const parsed = JSON.parse(r.images);
+                    if (Array.isArray(parsed)) {
+                        galleryImages = galleryImages.concat(parsed);
+                    }
+                } catch(e) {}
+            });
+
+            // If empty, fallback to cover_image + default seeds for visual aesthetic wow factor
+            if (galleryImages.length === 0) {
+                galleryImages = [
+                    dest.cover_image,
+                    '/images/hero-1.png',
+                    '/images/hero-2.png',
+                    '/images/hero-3.png'
+                ];
+            }
+
             res.render('explore/show', {
                 title: dest.name,
                 dest: dest,
                 related: related,
-                messages: messages
+                messages: messages,
+                galleryImages: galleryImages
             });
         } catch (error) {
             console.error("Explore show error:", error);

@@ -87,7 +87,7 @@ class ApiController {
         }
     }
 
-    /** Update journey stop (reorder or remove) */
+    /** Update journey stop (reorder, remove, or add) */
     async updateJourneyStop(req, res) {
         const { journeyId, action, order, destinationId } = req.body;
         const JourneyStop = require('../models/JourneyStop');
@@ -99,6 +99,25 @@ class ApiController {
                 }
             } else if (action === 'remove' && destinationId) {
                 await Journey.removeStop(journeyId, destinationId);
+            } else if (action === 'add' && destinationId) {
+                // Check if already in journey stops
+                const [existing] = await UserSession.db.query(
+                    "SELECT id FROM journey_stops WHERE journey_id = ? AND destination_id = ?",
+                    [journeyId, destinationId]
+                );
+                if (existing.length === 0) {
+                    const [rows] = await UserSession.db.query(
+                        "SELECT MAX(stop_order) as max_order FROM journey_stops WHERE journey_id = ?",
+                        [journeyId]
+                    );
+                    const nextOrder = (rows[0] && rows[0].max_order !== null) ? rows[0].max_order + 1 : 0;
+                    await JourneyStop.create({
+                        journey_id: journeyId,
+                        destination_id: destinationId,
+                        stop_order: nextOrder,
+                        is_completed: 0
+                    });
+                }
             }
 
             await Journey.recalculateMetrics(journeyId);

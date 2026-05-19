@@ -1,97 +1,129 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<section class="py-5 bg-light min-vh-100 d-flex align-items-center position-relative overflow-hidden">
-    <!-- Cinematic Background -->
-    <div class="position-absolute top-0 start-0 w-100 h-100 opacity-25" style="background: url('/images/hero-1.png') center/cover; z-index: 0; filter: blur(5px);"></div>
-    <div class="position-absolute top-0 start-0 w-100 h-100 bg-white opacity-75" style="z-index: 0;"></div>
+<section class="py-5 min-vh-100 d-flex align-items-center position-relative overflow-hidden" style="background: linear-gradient(135deg, #0b251a 0%, #030a08 100%);">
+    <!-- Background glow elements -->
+    <div class="position-absolute rounded-circle bg-primary opacity-10 blur-3xl" style="width: 400px; height: 400px; top: -100px; right: -100px; filter: blur(120px);"></div>
+    <div class="position-absolute rounded-circle bg-success opacity-10 blur-3xl" style="width: 500px; height: 500px; bottom: -150px; left: -150px; filter: blur(150px);"></div>
 
-    <div class="container position-relative" style="z-index: 10;">
+    <div class="container position-relative z-1">
         <!-- Header Section -->
         <div class="row justify-content-center mb-5 reveal-up">
-            <div class="col-lg-8 text-center">
-                <span class="badge bg-primary rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm" style="letter-spacing: 1px;">Smart Journey AI</span>
-                <h1 class="display-4 fw-black mb-3 text-dark letter-spacing-sm">Thiết kế Hành trình<br>Độc bản</h1>
-                <p class="lead text-muted">Hệ thống AI sẽ gợi ý lộ trình tối ưu nhất dựa trên sở thích, ngân sách và thời gian của bạn.</p>
+            <div class="col-lg-8 text-center text-white">
+                <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm" style="letter-spacing: 2px; font-size: 0.75rem;">
+                    <i class="bi bi-cpu me-1"></i> BÌNH LỢI SMART AI JOURNEY
+                </span>
+                <h1 class="display-4 fw-black mb-3 text-white letter-spacing-sm">Thiết Kế Hành Trình Cá Nhân</h1>
+                <p class="lead text-white-50 mx-auto" style="max-width: 600px;">Hệ thống AI thông minh sẽ tự động phân tích và tối ưu hóa lộ trình chữa lành độc bản dành riêng cho bạn.</p>
             </div>
         </div>
 
         <form id="smartJourneyForm" class="row justify-content-center">
             <div class="col-xl-9">
-                <div class="card-bl p-4 p-md-5 border-0 shadow-premium rounded-5 bg-white">
+                <div class="border-0 shadow-lg rounded-5 overflow-hidden" style="background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08) !important;">
                     
-                    <h5 class="fw-bold mb-4 text-primary border-bottom pb-3"><i class="bi bi-emoji-smile me-2"></i>1. Bạn đang tìm kiếm cảm giác gì?</h5>
-                    <!-- Vibe Grid -->
-                    <div class="row g-3 mb-5">
-                        <div class="col-6 col-md-3">
-                            <div class="vibe-card card h-100 border-2 reveal-up text-center p-3 cursor-pointer rounded-4" onclick="selectVibe('chill', this)">
-                                <div class="fs-1 mb-2">🌿</div>
-                                <h6 class="fw-bold mb-0 text-uppercase x-small">Sống chậm</h6>
+                    <div class="p-4 p-md-5">
+                        <h5 class="fw-bold mb-4 text-white d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-3">
+                            <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.9rem;">1</span>
+                            Bạn đang tìm kiếm cảm giác gì?
+                        </h5>
+                        
+                        <!-- Vibe Selection Grid (Text and images are always fully visible, styled professionally) -->
+                        <div class="row g-3 mb-5">
+                            <div class="col-6 col-md-3">
+                                <div class="vibe-card-premium active" onclick="selectVibe('chill', this)">
+                                    <div class="vibe-image" style="background-image: url('/images/hero-1.png');"></div>
+                                    <div class="vibe-overlay"></div>
+                                    <div class="vibe-content">
+                                        <span class="vibe-emoji">🌿</span>
+                                        <h6 class="vibe-title">Sống chậm</h6>
+                                    </div>
+                                    <div class="vibe-check-badge"><i class="bi bi-check-circle-fill"></i></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="vibe-card-premium" onclick="selectVibe('peace', this)">
+                                    <div class="vibe-image" style="background-image: url('/images/hero-2.png');"></div>
+                                    <div class="vibe-overlay"></div>
+                                    <div class="vibe-content">
+                                        <span class="vibe-emoji">🛕</span>
+                                        <h6 class="vibe-title">Tâm linh</h6>
+                                    </div>
+                                    <div class="vibe-check-badge"><i class="bi bi-check-circle-fill"></i></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="vibe-card-premium" onclick="selectVibe('culture', this)">
+                                    <div class="vibe-image" style="background-image: url('/images/hero-1.png');"></div>
+                                    <div class="vibe-overlay"></div>
+                                    <div class="vibe-content">
+                                        <span class="vibe-emoji">🎨</span>
+                                        <h6 class="vibe-title">Văn hóa</h6>
+                                    </div>
+                                    <div class="vibe-check-badge"><i class="bi bi-check-circle-fill"></i></div>
+                                </div>
+                            </div>
+                            <div class="col-6 col-md-3">
+                                <div class="vibe-card-premium" onclick="selectVibe('family', this)">
+                                    <div class="vibe-image" style="background-image: url('/images/hero-2.png');"></div>
+                                    <div class="vibe-overlay"></div>
+                                    <div class="vibe-content">
+                                        <span class="vibe-emoji">👨‍👩‍👧‍👦</span>
+                                        <h6 class="vibe-title">Gắn kết</h6>
+                                    </div>
+                                    <div class="vibe-check-badge"><i class="bi bi-check-circle-fill"></i></div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-6 col-md-3">
-                            <div class="vibe-card card h-100 border-2 reveal-up text-center p-3 cursor-pointer rounded-4" onclick="selectVibe('peace', this)">
-                                <div class="fs-1 mb-2">🛕</div>
-                                <h6 class="fw-bold mb-0 text-uppercase x-small">Tâm linh</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="vibe-card card h-100 border-2 reveal-up text-center p-3 cursor-pointer rounded-4" onclick="selectVibe('culture', this)">
-                                <div class="fs-1 mb-2">🎨</div>
-                                <h6 class="fw-bold mb-0 text-uppercase x-small">Văn hóa</h6>
-                            </div>
-                        </div>
-                        <div class="col-6 col-md-3">
-                            <div class="vibe-card card h-100 border-2 reveal-up text-center p-3 cursor-pointer rounded-4" onclick="selectVibe('family', this)">
-                                <div class="fs-1 mb-2">👨‍👩‍👧‍👦</div>
-                                <h6 class="fw-bold mb-0 text-uppercase x-small">Gắn kết</h6>
-                            </div>
-                        </div>
-                    </div>
 
-                    <h5 class="fw-bold mb-4 text-primary border-bottom pb-3"><i class="bi bi-sliders me-2"></i>2. Thông tin chuyến đi</h5>
-                    <!-- Advanced Filters -->
-                    <div class="row g-4 mb-4 reveal-up">
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase tracking-widest"><i class="bi bi-people-fill me-2"></i>Số lượng người</label>
-                            <select class="form-select form-select-lg border-0 bg-light rounded-4 shadow-sm" name="pax" required>
-                                <option value="1">Khám phá một mình (1 người)</option>
-                                <option value="2" selected>Cặp đôi (2 người)</option>
-                                <option value="4">Gia đình/Nhóm nhỏ (3-5 người)</option>
-                                <option value="10">Đoàn đông (Trên 5 người)</option>
-                            </select>
+                        <h5 class="fw-bold mb-4 text-white d-flex align-items-center gap-2 border-bottom border-secondary border-opacity-25 pb-3">
+                            <span class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 0.9rem;">2</span>
+                            Thông tin chuyến đi của bạn
+                        </h5>
+                        
+                        <!-- Form Select Options with Premium Dark-mode inputs -->
+                        <div class="row g-4 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-white-50 text-uppercase tracking-widest"><i class="bi bi-people-fill me-2 text-primary"></i>Số lượng người</label>
+                                <select class="form-select select-premium" name="pax" required>
+                                    <option value="1">Khám phá một mình (1 người)</option>
+                                    <option value="2" selected>Cặp đôi (2 người)</option>
+                                    <option value="4">Gia đình/Nhóm nhỏ (3-5 người)</option>
+                                    <option value="10">Đoàn đông (Trên 5 người)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-white-50 text-uppercase tracking-widest"><i class="bi bi-wallet2 me-2 text-primary"></i>Ngân sách dự kiến</label>
+                                <select class="form-select select-premium" name="budget" required>
+                                    <option value="low">Tiết kiệm (Dưới 200k/người)</option>
+                                    <option value="medium" selected>Tiêu chuẩn (200k - 500k/người)</option>
+                                    <option value="high">Trải nghiệm cao cấp (Trên 500k)</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-white-50 text-uppercase tracking-widest"><i class="bi bi-clock-history me-2 text-primary"></i>Thời lượng hành trình</label>
+                                <select class="form-select select-premium" name="duration" required>
+                                    <option value="3h">Dạo quanh (Nửa ngày)</option>
+                                    <option value="1d" selected>Trọn vẹn 1 ngày</option>
+                                    <option value="2d">Khám phá 2 ngày 1 đêm</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-white-50 text-uppercase tracking-widest"><i class="bi bi-calendar-check me-2 text-primary"></i>Thời điểm khởi hành</label>
+                                <select class="form-select select-premium" name="season" required>
+                                    <option value="now">Hôm nay (Tự động cập nhật thời tiết)</option>
+                                    <option value="spring">Mùa xuân (Lễ hội mùa mai vàng)</option>
+                                    <option value="summer">Mùa hè (Hái dừa nước & miệt vườn)</option>
+                                </select>
+                            </div>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase tracking-widest"><i class="bi bi-wallet2 me-2"></i>Ngân sách dự kiến</label>
-                            <select class="form-select form-select-lg border-0 bg-light rounded-4 shadow-sm" name="budget" required>
-                                <option value="low">Tiết kiệm (Dưới 200k/người)</option>
-                                <option value="medium" selected>Tiêu chuẩn (200k - 500k/người)</option>
-                                <option value="high">Trải nghiệm cao cấp (Trên 500k)</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase tracking-widest"><i class="bi bi-clock-history me-2"></i>Thời lượng</label>
-                            <select class="form-select form-select-lg border-0 bg-light rounded-4 shadow-sm" name="duration" required>
-                                <option value="3h">Dạo quanh (Nửa ngày)</option>
-                                <option value="1d" selected>Trọn vẹn 1 ngày</option>
-                                <option value="2d">Khám phá 2 ngày 1 đêm</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold small text-muted text-uppercase tracking-widest"><i class="bi bi-calendar-check me-2"></i>Khởi hành</label>
-                            <select class="form-select form-select-lg border-0 bg-light rounded-4 shadow-sm" name="season" required>
-                                <option value="now">Thời tiết hôm nay</option>
-                                <option value="spring">Mùa xuân (Lễ hội)</option>
-                                <option value="summer">Mùa hè (Miệt vườn)</option>
-                            </select>
-                        </div>
-                    </div>
 
-                    <input type="hidden" name="moods" id="moods-input" required>
+                        <input type="hidden" name="moods" id="moods-input" value="chill" required>
 
-                    <div class="text-center mt-5 reveal-up">
-                        <button type="submit" class="btn btn-primary-bl btn-lg px-5 py-3 rounded-pill fw-black shadow-lg text-uppercase tracking-widest w-100 d-md-inline-block" style="max-width: 400px;" id="submit-btn">
-                            PHÂN TÍCH LỘ TRÌNH TỐI ƯU ➔
-                        </button>
+                        <div class="text-center mt-5">
+                            <button type="submit" class="btn btn-primary-bl btn-lg w-100 py-3 rounded-pill fw-bold text-uppercase tracking-widest shadow-lg d-md-inline-block" style="max-width: 450px;" id="submit-btn">
+                                PHÂN TÍCH LỘ TRÌNH TỐI ƯU <i class="bi bi-arrow-right ms-2"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -100,26 +132,107 @@
 </section>
 
 <style>
-    .vibe-card { transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1); border-color: #eee; }
-    .vibe-card:hover { transform: translateY(-5px); border-color: var(--v5-primary); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-    .vibe-card.active { border-color: var(--v5-primary); background-color: var(--v5-primary); color: white; transform: scale(1.05); }
-    .vibe-card.active h6 { color: white !important; }
-    .tracking-widest { letter-spacing: 1.5px; }
+    .vibe-card-premium {
+        height: 180px;
+        position: relative;
+        overflow: hidden;
+        border-radius: 20px;
+        cursor: pointer;
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    }
+    .vibe-image {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background-size: cover;
+        background-position: center;
+        transition: transform 0.6s ease;
+    }
+    .vibe-overlay {
+        position: absolute;
+        top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 100%);
+    }
+    .vibe-content {
+        position: absolute;
+        bottom: 0; left: 0; width: 100%;
+        padding: 20px;
+        z-index: 2;
+        color: white;
+    }
+    .vibe-emoji {
+        font-size: 2.2rem;
+        display: block;
+        margin-bottom: 8px;
+    }
+    .vibe-title {
+        font-weight: 800;
+        margin: 0;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+    .vibe-check-badge {
+        position: absolute;
+        top: 15px; right: 15px;
+        font-size: 1.3rem;
+        color: var(--primary);
+        opacity: 0;
+        transform: scale(0.5);
+        transition: all 0.3s ease;
+        z-index: 3;
+    }
+    
+    /* Hover and Active states */
+    .vibe-card-premium:hover {
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: translateY(-5px);
+    }
+    .vibe-card-premium:hover .vibe-image {
+        transform: scale(1.1);
+    }
+    .vibe-card-premium.active {
+        border-color: var(--primary);
+        box-shadow: 0 0 25px rgba(13, 148, 136, 0.4);
+    }
+    .vibe-card-premium.active .vibe-check-badge {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    /* Premium inputs styling */
+    .select-premium {
+        background-color: rgba(255, 255, 255, 0.08) !important;
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        color: white !important;
+        padding: 14px 18px !important;
+        border-radius: 15px !important;
+        font-size: 0.95rem;
+    }
+    .select-premium option {
+        background-color: #0b251a;
+        color: white;
+    }
+    .select-premium:focus {
+        border-color: var(--primary) !important;
+        box-shadow: 0 0 0 0.25rem rgba(13, 148, 136, 0.25) !important;
+    }
+    .tracking-widest { letter-spacing: 2px !important; }
 </style>
 
 <script>
-    let selectedVibes = [];
+    let selectedVibes = ['chill'];
 
     document.addEventListener('DOMContentLoaded', () => {
-        gsap.to('.reveal-up', { opacity: 1, y: 0, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
-        // Set default vibe
-        document.querySelector('.vibe-card').click();
+        gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
     });
 
     function selectVibe(vibe, el) {
         if (selectedVibes.includes(vibe)) {
-            selectedVibes = selectedVibes.filter(v => v !== vibe);
-            el.classList.remove('active');
+            if (selectedVibes.length > 1) {
+                selectedVibes = selectedVibes.filter(v => v !== vibe);
+                el.classList.remove('active');
+            }
         } else {
             selectedVibes.push(vibe);
             el.classList.add('active');
@@ -137,7 +250,7 @@
 
         const btn = document.getElementById('submit-btn');
         btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang thiết kế bằng AI...';
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>ĐANG PHÂN TÍCH LỘ TRÌNH...';
 
         const formData = new FormData(this);
         const data = Object.fromEntries(formData.entries());
@@ -149,7 +262,7 @@
             .catch(err => {
                 console.error(err);
                 btn.disabled = false;
-                btn.innerHTML = 'Thử lại ➔';
+                btn.innerHTML = 'Thử lại <i class="bi bi-arrow-right ms-2"></i>';
             });
     });
 </script>

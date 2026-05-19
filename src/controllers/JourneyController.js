@@ -36,10 +36,13 @@ class JourneyController {
             let seasonName = 'Miệt vườn giữa Phố';
             if (month >= 11 || month <= 3) seasonName = 'Du xuân Bình Lợi';
             
+            const allDestinations = await Destination.getActive();
+            
             res.render('journey/story_mode', {
                 title: 'Hành trình của tôi',
                 journey: journeyWithStops,
-                seasonName: seasonName
+                seasonName: seasonName,
+                allDestinations: allDestinations
             });
         } catch (error) {
             console.error("Journey index error:", error);

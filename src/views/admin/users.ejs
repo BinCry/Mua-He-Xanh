@@ -52,9 +52,12 @@
                 <td class="small" style="color: var(--admin-muted);"><%= new Date(u.created_at).toLocaleDateString('vi-VN') %></td>
                 <td>
                     <% if (u.is_active !== 0) { %>
-                        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Active</span>
+                        <span class="badge bg-success bg-opacity-15 text-success rounded-pill px-3 py-1fw-bold">Đã Duyệt</span>
                     <% } else { %>
-                        <span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-3">Inactive</span>
+                        <div class="d-flex flex-column gap-1 align-items-start">
+                            <span class="badge bg-warning bg-opacity-15 text-warning rounded-pill px-3 py-1 fw-bold">Chờ Duyệt</span>
+                            <button class="btn btn-xs btn-success rounded-pill px-2 py-0 fw-black text-uppercase tracking-wider" style="font-size: 0.65rem;" onclick="approveUserDirectly('<%= u.id %>')">Duyệt ngay</button>
+                        </div>
                     <% } %>
                 </td>
                 <td>
@@ -184,5 +187,18 @@ async function deleteUser(id, name) {
         if (res.data.success) location.reload();
         else alert(res.data.message);
     } catch (e) { alert('Lỗi'); }
+}
+
+async function approveUserDirectly(id) {
+    try {
+        const res = await axios.post('/api/admin/update-user', { id: id, is_active: 1 });
+        if (res.data.success) {
+            location.reload();
+        } else {
+            alert(res.data.message);
+        }
+    } catch (e) {
+        alert('Lỗi phê duyệt tài khoản');
+    }
 }
 </script>
