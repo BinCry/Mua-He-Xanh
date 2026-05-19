@@ -106,10 +106,13 @@ img { max-width: 100%; }
    NAVBAR
    ========================================================================== */
 .navbar-premium {
-    padding: 16px 0;
+    padding: 12px 0;
     transition: all 0.4s var(--ease-out);
     z-index: 1050;
-    background: transparent;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border-light);
 }
 
 .navbar-premium.scrolled {

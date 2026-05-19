@@ -74,16 +74,14 @@
         
         <div class="row g-4">
             <% featured.forEach((dest, i) => { %>
-            <div class="col-md-<%= i < 2 ? '6' : '4' %> reveal-up">
+            <div class="col-md-6 col-lg-4 reveal-up">
                 <a href="/explore/<%= dest.slug %>" class="text-decoration-none">
-                    <div class="card-heal h-100" style="background: none !important; box-shadow: none !important;">
-                        <div class="card-img position-relative" style="height: <%= i < 2 ? '360px' : '280px' %>;">
-                            <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>">
-                            <div class="position-absolute bottom-0 start-0 w-100 p-4" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); z-index: 5;">
-                                <span class="badge-nature mb-2 d-inline-block"><%= dest.type %></span>
-                                <h4 class="text-white fw-bold mb-1 font-display"><%= dest.name %></h4>
-                                <p class="text-white opacity-75 mb-0 line-clamp-1" style="font-size: 0.85rem;"><%= dest.short_desc || dest.short_description %></p>
-                            </div>
+                    <div class="position-relative overflow-hidden rounded-4" style="height: 300px;">
+                        <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100" style="object-fit: cover;">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%); z-index: 5;">
+                            <span class="badge-nature mb-2 d-inline-block" style="font-size: 0.7rem;"><%= dest.type %></span>
+                            <h5 class="text-white fw-bold mb-1 font-display" style="font-size: 1.15rem;"><%= dest.name %></h5>
+                            <p class="text-white opacity-75 mb-0 line-clamp-1" style="font-size: 0.82rem;"><%= dest.short_desc || dest.short_description %></p>
                         </div>
                     </div>
                 </a>

@@ -122,16 +122,13 @@
         });
 
         // Navbar Scroll Effect (Fixed top without detached spacing)
+        // Navbar always white — shadow only on scroll
         const nav = document.querySelector('.navbar-premium');
         window.addEventListener('scroll', () => {
             if (window.scrollY > 50) {
                 nav.classList.add('scrolled', 'shadow-premium');
-                nav.style.background = 'rgba(255, 255, 255, 0.95)';
-                nav.style.backdropFilter = 'blur(10px)';
             } else {
                 nav.classList.remove('scrolled', 'shadow-premium');
-                nav.style.background = 'transparent';
-                nav.style.backdropFilter = 'none';
             }
         });
 
