@@ -1,94 +1,152 @@
-<!-- Profile Dashboard — Enhanced v2 -->
-<section class="py-5" style="margin-top: 80px;">
-    <div class="container py-4" style="max-width: 960px;">
-        <!-- Profile Header -->
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5 reveal-up bg-white">
-            <!-- Cover -->
-            <div class="position-relative" style="height: 180px; background: var(--grad-nature);"></div>
-            <!-- Profile Info -->
-            <div class="p-4 pt-0 position-relative">
-                <div class="d-flex flex-column flex-md-row align-items-md-end gap-3" style="margin-top: -50px;">
-                    <img src="<%= profileUser.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-white shadow" style="width: 96px; height: 96px; object-fit: cover; z-index: 5;">
-                    <div class="flex-grow-1 pb-1">
-                        <h3 class="fw-black mb-0 font-display"><%= profileUser.full_name %></h3>
-                        <p class="text-muted mb-0" style="font-size: 0.88rem;">
-                            <% if (profileUser.phone) { %><i class="bi bi-telephone me-1"></i><%= profileUser.phone %> · <% } %>
-                            <%= profileUser.email %>
+<section class="py-5" style="margin-top: 90px; background: radial-gradient(circle at top, #0f2214 0%, #060e08 100%); min-vh-100; color: #f8fafc;">
+    <div class="container py-4" style="max-width: 900px;">
+        
+        <!-- Passport-Style Tourist Profile Header -->
+        <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-5 reveal-up" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);">
+            <!-- Elegant Natural Cover Gradient -->
+            <div class="position-relative" style="height: 180px; background: linear-gradient(135deg, #163e26 0%, #0c2013 100%);">
+                <!-- Decorative Gold Grid Overlays -->
+                <div class="position-absolute w-100 h-100 opacity-10" style="background-image: radial-gradient(#d97706 1px, transparent 1px); background-size: 20px 20px;"></div>
+                <span class="position-absolute top-0 end-0 m-3 badge bg-warning bg-opacity-20 text-warning px-3 py-2 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.72rem; border: 1px solid rgba(217, 119, 6, 0.3);">
+                    <i class="bi bi-shield-fill-check me-1"></i> THÀNH VIÊN ELITE
+                </span>
+            </div>
+            
+            <!-- Passport Profile Bio Section -->
+            <div class="px-4 pb-4 pt-0 position-relative">
+                <div class="d-flex flex-column flex-md-row align-items-center align-items-md-end gap-4" style="margin-top: -60px;">
+                    <!-- Avatar with rotating golden ring -->
+                    <div class="position-relative">
+                        <div class="position-absolute top-50 start-50 translate-middle rounded-circle" style="width: 114px; height: 114px; border: 2px dashed #d97706; animation: spin 20s linear infinite; z-index: 1;"></div>
+                        <img src="<%= profileUser.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-dark shadow-lg position-relative" style="width: 104px; height: 104px; object-fit: cover; z-index: 5;">
+                    </div>
+                    
+                    <div class="flex-grow-1 text-center text-md-start pb-1">
+                        <span class="x-small text-warning fw-bold text-uppercase" style="letter-spacing: 2px;">HỘ CHIẾU DU KHÁCH</span>
+                        <h2 class="fw-black mb-1 text-white font-display text-uppercase" style="font-size: 1.8rem; font-family: 'Outfit', sans-serif;"><%= profileUser.full_name %></h2>
+                        <p class="text-white-50 mb-0" style="font-size: 0.85rem;">
+                            <% if (profileUser.phone) { %><span class="me-2"><i class="bi bi-telephone-fill text-success me-1"></i><%= profileUser.phone %></span> · <% } %>
+                            <span><i class="bi bi-envelope-fill text-success me-1"></i><%= profileUser.email %></span>
                         </p>
                     </div>
-                    <a href="/profile/edit" class="btn btn-ghost btn-sm rounded-pill px-4"><i class="bi bi-pencil me-1"></i>Chỉnh sửa</a>
+                    
+                    <div class="d-flex gap-2">
+                        <a href="/profile/edit" class="btn btn-outline-success btn-sm rounded-pill px-4 py-2 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                            <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+                        </a>
+                        <% if (profileUser.role === 'admin' || profileUser.role === 'manager') { %>
+                            <a href="/admin" class="btn btn-warning btn-sm rounded-pill px-4 py-2 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                                <i class="bi bi-speedometer2 me-1"></i>Quản trị
+                            </a>
+                        <% } %>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Stats Row -->
+        <!-- Traveler Statistics Grid (Frosted Glassmorphism Widgets) -->
+        <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Outfit', sans-serif; letter-spacing: 1px;">
+            <i class="bi bi-activity text-success me-2"></i>Chỉ số hành trình
+        </h5>
         <div class="row g-3 mb-5">
             <div class="col-6 col-md-3 reveal-up">
-                <div class="card-stat">
-                    <div class="stat-icon" style="background: var(--primary-50); color: var(--primary);"><i class="bi bi-star-fill"></i></div>
-                    <div class="stat-value"><%= stats.points %></div>
-                    <div class="stat-label">Điểm thưởng</div>
+                <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2);">
+                        <i class="bi bi-star-fill fs-5 animate-pulse"></i>
+                    </div>
+                    <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Outfit', sans-serif;"><%= stats.points %></div>
+                    <div class="x-small text-white-50 fw-bold text-uppercase" style="letter-spacing: 1px;">Điểm tích lũy</div>
                 </div>
             </div>
+            
             <div class="col-6 col-md-3 reveal-up">
-                <div class="card-stat">
-                    <div class="stat-icon" style="background: rgba(16,185,129,0.1); color: var(--success);"><i class="bi bi-geo-alt-fill"></i></div>
-                    <div class="stat-value"><%= stats.checkins %></div>
-                    <div class="stat-label">Lượt Check-in</div>
+                <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(25, 135, 84, 0.1); color: #198754; border: 1px solid rgba(25, 135, 84, 0.2);">
+                        <i class="bi bi-geo-alt-fill fs-5"></i>
+                    </div>
+                    <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Outfit', sans-serif;"><%= stats.checkins %></div>
+                    <div class="x-small text-white-50 fw-bold text-uppercase" style="letter-spacing: 1px;">Lượt Check-in</div>
                 </div>
             </div>
+            
             <div class="col-6 col-md-3 reveal-up">
-                <div class="card-stat">
-                    <div class="stat-icon" style="background: rgba(59,130,246,0.1); color: var(--info);"><i class="bi bi-signpost-split-fill"></i></div>
-                    <div class="stat-value"><%= stats.journeys %></div>
-                    <div class="stat-label">Hành trình</div>
+                <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(13, 148, 136, 0.1); color: #0d9488; border: 1px solid rgba(13, 148, 136, 0.2);">
+                        <i class="bi bi-signpost-split-fill fs-5"></i>
+                    </div>
+                    <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Outfit', sans-serif;"><%= stats.journeys %></div>
+                    <div class="x-small text-white-50 fw-bold text-uppercase" style="letter-spacing: 1px;">Hành trình xanh</div>
                 </div>
             </div>
+            
             <div class="col-6 col-md-3 reveal-up">
-                <div class="card-stat">
-                    <div class="stat-icon" style="background: rgba(240,165,0,0.1); color: var(--accent);"><i class="bi bi-award-fill"></i></div>
-                    <div class="stat-value"><%= stats.badges %></div>
-                    <div class="stat-label">Huy hiệu</div>
+                <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">
+                        <i class="bi bi-award-fill fs-5"></i>
+                    </div>
+                    <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Outfit', sans-serif;"><%= stats.badges %></div>
+                    <div class="x-small text-white-50 fw-bold text-uppercase" style="letter-spacing: 1px;">Danh hiệu đạt</div>
                 </div>
             </div>
         </div>
 
-        <!-- Badges Section -->
+        <!-- Badges Section with Golden Frame -->
         <% if (badges && badges.length > 0) { %>
         <div class="mb-5 reveal-up">
-            <h4 class="fw-bold mb-4"><i class="bi bi-award-fill text-warning me-2"></i>Huy hiệu Khám phá</h4>
-            <div class="d-flex gap-3 flex-wrap">
+            <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Outfit', sans-serif; letter-spacing: 1px;">
+                <i class="bi bi-award-fill text-warning me-2 animate-pulse"></i>Hộp huy hiệu tích lũy
+            </h5>
+            <div class="d-flex gap-4 flex-wrap">
                 <% badges.forEach(b => { %>
-                <div class="text-center p-3 rounded-4" style="background: var(--surface); border: 1px solid var(--border-light); min-width: 100px;">
-                    <div class="mb-2" style="font-size: 2rem;"><%= b.icon || '🏅' %></div>
-                    <div class="fw-bold small"><%= b.name || b.badge_name %></div>
-                    <div class="x-small text-muted"><%= new Date(b.earned_at || b.created_at).toLocaleDateString('vi-VN') %></div>
+                <div class="text-center p-3 rounded-4 position-relative overflow-hidden badge-hover-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); min-width: 130px; transition: all 0.3s;">
+                    <!-- Inner golden gradient overlay on hover -->
+                    <div class="position-absolute w-100 h-100 top-0 start-0 opacity-10 bg-warning bg-opacity-25" style="z-index: 0;"></div>
+                    <div class="position-relative" style="z-index: 1;">
+                        <div class="mb-2 fs-1 animate-bounce" style="filter: drop-shadow(0 0 10px rgba(217, 119, 6, 0.3));"><%= b.icon || '🏅' %></div>
+                        <div class="fw-bold small text-white text-truncate"><%= b.name || b.badge_name %></div>
+                        <div class="x-small text-white-50 mt-1" style="font-size: 0.7rem;"><%= new Date(b.earned_at || b.created_at).toLocaleDateString('vi-VN') %></div>
+                    </div>
                 </div>
                 <% }) %>
             </div>
         </div>
         <% } %>
 
-        <!-- Quick Actions -->
+        <!-- Premium Quick Actions -->
+        <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Outfit', sans-serif; letter-spacing: 1px;">
+            <i class="bi bi-lightning-fill text-success me-2"></i>Lối tắt nhanh
+        </h5>
         <div class="row g-3 reveal-up">
             <div class="col-6 col-md-4">
-                <a href="/profile/rewards" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
-                    <i class="bi bi-gift-fill d-block mb-2" style="font-size: 1.5rem; color: var(--danger);"></i>
-                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Điểm thưởng</span>
+                <a href="/profile/rewards" class="d-block p-4 rounded-4 text-center text-decoration-none shadow-lg" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
+                    <i class="bi bi-gift-fill d-block mb-2 text-danger" style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(220, 53, 69, 0.3));"></i>
+                    <span class="fw-bold d-block text-white" style="font-size: 0.85rem;">Đổi điểm thưởng</span>
                 </a>
             </div>
             <div class="col-6 col-md-4">
-                <a href="/journey" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
-                    <i class="bi bi-signpost-split-fill d-block mb-2" style="font-size: 1.5rem; color: var(--primary);"></i>
-                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Tạo hành trình</span>
+                <a href="/journey" class="d-block p-4 rounded-4 text-center text-decoration-none shadow-lg" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
+                    <i class="bi bi-compass-fill d-block mb-2 text-success" style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(25, 135, 84, 0.3));"></i>
+                    <span class="fw-bold d-block text-white" style="font-size: 0.85rem;">Hành trình thông minh</span>
                 </a>
             </div>
             <div class="col-6 col-md-4">
-                <a href="/reviews" class="d-block p-4 rounded-xl text-center text-decoration-none hover-lift" style="background: var(--surface); border: 1px solid var(--border-light);">
-                    <i class="bi bi-camera-fill d-block mb-2" style="font-size: 1.5rem; color: var(--info);"></i>
-                    <span class="fw-bold d-block" style="font-size: 0.85rem; color: var(--text);">Chia sẻ ảnh</span>
+                <a href="/reviews" class="d-block p-4 rounded-4 text-center text-decoration-none shadow-lg" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
+                    <i class="bi bi-camera-fill d-block mb-2 text-info" style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(13, 202, 240, 0.3));"></i>
+                    <span class="fw-bold d-block text-white" style="font-size: 0.85rem;">Góc nhìn cộng đồng</span>
                 </a>
             </div>
         </div>
     </div>
 </section>
+
+<style>
+    @keyframes spin {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .badge-hover-card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(217, 119, 6, 0.3) !important;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+    }
+</style>

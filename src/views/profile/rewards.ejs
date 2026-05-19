@@ -1,48 +1,96 @@
-<!-- Rewards — Chương 5.15 -->
-<section class="py-5" style="margin-top: 80px;">
-    <div class="container py-4" style="max-width: 860px;">
-        <!-- Points Header -->
-        <div class="text-center mb-5 reveal-up">
-            <span class="section-label">PHẦN THƯỞNG</span>
-            <h2 class="section-title">Điểm Healing</h2>
-            <div class="d-inline-flex align-items-center gap-3 mt-3 p-4 rounded-2xl" style="background: var(--grad-nature);">
-                <i class="bi bi-star-fill text-warning fs-3"></i>
-                <div class="text-start">
-                    <div class="text-white fw-black font-display" style="font-size: 2.5rem; line-height: 1;"><%= currentPoints %></div>
-                    <span class="text-white opacity-60" style="font-size: 0.82rem;">điểm hiện có</span>
+<section class="py-5" style="margin-top: 90px; background: radial-gradient(circle at top, #0f2214 0%, #060e08 100%); min-vh-100; color: #f8fafc;">
+    <div class="container py-4" style="max-width: 900px;">
+        
+        <!-- Gamified Points Dashboard Header -->
+        <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-5 text-center p-5 position-relative" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);">
+            <!-- Decorative light leaks -->
+            <div class="position-absolute top-0 start-50 translate-middle-x rounded-circle opacity-10" style="width: 250px; height: 250px; background: #d97706; filter: blur(80px); z-index: 0;"></div>
+            
+            <div class="position-relative" style="z-index: 1;">
+                <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-3 py-2 mb-3 fw-bold text-uppercase x-small" style="letter-spacing: 2px; border: 1px solid rgba(217, 119, 6, 0.3);">
+                    <i class="bi bi-trophy-fill me-1"></i>HỆ THỐNG ĐỔI THƯỞNG GAMIFIED
+                </span>
+                
+                <!-- Glowing Golden Points Circle -->
+                <div class="d-inline-flex flex-column align-items-center justify-content-center rounded-circle border border-4 border-warning shadow-lg p-5 mb-4 position-relative" style="width: 200px; height: 200px; background: rgba(255, 255, 255, 0.02); box-shadow: 0 0 30px rgba(217, 119, 6, 0.25) !important;">
+                    <div class="position-absolute rounded-circle" style="width: 208px; height: 208px; border: 2px dashed rgba(217, 119, 6, 0.3); animation: spin 30s linear infinite;"></div>
+                    <i class="bi bi-stars text-warning fs-3 mb-1 animate-pulse"></i>
+                    <h1 class="fw-black text-white mb-0" style="font-family: 'Outfit', sans-serif; font-size: 3rem; background: linear-gradient(135deg, #ffffff, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><%= currentPoints %></h1>
+                    <span class="x-small text-white-50 fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 1px;">Điểm hiện có</span>
                 </div>
+                
+                <h3 class="fw-bold mb-2 text-white" style="font-family: 'Outfit', sans-serif;">Cấp độ: Lữ khách thông thái</h3>
+                <p class="text-white-50 mb-0 mx-auto" style="max-width: 500px; font-size: 0.88rem;">
+                    Tích lũy thêm điểm Healing bằng cách check-in quét QR tại các điểm dừng chân hoặc chia sẻ những khoảnh khắc đẹp cùng cộng đồng.
+                </p>
             </div>
         </div>
 
-        <!-- Available Rewards -->
+        <!-- Available Rewards (Golden Ticket Cards) -->
         <div class="mb-5">
-            <h5 class="fw-bold mb-4"><i class="bi bi-gift me-2" style="color: var(--accent);"></i>Phần thưởng có thể đổi</h5>
-            <div class="row g-3">
+            <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Outfit', sans-serif; letter-spacing: 1px;">
+                <i class="bi bi-gift-fill text-warning me-2 animate-bounce"></i>Voucher & Quà tặng sẵn sàng đổi
+            </h5>
+            
+            <div class="row g-4">
                 <% availableRewards.forEach(r => { %>
                 <div class="col-md-6 reveal-up">
-                    <div class="p-4 rounded-xl d-flex justify-content-between align-items-center" style="background: var(--surface); border: 1px solid var(--border-light); transition: all 0.3s ease;" onmouseover="this.style.borderColor='var(--primary-100)';this.style.transform='translateY(-3px)'" onmouseout="this.style.borderColor='var(--border-light)';this.style.transform='none'">
-                        <div>
-                            <h6 class="fw-bold mb-1" style="font-size: 0.95rem;"><%= r.title %></h6>
-                            <p class="text-muted mb-2" style="font-size: 0.82rem;"><%= r.description %></p>
-                            <span class="badge-gold"><i class="bi bi-star-fill me-1"></i><%= r.points_required %> điểm</span>
+                    <!-- Ticket Design with dashed divider -->
+                    <div class="card border-0 rounded-4 overflow-hidden shadow-lg position-relative d-flex flex-row" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); min-height: 140px; transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
+                        
+                        <!-- Left side: Voucher Main details -->
+                        <div class="p-4 flex-grow-1">
+                            <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-2 py-1 mb-2 fw-bold text-uppercase" style="font-size: 0.65rem; border: 1px solid rgba(25, 135, 84, 0.25);">
+                                Hạt giống xanh
+                            </span>
+                            <h6 class="fw-bold mb-1 text-white text-truncate" style="font-size: 1.05rem; font-family: 'Outfit', sans-serif;"><%= r.title %></h6>
+                            <p class="text-white-50 mb-0 line-clamp-1" style="font-size: 0.8rem;"><%= r.description %></p>
+                            <div class="mt-3 text-warning fw-bold" style="font-size: 0.85rem;">
+                                <i class="bi bi-stars me-1 animate-pulse"></i><%= r.points_required %> điểm
+                            </div>
                         </div>
-                        <button class="btn btn-primary-bl btn-sm rounded-pill px-3 flex-shrink-0 ms-3 <%= currentPoints < r.points_required ? 'disabled' : '' %>" onclick="redeem('<%= r.id %>', '<%= r.title %>')">Đổi</button>
+
+                        <!-- Ticket dashed border divider -->
+                        <div class="d-flex flex-column justify-content-between py-2" style="border-left: 2px dashed rgba(255, 255, 255, 0.15); height: 100%;">
+                            <div class="bg-dark rounded-circle" style="width: 12px; height: 12px; margin-left: -7px; margin-top: -8px;"></div>
+                            <div class="bg-dark rounded-circle" style="width: 12px; height: 12px; margin-left: -7px; margin-bottom: -8px;"></div>
+                        </div>
+
+                        <!-- Right side: Quick Action Claim button -->
+                        <div class="p-4 d-flex align-items-center justify-content-center flex-shrink-0" style="min-width: 100px;">
+                            <% if (currentPoints < r.points_required) { %>
+                                <button class="btn btn-secondary btn-sm rounded-pill px-3 py-2 fw-bold text-uppercase disabled" style="font-size: 0.72rem; letter-spacing: 0.5px; opacity: 0.5;">
+                                    Chưa đủ
+                                </button>
+                            <% } else { %>
+                                <button class="btn btn-warning btn-sm rounded-pill px-3 py-2 fw-bold text-uppercase shadow-lg" style="font-size: 0.72rem; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);" onclick="redeem('<%= r.id %>', '<%= r.title %>')">
+                                    Đổi quà
+                                </button>
+                            <% } %>
+                        </div>
                     </div>
                 </div>
                 <% }) %>
             </div>
         </div>
 
-        <!-- Redeemed -->
+        <!-- Redeemed History list -->
         <% if (myRewards.length > 0) { %>
         <div class="reveal-up">
-            <h5 class="fw-bold mb-4"><i class="bi bi-check-circle me-2" style="color: var(--success);"></i>Đã đổi</h5>
-            <div class="d-flex flex-column gap-2">
+            <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Outfit', sans-serif; letter-spacing: 1px;">
+                <i class="bi bi-clock-history text-success me-2"></i>Lịch sử đổi quà gần đây
+            </h5>
+            
+            <div class="d-flex flex-column gap-3">
                 <% myRewards.forEach(r => { %>
-                <div class="d-flex align-items-center gap-3 p-3 rounded-lg" style="background: var(--surface-alt);">
-                    <span class="badge rounded-pill" style="background: rgba(16,185,129,0.1); color: var(--success); font-size: 0.72rem; padding: 4px 10px;"><%= r.status %></span>
-                    <span class="fw-bold flex-grow-1" style="font-size: 0.88rem;"><%= r.title %></span>
-                    <span class="text-muted" style="font-size: 0.78rem;"><%= new Date(r.redeemed_at).toLocaleDateString('vi-VN') %></span>
+                <div class="d-flex align-items-center justify-content-between p-3 rounded-4" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);">
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;">
+                            <i class="bi bi-patch-check-fill me-1"></i><%= r.status %>
+                        </span>
+                        <span class="fw-bold text-white small" style="font-size: 0.88rem;"><%= r.title %></span>
+                    </div>
+                    <span class="text-white-50" style="font-size: 0.78rem;"><%= new Date(r.redeemed_at).toLocaleDateString('vi-VN') %></span>
                 </div>
                 <% }) %>
             </div>
@@ -53,11 +101,20 @@
 
 <script>
 async function redeem(id, title) {
-    if (!confirm('Đổi "' + title + '"?')) return;
+    if (!confirm('Bạn chắc chắn muốn đổi phần quà "' + title + '"?')) return;
     try {
         const res = await axios.post('/api/redeem-reward', { reward_id: id });
         alert(res.data.message);
         if (res.data.success) location.reload();
-    } catch(e) { alert('Lỗi'); }
+    } catch(e) { 
+        alert('Lỗi: ' + (e.response?.data?.message || e.message)); 
+    }
 }
 </script>
+
+<style>
+    @keyframes spin {
+        from { transform: translate(-50%, -50%) rotate(0deg); }
+        to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+</style>

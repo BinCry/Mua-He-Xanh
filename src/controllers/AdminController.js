@@ -100,10 +100,6 @@ const AdminController = {
                 FROM users ORDER BY created_at DESC LIMIT 8
             `);
 
-            // Offset the visitor stats slightly if they are currently too small
-            const displayPageViews = pageViews[0].total < 100 ? 12450 + pageViews[0].total : pageViews[0].total;
-            const displayUniqueVisitors = uniqueVisitors[0].total < 20 ? 1420 + uniqueVisitors[0].total : uniqueVisitors[0].total;
-
             res.render('admin/dashboard', {
                 title: 'Bảng Điều Khiển Admin',
                 layout: 'layouts/admin',
@@ -111,11 +107,11 @@ const AdminController = {
                 stats: {
                     users: userCount[0].total,
                     destinations: destCount[0].total,
-                    checkins: checkinCount[0].total + 124, // include baseline checkins
+                    checkins: checkinCount[0].total,
                     reviews: reviewCount[0].total,
                     workshops: workshopCount[0].total,
-                    pageViews: displayPageViews,
-                    uniqueVisitors: displayUniqueVisitors,
+                    pageViews: pageViews[0].total,
+                    uniqueVisitors: uniqueVisitors[0].total,
                     avgDuration: realAvgSeconds
                 },
                 chartData: { monthlyCheckins, dailyViews, monthlyUsers },
@@ -394,27 +390,31 @@ const AdminController = {
         }
     },
 
-    // ==================== API: Update Destination ====================
     updateDestination: async (req, res) => {
         try {
-            const { id, name, short_desc, description, type, open_hours, cost, points, lat, lng, cover_image } = req.body;
+            const { id, name, slug, short_desc, description, type, open_hours, cost, points, lat, lng, cover_image } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID' });
 
-            let query = 'UPDATE destinations SET name = ?, short_desc = ?, description = ?, type = ?, open_hours = ?, cost = ?, points = ?';
-            let params = [name, short_desc, description, type, open_hours, cost, points];
+            const parsedPoints = parseInt(points) || 10;
+            const parsedLat = (lat && String(lat).trim() !== '') ? parseFloat(lat) : null;
+            const parsedLng = (lng && String(lng).trim() !== '') ? parseFloat(lng) : null;
 
-            if (lat) { query += ', lat = ?'; params.push(lat); }
-            if (lng) { query += ', lng = ?'; params.push(lng); }
-            if (cover_image) { query += ', cover_image = ?'; params.push(cover_image); }
+            let query = 'UPDATE destinations SET name = ?, slug = ?, short_desc = ?, description = ?, type = ?, open_hours = ?, cost = ?, points = ?, lat = ?, lng = ?';
+            let params = [name, slug, short_desc || '', description || '', type || 'nature', open_hours || '', cost || '', parsedPoints, parsedLat, parsedLng];
+
+            if (cover_image && cover_image.trim() !== '') {
+                query += ', cover_image = ?';
+                params.push(cover_image);
+            }
 
             query += ' WHERE id = ?';
             params.push(id);
 
             await db.query(query, params);
-            res.json({ success: true, message: 'Đã cập nhật địa điểm!' });
+            res.json({ success: true, message: 'Đã cập nhật địa điểm thành công!' });
         } catch (error) {
             console.error('Update destination error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
         }
     },
 
@@ -432,27 +432,29 @@ const AdminController = {
     // ==================== API: Workshop CRUD ====================
     createWorkshop: async (req, res) => {
         try {
-            const { title, description, type, price, duration, max_participants, destination_id, image } = req.body;
+            const { title, description, type, price, duration, max_participants, destination_id, image, start_date, end_date } = req.body;
             await db.query(
-                `INSERT INTO workshops (id, title, description, type, price, duration, max_participants, destination_id, image, is_active, created_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())`,
-                [uuidv4(), title, description, type || 'craft', price || 0, duration || '2 giờ', max_participants || 20, destination_id || null, image || '/images/placeholder.jpg']
+                `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())`,
+                [uuidv4(), destination_id || null, title, description || '', type || 'craft', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
             );
             res.json({ success: true, message: 'Đã tạo workshop!' });
         } catch (error) {
+            console.error('Create workshop error:', error);
             res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
         }
     },
 
     updateWorkshop: async (req, res) => {
         try {
-            const { id, title, description, type, price, duration, max_participants, image, is_active } = req.body;
+            const { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active, destination_id } = req.body;
             await db.query(
-                `UPDATE workshops SET title = ?, description = ?, type = ?, price = ?, duration = ?, max_participants = ?, image = ?, is_active = ? WHERE id = ?`,
-                [title, description, type, price, duration, max_participants, image, is_active !== undefined ? is_active : 1, id]
+                `UPDATE workshops SET title = ?, description = ?, type = ?, price = ?, duration = ?, max_participants = ?, image = ?, start_date = ?, end_date = ?, is_active = ?, destination_id = ? WHERE id = ?`,
+                [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined ? is_active : 1, destination_id || null, id]
             );
             res.json({ success: true, message: 'Đã cập nhật workshop!' });
         } catch (error) {
+            console.error('Update workshop error:', error);
             res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
         }
     },

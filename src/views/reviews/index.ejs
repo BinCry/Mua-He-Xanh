@@ -53,7 +53,7 @@
                         <!-- Open Camera (Direct Capture integration for Mobile) -->
                         <label class="btn btn-light btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 0.8rem; font-weight: 600;">
                             <i class="bi bi-camera-fill text-primary fs-6"></i> Chụp ảnh
-                            <input type="file" name="camera" accept="image/*" capture="environment" class="d-none" onchange="previewImage(this)">
+                            <input type="file" name="camera" accept="image/*" capture="environment" class="d-none" id="cameraInput" onchange="previewImage(this)">
                         </label>
 
                         <!-- Rating Selector -->
@@ -224,7 +224,10 @@
             formData.append('rating', form.rating.value);
             
             const imageInput = document.getElementById('imageInput');
-            if (imageInput.files.length > 0) {
+            const cameraInput = document.getElementById('cameraInput');
+            if (cameraInput && cameraInput.files.length > 0) {
+                formData.append('image', cameraInput.files[0]);
+            } else if (imageInput && imageInput.files.length > 0) {
                 formData.append('image', imageInput.files[0]);
             }
 

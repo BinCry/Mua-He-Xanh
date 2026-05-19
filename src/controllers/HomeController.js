@@ -5,22 +5,31 @@ const db = require('../core/database');
 class HomeController {
     async index(req, res) {
         try {
+            // Get all settings from DB
+            const [dbSettings] = await db.query('SELECT * FROM settings');
+            const settingsMap = {};
+            dbSettings.forEach(s => { settingsMap[s.key_name] = s.key_value; });
+
             // Determine current season
             const now = new Date();
             const month = now.getMonth() + 1;
             
             let season = 'summer';
-            let seasonTitle = 'Bình Lợi – Miền Tây giữa lòng Sài Gòn';
-            let seasonSlogan = 'Miệt vườn giữa phố, trải nghiệm bản sắc';
+            let seasonTitle = settingsMap.hero_title || 'Bình Lợi – Miền Tây giữa lòng Sài Gòn';
+            let seasonSlogan = settingsMap.hero_slogan || 'Miệt vườn giữa phố, trải nghiệm bản sắc';
 
             if (month >= 11 || month <= 3) {
                 season = 'spring';
-                seasonTitle = 'Xuân Bình Lợi – Sắc Mai Vàng';
-                seasonSlogan = 'Hồn quê giữa thành phố mới';
+                if (!settingsMap.hero_title) {
+                    seasonTitle = 'Xuân Bình Lợi – Sắc Mai Vàng';
+                    seasonSlogan = 'Hồn quê giữa thành phố mới';
+                }
             } else if (month >= 7 && month <= 10) {
                 season = 'autumn';
-                seasonTitle = 'Mùa Hoa Đăng – Bình Lợi Chữa Lành';
-                seasonSlogan = 'Bình từ tâm – Lợi từ tầm';
+                if (!settingsMap.hero_title) {
+                    seasonTitle = 'Mùa Hoa Đăng – Bình Lợi Chữa Lành';
+                    seasonSlogan = 'Bình từ tâm – Lợi từ tầm';
+                }
             }
 
             // Get featured destinations

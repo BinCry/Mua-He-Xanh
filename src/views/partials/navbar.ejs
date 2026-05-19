@@ -45,76 +45,83 @@
                     <li class="nav-item">
                         <a class="nav-link" href="/map"><i class="bi bi-map d-lg-none me-2"></i>Bản đồ</a>
                     </li>
-                </ul>
-                
-                <!-- Auth Section -->
-                <div class="d-flex flex-column flex-lg-row align-items-lg-center gap-2 mt-4 mt-lg-0 pt-4 pt-lg-0 border-top border-lg-0">
-                    <% if (user) { %>
-                        <!-- Desktop User Dropdown -->
-                        <div class="dropdown d-none d-lg-block">
-                            <a href="#" class="d-flex align-items-center gap-2 text-decoration-none p-1 rounded-pill" data-bs-toggle="dropdown" style="background: var(--primary-50); padding-right: 14px !important;">
-                                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
-                                <span class="fw-bold" style="font-size: 0.82rem; color: var(--primary);"><%= user.full_name.split(' ').pop() %></span>
-                                <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 220px;">
-                                <li class="px-3 py-2 mb-1">
-                                    <div class="fw-bold" style="font-size: 0.88rem;"><%= user.full_name %></div>
-                                    <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
-                                </li>
-                                <li><hr class="dropdown-divider my-1"></li>
-                                <% if (user.role === 'admin') { %>
-                                    <li><a class="dropdown-item py-2 rounded-2" href="/admin" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
-                                <% } %>
-                                <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
-                                <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
-                                <li><hr class="dropdown-divider my-1"></li>
-                                <li><a class="dropdown-item py-2 rounded-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
-                            </ul>
-                        </div>
-
-                        <!-- Mobile: user links inside offcanvas -->
-                        <div class="d-lg-none mt-auto pt-3 border-top">
-                            <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
-                                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-                                <div>
-                                    <div class="fw-bold" style="font-size: 0.9rem;"><%= user.full_name %></div>
-                                    <div style="font-size: 0.72rem; color: var(--text-muted);"><%= user.phone || user.email %></div>
-                                </div>
+                               <!-- Mobile: user links inside offcanvas (only visible on mobile) -->
+                <% if (user) { %>
+                    <div class="d-lg-none mt-auto pt-3 border-top">
+                        <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
+                            <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                            <div>
+                                <div class="fw-bold" style="font-size: 0.9rem;"><%= user.full_name %></div>
+                                <div style="font-size: 0.72rem; color: var(--text-muted);"><%= user.phone || user.email %></div>
                             </div>
-                            <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/profile" style="color: var(--text); font-size: 0.92rem;">
-                                <i class="bi bi-person-circle text-muted" style="width: 20px;"></i> Hồ sơ du khách
-                            </a>
-                            <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/checkin" style="color: var(--text); font-size: 0.92rem;">
-                                <i class="bi bi-qr-code-scan text-primary" style="width: 20px;"></i> Quét QR Check-in
-                            </a>
-                            <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/profile/rewards" style="color: var(--text); font-size: 0.92rem;">
-                                <i class="bi bi-gift text-warning" style="width: 20px;"></i> Điểm thưởng
-                            </a>
-                            <% if (user.role === 'admin') { %>
-                            <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/admin" style="color: var(--primary); font-weight: 600; font-size: 0.92rem;">
-                                <i class="bi bi-shield-check" style="width: 20px;"></i> Admin Panel
-                            </a>
-                            <% } %>
-                            <a class="d-flex align-items-center gap-3 py-2 mt-2 text-decoration-none text-danger" href="/auth/logout" style="font-size: 0.92rem;">
-                                <i class="bi bi-box-arrow-right" style="width: 20px;"></i> Đăng xuất
-                            </a>
                         </div>
-                    <% } else { %>
-                        <!-- Desktop login button -->
-                        <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold d-none d-lg-inline-block" style="font-size: 0.82rem;">Đăng nhập</a>
-                        <!-- Mobile login link -->
-                        <div class="d-lg-none mt-auto pt-3 border-top">
-                            <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/checkin" style="color: var(--text); font-size: 0.92rem;">
-                                <i class="bi bi-qr-code-scan text-primary" style="width: 20px;"></i> Quét QR Check-in
-                            </a>
-                            <a href="/auth/login" class="btn btn-premium rounded-pill w-100 py-2 fw-bold mt-3" style="font-size: 0.88rem;">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
-                            </a>
-                        </div>
-                    <% } %>
-                </div>
+                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/profile" style="color: var(--text); font-size: 0.92rem;">
+                            <i class="bi bi-person-circle text-muted" style="width: 20px;"></i> Hồ sơ du khách
+                        </a>
+                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/checkin" style="color: var(--text); font-size: 0.92rem;">
+                            <i class="bi bi-qr-code-scan text-primary" style="width: 20px;"></i> Quét QR Check-in
+                        </a>
+                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/profile/rewards" style="color: var(--text); font-size: 0.92rem;">
+                            <i class="bi bi-gift text-warning" style="width: 20px;"></i> Điểm thưởng
+                        </a>
+                        <% if (user.role === 'admin') { %>
+                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/admin" style="color: var(--primary); font-weight: 600; font-size: 0.92rem;">
+                            <i class="bi bi-shield-check" style="width: 20px;"></i> Admin Panel
+                        </a>
+                        <% } %>
+                        <% if (user.role === 'manager') { %>
+                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/manager" style="color: var(--primary); font-weight: 600; font-size: 0.92rem;">
+                            <i class="bi bi-shield-check" style="width: 20px;"></i> Manager Panel
+                        </a>
+                        <% } %>
+                        <a class="d-flex align-items-center gap-3 py-2 mt-2 text-decoration-none text-danger" href="/auth/logout" style="font-size: 0.92rem;">
+                            <i class="bi bi-box-arrow-right" style="width: 20px;"></i> Đăng xuất
+                        </a>
+                    </div>
+                <% } else { %>
+                    <div class="d-lg-none mt-auto pt-3 border-top">
+                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/checkin" style="color: var(--text); font-size: 0.92rem;">
+                            <i class="bi bi-qr-code-scan text-primary" style="width: 20px;"></i> Quét QR Check-in
+                        </a>
+                        <a href="/auth/login" class="btn btn-premium rounded-pill w-100 py-2 fw-bold mt-3" style="font-size: 0.88rem;">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
+                        </a>
+                    </div>
+                <% } %>
             </div>
+        </div>
+
+        <!-- Desktop Auth Section (placed outside offcanvas, floats on the right) -->
+        <div class="d-none d-lg-flex align-items-center gap-3" style="z-index: 10;">
+            <% if (user) { %>
+                <!-- Desktop User Dropdown -->
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none p-1 rounded-pill" data-bs-toggle="dropdown" style="background: var(--primary-50); padding-right: 14px !important;">
+                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
+                        <span class="fw-bold" style="font-size: 0.82rem; color: var(--primary);"><%= user.full_name.split(' ').pop() %></span>
+                        <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 220px;">
+                        <li class="px-3 py-2 mb-1">
+                            <div class="fw-bold" style="font-size: 0.88rem;"><%= user.full_name %></div>
+                            <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <% if (user.role === 'admin') { %>
+                            <li><a class="dropdown-item py-2 rounded-2" href="/admin" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
+                        <% } %>
+                        <% if (user.role === 'manager') { %>
+                            <li><a class="dropdown-item py-2 rounded-2" href="/manager" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Khu vực Quản lý</a></li>
+                        <% } %>
+                        <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
+                        <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item py-2 rounded-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                    </ul>
+                </div>
+            <% } else { %>
+                <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold" style="font-size: 0.82rem;">Đăng nhập</a>
+            <% } %>
         </div>
     </div>
 </nav>

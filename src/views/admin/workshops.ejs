@@ -53,7 +53,7 @@
                     <% } %>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick='editWs(<%- JSON.stringify({id: ws.id, title: ws.title, description: ws.description, type: ws.type, price: ws.price, duration: ws.duration, max_participants: ws.max_participants, image: ws.image, is_active: ws.is_active, destination_id: ws.destination_id}) %>)'>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick='editWs(<%- JSON.stringify(ws) %>)'>
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteWs('<%= ws.id %>')">
@@ -122,9 +122,24 @@
                                 <% }) %>
                             </select>
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ngày giờ bắt đầu</label>
+                            <input type="datetime-local" class="form-control admin-input" id="ws_start_date" name="start_date">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ngày giờ kết thúc</label>
+                            <input type="datetime-local" class="form-control admin-input" id="ws_end_date" name="end_date">
+                        </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Link ảnh</label>
-                            <input type="text" class="form-control admin-input" id="ws_image" name="image" placeholder="https://...">
+                            <label class="form-label small fw-bold">Ảnh Workshop</label>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <img id="ws_preview" src="/images/hero-2.png" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                                <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('ws_file').click()">
+                                    <i class="bi bi-upload me-1"></i>Chọn ảnh
+                                </button>
+                                <input type="file" id="ws_file" class="d-none" accept="image/*" onchange="uploadWsFile(this)">
+                            </div>
+                            <input type="hidden" id="ws_image" name="image" value="/images/hero-2.png">
                         </div>
                         <div class="col-md-6">
                             <div class="form-check form-switch mt-2">
@@ -146,11 +161,45 @@
 <script>
 let editingWs = false;
 
+async function uploadWsFile(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            document.getElementById('ws_image').value = res.data.url;
+            document.getElementById('ws_preview').src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
 function openWsForm() {
     editingWs = false;
     document.getElementById('wsModalTitle').textContent = 'Thêm Workshop';
     document.getElementById('wsForm').reset();
     document.getElementById('ws_id').value = '';
+    document.getElementById('ws_preview').src = '/images/hero-2.png';
+    document.getElementById('ws_image').value = '/images/hero-2.png';
+    document.getElementById('ws_start_date').value = '';
+    document.getElementById('ws_end_date').value = '';
     document.getElementById('ws_is_active').checked = true;
 }
 
@@ -164,8 +213,19 @@ function editWs(ws) {
     document.getElementById('ws_price').value = ws.price || 0;
     document.getElementById('ws_duration').value = ws.duration || '2 giờ';
     document.getElementById('ws_max').value = ws.max_participants || 20;
-    document.getElementById('ws_image').value = ws.image || '';
+    document.getElementById('ws_image').value = ws.image || '/images/hero-2.png';
+    document.getElementById('ws_preview').src = ws.image || '/images/hero-2.png';
     document.getElementById('ws_dest').value = ws.destination_id || '';
+    if (ws.start_date) {
+        document.getElementById('ws_start_date').value = new Date(new Date(ws.start_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    } else {
+        document.getElementById('ws_start_date').value = '';
+    }
+    if (ws.end_date) {
+        document.getElementById('ws_end_date').value = new Date(new Date(ws.end_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    } else {
+        document.getElementById('ws_end_date').value = '';
+    }
     document.getElementById('ws_is_active').checked = ws.is_active;
     new bootstrap.Modal(document.getElementById('wsModal')).show();
 }
@@ -181,6 +241,8 @@ async function saveWs() {
         max_participants: parseInt(document.getElementById('ws_max').value) || 20,
         image: document.getElementById('ws_image').value,
         destination_id: document.getElementById('ws_dest').value,
+        start_date: document.getElementById('ws_start_date').value || null,
+        end_date: document.getElementById('ws_end_date').value || null,
         is_active: document.getElementById('ws_is_active').checked
     };
     

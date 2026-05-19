@@ -93,8 +93,12 @@
                             </select>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold">Ngày bắt đầu</label>
+                            <label class="form-label small fw-bold">Ngày giờ bắt đầu</label>
                             <input type="datetime-local" class="form-control admin-input" id="evt_event_date" name="event_date">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label small fw-bold">Ngày giờ kết thúc</label>
+                            <input type="datetime-local" class="form-control admin-input" id="evt_end_date" name="end_date">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Địa điểm</label>
@@ -145,7 +149,14 @@ function editEvent(evt) {
     document.getElementById('evt_is_featured').checked = evt.is_featured;
     document.getElementById('evt_is_active').checked = evt.is_active;
     if (evt.event_date) {
-        document.getElementById('evt_event_date').value = new Date(evt.event_date).toISOString().slice(0, 16);
+        document.getElementById('evt_event_date').value = new Date(new Date(evt.event_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    } else {
+        document.getElementById('evt_event_date').value = '';
+    }
+    if (evt.end_date) {
+        document.getElementById('evt_end_date').value = new Date(new Date(evt.end_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    } else {
+        document.getElementById('evt_end_date').value = '';
     }
     new bootstrap.Modal(document.getElementById('eventModal')).show();
 }
@@ -156,7 +167,8 @@ async function saveEvent() {
         title: document.getElementById('evt_title').value,
         description: document.getElementById('evt_description').value,
         season: document.getElementById('evt_season').value,
-        event_date: document.getElementById('evt_event_date').value,
+        event_date: document.getElementById('evt_event_date').value || null,
+        end_date: document.getElementById('evt_end_date').value || null,
         location: document.getElementById('evt_location').value,
         is_featured: document.getElementById('evt_is_featured').checked,
         is_active: document.getElementById('evt_is_active').checked
