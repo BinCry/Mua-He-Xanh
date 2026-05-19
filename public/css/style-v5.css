@@ -680,7 +680,7 @@ img { max-width: 100%; }
    RESPONSIVE
    ========================================================================== */
 @media (max-width: 991.98px) {
-    body { padding-bottom: 72px; }
+    body { padding-bottom: 0; }
     .fab-qr { display: none !important; }
     .hero-title { font-size: 2.5rem; }
     .section-title { font-size: 1.8rem; }

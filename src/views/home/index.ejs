@@ -216,18 +216,7 @@
 </section>
 <% } %>
 
-<!-- FLOATING ACTION BUTTONS — Arranged vertically -->
-<div class="position-fixed d-flex flex-column gap-2 align-items-end" style="bottom: 24px; right: 24px; z-index: 1050;">
-    <a href="/checkin" class="btn btn-warning rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center" 
-        style="width: 50px; height: 50px;" title="Quét QR">
-        <i class="bi bi-qr-code-scan fs-5"></i>
-    </a>
-    <button class="btn btn-primary-bl rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center" 
-            style="width: 56px; height: 56px; border: 2px solid rgba(255,255,255,0.2);" 
-            data-bs-toggle="modal" data-bs-target="#globalChatModal" title="Nhắn tin">
-        <i class="bi bi-chat-heart-fill fs-4"></i>
-    </button>
-</div>
+<!-- Floating buttons removed — QR in bottom center, Chat via menu -->
 
 <!-- Global Chat Modal -->
 <div class="modal fade" id="globalChatModal" tabindex="-1" aria-hidden="true">
