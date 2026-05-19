@@ -46,7 +46,7 @@ class ExploreController {
                 const session = await UserSession.findByUuid(sessionUuid);
                 if (session) {
                     [messages] = await UserSession.db.query(
-                        "SELECT * FROM messages WHERE destination_id = ? AND (sender_id = ? OR receiver_id = ?) ORDER BY created_at ASC",
+                        "SELECT * FROM messages WHERE destination_id = ? AND (sender_uuid = ? OR receiver_uuid = ?) ORDER BY created_at ASC",
                         [dest.id, session.id, session.id]
                     );
                 }

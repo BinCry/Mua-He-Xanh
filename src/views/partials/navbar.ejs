@@ -55,6 +55,7 @@
                                 <div style="font-size: 0.72rem; color: var(--text-muted);"><%= user.phone || user.email %></div>
                             </div>
                         </div>
+                        <% if (user.role === 'user') { %>
                         <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/profile" style="color: var(--text); font-size: 0.92rem;">
                             <i class="bi bi-person-circle text-muted" style="width: 20px;"></i> Hồ sơ du khách
                         </a>
@@ -64,6 +65,7 @@
                         <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/profile/rewards" style="color: var(--text); font-size: 0.92rem;">
                             <i class="bi bi-gift text-warning" style="width: 20px;"></i> Điểm thưởng
                         </a>
+                        <% } %>
                         <% if (user.role === 'admin') { %>
                         <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/admin" style="color: var(--primary); font-weight: 600; font-size: 0.92rem;">
                             <i class="bi bi-shield-check" style="width: 20px;"></i> Admin Panel
@@ -71,7 +73,7 @@
                         <% } %>
                         <% if (user.role === 'manager') { %>
                         <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/manager" style="color: var(--primary); font-weight: 600; font-size: 0.92rem;">
-                            <i class="bi bi-shield-check" style="width: 20px;"></i> Manager Panel
+                            <i class="bi bi-shield-check" style="width: 20px;"></i> Quản lý Panel
                         </a>
                         <% } %>
                         <a class="d-flex align-items-center gap-3 py-2 mt-2 text-decoration-none text-danger" href="/auth/logout" style="font-size: 0.92rem;">
@@ -111,10 +113,12 @@
                             <li><a class="dropdown-item py-2 rounded-2" href="/admin" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
                         <% } %>
                         <% if (user.role === 'manager') { %>
-                            <li><a class="dropdown-item py-2 rounded-2" href="/manager" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Khu vực Quản lý</a></li>
+                            <li><a class="dropdown-item py-2 rounded-2" href="/manager" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Quản lý Panel</a></li>
                         <% } %>
+                        <% if (user.role === 'user') { %>
                         <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
                         <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
+                        <% } %>
                         <li><hr class="dropdown-divider my-1"></li>
                         <li><a class="dropdown-item py-2 rounded-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
                     </ul>

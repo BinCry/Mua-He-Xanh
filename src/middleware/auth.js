@@ -67,6 +67,23 @@ exports.ensureManager = (req, res, next) => {
 };
 
 /**
+ * Kiểm tra quyền du khách (Tourist)
+ */
+exports.ensureTourist = (req, res, next) => {
+    const user = req.user || req.session.user;
+    if (user && (user.role === 'user' || user.role_id === ROLES.USER)) {
+        return next();
+    }
+    if (user && (user.role === 'admin' || user.role_id === ROLES.ADMIN)) {
+        return res.redirect('/admin');
+    }
+    if (user && (user.role === 'manager' || user.role_id === ROLES.MANAGER)) {
+        return res.redirect('/manager');
+    }
+    res.redirect('/auth/login?error=Vui lòng đăng nhập bằng tài khoản du khách');
+};
+
+/**
  * API-level middleware: Chặn chỉnh sửa nếu không phải Manager/Admin
  * Trả về JSON thay vì render HTML (dùng cho AJAX calls)
  */

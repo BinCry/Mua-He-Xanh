@@ -37,8 +37,13 @@
                 <ul class="list-unstyled d-flex flex-column gap-2">
                     <li><a href="/reviews" class="footer-link-premium">Chia sẻ Check-in</a></li>
                     <li><a href="/checkin" class="footer-link-premium">Quét mã QR Code</a></li>
-                    <li><a href="/passport" class="footer-link-premium">Hồ sơ du khách</a></li>
-                    <li><a href="/passport" class="footer-link-premium">Đổi điểm thưởng</a></li>
+                    <% if (locals.user && locals.user.role === 'user') { %>
+                        <li><a href="/passport" class="footer-link-premium">Hồ sơ du khách</a></li>
+                        <li><a href="/passport" class="footer-link-premium">Đổi điểm thưởng</a></li>
+                    <% } else if (!locals.user) { %>
+                        <li><a href="/passport" class="footer-link-premium">Hồ sơ du khách</a></li>
+                        <li><a href="/passport" class="footer-link-premium">Đổi điểm thưởng</a></li>
+                    <% } %>
                 </ul>
             </div>
 

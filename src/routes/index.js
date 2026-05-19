@@ -24,7 +24,8 @@ const upload = require('../middleware/upload');
 const FestivalController = require('../controllers/FestivalController');
 
 // Middleware
-const { ensureAuthenticated, ensureAdmin } = require('../middleware/auth');
+const { ensureAuthenticated, ensureAdmin, ensureManager, ensureTourist } = require('../middleware/auth');
+const ManagerController = require('../controllers/ManagerController');
 
 // ===== PUBLIC PAGES =====
 router.get('/', HomeController.index);
@@ -53,16 +54,16 @@ router.post('/journey/confirm', JourneyController.confirm);
 router.get('/journey/preset/:theme', JourneyController.preset);
 
 // ===== AUTH PAGES =====
-router.get('/passport', ensureAuthenticated, PassportController.index);
+router.get('/passport', ensureTourist, PassportController.index);
 router.get('/chat', ensureAuthenticated, ChatController.index);
 router.get('/summary', SummaryController.index);
 router.get('/festivals', FestivalController.index);
 
 // ===== PROFILE =====
-router.get('/profile', ensureAuthenticated, ProfileController.index);
-router.get('/profile/edit', ensureAuthenticated, ProfileController.editPage);
-router.post('/profile/update', ensureAuthenticated, ProfileController.update);
-router.get('/profile/rewards', ensureAuthenticated, ProfileController.rewards);
+router.get('/profile', ensureTourist, ProfileController.index);
+router.get('/profile/edit', ensureTourist, ProfileController.editPage);
+router.post('/profile/update', ensureTourist, ProfileController.update);
+router.get('/profile/rewards', ensureTourist, ProfileController.rewards);
 
 // ===== ADMIN =====
 router.get('/admin', ensureAdmin, AdminController.dashboard);
@@ -72,6 +73,12 @@ router.get('/admin/settings', ensureAdmin, AdminController.siteSettings);
 router.get('/admin/workshops', ensureAdmin, AdminController.workshops);
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
+
+// ===== MANAGER =====
+router.get('/manager', ensureManager, ManagerController.index);
+router.post('/manager/update', ensureManager, ManagerController.updateDestination);
+router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
+router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);
