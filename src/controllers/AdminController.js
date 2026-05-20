@@ -304,7 +304,7 @@ const AdminController = {
     // ==================== API: Update User ====================
     updateUser: async (req, res) => {
         try {
-            const { id, role, is_active, managed_destination_id, full_name, phone, email } = req.body;
+            const { id, role, is_active, managed_destination_id, full_name, phone, email, password } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID' });
 
             let query = 'UPDATE users SET role = ?, is_active = ?, managed_destination_id = ?';
@@ -313,6 +313,12 @@ const AdminController = {
             if (full_name) { query += ', full_name = ?'; params.push(full_name); }
             if (phone) { query += ', phone = ?'; params.push(phone); }
             if (email) { query += ', email = ?'; params.push(email); }
+            if (password && password.trim() !== '') {
+                const salt = await bcrypt.genSalt(10);
+                const hashedPassword = await bcrypt.hash(password, salt);
+                query += ', password = ?';
+                params.push(hashedPassword);
+            }
 
             query += ' WHERE id = ?';
             params.push(id);

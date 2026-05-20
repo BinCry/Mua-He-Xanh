@@ -144,6 +144,8 @@ function openUserForm() {
     document.getElementById('userModalTitle').textContent = 'Thêm Người dùng';
     document.getElementById('userForm').reset();
     document.getElementById('u_id').value = '';
+    document.getElementById('u_password').placeholder = '';
+    document.getElementById('u_password').required = true;
     document.getElementById('passwordGroup').style.display = 'block';
 }
 
@@ -160,7 +162,10 @@ function editUser(target) {
     document.getElementById('u_phone').value = user.phone || '';
     document.getElementById('u_role').value = user.role;
     document.getElementById('u_is_active').value = user.is_active !== 0 ? '1' : '0';
-    document.getElementById('passwordGroup').style.display = 'none';
+    document.getElementById('u_password').value = '';
+    document.getElementById('u_password').placeholder = 'Để trống nếu không muốn đổi';
+    document.getElementById('u_password').required = false;
+    document.getElementById('passwordGroup').style.display = 'block';
     new bootstrap.Modal(document.getElementById('userModal')).show();
 }
 
