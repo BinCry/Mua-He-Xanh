@@ -409,18 +409,31 @@
     <div class="container">
         <div style="display:flex; align-items:center; gap:10px; overflow-x:auto; padding-bottom:4px;">
             <span style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--j-muted);white-space:nowrap;">Hành trình mẫu:</span>
-            <a href="/journey/preset/du-xuan" class="preset-btn <%= journey.mood && journey.mood.includes('Du xuân') ? 'active' : '' %>">
-                <span class="preset-emoji">🌸</span> Du xuân Bình Lợi
-            </a>
-            <a href="/journey/preset/miet-vuon" class="preset-btn <%= journey.mood && journey.mood.includes('Miệt vườn') ? 'active' : '' %>">
-                <span class="preset-emoji">🌿</span> Miệt vườn giữa phố
-            </a>
-            <a href="/journey/preset/song-cham" class="preset-btn <%= journey.mood && journey.mood.includes('Sống chậm') ? 'active' : '' %>">
-                <span class="preset-emoji">🕊️</span> Sống chậm Bình Lợi
-            </a>
-            <a href="/journey/preset/tam-linh" class="preset-btn">
-                <span class="preset-emoji">🛕</span> Tâm linh & Nguồn cội
-            </a>
+            <% 
+                const seasonEmoji = { spring:'🌸', summer:'☀️', autumn:'🍂', winter:'❄️' };
+                const interestEmoji = { chill:'🧘', peace:'🕊️', culture:'🏛️', family:'👨‍👩‍👧‍👦' };
+                const tplList = (typeof templates !== 'undefined' && templates.length > 0) ? templates : [];
+            %>
+            <% if (tplList.length > 0) { %>
+                <% tplList.forEach(tpl => { %>
+                <a href="/journey/suggestions" class="preset-btn">
+                    <span class="preset-emoji"><%= seasonEmoji[tpl.season] || '🌿' %></span> <%= tpl.name %>
+                </a>
+                <% }) %>
+            <% } else { %>
+                <a href="/journey/preset/du-xuan" class="preset-btn">
+                    <span class="preset-emoji">🌸</span> Du xuân Bình Lợi
+                </a>
+                <a href="/journey/preset/miet-vuon" class="preset-btn">
+                    <span class="preset-emoji">🌿</span> Miệt vườn giữa phố
+                </a>
+                <a href="/journey/preset/song-cham" class="preset-btn">
+                    <span class="preset-emoji">🕊️</span> Sống chậm Bình Lợi
+                </a>
+                <a href="/journey/preset/tam-linh" class="preset-btn">
+                    <span class="preset-emoji">🛕</span> Tâm linh & Nguồn cội
+                </a>
+            <% } %>
             <a href="/journey/suggestions" class="preset-btn" style="margin-left:auto;">
                 <i class="bi bi-robot"></i> AI Gợi ý
             </a>

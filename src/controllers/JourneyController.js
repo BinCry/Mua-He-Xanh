@@ -38,11 +38,17 @@ class JourneyController {
             
             const allDestinations = await Destination.getActive();
             
+            // Get journey templates from admin
+            const [templates] = await UserSession.db.query(
+                'SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC'
+            );
+            
             res.render('journey/story_mode', {
                 title: 'Hành trình của tôi',
                 journey: journeyWithStops,
                 seasonName: seasonName,
-                allDestinations: allDestinations
+                allDestinations: allDestinations,
+                templates: templates || []
             });
         } catch (error) {
             console.error("Journey index error:", error);
