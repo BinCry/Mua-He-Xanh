@@ -106,6 +106,11 @@
                             <label class="form-label small fw-bold">Mô tả chi tiết / Câu chuyện</label>
                             <textarea class="form-control admin-input" id="d_description" name="description" rows="4"></textarea>
                         </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Link Google Maps (Dán link chia sẻ từ Google Maps để tự động lấy tọa độ)</label>
+                            <input type="text" class="form-control admin-input" id="d_maps_link" placeholder="Ví dụ: https://maps.app.goo.gl/... hoặc https://www.google.com/maps/place/..." oninput="autoExtractCoords(this.value)">
+                            <div id="d_maps_feedback" class="form-text small mt-1 d-none"></div>
+                        </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Chi phí</label>
                             <input type="text" class="form-control admin-input" id="d_cost" name="cost" placeholder="Miễn phí">
@@ -221,6 +226,9 @@ function openDestForm() {
     document.getElementById('d_id').value = '';
     document.getElementById('d_cover_image').value = '/images/placeholder.jpg';
     document.getElementById('d_cover_preview').src = '/images/placeholder.jpg';
+    document.getElementById('d_maps_link').value = '';
+    const feedback = document.getElementById('d_maps_feedback');
+    if (feedback) feedback.className = "form-text small mt-1 d-none";
     document.getElementById('managerAccountSection').style.display = 'block';
     document.getElementById('d_manager_email').setAttribute('required', 'required');
     document.getElementById('d_manager_password').setAttribute('required', 'required');
@@ -244,6 +252,10 @@ function editDest(target) {
     document.getElementById('d_points').value = d.points || 10;
     document.getElementById('d_lat').value = d.lat || '';
     document.getElementById('d_lng').value = d.lng || '';
+    
+    document.getElementById('d_maps_link').value = d.lat && d.lng ? `https://www.google.com/maps?q=${d.lat},${d.lng}` : '';
+    const feedback = document.getElementById('d_maps_feedback');
+    if (feedback) feedback.className = "form-text small mt-1 d-none";
     
     const coverUrl = d.cover_image || '/images/placeholder.jpg';
     document.getElementById('d_cover_image').value = coverUrl;
@@ -305,5 +317,95 @@ async function deleteDest(id, name) {
         if (res.data.success) location.reload();
         else alert(res.data.message);
     } catch (e) { alert('Lỗi'); }
+}
+
+let resolveTimeout = null;
+
+async function autoExtractCoords(url) {
+    const feedback = document.getElementById('d_maps_feedback');
+    if (!feedback) return;
+    feedback.className = "form-text small mt-1 d-none"; // hide first
+    
+    if (!url) return;
+    
+    url = url.trim();
+    
+    // Check if it's a maps link
+    if (!url.includes('google.com/maps') && !url.includes('maps.google') && !url.includes('maps.app.goo.gl') && !url.includes('goo.gl/maps') && !url.includes('g.co/maps')) {
+        return;
+    }
+    
+    // First, try to extract directly in case it's a full URL
+    let coords = extractCoordsFromUrl(url);
+    if (coords) {
+        document.getElementById('d_lat').value = coords.lat;
+        document.getElementById('d_lng').value = coords.lng;
+        feedback.className = "form-text small mt-1 text-success";
+        feedback.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Đã tự động trích xuất tọa độ thành công!';
+        return;
+    }
+    
+    // If it's a shortened link, resolve it via server
+    if (url.includes('maps.app.goo.gl') || url.includes('goo.gl/maps') || url.includes('g.co/maps') || url.includes('maps.google')) {
+        feedback.className = "form-text small mt-1 text-info";
+        feedback.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Đang giải mã liên kết Google Maps...';
+        
+        // Debounce if needed, or clear existing
+        if (resolveTimeout) clearTimeout(resolveTimeout);
+        
+        resolveTimeout = setTimeout(async () => {
+            try {
+                const res = await axios.post('/api/admin/resolve-maps-link', { url });
+                if (res.data.success && res.data.finalUrl) {
+                    const resolvedCoords = extractCoordsFromUrl(res.data.finalUrl);
+                    if (resolvedCoords) {
+                        document.getElementById('d_lat').value = resolvedCoords.lat;
+                        document.getElementById('d_lng').value = resolvedCoords.lng;
+                        feedback.className = "form-text small mt-1 text-success";
+                        feedback.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Đã tự động giải mã và trích xuất tọa độ thành công!';
+                    } else {
+                        feedback.className = "form-text small mt-1 text-warning";
+                        feedback.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-1"></i>Đã giải mã liên kết nhưng không tìm thấy tọa độ. Hãy điền thủ công.';
+                    }
+                } else {
+                    feedback.className = "form-text small mt-1 text-danger";
+                    feedback.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1"></i>Lỗi khi giải mã liên kết.';
+                }
+            } catch (err) {
+                feedback.className = "form-text small mt-1 text-danger";
+                feedback.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1"></i>Lỗi hệ thống khi giải mã liên kết.';
+            }
+        }, 500);
+    }
+}
+
+function extractCoordsFromUrl(url) {
+    if (!url) return null;
+    
+    // 1. Try to find query params like q=lat,lng or query=lat,lng
+    const qMatch = url.match(/[?&](q|query)=(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (qMatch) {
+        return { lat: qMatch[2], lng: qMatch[3] };
+    }
+    
+    // 2. Try to find the pattern !3d<lat>!4d<lng>
+    const markerMatch = url.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+    if (markerMatch) {
+        return { lat: markerMatch[1], lng: markerMatch[2] };
+    }
+    
+    // 3. Try to find @lat,lng
+    const atMatch = url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+    if (atMatch) {
+        return { lat: atMatch[1], lng: atMatch[2] };
+    }
+
+    // 4. Try to find /search/lat,+lng or /search/lat,lng
+    const searchMatch = url.match(/\/search\/(-?\d+\.\d+),\+?(-?\d+\.\d+)/);
+    if (searchMatch) {
+        return { lat: searchMatch[1], lng: searchMatch[2] };
+    }
+    
+    return null;
 }
 </script>

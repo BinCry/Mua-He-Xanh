@@ -139,6 +139,7 @@ router.post('/api/admin/update-user', ensureAdmin, AdminController.updateUser);
 router.post('/api/admin/delete-user', ensureAdmin, AdminController.deleteUser);
 
 // Admin API — Destinations
+router.post('/api/admin/resolve-maps-link', ensureAdmin, AdminController.resolveMapsLink);
 router.post('/api/admin/create-destination', ensureAdmin, AdminController.createDestination);
 router.post('/api/admin/update-destination', ensureAdmin, AdminController.updateDestination);
 router.post('/api/admin/delete-destination', ensureAdmin, AdminController.deleteDestination);

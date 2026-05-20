@@ -374,6 +374,27 @@ const AdminController = {
         }
     },
 
+    // ==================== API: Resolve Google Maps Shortened Link ====================
+    resolveMapsLink: async (req, res) => {
+        try {
+            const { url } = req.body;
+            if (!url) return res.status(400).json({ success: false, message: 'Thiếu URL' });
+            
+            const axios = require('axios');
+            const response = await axios.get(url, {
+                maxRedirects: 5,
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                }
+            });
+            const finalUrl = response.request?.res?.responseUrl || response.config?.url || url;
+            res.json({ success: true, finalUrl });
+        } catch (error) {
+            console.error('Resolve maps link error:', error);
+            res.status(500).json({ success: false, message: 'Không thể giải mã link Google Maps: ' + error.message });
+        }
+    },
+
     // ==================== API: Create Destination ====================
     createDestination: async (req, res) => {
         try {
