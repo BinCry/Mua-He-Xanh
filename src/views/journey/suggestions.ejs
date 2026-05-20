@@ -1,132 +1,355 @@
-<section class="py-5 bg-light min-vh-100 mt-5">
-    <div class="container py-lg-4">
-        <!-- AI Processing Header -->
-        <div class="text-center mb-5 reveal-up">
-            <div class="d-inline-flex align-items-center justify-content-center bg-white shadow-sm p-3 rounded-circle mb-3 border border-primary">
-                <i class="bi bi-robot fs-2 text-primary"></i>
-            </div>
-            <h1 class="display-5 fw-black text-dark mb-3 letter-spacing-sm">AI Đã Hoàn Tất Phân Tích</h1>
-            <p class="lead text-muted mx-auto" style="max-width: 600px;">Dựa trên dữ liệu cung cấp, chúng tôi đã tính toán và tối ưu hóa 3 lộ trình dành riêng cho bạn.</p>
-        </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-        <!-- Selected Criteria Display -->
-        <div class="card-bl border-0 shadow-sm rounded-4 p-4 mb-5 mx-auto bg-white reveal-up" style="max-width: 800px;">
-            <h6 class="fw-bold text-muted text-uppercase tracking-widest mb-3 text-center x-small">Tiêu chí Hành trình của bạn</h6>
-            <div class="row g-3 text-center">
-                <div class="col-6 col-md-3">
-                    <div class="bg-light p-3 rounded-4 h-100">
-                        <i class="bi bi-emoji-smile text-primary fs-4 mb-2 d-block"></i>
-                        <span class="d-block small fw-bold text-dark"><%= session.mood.replace(/,/g, ' & ').toUpperCase() %></span>
-                        <span class="x-small text-muted">Tâm trạng</span>
+<style>
+.sug-hero {
+    background: linear-gradient(135deg, #0f766e 0%, #15803d 60%, #1e3a5f 100%);
+    padding: 110px 0 60px;
+    position: relative;
+    overflow: hidden;
+}
+.sug-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.05) 0%, transparent 60%);
+}
+.sug-criteria-bar {
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 20px 28px;
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+.sug-criteria-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+.sug-criteria-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+}
+
+/* Cards */
+.sug-section { background: #f0fdf4; padding: 60px 0; min-height: 60vh; }
+.sug-card {
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+    border: 1px solid #e2e8f0;
+    transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+.sug-card:hover {
+    transform: translateY(-12px);
+    box-shadow: 0 20px 50px rgba(13,148,136,0.15);
+    border-color: #0d9488;
+}
+.sug-card-img-wrap {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+.sug-card-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+.sug-card:hover .sug-card-img-wrap img {
+    transform: scale(1.08);
+}
+.sug-card-img-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%);
+}
+.sug-card-img-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 16px;
+}
+.sug-recommended-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    border-radius: 50px;
+    padding: 5px 14px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 3px 10px rgba(245,158,11,0.4);
+}
+.sug-card-body {
+    padding: 22px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.sug-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.sug-tag {
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    color: #15803d;
+    border-radius: 50px;
+    padding: 4px 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+.sug-stops-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.sug-stop-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: #374151;
+}
+.sug-stop-num {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0d9488, #16a34a);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.sug-metrics {
+    display: flex;
+    gap: 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 18px;
+}
+.sug-metric {
+    flex: 1;
+    text-align: center;
+    padding: 12px 8px;
+    border-right: 1px solid #e2e8f0;
+    font-size: 0.72rem;
+    color: #64748b;
+    font-weight: 600;
+}
+.sug-metric:last-child { border-right: none; }
+.sug-metric .val { font-size: 1.1rem; font-weight: 900; color: #0d9488; display: block; }
+.btn-sug-primary {
+    width: 100%;
+    padding: 14px;
+    border-radius: 50px;
+    border: none;
+    background: linear-gradient(135deg, #0d9488, #16a34a);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 16px rgba(13,148,136,0.3);
+}
+.btn-sug-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(13,148,136,0.45);
+}
+.btn-sug-outline {
+    width: 100%;
+    padding: 14px;
+    border-radius: 50px;
+    border: 2px solid #0d9488;
+    background: transparent;
+    color: #0d9488;
+    font-weight: 800;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.btn-sug-outline:hover {
+    background: #0d9488;
+    color: #fff;
+}
+</style>
+
+<!-- Hero -->
+<div class="sug-hero">
+    <div class="container position-relative" style="z-index:1;">
+        <div class="text-center">
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,0.3);margin-bottom:16px;">
+                <i class="bi bi-robot" style="font-size:1.8rem;color:#fff;"></i>
+            </div>
+            <h1 style="color:#fff;font-family:'Georgia',serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;margin-bottom:10px;">
+                AI Đề Xuất Lộ Trình Cho Bạn
+            </h1>
+            <p style="color:rgba(255,255,255,0.75);max-width:540px;margin:0 auto;font-size:0.95rem;line-height:1.7;">
+                Dựa trên sở thích của bạn, chúng tôi đã tối ưu hoá <strong style="color:#fff;"><%= suggestions.length %> lộ trình</strong> khác nhau. Chọn một lộ trình phù hợp nhất!
+            </p>
+
+            <!-- Criteria bar -->
+            <div class="sug-criteria-bar mx-auto" style="max-width:720px;">
+                <div class="sug-criteria-item">
+                    <span class="sug-criteria-icon">😊</span>
+                    <div>
+                        <div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Tâm trạng</div>
+                        <div><%= session.mood ? session.mood.replace(/,/g,' & ').toUpperCase() : 'Chữa lành' %></div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="bg-light p-3 rounded-4 h-100">
-                        <i class="bi bi-people-fill text-primary fs-4 mb-2 d-block"></i>
-                        <span class="d-block small fw-bold text-dark"><%= session.pax %> Người</span>
-                        <span class="x-small text-muted">Quy mô</span>
+                <div class="sug-criteria-item">
+                    <span class="sug-criteria-icon">👥</span>
+                    <div>
+                        <div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Quy mô</div>
+                        <div><%= session.pax || 1 %> Người</div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="bg-light p-3 rounded-4 h-100">
-                        <i class="bi bi-wallet2 text-primary fs-4 mb-2 d-block"></i>
-                        <span class="d-block small fw-bold text-dark">
-                            <%= session.budget === 'low' ? 'Tiết kiệm' : (session.budget === 'high' ? 'Cao cấp' : 'Tiêu chuẩn') %>
-                        </span>
-                        <span class="x-small text-muted">Ngân sách</span>
+                <div class="sug-criteria-item">
+                    <span class="sug-criteria-icon">💰</span>
+                    <div>
+                        <div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Ngân sách</div>
+                        <div><%= session.budget === 'low' ? 'Tiết kiệm' : (session.budget === 'high' ? 'Cao cấp' : 'Tiêu chuẩn') %></div>
                     </div>
                 </div>
-                <div class="col-6 col-md-3">
-                    <div class="bg-light p-3 rounded-4 h-100">
-                        <i class="bi bi-cloud-sun-fill text-primary fs-4 mb-2 d-block"></i>
-                        <span class="d-block small fw-bold text-dark">
-                            <%= session.season === 'spring' ? 'Lễ hội' : (session.season === 'summer' ? 'Mùa hè' : 'Hôm nay') %>
-                        </span>
-                        <span class="x-small text-muted">Khởi hành</span>
+                <div class="sug-criteria-item">
+                    <span class="sug-criteria-icon">🌤️</span>
+                    <div>
+                        <div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Mùa</div>
+                        <div><%= session.season === 'spring' ? 'Lễ hội 🌸' : (session.season === 'summer' ? 'Mùa hè ☀️' : 'Hôm nay') %></div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- Journey Options -->
-        <div class="row g-4 justify-content-center">
+<!-- Cards -->
+<section class="sug-section">
+    <div class="container">
+        <div class="row g-4 justify-content-center sug-cards-wrap">
             <% suggestions.forEach((sug, i) => { %>
-                <div class="col-md-4 reveal-up" style="transition-delay: <%= i * 0.15 %>s">
-                    <div class="card-bl h-100 border-0 shadow-premium rounded-5 overflow-hidden transition-hover position-relative group-hover bg-white">
-                        <!-- Top Image -->
-                        <div class="position-relative ratio ratio-16x9">
-                            <img src="/images/hero-<%= (i % 2) + 1 %>.png" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= sug.name %>">
-                            <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-t"></div>
-                            
-                            <% if (i === 0) { %>
-                                <div class="position-absolute top-0 start-0 m-3">
-                                    <span class="badge bg-warning text-dark rounded-pill shadow-sm px-3 py-2 fw-bold text-uppercase tracking-widest x-small"><i class="bi bi-star-fill me-1"></i>Đề xuất Cao nhất</span>
-                                </div>
+            <div class="col-md-6 col-lg-4 sug-reveal" style="opacity:0;transform:translateY(40px);">
+                <div class="sug-card">
+                    <!-- Image -->
+                    <div class="sug-card-img-wrap">
+                        <img src="/images/hero-<%= (i % 2) + 1 %>.png" alt="<%= sug.name %>">
+                        <div class="sug-card-img-overlay"></div>
+                        <% if (i === 0) { %>
+                        <div class="sug-recommended-badge"><i class="bi bi-star-fill"></i> Đề xuất cao nhất</div>
+                        <% } %>
+                        <div class="sug-card-img-bottom">
+                            <h4 style="color:#fff;font-family:'Georgia',serif;font-weight:900;margin:0;text-shadow:0 2px 8px rgba(0,0,0,0.4);font-size:1.15rem;"><%= sug.name %></h4>
+                        </div>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="sug-card-body">
+                        <!-- Tags -->
+                        <div class="sug-tags">
+                            <% sug.tags.forEach(tag => { %>
+                            <span class="sug-tag"><%= tag %></span>
+                            <% }) %>
+                        </div>
+
+                        <!-- Desc -->
+                        <p style="font-size:0.82rem;color:#64748b;line-height:1.65;margin-bottom:16px;"><%= sug.desc %></p>
+
+                        <!-- Stops list -->
+                        <% if (sug.stops && sug.stops.length > 0) { %>
+                        <div class="sug-stops-list">
+                            <% sug.stops.slice(0, 3).forEach((stop, si) => { %>
+                            <div class="sug-stop-item">
+                                <span class="sug-stop-num"><%= si + 1 %></span>
+                                <span><%= stop.name %></span>
+                                <% if (stop.type) { %><span style="color:#94a3b8;font-size:0.7rem;">· <%= stop.type %></span><% } %>
+                            </div>
+                            <% }) %>
+                            <% if (sug.stops.length > 3) { %>
+                            <div style="font-size:0.72rem;color:#94a3b8;padding-left:32px;">+ <%= sug.stops.length - 3 %> địa điểm khác…</div>
                             <% } %>
-                            
-                            <div class="position-absolute bottom-0 start-0 m-3 text-white">
-                                <h4 class="fw-black mb-1 text-shadow-sm"><%= sug.name %></h4>
+                        </div>
+                        <% } %>
+
+                        <!-- Metrics -->
+                        <div class="sug-metrics">
+                            <div class="sug-metric">
+                                <span class="val"><%= sug.stops.length %></span>
+                                <i class="bi bi-geo-alt-fill"></i> Điểm
+                            </div>
+                            <div class="sug-metric">
+                                <span class="val"><%= sug.duration %></span>
+                                <i class="bi bi-clock-fill"></i>
+                            </div>
+                            <div class="sug-metric">
+                                <span class="val"><%= sug.km %></span>
+                                <i class="bi bi-signpost-split-fill"></i> km
                             </div>
                         </div>
 
-                        <!-- Content -->
-                        <div class="card-bl-body p-4 d-flex flex-column h-100">
-                            <p class="text-muted small mb-4 line-clamp-3"><%= sug.desc %></p>
-                            
-                            <div class="mb-4">
-                                <% sug.tags.forEach(tag => { %>
-                                    <span class="badge bg-light border text-dark fw-bold px-2 py-1 me-1 mb-1"><%= tag %></span>
-                                <% }) %>
-                            </div>
-                            
-                            <div class="mt-auto border-top pt-4">
-                                <div class="row text-center mb-4 g-2">
-                                    <div class="col-4 border-end">
-                                        <div class="fs-5 text-primary mb-1"><i class="bi bi-geo-alt-fill"></i></div>
-                                        <div class="fw-bold small"><%= sug.stops.length %> Điểm</div>
-                                    </div>
-                                    <div class="col-4 border-end">
-                                        <div class="fs-5 text-primary mb-1"><i class="bi bi-clock-fill"></i></div>
-                                        <div class="fw-bold small"><%= sug.duration %></div>
-                                    </div>
-                                    <div class="col-4">
-                                        <div class="fs-5 text-primary mb-1"><i class="bi bi-signpost-split-fill"></i></div>
-                                        <div class="fw-bold small"><%= sug.km %> km</div>
-                                    </div>
-                                </div>
-
-                                <form action="/journey/confirm" method="POST">
-                                    <input type="hidden" name="journeyData" value='<%= JSON.stringify(sug).replace(/'/g, "&#39;") %>'>
-                                    <button type="submit" class="btn <%= i===0 ? 'btn-primary-bl' : 'btn-outline-bl' %> w-100 rounded-pill py-3 fw-bold text-uppercase tracking-widest shadow-sm">
-                                        CHỌN LỘ TRÌNH NÀY
-                                    </button>
-                                </form>
-                            </div>
+                        <!-- CTA -->
+                        <div class="mt-auto">
+                            <form action="/journey/confirm" method="POST">
+                                <input type="hidden" name="journeyData" value='<%= JSON.stringify(sug).replace(/'/g, "&#39;") %>'>
+                                <button type="submit" class="<%= i === 0 ? 'btn-sug-primary' : 'btn-sug-outline' %>">
+                                    Chọn lộ trình này <i class="bi bi-arrow-right ms-1"></i>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>
+            </div>
             <% }) %>
         </div>
 
+        <!-- Back link -->
         <div class="text-center mt-5">
-            <a href="/onboarding" class="text-decoration-none text-muted fw-bold small"><i class="bi bi-arrow-left me-2"></i>Chỉnh sửa tiêu chí</a>
+            <a href="/onboarding" style="color:#64748b;font-weight:700;font-size:0.85rem;text-decoration:none;">
+                <i class="bi bi-arrow-left me-2"></i>Thay đổi tiêu chí tìm kiếm
+            </a>
         </div>
     </div>
 </section>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        gsap.from('.reveal-up', { opacity: 0, y: 40, stagger: 0.15, duration: 1, ease: 'power3.out' });
+document.addEventListener('DOMContentLoaded', () => {
+    const cards = document.querySelectorAll('.sug-reveal');
+    gsap.to(cards, {
+        opacity: 1,
+        y: 0,
+        stagger: 0.15,
+        duration: 0.7,
+        ease: 'power3.out',
+        delay: 0.2
     });
+});
 </script>
-
-<style>
-    .transition-hover { transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), box-shadow 0.4s ease; }
-    .transition-hover:hover { transform: translateY(-15px); box-shadow: 0 25px 50px rgba(0,0,0,0.15) !important; }
-    .bg-gradient-to-t { background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 60%); }
-    .group-hover-scale { transition: transform 0.5s ease; }
-    .group-hover:hover .group-hover-scale { transform: scale(1.05); }
-    .text-shadow-sm { text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-    .tracking-widest { letter-spacing: 1px; }
-</style>
