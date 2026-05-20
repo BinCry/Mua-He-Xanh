@@ -179,6 +179,65 @@ class JourneyController {
         }
     }
 
+    async loadTemplate(req, res) {
+        try {
+            const { id } = req.params;
+            const uuid = req.cookies.session_uuid;
+            if (!uuid) return res.redirect('/onboarding');
+
+            const session = await UserSession.findByUuid(uuid);
+            if (!session) return res.redirect('/onboarding');
+
+            // Find the template in DB
+            const [templates] = await UserSession.db.query(
+                "SELECT * FROM seasonal_journey_templates WHERE id = ?",
+                [id]
+            );
+            if (templates.length === 0) return res.redirect('/journey');
+
+            const t = templates[0];
+            let stopIds = [];
+            try { stopIds = JSON.parse(t.stops); } catch(e) {}
+
+            // Load active destinations
+            const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
+            const destMap = {};
+            dests.forEach(d => { destMap[d.id] = d; });
+            const stops = stopIds.map(id => destMap[id]).filter(Boolean);
+
+            if (stops.length > 0) {
+                // Replaced previous active journey
+                await UserSession.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [session.id]);
+                
+                // Create new active journey
+                const journeyId = await Journey.create({
+                    session_id: session.id,
+                    mood: t.name,
+                    duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
+                    total_km: parseFloat(t.km) || 5.0,
+                    total_minutes: t.duration === 'full_day' ? 360 : 180,
+                    status: 'active',
+                    interests: JSON.stringify([t.season, t.interest])
+                });
+
+                const JourneyStop = require('../models/JourneyStop');
+                for (let idx = 0; idx < stops.length; idx++) {
+                    await JourneyStop.create({
+                        journey_id: journeyId,
+                        destination_id: stops[idx].id,
+                        stop_order: idx,
+                        is_completed: 0
+                    });
+                }
+            }
+
+            res.redirect('/hanh-trinh-cua-toi');
+        } catch (error) {
+            console.error("Load template error:", error);
+            res.redirect('/journey');
+        }
+    }
+
     async preset(req, res) {
         try {
             const { theme } = req.params;

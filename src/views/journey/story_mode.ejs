@@ -416,7 +416,7 @@
             %>
             <% if (tplList.length > 0) { %>
                 <% tplList.forEach(tpl => { %>
-                <a href="/journey/suggestions" class="preset-btn">
+                <a href="/journey/load-template/<%= tpl.id %>" class="preset-btn <%= (journey && journey.mood === tpl.name) ? 'active' : '' %>">
                     <span class="preset-emoji"><%= seasonEmoji[tpl.season] || '🌿' %></span> <%= tpl.name %>
                 </a>
                 <% }) %>

@@ -52,6 +52,7 @@ router.get('/hanh-trinh-cua-toi', JourneyController.index);
 router.get('/journey/suggestions', JourneyController.suggestions);
 router.post('/journey/confirm', JourneyController.confirm);
 router.get('/journey/preset/:theme', JourneyController.preset);
+router.get('/journey/load-template/:id', JourneyController.loadTemplate);
 
 // ===== AUTH PAGES =====
 router.get('/passport', ensureTourist, PassportController.index);
