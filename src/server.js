@@ -190,6 +190,8 @@ async function runMigrations() {
             "ALTER TABLE destinations MODIFY COLUMN map_x INT NOT NULL DEFAULT 50",
             "ALTER TABLE destinations MODIFY COLUMN map_y INT NOT NULL DEFAULT 50",
             "ALTER TABLE destinations MODIFY COLUMN radius_meter INT NOT NULL DEFAULT 100",
+            "ALTER TABLE workshops ADD COLUMN duration VARCHAR(100) DEFAULT '2 giờ'",
+            "UPDATE workshops SET duration = CONCAT(duration_minutes, ' phút') WHERE duration_minutes IS NOT NULL AND (duration IS NULL OR duration = '2 giờ')",
         ];
         for (const sql of migrations) {
             try { await db.query(sql); } catch(e) { /* skip if already correct */ }
