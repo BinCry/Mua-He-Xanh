@@ -111,20 +111,31 @@
                         <label class="form-label small fw-bold">Mật khẩu</label>
                         <input type="password" class="form-control admin-input" id="u_password" name="password" minlength="6">
                     </div>
-                    <div class="row g-3">
+                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Vai trò</label>
-                            <select class="form-select admin-input" id="u_role" name="role">
-                                <option value="admin">Admin</option>
+                            <select class="form-select admin-input" id="u_role" name="role" onchange="toggleManagedDestinationSelect()">
+                                <option value="user">User (Người dùng)</option>
+                                <option value="manager">Manager (Quản lý địa điểm)</option>
+                                <option value="admin">Admin (Quản trị viên)</option>
                             </select>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Trạng thái</label>
                             <select class="form-select admin-input" id="u_is_active" name="is_active">
-                                <option value="1">Active</option>
-                                <option value="0">Inactive</option>
+                                <option value="1">Hoạt động</option>
+                                <option value="0">Tạm khóa</option>
                             </select>
                         </div>
+                    </div>
+                    <div class="mb-3" id="managedDestinationGroup" style="display: none;">
+                        <label class="form-label small fw-bold">Địa điểm quản lý (Dành cho Manager)</label>
+                        <select class="form-select admin-input" id="u_managed_destination_id" name="managed_destination_id">
+                            <option value="">-- Chọn địa điểm --</option>
+                            <% destinations.forEach(d => { %>
+                                <option value="<%= d.id %>"><%= d.name %></option>
+                            <% }) %>
+                        </select>
                     </div>
                 </form>
             </div>
@@ -139,6 +150,17 @@
 <script>
 let editingUser = false;
 
+function toggleManagedDestinationSelect() {
+    const role = document.getElementById('u_role').value;
+    const destGroup = document.getElementById('managedDestinationGroup');
+    if (role === 'manager') {
+        destGroup.style.display = 'block';
+    } else {
+        destGroup.style.display = 'none';
+        document.getElementById('u_managed_destination_id').value = '';
+    }
+}
+
 function openUserForm() {
     editingUser = false;
     document.getElementById('userModalTitle').textContent = 'Thêm Người dùng';
@@ -147,6 +169,7 @@ function openUserForm() {
     document.getElementById('u_password').placeholder = '';
     document.getElementById('u_password').required = true;
     document.getElementById('passwordGroup').style.display = 'block';
+    document.getElementById('managedDestinationGroup').style.display = 'none';
 }
 
 function editUser(target) {
@@ -166,18 +189,31 @@ function editUser(target) {
     document.getElementById('u_password').placeholder = 'Để trống nếu không muốn đổi';
     document.getElementById('u_password').required = false;
     document.getElementById('passwordGroup').style.display = 'block';
+    
+    // Toggle managed destination select
+    const destGroup = document.getElementById('managedDestinationGroup');
+    if (user.role === 'manager') {
+        destGroup.style.display = 'block';
+        document.getElementById('u_managed_destination_id').value = user.managed_destination_id || '';
+    } else {
+        destGroup.style.display = 'none';
+        document.getElementById('u_managed_destination_id').value = '';
+    }
+    
     new bootstrap.Modal(document.getElementById('userModal')).show();
 }
 
 async function saveUser() {
+    const roleVal = document.getElementById('u_role').value;
     const data = {
         id: document.getElementById('u_id').value,
         full_name: document.getElementById('u_full_name').value,
         email: document.getElementById('u_email').value,
         phone: document.getElementById('u_phone').value,
-        role: document.getElementById('u_role').value,
+        role: roleVal,
         is_active: parseInt(document.getElementById('u_is_active').value),
-        password: document.getElementById('u_password')?.value
+        password: document.getElementById('u_password')?.value,
+        managed_destination_id: roleVal === 'manager' ? document.getElementById('u_managed_destination_id').value : null
     };
     
     const url = editingUser ? '/api/admin/update-user' : '/api/admin/create-user';

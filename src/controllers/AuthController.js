@@ -51,6 +51,20 @@ const AuthController = {
             const sms = require('../utils/sms');
             const result = await sms.sendOTP(phone, otp);
 
+            if (!result.success) {
+                if (result.fallback) {
+                    return res.json({
+                        success: false,
+                        message: 'Cổng gửi tin nhắn SMS chưa được cấu hình trên máy chủ. Vui lòng thiết lập TWILIO hoặc SPEEDSMS trong file .env!'
+                    });
+                } else {
+                    return res.json({
+                        success: false,
+                        message: 'Lỗi khi gửi tin nhắn SMS xác thực. Vui lòng kiểm tra lại số điện thoại hoặc cấu hình!'
+                    });
+                }
+            }
+
             res.json({
                 success: true,
                 message: 'Mã xác thực đã được gửi tới số điện thoại của bạn.'
