@@ -119,8 +119,15 @@
                             <input type="text" class="form-control admin-input" id="d_lng" name="lng" placeholder="106.5028">
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Link ảnh bìa</label>
-                            <input type="text" class="form-control admin-input" id="d_cover_image" name="cover_image" placeholder="https://... hoặc /images/...">
+                            <label class="form-label small fw-bold">Ảnh bìa địa điểm</label>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <img id="d_cover_preview" src="/images/placeholder.jpg" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                                <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3" onclick="document.getElementById('d_cover_file').click()">
+                                    <i class="bi bi-upload me-1"></i>Chọn ảnh từ thư viện
+                                </button>
+                                <input type="file" id="d_cover_file" class="d-none" accept="image/*" onchange="uploadCoverFile(this)">
+                            </div>
+                            <input type="hidden" id="d_cover_image" name="cover_image" value="/images/placeholder.jpg">
                         </div>
                         <!-- Manager Account Section (Only shown when adding new destination) -->
                         <div id="managerAccountSection" class="col-12 border-top border-secondary border-opacity-10 pt-3 mt-3">
@@ -154,11 +161,66 @@
 <script>
 let editingDest = false;
 
+// Auto slug generation helper
+function generateSlug(str) {
+    if (!str) return '';
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    str = str.replace(/[^a-z0-9 -]/g, ''); // Remove special characters
+    str = str.trim().replace(/\s+/g, '-'); // Replace spaces with -
+    str = str.replace(/-+/g, '-'); // Replace multiple - with single -
+    return str;
+}
+
+document.getElementById('d_name').addEventListener('input', function() {
+    if (!editingDest) {
+        document.getElementById('d_slug').value = generateSlug(this.value);
+    }
+});
+
+async function uploadCoverFile(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            document.getElementById('d_cover_image').value = res.data.url;
+            document.getElementById('d_cover_preview').src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
 function openDestForm() {
     editingDest = false;
     document.getElementById('destModalTitle').textContent = 'Thêm Địa điểm';
     document.getElementById('destForm').reset();
     document.getElementById('d_id').value = '';
+    document.getElementById('d_cover_image').value = '/images/placeholder.jpg';
+    document.getElementById('d_cover_preview').src = '/images/placeholder.jpg';
     document.getElementById('managerAccountSection').style.display = 'block';
     document.getElementById('d_manager_email').setAttribute('required', 'required');
     document.getElementById('d_manager_password').setAttribute('required', 'required');
@@ -182,7 +244,10 @@ function editDest(target) {
     document.getElementById('d_points').value = d.points || 10;
     document.getElementById('d_lat').value = d.lat || '';
     document.getElementById('d_lng').value = d.lng || '';
-    document.getElementById('d_cover_image').value = d.cover_image || '';
+    
+    const coverUrl = d.cover_image || '/images/placeholder.jpg';
+    document.getElementById('d_cover_image').value = coverUrl;
+    document.getElementById('d_cover_preview').src = coverUrl;
     
     document.getElementById('managerAccountSection').style.display = 'none';
     document.getElementById('d_manager_email').removeAttribute('required');
@@ -192,10 +257,16 @@ function editDest(target) {
 }
 
 async function saveDest() {
+    const slugVal = document.getElementById('d_slug').value.trim();
+    if (slugVal.includes('/') || slugVal.includes('.') || slugVal.includes('http') || slugVal.includes('?')) {
+        alert('Slug (URL) chỉ được chứa chữ viết liền không dấu và dấu gạch ngang (ví dụ: cong-vien-lang-le).\nKhông được điền địa chỉ link website hoặc Google Maps vào ô này.');
+        return;
+    }
+
     const data = {
         id: document.getElementById('d_id').value,
         name: document.getElementById('d_name').value,
-        slug: document.getElementById('d_slug').value || document.getElementById('d_name').value.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, ''),
+        slug: slugVal || generateSlug(document.getElementById('d_name').value),
         type: document.getElementById('d_type').value,
         short_desc: document.getElementById('d_short_desc').value,
         description: document.getElementById('d_description').value,
