@@ -13,22 +13,22 @@
             --sb-width: 260px;
             <% if (user.role === 'manager') { %>
                 /* Manager Panel: Healing Emerald Light Theme */
-                --admin-bg: #f4f7f5;
+                --admin-bg: #f4f8f5;
                 --admin-surface: #ffffff;
-                --admin-border: rgba(16,185,129,0.18);
+                --admin-border: rgba(45,122,74,0.18);
                 --admin-text: #1b3024;
                 --admin-muted: #526c5d;
                 --admin-accent: #d97706;
-                --admin-primary: #10b981;
+                --admin-primary: #2d7a4a;
             <% } else { %>
-                /* Admin Panel: Royal Indigo Light Theme */
-                --admin-bg: #f8fafc;
+                /* Admin Panel: Forest Green Light Theme */
+                --admin-bg: #f0f6f2;
                 --admin-surface: #ffffff;
-                --admin-border: rgba(99,102,241,0.18);
-                --admin-text: #1e293b;
-                --admin-muted: #64748b;
+                --admin-border: rgba(26,77,46,0.18);
+                --admin-text: #0f2416;
+                --admin-muted: #475a4e;
                 --admin-accent: #d97706;
-                --admin-primary: #4f46e5;
+                --admin-primary: #1a4d2e;
             <% } %>
         }
         * { box-sizing: border-box; }
@@ -73,9 +73,8 @@
         .role-manager { background: rgba(240,165,0,0.15); color: #f0a500; }
         .role-user { background: rgba(59,130,246,0.15); color: #3b82f6; }
         
-        /* Form controls */
         .admin-input { background: #ffffff; border: 1px solid #cbd5e1; color: var(--admin-text); border-radius: 10px; padding: 10px 14px; }
-        .admin-input:focus { background: #ffffff; border-color: var(--admin-primary); color: var(--admin-text); box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); outline: none; }
+        .admin-input:focus { background: #ffffff; border-color: var(--admin-primary); color: var(--admin-text); box-shadow: 0 0 0 3px rgba(26, 77, 46, 0.1); outline: none; }
         
         @media (max-width: 991px) {
             .admin-sb { display: none; }
