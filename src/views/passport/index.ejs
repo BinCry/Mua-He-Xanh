@@ -58,9 +58,8 @@
                                 <h5 class="fw-black mb-4 d-flex align-items-center gap-2">
                                     <i class="bi bi-award-fill text-warning"></i> BỘ SƯU TẬP HUY HIỆU
                                 </h5>
-                                <div class="row g-3">
-                                    <% allBadges.forEach(badge => { 
-                                        const isUnlocked = unlockedBadges.some(ub => ub.badge_id === badge.id);
+                                                   <% allBadges.forEach(badge => { 
+                                        const isUnlocked = unlockedBadges.some(ub => ub.id === badge.id);
                                     %>
                                         <div class="col-md-4 col-6">
                                             <div class="badge-card p-3 rounded-4 text-center h-100 <%= isUnlocked ? 'unlocked' : 'locked' %>">
@@ -87,7 +86,7 @@
                         </div>
                     </div>
                 </div>
-
+ 
                 <!-- Activity Timeline -->
                 <div class="timeline-section">
                     <h4 class="fw-black mb-4 px-3">LỊCH SỬ HÀNH TRÌNH</h4>
@@ -97,8 +96,8 @@
                                 <% history.forEach((entry, idx) => { %>
                                     <div class="timeline-row d-flex gap-4 mb-4">
                                         <div class="time-col text-end pt-2" style="width: 80px;">
-                                            <div class="fw-bold text-dark small"><%= new Date(entry.checked_in_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) %></div>
-                                            <div class="x-small text-muted"><%= new Date(entry.checked_in_at).toLocaleDateString('vi-VN') %></div>
+                                            <div class="fw-bold text-dark small"><%= new Date(entry.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) %></div>
+                                            <div class="x-small text-muted"><%= new Date(entry.created_at).toLocaleDateString('vi-VN') %></div>
                                         </div>
                                         <div class="icon-col position-relative">
                                             <div class="timeline-dot bg-primary shadow-sm"></div>
@@ -106,8 +105,8 @@
                                         </div>
                                         <div class="content-col bg-light p-3 rounded-4 flex-grow-1">
                                             <div class="d-flex justify-content-between align-items-center">
-                                                <h6 class="fw-bold mb-0 text-primary"><%= entry.destination_name %></h6>
-                                                <span class="badge bg-white text-success border border-success border-opacity-25 small">+<%= entry.points_earned %> XP</span>
+                                                <h6 class="fw-bold mb-0 text-primary"><%= entry.name %></h6>
+                                                <span class="badge bg-white text-success border border-success border-opacity-25 small">+<%= entry.dest_points || 50 %> XP</span>
                                             </div>
                                             <p class="x-small text-muted mb-0 mt-1">Đã hoàn thành check-in tại địa điểm.</p>
                                         </div>

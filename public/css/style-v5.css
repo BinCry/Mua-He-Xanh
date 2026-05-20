@@ -74,7 +74,7 @@
 /* ==========================================================================
    BASE
    ========================================================================== */
-*, *::before, *::after { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; font-family: 'Times New Roman', Times, serif !important; }
 
 body {
     background-color: var(--bg);

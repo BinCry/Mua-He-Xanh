@@ -56,40 +56,98 @@ class JourneyController {
             const session = await UserSession.findByUuid(uuid);
             if (!session || !session.mood) return res.redirect('/onboarding');
 
-            const mood = session.mood || 'all';
-            const suggestions = [
-                {
-                    id: 'opt1',
-                    name: 'Hành trình "Khám phá bản địa"',
-                    desc: 'Tập trung vào các làng nghề truyền thống và văn hóa đặc trưng.',
-                    tags: ['Văn hóa', 'Làng nghề'],
-                    duration: '4-5 tiếng',
-                    km: 8.5,
-                    stops: await Destination.getForJourney(mood, ['craft'], [])
-                },
-                {
-                    id: 'opt2',
-                    name: 'Hành trình "Chữa lành & Xanh"',
-                    desc: 'Sự kết hợp hoàn hảo giữa không gian xanh và sự tĩnh lặng của thiên nhiên.',
-                    tags: ['Sinh thái', 'Thiên nhiên'],
-                    duration: '6 tiếng',
-                    km: 12.2,
-                    stops: await Destination.getForJourney(mood, ['nature'], [])
-                },
-                {
-                    id: 'opt3',
-                    name: 'Hành trình "Tâm linh & Nguồn cội"',
-                    desc: 'Dành cho những ai tìm kiếm sự bình an tại các ngôi chùa cổ kính.',
-                    tags: ['Tâm linh', 'Lịch sử'],
-                    duration: '5 tiếng',
-                    km: 6.8,
-                    stops: await Destination.getForJourney(mood, ['temple'], [])
-                }
-            ];
+            const month = new Date().getMonth() + 1;
+            let currentSeason = 'spring';
+            if (month >= 4 && month <= 6) currentSeason = 'summer';
+            else if (month >= 7 && month <= 9) currentSeason = 'autumn';
+            else if (month >= 10 && month <= 12) currentSeason = 'winter';
+
+            const mood = session.mood || 'chill';
+
+            // Query templates, sorting matching season and matching mood first
+            const [templates] = await UserSession.db.query(
+                `SELECT * FROM seasonal_journey_templates 
+                 ORDER BY 
+                    CASE WHEN season = ? THEN 0 ELSE 1 END,
+                    CASE WHEN interest = ? THEN 0 ELSE 1 END,
+                    created_at DESC`
+                , [currentSeason, mood]
+            );
+
+            // Fetch all active destinations
+            const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
+            const destMap = {};
+            dests.forEach(d => { destMap[d.id] = d; });
+
+            let mappedSuggestions = templates.map(t => {
+                let stopIds = [];
+                try { stopIds = JSON.parse(t.stops); } catch(e) {}
+                const stops = stopIds.map(id => destMap[id]).filter(Boolean);
+                if (stops.length === 0) return null;
+
+                const seasonLabels = {
+                    spring: '🌸 Xuân',
+                    summer: '☀️ Hạ',
+                    autumn: '🍂 Thu',
+                    winter: '❄️ Đông'
+                };
+                const interestLabels = {
+                    chill: '🧘 Thư giãn',
+                    peace: '🕊️ Bình yên',
+                    culture: '🏛️ Văn hóa',
+                    family: '👨‍👩‍👧‍👦 Gia đình'
+                };
+
+                return {
+                    id: t.id,
+                    name: t.name,
+                    desc: t.description,
+                    tags: [
+                        seasonLabels[t.season] || '🌸 Mùa lễ hội',
+                        interestLabels[t.interest] || '🧘 Trải nghiệm'
+                    ],
+                    duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
+                    km: parseFloat(t.km) || 5.0,
+                    stops: stops
+                };
+            }).filter(Boolean);
+
+            // Fallback templates if none found in DB
+            if (mappedSuggestions.length === 0) {
+                mappedSuggestions = [
+                    {
+                        id: 'opt1',
+                        name: 'Hành trình "Khám phá bản địa"',
+                        desc: 'Tập trung vào các làng nghề truyền thống và văn hóa đặc trưng.',
+                        tags: ['Văn hóa', 'Làng nghề'],
+                        duration: '4-5 tiếng',
+                        km: 8.5,
+                        stops: await Destination.getForJourney(mood, ['craft'], [])
+                    },
+                    {
+                        id: 'opt2',
+                        name: 'Hành trình "Chữa lành & Xanh"',
+                        desc: 'Sự kết hợp hoàn hảo giữa không gian xanh và sự tĩnh lặng của thiên nhiên.',
+                        tags: ['Sinh thái', 'Thiên nhiên'],
+                        duration: '6 tiếng',
+                        km: 12.2,
+                        stops: await Destination.getForJourney(mood, ['nature'], [])
+                    },
+                    {
+                        id: 'opt3',
+                        name: 'Hành trình "Tâm linh & Nguồn cội"',
+                        desc: 'Dành cho những ai tìm kiếm sự bình an tại các ngôi chùa cổ kính.',
+                        tags: ['Tâm linh', 'Lịch sử'],
+                        duration: '5 tiếng',
+                        km: 6.8,
+                        stops: await Destination.getForJourney(mood, ['temple'], [])
+                    }
+                ];
+            }
 
             res.render('journey/suggestions', {
                 title: 'Đề xuất hành trình',
-                suggestions: suggestions,
+                suggestions: mappedSuggestions,
                 session: session
             });
         } catch (error) {

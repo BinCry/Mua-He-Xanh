@@ -101,10 +101,20 @@ const AuthController = {
 
     establishSession: async (req, res, user) => {
         let sessionUuid = req.cookies.session_uuid;
-        if (!sessionUuid) {
+
+        // Try to reuse user's existing session from database
+        const [existingSessions] = await db.query(
+            "SELECT uuid FROM user_sessions WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1",
+            [user.id]
+        );
+
+        if (existingSessions.length > 0) {
+            sessionUuid = existingSessions[0].uuid;
+        } else if (!sessionUuid) {
             sessionUuid = uuidv4();
-            res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
         }
+
+        res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
 
         const session = await UserSession.findOrCreate(sessionUuid, req);
         await db.query(

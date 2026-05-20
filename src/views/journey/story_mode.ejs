@@ -3,27 +3,27 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
-<main class="py-5 min-vh-100" style="background: radial-gradient(circle at top, #0f2214 0%, #060e08 100%); color: #f8fafc; padding-top: 100px !important;">
+<main class="py-5 min-vh-100" style="background: linear-gradient(135deg, #f4fbf7 0%, #ffffff 100%); color: #1e293b; padding-top: 100px !important;">
     <div class="container py-lg-4">
         
         <!-- Premium Header with Locking State -->
         <div class="row align-items-center mb-5 animate__animated animate__fadeIn">
             <div class="col-lg-8">
-                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mb-2 fw-bold text-uppercase x-small" style="letter-spacing: 2px; border: 1px solid rgba(25, 135, 84, 0.2);">
+                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mb-2 fw-bold text-uppercase x-small" style="letter-spacing: 2px; border: 1px solid rgba(25, 135, 84, 0.25);">
                     <i class="bi bi-compass-fill me-1 text-success"></i> HÀNH TRÌNH CHỮA LÀNH THÔNG MINH
                 </span>
-                <h1 class="fw-black text-white mb-2 tracking-wide text-uppercase" style="font-family: 'Outfit', sans-serif; font-size: 2.4rem; background: linear-gradient(120deg, #ffffff, #a7f3d0); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                <h1 class="fw-black text-dark mb-2 tracking-wide text-uppercase" style="font-family: 'Times New Roman', Times, serif; font-size: 2.4rem; background: linear-gradient(120deg, #15803d, #166534); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
                     <%= journey.mood.replace(/_/g, ' ') %>
                 </h1>
-                <p class="text-white-50 mb-0" id="journey-subtitle" style="font-size: 0.95rem;">
+                <p class="text-secondary mb-0" id="journey-subtitle" style="font-size: 0.95rem; font-family: 'Times New Roman', Times, serif;">
                     Bản đồ tương tác thời gian thực kết nối các điểm dừng chân lý tưởng dành cho bạn.
                 </p>
             </div>
             <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
                 <!-- Timeline status badge -->
-                <div class="d-inline-flex gap-2 align-items-center bg-black bg-opacity-40 border border-white-50 border-opacity-10 rounded-pill px-4 py-2 shadow-lg" style="backdrop-filter: blur(10px);">
+                <div class="d-inline-flex gap-2 align-items-center bg-white border border-success border-opacity-20 rounded-pill px-4 py-2 shadow-sm">
                     <span class="badge bg-success rounded-circle p-1" id="lock-status-dot" style="width: 10px; height: 10px; display: inline-block; box-shadow: 0 0 10px #198754;"></span>
-                    <span class="small fw-bold text-white" id="lock-status-text" style="font-size: 0.82rem;">Lộ trình đã chốt</span>
+                    <span class="small fw-bold text-success" id="lock-status-text" style="font-size: 0.82rem;">Lộ trình đã chốt</span>
                     <button class="btn btn-sm btn-success rounded-pill px-3 py-1 ms-3 fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 1px;" onclick="toggleTimelineLock()" id="btn-lock-toggle">
                         <i class="bi bi-pencil-square me-1"></i>Thay đổi
                     </button>
@@ -34,31 +34,31 @@
         <!-- Metrics Display (Premium Glassmorphism Cards) -->
         <div class="row g-3 mb-5 text-center">
             <div class="col-6 col-md-3">
-                <div class="p-3 rounded-4 h-100 shadow-lg d-flex flex-column justify-content-center" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
+                <div class="p-3 rounded-4 h-100 shadow-sm d-flex flex-column justify-content-center bg-white border" style="transition: all 0.3s;" onmouseover="this.style.borderColor='#198754'" onmouseout="this.style.borderColor='#e2e8f0'">
                     <i class="bi bi-clock-fill text-success fs-3 mb-2"></i>
-                    <h4 class="fw-black text-white mb-0" style="font-family: 'Outfit', sans-serif;"><%= journey.total_minutes %> Phút</h4>
-                    <span class="x-small text-white-50 fw-bold text-uppercase mt-1" style="font-size: 0.65rem; letter-spacing: 1px;">Tổng thời gian</span>
+                    <h4 class="fw-black text-dark mb-0" style="font-family: 'Times New Roman', Times, serif;"><%= journey.total_minutes %> Phút</h4>
+                    <span class="x-small text-muted fw-bold text-uppercase mt-1" style="font-size: 0.65rem; letter-spacing: 1px;">Tổng thời gian</span>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 rounded-4 h-100 shadow-lg d-flex flex-column justify-content-center" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
+                <div class="p-3 rounded-4 h-100 shadow-sm d-flex flex-column justify-content-center bg-white border" style="transition: all 0.3s;" onmouseover="this.style.borderColor='#198754'" onmouseout="this.style.borderColor='#e2e8f0'">
                     <i class="bi bi-geo-alt-fill text-success fs-3 mb-2"></i>
-                    <h4 class="fw-black text-white mb-0" style="font-family: 'Outfit', sans-serif;" id="metric-stops-count"><%= journey.stops.length %> Điểm</h4>
-                    <span class="x-small text-white-50 fw-bold text-uppercase mt-1" style="font-size: 0.65rem; letter-spacing: 1px;">Điểm dừng chân</span>
+                    <h4 class="fw-black text-dark mb-0" style="font-family: 'Times New Roman', Times, serif;" id="metric-stops-count"><%= journey.stops.length %> Điểm</h4>
+                    <span class="x-small text-muted fw-bold text-uppercase mt-1" style="font-size: 0.65rem; letter-spacing: 1px;">Điểm dừng chân</span>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 rounded-4 h-100 shadow-lg d-flex flex-column justify-content-center" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
+                <div class="p-3 rounded-4 h-100 shadow-sm d-flex flex-column justify-content-center bg-white border" style="transition: all 0.3s;" onmouseover="this.style.borderColor='#198754'" onmouseout="this.style.borderColor='#e2e8f0'">
                     <i class="bi bi-signpost-split-fill text-success fs-3 mb-2"></i>
-                    <h4 class="fw-black text-white mb-0" style="font-family: 'Outfit', sans-serif;"><%= journey.total_km %> Km</h4>
-                    <span class="x-small text-white-50 fw-bold text-uppercase mt-1" style="font-size: 0.65rem; letter-spacing: 1px;">Quãng đường</span>
+                    <h4 class="fw-black text-dark mb-0" style="font-family: 'Times New Roman', Times, serif;"><%= journey.total_km %> Km</h4>
+                    <span class="x-small text-muted fw-bold text-uppercase mt-1" style="font-size: 0.65rem; letter-spacing: 1px;">Quãng đường</span>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="p-3 rounded-4 h-100 shadow-lg d-flex flex-column justify-content-center" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(15px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
+                <div class="p-3 rounded-4 h-100 shadow-sm d-flex flex-column justify-content-center bg-white border" style="transition: all 0.3s;" onmouseover="this.style.borderColor='#198754'" onmouseout="this.style.borderColor='#e2e8f0'">
                     <i class="bi bi-stars text-warning fs-3 mb-2"></i>
-                    <h4 class="fw-black text-warning mb-0" style="font-family: 'Outfit', sans-serif;">+<%= journey.stops.reduce((sum, s) => sum + (s.points || 0), 0) %></h4>
-                    <span class="x-small text-white-50 fw-bold text-uppercase mt-1" style="font-size: 0.65rem; letter-spacing: 1px;">Điểm tích lũy</span>
+                    <h4 class="fw-black text-success mb-0" style="font-family: 'Times New Roman', Times, serif;">+<%= journey.stops.reduce((sum, s) => sum + (s.points || 0), 0) %></h4>
+                    <span class="x-small text-muted fw-bold text-uppercase mt-1" style="font-size: 0.65rem; letter-spacing: 1px;">Điểm tích lũy</span>
                 </div>
             </div>
         </div>
@@ -67,13 +67,13 @@
             <!-- Left Panel: Interactive Itinerary (timeline form) -->
             <div class="col-lg-6">
                 <!-- Timeline customization settings -->
-                <div class="card border-0 shadow-lg rounded-4 p-4 mb-4 d-none" id="timeline-edit-panel" style="background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);">
+                <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 d-none bg-white border" id="timeline-edit-panel">
                     <h6 class="fw-bold mb-3 text-success d-flex align-items-center gap-2">
                         <i class="bi bi-sliders"></i> Công cụ điều chỉnh lộ trình
                     </h6>
                     <div class="row g-2 align-items-center">
                         <div class="col-md-7">
-                            <select class="form-select bg-dark text-white border-secondary rounded-pill shadow-none" id="select-new-destination" style="background-color: #0b150d !important;">
+                            <select class="form-select bg-white text-dark border-secondary rounded-pill shadow-none" id="select-new-destination">
                                 <option value="">-- Chọn địa điểm thêm --</option>
                                 <% allDestinations.forEach(dest => { %>
                                     <option value="<%= dest.id %>"><%= dest.name %> (<%= dest.type %>)</option>
@@ -86,7 +86,7 @@
                             </button>
                         </div>
                     </div>
-                    <div class="mt-3 x-small text-white-50">
+                    <div class="mt-3 x-small text-muted">
                         <i class="bi bi-info-circle me-1"></i> Ở chế độ thay đổi, bạn có thể thêm/bớt địa điểm, thay đổi giờ khởi hành hoặc kéo thả để sắp xếp lại thứ tự hành trình.
                     </div>
                 </div>
@@ -99,12 +99,12 @@
                     <% journey.stops.forEach((stop, i) => { %>
                         <div class="timeline-item position-relative mb-4" data-id="<%= stop.destination_id %>" id="stop-card-<%= i %>">
                             <!-- Index dot with timeline marker -->
-                            <div class="timeline-badge bg-success text-white rounded-circle border border-4 border-dark shadow d-flex align-items-center justify-content-center fw-bold" 
-                                 style="width: 38px; height: 38px; position: absolute; left: -35px; top: 12px; z-index: 2; transition: all 0.3s; font-family: 'Outfit', sans-serif;">
+                            <div class="timeline-badge bg-success text-white rounded-circle border border-4 border-white shadow d-flex align-items-center justify-content-center fw-bold" 
+                                 style="width: 38px; height: 38px; position: absolute; left: -35px; top: 12px; z-index: 2; transition: all 0.3s; font-family: 'Times New Roman', Times, serif;">
                                 <%= i + 1 %>
                             </div>
 
-                            <div class="card border-0 shadow-lg rounded-4 overflow-hidden" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;">
+                            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white border" style="transition: all 0.3s;">
                                 <div class="row g-0 align-items-center">
                                     <!-- Image (full visibility) -->
                                     <div class="col-sm-4" style="height: 140px; min-height: 140px;">
@@ -115,8 +115,8 @@
                                         
                                         <!-- Edit actions overlay (only shown when editing) -->
                                         <div class="position-absolute top-0 end-0 m-2 d-flex gap-1 edit-actions d-none" style="z-index: 10;">
-                                            <div class="btn btn-dark btn-sm rounded-circle drag-handle shadow-sm border border-secondary" style="cursor: grab;" title="Kéo thả đổi vị trí">
-                                                <i class="bi bi-arrows-move text-white"></i>
+                                            <div class="btn btn-light btn-sm rounded-circle drag-handle shadow-sm border" style="cursor: grab;" title="Kéo thả đổi vị trí">
+                                                <i class="bi bi-arrows-move text-dark"></i>
                                             </div>
                                             <button class="btn btn-danger btn-sm rounded-circle shadow-sm" onclick="removeStopFromTimeline(<%= stop.destination_id %>)" title="Xóa khỏi lộ trình">
                                                 <i class="bi bi-trash-fill"></i>
@@ -125,7 +125,7 @@
 
                                         <!-- Custom timeframe -->
                                         <div class="d-flex align-items-center gap-2 mb-2">
-                                            <span class="badge bg-success bg-opacity-15 text-success fw-bold px-2 py-1" style="font-size: 0.72rem; border: 1px solid rgba(25, 135, 84, 0.25);">
+                                            <span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1" style="font-size: 0.72rem; border: 1px solid rgba(25, 135, 84, 0.2);">
                                                 <i class="bi bi-clock-fill me-1"></i>
                                                 <% 
                                                     // Dynamic hourly calculation based on index
@@ -136,18 +136,18 @@
                                                 %>
                                                 <span class="stop-timeframe"><%= startHourStr %> - <%= endHourStr %></span>
                                             </span>
-                                            <span class="text-white-50 x-small"><i class="bi bi-cpu-fill me-1"></i>Tối ưu AI</span>
+                                            <span class="text-secondary x-small"><i class="bi bi-cpu-fill me-1"></i>Tối ưu AI</span>
                                         </div>
 
-                                        <h5 class="fw-bold mb-1 text-white text-truncate" style="font-size: 1.05rem; font-family: 'Outfit', sans-serif;"><%= stop.name %></h5>
+                                        <h5 class="fw-bold mb-1 text-dark text-truncate" style="font-size: 1.05rem; font-family: 'Times New Roman', Times, serif;"><%= stop.name %></h5>
                                         
-                                        <p class="text-white-50 mb-3 line-clamp-2" style="font-size: 0.8rem; line-height: 1.5;"><%= stop.short_description || stop.highlight %></p>
+                                        <p class="text-secondary mb-3 line-clamp-2" style="font-size: 0.85rem; line-height: 1.5; font-family: 'Times New Roman', Times, serif;"><%= stop.short_description || stop.highlight %></p>
                                         
                                         <div class="d-flex align-items-center justify-content-between">
                                             <a href="/explore/<%= stop.slug %>" class="btn btn-outline-success btn-sm rounded-pill px-3 py-1" style="font-size: 0.75rem; font-weight: 600;">
                                                 Chi tiết <i class="bi bi-chevron-right ms-1"></i>
                                             </a>
-                                            <span class="text-warning x-small fw-bold"><i class="bi bi-star-fill me-1"></i>+<%= stop.points %> Điểm</span>
+                                            <span class="text-success x-small fw-bold"><i class="bi bi-star-fill me-1 text-warning"></i>+<%= stop.points %> Điểm</span>
                                         </div>
                                     </div>
                                 </div>
@@ -158,7 +158,7 @@
 
                 <!-- Complete / Start Navigation Button -->
                 <div class="d-grid gap-2 mt-5">
-                    <button class="btn btn-success btn-lg py-3 rounded-pill shadow-lg fw-bold text-uppercase tracking-widest" id="btn-timeline-action" onclick="lockJourneyAndConfirm()" style="font-family: 'Outfit', sans-serif; font-size: 1rem; box-shadow: 0 0 25px rgba(25, 135, 84, 0.4);">
+                    <button class="btn btn-success btn-lg py-3 rounded-pill shadow-sm fw-bold text-uppercase tracking-widest" id="btn-timeline-action" onclick="lockJourneyAndConfirm()" style="font-family: 'Times New Roman', Times, serif; font-size: 1rem; box-shadow: 0 4px 12px rgba(25, 135, 84, 0.2);">
                         CHỐT & LƯU LỘ TRÌNH
                     </button>
                 </div>
@@ -167,18 +167,18 @@
             <!-- Right Panel: Google Maps integration -->
             <div class="col-lg-6">
                 <div class="sticky-top" style="top: 100px; z-index: 5;">
-                    <div class="card border-0 shadow-lg rounded-5 overflow-hidden p-1" style="height: 65vh; min-height: 480px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);">
+                    <div class="card border-0 shadow-lg rounded-5 overflow-hidden p-1" style="height: 65vh; min-height: 480px; background: #ffffff; border: 1px solid #e2e8f0;">
                         <!-- Google Map Container -->
                         <div id="google-journey-map" class="w-100 h-100 rounded-4"></div>
                         
                         <!-- Map Info floating card -->
                         <div class="position-absolute bottom-0 start-0 w-100 p-3" style="z-index: 10;">
-                            <div class="bg-black bg-opacity-75 backdrop-blur-md text-white p-3 rounded-4 shadow border border-white-50 border-opacity-10">
+                            <div class="bg-white text-dark p-3 rounded-4 shadow border border-success border-opacity-20">
                                 <div class="d-flex align-items-center justify-content-between mb-1">
-                                    <h6 class="fw-bold mb-0 text-success"><i class="bi bi-map-fill me-1"></i>Google Maps Real-time Route</h6>
-                                    <span class="badge bg-success rounded-pill" style="font-size: 0.7rem; box-shadow: 0 0 10px #198754;">Live</span>
+                                    <h6 class="fw-bold mb-0 text-success" style="font-family: 'Times New Roman', Times, serif;"><i class="bi bi-map-fill me-1"></i>Bản đồ Google Maps trực tuyến</h6>
+                                    <span class="badge bg-success rounded-pill" style="font-size: 0.7rem;">Live</span>
                                 </div>
-                                <p class="x-small text-white-50 mb-0">Bản đồ định vị vệ tinh chính xác nhất từ Google Maps API. Lộ trình được cập nhật tự động ngay khi bạn thay đổi thứ tự điểm đến.</p>
+                                <p class="x-small text-secondary mb-0" style="font-family: 'Times New Roman', Times, serif;">Lộ trình tự động cập nhật khi bạn thay đổi vị trí các điểm dừng chân.</p>
                             </div>
                         </div>
                     </div>

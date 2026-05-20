@@ -1,0 +1,291 @@
+<!-- Admin: Seasonal Journey Templates Management -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h4 class="fw-bold mb-1" style="font-family: 'Times New Roman', Times, serif;">Hành trình mẫu theo mùa</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý và đề xuất hành trình theo mùa và sở thích của du khách.</p>
+    </div>
+    <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#templateModal" onclick="openTemplateForm()">
+        <i class="bi bi-plus-lg me-1"></i> Thêm Hành trình
+    </button>
+</div>
+
+<!-- Templates Table -->
+<div class="admin-table bg-white rounded-4 shadow-sm p-3">
+    <table class="table table-borderless mb-0">
+        <thead>
+            <tr style="border-bottom: 2px solid #f1f5f9;">
+                <th>Tên hành trình</th>
+                <th>Mùa đề xuất</th>
+                <th>Sở thích/Vibe</th>
+                <th>Số điểm dừng</th>
+                <th>Thời lượng</th>
+                <th>Khoảng cách</th>
+                <th style="width: 120px;">Thao tác</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% templates.forEach(t => { %>
+            <tr class="align-middle" style="border-bottom: 1px solid #f8fafc;">
+                <td class="fw-bold text-dark"><%= t.name %></td>
+                <td>
+                    <span class="badge rounded-pill px-3 py-1 text-uppercase fw-bold fs-7
+                        <%= t.season === 'spring' ? 'bg-success bg-opacity-10 text-success' : 
+                            t.season === 'summer' ? 'bg-warning bg-opacity-10 text-warning' : 
+                            t.season === 'autumn' ? 'bg-danger bg-opacity-10 text-danger' : 
+                            'bg-info bg-opacity-10 text-info' %>">
+                        <%= t.season === 'spring' ? '🌸 Xuân' : 
+                            t.season === 'summer' ? '☀️ Hạ' : 
+                            t.season === 'autumn' ? '🍂 Thu' : 
+                            '❄️ Đông' %>
+                    </span>
+                </td>
+                <td>
+                    <span class="badge rounded-pill px-3 py-1 bg-light text-secondary border">
+                        <%= t.interest === 'chill' ? '🧘 Thư giãn (Chill)' : 
+                            t.interest === 'peace' ? '🕊️ Bình yên (Peace)' : 
+                            t.interest === 'culture' ? '🏛️ Văn hóa (Culture)' : 
+                            '👨‍👩‍👧‍👦 Gia đình (Family)' %>
+                    </span>
+                </td>
+                <td>
+                    <% 
+                        let stopsArr = [];
+                        try { stopsArr = JSON.parse(t.stops); } catch(e) {}
+                    %>
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-2.5"><%= stopsArr.length %> điểm</span>
+                </td>
+                <td class="small text-muted"><%= t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày' %></td>
+                <td class="small fw-semibold text-primary"><%= t.km %> km</td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary rounded-circle p-1.5 me-1" style="width: 32px; height: 32px;" onclick="editTemplate(this)" data-template="<%= JSON.stringify(t) %>">
+                        <i class="bi bi-pencil fs-6"></i>
+                    </button>
+                    <button class="btn btn-sm btn-outline-danger rounded-circle p-1.5" style="width: 32px; height: 32px;" onclick="deleteTemplate('<%= t.id %>')">
+                        <i class="bi bi-trash fs-6"></i>
+                    </button>
+                </td>
+            </tr>
+            <% }) %>
+            <% if (templates.length === 0) { %>
+            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có hành trình mẫu nào.</td></tr>
+            <% } %>
+        </tbody>
+    </table>
+</div>
+
+<!-- Template Modal -->
+<div class="modal fade" id="templateModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface); color: var(--admin-text);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="templateModalTitle">Thêm Hành trình Mẫu</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="templateForm">
+                    <input type="hidden" id="tpl_id" name="id">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Tên hành trình mẫu</label>
+                            <input type="text" class="form-control admin-input" id="tpl_name" name="name" placeholder="Ví dụ: Du Xuân Đất Tổ Bình Lợi" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label small fw-bold">Mô tả hành trình</label>
+                            <textarea class="form-control admin-input" id="tpl_description" name="description" rows="3" placeholder="Nhập tóm tắt giới thiệu hành trình..."></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Mùa phù hợp</label>
+                            <select class="form-select admin-input" id="tpl_season" name="season" required>
+                                <option value="spring">🌸 Xuân (Tháng 1 - Tháng 3)</option>
+                                <option value="summer">☀️ Hạ (Tháng 4 - Tháng 6)</option>
+                                <option value="autumn">🍂 Thu (Tháng 7 - Tháng 9)</option>
+                                <option value="winter">❄️ Đông (Tháng 10 - Tháng 12)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Sở thích / Vibe đề xuất</label>
+                            <select class="form-select admin-input" id="tpl_interest" name="interest" required>
+                                <option value="chill">🧘 Thư giãn (Chill)</option>
+                                <option value="peace">🕊️ Bình yên (Peace)</option>
+                                <option value="culture">🏛️ Văn hóa (Culture)</option>
+                                <option value="family">👨‍👩‍👧‍👦 Gia đình (Family)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Thời lượng ước tính</label>
+                            <select class="form-select admin-input" id="tpl_duration" name="duration">
+                                <option value="full_day">Cả ngày (Full day)</option>
+                                <option value="half_day">Nửa ngày (Half day)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Tổng khoảng cách (km)</label>
+                            <input type="number" step="0.1" class="form-control admin-input" id="tpl_km" name="km" placeholder="Ví dụ: 4.8" required>
+                        </div>
+
+                        <!-- Dynamic Stops Section -->
+                        <div class="col-12">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <label class="form-label small fw-bold mb-0">Các điểm dừng chân (theo thứ tự)</label>
+                                <button type="button" class="btn btn-sm btn-outline-success rounded-pill px-3" onclick="addStopSelect()">
+                                    <i class="bi bi-plus-lg me-1"></i> Thêm điểm dừng
+                                </button>
+                            </div>
+                            <div id="stopsContainer" class="d-flex flex-column gap-2 p-3 bg-light rounded-3">
+                                <!-- Dynamic stop selects will go here -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4 border-top pt-3">
+                        <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4">Lưu hành trình</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const destinationsList = <%- JSON.stringify(destinations) %>;
+    let editingTemplate = false;
+
+    function openTemplateForm() {
+        editingTemplate = false;
+        document.getElementById('templateModalTitle').innerText = 'Thêm Hành trình Mẫu';
+        document.getElementById('templateForm').reset();
+        document.getElementById('tpl_id').value = '';
+        document.getElementById('stopsContainer').innerHTML = '';
+        
+        // Add one empty select by default
+        addStopSelect();
+    }
+
+    function addStopSelect(selectedDestId = '') {
+        const container = document.getElementById('stopsContainer');
+        const index = container.children.length;
+
+        const row = document.createElement('div');
+        row.className = 'd-flex align-items-center gap-2 stop-row';
+        row.innerHTML = `
+            <span class="badge bg-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;">${index + 1}</span>
+            <select class="form-select admin-input flex-grow-1 dest-select" required>
+                <option value="">-- Chọn địa điểm dừng --</option>
+                ${destinationsList.map(d => `<option value="${d.id}" ${d.id === selectedDestId ? 'selected' : ''}>${d.name}</option>`).join('')}
+            </select>
+            <button type="button" class="btn btn-sm btn-outline-danger border-0 rounded-circle" style="width: 32px; height: 32px;" onclick="removeStopRow(this)">
+                <i class="bi bi-trash"></i>
+            </button>
+        `;
+        container.appendChild(row);
+        updateStopNumbers();
+    }
+
+    function removeStopRow(button) {
+        const row = button.closest('.stop-row');
+        row.remove();
+        updateStopNumbers();
+    }
+
+    function updateStopNumbers() {
+        const rows = document.querySelectorAll('.stop-row');
+        rows.forEach((row, i) => {
+            row.querySelector('span.badge').innerText = i + 1;
+        });
+    }
+
+    function editTemplate(button) {
+        editingTemplate = true;
+        document.getElementById('templateModalTitle').innerText = 'Cập nhật Hành trình Mẫu';
+        
+        const t = JSON.parse(button.getAttribute('data-template'));
+        document.getElementById('tpl_id').value = t.id;
+        document.getElementById('tpl_name').value = t.name;
+        document.getElementById('tpl_description').value = t.description;
+        document.getElementById('tpl_season').value = t.season;
+        document.getElementById('tpl_interest').value = t.interest;
+        document.getElementById('tpl_duration').value = t.duration;
+        document.getElementById('tpl_km').value = t.km;
+
+        const container = document.getElementById('stopsContainer');
+        container.innerHTML = '';
+
+        let stopsArr = [];
+        try { stopsArr = JSON.parse(t.stops); } catch(e) {}
+        
+        stopsArr.forEach(destId => {
+            addStopSelect(destId);
+        });
+
+        if (stopsArr.length === 0) {
+            addStopSelect();
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('templateModal'));
+        modal.show();
+    }
+
+    async function deleteTemplate(id) {
+        if (!confirm('Bạn có chắc chắn muốn xóa hành trình mẫu này không?')) return;
+        try {
+            const res = await axios.post('/api/admin/delete-journey-template', { id });
+            if (res.data.success) {
+                alert('Đã xóa thành công!');
+                location.reload();
+            } else {
+                alert(res.data.message);
+            }
+        } catch (error) {
+            alert('Lỗi: ' + (error.response?.data?.message || error.message));
+        }
+    }
+
+    document.getElementById('templateForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('tpl_id').value;
+        const name = document.getElementById('tpl_name').value;
+        const description = document.getElementById('tpl_description').value;
+        const season = document.getElementById('tpl_season').value;
+        const interest = document.getElementById('tpl_interest').value;
+        const duration = document.getElementById('tpl_duration').value;
+        const km = document.getElementById('tpl_km').value;
+
+        // Gather stops
+        const selects = document.querySelectorAll('.dest-select');
+        const stops = [];
+        selects.forEach(sel => {
+            if (sel.value) stops.push(sel.value);
+        });
+
+        if (stops.length === 0) {
+            alert('Vui lòng chọn ít nhất một điểm dừng chân!');
+            return;
+        }
+
+        const data = {
+            id,
+            name,
+            description,
+            season,
+            interest,
+            stops: JSON.stringify(stops),
+            duration,
+            km: parseFloat(km)
+        };
+
+        const url = editingTemplate ? '/api/admin/update-journey-template' : '/api/admin/create-journey-template';
+
+        try {
+            const res = await axios.post(url, data);
+            if (res.data.success) {
+                alert(editingTemplate ? 'Đã cập nhật thành công!' : 'Đã thêm thành công!');
+                location.reload();
+            } else {
+                alert(res.data.message);
+            }
+        } catch (error) {
+            alert('Lỗi: ' + (error.response?.data?.message || error.message));
+        }
+    });
+</script>

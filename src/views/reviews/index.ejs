@@ -50,11 +50,10 @@
                             <input type="file" name="image" accept="image/*" class="d-none" id="imageInput" onchange="previewImage(this)">
                         </label>
                         
-                        <!-- Open Camera (Direct Capture integration for Mobile) -->
-                        <label class="btn btn-light btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 0.8rem; font-weight: 600;">
+                        <!-- Open Camera (WebRTC Stream Capture) -->
+                        <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 0.8rem; font-weight: 600;" onclick="openWebcamModal()">
                             <i class="bi bi-camera-fill text-primary fs-6"></i> Chụp ảnh
-                            <input type="file" name="camera" accept="image/*" capture="environment" class="d-none" id="cameraInput" onchange="previewImage(this)">
-                        </label>
+                        </button>
 
                         <!-- Rating Selector -->
                         <select class="form-select form-select-sm rounded-pill border bg-light px-3 py-2" name="rating" style="width: auto; font-size: 0.8rem; font-weight: 600;">
@@ -76,6 +75,42 @@
             <a href="/auth/login" class="btn btn-primary-bl rounded-pill px-4 py-2">ĐĂNG NHẬP NGAY</a>
         </div>
         <% } %>
+
+        <!-- WebRTC Camera Modal -->
+        <div class="modal fade" id="cameraModal" tabindex="-1" aria-labelledby="cameraModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content border-0 rounded-4 overflow-hidden shadow-lg bg-dark text-white">
+                    <div class="modal-header border-0 bg-success bg-opacity-10 pb-0 d-flex justify-content-between align-items-center p-3">
+                        <h6 class="modal-title fw-bold text-success" id="cameraModalLabel">
+                            <i class="bi bi-camera-fill me-1"></i> Máy ảnh cộng đồng
+                        </h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="stopCameraStream()"></button>
+                    </div>
+                    <div class="modal-body p-3 text-center">
+                        <div class="position-relative bg-black rounded-3 overflow-hidden mb-3" style="aspect-ratio: 4/3; min-height: 280px;">
+                            <video id="webcamStream" class="w-100 h-100" style="object-fit: cover;" autoplay playsinline></video>
+                            <div id="cameraLoading" class="position-absolute top-50 start-50 translate-middle text-success d-none">
+                                <div class="spinner-border me-2" role="status"></div>
+                                <span class="small fw-bold">Đang kết nối camera...</span>
+                            </div>
+                            <div id="cameraErrorMsg" class="position-absolute top-50 start-50 translate-middle text-danger px-3 d-none">
+                                <i class="bi bi-exclamation-triangle-fill fs-3 mb-2"></i>
+                                <p class="small fw-bold mb-0">Không thể truy cập camera. Vui lòng cho phép truy cập hoặc tải ảnh lên.</p>
+                            </div>
+                        </div>
+                        <canvas id="photoCanvas" class="d-none" width="640" height="480"></canvas>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="button" class="btn btn-success rounded-pill px-4 py-2 fw-bold d-flex align-items-center gap-2" onclick="takeSnapshot()">
+                                <i class="bi bi-camera-fill fs-5"></i> CHỤP ẢNH
+                            </button>
+                            <button type="button" class="btn btn-outline-light rounded-pill px-3 py-2 fw-bold" data-bs-dismiss="modal" onclick="stopCameraStream()">
+                                HỦY
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- Feed List -->
         <div class="d-flex flex-column gap-4" id="communityFeed">
@@ -153,6 +188,87 @@
 </section>
 
 <script>
+    // WebRTC Live Camera Stream & Capture Logic
+    let localStream = null;
+
+    async function openWebcamModal() {
+        const modal = new bootstrap.Modal(document.getElementById('cameraModal'));
+        modal.show();
+
+        const video = document.getElementById('webcamStream');
+        const loading = document.getElementById('cameraLoading');
+        const errorMsg = document.getElementById('cameraErrorMsg');
+
+        video.classList.add('d-none');
+        loading.classList.remove('d-none');
+        errorMsg.classList.add('d-none');
+
+        try {
+            if (localStream) {
+                stopCameraStream();
+            }
+            localStream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: 'environment',
+                    width: { ideal: 1280 },
+                    height: { ideal: 960 }
+                },
+                audio: false
+            });
+            video.srcObject = localStream;
+            video.onloadedmetadata = () => {
+                loading.classList.add('d-none');
+                video.classList.remove('d-none');
+            };
+        } catch (err) {
+            console.error("Camera access error:", err);
+            loading.classList.add('d-none');
+            errorMsg.classList.remove('d-none');
+        }
+    }
+
+    function stopCameraStream() {
+        if (localStream) {
+            localStream.getTracks().forEach(track => track.stop());
+            localStream = null;
+        }
+    }
+
+    function takeSnapshot() {
+        const video = document.getElementById('webcamStream');
+        const canvas = document.getElementById('photoCanvas');
+        if (!video || !canvas || !localStream) return;
+
+        const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob((blob) => {
+            if (blob) {
+                const file = new File([blob], `checkin_${Date.now()}.jpg`, { type: 'image/jpeg' });
+                
+                const mainInput = document.getElementById('imageInput');
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+                mainInput.files = dataTransfer.files;
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('previewImg').src = e.target.result;
+                    document.getElementById('imagePreview').classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+
+                const modalEl = document.getElementById('cameraModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                stopCameraStream();
+            }
+        }, 'image/jpeg', 0.85);
+    }
+
     // Preview selected image or captured photos instantly
     function previewImage(input) {
         if (input.files && input.files[0]) {

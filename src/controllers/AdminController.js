@@ -27,56 +27,53 @@ const AdminController = {
                 WHERE event = 'page_view' AND duration_ms > 0 AND duration_ms < 300000
             `);
             let realAvgSeconds = Math.round((avgDuration[0]?.avg_ms || 0) / 1000);
-            if (realAvgSeconds < 30) {
-                // Return realistic dynamic average interaction duration (between 142s and 286s)
-                realAvgSeconds = 180 + (pageViews[0].total % 60);
+            if (realAvgSeconds < 0) {
+                realAvgSeconds = 0;
             }
 
             // Monthly check-in trend (last 6 months)
-            let [monthlyCheckins] = await db.query(`
+            const [checkinRows] = await db.query(`
                 SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
                 FROM check_ins WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
                 GROUP BY month ORDER BY month ASC
             `);
-            if (monthlyCheckins.length < 3) {
-                // Ensure beautiful bars showing checkin growth
-                const months = [];
-                for(let i = 5; i >= 0; i--) {
-                    const d = new Date();
-                    d.setMonth(d.getMonth() - i);
-                    months.push({
-                        month: d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'),
-                        count: 12 + Math.floor(Math.random() * 8) + (i === 0 ? checkinCount[0].total : 0)
-                    });
-                }
-                monthlyCheckins = months;
+            const checkinMap = {};
+            checkinRows.forEach(r => { checkinMap[r.month] = r.count; });
+
+            const monthlyCheckins = [];
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date();
+                d.setMonth(d.getMonth() - i);
+                const monthStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                monthlyCheckins.push({
+                    month: monthStr,
+                    count: checkinMap[monthStr] || 0
+                });
             }
 
             // Daily page views (last 14 days)
-            let [dailyViews] = await db.query(`
+            const [viewRows] = await db.query(`
                 SELECT DATE(created_at) as day, COUNT(*) as count
                 FROM analytics WHERE event = 'page_view' AND created_at >= DATE_SUB(NOW(), INTERVAL 14 DAY)
                 GROUP BY day ORDER BY day ASC
             `);
+            const viewsMap = {};
+            viewRows.forEach(r => {
+                try {
+                    const dateStr = new Date(r.day).toISOString().split('T')[0];
+                    viewsMap[dateStr] = r.count;
+                } catch (e) {}
+            });
 
-            // High-fidelity real-time baseline generator so views chart is always alive with beautiful lines
-            if (dailyViews.length < 7) {
-                const days = [];
-                for(let i = 13; i >= 0; i--) {
-                    const d = new Date();
-                    d.setDate(d.getDate() - i);
-                    const dayStr = d.toISOString().split('T')[0];
-                    // Create natural tourist curve with peak weekend views
-                    const dayOfWeek = d.getDay();
-                    const isWeekend = (dayOfWeek === 0 || dayOfWeek === 6);
-                    const baseViews = isWeekend ? 85 : 45;
-                    const randOffset = Math.floor(Math.random() * 25);
-                    days.push({
-                        day: dayStr,
-                        count: baseViews + randOffset + (i === 0 ? pageViews[0].total : 0)
-                    });
-                }
-                dailyViews = days;
+            const dailyViews = [];
+            for (let i = 13; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dayStr = d.toISOString().split('T')[0];
+                dailyViews.push({
+                    day: dayStr,
+                    count: viewsMap[dayStr] || 0
+                });
             }
 
             // New users per month
@@ -536,6 +533,74 @@ const AdminController = {
             res.json({ success: true, message: 'Đã xóa sự kiện' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
+        }
+    },
+
+    journeyTemplates: async (req, res) => {
+        try {
+            const [templates] = await db.query('SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC');
+            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = TRUE ORDER BY name ASC');
+            res.render('admin/journey_templates', {
+                title: 'Quản lý Hành trình Mẫu - Admin Panel',
+                layout: 'layouts/admin',
+                templates,
+                destinations,
+                adminPage: 'journey-templates'
+            });
+        } catch (error) {
+            res.status(500).send('Lỗi: ' + error.message);
+        }
+    },
+
+    createJourneyTemplate: async (req, res) => {
+        try {
+            const { name, description, season, interest, stops, duration, km } = req.body;
+            if (!name || !season || !interest || !stops) {
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
+            }
+            const stopsJson = typeof stops === 'string' ? stops : JSON.stringify(stops);
+
+            await db.query(
+                `INSERT INTO seasonal_journey_templates (id, name, description, season, interest, stops, duration, km)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+                [uuidv4(), name, description, season, interest, stopsJson, duration || 'full_day', km || 5.0]
+            );
+            res.json({ success: true, message: 'Đã tạo hành trình mẫu!' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+        }
+    },
+
+    updateJourneyTemplate: async (req, res) => {
+        try {
+            const { id, name, description, season, interest, stops, duration, km } = req.body;
+            if (!id || !name || !season || !interest || !stops) {
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
+            }
+            const stopsJson = typeof stops === 'string' ? stops : JSON.stringify(stops);
+
+            await db.query(
+                `UPDATE seasonal_journey_templates 
+                 SET name = ?, description = ?, season = ?, interest = ?, stops = ?, duration = ?, km = ? 
+                 WHERE id = ?`,
+                [name, description, season, interest, stopsJson, duration, km, id]
+            );
+            res.json({ success: true, message: 'Đã cập nhật hành trình mẫu!' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+        }
+    },
+
+    deleteJourneyTemplate: async (req, res) => {
+        try {
+            const { id } = req.body;
+            if (!id) {
+                return res.status(400).json({ success: false, message: 'Thiếu ID hành trình' });
+            }
+            await db.query('DELETE FROM seasonal_journey_templates WHERE id = ?', [id]);
+            res.json({ success: true, message: 'Đã xóa hành trình mẫu!' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
         }
     }
 };

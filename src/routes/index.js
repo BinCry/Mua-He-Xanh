@@ -73,6 +73,7 @@ router.get('/admin/settings', ensureAdmin, AdminController.siteSettings);
 router.get('/admin/workshops', ensureAdmin, AdminController.workshops);
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
+router.get('/admin/journey-templates', ensureAdmin, AdminController.journeyTemplates);
 
 // ===== MANAGER =====
 router.get('/manager', ensureManager, ManagerController.index);
@@ -158,6 +159,11 @@ router.post('/api/admin/delete-event', ensureAdmin, AdminController.deleteEvent)
 
 // Admin API — Settings
 router.post('/api/admin/update-settings', ensureAdmin, AdminController.updateSettings);
+
+// Admin API — Journey Templates
+router.post('/api/admin/create-journey-template', ensureAdmin, AdminController.createJourneyTemplate);
+router.post('/api/admin/update-journey-template', ensureAdmin, AdminController.updateJourneyTemplate);
+router.post('/api/admin/delete-journey-template', ensureAdmin, AdminController.deleteJourneyTemplate);
 
 // General Upload API
 router.post('/api/upload', ensureAuthenticated, upload.single('image'), UploadController.uploadImage);
