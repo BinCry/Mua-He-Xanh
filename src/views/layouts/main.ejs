@@ -77,31 +77,11 @@
         <i class="bi bi-arrow-up"></i>
     </div>
 
-    <!-- Premium Mobile Bottom Navigation Bar (Only visible on mobile/tablet) -->
-    <div class="d-lg-none mobile-bottom-nav">
-        <div class="mobile-bottom-nav-inner">
-            <a href="/" class="mobile-nav-item">
-                <i class="bi bi-house-door"></i>
-                <span>Trang chủ</span>
-            </a>
-            <a href="/explore" class="mobile-nav-item">
-                <i class="bi bi-compass"></i>
-                <span>Khám phá</span>
-            </a>
-            <div class="mobile-nav-qr-wrapper">
-                <a href="/checkin" class="mobile-nav-qr-btn" title="Quét QR Check-in">
-                    <i class="bi bi-qr-code-scan"></i>
-                </a>
-            </div>
-            <a href="/journey" class="mobile-nav-item">
-                <i class="bi bi-signpost-split"></i>
-                <span>Hành trình</span>
-            </a>
-            <a href="<%= user ? '/profile' : '/auth/login' %>" class="mobile-nav-item">
-                <i class="bi bi-person-circle"></i>
-                <span>Cá nhân</span>
-            </a>
-        </div>
+    <!-- Mobile Bottom: Only QR Scan Button (centered) -->
+    <div class="d-lg-none position-fixed bottom-0 start-50 translate-middle-x" style="z-index: 1050; margin-bottom: 20px; padding-bottom: env(safe-area-inset-bottom, 0);">
+        <a href="/checkin" class="mobile-qr-fab d-flex align-items-center justify-content-center text-white text-decoration-none rounded-circle shadow-lg">
+            <i class="bi bi-qr-code-scan fs-4"></i>
+        </a>
     </div>
 
     <!-- Scripts -->
@@ -134,21 +114,9 @@
             });
         };
 
-        // Run reveal immediately on DOMContentLoaded & highlight current mobile bottom nav tab
+        // Run reveal immediately on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
             setTimeout(reveal, 100);
-            
-            // Auto-highlight mobile bottom nav items
-            const path = window.location.pathname;
-            const navItems = document.querySelectorAll('.mobile-nav-item');
-            navItems.forEach(item => {
-                const href = item.getAttribute('href');
-                if (href === '/' && path === '/') {
-                    item.classList.add('active');
-                } else if (href !== '/' && path.startsWith(href)) {
-                    item.classList.add('active');
-                }
-            });
         });
 
         // Navbar Scroll Effect (Fixed top without detached spacing)
@@ -225,81 +193,18 @@
     </script>
     <% } %>
 
-    <!-- Floating Buttons Vertical Column Alignment -->
+    <!-- Floating Buttons Alignment -->
     <style>
-        /* Mobile Bottom Nav Styles */
-        .mobile-bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-top: 1px solid rgba(0, 0, 0, 0.06);
-            z-index: 1045;
-            box-shadow: 0 -4px 25px rgba(0, 0, 0, 0.05);
-            padding-bottom: env(safe-area-inset-bottom, 0px);
-        }
-        .mobile-bottom-nav-inner {
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            height: 60px;
-            position: relative;
-        }
-        .mobile-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: #718096 !important;
-            text-decoration: none;
-            font-size: 0.68rem;
-            font-weight: 500;
-            transition: all 0.2s ease;
-            width: 20%;
-            height: 100%;
-        }
-        .mobile-nav-item i {
-            font-size: 1.25rem;
-            margin-bottom: 2px;
-            transition: transform 0.2s ease;
-        }
-        .mobile-nav-item:hover, .mobile-nav-item.active {
-            color: var(--primary) !important;
-        }
-        .mobile-nav-item.active i {
-            transform: scale(1.1);
-            color: var(--primary);
-        }
-        .mobile-nav-qr-wrapper {
-            position: relative;
-            width: 20%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .mobile-nav-qr-btn {
-            position: absolute;
-            bottom: 10px;
-            width: 52px;
-            height: 52px;
+        /* Mobile QR Floating Button */
+        .mobile-qr-fab {
+            width: 56px;
+            height: 56px;
             background: linear-gradient(135deg, var(--primary) 0%, #15803d 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white !important;
-            font-size: 1.4rem;
-            box-shadow: 0 4px 15px rgba(15, 118, 110, 0.3);
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 4px solid white;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
         }
-        .mobile-nav-qr-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 6px 20px rgba(15, 118, 110, 0.4);
+        .mobile-qr-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(15, 118, 110, 0.4) !important;
         }
 
         /* Desktop alignment */
@@ -319,25 +224,22 @@
             position: fixed !important;
             bottom: 188px !important;
             right: 32px !important;
-            left: auto !important; /* Move to right side */
+            left: auto !important;
             z-index: 1040;
         }
 
         /* Mobile alignment */
         @media (max-width: 991.98px) {
-            body { padding-bottom: 70px; }
-            /* Hide the floating QR button on mobile since we have the bottom nav QR button */
-            .fab-qr {
-                display: none !important;
-            }
+            body { padding-bottom: 80px; }
+            .fab-qr { display: none !important; }
             #notifBell {
                 position: fixed !important;
-                bottom: 80px !important;
+                bottom: 90px !important;
                 right: 20px !important;
             }
             #back-to-top {
                 position: fixed !important;
-                bottom: 140px !important;
+                bottom: 150px !important;
                 right: 20px !important;
                 width: 40px !important;
                 height: 40px !important;
