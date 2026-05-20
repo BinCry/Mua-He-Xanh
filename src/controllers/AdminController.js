@@ -365,6 +365,12 @@ const AdminController = {
                     [key, value, value]
                 );
             }
+            res.json({ success: true, message: 'Đã cập nhật cài đặt!' });
+        } catch (error) {
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
+        }
+    },
+
     // ==================== API: Create Destination ====================
     createDestination: async (req, res) => {
         try {
@@ -402,11 +408,6 @@ const AdminController = {
             );
             
             res.json({ success: true, message: 'Đã tạo địa điểm và tài khoản quản lý mới thành công!' });
-        } catch (error) {
-            console.error('Create destination error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
-        }
-    },�o địa điểm mới!' });
         } catch (error) {
             console.error('Create destination error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
