@@ -1,13 +1,15 @@
 <nav class="navbar navbar-expand-lg navbar-premium fixed-top">
     <div class="container position-relative">
         <!-- Mobile: Hamburger LEFT -->
-        <button class="navbar-toggler border-0 shadow-none p-0 d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" style="z-index: 10;">
+        <button class="navbar-toggler border-0 shadow-none p-0 d-lg-none" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"
+                aria-controls="mobileMenu" aria-label="Menu" style="z-index: 10;">
             <div class="nav-hamburger">
                 <span></span><span></span><span></span>
             </div>
         </button>
 
-        <!-- Brand: Centered on mobile, left on desktop -->
+        <!-- Brand -->
         <a class="navbar-brand d-flex align-items-center gap-2 mx-auto mx-lg-0" href="/">
             <img src="/images/logo.png" alt="Logo" style="height: 36px;">
             <div>
@@ -16,120 +18,105 @@
             </div>
         </a>
 
-        <!-- Nav Content — Opens from LEFT on mobile -->
-        <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasNavbar" style="width: 300px;">
-            <div class="offcanvas-header p-4">
-                <div class="d-flex align-items-center gap-2">
-                    <img src="/images/logo.png" alt="Logo" style="height: 28px;">
-                    <span class="fw-black" style="color: var(--primary);">BÌNH LỢI</span>
-                </div>
-                <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas"></button>
-            </div>
-            <div class="offcanvas-body d-flex flex-column">
-                <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-1">
-                    <li class="nav-item">
-                        <a class="nav-link" href="/"><i class="bi bi-house-door d-lg-none me-2"></i>Trang chủ</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/explore"><i class="bi bi-compass d-lg-none me-2"></i>Khám phá</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/workshops"><i class="bi bi-palette d-lg-none me-2"></i>Workshop</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/reviews"><i class="bi bi-chat-heart d-lg-none me-2"></i>Cộng đồng</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/journey"><i class="bi bi-signpost-split d-lg-none me-2"></i>Hành trình</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="/map"><i class="bi bi-map d-lg-none me-2"></i>Bản đồ</a>
-                    </li>
-                </ul>
-                <!-- Mobile: user links inside offcanvas (only visible on mobile) -->
-                <% if (user) { %>
-                    <div class="d-lg-none mt-auto pt-3 border-top">
-                        <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
-                            <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-                            <div>
-                                <div class="fw-bold" style="font-size: 0.9rem;"><%= user.full_name %></div>
-                                <div style="font-size: 0.72rem; color: var(--text-muted);"><%= user.phone || user.email %></div>
-                            </div>
-                        </div>
-                        <% if (user.role === 'user') { %>
-                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/profile" style="color: var(--text); font-size: 0.92rem;">
-                            <i class="bi bi-person-circle text-muted" style="width: 20px;"></i> Hồ sơ du khách
-                        </a>
-                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/checkin" style="color: var(--text); font-size: 0.92rem;">
-                            <i class="bi bi-qr-code-scan text-primary" style="width: 20px;"></i> Quét QR Check-in
-                        </a>
-                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/profile/rewards" style="color: var(--text); font-size: 0.92rem;">
-                            <i class="bi bi-gift text-warning" style="width: 20px;"></i> Điểm thưởng
-                        </a>
-                        <% } %>
-                        <% if (user.role === 'admin') { %>
-                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/admin" style="color: var(--primary); font-weight: 600; font-size: 0.92rem;">
-                            <i class="bi bi-shield-check" style="width: 20px;"></i> Admin Panel
-                        </a>
-                        <% } %>
-                        <% if (user.role === 'manager') { %>
-                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/manager" style="color: var(--primary); font-weight: 600; font-size: 0.92rem;">
-                            <i class="bi bi-shield-check" style="width: 20px;"></i> Quản lý Panel
-                        </a>
-                        <% } %>
-                        <a class="d-flex align-items-center gap-3 py-2 mt-2 text-decoration-none text-danger" href="/auth/logout" style="font-size: 0.92rem;">
-                            <i class="bi bi-box-arrow-right" style="width: 20px;"></i> Đăng xuất
-                        </a>
-                    </div>
-                <% } else { %>
-                    <div class="d-lg-none mt-auto pt-3 border-top">
-                        <a class="d-flex align-items-center gap-3 py-2 text-decoration-none" href="/checkin" style="color: var(--text); font-size: 0.92rem;">
-                            <i class="bi bi-qr-code-scan text-primary" style="width: 20px;"></i> Quét QR Check-in
-                        </a>
-                        <a href="/auth/login" class="btn btn-premium rounded-pill w-100 py-2 fw-bold mt-3" style="font-size: 0.88rem;">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
-                        </a>
-                    </div>
-                <% } %>
-            </div>
+        <!-- Desktop Nav Links (hidden on mobile) -->
+        <div class="d-none d-lg-flex align-items-center flex-grow-1 justify-content-center">
+            <ul class="navbar-nav gap-1">
+                <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link" href="/explore">Khám phá</a></li>
+                <li class="nav-item"><a class="nav-link" href="/workshops">Workshop</a></li>
+                <li class="nav-item"><a class="nav-link" href="/reviews">Cộng đồng</a></li>
+                <li class="nav-item"><a class="nav-link" href="/journey">Hành trình</a></li>
+                <li class="nav-item"><a class="nav-link" href="/map">Bản đồ</a></li>
+            </ul>
         </div>
 
-        <!-- Desktop Auth Section (placed outside offcanvas, floats on the right) -->
+        <!-- Desktop Auth (hidden on mobile) -->
         <div class="d-none d-lg-flex align-items-center gap-3" style="z-index: 10;">
             <% if (user) { %>
-                <!-- Desktop User Dropdown -->
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none p-1 rounded-pill" data-bs-toggle="dropdown" style="background: var(--primary-50); padding-right: 14px !important;">
-                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
-                        <span class="fw-bold" style="font-size: 0.82rem; color: var(--primary);"><%= user.full_name.split(' ').pop() %></span>
-                        <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 220px;">
-                        <li class="px-3 py-2 mb-1">
-                            <div class="fw-bold" style="font-size: 0.88rem;"><%= user.full_name %></div>
-                            <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
-                        </li>
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <% if (user.role === 'admin') { %>
-                            <li><a class="dropdown-item py-2 rounded-2" href="/admin" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
-                        <% } %>
-                        <% if (user.role === 'manager') { %>
-                            <li><a class="dropdown-item py-2 rounded-2" href="/manager" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Quản lý Panel</a></li>
-                        <% } %>
-                        <% if (user.role === 'user') { %>
-                        <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
-                        <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
-                        <% } %>
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <li><a class="dropdown-item py-2 rounded-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
-                    </ul>
-                </div>
+            <div class="dropdown">
+                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none p-1 rounded-pill" data-bs-toggle="dropdown" style="background: var(--primary-50); padding-right: 14px !important;">
+                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
+                    <span class="fw-bold" style="font-size: 0.82rem; color: var(--primary);"><%= user.full_name.split(' ').pop() %></span>
+                    <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 220px;">
+                    <li class="px-3 py-2 mb-1">
+                        <div class="fw-bold" style="font-size: 0.88rem;"><%= user.full_name %></div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
+                    </li>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <% if (user.role === 'admin') { %>
+                    <li><a class="dropdown-item py-2 rounded-2" href="/admin" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
+                    <% } %>
+                    <% if (user.role === 'manager') { %>
+                    <li><a class="dropdown-item py-2 rounded-2" href="/manager" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Quản lý Panel</a></li>
+                    <% } %>
+                    <% if (user.role === 'user') { %>
+                    <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
+                    <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
+                    <% } %>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item py-2 rounded-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                </ul>
+            </div>
             <% } else { %>
-                <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold" style="font-size: 0.82rem;">Đăng nhập</a>
+            <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold" style="font-size: 0.82rem;">Đăng nhập</a>
             <% } %>
         </div>
     </div>
 </nav>
+
+<!-- MOBILE OFFCANVAS MENU (completely outside nav to avoid any nesting issues) -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 300px; z-index: 1060;">
+    <div class="offcanvas-header p-4" style="border-bottom: 1px solid #f1f5f9;">
+        <div class="d-flex align-items-center gap-2">
+            <img src="/images/logo.png" alt="Logo" style="height: 28px;">
+            <span class="fw-black" style="color: var(--primary);">BÌNH LỢI</span>
+        </div>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+    </div>
+    <div class="offcanvas-body d-flex flex-column p-0">
+        <!-- Navigation Links -->
+        <div class="p-3">
+            <a class="mobile-menu-link" href="/"><i class="bi bi-house-door"></i> Trang chủ</a>
+            <a class="mobile-menu-link" href="/explore"><i class="bi bi-compass"></i> Khám phá</a>
+            <a class="mobile-menu-link" href="/workshops"><i class="bi bi-palette"></i> Workshop</a>
+            <a class="mobile-menu-link" href="/reviews"><i class="bi bi-chat-heart"></i> Cộng đồng</a>
+            <a class="mobile-menu-link" href="/journey"><i class="bi bi-signpost-split"></i> Hành trình</a>
+            <a class="mobile-menu-link" href="/map"><i class="bi bi-map"></i> Bản đồ</a>
+            <a class="mobile-menu-link" href="/festivals"><i class="bi bi-calendar-event"></i> Lễ hội</a>
+            <a class="mobile-menu-link" href="/checkin"><i class="bi bi-qr-code-scan" style="color: var(--primary);"></i> Quét QR Check-in</a>
+        </div>
+
+        <!-- User Section at Bottom -->
+        <div class="mt-auto border-top p-3">
+            <% if (user) { %>
+            <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
+                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                <div>
+                    <div class="fw-bold" style="font-size: 0.9rem;"><%= user.full_name %></div>
+                    <div style="font-size: 0.72rem; color: var(--text-muted);"><%= user.phone || user.email %></div>
+                </div>
+            </div>
+            <% if (user.role === 'user') { %>
+            <a class="mobile-menu-link" href="/profile"><i class="bi bi-person-circle"></i> Hồ sơ du khách</a>
+            <a class="mobile-menu-link" href="/profile/rewards"><i class="bi bi-gift" style="color: #f59e0b;"></i> Điểm thưởng</a>
+            <% } %>
+            <% if (user.role === 'admin') { %>
+            <a class="mobile-menu-link" href="/admin" style="color: var(--primary); font-weight: 700;"><i class="bi bi-shield-check"></i> Admin Panel</a>
+            <% } %>
+            <% if (user.role === 'manager') { %>
+            <a class="mobile-menu-link" href="/manager" style="color: var(--primary); font-weight: 700;"><i class="bi bi-shield-check"></i> Quản lý Panel</a>
+            <% } %>
+            <a class="mobile-menu-link text-danger" href="/auth/logout" style="margin-top: 8px;"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+            <% } else { %>
+            <a href="/auth/login" class="btn btn-premium rounded-pill w-100 py-2 fw-bold" style="font-size: 0.88rem;">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
+            </a>
+            <% } %>
+        </div>
+    </div>
+</div>
 
 <style>
     /* Hamburger */
@@ -152,42 +139,38 @@
             top: 50%;
             transform: translateY(-50%);
         }
-        .navbar-brand {
-            margin: 0 auto !important;
-        }
+        .navbar-brand { margin: 0 auto !important; }
+    }
+
+    /* Mobile Offcanvas Menu */
+    #mobileMenu {
+        background: rgba(255,255,255,0.99) !important;
+        backdrop-filter: blur(20px) !important;
+    }
+    .mobile-menu-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 13px 16px;
+        font-size: 0.92rem;
+        font-weight: 500;
+        color: var(--text, #1e293b);
+        text-decoration: none;
+        border-radius: 12px;
+        transition: all 0.15s ease;
+    }
+    .mobile-menu-link:hover, .mobile-menu-link:focus {
+        background: var(--primary-50, #f0fdfa);
+        color: var(--primary, #0d9488);
+    }
+    .mobile-menu-link i {
+        width: 20px;
+        text-align: center;
+        font-size: 1.1rem;
     }
 
     /* Dropdown polish */
     .dropdown-item { font-size: 0.85rem; transition: all 0.15s ease; }
     .dropdown-item:hover { background: var(--primary-50); color: var(--primary); }
     .dropdown-item:active { background: var(--primary-100); }
-
-    @media (min-width: 992px) {
-        #offcanvasNavbar {
-            position: static !important;
-            transform: none !important;
-            visibility: visible !important;
-            width: auto !important;
-            flex-grow: 1;
-            background: transparent !important;
-            backdrop-filter: none !important;
-            border: none !important;
-        }
-        .offcanvas-header { display: none; }
-        .offcanvas-body { display: flex; padding: 0; overflow-y: visible; }
-        .border-lg-0 { border: none !important; }
-    }
-    
-    @media (max-width: 991.98px) {
-        #offcanvasNavbar {
-            background: rgba(255,255,255,0.98) !important;
-            backdrop-filter: blur(20px) !important;
-        }
-        .navbar-nav .nav-link {
-            padding: 14px 16px !important;
-            font-size: 0.95rem !important;
-            border-radius: var(--radius-md);
-        }
-        .navbar-nav .nav-link:hover { background: var(--primary-50); }
-    }
 </style>
