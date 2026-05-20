@@ -413,11 +413,12 @@ const AdminController = {
 
             const destinationId = uuidv4();
 
-            // Insert Destination
+            // Insert Destination (all non-null columns provided)
             await db.query(
-                `INSERT INTO destinations (id, name, slug, type, short_desc, description, open_hours, cost, lat, lng, points, is_active, cover_image, sort_order) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, '/images/placeholder.jpg', 99)`,
-                [destinationId, name, slug, type || 'nature', short_desc || '', description || '', open_hours || '', cost || '', lat || null, lng || null, points || 10]
+                `INSERT INTO destinations (id, name, slug, type, short_desc, description, open_hours, cost, lat, lng, points, is_active, cover_image, sort_order, moods, seasons, story, highlight, checkin_tip, qr_secret) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, '/images/placeholder.jpg', 99, ?, ?, ?, ?, ?, ?)`,
+                [destinationId, name, slug, type || 'nature', short_desc || '', description || '', open_hours || '', cost || '', lat || null, lng || null, points || 10,
+                 '', '', description || '', short_desc || '', 'Hãy chụp ảnh tại điểm này!', 'SECURE_' + slug.toUpperCase()]
             );
 
             // Create Manager User
