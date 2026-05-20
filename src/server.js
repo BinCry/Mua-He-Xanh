@@ -128,6 +128,24 @@ app.use((err, req, res, next) => {
     res.status(500).send('Internal Server Error: ' + err.message);
 });
 
-app.listen(PORT, () => {
+// Auto-migrate: fix column sizes on startup
+async function runMigrations() {
+    try {
+        const db = require('./core/database');
+        const migrations = [
+            "ALTER TABLE destinations MODIFY COLUMN short_desc TEXT",
+            "ALTER TABLE destinations MODIFY COLUMN description LONGTEXT",
+        ];
+        for (const sql of migrations) {
+            try { await db.query(sql); } catch(e) { /* column may already be correct */ }
+        }
+        console.log('✅ Database migrations checked');
+    } catch(e) {
+        console.error('⚠️ Migration check failed:', e.message);
+    }
+}
+
+app.listen(PORT, async () => {
     console.log(`Server is running at http://localhost:${PORT}`);
+    await runMigrations();
 });
