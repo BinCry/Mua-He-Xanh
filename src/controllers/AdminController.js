@@ -168,7 +168,7 @@ const AdminController = {
             const [dests] = await db.query(`
                 SELECT d.*, 
                     (SELECT COUNT(*) FROM check_ins ci WHERE ci.destination_id = d.id) as checkin_count,
-                    (SELECT COUNT(*) FROM analytics a WHERE a.page_url LIKE CONCAT('/explore/', d.slug)) as page_views
+                    (SELECT COUNT(*) FROM analytics a WHERE a.page_url COLLATE utf8mb4_unicode_ci LIKE CONCAT('/explore/', d.slug)) as page_views
                 FROM destinations d ORDER BY d.sort_order ASC
             `);
 
