@@ -1,3 +1,6 @@
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
 <section class="min-vh-100 d-flex flex-column pt-5 mt-4">
     <!-- Map UI Layout: Sidebar + Full Map -->
     <div class="row g-0 flex-grow-1 position-relative">
@@ -55,44 +58,39 @@
 </section>
 
 <script>
-let map, markers = [], infoWindow;
+let map, markers = [];
 const destData = <%- JSON.stringify(allDests) %>;
 
 function initMap() {
-    const center = { lat: 10.7431, lng: 106.5028 };
+    const center = [10.7431, 106.5028];
     
-    map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 14,
+    map = L.map('map', {
         center: center,
-        mapTypeControl: false,
-        streetViewControl: false,
-        fullscreenControl: true,
+        zoom: 14,
         zoomControl: true,
-        styles: [
-            { featureType: "poi", elementType: "labels", stylers: [{ visibility: "off" }] }
-        ]
+        attributionControl: false
     });
 
-    infoWindow = new google.maps.InfoWindow();
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; OpenStreetMap &copy; CartoDB',
+        subdomains: 'abcd',
+        maxZoom: 20
+    }).addTo(map);
 
     // Add destination markers
     destData.forEach(dest => {
-        const lat = dest.lat || (10.74 + (Math.random() * 0.05 - 0.025));
-        const lng = dest.lng || (106.5 + (Math.random() * 0.05 - 0.025));
+        const lat = parseFloat(dest.lat) || (10.74 + (Math.random() * 0.05 - 0.025));
+        const lng = parseFloat(dest.lng) || (106.5 + (Math.random() * 0.05 - 0.025));
         
-        const marker = new google.maps.Marker({
-            position: { lat: parseFloat(lat), lng: parseFloat(lng) },
-            map: map,
-            title: dest.name,
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 10,
-                fillColor: '#198754',
-                fillOpacity: 1,
-                strokeColor: '#ffffff',
-                strokeWeight: 3
-            }
+        const greenIcon = L.divIcon({
+            className: 'custom-div-icon',
+            html: `<div style="background-color: #198754; width: 22px; height: 22px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [22, 22],
+            iconAnchor: [11, 11],
+            popupAnchor: [0, -11]
         });
+
+        const marker = L.marker([lat, lng], { icon: greenIcon }).addTo(map);
 
         const content = `
             <div style="width: 220px; padding: 5px; font-family: 'Times New Roman', Times, serif;">
@@ -104,23 +102,21 @@ function initMap() {
             </div>
         `;
 
-        marker.addListener('click', () => {
-            infoWindow.setContent(content);
-            infoWindow.open(map, marker);
-        });
+        marker.bindPopup(content);
 
-        markers.push({ marker, slug: dest.slug, name: dest.name });
+        markers.push({ marker, slug: dest.slug, name: dest.name, coords: [lat, lng] });
     });
 }
 
+document.addEventListener('DOMContentLoaded', initMap);
+
 function focusMarker(lat, lng, name) {
-    map.panTo({ lat: parseFloat(lat), lng: parseFloat(lng) });
+    map.panTo([parseFloat(lat), parseFloat(lng)]);
     map.setZoom(16);
     
-    // Open matching marker info window
     const found = markers.find(m => m.name === name);
     if (found) {
-        google.maps.event.trigger(found.marker, 'click');
+        found.marker.openPopup();
     }
 }
 
@@ -149,18 +145,21 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 function locateMe() {
     if (!navigator.geolocation) { alert('Trình duyệt không hỗ trợ định vị.'); return; }
     navigator.geolocation.getCurrentPosition(pos => {
-        const myPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        const myPos = [pos.coords.latitude, pos.coords.longitude];
         map.panTo(myPos);
         map.setZoom(16);
-        new google.maps.Marker({
-            position: myPos, map: map, title: 'Vị trí của bạn',
-            icon: { path: google.maps.SymbolPath.CIRCLE, scale: 8, fillColor: '#4285F4', fillOpacity: 1, strokeColor: '#ffffff', strokeWeight: 3 }
+        
+        const blueIcon = L.divIcon({
+            className: 'my-location-icon',
+            html: `<div style="background-color: #4285F4; width: 16px; height: 16px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.3);"></div>`,
+            iconSize: [16, 16],
+            iconAnchor: [8, 8]
         });
+        
+        L.marker(myPos, { icon: blueIcon }).addTo(map).bindPopup('Vị trí của bạn').openPopup();
     });
 }
 </script>
-
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=REDACTED_GOOGLE_MAPS_API_KEY&callback=initMap"></script>
 
 <style>
     body { overflow-x: hidden; }

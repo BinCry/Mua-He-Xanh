@@ -1,5 +1,5 @@
-<!-- Google Maps Integration with correct API Key -->
-<script src="https://maps.googleapis.com/maps/api/js?key=REDACTED_GOOGLE_MAPS_API_KEY&v=weekly"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
@@ -202,92 +202,73 @@
 </style>
 
 <script>
-    let map, markers = [], directionsService, directionsRenderer;
+    let map, markers = [], routeLine;
     let isTimelineLocked = true;
     const journeyId = '<%= journey.id %>';
     const stopsData = <%- JSON.stringify(journey.stops) %>;
 
     document.addEventListener('DOMContentLoaded', () => {
-        initGoogleMap();
+        initLeafletMap();
         initTimelineReordering();
         gsap.from('.timeline-item', { opacity: 0, x: -30, stagger: 0.1, duration: 0.6, ease: 'power2.out' });
     });
 
-    // Initialize Standard Google Maps API
-    function initGoogleMap() {
+    // Initialize Leaflet Map
+    function initLeafletMap() {
         try {
-            directionsService = new google.maps.DirectionsService();
-            directionsRenderer = new google.maps.DirectionsRenderer({
-                suppressMarkers: true,
-                polylineOptions: {
-                    strokeColor: '#0d9488',
-                    strokeOpacity: 0.8,
-                    strokeWeight: 6
-                }
-            });
-
-            // Center of Binh Loi
-            const centerPos = { lat: 10.796, lng: 106.524 };
-            map = new google.maps.Map(document.getElementById('google-journey-map'), {
-                zoom: 14,
+            const centerPos = [10.796, 106.524];
+            
+            map = L.map('google-journey-map', {
                 center: centerPos,
-                styles: [
-                    {
-                        "featureType": "poi.park",
-                        "elementType": "geometry",
-                        "stylers": [{ "color": "#e3eedd" }]
-                    }
-                ],
-                disableDefaultUI: true,
-                zoomControl: true
+                zoom: 14,
+                zoomControl: true,
+                attributionControl: false
             });
 
-            directionsRenderer.setMap(map);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                maxZoom: 20
+            }).addTo(map);
+
             renderRouteOnMap();
         } catch (e) {
-            console.error("Google Maps failed to initialize", e);
+            console.error("Leaflet failed to initialize", e);
         }
     }
 
-    // Render route with exact coords and custom numbering badges showing name and image
+    // Render route with exact coords and custom numbering markers
     function renderRouteOnMap() {
-        // Clear old markers
-        markers.forEach(m => m.setMap(null));
+        // Clear old markers/lines
+        markers.forEach(m => map.removeLayer(m));
         markers = [];
+        if (routeLine) {
+            map.removeLayer(routeLine);
+            routeLine = null;
+        }
 
         if (!stopsData || stopsData.length === 0) return;
 
-        const waypoints = [];
-        const bounds = new google.maps.LatLngBounds();
+        const bounds = L.latLngBounds();
+        const routeCoords = [];
 
         stopsData.forEach((stop, i) => {
             const stopLat = parseFloat(stop.lat) || (10.79 + (i * 0.005));
             const stopLng = parseFloat(stop.lng) || (106.52 + (i * 0.005));
-            const pos = { lat: stopLat, lng: stopLng };
+            const pos = [stopLat, stopLng];
             
             bounds.extend(pos);
+            routeCoords.push(pos);
 
-            // Custom Marker with numeric badge, name and photo always fully visible or clean
-            const marker = new google.maps.Marker({
-                position: pos,
-                map: map,
-                title: stop.name,
-                label: {
-                    text: (i + 1).toString(),
-                    color: '#ffffff',
-                    fontWeight: 'bold'
-                },
-                icon: {
-                    path: google.maps.SymbolPath.CIRCLE,
-                    scale: 14,
-                    fillColor: '#0d9488',
-                    fillOpacity: 1,
-                    strokeColor: '#ffffff',
-                    strokeWeight: 3
-                }
+            // Custom DivIcon green circular badge with numeric index
+            const markerIcon = L.divIcon({
+                className: 'journey-marker-icon',
+                html: `<div style="background-color: #0d9488; width: 28px; height: 28px; border-radius: 50%; border: 3px solid #ffffff; box-shadow: 0 2px 5px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 13px; font-family: 'Times New Roman', Times, serif;">${i + 1}</div>`,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14],
+                popupAnchor: [0, -14]
             });
 
-            // Prominent Info Window displaying image & text clearly (resolving hidden text issues)
+            const marker = L.marker(pos, { icon: markerIcon }).addTo(map);
+
             const infoWindowHtml = `
                 <div style="width: 180px; font-family: sans-serif; padding: 4px;">
                     <img src="${stop.cover_image ? '/' + stop.cover_image.replace(/^public\//, '') : '/images/placeholder.png'}" 
@@ -297,51 +278,25 @@
                 </div>
             `;
 
-            const infowindow = new google.maps.InfoWindow({
-                content: infoWindowHtml
-            });
-
-            marker.addListener('click', () => {
-                markers.forEach(m => m.infowindow?.close());
-                infowindow.open(map, marker);
+            marker.bindPopup(infoWindowHtml);
+            
+            marker.on('click', () => {
                 highlightTimelineStop(i);
             });
 
-            marker.infowindow = infowindow;
             markers.push(marker);
-
-            // Add intermediate waypoints for Directions Service
-            if (i > 0 && i < stopsData.length - 1) {
-                waypoints.push({
-                    location: pos,
-                    stopover: true
-                });
-            }
         });
 
-        // Request Directions from Origin to Destination
-        if (stopsData.length >= 2) {
-            const originLat = parseFloat(stopsData[0].lat) || 10.79;
-            const originLng = parseFloat(stopsData[0].lng) || 106.52;
-            const destLat = parseFloat(stopsData[stopsData.length - 1].lat) || 10.79;
-            const destLng = parseFloat(stopsData[stopsData.length - 1].lng) || 106.52;
-
-            directionsService.route({
-                origin: { lat: originLat, lng: originLng },
-                destination: { lat: destLat, lng: destLng },
-                waypoints: waypoints,
-                travelMode: google.maps.TravelMode.DRIVING
-            }, (response, status) => {
-                if (status === 'OK') {
-                    directionsRenderer.setDirections(response);
-                } else {
-                    console.warn("Directions request failed due to " + status);
-                    map.fitBounds(bounds);
-                }
-            });
-        } else {
-            map.fitBounds(bounds);
+        // Draw Polyline connecting coordinates
+        if (routeCoords.length >= 2) {
+            routeLine = L.polyline(routeCoords, {
+                color: '#0d9488',
+                opacity: 0.8,
+                weight: 6
+            }).addTo(map);
         }
+
+        map.fitBounds(bounds);
     }
 
     // Interactive highlighted focus of timeline card and map markers
@@ -462,7 +417,7 @@
     // Complete / Lock Journey confirmation
     function lockJourneyAndConfirm() {
         toggleTimelineLock();
-        alert("Hành trình của bạn đã được chốt và tối ưu hóa thành công trên Google Maps!");
+        alert("Hành trình của bạn đã được chốt và tối ưu hóa thành công!");
     }
 
     // Start Real-time navigation mode
@@ -481,8 +436,8 @@
             }
             highlightTimelineStop(idx);
             if (markers[idx]) {
-                map.panTo(markers[idx].getPosition());
-                markers[idx].infowindow.open(map, markers[idx]);
+                map.panTo(markers[idx].getLatLng());
+                markers[idx].openPopup();
             }
             idx++;
         }, 4000);
