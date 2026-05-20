@@ -53,9 +53,7 @@ const AuthController = {
 
             res.json({
                 success: true,
-                message: 'Mã xác thực đã được gửi tới số điện thoại của bạn.',
-                fallback: result.fallback || false,
-                otp: result.fallback ? otp : null // Return OTP for visual hint only if SMS API credentials are not set
+                message: 'Mã xác thực đã được gửi tới số điện thoại của bạn.'
             });
         } catch (err) {
             console.error("Send OTP error:", err);

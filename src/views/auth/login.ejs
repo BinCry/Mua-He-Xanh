@@ -118,9 +118,6 @@
                 </div>
                 <h4 class="fw-black mb-1">Xác thực OTP</h4>
                 <p class="text-white-50 small mb-0">Mã OTP xác thực gồm 6 chữ số đã được gửi qua tin nhắn SMS tới số điện thoại của bạn.</p>
-                <div class="badge bg-light text-dark rounded-pill px-3 py-2 mt-3 fw-bold text-uppercase x-small d-none" id="otpTestModeBadge" style="letter-spacing: 1px;">
-                    Nhập mã: <span class="text-success" id="otp-hint-code">------</span> để xác nhận
-                </div>
             </div>
             
             <div class="mb-4">
@@ -184,14 +181,7 @@
                 document.querySelectorAll('.otp-box').forEach(el => el.value = '');
                 document.getElementById('otpErrorAlert').classList.add('d-none');
                 
-                // Handle fallback (visual hint if SMS credentials not set)
-                const testBadge = document.getElementById('otpTestModeBadge');
-                if (response.data.fallback) {
-                    document.getElementById('otp-hint-code').innerText = response.data.otp;
-                    testBadge.classList.remove('d-none');
-                } else {
-                    testBadge.classList.add('d-none');
-                }
+
 
                 otpModalInstance.show();
                 setTimeout(() => document.getElementById('otp1').focus(), 500);
