@@ -61,7 +61,7 @@
                     <% } %>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editWs(this)" data-workshop="<%= JSON.stringify(ws) %>">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editWs(this)" data-workshop="<%= encodeURIComponent(JSON.stringify(ws)) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteWs('<%= ws.id %>')">
@@ -214,14 +214,14 @@ function openWsForm() {
 function editWs(target) {
     let ws = target;
     if (target instanceof HTMLElement) {
-        ws = JSON.parse(target.getAttribute('data-workshop'));
+        ws = JSON.parse(decodeURIComponent(target.getAttribute('data-workshop')));
     }
     editingWs = true;
     document.getElementById('wsModalTitle').textContent = 'Sửa Workshop';
     document.getElementById('ws_id').value = ws.id;
     document.getElementById('ws_title').value = ws.title || '';
     document.getElementById('ws_description').value = ws.description || '';
-    document.getElementById('ws_type').value = ws.type || 'craft';
+    document.getElementById('ws_type').value = ws.type || 'nhang';
     document.getElementById('ws_price').value = ws.price || 0;
     document.getElementById('ws_duration').value = ws.duration || '2 giờ';
     document.getElementById('ws_max').value = ws.max_participants || 20;

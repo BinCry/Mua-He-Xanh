@@ -61,7 +61,7 @@
                     <% } %>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editUser(this)" data-user="<%= JSON.stringify({id: u.id, full_name: u.full_name, email: u.email, phone: u.phone, role: u.role, is_active: u.is_active, managed_destination_id: u.managed_destination_id}) %>">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editUser(this)" data-user="<%= encodeURIComponent(JSON.stringify({id: u.id, full_name: u.full_name, email: u.email, phone: u.phone, role: u.role, is_active: u.is_active, managed_destination_id: u.managed_destination_id})) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteUser('<%= u.id %>', '<%= u.full_name %>')">
@@ -175,7 +175,7 @@ function openUserForm() {
 function editUser(target) {
     let user = target;
     if (target instanceof HTMLElement) {
-        user = JSON.parse(target.getAttribute('data-user'));
+        user = JSON.parse(decodeURIComponent(target.getAttribute('data-user')));
     }
     editingUser = true;
     document.getElementById('userModalTitle').textContent = 'Sửa Người dùng';

@@ -46,7 +46,7 @@
                     <% } %>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editEvent(this)" data-event="<%= JSON.stringify(evt) %>">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editEvent(this)" data-event="<%= encodeURIComponent(JSON.stringify(evt)) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteEvent('<%= evt.id %>')">
@@ -141,7 +141,7 @@ function openEventForm() {
 function editEvent(target) {
     let evt = target;
     if (target instanceof HTMLElement) {
-        evt = JSON.parse(target.getAttribute('data-event'));
+        evt = JSON.parse(decodeURIComponent(target.getAttribute('data-event')));
     }
     editingEvent = true;
     document.getElementById('eventModalTitle').textContent = 'Sửa Sự kiện';

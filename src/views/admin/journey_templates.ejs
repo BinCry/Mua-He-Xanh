@@ -57,7 +57,7 @@
                 <td class="small text-muted"><%= t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày' %></td>
                 <td class="small fw-semibold text-primary"><%= t.km %> km</td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-circle p-1.5 me-1" style="width: 32px; height: 32px;" onclick="editTemplate(this)" data-template="<%= JSON.stringify(t) %>">
+                    <button class="btn btn-sm btn-outline-primary rounded-circle p-1.5 me-1" style="width: 32px; height: 32px;" onclick="editTemplate(this)" data-template="<%= encodeURIComponent(JSON.stringify(t)) %>">
                         <i class="bi bi-pencil fs-6"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-circle p-1.5" style="width: 32px; height: 32px;" onclick="deleteTemplate('<%= t.id %>')">
@@ -199,7 +199,7 @@
         editingTemplate = true;
         document.getElementById('templateModalTitle').innerText = 'Cập nhật Hành trình Mẫu';
         
-        const t = JSON.parse(button.getAttribute('data-template'));
+        const t = JSON.parse(decodeURIComponent(button.getAttribute('data-template')));
         document.getElementById('tpl_id').value = t.id;
         document.getElementById('tpl_name').value = t.name;
         document.getElementById('tpl_description').value = t.description;
