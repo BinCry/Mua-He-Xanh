@@ -1,0 +1,176 @@
+<!-- Config Destination Info Form -->
+<div class="container-fluid p-0 animate__animated animate__fadeIn">
+    <!-- Header banner -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="fw-bold mb-1 font-display" style="color: var(--admin-text); font-family: 'Times New Roman', Times, serif;">
+                ⚙️ Quản lý Địa điểm – <%= dest.name %>
+            </h3>
+            <p class="mb-0 text-muted small">
+                Cập nhật thông tin chi tiết, giờ mở cửa, chi phí và hình ảnh giới thiệu của địa điểm.
+            </p>
+        </div>
+        <div>
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
+                <i class="bi bi-gear-fill me-1"></i>Chế độ quản lý hoạt động
+            </span>
+        </div>
+    </div>
+
+    <!-- Manager Tab Navigation -->
+    <div class="d-flex gap-2 mb-4 border-bottom border-secondary border-opacity-10 pb-3">
+        <a href="/manager<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-opacity-25">
+            <i class="bi bi-grid-1x2-fill me-1"></i> Bảng điều khiển
+        </a>
+        <a href="/manager/chat<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-opacity-25">
+            <i class="bi bi-chat-dots-fill me-1"></i> Hộp thư Hỗ trợ
+        </a>
+        <a href="/manager/destination<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-primary btn-sm rounded-pill px-3">
+            <i class="bi bi-geo-alt-fill me-1"></i> Quản lý Địa điểm
+        </a>
+        <% if (user.role === 'admin') { %>
+            <a href="/manager" class="btn btn-outline-warning btn-sm rounded-pill px-3 ms-auto text-warning border-opacity-25">
+                <i class="bi bi-arrow-left-short me-1"></i> Chọn địa điểm khác
+            </a>
+        <% } %>
+    </div>
+
+    <% if (typeof success !== 'undefined' && success) { %>
+        <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert" style="background: rgba(16,185,129,0.15); color: #15803d;">
+            <i class="bi bi-check-circle-fill me-2 text-success"></i><%= success %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+    <% if (typeof error !== 'undefined' && error) { %>
+        <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm mb-4" role="alert" style="background: rgba(239,68,68,0.15); color: #b91c1c;">
+            <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i><%= error %>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <% } %>
+
+    <div class="chart-card card border-secondary border-opacity-10 shadow-sm" style="background: var(--admin-surface); border-radius: 16px;">
+        <div class="card-body p-4">
+            <h5 class="fw-bold mb-4" style="color: var(--admin-text);"><i class="bi bi-pencil-square me-2 text-warning"></i>Thông tin Chi tiết Địa điểm</h5>
+            
+            <form action="/manager/update" method="POST" id="dest-update-form">
+                <input type="hidden" name="dest_id" value="<%= dest.id %>">
+                
+                <div class="row g-4">
+                    <!-- Open Hours -->
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">⏰ Giờ mở cửa</label>
+                        <input type="text" name="open_hours" value="<%= dest.open_hours %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: 08:00 - 17:00" style="font-size: 0.85rem;">
+                    </div>
+                    
+                    <!-- Expected Cost -->
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">💵 Chi phí dự kiến</label>
+                        <input type="text" name="cost" value="<%= dest.cost %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: Miễn phí / 50.000đ" style="font-size: 0.85rem;">
+                    </div>
+
+                    <!-- Cover Image Uploader -->
+                    <div class="col-12">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">🖼️ Ảnh bìa địa điểm</label>
+                        <div class="d-flex align-items-center gap-3">
+                            <div class="position-relative overflow-hidden rounded-3 border border-secondary border-opacity-15 bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 100px; min-width: 150px;">
+                                <img id="cover-preview" src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                            </div>
+                            <div class="flex-grow-1">
+                                <input type="file" id="cover-file-input" class="form-control admin-input rounded-3 mb-2" accept="image/*" style="font-size: 0.8rem;">
+                                <input type="hidden" name="cover_image" id="cover-image-path" value="<%= dest.cover_image %>">
+                                <span id="upload-status" class="text-muted small" style="font-size: 0.7rem;">Hỗ trợ định dạng JPG, PNG, WEBP. Dung lượng tối đa 5MB.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Short Description -->
+                    <div class="col-12">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📝 Mô tả ngắn</label>
+                        <input type="text" name="short_desc" value="<%= dest.short_desc || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Nhập mô tả ngắn hiển thị ở trang danh sách..." style="font-size: 0.85rem;">
+                    </div>
+
+                    <!-- Best Time & Check-in Tip -->
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📅 Thời điểm tham quan tốt nhất</label>
+                        <input type="text" name="best_time" value="<%= dest.best_time || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: 06:00 - 09:00 hoặc 15:00 - 17:30" style="font-size: 0.85rem;">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">💡 Mẹo tham quan / Tip check-in</label>
+                        <input type="text" name="checkin_tip" value="<%= dest.checkin_tip || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: Nên mang theo nón và kem chống nắng" style="font-size: 0.85rem;">
+                    </div>
+
+                    <!-- Highlights -->
+                    <div class="col-12">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">✨ Hoạt động nổi bật / Đặc sản trải nghiệm</label>
+                        <textarea name="highlight" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập các hoạt động nổi bật hoặc đặc trưng riêng biệt tại địa điểm..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.highlight %></textarea>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="col-12">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📖 Nội dung giới thiệu / Mô tả địa điểm</label>
+                        <textarea name="description" class="form-control admin-input rounded-3" rows="4" placeholder="Nhập mô tả chi tiết giới thiệu địa điểm của bạn đến với du khách..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.description %></textarea>
+                    </div>
+
+                    <!-- Story -->
+                    <div class="col-12">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📜 Câu chuyện lịch sử / Giá trị văn hóa</label>
+                        <textarea name="story" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập câu chuyện lịch sử, truyền thuyết hoặc câu chuyện văn hóa gắn liền..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.story || '' %></textarea>
+                    </div>
+
+                    <!-- Zen Walk Description -->
+                    <div class="col-12">
+                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">🧘 Hướng dẫn Zen Walk / Tọa thiền tĩnh tâm</label>
+                        <textarea name="zen_walk_desc" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập hướng dẫn đi bộ thiền hành hoặc ngồi thiền tĩnh tâm tại địa điểm..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.zen_walk_desc || '' %></textarea>
+                    </div>
+                </div>
+
+                <div class="mt-4 pt-2">
+                    <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold py-2 shadow-sm" style="background: var(--admin-primary); border: none; font-size: 0.85rem;">
+                        <i class="bi bi-save2-fill me-1"></i> LƯU THAY ĐỔI CHI TIẾT ĐỊA ĐIỂM
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const coverInput = document.getElementById('cover-file-input');
+        if (coverInput) {
+            coverInput.addEventListener('change', async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const statusSpan = document.getElementById('upload-status');
+                statusSpan.innerText = '⏳ Đang tải ảnh...';
+                statusSpan.className = 'text-warning small d-block mt-1';
+
+                try {
+                    const response = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const result = await response.json();
+                    if (result.success && result.url) {
+                        document.getElementById('cover-image-path').value = result.url;
+                        document.getElementById('cover-preview').src = result.url;
+                        statusSpan.innerText = '✅ Tải ảnh thành công!';
+                        statusSpan.className = 'text-success small d-block mt-1';
+                    } else {
+                        statusSpan.innerText = '❌ Lỗi: ' + (result.message || 'Không thể tải');
+                        statusSpan.className = 'text-danger small d-block mt-1';
+                    }
+                } catch (err) {
+                    console.error(err);
+                    statusSpan.innerText = '❌ Lỗi kết nối';
+                    statusSpan.className = 'text-danger small d-block mt-1';
+                }
+            });
+        }
+    });
+</script>

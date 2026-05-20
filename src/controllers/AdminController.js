@@ -365,25 +365,48 @@ const AdminController = {
                     [key, value, value]
                 );
             }
-            res.json({ success: true, message: 'Đã cập nhật cài đặt!' });
-        } catch (error) {
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
-        }
-    },
-
     // ==================== API: Create Destination ====================
     createDestination: async (req, res) => {
         try {
-            const { name, slug, type, short_desc, points, description, open_hours, cost, lat, lng } = req.body;
+            const { name, slug, type, short_desc, points, description, open_hours, cost, lat, lng, manager_name, manager_email, manager_password } = req.body;
             if (!name || !slug) return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
+            
+            if (!manager_email || !manager_password) {
+                return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đầy đủ thông tin tài khoản quản lý địa điểm' });
+            }
 
-            const [result] = await db.query(
+            // Check duplicate email
+            const [existingEmail] = await db.query('SELECT id FROM users WHERE email = ?', [manager_email]);
+            if (existingEmail.length > 0) {
+                return res.status(400).json({ success: false, message: 'Email quản lý đã tồn tại trên hệ thống' });
+            }
+
+            const destinationId = uuidv4();
+
+            // Insert Destination
+            await db.query(
                 `INSERT INTO destinations (id, name, slug, type, short_desc, description, open_hours, cost, lat, lng, points, is_active, cover_image, sort_order) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, '/images/placeholder.jpg', 99)`,
-                [uuidv4(), name, slug, type || 'nature', short_desc || '', description || '', open_hours || '', cost || '', lat || null, lng || null, points || 10]
+                [destinationId, name, slug, type || 'nature', short_desc || '', description || '', open_hours || '', cost || '', lat || null, lng || null, points || 10]
+            );
+
+            // Create Manager User
+            const managerId = uuidv4();
+            const salt = await bcrypt.genSalt(10);
+            const hashedManagerPassword = await bcrypt.hash(manager_password, salt);
+
+            await db.query(
+                `INSERT INTO users (id, full_name, email, password, role, role_id, managed_destination_id, total_points, is_active) 
+                 VALUES (?, ?, ?, ?, 'manager', 2, ?, 0, 1)`,
+                [managerId, manager_name || `QL ${name}`, manager_email, hashedManagerPassword, destinationId]
             );
             
-            res.json({ success: true, message: 'Đã tạo địa điểm mới!' });
+            res.json({ success: true, message: 'Đã tạo địa điểm và tài khoản quản lý mới thành công!' });
+        } catch (error) {
+            console.error('Create destination error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
+        }
+    },�o địa điểm mới!' });
         } catch (error) {
             console.error('Create destination error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });

@@ -170,10 +170,10 @@
                 </div>
             </div>
 
-            <!-- Floating Chat Toggle (Mobile Friendly) -->
-            <div class="fixed-bottom p-4 text-end d-md-none" style="z-index: 1000;">
-                <button class="btn btn-primary-bl rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center ms-auto" style="width: 65px; height: 65px;" data-bs-toggle="modal" data-bs-target="#chatModal">
-                    <i class="bi bi-chat-fill fs-3"></i>
+            <!-- Floating Chat Toggle -->
+            <div class="fab-chat">
+                <button class="btn btn-primary-bl rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#chatModal" title="Nhắn tin hỗ trợ">
+                    <i class="bi bi-chat-fill text-white"></i>
                 </button>
             </div>
         </div>
@@ -313,4 +313,35 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 .hero-content { position: relative; z-index: 10; }
 .text-shadow-lg { text-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+
+/* Floating chat button styles and responsive vertical stacking */
+.fab-chat {
+    position: fixed;
+    z-index: 1040;
+}
+.fab-chat button {
+    width: 50px;
+    height: 50px;
+    background: var(--v5-primary);
+    border: none;
+    transition: transform 0.2s ease-in-out;
+}
+.fab-chat button:hover {
+    transform: scale(1.1);
+}
+.fab-chat button i {
+    font-size: 1.3rem;
+}
+@media (min-width: 992px) {
+    .fab-chat {
+        bottom: 266px !important;
+        right: 32px !important;
+    }
+}
+@media (max-width: 991.98px) {
+    .fab-chat {
+        bottom: 221px !important;
+        right: 20px !important;
+    }
+}
 </style>

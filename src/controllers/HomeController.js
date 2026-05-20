@@ -5,6 +5,16 @@ const db = require('../core/database');
 class HomeController {
     async index(req, res) {
         try {
+            const user = req.user || req.session.user;
+            if (user) {
+                if (user.role === 'admin') {
+                    return res.redirect('/admin');
+                }
+                if (user.role === 'manager') {
+                    return res.redirect('/manager');
+                }
+            }
+
             // Get all settings from DB
             const [dbSettings] = await db.query('SELECT * FROM settings');
             const settingsMap = {};

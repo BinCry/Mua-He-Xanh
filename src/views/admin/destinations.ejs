@@ -1,7 +1,7 @@
 <!-- Admin: Destinations Management -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Quản lý Địa điểm</h4>
+        <h4 class="fw-bold mb-1" style="font-family: 'Times New Roman', Times, serif;">Quản lý Địa điểm</h4>
         <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Thêm, sửa, xóa địa điểm du lịch. Thay đổi cập nhật tức thì trên trang chủ.</p>
     </div>
     <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#destModal" onclick="openDestForm()">
@@ -122,6 +122,24 @@
                             <label class="form-label small fw-bold">Link ảnh bìa</label>
                             <input type="text" class="form-control admin-input" id="d_cover_image" name="cover_image" placeholder="https://... hoặc /images/...">
                         </div>
+                        <!-- Manager Account Section (Only shown when adding new destination) -->
+                        <div id="managerAccountSection" class="col-12 border-top border-secondary border-opacity-10 pt-3 mt-3">
+                            <h6 class="fw-bold mb-3 text-primary"><i class="bi bi-person-badge me-2"></i>Tạo Tài khoản Quản lý Địa điểm</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Họ tên người quản lý</label>
+                                    <input type="text" class="form-control admin-input" id="d_manager_name" name="manager_name" placeholder="Ví dụ: Nguyễn Văn A">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label small fw-bold">Email quản lý (Bắt buộc)</label>
+                                    <input type="email" class="form-control admin-input" id="d_manager_email" name="manager_email" placeholder="manager@example.com">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label small fw-bold">Mật khẩu quản lý (Bắt buộc)</label>
+                                    <input type="password" class="form-control admin-input" id="d_manager_password" name="manager_password" placeholder="Tối thiểu 6 ký tự">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -141,6 +159,9 @@ function openDestForm() {
     document.getElementById('destModalTitle').textContent = 'Thêm Địa điểm';
     document.getElementById('destForm').reset();
     document.getElementById('d_id').value = '';
+    document.getElementById('managerAccountSection').style.display = 'block';
+    document.getElementById('d_manager_email').setAttribute('required', 'required');
+    document.getElementById('d_manager_password').setAttribute('required', 'required');
 }
 
 function editDest(target) {
@@ -162,6 +183,11 @@ function editDest(target) {
     document.getElementById('d_lat').value = d.lat || '';
     document.getElementById('d_lng').value = d.lng || '';
     document.getElementById('d_cover_image').value = d.cover_image || '';
+    
+    document.getElementById('managerAccountSection').style.display = 'none';
+    document.getElementById('d_manager_email').removeAttribute('required');
+    document.getElementById('d_manager_password').removeAttribute('required');
+    
     new bootstrap.Modal(document.getElementById('destModal')).show();
 }
 
@@ -180,6 +206,12 @@ async function saveDest() {
         lng: document.getElementById('d_lng').value,
         cover_image: document.getElementById('d_cover_image').value
     };
+    
+    if (!editingDest) {
+        data.manager_name = document.getElementById('d_manager_name').value;
+        data.manager_email = document.getElementById('d_manager_email').value;
+        data.manager_password = document.getElementById('d_manager_password').value;
+    }
     
     const url = editingDest ? '/api/admin/update-destination' : '/api/admin/create-destination';
     try {

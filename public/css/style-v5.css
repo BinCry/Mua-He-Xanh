@@ -54,9 +54,9 @@
     --glass-border: rgba(255, 255, 255, 0.25);
     
     /* Typography */
-    --font-display: 'Playfair Display', Georgia, serif;
-    --font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    --font-accent: 'Outfit', sans-serif;
+    --font-display: 'Times New Roman', Times, serif;
+    --font-body: 'Times New Roman', Times, serif;
+    --font-accent: 'Times New Roman', Times, serif;
     
     /* Radius */
     --radius-sm: 8px;

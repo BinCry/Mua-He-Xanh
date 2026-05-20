@@ -76,6 +76,8 @@ router.get('/admin/events', ensureAdmin, AdminController.events);
 
 // ===== MANAGER =====
 router.get('/manager', ensureManager, ManagerController.index);
+router.get('/manager/chat', ensureManager, ManagerController.chat);
+router.get('/manager/destination', ensureManager, ManagerController.destination);
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
 router.post('/api/reply-message', ensureManager, ApiController.replyMessage);

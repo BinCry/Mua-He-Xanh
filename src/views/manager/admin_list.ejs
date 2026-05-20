@@ -1,7 +1,7 @@
 <!-- Admin-level Destination List (Manager Panel) -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 class="fw-bold mb-1" style="font-family: 'Outfit', sans-serif;">Chọn địa điểm quản lý</h4>
+        <h4 class="fw-bold mb-1" style="color: var(--admin-text); font-family: 'Times New Roman', Times, serif;">Chọn địa điểm quản lý</h4>
         <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Với quyền Admin, bạn có thể chỉnh sửa nội dung bất kỳ địa điểm nào</p>
     </div>
 </div>
@@ -14,7 +14,7 @@
                 <div class="d-flex align-items-center gap-3">
                     <img src="/<%= d.cover_image || 'images/placeholder.jpg' %>" class="rounded-3" style="width: 80px; height: 60px; object-fit: cover;">
                     <div class="overflow-hidden">
-                        <h6 class="fw-bold mb-1 text-white text-truncate"><%= d.name %></h6>
+                        <h6 class="fw-bold mb-1 text-truncate" style="color: var(--admin-text);"><%= d.name %></h6>
                         <span class="badge rounded-pill" style="background: rgba(240,165,0,0.1); color: var(--admin-accent); font-size: 0.65rem;">
                             <i class="bi bi-gear-fill me-1"></i>Chỉnh sửa ngay
                         </span>
@@ -29,6 +29,6 @@
 <style>
 .hover-lift:hover {
     transform: translateY(-5px);
-    background: rgba(255,255,255,0.02);
+    background: rgba(0,0,0,0.02);
 }
 </style>

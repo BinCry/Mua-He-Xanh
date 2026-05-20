@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 class ManagerController {
     async index(req, res) {
         try {
-            const user = req.session.user;
+            const user = req.session.user || req.user;
             let destId = user.managed_destination_id;
             
             // Admin can override destId via query
@@ -86,7 +86,48 @@ class ManagerController {
                 [dest.id]
             );
 
-            // 3. Conversation List (Facebook Fanpage style)
+            res.render('manager/dashboard', {
+                title: 'Bảng điều khiển: ' + dest.name,
+                dest,
+                stats: {
+                    checkins: checkinStats[0].total,
+                    chats: convoStats[0].total,
+                    reviewsCount: reviewStats[0].count,
+                    avgRating: parseFloat(reviewStats[0].avg_rating).toFixed(1),
+                    pageViews: pageViewsStats[0].total,
+                    revenue: revenueStats[0].total
+                },
+                recentCheckins,
+                recentReviews,
+                success: req.query.success || null,
+                error: req.query.error || null,
+                layout: 'layouts/admin',
+                managerPage: 'dashboard',
+                adminPage: 'manager'
+            });
+        } catch (error) {
+            console.error("Manager index error:", error);
+            res.status(500).send("Internal Server Error: " + error.message);
+        }
+    }
+
+    async chat(req, res) {
+        try {
+            const user = req.session.user || req.user;
+            let destId = user.managed_destination_id;
+            
+            if (user.role === 'admin' && req.query.dest_id) {
+                destId = req.query.dest_id;
+            }
+
+            if (!destId) {
+                return res.redirect('/manager');
+            }
+
+            const dest = await Destination.findById(destId);
+            if (!dest) return res.status(404).send("Địa điểm không tồn tại");
+
+            // Conversation List (Facebook Fanpage style)
             const [conversations] = await UserSession.db.query(
                 `SELECT 
                      s.id AS session_id,
@@ -119,27 +160,47 @@ class ManagerController {
                 [dest.id, dest.id, dest.id]
             );
 
-            res.render('manager/index', {
-                title: 'Quản lý: ' + dest.name,
+            res.render('manager/chat', {
+                title: 'Hộp thư Hỗ trợ: ' + dest.name,
                 dest,
-                stats: {
-                    checkins: checkinStats[0].total,
-                    chats: convoStats[0].total,
-                    reviewsCount: reviewStats[0].count,
-                    avgRating: parseFloat(reviewStats[0].avg_rating).toFixed(1),
-                    pageViews: pageViewsStats[0].total,
-                    revenue: revenueStats[0].total
-                },
-                recentCheckins,
-                recentReviews,
                 conversations,
-                success: req.query.success || null,
-                error: req.query.error || null,
                 layout: 'layouts/admin',
+                managerPage: 'chat',
                 adminPage: 'manager'
             });
         } catch (error) {
-            console.error("Manager index error:", error);
+            console.error("Manager chat error:", error);
+            res.status(500).send("Internal Server Error: " + error.message);
+        }
+    }
+
+    async destination(req, res) {
+        try {
+            const user = req.session.user || req.user;
+            let destId = user.managed_destination_id;
+            
+            if (user.role === 'admin' && req.query.dest_id) {
+                destId = req.query.dest_id;
+            }
+
+            if (!destId) {
+                return res.redirect('/manager');
+            }
+
+            const dest = await Destination.findById(destId);
+            if (!dest) return res.status(404).send("Địa điểm không tồn tại");
+
+            res.render('manager/destination', {
+                title: 'Cấu hình địa điểm: ' + dest.name,
+                dest,
+                success: req.query.success || null,
+                error: req.query.error || null,
+                layout: 'layouts/admin',
+                managerPage: 'destination',
+                adminPage: 'manager'
+            });
+        } catch (error) {
+            console.error("Manager destination error:", error);
             res.status(500).send("Internal Server Error: " + error.message);
         }
     }
@@ -211,7 +272,7 @@ class ManagerController {
             }
 
             if (!targetDestId) {
-                return res.redirect('/manager?error=' + encodeURIComponent('Không xác định được địa điểm cần cập nhật'));
+                return res.redirect('/manager/destination?error=' + encodeURIComponent('Không xác định được địa điểm cần cập nhật'));
             }
 
             const updateData = {};
@@ -229,13 +290,13 @@ class ManagerController {
             await Destination.update(targetDestId, updateData);
 
             if (user.role === 'admin') {
-                res.redirect(`/manager?dest_id=${targetDestId}&success=${encodeURIComponent('Đã cập nhật thông tin địa điểm')}`);
+                res.redirect(`/manager/destination?dest_id=${targetDestId}&success=${encodeURIComponent('Đã cập nhật thông tin địa điểm')}`);
             } else {
-                res.redirect('/manager?success=' + encodeURIComponent('Đã cập nhật thông tin địa điểm'));
+                res.redirect('/manager/destination?success=' + encodeURIComponent('Đã cập nhật thông tin địa điểm'));
             }
         } catch (error) {
             console.error("Update Destination Error:", error);
-            res.redirect('/manager?error=' + encodeURIComponent(error.message));
+            res.redirect('/manager/destination?error=' + encodeURIComponent(error.message));
         }
     }
 }
