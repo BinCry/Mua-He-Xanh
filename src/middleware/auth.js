@@ -30,6 +30,9 @@ exports.ensureAuthenticated = (req, res, next) => {
     if (req.user || req.session.user) {
         return next();
     }
+    if (req.originalUrl && req.originalUrl.startsWith('/api')) {
+        return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để thực hiện thao tác này.' });
+    }
     res.redirect('/auth/login?error=Vui lòng đăng nhập để thực hiện thao tác này');
 };
 
@@ -41,6 +44,9 @@ exports.ensureAdmin = (req, res, next) => {
     const user = req.user || req.session.user;
     if (user && (user.role === 'admin' || user.role_id === ROLES.ADMIN)) {
         return next();
+    }
+    if (req.originalUrl && req.originalUrl.startsWith('/api')) {
+        return res.status(403).json({ success: false, message: 'Quyền truy cập bị từ chối: Chỉ Quản trị viên mới được phép thực hiện thao tác này.' });
     }
     res.status(403).render('errors/403', {
         title: '403 - Truy cập bị từ chối',
@@ -59,6 +65,9 @@ exports.ensureManager = (req, res, next) => {
         user.role_id === ROLES.MANAGER || user.role_id === ROLES.ADMIN
     )) {
         return next();
+    }
+    if (req.originalUrl && req.originalUrl.startsWith('/api')) {
+        return res.status(403).json({ success: false, message: 'Quyền truy cập bị từ chối: Bạn không có quyền thực hiện hành động quản lý này.' });
     }
     res.status(403).render('errors/403', {
         title: '403 - Truy cập bị từ chối',
@@ -79,6 +88,9 @@ exports.ensureTourist = (req, res, next) => {
     }
     if (user && (user.role === 'manager' || user.role_id === ROLES.MANAGER)) {
         return res.redirect('/manager');
+    }
+    if (req.originalUrl && req.originalUrl.startsWith('/api')) {
+        return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập bằng tài khoản du khách.' });
     }
     res.redirect('/auth/login?error=Vui lòng đăng nhập bằng tài khoản du khách');
 };

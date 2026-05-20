@@ -38,6 +38,44 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// Session auto-restoration: recovers session from DB if express-session is lost but session_uuid cookie exists
+app.use(async (req, res, next) => {
+    try {
+        if (!req.session?.user && req.cookies?.session_uuid) {
+            const db = require('./core/database');
+            const [sessions] = await db.query(
+                "SELECT user_id FROM user_sessions WHERE uuid = ? ORDER BY updated_at DESC LIMIT 1",
+                [req.cookies.session_uuid]
+            );
+            if (sessions.length > 0 && sessions[0].user_id) {
+                const [users] = await db.query(
+                    "SELECT * FROM users WHERE id = ? AND is_active = 1",
+                    [sessions[0].user_id]
+                );
+                if (users.length > 0) {
+                    const user = users[0];
+                    req.session.user = {
+                        id: user.id,
+                        email: user.email,
+                        full_name: user.full_name,
+                        role: user.role,
+                        avatar: user.avatar,
+                        phone: user.phone,
+                        managed_destination_id: user.managed_destination_id
+                    };
+                    // Also login into passport to restore req.user & req.isAuthenticated()
+                    req.login(user, (err) => {
+                        if (err) console.error("Passport session restore error:", err);
+                    });
+                }
+            }
+        }
+    } catch (e) {
+        console.error("Session auto-restore warning:", e.message);
+    }
+    next();
+});
+
 // Analytics middleware — track real page views
 const analyticsMiddleware = require('./middleware/analytics');
 app.use(analyticsMiddleware);
