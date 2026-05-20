@@ -74,7 +74,7 @@
                                 <div class="flex-grow-1 overflow-hidden">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
                                         <h6 class="fw-bold mb-0 text-truncate small" style="color: var(--admin-text); max-width: 110px; font-size: 0.78rem;">
-                                            <%= convo.user_name || 'Du khách #' + convo.session_uuid.slice(0,4).toUpperCase() %>
+                                            <%= convo.user_name || 'Du khách #' + (convo.session_uuid ? convo.session_uuid.slice(0,4).toUpperCase() : 'ANON') %>
                                         </h6>
                                         <small class="text-muted" style="font-size: 0.6rem;">
                                             <%= convo.last_message_time ? new Date(convo.last_message_time).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) : '' %>
@@ -272,14 +272,18 @@
         
         document.getElementById('chat-controls-area').style.display = 'block';
 
-        const vName = visitor.full_name || 'Khách vãng lai #' + visitor.uuid.slice(0,4).toUpperCase();
+        const vName = (visitor && visitor.full_name) 
+            ? visitor.full_name 
+            : 'Khách vãng lai #' + ((visitor && visitor.uuid) ? visitor.uuid.slice(0,4).toUpperCase() : 'ANON');
         headerName.innerText = vName;
-        headerStatus.innerHTML = visitor.is_checked_in > 0 
+        headerStatus.innerHTML = (visitor && visitor.is_checked_in > 0)
             ? '<span class="text-success fw-bold">• ĐÃ CHECK-IN TẠI ĐIỂM</span>' 
             : '<span class="text-muted">• TOURIST</span>';
         
         avatarBox.innerText = vName.split(' ').pop().slice(0,2).toUpperCase();
-        avatarBox.style.background = ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][visitor.id % 6];
+        const visitorId = (visitor && visitor.id) ? visitor.id : 0;
+        const visitorIndex = typeof visitorId === 'number' ? visitorId : (visitorId ? visitorId.charCodeAt(0) : 0);
+        avatarBox.style.background = ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][visitorIndex % 6];
 
         stream.innerHTML = '';
         if (messages && messages.length > 0) {
