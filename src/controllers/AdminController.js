@@ -412,6 +412,9 @@ const AdminController = {
             }
 
             const destinationId = uuidv4();
+            const parsedPoints = parseInt(points) || 10;
+            const parsedLat = (lat && String(lat).trim() !== '') ? parseFloat(lat) : 10.75;
+            const parsedLng = (lng && String(lng).trim() !== '') ? parseFloat(lng) : 106.54;
 
             // Insert Destination — all NOT NULL columns explicitly provided
             await db.query(
@@ -422,9 +425,9 @@ const AdminController = {
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, '/images/placeholder.jpg', 99,
                          ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
                 [destinationId, name, slug, type || 'nature',
-                 short_desc || '', description || '', open_hours || '', cost || '',
-                 lat || null, lng || null, points || 10,
-                 '', '', description || '', short_desc || '',
+                 short_desc || '', description || '', open_hours || '08:00 - 17:00', cost || 'Miễn phí',
+                 parsedLat, parsedLng, parsedPoints,
+                 '[]', '[]', description || '', short_desc || '',
                  'Hãy chụp ảnh tại điểm này!', 'SECURE_' + slug.toUpperCase(),
                  'Quanh năm', 50, 50, 100]
             );
