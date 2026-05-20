@@ -14,6 +14,81 @@ const AuthController = {
         });
     },
 
+    sendOtp: async (req, res) => {
+        try {
+            const { phone } = req.body;
+            if (!phone || !/^[0-9]{10,11}$/.test(phone)) {
+                return res.json({ success: false, message: 'Số điện thoại không hợp lệ' });
+            }
+
+            // Check if phone is already registered and active
+            const [existingUser] = await db.query('SELECT id FROM users WHERE phone = ?', [phone]);
+            if (existingUser.length > 0) {
+                return res.json({ success: false, message: 'Số điện thoại này đã được đăng ký tài khoản' });
+            }
+
+            // Ensure verification table exists
+            await db.query(`
+                CREATE TABLE IF NOT EXISTS otp_verifications (
+                    phone VARCHAR(20) PRIMARY KEY,
+                    otp VARCHAR(10) NOT NULL,
+                    expires_at TIMESTAMP NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                )
+            `);
+
+            // Generate 6-digit OTP
+            const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+            // Save to verification table
+            await db.query(`
+                INSERT INTO otp_verifications (phone, otp, expires_at)
+                VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))
+                ON DUPLICATE KEY UPDATE otp = VALUES(otp), expires_at = VALUES(expires_at)
+            `, [phone, otp]);
+
+            // Send real SMS OTP
+            const sms = require('../utils/sms');
+            const result = await sms.sendOTP(phone, otp);
+
+            res.json({
+                success: true,
+                message: 'Mã xác thực đã được gửi tới số điện thoại của bạn.',
+                fallback: result.fallback || false,
+                otp: result.fallback ? otp : null // Return OTP for visual hint only if SMS API credentials are not set
+            });
+        } catch (err) {
+            console.error("Send OTP error:", err);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống khi gửi mã xác thực' });
+        }
+    },
+
+    verifyOtp: async (req, res) => {
+        try {
+            const { phone, otp } = req.body;
+            if (!phone || !otp) {
+                return res.json({ success: false, message: 'Dữ liệu không đầy đủ' });
+            }
+
+            const [rows] = await db.query(
+                "SELECT * FROM otp_verifications WHERE phone = ? AND otp = ? AND expires_at > NOW()",
+                [phone, otp]
+            );
+
+            if (rows.length === 0) {
+                return res.json({ success: false, message: 'Mã OTP không chính xác hoặc đã hết hạn.' });
+            }
+
+            // Delete OTP record once successfully verified
+            await db.query("DELETE FROM otp_verifications WHERE phone = ?", [phone]);
+
+            res.json({ success: true, verified: true });
+        } catch (err) {
+            console.error("Verify OTP error:", err);
+            res.status(500).json({ success: false, message: 'Lỗi xác thực mã OTP' });
+        }
+    },
+
     handleRegister: async (req, res) => {
         try {
             const { fullName, phone, password } = req.body;
@@ -47,12 +122,15 @@ const AuthController = {
             };
 
             await db.query(
-                'INSERT INTO users (id, full_name, email, phone, password, role, total_points, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 0)',
+                'INSERT INTO users (id, full_name, email, phone, password, role, total_points, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
                 [newUser.id, newUser.full_name, newUser.email, newUser.phone, newUser.password, newUser.role, newUser.points]
             );
 
-            // Redirect user back with an informative pending approval alert
-            return res.redirect('/auth/login?error=Tạo+tài+khoản+thành+công!+Vui+lòng+chờ+Ban+Quản+trị+phê+duyệt+để+đăng+nhập.');
+            // Establish express session and log the user in immediately
+            await AuthController.establishSession(req, res, newUser);
+
+            // Redirect directly to slow-living healing journey map
+            return res.redirect('/journey');
         } catch (error) {
             console.error("Register Error:", error);
             res.redirect('/auth/login?error=Lỗi hệ thống khi đăng ký');
