@@ -496,7 +496,7 @@ const AdminController = {
             await db.query(
                 `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
                  VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())`,
-                [uuidv4(), destination_id || null, title, description || '', type || 'craft', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
+                [uuidv4(), destination_id || null, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
             );
             res.json({ success: true, message: 'Đã tạo workshop!' });
         } catch (error) {

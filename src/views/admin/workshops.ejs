@@ -35,7 +35,15 @@
                         </div>
                     </div>
                 </td>
-                <td><span class="role-badge role-user"><%= ws.type %></span></td>
+                <td>
+                    <% 
+                    const typeLabels = {
+                        nhang: 'Làm Nhang', mai: 'Chăm Mai', thien: 'Thiền Healing',
+                        banh: 'Bánh Dân Gian', ecology: 'Sinh Thái', culture: 'Văn Hóa', other: 'Khác'
+                    };
+                    %>
+                    <span class="role-badge role-user"><%= typeLabels[ws.type] || ws.type %></span>
+                </td>
                 <td>
                     <% if (ws.price == 0) { %>
                         <span class="text-success small fw-bold">Miễn phí</span>
@@ -91,12 +99,12 @@
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Loại</label>
-                            <select class="form-select admin-input" id="ws_type" name="type">
-                                <option value="craft">Làm Nhang</option>
+                             <select class="form-select admin-input" id="ws_type" name="type">
+                                <option value="nhang">Làm Nhang</option>
                                 <option value="mai">Chăm Mai</option>
-                                <option value="meditation">Thiền Healing</option>
-                                <option value="food">Bánh Dân Gian</option>
-                                <option value="eco">Sinh Thái</option>
+                                <option value="thien">Thiền Healing</option>
+                                <option value="banh">Bánh Dân Gian</option>
+                                <option value="ecology">Sinh Thái</option>
                                 <option value="culture">Văn Hóa</option>
                                 <option value="other">Khác</option>
                             </select>
