@@ -128,16 +128,28 @@ app.use((err, req, res, next) => {
     res.status(500).send('Internal Server Error: ' + err.message);
 });
 
-// Auto-migrate: fix column sizes on startup
+// Auto-migrate: fix column sizes and defaults on startup
 async function runMigrations() {
     try {
         const db = require('./core/database');
         const migrations = [
+            // Fix text column sizes
             "ALTER TABLE destinations MODIFY COLUMN short_desc TEXT",
             "ALTER TABLE destinations MODIFY COLUMN description LONGTEXT",
+            "ALTER TABLE destinations MODIFY COLUMN story LONGTEXT",
+            "ALTER TABLE destinations MODIFY COLUMN highlight LONGTEXT",
+            // Fix NOT NULL columns without defaults
+            "ALTER TABLE destinations MODIFY COLUMN moods VARCHAR(255) NOT NULL DEFAULT ''",
+            "ALTER TABLE destinations MODIFY COLUMN seasons VARCHAR(255) NOT NULL DEFAULT ''",
+            "ALTER TABLE destinations MODIFY COLUMN best_time VARCHAR(255) NOT NULL DEFAULT 'Quanh năm'",
+            "ALTER TABLE destinations MODIFY COLUMN checkin_tip TEXT NOT NULL DEFAULT 'Hãy chụp ảnh tại điểm này!'",
+            "ALTER TABLE destinations MODIFY COLUMN qr_secret VARCHAR(255) NOT NULL DEFAULT ''",
+            "ALTER TABLE destinations MODIFY COLUMN map_x INT NOT NULL DEFAULT 50",
+            "ALTER TABLE destinations MODIFY COLUMN map_y INT NOT NULL DEFAULT 50",
+            "ALTER TABLE destinations MODIFY COLUMN radius_meter INT NOT NULL DEFAULT 100",
         ];
         for (const sql of migrations) {
-            try { await db.query(sql); } catch(e) { /* column may already be correct */ }
+            try { await db.query(sql); } catch(e) { /* skip if already correct */ }
         }
         console.log('✅ Database migrations checked');
     } catch(e) {
