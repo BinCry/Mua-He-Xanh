@@ -85,16 +85,17 @@ const ProfileController = {
             const user = req.user || req.session.user;
             if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
 
-            const { full_name, phone, city, preferences, travel_style } = req.body;
+            const { full_name, phone, city, preferences, travel_style, avatar } = req.body;
 
             await db.query(`
-                UPDATE users SET full_name = ?, phone = ?, city = ?, preferences = ?, travel_style = ?
+                UPDATE users SET full_name = ?, phone = ?, city = ?, preferences = ?, travel_style = ?, avatar = ?
                 WHERE id = ?
-            `, [full_name, phone, city, preferences, travel_style, user.id]);
+            `, [full_name, phone, city, preferences, travel_style, avatar, user.id]);
 
             // Update session
             if (req.session.user) {
                 req.session.user.full_name = full_name;
+                req.session.user.avatar = avatar;
             }
 
             res.json({ success: true, message: 'Cập nhật hồ sơ thành công!' });

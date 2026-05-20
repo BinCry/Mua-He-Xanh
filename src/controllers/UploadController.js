@@ -1,4 +1,4 @@
-const path = require('path');
+const fs = require('fs');
 
 const UploadController = {
     uploadImage: (req, res) => {
@@ -7,14 +7,18 @@ const UploadController = {
                 return res.status(400).json({ success: false, message: 'Không có tệp nào được tải lên.' });
             }
             
-            // Return the relative path for use in DB
-            const relativePath = 'uploads/media/' + req.file.filename;
+            // Read the file and convert to base64
+            const buffer = fs.readFileSync(req.file.path);
+            const base64Data = `data:${req.file.mimetype};base64,${buffer.toString('base64')}`;
+            
+            // Delete local file to save storage
+            fs.unlinkSync(req.file.path);
             
             res.json({
                 success: true,
                 message: 'Tải lên thành công!',
-                url: '/' + relativePath,
-                path: relativePath
+                url: base64Data,
+                path: base64Data
             });
         } catch (error) {
             console.error('Upload Error:', error);
