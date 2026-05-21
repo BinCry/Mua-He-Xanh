@@ -103,11 +103,10 @@ app.use((req, res, next) => {
     // Cache Buster for assets
     res.locals.assetV = '1.1.0_' + Date.now(); 
 
-    // Helper: fix image paths from database (strips 'public/' prefix)
     res.locals.fixImg = (imgPath, fallback) => {
         fallback = fallback || '/images/placeholder.png';
         if (!imgPath || imgPath === 'undefined' || imgPath === 'NULL') return fallback;
-        if (imgPath.startsWith('http')) return imgPath;
+        if (imgPath.startsWith('http') || imgPath.startsWith('data:')) return imgPath;
         // Strip 'public/' prefix if present
         let clean = imgPath.replace(/^public\//, '');
         if (!clean.startsWith('/')) clean = '/' + clean;
@@ -192,6 +191,20 @@ async function runMigrations() {
             "ALTER TABLE destinations MODIFY COLUMN radius_meter INT NOT NULL DEFAULT 100",
             "ALTER TABLE workshops ADD COLUMN duration VARCHAR(100) DEFAULT '2 giờ'",
             "UPDATE workshops SET duration = CONCAT(duration_minutes, ' phút') WHERE duration_minutes IS NOT NULL AND (duration IS NULL OR duration = '2 giờ')",
+            // Image columns → LONGTEXT for base64 storage
+            "ALTER TABLE destinations MODIFY COLUMN cover_image LONGTEXT",
+            "ALTER TABLE workshops MODIFY COLUMN image LONGTEXT",
+            "ALTER TABLE rewards MODIFY COLUMN image LONGTEXT",
+            "ALTER TABLE events MODIFY COLUMN image LONGTEXT",
+            "ALTER TABLE products MODIFY COLUMN image LONGTEXT",
+            "ALTER TABLE festivals MODIFY COLUMN image LONGTEXT",
+            "ALTER TABLE users MODIFY COLUMN avatar LONGTEXT",
+            "ALTER TABLE settings MODIFY COLUMN key_value LONGTEXT",
+            // ENUM → VARCHAR to prevent truncation errors
+            "ALTER TABLE workshops MODIFY COLUMN type VARCHAR(100) DEFAULT 'other'",
+            "ALTER TABLE destinations MODIFY COLUMN type VARCHAR(100) DEFAULT 'nature'",
+            "ALTER TABLE rewards MODIFY COLUMN type VARCHAR(100) DEFAULT 'voucher'",
+            "ALTER TABLE notifications MODIFY COLUMN type VARCHAR(100) DEFAULT 'system'",
         ];
         for (const sql of migrations) {
             try { await db.query(sql); } catch(e) { /* skip if already correct */ }

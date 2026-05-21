@@ -28,7 +28,7 @@
             <tr>
                 <td>
                     <div class="d-flex align-items-center gap-2">
-                        <img src="<%= ws.image && ws.image.startsWith('http') ? ws.image : '/images/hero-2.png' %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
+                        <img src="<%= fixImg(ws.image, '/images/hero-2.png') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
                         <div>
                             <div class="fw-bold small"><%= ws.title %></div>
                             <div style="font-size: 0.72rem; color: var(--admin-muted);"><%= ws.destination_name || '-' %></div>

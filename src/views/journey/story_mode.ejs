@@ -613,7 +613,7 @@ function renderRouteOnMap() {
         const m = L.marker(pos, { icon }).addTo(map);
 
         const imgSrc = stop.cover_image
-            ? (stop.cover_image.startsWith('http') ? stop.cover_image : '/' + stop.cover_image.replace(/^public\//, ''))
+            ? (stop.cover_image.startsWith('http') || stop.cover_image.startsWith('data:') ? stop.cover_image : '/' + stop.cover_image.replace(/^public\//, ''))
             : '/images/placeholder.png';
 
         m.bindPopup(`

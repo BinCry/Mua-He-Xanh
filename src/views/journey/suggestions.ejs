@@ -262,7 +262,7 @@
                 <div class="sug-card">
                     <!-- Image -->
                     <div class="sug-card-img-wrap">
-                        <img src="<%= (sug.stops && sug.stops[0] && sug.stops[0].cover_image) ? (sug.stops[0].cover_image.startsWith('http') ? sug.stops[0].cover_image : sug.stops[0].cover_image.replace(/^public\//, '/')) : '/images/placeholder.png' %>" alt="<%= sug.name %>" onerror="this.src='/images/placeholder.png'">
+                        <img src="<%= (sug.stops && sug.stops[0] && sug.stops[0].cover_image) ? (sug.stops[0].cover_image.startsWith('http') || sug.stops[0].cover_image.startsWith('data:') ? sug.stops[0].cover_image : sug.stops[0].cover_image.replace(/^public\//, '/')) : '/images/placeholder.png' %>" alt="<%= sug.name %>" onerror="this.src='/images/placeholder.png'">
                         <div class="sug-card-img-overlay"></div>
                         <% if (i === 0) { %>
                         <div class="sug-recommended-badge"><i class="bi bi-star-fill"></i> Đề xuất cao nhất</div>
