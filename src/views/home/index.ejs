@@ -93,60 +93,101 @@
 </section>
 
 <!-- EVENTS & SEASONAL (Premium responsive styling) -->
-<section class="py-5" style="background: linear-gradient(135deg, #071912 0%, #030c08 100%);">
-    <div class="container py-5">
+<section class="py-5 position-relative" style="background: linear-gradient(135deg, #091f15 0%, #040e0a 100%); overflow: hidden;">
+    <!-- Ambient glowing blur effects for modern premium styling -->
+    <div class="position-absolute rounded-circle bg-success opacity-10" style="width: 300px; height: 300px; top: -100px; right: -50px; filter: blur(100px); pointer-events: none;"></div>
+    <div class="position-absolute rounded-circle bg-warning opacity-10" style="width: 250px; height: 250px; bottom: -80px; left: -50px; filter: blur(80px); pointer-events: none;"></div>
+
+    <div class="container py-5 position-relative" style="z-index: 2;">
         <div class="row align-items-center g-5">
             <div class="col-lg-6 reveal-up">
                 <% if (nextEvent) { %>
-                <div class="p-4 p-md-5 rounded-4 position-relative overflow-hidden border border-success border-opacity-25" style="background: rgba(255,255,255,0.03); backdrop-filter: blur(10px);">
-                    <div class="position-relative" style="z-index: 5;">
-                        <span class="badge bg-warning bg-opacity-20 text-warning border border-warning border-opacity-50 rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="letter-spacing: 1px;">SỰ KIỆN NỔI BẬT</span>
-                        <h2 class="text-white fw-black mb-3 font-display" style="font-size: 2.2rem; line-height: 1.2;"><%= nextEvent.title %></h2>
-                        <p class="text-white-50 mb-4" style="font-size: 0.9rem; line-height: 1.7;"><%= nextEvent.description %></p>
-                        
-                        <div id="countdown" class="d-flex gap-3 mb-4 flex-wrap">
-                            <div class="text-center px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.08); min-width: 80px;">
-                                <h2 class="fw-black text-warning mb-0" id="days">00</h2>
-                                <small class="text-white-50 x-small text-uppercase">Ngày</small>
-                            </div>
-                            <div class="text-center px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.08); min-width: 80px;">
-                                <h2 class="fw-black text-warning mb-0" id="hours">00</h2>
-                                <small class="text-white-50 x-small text-uppercase">Giờ</small>
-                            </div>
-                            <div class="text-center px-3 py-2 rounded-3" style="background: rgba(255,255,255,0.08); min-width: 80px;">
-                                <h2 class="fw-black text-warning mb-0" id="mins">00</h2>
-                                <small class="text-white-50 x-small text-uppercase">Phút</small>
-                            </div>
+                <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift h-100" 
+                     style="min-height: 480px; transition: all 0.4s var(--ease-out); <% if (nextEvent.image) { %>background: url('<%= fixImg(nextEvent.image) %>') center/cover no-repeat;<% } else { %>background: linear-gradient(135deg, #10331e 0%, #06170e 100%); border: 1px solid rgba(45, 122, 74, 0.25);<% } %>">
+                    
+                    <!-- Gradient overlay to guarantee full contrast for text readability -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.85) 100%); z-index: 1;"></div>
+                    
+                    <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100" style="z-index: 5; min-height: 480px;">
+                        <div>
+                            <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" 
+                                  style="background: rgba(240, 165, 0, 0.2); color: #ffc847; border: 1px solid rgba(240, 165, 0, 0.4); letter-spacing: 1.5px;">
+                                <i class="bi bi-star-fill me-1"></i> Sự kiện nổi bật
+                            </span>
+                            
+                            <h2 class="text-white fw-black mb-3 font-display text-shadow-md" style="font-size: 2.2rem; line-height: 1.2;">
+                                <%= nextEvent.title %>
+                            </h2>
+                            
+                            <p class="mb-4" style="color: rgba(255, 255, 255, 0.88); font-size: 0.95rem; line-height: 1.6; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
+                                <%= nextEvent.description %>
+                            </p>
                         </div>
                         
-                        <div class="d-flex align-items-center gap-2 text-white-50" style="font-size: 0.85rem;">
-                            <i class="bi bi-geo-alt-fill text-danger"></i> <%= nextEvent.location %>
+                        <div>
+                            <!-- Countdown -->
+                            <div id="countdown" class="d-flex gap-2 gap-sm-3 mb-4 flex-wrap">
+                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important; min-width: 75px; backdrop-filter: blur(5px);">
+                                    <h3 class="fw-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="days">00</h3>
+                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.7) !important;">Ngày</small>
+                                </div>
+                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important; min-width: 75px; backdrop-filter: blur(5px);">
+                                    <h3 class="fw-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="hours">00</h3>
+                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.7) !important;">Giờ</small>
+                                </div>
+                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important; min-width: 75px; backdrop-filter: blur(5px);">
+                                    <h3 class="fw-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="mins">00</h3>
+                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.7) !important;">Phút</small>
+                                </div>
+                            </div>
+                            
+                            <div class="d-flex flex-column gap-2" style="font-size: 0.9rem;">
+                                <div class="d-flex align-items-center gap-2" style="color: rgba(255, 255, 255, 0.95);">
+                                    <i class="bi bi-geo-alt-fill text-danger fs-5"></i> 
+                                    <span class="fw-bold"><%= nextEvent.location %></span>
+                                </div>
+                                <div class="d-flex align-items-center gap-2 mt-1" style="color: rgba(255, 255, 255, 0.95);">
+                                    <i class="bi bi-calendar-event text-warning fs-5" style="color: #ffc847 !important;"></i> 
+                                    <span><%= new Date(nextEvent.event_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 <% } else { %>
-                <div class="p-5 rounded-4 text-center border border-secondary border-opacity-25" style="background: rgba(255,255,255,0.02);">
+                <div class="p-5 rounded-4 text-center border border-secondary border-opacity-25 shadow-premium" style="background: rgba(255,255,255,0.02); backdrop-filter: blur(5px);">
                     <i class="bi bi-calendar-event display-4 text-white opacity-25 mb-3 d-block"></i>
                     <h4 class="text-white fw-bold">Chưa có sự kiện nổi bật sắp diễn ra</h4>
-                    <p class="text-white-50 small mb-0">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.</p>
+                    <p class="small mb-0" style="color: rgba(255, 255, 255, 0.7);">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.</p>
                 </div>
                 <% } %>
             </div>
             
             <div class="col-lg-6 reveal-up">
-                <span class="badge bg-success bg-opacity-20 text-success border border-success border-opacity-50 rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="letter-spacing: 1px;">SEASONAL TOURISM</span>
+                <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="background: rgba(45, 200, 100, 0.15); color: #4ade80 !important; border: 1px solid rgba(45, 200, 100, 0.3); letter-spacing: 1px;">
+                    <i class="bi bi-calendar3 me-1"></i> Trải nghiệm bốn mùa
+                </span>
                 <h2 class="text-white fw-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Trải nghiệm theo mùa độc đáo</h2>
-                <p class="text-white-50 mb-4" style="line-height: 1.7;">Mỗi mùa tại Bình Lợi đều được lập trình với các workshop, lễ hội và danh mục trải nghiệm độc nhất vô nhị để chữa lành tâm hồn bạn.</p>
+                <p class="mb-4" style="line-height: 1.7; color: rgba(255, 255, 255, 0.85); font-size: 1rem;">Mỗi mùa tại Bình Lợi đều được lập trình với các workshop, lễ hội và danh mục trải nghiệm độc nhất vô nhị để chữa lành tâm hồn bạn.</p>
                 
                 <div class="d-flex flex-column gap-3">
                     <% seasonalExperiences.forEach(se => { %>
-                    <div class="d-flex gap-3 align-items-center p-3 rounded-4 border border-success border-opacity-10" style="background: rgba(255,255,255,0.02); transition: all 0.3s;" onmouseover="this.style.background='rgba(255,255,255,0.06)'" onmouseout="this.style.background='rgba(255,255,255,0.02)'">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 46px; height: 46px; background: rgba(13, 148, 136, 0.15); color: #0d9488;">
+                    <div class="d-flex gap-3 align-items-center p-3 rounded-4 border" 
+                         style="background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.06) !important; transition: all 0.3s;" 
+                         onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.12)';" 
+                         onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.06)';">
+                        <% 
+                            let colorStyle = 'background: rgba(45, 122, 74, 0.25); color: #4ade80 !important; border: 1px solid rgba(45, 122, 74, 0.4);';
+                            if (se.icon_color === 'warning') colorStyle = 'background: rgba(240, 165, 0, 0.2); color: #ffc847 !important; border: 1px solid rgba(240, 165, 0, 0.4);';
+                            if (se.icon_color === 'danger') colorStyle = 'background: rgba(239, 68, 68, 0.2); color: #fca5a5 !important; border: 1px solid rgba(239, 68, 68, 0.4);';
+                            if (se.icon_color === 'info') colorStyle = 'background: rgba(59, 130, 246, 0.2); color: #93c5fd !important; border: 1px solid rgba(59, 130, 246, 0.4);';
+                        %>
+                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; <%= colorStyle %>">
                             <i class="bi <%= se.icon %> fs-5"></i>
                         </div>
                         <div>
                             <h6 class="text-white fw-bold mb-1" style="font-size: 0.95rem;"><%= se.title %></h6>
-                            <p class="text-white-50 mb-0 x-small" style="line-height: 1.5;"><%= se.description %></p>
+                            <p class="mb-0 x-small" style="line-height: 1.5; color: rgba(255, 255, 255, 0.8);"><%= se.description %></p>
                         </div>
                     </div>
                     <% }) %>
@@ -307,21 +348,20 @@ async function sendGlobalChat() {
 }
 </script>
 
-<!-- COUNTDOWN SCRIPT -->
 <% if (nextEvent) { %>
 <script>
-    const festivalDate = new Date("<%= festival.date %>").getTime();
+    const festivalDate = new Date("<%= festival.date instanceof Date ? festival.date.toISOString() : festival.date %>").getTime();
     const timer = setInterval(function() {
         const now = new Date().getTime();
         const distance = festivalDate - now;
         if (distance < 0) {
             clearInterval(timer);
-            document.getElementById("countdown").innerHTML = '<span class="text-warning fw-bold">SỰ KIỆN ĐANG DIỄN RA!</span>';
+            document.getElementById("countdown").innerHTML = '<span class="fw-bold fs-5" style="color: #ffc847 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">SỰ KIỆN ĐANG DIỄN RA!</span>';
             return;
         }
-        document.getElementById("days").innerHTML = Math.floor(distance / (1000 * 60 * 60 * 24));
-        document.getElementById("hours").innerHTML = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        document.getElementById("mins").innerHTML = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        document.getElementById("days").innerHTML = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+        document.getElementById("hours").innerHTML = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+        document.getElementById("mins").innerHTML = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
     }, 1000);
 </script>
 <% } %>
