@@ -1,13 +1,14 @@
-<!-- HERO: Full Viewport Cinematic -->
-<section class="hero-cinematic position-relative animate__animated animate__fadeIn" style="background: url('<%= settings.hero_image || '/images/hero-1.png' %>') center/cover no-repeat; height: 100vh; min-height: 600px;">
-    <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.7) 100%);"></div>
+<!-- HERO: Full Viewport Cinematic (Bright Theme) -->
+<section class="hero-cinematic position-relative animate__animated animate__fadeIn" style="background: url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=85') center/cover no-repeat; height: 100vh; min-height: 600px; filter: brightness(1.05) saturate(1.05);">
+    <!-- Soft light gradient fading into page background -->
+    <div class="hero-overlay position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(255,255,255,0.2) 0%, rgba(250,251,249,0.9) 100%);"></div>
     
-    <div class="hero-content text-center px-3" style="max-width: 900px; margin: 0 auto;">
-        <span class="badge bg-success bg-opacity-25 text-white border border-success border-opacity-50 rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm" style="letter-spacing: 2px; font-size: 0.75rem;">
-            <i class="bi bi-compass-fill me-1"></i> BÌNH LỢI HEALING EXPERIENCE
+    <div class="hero-content text-center px-3" style="max-width: 900px; margin: 0 auto; z-index: 10;">
+        <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-20 rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold shadow-sm" style="letter-spacing: 2px; font-size: 0.75rem; font-family: var(--font-accent);">
+            🌿 Chào mừng đến Bình Lợi
         </span>
-        <h1 class="hero-title reveal-up fw-black text-white display-3 mb-3" style="letter-spacing: -1px; text-shadow: 0 4px 15px rgba(0,0,0,0.3);"><%= season.title %></h1>
-        <p class="hero-desc reveal-up text-white-50 lead mb-4 mx-auto" style="max-width: 650px;">
+        <h1 class="hero-title reveal-up font-black text-dark display-3 mb-3" style="letter-spacing: -1px; text-shadow: 0 2px 10px rgba(255,255,255,0.8);"><%= season.title %></h1>
+        <p class="hero-desc reveal-up text-secondary lead mb-4 mx-auto" style="max-width: 650px; font-weight: 500; font-family: var(--font-body);">
             Khám phá Miền Tây ngay giữa lòng Sài Sông — Hệ sinh thái du lịch chữa lành thông minh giúp bạn tìm lại sự tĩnh lặng và năng lượng tích cực từ thiên nhiên.
         </p>
         <div class="d-flex justify-content-center reveal-up">
@@ -18,7 +19,7 @@
     </div>
     
     <!-- Scroll indicator -->
-    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 text-white animate-pulse" style="z-index: 10;">
+    <div class="position-absolute bottom-0 start-50 translate-middle-x mb-4 text-dark animate-pulse" style="z-index: 10;">
         <i class="bi bi-chevron-double-down fs-4 opacity-50"></i>
     </div>
 </section>
@@ -92,21 +93,17 @@
     </div>
 </section>
 
-<!-- EVENTS & SEASONAL (Premium responsive styling) -->
-<section class="py-5 position-relative" style="background: linear-gradient(135deg, #091f15 0%, #040e0a 100%); overflow: hidden;">
-    <!-- Ambient glowing blur effects for modern premium styling -->
-    <div class="position-absolute rounded-circle bg-success opacity-10" style="width: 300px; height: 300px; top: -100px; right: -50px; filter: blur(100px); pointer-events: none;"></div>
-    <div class="position-absolute rounded-circle bg-warning opacity-10" style="width: 250px; height: 250px; bottom: -80px; left: -50px; filter: blur(80px); pointer-events: none;"></div>
-
+<!-- EVENTS & SEASONAL (Bright and modern styling) -->
+<section class="py-5 position-relative" style="background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 100%); border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); overflow: hidden;">
     <div class="container py-5 position-relative" style="z-index: 2;">
         <div class="row align-items-center g-5">
             <div class="col-lg-6 reveal-up">
                 <% if (nextEvent) { %>
                 <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift h-100" 
-                     style="min-height: 480px; transition: all 0.4s var(--ease-out); <% if (nextEvent.image) { %>background: url('<%= fixImg(nextEvent.image) %>') center/cover no-repeat;<% } else { %>background: linear-gradient(135deg, #10331e 0%, #06170e 100%); border: 1px solid rgba(45, 122, 74, 0.25);<% } %>">
+                     style="min-height: 480px; transition: all 0.4s var(--ease-out); <% if (nextEvent.image) { %>background: url('<%= fixImg(nextEvent.image) %>') center/cover no-repeat;<% } else { %>background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); border: 1px solid rgba(45, 122, 74, 0.25);<% } %>">
                     
-                    <!-- Gradient overlay to guarantee full contrast for text readability -->
-                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.85) 100%); z-index: 1;"></div>
+                    <!-- Gradient overlay for text readability -->
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%); z-index: 1;"></div>
                     
                     <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100" style="z-index: 5; min-height: 480px;">
                         <div>
@@ -115,11 +112,11 @@
                                 <i class="bi bi-star-fill me-1"></i> Sự kiện nổi bật
                             </span>
                             
-                            <h2 class="text-white fw-black mb-3 font-display text-shadow-md" style="font-size: 2.2rem; line-height: 1.2;">
+                            <h2 class="text-white font-black mb-3 font-display" style="font-size: 2.2rem; line-height: 1.2;">
                                 <%= nextEvent.title %>
                             </h2>
                             
-                            <p class="mb-4" style="color: rgba(255, 255, 255, 0.88); font-size: 0.95rem; line-height: 1.6; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
+                            <p class="mb-4" style="color: rgba(255, 255, 255, 0.9); font-size: 0.95rem; line-height: 1.6;">
                                 <%= nextEvent.description %>
                             </p>
                         </div>
@@ -127,17 +124,17 @@
                         <div>
                             <!-- Countdown -->
                             <div id="countdown" class="d-flex gap-2 gap-sm-3 mb-4 flex-wrap">
-                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important; min-width: 75px; backdrop-filter: blur(5px);">
-                                    <h3 class="fw-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="days">00</h3>
-                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.7) !important;">Ngày</small>
+                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2) !important; min-width: 75px; backdrop-filter: blur(5px);">
+                                    <h3 class="font-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="days">00</h3>
+                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.8) !important;">Ngày</small>
                                 </div>
-                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important; min-width: 75px; backdrop-filter: blur(5px);">
-                                    <h3 class="fw-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="hours">00</h3>
-                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.7) !important;">Giờ</small>
+                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2) !important; min-width: 75px; backdrop-filter: blur(5px);">
+                                    <h3 class="font-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="hours">00</h3>
+                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.8) !important;">Giờ</small>
                                 </div>
-                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.08); border-color: rgba(255, 255, 255, 0.15) !important; min-width: 75px; backdrop-filter: blur(5px);">
-                                    <h3 class="fw-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="mins">00</h3>
-                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.7) !important;">Phút</small>
+                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2) !important; min-width: 75px; backdrop-filter: blur(5px);">
+                                    <h3 class="font-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="mins">00</h3>
+                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.8) !important;">Phút</small>
                                 </div>
                             </div>
                             
@@ -155,39 +152,39 @@
                     </div>
                 </div>
                 <% } else { %>
-                <div class="p-5 rounded-4 text-center border border-secondary border-opacity-25 shadow-premium" style="background: rgba(255,255,255,0.02); backdrop-filter: blur(5px);">
-                    <i class="bi bi-calendar-event display-4 text-white opacity-25 mb-3 d-block"></i>
-                    <h4 class="text-white fw-bold">Chưa có sự kiện nổi bật sắp diễn ra</h4>
-                    <p class="small mb-0" style="color: rgba(255, 255, 255, 0.7);">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.</p>
+                <div class="p-5 rounded-4 text-center border shadow-sm" style="background: #ffffff; border-color: var(--border) !important;">
+                    <i class="bi bi-calendar-event display-4 text-success opacity-25 mb-3 d-block"></i>
+                    <h4 class="text-dark fw-bold">Chưa có sự kiện nổi bật sắp diễn ra</h4>
+                    <p class="small mb-0 text-muted">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.</p>
                 </div>
                 <% } %>
             </div>
             
             <div class="col-lg-6 reveal-up">
-                <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="background: rgba(45, 200, 100, 0.15); color: #4ade80 !important; border: 1px solid rgba(45, 200, 100, 0.3); letter-spacing: 1px;">
+                <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
                     <i class="bi bi-calendar3 me-1"></i> Trải nghiệm bốn mùa
                 </span>
-                <h2 class="text-white fw-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Trải nghiệm theo mùa độc đáo</h2>
-                <p class="mb-4" style="line-height: 1.7; color: rgba(255, 255, 255, 0.85); font-size: 1rem;">Mỗi mùa tại Bình Lợi đều được lập trình với các workshop, lễ hội và danh mục trải nghiệm độc nhất vô nhị để chữa lành tâm hồn bạn.</p>
+                <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Trải nghiệm theo mùa độc đáo</h2>
+                <p class="mb-4 text-secondary" style="line-height: 1.7; font-size: 1rem;">Mỗi mùa tại Bình Lợi đều được lập trình với các workshop, lễ hội và danh mục trải nghiệm độc nhất vô nhị để chữa lành tâm hồn bạn.</p>
                 
                 <div class="d-flex flex-column gap-3">
                     <% seasonalExperiences.forEach(se => { %>
                     <div class="d-flex gap-3 align-items-center p-3 rounded-4 border" 
-                         style="background: rgba(255, 255, 255, 0.03); border-color: rgba(255, 255, 255, 0.06) !important; transition: all 0.3s;" 
-                         onmouseover="this.style.background='rgba(255, 255, 255, 0.08)'; this.style.borderColor='rgba(255, 255, 255, 0.12)';" 
-                         onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.borderColor='rgba(255, 255, 255, 0.06)';">
+                         style="background: #ffffff; border-color: var(--border) !important; transition: all 0.3s;" 
+                         onmouseover="this.style.background='var(--primary-50)'; this.style.borderColor='var(--primary-200)';" 
+                         onmouseout="this.style.background='#ffffff'; this.style.borderColor='var(--border)';" >
                         <% 
-                            let colorStyle = 'background: rgba(45, 122, 74, 0.25); color: #4ade80 !important; border: 1px solid rgba(45, 122, 74, 0.4);';
-                            if (se.icon_color === 'warning') colorStyle = 'background: rgba(240, 165, 0, 0.2); color: #ffc847 !important; border: 1px solid rgba(240, 165, 0, 0.4);';
-                            if (se.icon_color === 'danger') colorStyle = 'background: rgba(239, 68, 68, 0.2); color: #fca5a5 !important; border: 1px solid rgba(239, 68, 68, 0.4);';
-                            if (se.icon_color === 'info') colorStyle = 'background: rgba(59, 130, 246, 0.2); color: #93c5fd !important; border: 1px solid rgba(59, 130, 246, 0.4);';
+                            let colorStyle = 'background: rgba(45, 122, 74, 0.1); color: var(--primary) !important; border: 1px solid rgba(45, 122, 74, 0.2);';
+                            if (se.icon_color === 'warning') colorStyle = 'background: rgba(240, 165, 0, 0.1); color: var(--accent-dark) !important; border: 1px solid rgba(240, 165, 0, 0.2);';
+                            if (se.icon_color === 'danger') colorStyle = 'background: rgba(239, 68, 68, 0.1); color: var(--danger) !important; border: 1px solid rgba(239, 68, 68, 0.2);';
+                            if (se.icon_color === 'info') colorStyle = 'background: rgba(59, 130, 246, 0.1); color: var(--info) !important; border: 1px solid rgba(59, 130, 246, 0.2);';
                         %>
                         <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; <%= colorStyle %>">
                             <i class="bi <%= se.icon %> fs-5"></i>
                         </div>
                         <div>
-                            <h6 class="text-white fw-bold mb-1" style="font-size: 0.95rem;"><%= se.title %></h6>
-                            <p class="mb-0 x-small" style="line-height: 1.5; color: rgba(255, 255, 255, 0.8);"><%= se.description %></p>
+                            <h6 class="text-dark fw-bold mb-1" style="font-size: 0.95rem;"><%= se.title %></h6>
+                            <p class="mb-0 x-small text-secondary" style="line-height: 1.5;"><%= se.description %></p>
                         </div>
                     </div>
                     <% }) %>

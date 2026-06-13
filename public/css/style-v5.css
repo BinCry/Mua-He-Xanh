@@ -54,9 +54,9 @@
     --glass-border: rgba(255, 255, 255, 0.25);
     
     /* Typography */
-    --font-display: 'Times New Roman', Times, serif;
-    --font-body: 'Times New Roman', Times, serif;
-    --font-accent: 'Times New Roman', Times, serif;
+    --font-display: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+    --font-accent: 'Inter', system-ui, -apple-system, sans-serif;
     
     /* Radius */
     --radius-sm: 8px;
@@ -700,3 +700,11 @@ img { max-width: 100%; }
    PAGE LOADER (disabled)
    ========================================================================== */
 #page-loader { display: none !important; }
+
+/* Typography Weight Helpers */
+.font-extrabold {
+    font-weight: 800 !important;
+}
+.font-black {
+    font-weight: 900 !important;
+}
