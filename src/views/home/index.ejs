@@ -4,6 +4,7 @@
         <div class="row align-items-start g-5">
             <div class="col-lg-7 reveal-up">
                 <h1 class="hero-brand-title"><%= season.title || 'BÌNH LỢI' %></h1>
+                <div class="hero-title-line"></div>
                 <p class="hero-tagline">KHÁM PHÁ MIỀN TÂY GIỮA LÒNG SÀI GÒN</p>
                 <p class="text-secondary mb-4" style="max-width: 520px; line-height: 1.8; font-size: 0.95rem;">
                     Bình Lợi là vùng đất yên bình, nổi bật với làng mai, làng nhang và 
@@ -11,11 +12,11 @@
                     nghiệm gần gũi và đậm chất địa phương.
                 </p>
                 <div class="d-flex gap-3 flex-wrap">
-                    <a href="/explore" class="btn btn-premium rounded-pill px-4 py-3 fw-black" style="font-size: 0.82rem; letter-spacing: 1px;">
-                        <i class="bi bi-geo-alt me-2"></i>EXPLORE LOCATIONS
+                    <a href="/explore" class="btn-explore-new">
+                        <i class="bi bi-geo-alt"></i> EXPLORE LOCATIONS
                     </a>
-                    <a href="/map" class="btn btn-ghost rounded-pill px-4 py-3 fw-bold" style="font-size: 0.82rem; letter-spacing: 0.5px;">
-                        VIEW MAP <i class="bi bi-arrow-right ms-2"></i>
+                    <a href="/map" class="btn-map-new">
+                        VIEW MAP <i class="bi bi-arrow-right"></i>
                     </a>
                 </div>
             </div>
@@ -46,9 +47,16 @@
     </div>
 </section>
 
-<!-- STATS: Dark Section with Impressive Numbers -->
+<!-- STATS: Dark Section with Impressive Numbers and Wave Separators -->
 <section class="stats-dark">
-    <div class="container">
+    <!-- Top Wave divider (white wave curving into the dark section) -->
+    <div class="position-absolute top-0 start-0 w-100 overflow-hidden" style="height: 60px; pointer-events: none; z-index: 2;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
+            <path d="M0,0 C480,50 960,50 1440,0 L1440,60 L0,60 Z" fill="#ffffff"></path>
+        </svg>
+    </div>
+
+    <div class="container py-4">
         <h2 class="stats-heading text-center">NHỮNG CON SỐ ẤN TƯỢNG</h2>
         <div class="row g-4 text-center">
             <div class="col-6 col-md-3">
@@ -77,6 +85,13 @@
             </div>
         </div>
     </div>
+
+    <!-- Bottom Wave divider (white wave curving out of the dark section) -->
+    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="height: 60px; pointer-events: none; z-index: 2;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
+            <path d="M0,60 C480,10 960,10 1440,60 L1440,0 L0,0 Z" fill="#ffffff"></path>
+        </svg>
+    </div>
 </section>
 
 <!-- DESTINATIONS: Equal Bento Grid -->
@@ -89,7 +104,7 @@
                 <p class="text-muted">Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên chữa lành.</p>
             </div>
             <div class="col-md-4 text-md-end reveal-up">
-                <a href="/explore" class="btn btn-outline-primary rounded-pill px-4 py-2 fw-bold small">Xem tất cả địa điểm <i class="bi bi-arrow-right ms-1"></i></a>
+                <a href="/explore" class="btn btn-view-all-dest rounded-pill px-4 py-2 fw-bold">XEM TẤT CẢ ĐỊA ĐIỂM <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
         </div>
         
@@ -102,7 +117,7 @@
                         <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); z-index: 2;"></div>
                         
                         <div class="position-absolute bottom-0 start-0 w-100 p-4" style="z-index: 5;">
-                            <span class="badge bg-success bg-opacity-25 text-white border border-success border-opacity-50 rounded-pill px-2 py-1 mb-2 d-inline-block x-small text-uppercase"><%= dest.type %></span>
+                            <span class="badge-dest-type mb-2 d-inline-block"><%= dest.type %></span>
                             <h5 class="text-white font-black mb-1 font-display" style="font-size: 1.2rem;"><%= dest.name %></h5>
                             <p class="text-white-50 mb-0 line-clamp-2" style="font-size: 0.8rem; line-height: 1.5;"><%= dest.short_desc || dest.short_description %></p>
                         </div>
@@ -121,7 +136,7 @@
             <div class="col-lg-6 reveal-up">
                 <% if (nextEvent) { %>
                 <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift h-100" 
-                     style="min-height: 480px; transition: all 0.4s var(--ease-out); <% if (nextEvent.image) { %>background: url('<%= fixImg(nextEvent.image) %>') center/cover no-repeat;<% } else { %>background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); border: 1px solid rgba(45, 122, 74, 0.25);<% } %>">
+                     style="min-height: 480px; transition: all 0.4s var(--ease-out); background: linear-gradient(135deg, #0d2315 0%, #06120b 100%); border: 1px solid rgba(45, 122, 74, 0.15);">
                     
                     <!-- Gradient overlay for text readability -->
                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%); z-index: 1;"></div>
@@ -129,34 +144,25 @@
                     <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100" style="z-index: 5; min-height: 480px;">
                         <div>
                             <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" 
-                                  style="background: rgba(240, 165, 0, 0.2); color: #ffc847; border: 1px solid rgba(240, 165, 0, 0.4); letter-spacing: 1.5px;">
-                                <i class="bi bi-star-fill me-1"></i> Sự kiện nổi bật
+                                  style="background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); letter-spacing: 1px;">
+                                <i class="bi bi-star-fill me-1" style="color: #ffc847;"></i> Sự kiện nổi bật
                             </span>
                             
                             <h2 class="text-white font-black mb-3 font-display" style="font-size: 2.2rem; line-height: 1.2;">
                                 <%= nextEvent.title %>
                             </h2>
                             
-                            <p class="mb-4" style="color: rgba(255, 255, 255, 0.9); font-size: 0.95rem; line-height: 1.6;">
+                            <p class="mb-4" style="color: rgba(255, 255, 255, 0.7); font-size: 0.95rem; line-height: 1.6;">
                                 <%= nextEvent.description %>
                             </p>
                         </div>
                         
                         <div>
-                            <!-- Countdown -->
-                            <div id="countdown" class="d-flex gap-2 gap-sm-3 mb-4 flex-wrap">
-                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2) !important; min-width: 75px; backdrop-filter: blur(5px);">
-                                    <h3 class="font-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="days">00</h3>
-                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.8) !important;">Ngày</small>
-                                </div>
-                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2) !important; min-width: 75px; backdrop-filter: blur(5px);">
-                                    <h3 class="font-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="hours">00</h3>
-                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.8) !important;">Giờ</small>
-                                </div>
-                                <div class="text-center px-3 py-2 rounded-3 border" style="background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2) !important; min-width: 75px; backdrop-filter: blur(5px);">
-                                    <h3 class="font-black text-warning mb-0 fs-2" style="color: #ffc847 !important;" id="mins">00</h3>
-                                    <small class="x-small text-uppercase fw-bold" style="font-size: 0.65rem; color: rgba(255, 255, 255, 0.8) !important;">Phút</small>
-                                </div>
+                            <!-- Event status label -->
+                            <div class="mb-4">
+                                <span class="font-extrabold text-uppercase x-small" style="color: #ffc847; letter-spacing: 1.5px;">
+                                    SỰ KIỆN ĐANG DIỄN RA!
+                                </span>
                             </div>
                             
                             <div class="d-flex flex-column gap-2" style="font-size: 0.9rem;">
@@ -166,7 +172,7 @@
                                 </div>
                                 <div class="d-flex align-items-center gap-2 mt-1" style="color: rgba(255, 255, 255, 0.95);">
                                     <i class="bi bi-calendar-event text-warning fs-5" style="color: #ffc847 !important;"></i> 
-                                    <span><%= new Date(nextEvent.event_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+                                    <span>lúc <%= new Date(nextEvent.event_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
                                 </div>
                             </div>
                         </div>
@@ -251,7 +257,7 @@
                         </div>
                     </div>
                     <% } else { %>
-                    <div class="card-glass p-4">
+                    <div class="card-social-new">
                         <div class="d-flex align-items-center gap-2 mb-3">
                             <img src="<%= item.avatar %>" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid var(--primary-50);">
                             <div>
@@ -272,7 +278,7 @@
         </div>
         
         <div class="text-center reveal-up">
-            <a href="/reviews" class="btn btn-premium">Chia sẻ khoảnh khắc của bạn <i class="bi bi-arrow-right ms-2"></i></a>
+            <a href="/reviews" class="btn btn-share-moment rounded-pill px-4 py-3 fw-bold">CHIA SẺ KHOẢNH KHẮC CỦA BẠN <i class="bi bi-arrow-right ms-2"></i></a>
         </div>
     </div>
 </section>
