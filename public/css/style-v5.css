@@ -74,7 +74,7 @@
 /* ==========================================================================
    BASE
    ========================================================================== */
-*, *::before, *::after { box-sizing: border-box; font-family: 'Times New Roman', Times, serif !important; }
+*, *::before, *::after { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif !important; }
 
 body {
     background-color: var(--bg);
@@ -707,4 +707,197 @@ img { max-width: 100%; }
 }
 .font-black {
     font-weight: 900 !important;
+}
+
+/* ==========================================================================
+   HERO — New 2-Column Layout
+   ========================================================================== */
+.hero-new {
+    background: var(--bg);
+    padding-top: 120px;
+    padding-bottom: 60px;
+    min-height: auto;
+}
+
+.hero-brand-title {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 900 !important;
+    font-size: clamp(3.5rem, 7vw, 5.5rem);
+    letter-spacing: -3px;
+    color: var(--primary-dark);
+    line-height: 0.95;
+    margin-bottom: 8px;
+    position: relative;
+}
+
+.hero-brand-title::after {
+    content: '';
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--primary-dark);
+    opacity: 0.2;
+}
+
+.hero-tagline {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 800 !important;
+    font-size: 0.8rem;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--primary);
+    margin-bottom: 24px;
+    font-style: italic;
+}
+
+/* Quick Info Card */
+.quick-info-card {
+    background: #ffffff;
+    border-radius: var(--radius-xl);
+    padding: 32px 36px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-light);
+}
+
+.quick-info-card .qi-title {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 900 !important;
+    font-size: 1rem;
+    letter-spacing: 2px;
+    color: #c0392b;
+    text-transform: uppercase;
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.quick-info-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0 14px;
+}
+
+.quick-info-table td {
+    vertical-align: top;
+    padding: 0;
+}
+
+.quick-info-table .qi-label {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.72rem;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    white-space: nowrap;
+    padding-right: 20px;
+    min-width: 110px;
+}
+
+.quick-info-table .qi-value {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.88rem;
+    color: var(--text);
+}
+
+.quick-info-table .qi-value.accent {
+    color: var(--accent-dark);
+}
+
+/* ==========================================================================
+   STATS — Dark Section
+   ========================================================================== */
+.stats-dark {
+    background: linear-gradient(135deg, #1c1a10 0%, #2a2518 30%, #1e1c12 70%, #1a1810 100%);
+    position: relative;
+    overflow: hidden;
+    padding: 80px 0;
+}
+
+.stats-dark::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="0.5" x="0" y="0" width="100" height="100"/></svg>') repeat;
+    z-index: 0;
+}
+
+.stats-dark .container {
+    position: relative;
+    z-index: 1;
+}
+
+.stats-heading {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 900 !important;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    color: #ffffff;
+    letter-spacing: -1px;
+    margin-bottom: 48px;
+    line-height: 1.2;
+}
+
+.stat-item-dark {
+    padding: 20px 10px;
+    position: relative;
+}
+
+.stat-item-dark::after {
+    content: '';
+    position: absolute;
+    top: 20%;
+    right: 0;
+    height: 60%;
+    width: 1px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.col-md-3:last-child .stat-item-dark::after {
+    display: none;
+}
+
+.stat-number {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 900 !important;
+    font-size: clamp(2.2rem, 4vw, 3.5rem);
+    color: #ffffff;
+    line-height: 1;
+    letter-spacing: -1px;
+}
+
+.stat-text {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important;
+    font-size: 0.68rem;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+    margin-top: 10px;
+}
+
+/* ==========================================================================
+   RESPONSIVE — New sections
+   ========================================================================== */
+@media (max-width: 991.98px) {
+    .hero-new { padding-top: 100px; padding-bottom: 40px; }
+    .hero-brand-title { font-size: 3rem; letter-spacing: -2px; }
+    .quick-info-card { margin-top: 20px; }
+    .stats-dark { padding: 60px 0; }
+    .stats-heading { font-size: 1.8rem; margin-bottom: 32px; }
+}
+
+@media (max-width: 575.98px) {
+    .hero-brand-title { font-size: 2.5rem; }
+    .hero-tagline { font-size: 0.7rem; letter-spacing: 2px; }
+    .quick-info-card { padding: 24px; }
+    .quick-info-table .qi-label { font-size: 0.65rem; min-width: 80px; }
+    .quick-info-table .qi-value { font-size: 0.82rem; }
+    .stat-number { font-size: 2rem; }
+    .stat-item-dark::after { display: none; }
 }
