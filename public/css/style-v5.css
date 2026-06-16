@@ -4,13 +4,13 @@
    ========================================================================== */
 
 :root {
-    /* Core Palette: Nature Healing */
-    --primary: #1a4d2e;
-    --primary-light: #2d7a4a;
-    --primary-dark: #0f3320;
-    --primary-50: #f0f7f2;
-    --primary-100: #d4ead9;
-    --primary-200: #a8d5b3;
+    /* Core Palette: Nature Healing (Sage Green) */
+    --primary: #7a9e6f;
+    --primary-light: #94b789;
+    --primary-dark: #5e7e54;
+    --primary-50: #f4f8f3;
+    --primary-100: #e2ede0;
+    --primary-200: #c4dac0;
     
     --accent: #f0a500;
     --accent-light: #ffc847;
@@ -795,11 +795,13 @@ img { max-width: 100%; }
 
 /* Quick Info Card */
 .quick-info-card {
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
     border-radius: 20px;
     padding: 32px 36px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    border: 1px solid #f1f5f9;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+    border: 1px solid rgba(255, 255, 255, 0.4);
 }
 
 .quick-info-card .qi-title {
