@@ -1,5 +1,5 @@
 <!-- HERO: 2-Column Layout with Quick Info Card -->
-<section class="hero-new" style="<% if (settings.hero_image) { %>background: linear-gradient(rgba(213, 210, 201, 0.85), rgba(213, 210, 201, 0.9)), url('<%= fixImg(settings.hero_image) %>') center/cover no-repeat;<% } else { %>background: #d5d2c9;<% } %>">
+<section class="hero-new" style="<% if (settings.hero_image && settings.hero_image !== '/images/hero-1.png' && settings.hero_image !== 'undefined') { %>background: linear-gradient(rgba(213, 210, 201, 0.85), rgba(213, 210, 201, 0.9)), url('<%= fixImg(settings.hero_image) %>') center/cover no-repeat;<% } else { %>background: #d5d2c9;<% } %>">
     <div class="container">
         <div class="row align-items-start g-5">
             <div class="col-lg-7 reveal-up">
