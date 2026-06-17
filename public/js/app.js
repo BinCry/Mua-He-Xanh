@@ -1,5 +1,5 @@
 /**
- * BÌNH LỢI HEALING — CORE JS
+ * BÌNH LỢI HEALING - CORE JS
  * Quản lý Session, AJAX và các tương tác UI
  */
 

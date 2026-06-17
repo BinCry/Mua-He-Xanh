@@ -1,5 +1,5 @@
 /**
- * Analytics Middleware — Track real page views & session duration
+ * Analytics Middleware - Track real page views & session duration
  */
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
@@ -22,7 +22,7 @@ module.exports = function analyticsMiddleware(req, res, next) {
         const THROTTLE_LIMIT = 15 * 60 * 1000; // 15 minutes in milliseconds
 
         if (lastVisited && (startTime - lastVisited < THROTTLE_LIMIT)) {
-            shouldLogPageView = false; // Duplicate page reload within limit — do not log
+            shouldLogPageView = false; // Duplicate page reload within limit - do not log
         }
         // Update visited timestamp
         req.session.visitedPages[pageUrl] = startTime;
@@ -39,7 +39,7 @@ module.exports = function analyticsMiddleware(req, res, next) {
             `INSERT INTO analytics (id, session_id, event, page_url, user_agent, duration_ms, ip_address, created_at) 
              VALUES (?, ?, 'page_view', ?, ?, ?, ?, NOW())`,
             [uuidv4(), sessionId, pageUrl, (req.headers['user-agent'] || '').substring(0, 500), duration, ip]
-        ).catch(() => {}); // Silent fail — analytics should never break the app
+        ).catch(() => {}); // Silent fail - analytics should never break the app
     });
 
     next();

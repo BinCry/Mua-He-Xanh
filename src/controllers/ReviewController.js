@@ -1,5 +1,5 @@
 /**
- * Review Controller — Community Social Feed
+ * Review Controller - Community Social Feed
  */
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');

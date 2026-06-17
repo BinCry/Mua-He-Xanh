@@ -1,5 +1,5 @@
 /**
- * Admin Controller — Cấp Xã (Quản trị viên hệ thống)
+ * Admin Controller - Cấp Xã (Quản trị viên hệ thống)
  * Dashboard với biểu đồ thực tế, quản lý users, destinations, settings, reviews, events
  */
 const db = require('../core/database');
@@ -416,7 +416,7 @@ const AdminController = {
             const parsedLat = (lat && String(lat).trim() !== '') ? parseFloat(lat) : 10.75;
             const parsedLng = (lng && String(lng).trim() !== '') ? parseFloat(lng) : 106.54;
 
-            // Insert Destination — all NOT NULL columns explicitly provided
+            // Insert Destination - all NOT NULL columns explicitly provided
             await db.query(
                 `INSERT INTO destinations 
                  (id, name, slug, type, short_desc, description, open_hours, cost, lat, lng, points,

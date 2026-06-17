@@ -1,5 +1,5 @@
 /**
- * Migration V2 — Platform Overhaul
+ * Migration V2 - Platform Overhaul
  * Run: node src/scripts/migrate_v2.js
  */
 const db = require('../core/database');

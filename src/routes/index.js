@@ -136,35 +136,35 @@ router.post('/api/reviews/comment', ensureAuthenticated, ReviewController.commen
 // Profile API
 router.post('/api/redeem-reward', ensureAuthenticated, ProfileController.redeemReward);
 
-// Admin API — Users
+// Admin API - Users
 router.post('/api/admin/create-user', ensureAdmin, AdminController.createUser);
 router.post('/api/admin/update-user', ensureAdmin, AdminController.updateUser);
 router.post('/api/admin/delete-user', ensureAdmin, AdminController.deleteUser);
 
-// Admin API — Destinations
+// Admin API - Destinations
 router.post('/api/admin/resolve-maps-link', ensureAdmin, AdminController.resolveMapsLink);
 router.post('/api/admin/create-destination', ensureAdmin, AdminController.createDestination);
 router.post('/api/admin/update-destination', ensureAdmin, AdminController.updateDestination);
 router.post('/api/admin/delete-destination', ensureAdmin, AdminController.deleteDestination);
 router.post('/api/admin/toggle-destination', ensureAdmin, AdminController.toggleDestination);
 
-// Admin API — Workshops
+// Admin API - Workshops
 router.post('/api/admin/create-workshop', ensureAdmin, AdminController.createWorkshop);
 router.post('/api/admin/update-workshop', ensureAdmin, AdminController.updateWorkshop);
 router.post('/api/admin/delete-workshop', ensureAdmin, AdminController.deleteWorkshop);
 
-// Admin API — Reviews
+// Admin API - Reviews
 router.post('/api/admin/delete-review', ensureAdmin, AdminController.deleteReview);
 
-// Admin API — Events
+// Admin API - Events
 router.post('/api/admin/create-event', ensureAdmin, AdminController.createEvent);
 router.post('/api/admin/update-event', ensureAdmin, AdminController.updateEvent);
 router.post('/api/admin/delete-event', ensureAdmin, AdminController.deleteEvent);
 
-// Admin API — Settings
+// Admin API - Settings
 router.post('/api/admin/update-settings', ensureAdmin, AdminController.updateSettings);
 
-// Admin API — Journey Templates
+// Admin API - Journey Templates
 router.post('/api/admin/create-journey-template', ensureAdmin, AdminController.createJourneyTemplate);
 router.post('/api/admin/update-journey-template', ensureAdmin, AdminController.updateJourneyTemplate);
 router.post('/api/admin/delete-journey-template', ensureAdmin, AdminController.deleteJourneyTemplate);

@@ -1,6 +1,6 @@
 /* ==========================================================================
-   BÌNH LỢI HEALING — Premium Design System v6
-   "Tropical Healing" — Nature Green + Golden Accent
+   BÌNH LỢI HEALING - Premium Design System v6
+   "Tropical Healing" - Nature Green + Golden Accent
    ========================================================================== */
 
 :root {
@@ -710,7 +710,7 @@ img { max-width: 100%; }
 }
 
 /* ==========================================================================
-   HERO — New 2-Column Layout
+   HERO - New 2-Column Layout
    ========================================================================== */
 .hero-new {
     background: #d5d2c9;
@@ -852,7 +852,7 @@ img { max-width: 100%; }
 }
 
 /* ==========================================================================
-   STATS — Dark Section
+   STATS - Dark Section
    ========================================================================== */
 .stats-dark {
     background-image: linear-gradient(135deg, rgba(20, 18, 12, 0.92) 0%, rgba(30, 26, 18, 0.95) 100%), url('https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?auto=format&fit=crop&w=1200&q=80');
@@ -899,7 +899,7 @@ img { max-width: 100%; }
 }
 
 /* ==========================================================================
-   DESTINATIONS — Custom styles
+   DESTINATIONS - Custom styles
    ========================================================================== */
 .badge-dest-type {
     background-color: #2d7a4a;
@@ -929,7 +929,7 @@ img { max-width: 100%; }
 }
 
 /* ==========================================================================
-   SOCIAL — Custom styles
+   SOCIAL - Custom styles
    ========================================================================== */
 .card-social-new {
     background: #ffffff;
@@ -959,7 +959,7 @@ img { max-width: 100%; }
 }
 
 /* ==========================================================================
-   RESPONSIVE — New sections
+   RESPONSIVE - New sections
    ========================================================================== */
 @media (max-width: 991.98px) {
     .hero-new { padding-top: 120px; padding-bottom: 60px; }

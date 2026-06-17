@@ -8,7 +8,7 @@ const NotificationController = require('./NotificationController');
 
 const CartController = {
 
-    // GET /cart — Giỏ hàng
+    // GET /cart - Giỏ hàng
     index: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -35,7 +35,7 @@ const CartController = {
         }
     },
 
-    // POST /api/cart/add — Thêm vào giỏ
+    // POST /api/cart/add - Thêm vào giỏ
     add: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -71,7 +71,7 @@ const CartController = {
         }
     },
 
-    // POST /api/cart/update — Cập nhật số lượng
+    // POST /api/cart/update - Cập nhật số lượng
     update: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -90,7 +90,7 @@ const CartController = {
         }
     },
 
-    // POST /api/cart/remove — Xóa khỏi giỏ
+    // POST /api/cart/remove - Xóa khỏi giỏ
     remove: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -103,7 +103,7 @@ const CartController = {
         }
     },
 
-    // POST /api/cart/checkout — Đặt hàng
+    // POST /api/cart/checkout - Đặt hàng
     checkout: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -157,7 +157,7 @@ const CartController = {
         }
     },
 
-    // GET /my-orders — Lịch sử đơn hàng
+    // GET /my-orders - Lịch sử đơn hàng
     orders: async (req, res) => {
         try {
             const user = req.user || req.session.user;

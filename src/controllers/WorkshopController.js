@@ -8,7 +8,7 @@ const NotificationController = require('./NotificationController');
 
 const WorkshopController = {
 
-    // GET /workshops — Danh sách workshop
+    // GET /workshops - Danh sách workshop
     index: async (req, res) => {
         try {
             const typeFilter = req.query.type || null;
@@ -42,7 +42,7 @@ const WorkshopController = {
         }
     },
 
-    // GET /workshops/:id — Chi tiết workshop + form đăng ký
+    // GET /workshops/:id - Chi tiết workshop + form đăng ký
     show: async (req, res) => {
         try {
             const workshop = await Workshop.getById(req.params.id);
@@ -74,7 +74,7 @@ const WorkshopController = {
         }
     },
 
-    // POST /api/workshop/book — Đặt chỗ workshop (JSON API, pattern Relioo)
+    // POST /api/workshop/book - Đặt chỗ workshop (JSON API, pattern Relioo)
     book: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -130,7 +130,7 @@ const WorkshopController = {
         }
     },
 
-    // POST /api/workshop/review — Đánh giá sau workshop
+    // POST /api/workshop/review - Đánh giá sau workshop
     review: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -152,7 +152,7 @@ const WorkshopController = {
         }
     },
 
-    // GET /my-workshops — Lịch sử đặt chỗ của du khách
+    // GET /my-workshops - Lịch sử đặt chỗ của du khách
     myBookings: async (req, res) => {
         try {
             const user = req.user || req.session.user;

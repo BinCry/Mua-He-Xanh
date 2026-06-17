@@ -112,7 +112,7 @@ if (config.auth.google.clientId && config.auth.google.clientId !== 'MISSING_CLIE
     ));
     console.log('✅ Google OAuth Strategy loaded');
 } else {
-    console.log('⚠️  Google OAuth: Chưa cấu hình Client ID — Bỏ qua');
+    console.log('⚠️  Google OAuth: Chưa cấu hình Client ID - Bỏ qua');
 }
 
 // --- FACEBOOK OAUTH STRATEGY (Safe init - won't crash if keys missing) ---
@@ -159,7 +159,7 @@ if (config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID
     ));
     console.log('✅ Facebook OAuth Strategy loaded');
 } else {
-    console.log('⚠️  Facebook OAuth: Chưa cấu hình App ID — Bỏ qua');
+    console.log('⚠️  Facebook OAuth: Chưa cấu hình App ID - Bỏ qua');
 }
 
 module.exports = passport;

@@ -6,7 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const NotificationController = {
 
-    // GET /api/notifications — Lấy thông báo
+    // GET /api/notifications - Lấy thông báo
     getAll: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -27,7 +27,7 @@ const NotificationController = {
         }
     },
 
-    // POST /api/notifications/read — Đánh dấu đã đọc
+    // POST /api/notifications/read - Đánh dấu đã đọc
     markRead: async (req, res) => {
         try {
             const user = req.user || req.session.user;

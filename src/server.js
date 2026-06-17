@@ -76,7 +76,7 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// Analytics middleware — track real page views
+// Analytics middleware - track real page views
 const analyticsMiddleware = require('./middleware/analytics');
 app.use(analyticsMiddleware);
 
@@ -96,7 +96,7 @@ app.use((req, res, next) => {
         : autoBaseUrl;
 
     res.locals.baseUrl = baseUrl;
-    res.locals.appName = 'Bình Lợi – Miền Tây giữa lòng Sài Gòn';
+    res.locals.appName = 'Bình Lợi - Miền Tây giữa lòng Sài Gòn';
     res.locals.session = req.session;
     res.locals.user = req.user || req.session.user || null;
     

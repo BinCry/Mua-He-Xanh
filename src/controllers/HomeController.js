@@ -25,20 +25,20 @@ class HomeController {
             const month = now.getMonth() + 1;
             
             let season = 'summer';
-            let seasonTitle = settingsMap.hero_title || 'Bình Lợi – Miền Tây giữa lòng Sài Gòn';
+            let seasonTitle = settingsMap.hero_title || 'Bình Lợi - Miền Tây giữa lòng Sài Gòn';
             let seasonSlogan = settingsMap.hero_slogan || 'Miệt vườn giữa phố, trải nghiệm bản sắc';
 
             if (month >= 11 || month <= 3) {
                 season = 'spring';
                 if (!settingsMap.hero_title) {
-                    seasonTitle = 'Xuân Bình Lợi – Sắc Mai Vàng';
+                    seasonTitle = 'Xuân Bình Lợi - Sắc Mai Vàng';
                     seasonSlogan = 'Hồn quê giữa thành phố mới';
                 }
             } else if (month >= 7 && month <= 10) {
                 season = 'autumn';
                 if (!settingsMap.hero_title) {
-                    seasonTitle = 'Mùa Hoa Đăng – Bình Lợi Chữa Lành';
-                    seasonSlogan = 'Bình từ tâm – Lợi từ tầm';
+                    seasonTitle = 'Mùa Hoa Đăng - Bình Lợi Chữa Lành';
+                    seasonSlogan = 'Bình từ tâm - Lợi từ tầm';
                 }
             }
 
@@ -88,7 +88,7 @@ class HomeController {
                 ORDER BY sort_order ASC
             `);
 
-            // Real Social Feed — actual reviews from community
+            // Real Social Feed - actual reviews from community
             const [realReviews] = await db.query(`
                 SELECT r.*, u.full_name, u.avatar, d.name as destination_name
                 FROM reviews r
@@ -115,7 +115,7 @@ class HomeController {
             });
 
             res.render('home/index', {
-                title: 'Bình Lợi – Miền Tây giữa lòng Sài Gòn',
+                title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
                 featured,
                 season: { type: season, title: seasonTitle, slogan: seasonSlogan },
                 festival: nextFestival,

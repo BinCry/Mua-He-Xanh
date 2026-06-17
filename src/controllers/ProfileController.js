@@ -9,7 +9,7 @@ const UserBadge = require('../models/UserBadge');
 
 const ProfileController = {
 
-    // GET /profile — Hồ sơ cá nhân
+    // GET /profile - Hồ sơ cá nhân
     index: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -62,7 +62,7 @@ const ProfileController = {
         }
     },
 
-    // GET /profile/edit — Form chỉnh sửa (pattern Relioo updateProfile)
+    // GET /profile/edit - Form chỉnh sửa (pattern Relioo updateProfile)
     editPage: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -79,7 +79,7 @@ const ProfileController = {
         }
     },
 
-    // POST /profile/update — Cập nhật hồ sơ (API JSON pattern Relioo)
+    // POST /profile/update - Cập nhật hồ sơ (API JSON pattern Relioo)
     update: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -105,7 +105,7 @@ const ProfileController = {
         }
     },
 
-    // GET /profile/rewards — Điểm thưởng & đổi quà (Chương 5.15)
+    // GET /profile/rewards - Điểm thưởng & đổi quà (Chương 5.15)
     rewards: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -131,7 +131,7 @@ const ProfileController = {
         }
     },
 
-    // POST /api/redeem-reward — Đổi điểm lấy quà
+    // POST /api/redeem-reward - Đổi điểm lấy quà
     redeemReward: async (req, res) => {
         try {
             const user = req.user || req.session.user;

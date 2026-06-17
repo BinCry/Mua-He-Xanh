@@ -1,5 +1,5 @@
 /**
- * Migration V3 — Seasonal Journey Templates
+ * Migration V3 - Seasonal Journey Templates
  * Run: node src/scripts/migrate_v3.js
  */
 const db = require('../core/database');
