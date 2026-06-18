@@ -172,4 +172,8 @@ router.post('/api/admin/delete-journey-template', ensureAdmin, AdminController.d
 // General Upload API
 router.post('/api/upload', ensureAuthenticated, upload.single('image'), UploadController.uploadImage);
 
+// Logo Upload API (Admin only)
+router.post('/api/admin/upload-logo', ensureAdmin, upload.single('image'), UploadController.uploadLogo);
+
 module.exports = router;
+

@@ -8,6 +8,36 @@
 
 <form id="settingsForm" onsubmit="saveSettings(event)">
     <div class="row g-4">
+        <!-- Logo & Brand Identity -->
+        <div class="col-12">
+            <div class="chart-card">
+                <h6 class="fw-bold mb-3"><i class="bi bi-palette me-2" style="color: var(--admin-primary);"></i>Logo & Bộ nhận diện Thương hiệu</h6>
+                <div class="row g-4 align-items-center">
+                    <div class="col-md-3 text-center">
+                        <div class="p-3 rounded-4" style="background: var(--admin-surface); border: 2px dashed var(--admin-border);">
+                            <img id="logo_preview" src="/images/logo.png" alt="Logo" style="max-height: 100px; max-width: 100%; object-fit: contain;" onerror="this.src='/images/logo.png'">
+                            <div class="mt-2">
+                                <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('logo_file').click()">
+                                    <i class="bi bi-upload me-1"></i>Đổi Logo
+                                </button>
+                                <input type="file" id="logo_file" class="d-none" accept="image/*" onchange="uploadLogo(this)">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" style="color: var(--admin-muted);">Tên thương hiệu</label>
+                            <input type="text" name="brand_name" class="form-control admin-input" value="<%= settings.brand_name || 'BÌNH LỢI' %>" placeholder="Tên thương hiệu...">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold" style="color: var(--admin-muted);">Slogan / Khẩu hiệu</label>
+                            <input type="text" name="brand_subtext" class="form-control admin-input" value="<%= settings.brand_subtext || 'Chạm vào bình yên' %>" placeholder="Slogan thương hiệu...">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Hero Section -->
         <div class="col-lg-6">
             <div class="chart-card">
@@ -129,6 +159,40 @@
 </form>
 
 <script>
+async function uploadLogo(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const preview = document.getElementById('logo_preview');
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang tải...';
+    
+    try {
+        const res = await axios.post('/api/admin/upload-logo', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            // Add cache-buster to refresh the preview
+            preview.src = res.data.url + '?v=' + Date.now();
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã cập nhật!';
+            
+            // Show success toast
+            alert('Logo đã được cập nhật thành công! Tải lại trang để thấy thay đổi.');
+        }
+    } catch (err) {
+        alert('Lỗi tải logo: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 3000);
+    }
+}
+
 async function uploadFile(input, targetId, previewId) {
     if (!input.files || !input.files[0]) return;
     
