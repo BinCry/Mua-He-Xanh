@@ -15,7 +15,7 @@
                 <div class="row g-4 align-items-center">
                     <div class="col-md-3 text-center">
                         <div class="p-3 rounded-4" style="background: var(--admin-surface); border: 2px dashed var(--admin-border);">
-                            <img id="logo_preview" src="/images/logo.png" alt="Logo" style="max-height: 100px; max-width: 100%; object-fit: contain;" onerror="this.src='/images/logo.png'">
+                            <img id="logo_preview" src="<%= settings.brand_logo || '/images/logo.png' %>" alt="Logo" style="max-height: 100px; max-width: 100%; object-fit: contain;" onerror="this.src='/images/logo.png'">
                             <div class="mt-2">
                                 <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('logo_file').click()">
                                     <i class="bi bi-upload me-1"></i>Đổi Logo
@@ -23,6 +23,7 @@
                                 <input type="file" id="logo_file" class="d-none" accept="image/*" onchange="uploadLogo(this)">
                             </div>
                         </div>
+                        <input type="hidden" name="brand_logo" id="brand_logo" value="<%= settings.brand_logo || '/images/logo.png' %>">
                     </div>
                     <div class="col-md-9">
                         <div class="mb-3">
@@ -139,8 +140,8 @@
                         <input type="text" name="social_facebook" class="form-control admin-input" value="<%= settings.social_facebook || '' %>" placeholder="URL Facebook...">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">YouTube</label>
-                        <input type="text" name="social_youtube" class="form-control admin-input" value="<%= settings.social_youtube || '' %>" placeholder="URL YouTube...">
+                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Instagram</label>
+                        <input type="text" name="social_instagram" class="form-control admin-input" value="<%= settings.social_instagram || '' %>" placeholder="URL Instagram...">
                     </div>
                     <div class="col-md-4">
                         <label class="form-label small fw-bold" style="color: var(--admin-muted);">TikTok</label>
@@ -179,10 +180,12 @@ async function uploadLogo(input) {
         if (res.data.success) {
             // Add cache-buster to refresh the preview
             preview.src = res.data.url + '?v=' + Date.now();
-            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã cập nhật!';
+            // Update hidden input so it gets saved on form submit
+            document.getElementById('brand_logo').value = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã tải!';
             
             // Show success toast
-            alert('Logo đã được cập nhật thành công! Tải lại trang để thấy thay đổi.');
+            alert('Logo đã được tải lên! Vui lòng nhấn nút "Lưu Cài Đặt" ở cuối trang để áp dụng toàn website.');
         }
     } catch (err) {
         alert('Lỗi tải logo: ' + (err.response?.data?.message || err.message));

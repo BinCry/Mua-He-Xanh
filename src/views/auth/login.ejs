@@ -7,9 +7,9 @@
             <div class="col-lg-5 col-md-8">
                 
                 <div class="text-center mb-4 reveal-up">
-                    <img src="/images/logo.png" alt="Logo" height="60" class="mb-3" onerror="this.style.display='none'">
-                    <h2 class="text-white fw-black tracking-widest text-uppercase">Bình Lợi Healing</h2>
-                    <p class="text-white-50 small">Khởi đầu hành trình chữa lành của bạn</p>
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" height="60" class="mb-3" onerror="this.src='/images/logo.png'">
+                    <h2 class="text-white fw-black tracking-widest text-uppercase"><%= settings.brand_name || 'BÌNH LỢI' %></h2>
+                    <p class="text-white-50 small"><%= settings.brand_subtext || 'Chạm vào bình yên' %></p>
                 </div>
 
                 <div class="auth-card border-0 shadow-premium rounded-5 overflow-hidden reveal-up" style="transition-delay: 0.1s">

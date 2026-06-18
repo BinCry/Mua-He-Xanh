@@ -4,19 +4,19 @@
             <!-- Brand Column -->
             <div class="col-lg-4">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <img src="/images/logo.png" alt="Logo" style="height: 40px; filter: brightness(10);" onerror="this.style.display='none'">
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 40px; filter: brightness(10);" onerror="this.src='/images/logo.png'">
                     <div class="d-flex flex-column justify-content-center">
-                        <span class="d-block fw-black text-white lh-1" style="font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;">BÌNH LỢI</span>
-                        <span class="d-block" style="font-family: 'Dancing Script', cursive; font-size: 0.95rem; color: var(--primary-green); font-weight: 700; margin-top: -3px; line-height: 1;">Chạm vào bình yên</span>
+                        <span class="d-block fw-black text-white lh-1" style="font-family: 'Playfair Display', serif; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;"><%= settings.brand_name || 'BÌNH LỢI' %></span>
+                        <span class="d-block" style="font-family: 'Dancing Script', cursive; font-size: 0.95rem; color: var(--primary-green); font-weight: 700; margin-top: -3px; line-height: 1;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
                     </div>
                 </div>
                 <p class="mb-4" style="line-height: 1.8; max-width: 320px; color: rgba(255,255,255,0.6);">
-                    "Bình từ tâm, Lợi từ tầm" - Hệ sinh thái du lịch chữa lành và văn hóa số thông minh tại cửa ngõ TP.HCM, mang đến trải nghiệm thiên nhiên độc bản.
+                    <%= settings.site_description || '"Bình từ tâm, Lợi từ tầm" - Hệ sinh thái du lịch chữa lành và văn hóa số thông minh tại cửa ngõ TP.HCM, mang đến trải nghiệm thiên nhiên độc bản.' %>
                 </p>
                 <div class="d-flex gap-2">
-                    <a href="https://www.facebook.com/xabinhloitphcm" target="_blank" class="footer-social-btn"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="footer-social-btn"><i class="bi bi-youtube"></i></a>
-                    <a href="#" class="footer-social-btn"><i class="bi bi-tiktok"></i></a>
+                    <a href="<%= settings.social_tiktok || '#' %>" target="_blank" class="footer-social-btn" title="TikTok"><i class="bi bi-tiktok"></i></a>
+                    <a href="<%= settings.social_facebook || '#' %>" target="_blank" class="footer-social-btn" title="Facebook"><i class="bi bi-facebook"></i></a>
+                    <a href="<%= settings.social_instagram || '#' %>" target="_blank" class="footer-social-btn" title="Instagram"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
 
@@ -57,11 +57,11 @@
                     </li>
                     <li class="d-flex gap-2">
                         <i class="bi bi-telephone text-primary"></i>
-                        <span>(028) 3765 0xxx</span>
+                        <span><%= settings.contact_phone || '(028) 3765 0xxx' %></span>
                     </li>
                     <li class="d-flex gap-2">
                         <i class="bi bi-envelope text-primary"></i>
-                        <span>contact@binhloi-healing.vn</span>
+                        <span><%= settings.contact_email || 'contact@binhloi-healing.vn' %></span>
                     </li>
                 </ul>
             </div>

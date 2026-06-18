@@ -292,9 +292,9 @@
         <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
             <div class="modal-header bg-dark text-white border-0 p-3">
                 <div class="d-flex align-items-center gap-2">
-                    <img src="/images/logo.png" height="30" onerror="this.style.display='none'">
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" height="30" onerror="this.src='/images/logo.png'">
                     <div>
-                        <h6 class="modal-title fw-bold mb-0">Hỗ trợ Bình Lợi</h6>
+                        <h6 class="modal-title fw-bold mb-0">Hỗ trợ <%= settings.brand_name || 'Bình Lợi' %></h6>
                         <small class="opacity-50 x-small text-uppercase">Phản hồi bởi Ban Quản Trị</small>
                     </div>
                 </div>

@@ -79,7 +79,7 @@
 /* ==========================================================================
    BASE
    ========================================================================== */
-*, *::before, *::after { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif !important; }
+*, *::before, *::after { box-sizing: border-box; font-family: 'Inter', system-ui, -apple-system, sans-serif; }
 
 body {
     background-color: var(--bg);
