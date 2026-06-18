@@ -13,8 +13,8 @@
         <a class="navbar-brand d-flex align-items-center gap-2 mx-auto mx-lg-0" href="/">
             <img src="/images/logo.png" alt="Logo" style="height: 40px;">
             <div>
-                <span class="d-block fw-black lh-1" style="font-size: 1.2rem; color: #922724; letter-spacing: 0.5px;">BÌNH LỢI</span>
-                <span class="d-block" style="font-size: 0.6rem; color: #1e5a3e; letter-spacing: 1.5px; font-style: italic; font-weight: 500;">Chạm vào bình yên</span>
+                <span class="d-block fw-black lh-1" style="font-size: 1.2rem; color: var(--primary); letter-spacing: 0.5px;">BÌNH LỢI</span>
+                <span class="d-block" style="font-size: 0.6rem; color: var(--primary-green); letter-spacing: 1.5px; font-style: italic; font-weight: 500;">Chạm vào bình yên</span>
             </div>
         </a>
 
@@ -23,10 +23,10 @@
             <ul class="navbar-nav gap-1">
                 <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
                 <li class="nav-item"><a class="nav-link" href="/explore">Khám phá</a></li>
-                <li class="nav-item"><a class="nav-link" href="/map">Bản đồ</a></li>
-                <li class="nav-item"><a class="nav-link" href="/reviews">Cộng đồng</a></li>
                 <li class="nav-item"><a class="nav-link" href="/workshops">Workshop</a></li>
+                <li class="nav-item"><a class="nav-link" href="/reviews">Cộng đồng</a></li>
                 <li class="nav-item"><a class="nav-link" href="/journey">Hành trình</a></li>
+                <li class="nav-item"><a class="nav-link" href="/map">Bản đồ</a></li>
             </ul>
         </div>
 
@@ -60,20 +60,20 @@
                 </ul>
             </div>
             <% } else { %>
-            <a href="/auth/login" class="btn rounded-pill px-4 py-2 fw-bold" style="font-size: 0.82rem; background: #922724; color: #fff; border: none;">Đăng nhập</a>
+            <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold" style="font-size: 0.82rem;">Đăng nhập</a>
             <% } %>
         </div>
     </div>
 </nav>
 
-<!-- MOBILE OFFCANVAS MENU -->
+<!-- MOBILE OFFCANVAS MENU (completely outside nav to avoid any nesting issues) -->
 <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 300px; z-index: 1060;">
     <div class="offcanvas-header p-4" style="border-bottom: 1px solid #f1f5f9;">
         <div class="d-flex align-items-center gap-2">
             <img src="/images/logo.png" alt="Logo" style="height: 28px;">
             <div>
-                <span class="fw-black d-block" style="color: #922724; font-size: 1rem;">BÌNH LỢI</span>
-                <span class="d-block" style="font-size: 0.55rem; color: #1e5a3e; font-style: italic;">Chạm vào bình yên</span>
+                <span class="fw-black d-block" style="color: var(--primary); font-size: 1rem;">BÌNH LỢI</span>
+                <span class="d-block" style="font-size: 0.55rem; color: var(--primary-green); font-style: italic;">Chạm vào bình yên</span>
             </div>
         </div>
         <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
@@ -83,12 +83,12 @@
         <div class="p-3">
             <a class="mobile-menu-link" href="/"><i class="bi bi-house-door"></i> Trang chủ</a>
             <a class="mobile-menu-link" href="/explore"><i class="bi bi-compass"></i> Khám phá</a>
-            <a class="mobile-menu-link" href="/map"><i class="bi bi-map"></i> Bản đồ</a>
-            <a class="mobile-menu-link" href="/reviews"><i class="bi bi-chat-heart"></i> Cộng đồng</a>
             <a class="mobile-menu-link" href="/workshops"><i class="bi bi-palette"></i> Workshop</a>
+            <a class="mobile-menu-link" href="/reviews"><i class="bi bi-chat-heart"></i> Cộng đồng</a>
             <a class="mobile-menu-link" href="/journey"><i class="bi bi-signpost-split"></i> Hành trình</a>
+            <a class="mobile-menu-link" href="/map"><i class="bi bi-map"></i> Bản đồ</a>
             <a class="mobile-menu-link" href="/festivals"><i class="bi bi-calendar-event"></i> Lễ hội</a>
-            <a class="mobile-menu-link" href="/checkin"><i class="bi bi-qr-code-scan" style="color: #922724;"></i> Quét QR Check-in</a>
+            <a class="mobile-menu-link" href="/checkin"><i class="bi bi-qr-code-scan" style="color: var(--primary);"></i> Quét QR Check-in</a>
         </div>
 
         <!-- User Section at Bottom -->
@@ -106,14 +106,14 @@
             <a class="mobile-menu-link" href="/profile/rewards"><i class="bi bi-gift" style="color: #f59e0b;"></i> Điểm thưởng</a>
             <% } %>
             <% if (user.role === 'admin') { %>
-            <a class="mobile-menu-link" href="/admin" style="color: #922724; font-weight: 700;"><i class="bi bi-shield-check"></i> Admin Panel</a>
+            <a class="mobile-menu-link" href="/admin" style="color: var(--primary); font-weight: 700;"><i class="bi bi-shield-check"></i> Admin Panel</a>
             <% } %>
             <% if (user.role === 'manager') { %>
-            <a class="mobile-menu-link" href="/manager" style="color: #922724; font-weight: 700;"><i class="bi bi-shield-check"></i> Quản lý Panel</a>
+            <a class="mobile-menu-link" href="/manager" style="color: var(--primary); font-weight: 700;"><i class="bi bi-shield-check"></i> Quản lý Panel</a>
             <% } %>
             <a class="mobile-menu-link text-danger" href="/auth/logout" style="margin-top: 8px;"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
             <% } else { %>
-            <a href="/auth/login" class="btn rounded-pill w-100 py-2 fw-bold" style="font-size: 0.88rem; background: #922724; color: #fff;">
+            <a href="/auth/login" class="btn btn-premium rounded-pill w-100 py-2 fw-bold" style="font-size: 0.88rem;">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
             </a>
             <% } %>
@@ -124,7 +124,7 @@
 <style>
     /* Hamburger */
     .nav-hamburger { width: 24px; height: 18px; position: relative; cursor: pointer; }
-    .nav-hamburger span { display: block; height: 2px; background: #922724; border-radius: 2px; transition: all 0.3s ease; position: absolute; left: 0; width: 100%; }
+    .nav-hamburger span { display: block; height: 2px; background: var(--primary); border-radius: 2px; transition: all 0.3s ease; position: absolute; left: 0; width: 100%; }
     .nav-hamburger span:nth-child(1) { top: 0; }
     .nav-hamburger span:nth-child(2) { top: 8px; width: 70%; }
     .nav-hamburger span:nth-child(3) { top: 16px; width: 85%; }

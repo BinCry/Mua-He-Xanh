@@ -1,110 +1,126 @@
-<!-- HERO: Full-Width Background with Left-Aligned Text -->
-<section class="hero-fullwidth">
-    <img src="/images/hero-bg.jpg" alt="Bình Lợi" class="hero-bg" onerror="this.src='/images/hero-1.png'">
-    <div class="hero-overlay-gradient"></div>
-    <div class="hero-inner">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-7 reveal-up">
-                    <p class="hero-kham-pha">KHÁM PHÁ</p>
-                    <h1 class="hero-binh-loi">BÌNH LỢI</h1>
-                    <p class="hero-subtitle-line">
-                        Miền Tây giữa lòng Sài Gòn — nơi thiên nhiên, văn hóa 
-                        và bình yên hòa quyện, chữa lành tâm hồn bạn.
-                    </p>
-                    <div class="d-flex gap-3 flex-wrap">
-                        <a href="/explore" class="btn-hero-explore">
-                            <i class="bi bi-geo-alt"></i> EXPLORE LOCATIONS
-                        </a>
-                        <a href="/map" class="btn-hero-map">
-                            VIEW MAP <i class="bi bi-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- WHY VISIT: "Vì sao nên đến BÌNH LỢI" -->
-<section class="section-why-visit">
+<!-- HERO: 2-Column Layout with Quick Info Card -->
+<section class="hero-new" style="<% if (settings.hero_image && settings.hero_image !== '/images/hero-1.png' && settings.hero_image !== 'undefined') { %>background: linear-gradient(rgba(213, 210, 201, 0.85), rgba(213, 210, 201, 0.9)), url('<%= fixImg(settings.hero_image) %>') center/cover no-repeat;<% } else { %>background: #d5d2c9;<% } %>">
     <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-5 reveal-up">
-                <span class="why-visit-label">VÌ SAO NÊN ĐẾN</span>
-                <h2 class="why-visit-title">Trải nghiệm <span>BÌNH LỢI</span><br>theo cách riêng</h2>
-                <p class="text-secondary mb-4" style="line-height: 1.8; font-size: 0.95rem; max-width: 420px;">
-                    Bình Lợi là vùng đất yên bình nằm ở cửa ngõ TP.HCM, nổi bật với làng mai, 
-                    làng nhang và những không gian văn hóa truyền thống, mang đến trải nghiệm 
-                    gần gũi và đậm chất địa phương.
-                </p>
-                <a href="/explore" class="btn-community">
-                    TÌM HIỂU THÊM <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
+        <div class="row align-items-start g-5">
             <div class="col-lg-7 reveal-up">
-                <div class="row g-3">
-                    <div class="col-6">
-                        <div class="why-card">
-                            <div class="why-icon red"><i class="bi bi-building"></i></div>
-                            <h5>VĂN HÓA ĐẶC SẮC</h5>
-                            <p>Làng nghề nhang truyền thống, đình Gò Xoài và chùa cổ mang đậm dấu ấn lịch sử.</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="why-card">
-                            <div class="why-icon green"><i class="bi bi-tree"></i></div>
-                            <h5>THIÊN NHIÊN BÌNH YÊN</h5>
-                            <p>Vườn mai, vườn lan, vườn dừa và rừng phòng hộ xanh mát giữa lòng thành phố.</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="why-card">
-                            <div class="why-icon green"><i class="bi bi-palette"></i></div>
-                            <h5>TRẢI NGHIỆM THÚ VỊ</h5>
-                            <p>Workshop làm nhang, trồng mai, chèo xuồng và nhiều hoạt động trải nghiệm độc đáo.</p>
-                        </div>
-                    </div>
-                    <div class="col-6">
-                        <div class="why-card">
-                            <div class="why-icon red"><i class="bi bi-people"></i></div>
-                            <h5>CON NGƯỜI THÂN THIỆN</h5>
-                            <p>Cư dân địa phương mến khách, sẵn sàng chia sẻ câu chuyện và nét đẹp quê hương.</p>
-                        </div>
-                    </div>
+                <h1 class="hero-brand-title"><%= season.title || 'BÌNH LỢI' %></h1>
+                <div class="hero-title-line"></div>
+                <p class="hero-tagline">KHÁM PHÁ MIỀN TÂY GIỮA LÒNG SÀI GÒN</p>
+                <p class="text-secondary mb-4" style="max-width: 520px; line-height: 1.8; font-size: 0.95rem;">
+                    Bình Lợi là vùng đất yên bình, nổi bật với làng mai, làng nhang và 
+                    những không gian văn hóa truyền thống, mang đến một trải 
+                    nghiệm gần gũi và đậm chất địa phương.
+                </p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="/explore" class="btn-explore-new">
+                        <i class="bi bi-geo-alt"></i> EXPLORE LOCATIONS
+                    </a>
+                    <a href="/map" class="btn-map-new">
+                        VIEW MAP <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-5 reveal-up">
+                <div class="quick-info-card">
+                    <h5 class="qi-title">THÔNG TIN NHANH</h5>
+                    <table class="quick-info-table">
+                        <tr>
+                            <td class="qi-label">VỊ TRÍ:</td>
+                            <td class="qi-value">Huyện Bình Chánh, TP.HCM</td>
+                        </tr>
+                        <tr>
+                            <td class="qi-label">ĐẶC SẢN:</td>
+                            <td class="qi-value accent">Mai Vàng, Nhang Thơm, Cá Koi</td>
+                        </tr>
+                        <tr>
+                            <td class="qi-label">KHÔNG GIAN:</td>
+                            <td class="qi-value">Miệt vườn sinh thái, tâm linh</td>
+                        </tr>
+                        <tr>
+                            <td class="qi-label">CÁCH TRUNG TÂM:</td>
+                            <td class="qi-value">Khoảng 20km (45-60 phút)</td>
+                        </tr>
+                    </table>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- TOP DESTINATIONS: Featured with Red Number Tags -->
-<section class="section-top-dest">
-    <div class="container">
+<!-- STATS: Dark Section with Impressive Numbers and Wave Separators -->
+<section class="stats-dark">
+    <!-- Top Wave divider (white wave curving into the dark section) -->
+    <div class="position-absolute top-0 start-0 w-100 overflow-hidden" style="height: 60px; pointer-events: none; z-index: 2;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
+            <path d="M0,0 C480,50 960,50 1440,0 L1440,60 L0,60 Z" fill="#ffffff"></path>
+        </svg>
+    </div>
+
+    <div class="container py-4">
+        <h2 class="stats-heading text-center">NHỮNG CON SỐ ẤN TƯỢNG</h2>
+        <div class="row g-4 text-center">
+            <div class="col-6 col-md-3">
+                <div class="stat-item-dark">
+                    <div class="stat-number"><%= stats.checkins > 0 ? stats.checkins.toLocaleString() : '28000' %>+</div>
+                    <div class="stat-text">LƯỢT CHECK-IN</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item-dark">
+                    <div class="stat-number"><%= stats.destinations %>+</div>
+                    <div class="stat-text">ĐỊA ĐIỂM TRỌNG TÂM</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item-dark">
+                    <div class="stat-number"><%= stats.workshopCount || '50' %>+</div>
+                    <div class="stat-text">WORKSHOP ĐÃ TỔ CHỨC</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-item-dark">
+                    <div class="stat-number"><%= stats.avgRating || '4.9' %>/5</div>
+                    <div class="stat-text">ĐÁNH GIÁ TRUNG BÌNH</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Wave divider (white wave curving out of the dark section) -->
+    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="height: 60px; pointer-events: none; z-index: 2;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
+            <path d="M0,60 C480,10 960,10 1440,60 L1440,0 L0,0 Z" fill="#ffffff"></path>
+        </svg>
+    </div>
+</section>
+
+<!-- DESTINATIONS: Equal Bento Grid -->
+<section class="py-section mt-4">
+    <div class="container py-5">
         <div class="row align-items-end mb-5">
             <div class="col-md-8 reveal-up">
-                <span class="why-visit-label">ĐIỂM ĐẾN NỔI BẬT</span>
-                <h2 class="why-visit-title">TOP <span>ĐỊA ĐIỂM</span></h2>
-                <p class="text-secondary" style="max-width: 500px;">Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên chữa lành.</p>
+                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mb-2 fw-bold text-uppercase x-small" style="letter-spacing: 1px;">MUST-VISIT</span>
+                <h2 class="fw-black text-dark mb-1 letter-spacing-sm">Điểm dừng chân trọng tâm</h2>
+                <p class="text-muted">Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên chữa lành.</p>
             </div>
             <div class="col-md-4 text-md-end reveal-up">
-                <a href="/explore" class="btn-community" style="background: var(--primary-green);">
-                    XEM TẤT CẢ <i class="bi bi-arrow-right"></i>
-                </a>
+                <a href="/explore" class="btn btn-view-all-dest rounded-pill px-4 py-2 fw-bold">XEM TẤT CẢ ĐỊA ĐIỂM <i class="bi bi-arrow-right ms-1"></i></a>
             </div>
         </div>
         
         <div class="row g-4">
-            <% featured.slice(0, 4).forEach((dest, i) => { %>
-            <div class="col-md-6 col-lg-3 reveal-up">
-                <a href="/explore/<%= dest.slug %>" class="top-dest-card d-block">
-                    <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>">
-                    <div class="dest-overlay"></div>
-                    <div class="dest-number">0<%= i + 1 %></div>
-                    <div class="dest-info">
-                        <h4><%= dest.name %></h4>
-                        <p class="line-clamp-2"><%= dest.short_desc || dest.short_description %></p>
-                        <span class="view-more">View more <i class="bi bi-arrow-right"></i></span>
+            <% featured.forEach((dest, i) => { %>
+            <div class="col-md-6 col-lg-4 reveal-up">
+                <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift" style="height: 340px; transition: all 0.3s ease;">
+                        <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100" style="object-fit: cover; transition: transform 0.5s ease;">
+                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); z-index: 2;"></div>
+                        
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4" style="z-index: 5;">
+                            <span class="badge-dest-type mb-2 d-inline-block"><%= dest.type %></span>
+                            <h5 class="text-white font-black mb-1 font-display" style="font-size: 1.2rem;"><%= dest.name %></h5>
+                            <p class="text-white-50 mb-0 line-clamp-2" style="font-size: 0.8rem; line-height: 1.5;"><%= dest.short_desc || dest.short_description %></p>
+                        </div>
                     </div>
                 </a>
             </div>
@@ -113,145 +129,16 @@
     </div>
 </section>
 
-<!-- MAP SECTION: "Bản đồ du lịch - KHÁM PHÁ BÌNH LỢI" -->
-<section class="section-map">
-    <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-5 map-content reveal-up">
-                <span class="map-label">BẢN ĐỒ DU LỊCH</span>
-                <h2 class="map-title">KHÁM PHÁ <span>BÌNH LỢI</span></h2>
-                <p style="color: rgba(255,255,255,0.6); line-height: 1.8; font-size: 0.95rem; margin-bottom: 36px; max-width: 400px;">
-                    Xem bản đồ tương tác để khám phá tất cả địa điểm, lộ trình di chuyển 
-                    và thông tin chi tiết về từng điểm đến tại Bình Lợi.
-                </p>
-                <a href="/map" class="btn-open-map">
-                    <i class="bi bi-map"></i> MỞ BẢN ĐỒ
-                </a>
-            </div>
-            <div class="col-lg-7 reveal-up">
-                <div class="map-placeholder">
-                    <i class="bi bi-map"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- STAMP COLLECTION: "BỘ SƯU TẬP CỦA BẠN" -->
-<section class="section-stamps">
-    <div class="container">
-        <div class="text-center mb-5 reveal-up">
-            <span class="why-visit-label">BỘ SƯU TẬP CỦA BẠN</span>
-            <h2 class="why-visit-title" style="max-width: 500px; margin: 0 auto;">Thu thập tem <span>Bình Lợi</span></h2>
-        </div>
-
-        <!-- Progress -->
-        <div class="stamp-progress reveal-up" style="max-width: 500px; margin: 0 auto 40px;">
-            <div class="progress-ring">
-                <div class="inner">3/6</div>
-            </div>
-            <div>
-                <div class="fw-bold" style="font-size: 1rem; color: var(--text);">Tiến trình thu thập</div>
-                <div style="font-size: 0.82rem; color: var(--text-secondary);">3/6 địa điểm đã check-in. Hoàn thành để nhận phần thưởng!</div>
-            </div>
-        </div>
-
-        <!-- Stamp Grid -->
-        <div class="row g-3 justify-content-center" style="max-width: 800px; margin: 0 auto;">
-            <% 
-            const stampDestinations = featured.slice(0, 6);
-            const stampIcons = ['bi-tree', 'bi-flower1', 'bi-houses', 'bi-bookmark-star', 'bi-building', 'bi-water'];
-            stampDestinations.forEach((dest, i) => { 
-            %>
-            <div class="col-4 col-md-2 reveal-up">
-                <div class="stamp-slot <%= i < 3 ? 'collected' : '' %>">
-                    <div class="stamp-icon <%= i < 3 ? 'active' : 'inactive' %>">
-                        <i class="bi <%= stampIcons[i] || 'bi-geo-alt' %>"></i>
-                    </div>
-                    <span class="stamp-name"><%= dest.name.length > 20 ? dest.name.substring(0, 18) + '...' : dest.name %></span>
-                </div>
-            </div>
-            <% }) %>
-        </div>
-    </div>
-</section>
-
-<!-- COMMUNITY: "CỘNG ĐỒNG - CHIA SẺ TRẢI NGHIỆM" -->
-<% if (socialFeed.length > 0) { %>
-<section class="section-community">
-    <div class="container">
-        <div class="row align-items-end mb-5">
-            <div class="col-md-8 reveal-up">
-                <span class="why-visit-label">CỘNG ĐỒNG</span>
-                <h2 class="why-visit-title">CHIA SẺ <span>TRẢI NGHIỆM</span></h2>
-                <p class="text-secondary" style="max-width: 500px;">Câu chuyện thật, hình ảnh thật từ cộng đồng du khách Bình Lợi.</p>
-            </div>
-            <div class="col-md-4 text-md-end reveal-up">
-                <a href="/reviews" class="btn-community">
-                    THAM GIA <i class="bi bi-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-
-        <div class="row g-4">
-            <!-- Image Grid -->
-            <div class="col-lg-6 reveal-up">
-                <div class="community-image-grid">
-                    <% socialFeed.slice(0, 5).forEach((item, idx) => { %>
-                    <div class="grid-img">
-                        <% if (item.image) { %>
-                        <img src="<%= fixImg(item.image) %>" alt="Community moment">
-                        <% } else { %>
-                        <div style="width:100%;height:100%;background: var(--primary-50); display:flex;align-items:center;justify-content:center;color:var(--primary);font-size:2rem;">
-                            <i class="bi bi-image"></i>
-                        </div>
-                        <% } %>
-                    </div>
-                    <% }) %>
-                </div>
-            </div>
-
-            <!-- Review Cards -->
-            <div class="col-lg-6 reveal-up">
-                <div class="d-flex flex-column gap-3">
-                    <% socialFeed.slice(0, 3).forEach(item => { %>
-                    <div class="community-review-card">
-                        <div class="stars">
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                            <i class="bi bi-star-fill"></i>
-                        </div>
-                        <p class="review-text line-clamp-3">"<%= item.text %>"</p>
-                        <div class="reviewer">
-                            <img src="<%= item.avatar %>" alt="<%= item.user %>">
-                            <div>
-                                <div class="name"><%= item.user %></div>
-                                <div class="meta"><i class="bi bi-geo-alt me-1"></i><%= item.location %> · <%= item.time %></div>
-                            </div>
-                            <div class="ms-auto">
-                                <span class="badge bg-light text-danger rounded-pill"><i class="bi bi-heart-fill me-1"></i><%= item.likes %></span>
-                            </div>
-                        </div>
-                    </div>
-                    <% }) %>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-<% } %>
-
-<!-- EVENTS & SEASONAL -->
+<!-- EVENTS & SEASONAL (Bright and modern styling) -->
 <section class="py-section position-relative" style="background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 100%); border-top: 1px solid var(--border-light); border-bottom: 1px solid var(--border-light); overflow: hidden;">
     <div class="container py-5 position-relative" style="z-index: 2;">
         <div class="row align-items-center g-5">
             <div class="col-lg-6 reveal-up">
                 <% if (nextEvent) { %>
                 <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift h-100" 
-                     style="min-height: 480px; transition: all 0.4s var(--ease-out); background: linear-gradient(135deg, #3a0f0e 0%, #1a0806 100%); border: 1px solid rgba(146, 39, 36, 0.15);">
+                     style="min-height: 480px; transition: all 0.4s var(--ease-out); background: linear-gradient(135deg, #0d2315 0%, #06120b 100%); border: 1px solid rgba(30, 90, 62, 0.15);">
                     
+                    <!-- Gradient overlay for text readability -->
                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%); z-index: 1;"></div>
                     
                     <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100" style="z-index: 5; min-height: 480px;">
@@ -271,6 +158,7 @@
                         </div>
                         
                         <div>
+                            <!-- Event status label -->
                             <div class="mb-4">
                                 <span class="font-extrabold text-uppercase x-small" style="color: #ffc847; letter-spacing: 1.5px;">
                                     SỰ KIỆN ĐANG DIỄN RA!
@@ -292,7 +180,7 @@
                 </div>
                 <% } else { %>
                 <div class="p-5 rounded-4 text-center border shadow-sm" style="background: #ffffff; border-color: var(--border) !important;">
-                    <i class="bi bi-calendar-event display-4 opacity-25 mb-3 d-block" style="color: var(--primary);"></i>
+                    <i class="bi bi-calendar-event display-4 text-success opacity-25 mb-3 d-block"></i>
                     <h4 class="text-dark fw-bold">Chưa có sự kiện nổi bật sắp diễn ra</h4>
                     <p class="small mb-0 text-muted">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.</p>
                 </div>
@@ -313,10 +201,10 @@
                          onmouseover="this.style.background='var(--primary-50)'; this.style.borderColor='var(--primary-200)';" 
                          onmouseout="this.style.background='#ffffff'; this.style.borderColor='var(--border)';" >
                         <% 
-                            let colorStyle = 'background: rgba(146, 39, 36, 0.1); color: var(--primary) !important; border: 1px solid rgba(146, 39, 36, 0.2);';
-                            if (se.icon_color === 'warning') colorStyle = 'background: rgba(240, 165, 0, 0.1); color: #c48800 !important; border: 1px solid rgba(240, 165, 0, 0.2);';
+                            let colorStyle = 'background: rgba(30, 90, 62, 0.1); color: var(--primary) !important; border: 1px solid rgba(30, 90, 62, 0.2);';
+                            if (se.icon_color === 'warning') colorStyle = 'background: rgba(240, 165, 0, 0.1); color: var(--accent-dark) !important; border: 1px solid rgba(240, 165, 0, 0.2);';
                             if (se.icon_color === 'danger') colorStyle = 'background: rgba(239, 68, 68, 0.1); color: var(--danger) !important; border: 1px solid rgba(239, 68, 68, 0.2);';
-                            if (se.icon_color === 'info') colorStyle = 'background: rgba(30, 90, 62, 0.1); color: var(--primary-green) !important; border: 1px solid rgba(30, 90, 62, 0.2);';
+                            if (se.icon_color === 'info') colorStyle = 'background: rgba(59, 130, 246, 0.1); color: var(--info) !important; border: 1px solid rgba(59, 130, 246, 0.2);';
                         %>
                         <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; <%= colorStyle %>">
                             <i class="bi <%= se.icon %> fs-5"></i>
@@ -333,13 +221,76 @@
     </div>
 </section>
 
+<!-- SOCIAL FEED: Real Reviews from Community -->
+<% if (socialFeed.length > 0) { %>
+<section class="py-section">
+    <div class="container py-5">
+        <div class="text-center mb-5 reveal-up">
+            <span class="section-label">LIVE FROM BÌNH LỢI</span>
+            <h2 class="section-title mx-auto" style="max-width: 500px;">Khoảnh khắc Chữa lành</h2>
+            <p class="section-desc mx-auto">Câu chuyện thật, hình ảnh thật từ cộng đồng du khách.</p>
+        </div>
+        
+        <div class="row g-4 mb-5">
+            <% socialFeed.forEach((item, index) => { %>
+            <div class="col-md-4 reveal-up">
+                <div class="card-heal h-100">
+                    <% if (item.image) { %>
+                    <div class="card-img position-relative" style="height: 420px;">
+                        <img src="<%= fixImg(item.image) %>" alt="Moment">
+                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.8) 100%); z-index: 2;"></div>
+                        <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
+                            <span class="glass-dark text-white px-3 py-1 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.78rem; backdrop-filter: blur(10px);">
+                                <i class="bi bi-heart-fill text-danger"></i> <%= item.likes %>
+                            </span>
+                        </div>
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white" style="z-index: 5;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <img src="<%= item.avatar %>" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4);">
+                                <div>
+                                    <span class="fw-bold d-block" style="font-size: 0.85rem;"><%= item.user %></span>
+                                    <span class="opacity-60 d-block" style="font-size: 0.7rem;"><%= item.time %></span>
+                                </div>
+                            </div>
+                            <p class="mb-2 line-clamp-2" style="font-size: 0.85rem; opacity: 0.9;"><%= item.text %></p>
+                            <span class="opacity-50" style="font-size: 0.75rem;"><i class="bi bi-geo-alt-fill me-1"></i><%= item.location %></span>
+                        </div>
+                    </div>
+                    <% } else { %>
+                    <div class="card-social-new">
+                        <div class="d-flex align-items-center gap-2 mb-3">
+                            <img src="<%= item.avatar %>" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid var(--primary-50);">
+                            <div>
+                                <span class="fw-bold d-block text-dark"><%= item.user %></span>
+                                <span class="opacity-60 d-block small"><%= item.time %></span>
+                            </div>
+                        </div>
+                        <p class="mb-3 line-clamp-4 text-dark" style="font-style: italic;">"<%= item.text %>"</p>
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <span class="small text-muted"><i class="bi bi-geo-alt-fill me-1"></i><%= item.location %></span>
+                            <span class="badge bg-light text-danger"><i class="bi bi-heart-fill me-1"></i><%= item.likes %></span>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+            </div>
+            <% }) %>
+        </div>
+        
+        <div class="text-center reveal-up">
+            <a href="/reviews" class="btn btn-share-moment rounded-pill px-4 py-3 fw-bold">CHIA SẺ KHOẢNH KHẮC CỦA BẠN <i class="bi bi-arrow-right ms-2"></i></a>
+        </div>
+    </div>
+</section>
+<% } %>
+
 <!-- Floating buttons removed - QR in bottom center, Chat via menu -->
 
 <!-- Global Chat Modal -->
 <div class="modal fade" id="globalChatModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm modal-dialog-scrollable" style="max-width: 400px;">
         <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
-            <div class="modal-header border-0 p-3" style="background: #922724; color: #fff;">
+            <div class="modal-header bg-dark text-white border-0 p-3">
                 <div class="d-flex align-items-center gap-2">
                     <img src="/images/logo.png" height="30" onerror="this.style.display='none'">
                     <div>
@@ -363,7 +314,7 @@
             <div class="modal-footer border-0 bg-white p-2">
                 <div class="input-group">
                     <input type="text" id="global-chat-input" class="form-control border-0 bg-light rounded-pill ps-4 py-2 small" placeholder="Nhập câu hỏi..." onkeypress="if(event.key === 'Enter') sendGlobalChat()">
-                    <button class="btn rounded-circle ms-2 p-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #922724; color: #fff;" onclick="sendGlobalChat()">
+                    <button class="btn btn-primary-bl rounded-circle ms-2 p-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="sendGlobalChat()">
                         <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
                     </button>
                 </div>
@@ -393,7 +344,7 @@ async function fetchGlobalMessages() {
                 const isMe = msg.sender_uuid === (document.cookie.split('session_uuid=')[1]?.split(';')[0]);
                 html += `
                     <div class="d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'} mb-3">
-                        <div class="p-3 rounded-4 small shadow-sm ${isMe ? 'text-white' : 'bg-white text-dark'}" style="max-width: 85%; ${isMe ? 'background: #922724;' : ''}">
+                        <div class="p-3 rounded-4 small shadow-sm ${isMe ? 'bg-primary text-white' : 'bg-white text-dark'}" style="max-width: 85%;">
                             ${msg.message}
                         </div>
                     </div>
@@ -413,7 +364,7 @@ async function sendGlobalChat() {
     const history = document.getElementById('global-chat-history');
     history.insertAdjacentHTML('beforeend', `
         <div class="d-flex justify-content-end mb-3">
-            <div class="p-3 rounded-4 small shadow-sm text-white" style="max-width: 85%; background: #922724;">${message}</div>
+            <div class="p-3 rounded-4 small shadow-sm bg-primary text-white" style="max-width: 85%;">${message}</div>
         </div>
     `);
     history.scrollTop = history.scrollHeight;
@@ -429,16 +380,12 @@ async function sendGlobalChat() {
         const distance = festivalDate - now;
         if (distance < 0) {
             clearInterval(timer);
-            const el = document.getElementById("countdown");
-            if (el) el.innerHTML = '<span class="fw-bold fs-5" style="color: #ffc847 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">SỰ KIỆN ĐANG DIỄN RA!</span>';
+            document.getElementById("countdown").innerHTML = '<span class="fw-bold fs-5" style="color: #ffc847 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">SỰ KIỆN ĐANG DIỄN RA!</span>';
             return;
         }
-        const daysEl = document.getElementById("days");
-        const hoursEl = document.getElementById("hours");
-        const minsEl = document.getElementById("mins");
-        if (daysEl) daysEl.innerHTML = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
-        if (hoursEl) hoursEl.innerHTML = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-        if (minsEl) minsEl.innerHTML = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+        document.getElementById("days").innerHTML = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+        document.getElementById("hours").innerHTML = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+        document.getElementById("mins").innerHTML = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
     }, 1000);
 </script>
 <% } %>
