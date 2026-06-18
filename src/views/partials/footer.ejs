@@ -1,107 +1,75 @@
-<footer class="footer-main py-5" style="background: #071912; color: rgba(255,255,255,0.7); font-size: 0.88rem; border-top: 1px solid rgba(255,255,255,0.05);">
+<footer class="footer-red">
     <div class="container">
         <div class="row g-5">
             <!-- Brand Column -->
             <div class="col-lg-4">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <img src="/images/logo.png" alt="Logo" style="height: 38px; filter: brightness(10);" onerror="this.style.display='none'">
+                    <img src="/images/logo.png" alt="Logo" style="height: 42px; filter: brightness(10);" onerror="this.style.display='none'">
                     <div>
-                        <span class="d-block fw-black text-white lh-1" style="font-size: 1.2rem; letter-spacing: 1px;">BÌNH LỢI</span>
-                        <span class="d-block" style="font-size: 0.6rem; color: var(--primary); letter-spacing: 2px; font-weight: bold;">HEALING TOURISM</span>
+                        <span class="footer-brand-name d-block lh-1">BÌNH LỢI</span>
+                        <span class="footer-brand-sub d-block">Chạm vào bình yên</span>
                     </div>
                 </div>
-                <p class="mb-4" style="line-height: 1.8; max-width: 320px; color: rgba(255,255,255,0.6);">
-                    "Bình từ tâm, Lợi từ tầm" - Hệ sinh thái du lịch chữa lành và văn hóa số thông minh tại cửa ngõ TP.HCM, mang đến trải nghiệm thiên nhiên độc bản.
+                <p class="footer-desc mb-4">
+                    "Bình từ tâm, Lợi từ tầm" – Hệ sinh thái du lịch chữa lành và văn hóa số thông minh tại cửa ngõ TP.HCM.
                 </p>
                 <div class="d-flex gap-2">
-                    <a href="https://www.facebook.com/xabinhloitphcm" target="_blank" class="footer-social-btn"><i class="bi bi-facebook"></i></a>
-                    <a href="#" class="footer-social-btn"><i class="bi bi-youtube"></i></a>
-                    <a href="#" class="footer-social-btn"><i class="bi bi-tiktok"></i></a>
+                    <a href="https://www.facebook.com/xabinhloitphcm" target="_blank" class="footer-social"><i class="bi bi-facebook"></i></a>
+                    <a href="#" class="footer-social"><i class="bi bi-youtube"></i></a>
+                    <a href="#" class="footer-social"><i class="bi bi-tiktok"></i></a>
+                    <a href="#" class="footer-social"><i class="bi bi-instagram"></i></a>
                 </div>
             </div>
 
-            <!-- Quick Links -->
+            <!-- Khám phá -->
             <div class="col-6 col-lg-2">
-                <h6 class="text-white fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem;">Khám phá</h6>
-                <ul class="list-unstyled d-flex flex-column gap-2">
-                    <li><a href="/explore" class="footer-link-premium">Điểm đến</a></li>
-                    <li><a href="/workshops" class="footer-link-premium">Lớp Workshop</a></li>
-                    <li><a href="/onboarding" class="footer-link-premium">Tạo hành trình AI</a></li>
-                    <li><a href="/map" class="footer-link-premium">Bản đồ số</a></li>
-                </ul>
+                <h6>KHÁM PHÁ</h6>
+                <a href="/explore" class="footer-link">Điểm đến</a>
+                <a href="/workshops" class="footer-link">Lớp Workshop</a>
+                <a href="/map" class="footer-link">Bản đồ số</a>
+                <a href="/journey" class="footer-link">Hành trình</a>
+                <a href="/festivals" class="footer-link">Lễ hội</a>
             </div>
 
-            <!-- Community & Social -->
-            <div class="col-6 col-lg-3">
-                <h6 class="text-white fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem;">Cộng đồng</h6>
-                <ul class="list-unstyled d-flex flex-column gap-2">
-                    <li><a href="/reviews" class="footer-link-premium">Chia sẻ Check-in</a></li>
-                    <li><a href="/checkin" class="footer-link-premium">Quét mã QR Code</a></li>
-                    <% if (locals.user && locals.user.role === 'user') { %>
-                        <li><a href="/passport" class="footer-link-premium">Hồ sơ du khách</a></li>
-                        <li><a href="/passport" class="footer-link-premium">Đổi điểm thưởng</a></li>
-                    <% } else if (!locals.user) { %>
-                        <li><a href="/passport" class="footer-link-premium">Hồ sơ du khách</a></li>
-                        <li><a href="/passport" class="footer-link-premium">Đổi điểm thưởng</a></li>
-                    <% } %>
-                </ul>
+            <!-- Hỗ trợ -->
+            <div class="col-6 col-lg-2">
+                <h6>HỖ TRỢ</h6>
+                <a href="/reviews" class="footer-link">Cộng đồng</a>
+                <a href="/checkin" class="footer-link">Quét mã QR</a>
+                <% if (locals.user && locals.user.role === 'user') { %>
+                <a href="/profile" class="footer-link">Hồ sơ du khách</a>
+                <a href="/profile/rewards" class="footer-link">Đổi điểm thưởng</a>
+                <% } else if (!locals.user) { %>
+                <a href="/passport" class="footer-link">Hồ sơ du khách</a>
+                <a href="/passport" class="footer-link">Đổi điểm thưởng</a>
+                <% } %>
             </div>
 
-            <!-- Contact -->
-            <div class="col-lg-3">
-                <h6 class="text-white fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem;">Liên hệ với chúng tôi</h6>
-                <ul class="list-unstyled d-flex flex-column gap-3" style="color: rgba(255,255,255,0.6);">
-                    <li class="d-flex gap-2">
-                        <i class="bi bi-geo-alt text-primary" style="margin-top: 2px;"></i>
-                        <span>Xã Bình Lợi, Huyện Bình Chánh,<br>TP. Hồ Chí Minh</span>
-                    </li>
-                    <li class="d-flex gap-2">
-                        <i class="bi bi-telephone text-primary"></i>
+            <!-- Newsletter -->
+            <div class="col-lg-4">
+                <h6>ĐĂNG KÝ NHẬN TIN</h6>
+                <p style="color: rgba(255,255,255,0.55); font-size: 0.82rem; line-height: 1.6; margin-bottom: 16px;">Nhận thông tin sự kiện, workshop mới nhất từ Bình Lợi.</p>
+                <div class="d-flex gap-2">
+                    <input type="email" class="footer-newsletter-input" placeholder="Email của bạn...">
+                    <button class="footer-newsletter-btn" type="button"><i class="bi bi-arrow-right"></i></button>
+                </div>
+                <div class="mt-4 pt-3" style="border-top: 1px solid rgba(255,255,255,0.1);">
+                    <div class="d-flex gap-2 align-items-start" style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">
+                        <i class="bi bi-geo-alt" style="margin-top: 2px;"></i>
+                        <span>Xã Bình Lợi, Huyện Bình Chánh, TP.HCM</span>
+                    </div>
+                    <div class="d-flex gap-2 align-items-center mt-2" style="color: rgba(255,255,255,0.5); font-size: 0.8rem;">
+                        <i class="bi bi-telephone"></i>
                         <span>(028) 3765 0xxx</span>
-                    </li>
-                    <li class="d-flex gap-2">
-                        <i class="bi bi-envelope text-primary"></i>
-                        <span>contact@binhloi-healing.vn</span>
-                    </li>
-                </ul>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <hr class="my-4" style="border-color: rgba(255,255,255,0.08);">
-
         <!-- Bottom Copyright -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+        <div class="footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-3">
             <span>© <%= new Date().getFullYear() %> Bình Lợi Healing. Mọi quyền được bảo lưu.</span>
-            <span>Đồng hành chiến lược bởi <span class="text-white fw-bold">LOMAR 2026</span></span>
+            <span>Đồng hành chiến lược bởi <span style="color: #fff; font-weight: 700;">LOMAR 2026</span></span>
         </div>
     </div>
 </footer>
-
-<style>
-    .footer-social-btn {
-        width: 38px; height: 38px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.05);
-        color: rgba(255,255,255,0.6);
-        display: flex; align-items: center; justify-content: center;
-        transition: all 0.3s ease;
-        font-size: 1rem;
-        text-decoration: none;
-    }
-    .footer-social-btn:hover {
-        background: var(--primary);
-        color: white !important;
-        transform: translateY(-3px);
-        box-shadow: 0 5px 15px rgba(13, 148, 136, 0.3);
-    }
-    .footer-link-premium {
-        color: rgba(255,255,255,0.55);
-        text-decoration: none;
-        transition: all 0.2s ease;
-    }
-    .footer-link-premium:hover {
-        color: var(--primary) !important;
-        padding-left: 4px;
-    }
-    .tracking-widest { letter-spacing: 1.5px !important; }
-</style>
