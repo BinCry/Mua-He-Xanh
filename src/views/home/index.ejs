@@ -352,7 +352,7 @@ async function fetchGlobalMessages() {
                 </div>
             `;
             res.data.data.forEach(msg => {
-                const isMe = msg.sender_uuid === (document.cookie.split('session_uuid=')[1]?.split(';')[0]);
+                const isMe = msg.sender_uuid && String(msg.sender_uuid) === String(window.CURRENT_SESSION_ID);
                 html += `
                     <div class="d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'} mb-3">
                         <div class="p-3 rounded-4 small shadow-sm ${isMe ? 'bg-primary text-white' : 'bg-white text-dark'}" style="max-width: 85%;">

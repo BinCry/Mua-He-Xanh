@@ -6,6 +6,8 @@ const cookieParser = require('cookie-parser');
 const expressLayouts = require('express-ejs-layouts');
 const passport = require('./config/passport');
 const config = require('./config/env');
+const UserSession = require('./models/UserSession');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = config.port;
@@ -84,7 +86,7 @@ app.use(analyticsMiddleware);
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Global variables for templates
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     // Dynamic Base URL detection (Prioritize current request host for local testing)
     const protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const host = req.get('host');
@@ -115,6 +117,27 @@ app.use((req, res, next) => {
         const v = res.locals.assetV || Date.now();
         return clean + (clean.includes('?') ? '&' : '?') + 'v=' + v;
     };
+
+    // Ensure session_uuid exists and fetch its DB row ID
+    res.locals.sessionDbId = null;
+    res.locals.sessionDbUuid = null;
+    try {
+        let sessionUuid = req.cookies?.session_uuid;
+        if (!sessionUuid) {
+            sessionUuid = uuidv4();
+            res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+            req.cookies = req.cookies || {};
+            req.cookies.session_uuid = sessionUuid;
+        }
+        
+        const sessionRow = await UserSession.findOrCreate(sessionUuid, req);
+        if (sessionRow) {
+            res.locals.sessionDbId = sessionRow.id;
+            res.locals.sessionDbUuid = sessionRow.uuid;
+        }
+    } catch (e) {
+        console.error("Session initialize middleware error:", e);
+    }
 
     // Load Site Settings for all templates
     const db = require('./core/database');

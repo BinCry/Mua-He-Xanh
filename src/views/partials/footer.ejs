@@ -2,53 +2,48 @@
     <div class="container">
         <div class="row g-5">
             <!-- Brand Column -->
-            <div class="col-lg-4">
+            <div class="col-lg-3">
                 <div class="d-flex align-items-center gap-2 mb-3">
                     <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 40px; filter: brightness(0) invert(1);" onerror="this.src='/images/logo.png'">
                     <div class="d-flex flex-column justify-content-center">
                         <span class="d-block fw-black lh-1" style="font-family: 'Inter', sans-serif; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px; color: #ffffff;"><%= settings.brand_name || 'BÌNH LỢI' %></span>
-                        <span class="d-block" style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: rgba(255,255,255,0.85); font-weight: 600; margin-top: 5px; letter-spacing: 0.5px; line-height: 1; font-style: italic;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
+                        <span class="d-block" style="font-family: 'Dancing Script', cursive; font-size: 1.1rem; color: rgba(255,255,255,0.9); font-weight: 700; margin-top: 2px; line-height: 1;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
                     </div>
                 </div>
-                <p class="mb-4" style="line-height: 1.8; max-width: 320px; color: rgba(255,255,255,0.75);">
-                    <%= settings.site_description || '"Bình từ tâm, Lợi từ tầm" - Hệ sinh thái du lịch chữa lành và văn hóa số thông minh tại cửa ngõ TP.HCM, mang đến trải nghiệm thiên nhiên độc bản.' %>
+                <p class="mb-4" style="line-height: 1.8; color: rgba(255,255,255,0.75);">
+                    Hành trình khám phá Bình Lợi bắt đầu từ đây
                 </p>
                 <div class="d-flex gap-2">
-                    <a href="<%= settings.social_tiktok || '#' %>" target="_blank" class="footer-social-btn" title="TikTok"><i class="bi bi-tiktok"></i></a>
                     <a href="<%= settings.social_facebook || '#' %>" target="_blank" class="footer-social-btn" title="Facebook"><i class="bi bi-facebook"></i></a>
                     <a href="<%= settings.social_instagram || '#' %>" target="_blank" class="footer-social-btn" title="Instagram"><i class="bi bi-instagram"></i></a>
+                    <a href="<%= settings.social_youtube || '#' %>" target="_blank" class="footer-social-btn" title="YouTube"><i class="bi bi-youtube"></i></a>
                 </div>
             </div>
 
             <!-- Quick Links -->
-            <div class="col-6 col-lg-2">
+            <div class="col-6 col-md-3 col-lg-2">
                 <h6 class="fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem; color: #ffffff;">Khám phá</h6>
                 <ul class="list-unstyled d-flex flex-column gap-2">
-                    <li><a href="/explore" class="footer-link-premium">Điểm đến</a></li>
-                    <li><a href="/workshops" class="footer-link-premium">Lớp Workshop</a></li>
-                    <li><a href="/onboarding" class="footer-link-premium">Tạo hành trình AI</a></li>
+                    <li><a href="/explore" class="footer-link-premium">Địa điểm nổi bật</a></li>
+                    <li><a href="/workshops" class="footer-link-premium">Workshop</a></li>
+                    <li><a href="/journey" class="footer-link-premium">Trải nghiệm</a></li>
                     <li><a href="/map" class="footer-link-premium">Bản đồ số</a></li>
                 </ul>
             </div>
 
-            <!-- Community & Social -->
-            <div class="col-6 col-lg-3">
-                <h6 class="fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem; color: #ffffff;">Cộng đồng</h6>
+            <!-- Support -->
+            <div class="col-6 col-md-3 col-lg-2">
+                <h6 class="fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem; color: #ffffff;">Hỗ trợ</h6>
                 <ul class="list-unstyled d-flex flex-column gap-2">
-                    <li><a href="/reviews" class="footer-link-premium">Chia sẻ Check-in</a></li>
-                    <li><a href="/checkin" class="footer-link-premium">Quét mã QR Code</a></li>
-                    <% if (locals.user && locals.user.role === 'user') { %>
-                        <li><a href="/passport" class="footer-link-premium">Hồ sơ du khách</a></li>
-                        <li><a href="/passport" class="footer-link-premium">Đổi điểm thưởng</a></li>
-                    <% } else if (!locals.user) { %>
-                        <li><a href="/passport" class="footer-link-premium">Hồ sơ du khách</a></li>
-                        <li><a href="/passport" class="footer-link-premium">Đổi điểm thưởng</a></li>
-                    <% } %>
+                    <li><a href="#" class="footer-link-premium">Hướng dẫn</a></li>
+                    <li><a href="#" class="footer-link-premium">Câu hỏi thường gặp</a></li>
+                    <li><a href="#" class="footer-link-premium">Liên hệ</a></li>
+                    <li><a href="#" class="footer-link-premium">Chính sách bảo mật</a></li>
                 </ul>
             </div>
 
             <!-- Contact -->
-            <div class="col-lg-3">
+            <div class="col-md-6 col-lg-3">
                 <h6 class="fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem; color: #ffffff;">Liên hệ với chúng tôi</h6>
                 <ul class="list-unstyled d-flex flex-column gap-3" style="color: rgba(255,255,255,0.75);">
                     <li class="d-flex gap-2">
@@ -64,6 +59,22 @@
                         <span><%= settings.contact_email || 'contact@binhloi-healing.vn' %></span>
                     </li>
                 </ul>
+            </div>
+
+            <!-- Newsletter -->
+            <div class="col-md-6 col-lg-2">
+                <h6 class="fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem; color: #ffffff;">Đăng kí nhận tin</h6>
+                <p class="mb-3" style="color: rgba(255,255,255,0.75); line-height: 1.6; font-size: 0.8rem;">
+                    Cập nhật thông tin mới nhất về Bình Lợi và các trải nghiệm hấp dẫn.
+                </p>
+                <form onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận tin!');">
+                    <div class="input-group" style="max-width: 240px;">
+                        <input type="email" class="form-control border-0 ps-3 py-2" placeholder="Email..." required style="border-radius: 8px 0 0 8px; font-size: 0.8rem; background: #ffffff; height: 38px;">
+                        <button class="btn btn-danger d-flex align-items-center justify-content-center" type="submit" style="background: var(--primary); border: 1px solid rgba(255,255,255,0.2); border-left: none; border-radius: 0 8px 8px 0; width: 40px; height: 38px;">
+                            <i class="bi bi-arrow-right text-white"></i>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
 

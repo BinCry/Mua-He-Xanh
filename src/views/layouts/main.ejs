@@ -29,6 +29,7 @@
             baseUrl: '<%= baseUrl %>',
             apiUrl: '<%= baseUrl %>/api'
         };
+        window.CURRENT_SESSION_ID = '<%= typeof sessionDbId !== "undefined" && sessionDbId ? sessionDbId : "" %>';
     </script>
 </head>
 
@@ -356,10 +357,10 @@
                                     </div>
                                 </div>`;
                     
-                    const sessionUuid = document.cookie.split('session_uuid=')[1]?.split(';')[0];
+                    const currentSessionId = window.CURRENT_SESSION_ID;
                     
                     messages.forEach(msg => {
-                        const isMe = msg.sender_uuid === sessionUuid;
+                        const isMe = msg.sender_uuid && String(msg.sender_uuid) === String(currentSessionId);
                         if (isMe) {
                             html += `
                                 <div class="message-sent mb-3 d-flex justify-content-end">
