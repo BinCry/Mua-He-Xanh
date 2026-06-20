@@ -132,16 +132,16 @@
 <!-- EVENTS & SEASONAL (Bright and modern styling) -->
 <section class="py-section position-relative" style="background-color: #f1f9f6; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03); overflow: hidden;">
     <div class="container py-5 position-relative" style="z-index: 2;">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6 reveal-up">
+        <div class="row align-items-stretch g-5">
+            <div class="col-lg-6 reveal-up d-flex">
                 <% if (nextEvent) { %>
-                <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift h-100" 
+                <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift w-100 d-flex flex-column" 
                      style="min-height: 480px; transition: all 0.4s var(--ease-out); background: linear-gradient(135deg, #922724 0%, #581816 100%); border: 1px solid rgba(146, 39, 36, 0.3);">
                     
                     <!-- Gradient overlay for text readability -->
                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(146,39,36,0.8) 100%); z-index: 1;"></div>
                     
-                    <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100" style="z-index: 5; min-height: 480px;">
+                    <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100 flex-grow-1" style="z-index: 5;">
                         <div>
                             <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" 
                                   style="background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); letter-spacing: 1px;">
@@ -190,7 +190,7 @@
                     </div>
                 </div>
                 <% } else { %>
-                <div class="p-5 rounded-4 text-center border shadow-sm" style="background: #ffffff; border-color: var(--border) !important;">
+                <div class="p-5 rounded-4 text-center border shadow-sm w-100 d-flex flex-column align-items-center justify-content-center" style="background: #ffffff; border-color: var(--border) !important; min-height: 480px;">
                     <i class="bi bi-calendar-event display-4 text-success opacity-25 mb-3 d-block"></i>
                     <h4 class="text-dark fw-bold">Chưa có sự kiện nổi bật sắp diễn ra</h4>
                     <p class="small mb-0 text-muted">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.</p>
@@ -198,24 +198,31 @@
                 <% } %>
             </div>
             
-            <div class="col-lg-6 reveal-up">
-                <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
-                    <i class="bi bi-calendar3 me-1"></i> Sự kiện khác
-                </span>
-                <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Lịch sự kiện sắp diễn ra</h2>
+            <div class="col-lg-6 reveal-up d-flex flex-column">
+                <div>
+                    <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
+                        <i class="bi bi-calendar3 me-1"></i> Sự kiện khác
+                    </span>
+                    <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Lịch sự kiện sắp diễn ra</h2>
+                </div>
                 
-                <div class="scrollable-events-container" style="max-height: 420px; overflow-y: auto; padding-right: 8px;">
+                <div class="scrollable-events-container flex-grow-1" style="max-height: 380px; overflow-y: auto; padding-right: 8px;">
                     <% if (typeof otherEvents !== 'undefined' && otherEvents.length > 0) { %>
                         <div class="d-flex flex-column gap-3">
                             <% otherEvents.forEach((evt, index) => { 
-                                const colorClass = index % 2 === 0 ? 'text-primary bg-primary' : 'text-success bg-success';
+                                const isEven = index % 2 === 0;
+                                const bgNormal = isEven ? '#eef6ff' : '#edf8f3';
+                                const borderNormal = isEven ? '#d2e7ff' : '#d5eedf';
+                                const bgHover = isEven ? '#def0ff' : '#dcf3e6';
+                                const borderHover = isEven ? '#a4d0ff' : '#a8e0be';
+                                const iconClass = isEven ? 'text-primary' : 'text-success';
                             %>
-                            <div class="d-flex gap-3 align-items-center p-3 rounded-4 border bg-white" 
-                                 style="border-color: var(--border) !important; transition: all 0.3s;"
-                                 onmouseover="this.style.background='var(--primary-50)'; this.style.borderColor='var(--primary-200)';" 
-                                 onmouseout="this.style.background='#ffffff'; this.style.borderColor='var(--border)';" >
-                                <div class="rounded-3 d-flex align-items-center justify-content-center <%= colorClass %> bg-opacity-10" style="width: 50px; height: 50px;">
-                                    <i class="bi bi-calendar-event fs-5"></i>
+                            <div class="d-flex gap-3 align-items-center p-3 rounded-4 border" 
+                                 style="background-color: <%= bgNormal %>; border-color: <%= borderNormal %> !important; transition: all 0.3s;"
+                                 onmouseover="this.style.backgroundColor='<%= bgHover %>'; this.style.borderColor='<%= borderHover %>';" 
+                                 onmouseout="this.style.backgroundColor='<%= bgNormal %>'; this.style.borderColor='<%= borderNormal %>';" >
+                                <div class="rounded-3 d-flex align-items-center justify-content-center bg-white" style="width: 50px; height: 50px; border: 1px solid rgba(0,0,0,0.03);">
+                                    <i class="bi bi-calendar-event fs-5 <%= iconClass %>"></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="text-dark font-extrabold mb-1" style="font-size: 0.95rem;"><%= evt.title %></h6>
@@ -230,7 +237,7 @@
                             <% }) %>
                         </div>
                     <% } else { %>
-                        <div class="text-center py-5 text-muted border rounded-4 bg-white border-dashed">
+                        <div class="text-center py-5 text-muted border rounded-4 bg-white border-dashed h-100 d-flex flex-column align-items-center justify-content-center" style="min-height: 250px;">
                             <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary opacity-50"></i>
                             <span class="small">Chưa có sự kiện nào khác sắp diễn ra</span>
                         </div>
