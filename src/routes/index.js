@@ -75,6 +75,8 @@ router.get('/admin/workshops', ensureAdmin, AdminController.workshops);
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
 router.get('/admin/journey-templates', ensureAdmin, AdminController.journeyTemplates);
+router.get('/admin/chat', ensureAdmin, AdminController.chat);
+router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
 
 // ===== MANAGER =====
 router.get('/manager', ensureManager, ManagerController.index);

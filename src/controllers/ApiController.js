@@ -270,12 +270,36 @@ class ApiController {
 
         if (!sessionUuid) return res.json({ success: true, data: [] });
 
+        const session = await UserSession.findByUuid(sessionUuid);
+        if (!session) return res.json({ success: true, data: [] });
+
+        const queryParams = [
+            session.id, session.id, 
+            session.uuid, session.uuid, 
+            session.id, session.id
+        ];
+        
+        let userCondition = '';
+        if (session.user_id) {
+            userCondition = 'OR sender_id = ? OR receiver_id = ?';
+            queryParams.push(session.user_id, session.user_id);
+        }
+
+        if (destinationId) {
+            queryParams.push(destinationId);
+        }
+
         const [messages] = await UserSession.db.query(
             `SELECT * FROM messages 
-             WHERE (sender_uuid = ? OR receiver_uuid = ?)
-             AND (destination_id ${destinationId ? '= ?' : 'IS NULL'})
-             ORDER BY created_at ASC`,
-            destinationId ? [sessionUuid, sessionUuid, destinationId] : [sessionUuid, sessionUuid]
+              WHERE (
+                sender_uuid = ? OR receiver_uuid = ? 
+                OR sender_uuid = ? OR receiver_uuid = ?
+                OR receiver_id = ? OR sender_id = ?
+                ${userCondition}
+              )
+              AND (destination_id ${destinationId ? '= ?' : 'IS NULL'})
+              ORDER BY created_at ASC`,
+            queryParams
         );
 
         res.json({ success: true, data: messages });

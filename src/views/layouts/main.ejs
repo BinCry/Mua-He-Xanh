@@ -214,15 +214,21 @@
             right: 32px !important;
             z-index: 1040;
         }
-        #notifBell {
+        #floatingChatFabContainer {
             position: fixed !important;
             bottom: 110px !important;
             right: 32px !important;
             z-index: 1040;
         }
-        #back-to-top {
+        #notifBell {
             position: fixed !important;
             bottom: 188px !important;
+            right: 32px !important;
+            z-index: 1040;
+        }
+        #back-to-top {
+            position: fixed !important;
+            bottom: 266px !important;
             right: 32px !important;
             left: auto !important;
             z-index: 1040;
@@ -232,10 +238,17 @@
         @media (max-width: 991.98px) {
             body { padding-bottom: 80px; }
             .fab-qr { display: none !important; }
+            #floatingChatFabContainer {
+                position: fixed !important;
+                bottom: 20px !important;
+                right: 20px !important;
+                z-index: 1040;
+            }
             #notifBell {
                 position: fixed !important;
-                bottom: 90px !important;
+                bottom: 85px !important;
                 right: 20px !important;
+                z-index: 1040;
             }
             #back-to-top {
                 position: fixed !important;
@@ -243,9 +256,156 @@
                 right: 20px !important;
                 width: 40px !important;
                 height: 40px !important;
+                z-index: 1040;
+            }
+        }
+
+        @media (max-width: 575.98px) {
+            #floatingChatWidget {
+                right: 10px !important;
+                left: 10px !important;
+                bottom: 80px !important;
+                width: auto !important;
+                height: 450px !important;
             }
         }
     </style>
+
+    <!-- Floating Chat FAB -->
+    <div id="floatingChatFabContainer">
+        <button class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: var(--primary) !important; border: none;" onclick="toggleFloatingChat()">
+            <i class="bi bi-chat-dots-fill fs-5"></i>
+        </button>
+    </div>
+
+    <!-- Floating Chat Widget -->
+    <div id="floatingChatWidget" class="d-none position-fixed shadow-premium border-0 rounded-4 overflow-hidden" 
+         style="bottom: 90px; right: 32px; width: 360px; height: 500px; z-index: 1050; background: #ffffff; border: 1px solid rgba(0,0,0,0.08);">
+        <!-- Header -->
+        <div class="p-3 bg-dark text-white border-0 d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-2">
+                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" height="30" onerror="this.src='/images/logo.png'">
+                <div>
+                    <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Hỗ trợ Bình Lợi Healing</h6>
+                    <small class="opacity-60" style="font-size: 0.65rem; text-transform: uppercase;">Ban Quản Trị</small>
+                </div>
+            </div>
+            <button class="btn-close btn-close-white p-1" onclick="toggleFloatingChat()" style="font-size: 0.8rem; border:none; background:none; color:white;"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <!-- Body -->
+        <div class="d-flex flex-column h-100" style="padding-bottom: 60px;">
+            <div class="flex-grow-1 p-3 overflow-auto" id="floatingChatMessages" style="height: calc(100% - 60px);">
+                <div class="text-center mb-3"><span class="badge bg-light text-muted px-2 py-1 rounded-pill small">Hỗ trợ trực tuyến</span></div>
+                
+                <div class="message-received mb-3 d-flex gap-2">
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle mt-auto" style="width: 28px; height: 28px;" onerror="this.src='/images/logo.png'">
+                    <div class="p-2 px-3 rounded-4 bg-light text-dark small" style="max-width: 75%; font-size: 0.85rem; line-height: 1.5;">
+                        Xin chào! Chúng tôi có thể giúp gì cho bạn? Hãy gửi tin nhắn tại đây nhé.
+                    </div>
+                </div>
+            </div>
+            <!-- Input -->
+            <div class="p-2 px-3 border-top position-absolute bottom-0 start-0 w-100 bg-white" style="height: 60px;">
+                <form id="floatingChatForm" class="d-flex gap-2 align-items-center h-100" onsubmit="sendFloatingMessage(event)">
+                    <input type="text" class="form-control rounded-pill border-0 bg-light px-3" style="font-size: 0.85rem; height: 38px;" placeholder="Nhập tin nhắn..." id="floatingChatInput" required>
+                    <button type="submit" class="btn btn-danger rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px; background-color: var(--primary) !important; border: none;">
+                        <i class="bi bi-send-fill text-white" style="font-size: 0.85rem;"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let floatingChatInterval = null;
+        let lastMessageCount = -1;
+
+        function toggleFloatingChat() {
+            const widget = document.getElementById('floatingChatWidget');
+            widget.classList.toggle('d-none');
+            
+            if (!widget.classList.contains('d-none')) {
+                loadFloatingChatMessages();
+                setTimeout(() => {
+                    const container = document.getElementById('floatingChatMessages');
+                    container.scrollTop = container.scrollHeight;
+                }, 150);
+                floatingChatInterval = setInterval(loadFloatingChatMessages, 4000);
+            } else {
+                if (floatingChatInterval) {
+                    clearInterval(floatingChatInterval);
+                    floatingChatInterval = null;
+                }
+            }
+        }
+
+        async function loadFloatingChatMessages() {
+            try {
+                const res = await axios.get('/api/get-messages');
+                if (res.data.success) {
+                    const messages = res.data.data;
+                    if (messages.length === lastMessageCount) return;
+                    lastMessageCount = messages.length;
+
+                    const container = document.getElementById('floatingChatMessages');
+                    let html = `<div class="text-center mb-3"><span class="badge bg-light text-muted px-2 py-1 rounded-pill small">Hỗ trợ trực tuyến</span></div>
+                                <div class="message-received mb-3 d-flex gap-2">
+                                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle mt-auto" style="width: 28px; height: 28px;" onerror="this.src='/images/logo.png'">
+                                    <div class="p-2 px-3 rounded-4 bg-light text-dark small" style="max-width: 75%; font-size: 0.85rem; line-height: 1.5;">
+                                        Xin chào! Chúng tôi có thể giúp gì cho bạn? Hãy gửi tin nhắn tại đây nhé.
+                                    </div>
+                                </div>`;
+                    
+                    const sessionUuid = document.cookie.split('session_uuid=')[1]?.split(';')[0];
+                    
+                    messages.forEach(msg => {
+                        const isMe = msg.sender_uuid === sessionUuid;
+                        if (isMe) {
+                            html += `
+                                <div class="message-sent mb-3 d-flex justify-content-end">
+                                    <div class="p-2 px-3 rounded-4 bg-primary text-white small" style="max-width: 75%; font-size: 0.85rem; line-height: 1.5; background-color: var(--primary) !important;">
+                                        ${msg.message}
+                                    </div>
+                                </div>
+                            `;
+                        } else {
+                            html += `
+                                <div class="message-received mb-3 d-flex gap-2">
+                                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle mt-auto" style="width: 28px; height: 28px;" onerror="this.src='/images/logo.png'">
+                                    <div class="p-2 px-3 rounded-4 bg-light text-dark small" style="max-width: 75%; font-size: 0.85rem; line-height: 1.5;">
+                                        ${msg.message}
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    });
+                    
+                    container.innerHTML = html;
+                    container.scrollTop = container.scrollHeight;
+                }
+            } catch (e) {
+                console.error('Error loading chat messages:', e);
+            }
+        }
+
+        async function sendFloatingMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('floatingChatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            input.value = '';
+            
+            try {
+                const res = await axios.post('/api/send-message', { message: msg });
+                if (res.data.success) {
+                    loadFloatingChatMessages();
+                }
+            } catch (e) {
+                console.error('Error sending message:', e);
+            }
+        }
+    </script>
 
     <%- typeof scripts !=='undefined' ? scripts : '' %>
 
