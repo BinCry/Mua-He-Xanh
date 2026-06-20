@@ -633,6 +633,88 @@ const AdminController = {
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
         }
+    },
+
+    chat: async (req, res) => {
+        try {
+            // Conversation List for Admin (destination_id IS NULL)
+            const [conversations] = await db.query(
+                `SELECT 
+                     s.id AS session_id,
+                     s.uuid AS session_uuid,
+                     s.total_points AS visitor_points,
+                     u.full_name AS user_name,
+                     u.avatar AS user_avatar,
+                     u.phone AS user_phone,
+                     u.email AS user_email,
+                     (
+                         SELECT message 
+                         FROM messages 
+                         WHERE destination_id IS NULL 
+                           AND (sender_uuid = s.id OR receiver_uuid = s.id)
+                         ORDER BY created_at DESC LIMIT 1
+                     ) AS last_message,
+                     (
+                         SELECT created_at 
+                         FROM messages 
+                         WHERE destination_id IS NULL 
+                           AND (sender_uuid = s.id OR receiver_uuid = s.id)
+                         ORDER BY created_at DESC LIMIT 1
+                     ) AS last_message_time
+                 FROM user_sessions s
+                 LEFT JOIN users u ON s.user_id = u.id
+                 WHERE s.id IN (
+                     SELECT DISTINCT sender_uuid FROM messages WHERE destination_id IS NULL AND sender_uuid IS NOT NULL
+                 )
+                 ORDER BY last_message_time DESC`
+            );
+
+            res.render('admin/chat', {
+                title: 'Hộp thư Hỗ trợ Admin',
+                conversations,
+                layout: 'layouts/admin',
+                adminPage: 'chat'
+            });
+        } catch (error) {
+            console.error("Admin chat page error:", error);
+            res.status(500).send("Internal Server Error: " + error.message);
+        }
+    },
+
+    getChatHistory: async (req, res) => {
+        try {
+            const { sessionId } = req.query;
+            if (!sessionId) {
+                return res.status(400).json({ success: false, message: 'Thiếu Session ID' });
+            }
+
+            // Fetch chat history for this session with Admin (destination_id IS NULL)
+            const [messages] = await db.query(
+                `SELECT * FROM messages 
+                 WHERE destination_id IS NULL 
+                   AND (sender_uuid = ? OR receiver_uuid = ? OR sender_id = ? OR receiver_id = ?)
+                 ORDER BY created_at ASC`,
+                [sessionId, sessionId, sessionId, sessionId]
+            );
+
+            // Fetch visitor details
+            const [visitorDetails] = await db.query(
+                `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone
+                 FROM user_sessions s
+                 LEFT JOIN users u ON s.user_id = u.id
+                 WHERE s.id = ?`,
+                [sessionId]
+            );
+
+            res.json({
+                success: true,
+                messages,
+                visitor: visitorDetails[0] || null
+            });
+        } catch (error) {
+            console.error("Fetch admin chat history error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
     }
 };
 
