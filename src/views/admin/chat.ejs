@@ -1,0 +1,390 @@
+<!-- Premium Admin Chat Panel -->
+<div class="container-fluid p-0 animate__animated animate__fadeIn">
+    <!-- Header banner -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h4 class="fw-bold mb-1 font-display" style="color: var(--admin-text); font-family: 'Inter', sans-serif;">
+                💬 Hộp thư Hỗ trợ Ban Quản Trị
+            </h4>
+            <p class="mb-0 text-muted small" style="font-size: 0.85rem;">
+                Giải đáp thắc mắc, phản hồi và hỗ trợ du khách toàn hệ thống theo thời gian thực.
+            </p>
+        </div>
+        <div>
+            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
+                <i class="bi bi-shield-lock me-1"></i>Hộp thư Admin
+            </span>
+        </div>
+    </div>
+
+    <!-- MAIN CHAT WORKSPACE -->
+    <div class="chat-container-card" style="height: calc(100vh - 170px); min-height: 550px;">
+        <div class="row g-0 h-100">
+            
+            <!-- Chat Sidebar (Active Conversations list) -->
+            <div class="col-md-5 col-xl-4 border-end border-secondary border-opacity-10 d-flex flex-column h-100" style="background: rgba(0,0,0,0.03);">
+                <div class="p-3 border-bottom border-secondary border-opacity-10">
+                    <h6 class="fw-bold small mb-3" style="color: var(--admin-text);"><i class="bi bi-people-fill text-primary me-2"></i>HỘI THOẠI HỆ THỐNG</h6>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light border-secondary border-opacity-20 text-muted"><i class="bi bi-search"></i></span>
+                        <input type="text" class="form-control admin-input border-secondary border-opacity-20 ps-2" placeholder="Tìm du khách..." id="chat-search" oninput="filterConversations()">
+                    </div>
+                </div>
+                
+                <!-- Conversations List -->
+                <div class="flex-grow-1 overflow-y-auto custom-scrollbar" id="convo-list">
+                    <% if (conversations && conversations.length > 0) { %>
+                        <% conversations.forEach((convo, index) => { %>
+                            <div class="convo-item-card p-3 border-bottom border-secondary border-opacity-5 d-flex gap-3 position-relative cursor-pointer transition-all" 
+                                 id="convo-<%= convo.session_id %>"
+                                 onclick="loadConversation('<%= convo.session_id %>')">
+                                
+                                <!-- Avatar -->
+                                <div class="position-relative flex-shrink-0">
+                                    <div class="convo-avatar rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm"
+                                         style="width: 40px; height: 40px; background: <%= ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][convo.session_id % 6] %>; object-fit: cover; font-size: 0.8rem;">
+                                        <% if (convo.user_avatar) { %>
+                                            <img src="<%= convo.user_avatar %>" class="w-100 h-100 rounded-circle object-fit-cover">
+                                        <% } else { %>
+                                            <%= (convo.user_name || 'KH').split(' ').pop().slice(0,2).toUpperCase() %>
+                                        <% } %>
+                                    </div>
+                                    <span class="position-absolute bottom-0 end-0 bg-success border border-dark border-2 rounded-circle" style="width: 10px; height: 10px;"></span>
+                                </div>
+                                
+                                <!-- Body -->
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="fw-bold mb-0 text-truncate small" style="color: var(--admin-text); max-width: 110px; font-size: 0.78rem;">
+                                            <%= convo.user_name || 'Du khách #' + (convo.session_uuid ? convo.session_uuid.slice(0,4).toUpperCase() : 'ANON') %>
+                                        </h6>
+                                        <small class="text-muted" style="font-size: 0.65rem;">
+                                            <%= convo.last_message_time ? new Date(convo.last_message_time).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) : '' %>
+                                        </small>
+                                    </div>
+                                    <p class="text-muted text-truncate mb-0 x-small" style="line-height: 1.4; font-size: 0.7rem;">
+                                        <%= convo.last_message || 'Bắt đầu cuộc hội thoại...' %>
+                                    </p>
+                                </div>
+                                
+                                <div class="active-indicator"></div>
+                            </div>
+                        <% }) %>
+                    <% } else { %>
+                        <div class="text-center py-5 opacity-25">
+                            <i class="bi bi-chat-square-quote display-6 mb-3 d-block"></i>
+                            <small class="fw-bold">Chưa có hội thoại hỗ trợ nào</small>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+
+            <!-- Chat Feed Widget -->
+            <div class="col-md-7 col-xl-8 d-flex flex-column h-100" style="background: var(--admin-bg);">
+                <!-- Header -->
+                <div class="p-3 border-bottom border-secondary border-opacity-10 d-flex justify-content-between align-items-center" id="chat-header" style="height: 68px;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" id="active-chat-avatar" style="width: 38px; height: 38px; background: #888; color: #fff; font-size: 0.85rem;">
+                            ?
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-0 small" id="active-chat-name" style="color: var(--admin-text); font-size: 0.85rem;">Vui lòng chọn hội thoại</h6>
+                            <small class="text-muted" style="font-size: 0.65rem;" id="active-chat-status">Ngoại tuyến</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Messages Container -->
+                <div class="flex-grow-1 p-4 overflow-y-auto custom-scrollbar d-flex flex-column gap-3" id="chat-messages-stream" style="background: rgba(0,0,0,0.05); height: 0;">
+                    <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-30 my-auto">
+                        <i class="bi bi-messenger display-4 mb-3 text-primary animate-pulse"></i>
+                        <h6 class="fw-bold">Hộp thư hỗ trợ hệ thống</h6>
+                        <p class="small text-muted px-4" style="max-width: 320px; font-size: 0.72rem;">Chọn một cuộc hội thoại từ danh sách bên trái để phản hồi, giải đáp các thắc mắc chung của khách truy cập.</p>
+                    </div>
+                </div>
+
+                <!-- Chat Input and Canned Answers -->
+                <div class="border-top border-secondary border-opacity-10" id="chat-controls-area" style="display: none; background: var(--admin-surface);">
+                    
+                    <!-- Quick answers row -->
+                    <div class="p-2 border-bottom border-secondary border-opacity-5 d-flex gap-2 overflow-x-auto custom-scrollbar whitespace-nowrap bg-light" style="padding-left: 15px !important; padding-right: 15px !important;">
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('welcome')">
+                            🌿 Chào mừng du khách
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('guide')">
+                            🗺️ Hướng dẫn hành trình
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('points')">
+                            ✨ Điểm thưởng & Checkin
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('thanks')">
+                            🙏 Cảm ơn du khách
+                        </button>
+                    </div>
+
+                    <!-- Input control -->
+                    <div class="p-3 bg-light">
+                        <div class="input-group">
+                            <input type="text" id="admin-chat-input" class="form-control border-secondary border-opacity-20 rounded-pill ps-4 py-2 admin-input" placeholder="Nhập tin nhắn phản hồi..." style="font-size: 0.8rem;" onkeypress="if(event.key === 'Enter') sendLiveReply()">
+                            <button class="btn btn-primary rounded-circle ms-2 shadow d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: var(--admin-primary); border: none;" onclick="sendLiveReply()">
+                                <i class="bi bi-send-fill text-white" style="font-size: 0.9rem;"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+<style>
+    .chat-container-card {
+        background: var(--admin-surface);
+        border: 1px solid var(--admin-border);
+        border-radius: 16px;
+        overflow: hidden;
+    }
+    .convo-item-card {
+        transition: all 0.2s ease;
+        border-left: 3px solid transparent;
+    }
+    .convo-item-card:hover {
+        background: rgba(255, 255, 255, 0.02) !important;
+    }
+    .convo-item-card.active {
+        background: rgba(59, 130, 246, 0.08) !important;
+        border-left-color: var(--admin-primary);
+    }
+    .convo-item-card .active-indicator {
+        position: absolute;
+        width: 6px;
+        height: 6px;
+        right: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        border-radius: 50%;
+        background: var(--admin-primary);
+        opacity: 0;
+    }
+    .convo-item-card.active .active-indicator {
+        opacity: 1;
+    }
+    .chat-bubble-received {
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: #0f172a;
+        max-width: 80%;
+        word-wrap: break-word;
+    }
+    .chat-bubble-sent {
+        background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
+        color: #ffffff;
+        max-width: 80%;
+        word-wrap: break-word;
+        box-shadow: 0 3px 10px rgba(79, 70, 229, 0.15);
+    }
+    .chat-bubble-ai {
+        background: rgba(16, 185, 129, 0.08);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        color: #065f46;
+        max-width: 80%;
+        word-wrap: break-word;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 4px;
+        height: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(0,0,0,0.1);
+        border-radius: 10px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,0,0,0.2);
+    }
+    .whitespace-nowrap {
+        white-space: nowrap;
+    }
+</style>
+
+<script>
+    let activeSessionId = null;
+    let autoRefreshInterval = null;
+
+    function filterConversations() {
+        const query = document.getElementById('chat-search').value.toLowerCase();
+        document.querySelectorAll('.convo-item-card').forEach(item => {
+            const name = item.querySelector('h6').innerText.toLowerCase();
+            const lastMsg = item.querySelector('p').innerText.toLowerCase();
+            if (name.includes(query) || lastMsg.includes(query)) {
+                item.style.display = 'flex';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    }
+
+    function loadConversation(sessionId) {
+        activeSessionId = sessionId;
+
+        document.querySelectorAll('.convo-item-card').forEach(c => c.classList.remove('active'));
+        const activeCard = document.getElementById('convo-' + sessionId);
+        if (activeCard) activeCard.classList.add('active');
+
+        axios.get('/api/admin/chat-history?sessionId=' + sessionId)
+            .then(res => {
+                if (res.data.success) {
+                    renderChatMessages(res.data.messages, res.data.visitor);
+                }
+            })
+            .catch(err => {
+                console.error("Lỗi lấy lịch sử chat:", err);
+            });
+    }
+
+    function renderChatMessages(messages, visitor) {
+        const stream = document.getElementById('chat-messages-stream');
+        const headerName = document.getElementById('active-chat-name');
+        const headerStatus = document.getElementById('active-chat-status');
+        const avatarBox = document.getElementById('active-chat-avatar');
+        
+        document.getElementById('chat-controls-area').style.display = 'block';
+
+        const vName = (visitor && visitor.full_name) 
+            ? visitor.full_name 
+            : 'Khách vãng lai #' + ((visitor && visitor.uuid) ? visitor.uuid.slice(0,4).toUpperCase() : 'ANON');
+        headerName.innerText = vName;
+        headerStatus.innerHTML = `<span class="text-muted">• ĐIỂM TÍCH LŨY: ${visitor ? visitor.total_points : 0} ✨</span>`;
+        
+        avatarBox.innerText = vName.split(' ').pop().slice(0,2).toUpperCase();
+        const visitorId = (visitor && visitor.id) ? visitor.id : 0;
+        const visitorIndex = typeof visitorId === 'number' ? visitorId : (visitorId ? visitorId.charCodeAt(0) : 0);
+        avatarBox.style.background = ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][visitorIndex % 6];
+
+        stream.innerHTML = '';
+        if (messages && messages.length > 0) {
+            messages.forEach(msg => {
+                const isReply = msg.sender_id !== null && !msg.is_ai;
+                const isAI = msg.is_ai === 1;
+
+                const wrapper = document.createElement('div');
+                wrapper.className = `d-flex flex-column mb-3 ${isReply ? 'align-items-end' : 'align-items-start'}`;
+
+                let bubbleClass = 'chat-bubble-received';
+                let senderLabel = vName;
+                if (isReply) {
+                    bubbleClass = 'chat-bubble-sent';
+                    senderLabel = 'Bạn (BQT)';
+                } else if (isAI) {
+                    bubbleClass = 'chat-bubble-ai';
+                    senderLabel = '🤖 AI Assistant';
+                }
+
+                wrapper.innerHTML = `
+                    <div class="x-small text-muted mb-1 px-2" style="font-size: 0.6rem; font-weight: 600;">
+                        ${senderLabel.toUpperCase()}
+                    </div>
+                    <div class="p-3 rounded-4 shadow-sm ${bubbleClass} text-start" style="font-size: 0.8rem; line-height: 1.4;">
+                        ${msg.message}
+                        <div class="x-small mt-1 text-end opacity-50" style="font-size: 0.58rem;">
+                            ${new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}
+                        </div>
+                    </div>
+                `;
+                stream.appendChild(wrapper);
+            });
+        } else {
+            stream.innerHTML = `
+                <div class="text-center my-auto opacity-30 py-5">
+                    <i class="bi bi-chat-dots-fill display-5 mb-2"></i>
+                    <p class="small">Bắt đầu cuộc trò chuyện hỗ trợ tại đây</p>
+                </div>
+            `;
+        }
+
+        stream.scrollTop = stream.scrollHeight;
+    }
+
+    function sendLiveReply() {
+        const input = document.getElementById('admin-chat-input');
+        const text = input.value.trim();
+        if (!text || !activeSessionId) return;
+
+        input.disabled = true;
+
+        axios.post('/api/reply-message', {
+            sessionId: activeSessionId,
+            replyText: text,
+            destinationId: null // global admin chat
+        })
+        .then(res => {
+            if (res.data.success) {
+                input.value = '';
+                loadConversation(activeSessionId);
+            }
+        })
+        .catch(err => {
+            alert('Lỗi khi gửi phản hồi: ' + (err.response?.data?.message || err.message));
+        })
+        .finally(() => {
+            input.disabled = false;
+            input.focus();
+        });
+    }
+
+    function insertCannedResponse(type) {
+        const input = document.getElementById('admin-chat-input');
+        let response = '';
+
+        if (type === 'welcome') {
+            response = 'Chào mừng bạn đến với hệ sinh thái du lịch chữa lành Bình Lợi! Ban quản trị chúng tôi rất hân hạnh được đồng hành và hỗ trợ bạn trong suốt hành trình.';
+        } else if (type === 'guide') {
+            response = 'Chào bạn, bạn có thể tạo một Hành trình cá nhân hóa bằng Trí tuệ Nhân tạo (AI) ngay tại phần "Hành trình" trên menu, hoặc mở "Bản đồ số" để tự do khám phá các điểm dừng chân nổi bật nhé!';
+        } else if (type === 'points') {
+            response = 'Chào bạn! Khi tham quan Bình Lợi, bạn hãy quét mã QR Code tại mỗi điểm đến để Check-in. Mỗi lượt check-in thành công sẽ giúp tích lũy điểm thưởng trong Hồ sơ du khách để đổi quà hấp dẫn đó!';
+        } else if (type === 'thanks') {
+            response = 'Cảm ơn bạn rất nhiều vì đã gửi tin nhắn đóng góp ý kiến. Chúc bạn và gia đình có một chuyến đi chữa lành thật nhiều niềm vui và bình yên tại xã Bình Lợi!';
+        }
+
+        input.value = response;
+        input.focus();
+    }
+
+    function startAutoRefresh() {
+        stopAutoRefresh();
+        autoRefreshInterval = setInterval(() => {
+            if (activeSessionId) {
+                axios.get('/api/admin/chat-history?sessionId=' + activeSessionId)
+                    .then(res => {
+                        if (res.data.success) {
+                            const stream = document.getElementById('chat-messages-stream');
+                            const currentBubbles = stream.querySelectorAll('.rounded-4').length;
+                            if (res.data.messages.length !== currentBubbles) {
+                                renderChatMessages(res.data.messages, res.data.visitor);
+                            }
+                        }
+                    }).catch(err => console.log(err));
+            }
+        }, 5000);
+    }
+
+    function stopAutoRefresh() {
+        if (autoRefreshInterval) {
+            clearInterval(autoRefreshInterval);
+            autoRefreshInterval = null;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        startAutoRefresh();
+
+        <% if (conversations && conversations.length > 0) { %>
+            const firstSession = '<%= conversations[0].session_id %>';
+            loadConversation(firstSession);
+        <% } %>
+    });
+</script>

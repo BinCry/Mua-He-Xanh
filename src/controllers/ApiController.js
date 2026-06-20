@@ -245,20 +245,41 @@ class ApiController {
     }
 
     async replyMessage(req, res) {
-        const { messageId, replyText } = req.body;
+        const { messageId, sessionId, replyText, destinationId } = req.body;
         const manager = req.session.user || req.user;
 
         if (!manager || (manager.role !== 'manager' && manager.role !== 'admin')) {
             return res.status(403).json({ success: false, message: 'Unauthorized' });
         }
 
-        const [rows] = await UserSession.db.query("SELECT * FROM messages WHERE id = ?", [messageId]);
-        if (rows.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
-        const originalMsg = rows[0];
+        if (!replyText) {
+            return res.status(400).json({ success: false, message: 'Nội dung phản hồi không được để trống.' });
+        }
+
+        let receiverId = null;
+        let receiverUuid = null;
+        let finalDestId = destinationId || null;
+
+        if (sessionId) {
+            receiverUuid = sessionId;
+            const [sessions] = await UserSession.db.query("SELECT user_id FROM user_sessions WHERE id = ?", [sessionId]);
+            if (sessions.length > 0) {
+                receiverId = sessions[0].user_id;
+            }
+        } else if (messageId) {
+            const [rows] = await UserSession.db.query("SELECT * FROM messages WHERE id = ?", [messageId]);
+            if (rows.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
+            const originalMsg = rows[0];
+            receiverUuid = originalMsg.sender_uuid;
+            receiverId = originalMsg.sender_id;
+            finalDestId = originalMsg.destination_id;
+        } else {
+            return res.status(400).json({ success: false, message: 'Thiếu thông tin người nhận (sessionId hoặc messageId)' });
+        }
 
         await UserSession.db.query(
             "INSERT INTO messages (id, sender_id, receiver_id, receiver_uuid, destination_id, message) VALUES (?, ?, ?, ?, ?, ?)",
-            [uuidv4(), manager.id, originalMsg.sender_id, originalMsg.sender_uuid, originalMsg.destination_id, replyText]
+            [uuidv4(), manager.id, receiverId, receiverUuid, finalDestId, replyText]
         );
 
         res.json({ success: true, message: 'Đã gửi phản hồi.' });
