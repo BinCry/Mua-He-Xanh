@@ -88,7 +88,9 @@
             <a class="mobile-menu-link" href="/journey"><i class="bi bi-signpost-split"></i> Hành trình</a>
             <a class="mobile-menu-link" href="/map"><i class="bi bi-map"></i> Bản đồ</a>
             <a class="mobile-menu-link" href="/festivals"><i class="bi bi-calendar-event"></i> Lễ hội</a>
-            <a class="mobile-menu-link" href="/checkin"><i class="bi bi-qr-code-scan" style="color: var(--primary);"></i> Quét QR Check-in</a>
+            <% if (locals.user) { %>
+            <a class="mobile-menu-link" href="/chat" style="color: var(--primary); font-weight: 600;"><i class="bi bi-envelope-heart" style="color: var(--primary);"></i> Hộp thư hỗ trợ</a>
+            <% } %>
         </div>
 
         <!-- User Section at Bottom -->

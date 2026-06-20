@@ -1,98 +1,221 @@
-<section class="site-section">
-    <div class="container-site">
-        <div class="text-center mb-5 animate__animated animate__fadeIn">
-            <span class="text-primary fw-bold mb-2 d-block">XÁC THỰC HÀNH TRÌNH</span>
-            <h2 class="display-text">Check-in & Xác nhận</h2>
-            <p class="text-muted mx-auto" style="max-width: 600px;">Sử dụng QR Code hoặc vị trí GPS để xác nhận điểm đến và nhận huy hiệu.</p>
+<section class="py-5" style="margin-top: 80px; background: #f8faf9;">
+    <div class="container py-4" style="max-width: 700px;">
+        <div class="text-center mb-5 reveal-up">
+            <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
+                <i class="bi bi-qr-code-scan me-1"></i> Xác thực hành trình
+            </span>
+            <h2 class="fw-black text-dark mb-2 font-display" style="font-size: 2rem;">Check-in & Xác nhận</h2>
+            <p class="text-muted mx-auto" style="max-width: 500px; font-size: 0.92rem;">Quét mã QR tại địa điểm hoặc sử dụng GPS để xác nhận bạn đã đến nơi.</p>
         </div>
 
-        <div class="row g-4 justify-content-center">
-            <div class="col-md-7 col-lg-6">
-                <!-- QR Scanner Card -->
-                <div class="card-bl p-4 shadow-lg mb-4 text-center">
-                    <h5 class="mb-4"><i class="bi bi-qr-code-scan me-2 text-primary"></i> Quét mã QR tại điểm</h5>
-                    <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden; background: #eee;"></div>
-                    <div id="qr-result" class="mt-3"></div>
-                </div>
-
-                <!-- GPS Status Card -->
-                <div class="card-bl p-4 shadow-sm text-center">
-                    <h5><i class="bi bi-geo-alt me-2 text-secondary"></i> Định vị GPS</h5>
-                    <p id="location-status" class="small text-muted mb-3">Đang kiểm tra vị trí...</p>
-                    <button id="btn-gps-check" class="btn btn-outline-bl btn-sm rounded-pill px-4">Xác nhận bằng vị trí</button>
+        <!-- QR Scanner Card -->
+        <div class="card border-0 shadow-premium rounded-4 overflow-hidden mb-4 reveal-up">
+            <div class="p-3 text-white d-flex align-items-center gap-2" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%);">
+                <i class="bi bi-qr-code-scan fs-4"></i>
+                <div>
+                    <h6 class="fw-bold mb-0" style="font-size: 0.95rem;">Quét mã QR tại điểm</h6>
+                    <small class="opacity-75" style="font-size: 0.72rem;">Hướng camera vào mã QR được in tại địa điểm</small>
                 </div>
             </div>
+            <div class="p-4">
+                <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden; background: #f1f5f9; min-height: 280px;"></div>
+                <div id="qr-result" class="mt-3"></div>
+            </div>
+        </div>
+
+        <!-- GPS Status Card -->
+        <div class="card border-0 shadow-sm rounded-4 p-4 text-center reveal-up bg-white">
+            <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
+                <i class="bi bi-geo-alt-fill text-primary fs-4"></i>
+                <h6 class="fw-bold mb-0">Định vị GPS</h6>
+            </div>
+            <p id="location-status" class="small text-muted mb-3">Đang kiểm tra vị trí của bạn...</p>
+            <div id="gps-coords" class="small text-muted mb-3" style="display:none;"></div>
+            <% if (dest) { %>
+            <button id="btn-gps-check" class="btn rounded-pill px-4 py-2 fw-bold text-white" style="background: var(--primary);" onclick="doGpsCheckin()">
+                <i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí tại "<%= dest.name %>"
+            </button>
+            <% } else { %>
+            <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i> Quét mã QR trước để xác định địa điểm, sau đó hệ thống sẽ tự động kiểm tra GPS.</p>
+            <% } %>
         </div>
     </div>
 </section>
 
-<!-- Multimedia Portal Modal -->
-<div class="modal fade" id="multimediaModal" tabindex="-1" aria-hidden="true">
+<!-- Success Modal -->
+<div class="modal fade" id="checkinSuccessModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+        <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
             <div class="position-relative">
-                <img id="modal-img" src="" class="w-100" style="height: 200px; object-fit: cover;">
+                <img id="modal-img" src="" class="w-100" style="height: 220px; object-fit: cover;">
                 <div class="position-absolute top-0 end-0 m-3">
-                    <button type="button" class="btn-close btn-close-white bg-dark p-2 rounded-circle" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white bg-dark p-2 rounded-circle" data-bs-dismiss="modal"></button>
                 </div>
-                <div class="position-absolute bottom-0 start-0 w-100 p-3 bg-gradient-dark text-white">
-                    <h4 id="modal-title" class="mb-0 fw-bold"></h4>
+                <div class="position-absolute bottom-0 start-0 w-100 p-4" style="background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);">
+                    <span class="badge bg-success rounded-pill px-3 py-2 mb-2 fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Check-in thành công!</span>
+                    <h4 id="modal-title" class="text-white fw-black mb-0"></h4>
                 </div>
             </div>
             <div class="modal-body p-4 text-center">
-                <p id="modal-story" class="text-muted small mb-4" style="line-height: 1.6;"></p>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary-bl rounded-pill" onclick="window.location.href='/profile'">Xem Hồ sơ & Huy hiệu</button>
-                    <button class="btn btn-outline-bl rounded-pill" data-bs-dismiss="modal">Tiếp tục khám phá</button>
+                <div id="modal-points" class="mb-3"></div>
+                <p id="modal-story" class="text-muted small mb-4" style="line-height: 1.7;"></p>
+                <div class="d-flex gap-2 justify-content-center flex-wrap">
+                    <a href="/profile" class="btn rounded-pill px-4 py-2 fw-bold text-white" style="background: var(--primary);">
+                        <i class="bi bi-trophy me-1"></i> Xem huy hiệu
+                    </a>
+                    <button class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold" data-bs-dismiss="modal">
+                        Tiếp tục khám phá
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-.bg-gradient-dark { background: linear-gradient(to top, rgba(0,0,0,0.8), transparent); }
-</style>
-
-<script src="https://unpkg.com/html5-qrcode"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
 <script>
-// QR Scanner Logic
-function onScanSuccess(decodedText, decodedResult) {
-    document.getElementById('qr-result').innerHTML = `<div class="alert alert-success">Đã quét thành công! Đang xử lý...</div>`;
-    let slug = decodedText;
-    if (decodedText.includes('/')) {
-        slug = decodedText.split('/').pop();
-    }
-    verifyCheckin(slug, 'qr');
-}
+// ========== GPS Tracking ==========
+let userLat = null;
+let userLng = null;
+let gpsReady = false;
 
-let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250, videoConstraints: { facingMode: "environment" } });
-html5QrcodeScanner.render(onScanSuccess);
-
-// GPS Logic
-document.getElementById('btn-gps-check').addEventListener('click', () => {
-    document.getElementById('location-status').innerHTML = '<i class="bi bi-hourglass-split"></i> Đang xác thực tọa độ...';
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            verifyCheckin('<%= slug || "" %>', 'gps', pos.coords.latitude, pos.coords.longitude);
-        });
-    } else {
-        alert("Trình duyệt không hỗ trợ định vị.");
-    }
-});
-
-function verifyCheckin(slug, method, lat = null, lng = null) {
-    if (!slug) {
-        alert("Thiếu thông tin địa điểm để check-in.");
+function initGPS() {
+    if (!navigator.geolocation) {
+        document.getElementById('location-status').innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Trình duyệt không hỗ trợ định vị GPS.</span>';
         return;
     }
+
+    navigator.geolocation.getCurrentPosition(
+        (pos) => {
+            userLat = pos.coords.latitude;
+            userLng = pos.coords.longitude;
+            gpsReady = true;
+            document.getElementById('location-status').innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Đã xác định vị trí GPS thành công</span>';
+            document.getElementById('gps-coords').style.display = 'block';
+            document.getElementById('gps-coords').innerHTML = `<i class="bi bi-pin-map me-1"></i> Tọa độ: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
+        },
+        (err) => {
+            console.warn('GPS error:', err);
+            document.getElementById('location-status').innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i> Không thể lấy vị trí. Vui lòng cho phép truy cập vị trí trong trình duyệt.</span>';
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+}
+
+// Start GPS tracking immediately
+initGPS();
+
+// ========== QR Scanner ==========
+let scannerStopped = false;
+
+function onScanSuccess(decodedText, decodedResult) {
+    if (scannerStopped) return;
+    scannerStopped = true;
+
+    // Stop scanner to prevent duplicate scans
+    try { html5QrcodeScanner.clear(); } catch(e) {}
+
+    document.getElementById('qr-result').innerHTML = `
+        <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">
+            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+            <span class="fw-bold small" style="color: var(--primary);">Đã quét thành công! Đang xác thực vị trí GPS...</span>
+        </div>
+    `;
+
+    // Extract slug from QR content
+    let slug = decodedText.trim();
+    // Handle various QR formats:
+    // 1. Full URL: https://domain.com/explore/slug or /checkin?slug=slug
+    // 2. Just slug: "vuon-mai-binh-loi"
+    // 3. URL with query: /checkin?slug=vuon-mai-binh-loi
     
-    if (method === 'gps' && lat === null) {
-        navigator.geolocation.getCurrentPosition(pos => {
-            verifyCheckin(slug, 'gps', pos.coords.latitude, pos.coords.longitude);
-        });
+    if (slug.includes('slug=')) {
+        // Extract slug from query parameter
+        const match = slug.match(/slug=([^&]+)/);
+        if (match) slug = match[1];
+    } else if (slug.includes('/explore/')) {
+        slug = slug.split('/explore/').pop().split('?')[0].split('#')[0];
+    } else if (slug.includes('/')) {
+        // Take the last path segment
+        slug = slug.split('/').filter(s => s).pop() || slug;
+    }
+
+    // Decode URI component in case it's encoded
+    try { slug = decodeURIComponent(slug); } catch(e) {}
+
+    // Now get GPS and do checkin
+    if (gpsReady && userLat !== null) {
+        doCheckin(slug, 'qr', userLat, userLng);
+    } else {
+        // Try to get GPS now
+        document.getElementById('qr-result').innerHTML = `
+            <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">
+                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
+                <span class="fw-bold small" style="color: var(--primary);">Đang lấy tọa độ GPS để xác thực vị trí...</span>
+            </div>
+        `;
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                userLat = pos.coords.latitude;
+                userLng = pos.coords.longitude;
+                gpsReady = true;
+                doCheckin(slug, 'qr', userLat, userLng);
+            },
+            (err) => {
+                document.getElementById('qr-result').innerHTML = `
+                    <div class="alert alert-danger rounded-3">
+                        <i class="bi bi-exclamation-triangle me-1"></i>
+                        <strong>Không thể xác định vị trí GPS.</strong><br>
+                        <small>Vui lòng cho phép truy cập vị trí trong cài đặt trình duyệt, sau đó tải lại trang và quét lại.</small>
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary rounded-pill mt-2" onclick="location.reload()">
+                        <i class="bi bi-arrow-clockwise me-1"></i> Thử lại
+                    </button>
+                `;
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    }
+}
+
+let html5QrcodeScanner = new Html5QrcodeScanner("reader", {
+    fps: 10,
+    qrbox: { width: 250, height: 250 },
+    videoConstraints: { facingMode: "environment" },
+    rememberLastUsedCamera: true
+});
+html5QrcodeScanner.render(onScanSuccess);
+
+// ========== GPS-only Checkin (for pre-selected destination) ==========
+<% if (dest) { %>
+function doGpsCheckin() {
+    const btn = document.getElementById('btn-gps-check');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang xác thực...';
+
+    if (gpsReady && userLat !== null) {
+        doCheckin('<%= slug %>', 'gps', userLat, userLng);
+    } else {
+        navigator.geolocation.getCurrentPosition(
+            (pos) => {
+                userLat = pos.coords.latitude;
+                userLng = pos.coords.longitude;
+                doCheckin('<%= slug %>', 'gps', userLat, userLng);
+            },
+            (err) => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
+                alert('Không thể lấy vị trí GPS. Vui lòng cho phép quyền truy cập vị trí.');
+            },
+            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
+    }
+}
+<% } %>
+
+// ========== Core Checkin Function ==========
+function doCheckin(slug, method, lat, lng) {
+    if (!slug) {
+        document.getElementById('qr-result').innerHTML = '<div class="alert alert-warning rounded-3">Mã QR không hợp lệ. Vui lòng quét lại.</div>';
         return;
     }
 
@@ -103,24 +226,69 @@ function verifyCheckin(slug, method, lat = null, lng = null) {
         lng: lng
     }).then(res => {
         if (res.data.success) {
-            confetti({ particleCount: 150, spread: 100, origin: { y: 0.7 } });
-            showMultimediaPortal(res.data.destination);
+            // Success! Show celebration
+            if (typeof confetti === 'function') {
+                confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+            }
+
+            const dest = res.data.destination;
+            document.getElementById('modal-title').innerText = dest.name;
+            
+            // Fix image path
+            let imgSrc = dest.cover_image || '/images/hero-1.png';
+            if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('data:') && !imgSrc.startsWith('/')) {
+                imgSrc = '/' + imgSrc;
+            }
+            document.getElementById('modal-img').src = imgSrc;
+            
+            document.getElementById('modal-story').innerText = dest.story || dest.highlight || 'Chào mừng bạn đã đến với địa điểm này!';
+            document.getElementById('modal-points').innerHTML = `
+                <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">
+                    <i class="bi bi-star-fill text-warning"></i>
+                    <span class="fw-bold" style="color: var(--primary);">+${res.data.points_earned} điểm thưởng</span>
+                </div>
+            `;
+
+            document.getElementById('qr-result').innerHTML = `
+                <div class="d-flex align-items-center gap-2 p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25">
+                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
+                    <div>
+                        <span class="fw-bold text-success d-block">Check-in thành công!</span>
+                        <small class="text-muted">Địa điểm: ${dest.name}</small>
+                    </div>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(document.getElementById('checkinSuccessModal'));
+            modal.show();
         } else {
-            alert('Thất bại: ' + res.data.message);
-            document.getElementById('location-status').innerHTML = 'Xác thực thất bại. Vui lòng thử lại.';
+            showCheckinError(res.data.message);
         }
     }).catch(err => {
-        alert('Lỗi: ' + (err.response?.data?.message || err.message));
-        document.getElementById('location-status').innerHTML = 'Lỗi kết nối.';
+        const msg = err.response?.data?.message || err.message;
+        showCheckinError(msg);
     });
 }
 
-function showMultimediaPortal(dest) {
-    document.getElementById('modal-title').innerText = dest.name;
-    document.getElementById('modal-img').src = '/images/' + (dest.cover_image || 'hero-1.png');
-    document.getElementById('modal-story').innerText = dest.story || "Chào mừng bạn đến với địa điểm văn hóa đặc sắc của Bình Lợi.";
+function showCheckinError(message) {
+    document.getElementById('qr-result').innerHTML = `
+        <div class="alert alert-danger rounded-3 d-flex align-items-start gap-2">
+            <i class="bi bi-exclamation-triangle-fill mt-1"></i>
+            <div>
+                <strong>Check-in thất bại</strong><br>
+                <small>${message}</small>
+            </div>
+        </div>
+        <button class="btn btn-sm btn-outline-primary rounded-pill mt-2" onclick="location.reload()">
+            <i class="bi bi-arrow-clockwise me-1"></i> Quét lại
+        </button>
+    `;
 
-    const myModal = new bootstrap.Modal(document.getElementById('multimediaModal'));
-    myModal.show();
+    // Reset GPS button if exists
+    const btn = document.getElementById('btn-gps-check');
+    if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
+    }
 }
 </script>

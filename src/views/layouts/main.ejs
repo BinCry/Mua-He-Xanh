@@ -178,17 +178,9 @@
         @media (max-width: 991.98px) {
             body { padding-bottom: 80px; }
             .fab-qr { display: none !important; }
-            #floatingChatFabContainer {
-                position: fixed !important;
-                bottom: 20px !important;
-                right: 20px !important;
-                z-index: 1040;
-            }
-            #floatingChatFabContainer button {
-                width: 50px !important;
-                height: 50px !important;
-                font-size: 1.25rem !important;
-            }
+            /* Hide floating chat on mobile - use sidebar link instead */
+            #floatingChatFabContainer { display: none !important; }
+            #floatingChatWidget { display: none !important; }
         }
 
         @media (max-width: 575.98px) {
@@ -203,6 +195,7 @@
     </style>
 
     <!-- Floating Chat FAB -->
+    <% if (locals.user) { %>
     <div id="floatingChatFabContainer">
         <button class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="background-color: var(--primary) !important; border: none;" onclick="toggleFloatingChat()">
             <i class="bi bi-chat-dots-fill"></i>
@@ -213,9 +206,9 @@
     <div id="floatingChatWidget" class="d-none position-fixed shadow-premium border-0 rounded-4 overflow-hidden" 
          style="bottom: 90px; right: 32px; width: 360px; height: 500px; z-index: 1050; background: #ffffff; border: 1px solid rgba(0,0,0,0.08);">
         <!-- Header -->
-        <div class="p-3 bg-dark text-white border-0 d-flex justify-content-between align-items-center">
+        <div class="p-3 text-white border-0 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%);">
             <div class="d-flex align-items-center gap-2">
-                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" height="30" onerror="this.src='/images/logo.png'">
+                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" height="30" style="filter: brightness(0) invert(1);" onerror="this.src='/images/logo.png'">
                 <div>
                     <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Hỗ trợ Bình Lợi Healing</h6>
                     <small class="opacity-60" style="font-size: 0.65rem; text-transform: uppercase;">Ban Quản Trị</small>
@@ -337,6 +330,7 @@
             }
         }
     </script>
+    <% } %>
 
     <%- typeof scripts !=='undefined' ? scripts : '' %>
 

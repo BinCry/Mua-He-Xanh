@@ -209,20 +209,13 @@
                 <div class="scrollable-events-container flex-grow-1" style="max-height: 380px; overflow-y: auto; padding-right: 8px;">
                     <% if (typeof otherEvents !== 'undefined' && otherEvents.length > 0) { %>
                         <div class="d-flex flex-column gap-3">
-                            <% otherEvents.forEach((evt, index) => { 
-                                const isEven = index % 2 === 0;
-                                const bgNormal = isEven ? '#eef6ff' : '#edf8f3';
-                                const borderNormal = isEven ? '#d2e7ff' : '#d5eedf';
-                                const bgHover = isEven ? '#def0ff' : '#dcf3e6';
-                                const borderHover = isEven ? '#a4d0ff' : '#a8e0be';
-                                const iconClass = isEven ? 'text-primary' : 'text-success';
-                            %>
-                            <div class="d-flex gap-3 align-items-center p-3 rounded-4 border" 
-                                 style="background-color: <%= bgNormal %>; border-color: <%= borderNormal %> !important; transition: all 0.3s;"
-                                 onmouseover="this.style.backgroundColor='<%= bgHover %>'; this.style.borderColor='<%= borderHover %>';" 
-                                 onmouseout="this.style.backgroundColor='<%= bgNormal %>'; this.style.borderColor='<%= borderNormal %>';" >
-                                <div class="rounded-3 d-flex align-items-center justify-content-center bg-white" style="width: 50px; height: 50px; border: 1px solid rgba(0,0,0,0.03);">
-                                    <i class="bi bi-calendar-event fs-5 <%= iconClass %>"></i>
+                            <% otherEvents.forEach((evt, index) => { %>
+                            <div class="d-flex gap-3 align-items-center p-3 rounded-4 border bg-white" 
+                                 style="border-color: rgba(0,0,0,0.08) !important; transition: all 0.3s;"
+                                 onmouseover="this.classList.replace('bg-white', 'bg-light');" 
+                                 onmouseout="this.classList.replace('bg-light', 'bg-white');" >
+                                <div class="rounded-3 d-flex align-items-center justify-content-center bg-light" style="width: 50px; height: 50px; border: 1px solid rgba(0,0,0,0.03);">
+                                    <i class="bi bi-calendar-event fs-5 text-primary"></i>
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="text-dark font-extrabold mb-1" style="font-size: 0.95rem;"><%= evt.title %></h6>
@@ -314,6 +307,7 @@
 <!-- Floating buttons removed - QR in bottom center, Chat via menu -->
 
 <!-- Global Chat Modal -->
+<% if (locals.user) { %>
 <div class="modal fade" id="globalChatModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-sm modal-dialog-scrollable" style="max-width: 400px;">
         <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
@@ -398,6 +392,7 @@ async function sendGlobalChat() {
     try { await axios.post('/api/send-message', { message }); } catch (err) { alert('Lỗi: ' + (err.response?.data?.message || err.message)); }
 }
 </script>
+<% } %>
 
 <% if (nextEvent) { %>
 <script>
