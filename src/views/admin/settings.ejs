@@ -1,4 +1,18 @@
 <!-- Admin Site Settings -->
+<style>
+.btn-admin-outline {
+    border: 1.5px solid var(--admin-primary) !important;
+    color: var(--admin-primary) !important;
+    background: transparent !important;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-admin-outline:hover {
+    background: var(--admin-primary) !important;
+    color: #ffffff !important;
+}
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Cài đặt Trang web</h4>
@@ -15,9 +29,9 @@
                 <div class="row g-4 align-items-center">
                     <div class="col-md-3 text-center">
                         <div class="p-3 rounded-4" style="background: var(--admin-surface); border: 2px dashed var(--admin-border);">
-                            <img id="logo_preview" src="<%= settings.brand_logo || '/images/logo.png' %>" alt="Logo" style="max-height: 100px; max-width: 100%; object-fit: contain;" onerror="this.src='/images/logo.png'">
+                            <img id="logo_preview" src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="max-height: 100px; max-width: 100%; object-fit: contain;" onerror="this.src='/images/logo.png'">
                             <div class="mt-2">
-                                <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('logo_file').click()">
+                                <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('logo_file').click()">
                                     <i class="bi bi-upload me-1"></i>Đổi Logo
                                 </button>
                                 <input type="file" id="logo_file" class="d-none" accept="image/*" onchange="uploadLogo(this)">
@@ -56,7 +70,7 @@
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Ảnh Hero (Trang chủ)</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
                         <img id="hero_preview" src="<%= settings.hero_image || '/images/hero-1.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
-                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('hero_file').click()">
+                        <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('hero_file').click()">
                             <i class="bi bi-upload me-1"></i>Chọn ảnh
                         </button>
                         <input type="file" id="hero_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'hero_image', 'hero_preview')">
@@ -67,7 +81,7 @@
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Background Giới thiệu</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
                         <img id="about_preview" src="<%= settings.about_bg || '/images/nature-bg.jpg' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
-                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('about_file').click()">
+                        <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('about_file').click()">
                             <i class="bi bi-upload me-1"></i>Chọn ảnh
                         </button>
                         <input type="file" id="about_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'about_bg', 'about_preview')">
@@ -78,7 +92,7 @@
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Background Đăng nhập</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
                         <img id="login_preview" src="<%= settings.login_bg || '/images/hero-1.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
-                        <button type="button" class="btn btn-sm btn-outline-light rounded-pill" onclick="document.getElementById('login_file').click()">
+                        <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('login_file').click()">
                             <i class="bi bi-upload me-1"></i>Chọn ảnh
                         </button>
                         <input type="file" id="login_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'login_bg', 'login_preview')">

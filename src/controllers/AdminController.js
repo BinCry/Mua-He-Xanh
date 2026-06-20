@@ -16,20 +16,8 @@ const AdminController = {
             const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins');
             const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews');
             const [workshopCount] = await db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = TRUE');
-
-            // Real page views
-            const [pageViews] = await db.query("SELECT COUNT(*) as total FROM analytics WHERE event = 'page_view'");
-            const [uniqueVisitors] = await db.query("SELECT COUNT(DISTINCT session_id) as total FROM analytics WHERE event = 'page_view'");
-            
-            // Average session duration calculation with premium realistic fallback (average 3.5 minutes + real logs)
-            const [avgDuration] = await db.query(`
-                SELECT AVG(duration_ms) as avg_ms FROM analytics 
-                WHERE event = 'page_view' AND duration_ms > 0 AND duration_ms < 300000
-            `);
-            let realAvgSeconds = Math.round((avgDuration[0]?.avg_ms || 0) / 1000);
-            if (realAvgSeconds < 0) {
-                realAvgSeconds = 0;
-            }
+            const [pointsSum] = await db.query('SELECT SUM(total_points) as total FROM users');
+            const [eventCount] = await db.query('SELECT COUNT(*) as total FROM events WHERE is_active = TRUE');
 
             // Monthly check-in trend (last 6 months)
             const [checkinRows] = await db.query(`
@@ -51,28 +39,28 @@ const AdminController = {
                 });
             }
 
-            // Daily page views (last 14 days)
-            const [viewRows] = await db.query(`
+            // Daily Check-ins (last 14 days)
+            const [dailyCheckinRows] = await db.query(`
                 SELECT DATE(created_at) as day, COUNT(*) as count
-                FROM analytics WHERE event = 'page_view' AND created_at >= DATE_SUB(NOW(), INTERVAL 14 DAY)
+                FROM check_ins WHERE created_at >= DATE_SUB(NOW(), INTERVAL 14 DAY)
                 GROUP BY day ORDER BY day ASC
             `);
-            const viewsMap = {};
-            viewRows.forEach(r => {
+            const checkinsMap = {};
+            dailyCheckinRows.forEach(r => {
                 try {
                     const dateStr = new Date(r.day).toISOString().split('T')[0];
-                    viewsMap[dateStr] = r.count;
+                    checkinsMap[dateStr] = r.count;
                 } catch (e) {}
             });
 
-            const dailyViews = [];
+            const dailyCheckins = [];
             for (let i = 13; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
                 const dayStr = d.toISOString().split('T')[0];
-                dailyViews.push({
+                dailyCheckins.push({
                     day: dayStr,
-                    count: viewsMap[dayStr] || 0
+                    count: checkinsMap[dayStr] || 0
                 });
             }
 
@@ -107,11 +95,10 @@ const AdminController = {
                     checkins: checkinCount[0].total,
                     reviews: reviewCount[0].total,
                     workshops: workshopCount[0].total,
-                    pageViews: pageViews[0].total,
-                    uniqueVisitors: uniqueVisitors[0].total,
-                    avgDuration: realAvgSeconds
+                    totalPoints: pointsSum[0].total || 0,
+                    events: eventCount[0].total
                 },
-                chartData: { monthlyCheckins, dailyViews, monthlyUsers },
+                chartData: { monthlyCheckins, dailyCheckins, monthlyUsers },
                 topDests,
                 recentUsers
             });

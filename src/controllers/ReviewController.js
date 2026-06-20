@@ -46,11 +46,8 @@ const ReviewController = {
             const id = uuidv4();
             let images = null;
             if (req.file) {
-                const fs = require('fs');
-                const buffer = fs.readFileSync(req.file.path);
-                const base64Image = `data:${req.file.mimetype};base64,${buffer.toString('base64')}`;
-                images = JSON.stringify([base64Image]);
-                fs.unlinkSync(req.file.path);
+                const publicPath = '/uploads/' + req.file.filename;
+                images = JSON.stringify([publicPath]);
             }
 
             // Auto-detect location name via reverse geocoding if coordinates provided

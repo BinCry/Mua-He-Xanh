@@ -27,9 +27,9 @@ const UploadController = {
     },
 
     /**
-     * Logo upload - saves/overwrites logo to /images/logo.png
+     * Logo upload - saves/overwrites logo to /images/logo.png and updates database settings
      */
-    uploadLogo: (req, res) => {
+    uploadLogo: async (req, res) => {
         try {
             if (!req.file) {
                 return res.status(400).json({ success: false, message: 'Không có tệp nào được tải lên.' });
@@ -45,6 +45,13 @@ const UploadController = {
             fs.unlinkSync(req.file.path);
 
             const publicUrl = '/images/' + logoFilename;
+
+            // Automatically save to database settings table to ensure synchronization instantly
+            const db = require('../core/database');
+            await db.query(
+                `INSERT INTO settings (key_name, key_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE key_value = ?`,
+                ['brand_logo', publicUrl, publicUrl]
+            );
 
             res.json({
                 success: true,

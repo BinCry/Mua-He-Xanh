@@ -9,28 +9,6 @@
     <div class="col-md-3 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="bi bi-eye-fill"></i></div>
-                <div>
-                    <h3><%= stats.pageViews.toLocaleString() %></h3>
-                    <small>Lượt xem trang</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="stat-card">
-            <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-people-fill"></i></div>
-                <div>
-                    <h3><%= stats.uniqueVisitors.toLocaleString() %></h3>
-                    <small>Khách truy cập</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="stat-card">
-            <div class="d-flex align-items-center gap-3">
                 <div class="stat-icon" style="background: rgba(240,165,0,0.15); color: #f0a500;"><i class="bi bi-geo-alt-fill"></i></div>
                 <div>
                     <h3><%= stats.checkins.toLocaleString() %></h3>
@@ -42,7 +20,29 @@
     <div class="col-md-3 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: #ef4444;"><i class="bi bi-person-fill"></i></div>
+                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-compass-fill"></i></div>
+                <div>
+                    <h3><%= stats.destinations.toLocaleString() %></h3>
+                    <small>Địa điểm</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="bi bi-chat-heart-fill"></i></div>
+                <div>
+                    <h3><%= stats.reviews.toLocaleString() %></h3>
+                    <small>Bài đánh giá</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: #ef4444;"><i class="bi bi-people-fill"></i></div>
                 <div>
                     <h3><%= stats.users.toLocaleString() %></h3>
                     <small>Người dùng</small>
@@ -57,32 +57,10 @@
     <div class="col-md-3 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;"><i class="bi bi-chat-heart-fill"></i></div>
-                <div>
-                    <h3><%= stats.reviews %></h3>
-                    <small>Bài đánh giá</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="stat-card">
-            <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;"><i class="bi bi-map-fill"></i></div>
-                <div>
-                    <h3><%= stats.destinations %></h3>
-                    <small>Địa điểm</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="stat-card">
-            <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(34,211,238,0.15); color: #22d3ee;"><i class="bi bi-palette-fill"></i></div>
+                <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;"><i class="bi bi-palette-fill"></i></div>
                 <div>
                     <h3><%= stats.workshops %></h3>
-                    <small>Workshop</small>
+                    <small>Lớp Workshop</small>
                 </div>
             </div>
         </div>
@@ -90,10 +68,32 @@
     <div class="col-md-3 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(251,191,36,0.15); color: #fbbf24;"><i class="bi bi-clock-fill"></i></div>
+                <div class="stat-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;"><i class="bi bi-gift-fill"></i></div>
                 <div>
-                    <h3><%= stats.avgDuration %>s</h3>
-                    <small>TG phản hồi TB</small>
+                    <h3><%= stats.totalPoints.toLocaleString() %></h3>
+                    <small>Điểm thưởng cấp</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(34,211,238,0.15); color: #22d3ee;"><i class="bi bi-calendar-event-fill"></i></div>
+                <div>
+                    <h3><%= stats.events %></h3>
+                    <small>Sự kiện & Lễ hội</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(251,191,36,0.15); color: #fbbf24;"><i class="bi bi-stars"></i></div>
+                <div>
+                    <h3>Hoạt động</h3>
+                    <small>Trạng thái hệ thống</small>
                 </div>
             </div>
         </div>
@@ -104,7 +104,7 @@
 <div class="row g-4 mb-4">
     <div class="col-lg-8">
         <div class="chart-card">
-            <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Lượt truy cập (14 ngày gần nhất)</h6>
+            <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Lượt Check-in (14 ngày gần nhất)</h6>
             <canvas id="viewsChart" height="240"></canvas>
         </div>
     </div>
@@ -166,22 +166,22 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // Daily Views Chart
-    const dailyData = <%- JSON.stringify(chartData.dailyViews) %>;
+    // Daily Check-ins Chart
+    const dailyData = <%- JSON.stringify(chartData.dailyCheckins) %>;
     new Chart(document.getElementById('viewsChart'), {
         type: 'line',
         data: {
             labels: dailyData.map(d => { const date = new Date(d.day); return date.getDate() + '/' + (date.getMonth()+1); }),
             datasets: [{
-                label: 'Lượt xem',
+                label: 'Lượt Check-in',
                 data: dailyData.map(d => d.count),
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.1)',
+                borderColor: '#922724',
+                backgroundColor: 'rgba(146, 39, 36, 0.1)',
                 fill: true,
                 tension: 0.4,
                 borderWidth: 2,
                 pointRadius: 3,
-                pointBackgroundColor: '#3b82f6'
+                pointBackgroundColor: '#922724'
             }]
         },
         options: {
