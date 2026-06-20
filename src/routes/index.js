@@ -31,7 +31,7 @@ const ManagerController = require('../controllers/ManagerController');
 // ===== PUBLIC PAGES =====
 router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
-router.get('/checkin', CheckinController.index);
+router.get('/checkin', ensureAuthenticated, CheckinController.index);
 
 // ===== EXPLORE =====
 router.get('/explore', ExploreController.list);
