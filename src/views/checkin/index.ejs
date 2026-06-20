@@ -14,7 +14,7 @@
                 <i class="bi bi-qr-code-scan fs-4"></i>
                 <div>
                     <h6 class="fw-bold mb-0" style="font-size: 0.95rem;">Quét mã QR tại điểm</h6>
-                    <small class="opacity-75" style="font-size: 0.72rem;">Hướng camera vào mã QR hoặc tải ảnh lên từ thư viện</small>
+                    <small class="opacity-75" style="font-size: 0.72rem;">Hướng camera vào mã QR được in tại địa điểm</small>
                 </div>
             </div>
             <div class="p-4">
@@ -22,26 +22,9 @@
                 <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden; background: #f1f5f9; min-height: 280px; position: relative; border: 1px solid rgba(0,0,0,0.05);">
                     <div id="scanner-placeholder" class="position-absolute top-50 start-50 translate-middle text-center w-100 p-3">
                         <div class="spinner-border text-danger mb-2" role="status"></div>
-                        <p class="text-muted small mb-0">Đang khởi tạo camera...</p>
+                        <p class="text-muted small mb-0">Đang yêu cầu quyền truy cập camera...</p>
                     </div>
                 </div>
-
-                <!-- Dropdown switch camera and upload fallback -->
-                <div class="d-flex flex-wrap justify-content-between align-items-center mt-3 gap-2">
-                    <div id="camera-select-container" style="display: none; max-width: 250px;">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light border-0"><i class="bi bi-camera-video-fill text-muted"></i></span>
-                            <select id="camera-select" class="form-select bg-light border-0"></select>
-                        </div>
-                    </div>
-                    <div>
-                        <input type="file" id="qr-file-input" accept="image/*" style="display: none;">
-                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 py-2 fw-semibold" onclick="document.getElementById('qr-file-input').click()">
-                            <i class="bi bi-image me-1"></i> Tải ảnh QR từ thư viện
-                        </button>
-                    </div>
-                </div>
-
                 <div id="qr-result" class="mt-3"></div>
             </div>
         </div>
@@ -131,7 +114,6 @@ initGPS();
 let scannerStopped = false;
 const html5QrCode = new Html5Qrcode("reader");
 const qrConfig = { fps: 10, qrbox: 250 };
-let currentCameraId = null;
 
 function onScanSuccess(decodedText, decodedResult) {
     if (scannerStopped) return;
@@ -203,70 +185,49 @@ function startCamera() {
     
     // Check if secure context (HTTPS or localhost)
     if (!window.isSecureContext) {
-        showCameraError("Trình duyệt chặn truy cập camera do kết nối không bảo mật (HTTP). Vui lòng truy cập trang qua HTTPS hoặc sử dụng tính năng tải ảnh từ thư viện.");
+        showCameraError("Trình duyệt chặn truy cập camera do kết nối không bảo mật (HTTP). Vui lòng sử dụng kết nối HTTPS để bắt đầu quét.");
         return;
     }
 
-    Html5Qrcode.getCameras().then(devices => {
-        if (devices && devices.length > 0) {
-            const selectContainer = document.getElementById('camera-select-container');
-            const select = document.getElementById('camera-select');
-            select.innerHTML = '';
-            
-            devices.forEach(device => {
-                const option = document.createElement('option');
-                option.value = device.id;
-                option.text = device.label || `Camera ${select.childNodes.length + 1}`;
-                select.appendChild(option);
-            });
-            
-            // Try to find a back camera
-            let backCamera = devices.find(device => {
-                const label = (device.label || "").toLowerCase();
-                return label.includes('back') || label.includes('sau') || label.includes('environment') || label.includes('rear');
-            });
-            let selectedCameraId = backCamera ? backCamera.id : devices[0].id;
-            
-            if (devices.length > 1) {
-                selectContainer.style.display = 'block';
-                select.value = selectedCameraId;
-                
-                select.onchange = () => {
-                    if (html5QrCode.isScanning) {
-                        html5QrCode.stop().then(() => {
-                            currentCameraId = select.value;
-                            html5QrCode.start(currentCameraId, qrConfig, onScanSuccess)
-                                .catch(err => showCameraError("Không thể khởi động camera: " + err));
-                        });
-                    } else {
-                        currentCameraId = select.value;
-                        html5QrCode.start(currentCameraId, qrConfig, onScanSuccess)
-                            .catch(err => showCameraError("Không thể khởi động camera: " + err));
-                    }
-                };
-            }
-            
-            currentCameraId = selectedCameraId;
-            html5QrCode.start(currentCameraId, qrConfig, onScanSuccess)
-                .then(() => {
-                    document.getElementById('scanner-placeholder').style.display = 'none';
-                })
-                .catch(err => {
-                    console.warn("Mở camera sau thất bại, thử camera đầu tiên:", err);
-                    html5QrCode.start(devices[0].id, qrConfig, onScanSuccess)
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        showCameraError("Thiết bị hoặc trình duyệt của bạn không hỗ trợ truy cập camera.");
+        return;
+    }
+
+    // Request native camera permission explicitly
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then((stream) => {
+            // Stop the temporary stream tracks immediately
+            stream.getTracks().forEach(track => track.stop());
+
+            // Initialize and start scanner using html5QrCode
+            Html5Qrcode.getCameras().then(devices => {
+                if (devices && devices.length > 0) {
+                    // Find back camera if available
+                    let backCamera = devices.find(device => {
+                        const label = (device.label || "").toLowerCase();
+                        return label.includes('back') || label.includes('sau') || label.includes('environment') || label.includes('rear');
+                    });
+                    let selectedCameraId = backCamera ? backCamera.id : devices[0].id;
+                    
+                    html5QrCode.start(selectedCameraId, qrConfig, onScanSuccess)
                         .then(() => {
                             document.getElementById('scanner-placeholder').style.display = 'none';
                         })
-                        .catch(err2 => {
-                            showCameraError("Không thể kết nối camera: " + err2);
+                        .catch(err => {
+                            showCameraError("Không thể khởi chạy camera: " + err);
                         });
-                });
-        } else {
-            showCameraError("Không tìm thấy thiết bị camera nào.");
-        }
-    }).catch(err => {
-        showCameraError("Lỗi truy cập danh sách camera: " + err);
-    });
+                } else {
+                    showCameraError("Không tìm thấy thiết bị camera.");
+                }
+            }).catch(err => {
+                showCameraError("Lỗi quét danh sách camera: " + err);
+            });
+        })
+        .catch((err) => {
+            console.error("Camera permission error:", err);
+            showCameraError("Vui lòng cấp quyền truy cập camera trong hộp thoại thông báo của thiết bị để bắt đầu quét QR.");
+        });
 }
 
 function showCameraError(msg) {
@@ -275,48 +236,10 @@ function showCameraError(msg) {
     document.getElementById('reader').innerHTML = `
         <div class="p-4 text-center text-danger d-flex flex-column align-items-center justify-content-center h-100" style="min-height: 280px;">
             <i class="bi bi-camera-video-off fs-1 mb-2"></i>
-            <h6 class="fw-bold mb-2">Không kết nối được Camera</h6>
+            <h6 class="fw-bold mb-2">Yêu cầu quyền truy cập Camera</h6>
             <p class="small mb-0 text-muted" style="max-width: 320px; line-height: 1.5;">${msg}</p>
         </div>
     `;
-}
-
-// File scan handler
-document.getElementById('qr-file-input').addEventListener('change', e => {
-    if (e.target.files.length === 0) return;
-    const file = e.target.files[0];
-    
-    if (html5QrCode.isScanning) {
-        html5QrCode.stop().then(() => {
-            scanFile(file);
-        }).catch(() => {
-            scanFile(file);
-        });
-    } else {
-        scanFile(file);
-    }
-});
-
-function scanFile(file) {
-    document.getElementById('qr-result').innerHTML = `
-        <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">
-            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-            <span class="fw-bold small" style="color: var(--primary);">Đang quét mã QR từ ảnh tải lên...</span>
-        </div>
-    `;
-    
-    html5QrCode.scanFile(file, true)
-        .then(decodedText => {
-            onScanSuccess(decodedText);
-        })
-        .catch(err => {
-            document.getElementById('qr-result').innerHTML = `
-                <div class="alert alert-warning rounded-3 mb-0">
-                    <i class="bi bi-exclamation-circle me-1"></i>
-                    Không tìm thấy mã QR trong ảnh này. Vui lòng thử tải ảnh khác hoặc chụp cận cảnh rõ nét hơn.
-                </div>
-            `;
-        });
 }
 
 // Start camera scanner on load
