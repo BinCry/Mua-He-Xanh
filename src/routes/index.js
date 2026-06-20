@@ -22,6 +22,7 @@ const ReviewController = require('../controllers/ReviewController');
 const UploadController = require('../controllers/UploadController');
 const upload = require('../middleware/upload');
 const FestivalController = require('../controllers/FestivalController');
+const EventController = require('../controllers/EventController');
 
 // Middleware
 const { ensureAuthenticated, ensureAdmin, ensureManager, ensureTourist } = require('../middleware/auth');
@@ -65,6 +66,7 @@ router.get('/passport', ensureTourist, PassportController.index);
 router.get('/chat', ensureAuthenticated, ChatController.index);
 router.get('/summary', SummaryController.index);
 router.get('/festivals', FestivalController.index);
+router.get('/events/:id', EventController.show);
 
 // ===== PROFILE =====
 router.get('/profile', ensureTourist, ProfileController.index);

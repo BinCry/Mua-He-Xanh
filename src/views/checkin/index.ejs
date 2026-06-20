@@ -177,12 +177,7 @@ function onScanSuccess(decodedText, decodedResult) {
     }
 }
 
-let html5QrcodeScanner = new Html5QrcodeScanner("reader", {
-    fps: 10,
-    qrbox: { width: 250, height: 250 },
-    videoConstraints: { facingMode: "environment" },
-    rememberLastUsedCamera: true
-});
+let html5QrcodeScanner = new Html5QrcodeScanner("reader", { fps: 10, qrbox: 250, videoConstraints: { facingMode: "environment" } });
 html5QrcodeScanner.render(onScanSuccess);
 
 // ========== GPS-only Checkin (for pre-selected destination) ==========

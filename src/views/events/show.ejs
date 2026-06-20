@@ -1,0 +1,55 @@
+<section class="py-5" style="margin-top: 80px; background: #f8faf9;">
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Sự kiện nổi bật</li>
+                    </ol>
+                </nav>
+
+                <div class="card border-0 shadow-premium rounded-4 overflow-hidden mb-5 bg-white reveal-up">
+                    <div class="position-relative bg-dark" style="height: 350px;">
+                        <div class="w-100 h-100" style="background: linear-gradient(135deg, var(--primary) 0%, #15803d 100%); opacity: 0.8;"></div>
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4 p-md-5" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                            <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill fw-bold text-uppercase">
+                                <i class="bi bi-star-fill me-1"></i> Sự kiện
+                            </span>
+                            <h1 class="display-5 fw-black text-white mb-2 font-display text-shadow-sm"><%= event.title %></h1>
+                            <div class="d-flex align-items-center gap-3 text-white-50 mt-3">
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-calendar-event text-white"></i> 
+                                    <span class="text-white"><%= new Date(event.event_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+                                </div>
+                                <span>|</span>
+                                <div class="d-flex align-items-center gap-2">
+                                    <i class="bi bi-geo-alt-fill text-danger"></i> 
+                                    <span class="text-white"><%= event.location || 'Bình Lợi' %></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="p-4 p-md-5">
+                        <h4 class="fw-bold mb-4 border-bottom pb-3 text-primary font-display">Thông tin sự kiện</h4>
+                        
+                        <div class="story-text-rich text-secondary" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
+                            <%- event.description ? event.description.replace(/\n/g, '<br>') : 'Chưa có thông tin chi tiết.' %>
+                        </div>
+                        
+                        <div class="mt-5 p-4 rounded-4 bg-light border">
+                            <h5 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i> Lưu ý khi tham gia</h5>
+                            <ul class="text-muted mb-0" style="line-height: 1.8;">
+                                <li>Vui lòng có mặt đúng giờ để trải nghiệm trọn vẹn sự kiện.</li>
+                                <li>Trang phục lịch sự, thoải mái phù hợp với không gian làng quê.</li>
+                                <li>Giữ gìn vệ sinh chung và tôn trọng văn hóa bản địa.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

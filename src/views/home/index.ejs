@@ -141,7 +141,7 @@
                     <!-- Gradient overlay for text readability -->
                     <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(146,39,36,0.8) 100%); z-index: 1;"></div>
                     
-                    <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100 flex-grow-1" style="z-index: 5;">
+                    <a href="/events/<%= nextEvent.id %>" class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100 flex-grow-1 text-decoration-none" style="z-index: 5;">
                         <div>
                             <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" 
                                   style="background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); letter-spacing: 1px;">
@@ -187,7 +187,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
                 <% } else { %>
                 <div class="p-5 rounded-4 text-center border shadow-sm w-100 d-flex flex-column align-items-center justify-content-center" style="background: #ffffff; border-color: var(--border) !important; min-height: 480px;">
@@ -210,7 +210,7 @@
                     <% if (typeof otherEvents !== 'undefined' && otherEvents.length > 0) { %>
                         <div class="d-flex flex-column gap-3">
                             <% otherEvents.forEach((evt, index) => { %>
-                            <div class="d-flex gap-3 align-items-center p-3 rounded-4 border bg-white" 
+                            <a href="/events/<%= evt.id %>" class="d-flex gap-3 align-items-center p-3 rounded-4 border bg-white text-decoration-none" 
                                  style="border-color: rgba(0,0,0,0.08) !important; transition: all 0.3s;"
                                  onmouseover="this.classList.replace('bg-white', 'bg-light');" 
                                  onmouseout="this.classList.replace('bg-light', 'bg-white');" >
@@ -226,7 +226,7 @@
                                     </div>
                                     <p class="mb-0 x-small text-secondary line-clamp-1" style="line-height: 1.5;"><%= evt.description %></p>
                                 </div>
-                            </div>
+                            </a>
                             <% }) %>
                         </div>
                     <% } else { %>
