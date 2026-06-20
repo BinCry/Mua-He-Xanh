@@ -299,6 +299,143 @@ class ManagerController {
             res.redirect('/manager/destination?error=' + encodeURIComponent(error.message));
         }
     }
+
+    async workshops(req, res) {
+        try {
+            const user = req.session.user || req.user;
+            let destId = user.managed_destination_id;
+            
+            if (user.role === 'admin' && req.query.dest_id) {
+                destId = req.query.dest_id;
+            }
+
+            if (!destId) {
+                return res.redirect('/manager');
+            }
+
+            const dest = await Destination.findById(destId);
+            if (!dest) return res.status(404).send("Địa điểm không tồn tại");
+
+            const [workshops] = await UserSession.db.query(`
+                SELECT w.*, d.name as destination_name
+                FROM workshops w 
+                LEFT JOIN destinations d ON w.destination_id = d.id
+                WHERE w.destination_id = ?
+                ORDER BY w.created_at DESC
+            `, [dest.id]);
+
+            res.render('manager/workshops', {
+                title: 'Quản lý Workshop: ' + dest.name,
+                dest,
+                workshops,
+                layout: 'layouts/admin',
+                managerPage: 'workshops',
+                adminPage: 'manager'
+            });
+        } catch (error) {
+            console.error("Manager workshops view error:", error);
+            res.status(500).send("Internal Server Error: " + error.message);
+        }
+    }
+
+    async createWorkshop(req, res) {
+        try {
+            const user = req.session.user || req.user;
+            let destId = user.managed_destination_id;
+            if (user.role === 'admin' && req.body.destination_id) {
+                destId = req.body.destination_id;
+            }
+            if (!destId) {
+                return res.status(400).json({ success: false, message: 'Bạn không có quyền quản lý địa điểm nào.' });
+            }
+
+            const { title, description, type, price, duration, max_participants, image, start_date, end_date } = req.body;
+            if (!title) {
+                return res.status(400).json({ success: false, message: 'Tên workshop là bắt buộc.' });
+            }
+
+            await UserSession.db.query(
+                `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())`,
+                [uuidv4(), destId, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
+            );
+
+            res.json({ success: true, message: 'Đã tạo workshop thành công!' });
+        } catch (error) {
+            console.error("Manager create workshop error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    async updateWorkshop(req, res) {
+        try {
+            const user = req.session.user || req.user;
+            let destId = user.managed_destination_id;
+            
+            const { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active } = req.body;
+            if (!id) {
+                return res.status(400).json({ success: false, message: 'Thiếu mã workshop.' });
+            }
+
+            // Verify manager owns this workshop
+            const [check] = await UserSession.db.query(
+                "SELECT destination_id FROM workshops WHERE id = ?",
+                [id]
+            );
+
+            if (check.length === 0) {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy workshop.' });
+            }
+
+            if (user.role !== 'admin' && check[0].destination_id !== destId) {
+                return res.status(403).json({ success: false, message: 'Bạn không có quyền chỉnh sửa workshop này.' });
+            }
+
+            await UserSession.db.query(
+                `UPDATE workshops 
+                 SET title = ?, description = ?, type = ?, price = ?, duration = ?, max_participants = ?, image = ?, start_date = ?, end_date = ?, is_active = ? 
+                 WHERE id = ?`,
+                [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined ? is_active : 1, id]
+            );
+
+            res.json({ success: true, message: 'Cập nhật workshop thành công!' });
+        } catch (error) {
+            console.error("Manager update workshop error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    async deleteWorkshop(req, res) {
+        try {
+            const user = req.session.user || req.user;
+            let destId = user.managed_destination_id;
+            const { id } = req.body;
+
+            if (!id) {
+                return res.status(400).json({ success: false, message: 'Thiếu mã workshop.' });
+            }
+
+            // Verify ownership
+            const [check] = await UserSession.db.query(
+                "SELECT destination_id FROM workshops WHERE id = ?",
+                [id]
+            );
+
+            if (check.length === 0) {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy workshop.' });
+            }
+
+            if (user.role !== 'admin' && check[0].destination_id !== destId) {
+                return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa workshop này.' });
+            }
+
+            await UserSession.db.query("DELETE FROM workshops WHERE id = ?", [id]);
+            res.json({ success: true, message: 'Đã xóa workshop.' });
+        } catch (error) {
+            console.error("Manager delete workshop error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
 }
 
 module.exports = new ManagerController();

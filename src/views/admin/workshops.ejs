@@ -4,9 +4,15 @@
         <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Workshop</h4>
         <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Thêm, sửa, xóa workshop trải nghiệm.</p>
     </div>
-    <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#wsModal" onclick="openWsForm()">
-        <i class="bi bi-plus-lg me-1"></i> Thêm Workshop
-    </button>
+    <% if (locals.user && locals.user.role === 'admin') { %>
+        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
+            <i class="bi bi-info-circle me-1"></i> Workshop được tạo bởi Quản lý địa điểm
+        </span>
+    <% } else { %>
+        <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#wsModal" onclick="openWsForm()">
+            <i class="bi bi-plus-lg me-1"></i> Thêm Workshop
+        </button>
+    <% } %>
 </div>
 
 <!-- Workshops Table -->

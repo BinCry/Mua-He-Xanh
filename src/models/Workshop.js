@@ -53,6 +53,14 @@ class Workshop {
         return rows;
     }
 
+    static async getBookedParticipants(workshopId, date) {
+        const [rows] = await db.query(
+            "SELECT SUM(num_people) as total FROM workshop_bookings WHERE workshop_id = ? AND booking_date = ? AND status != 'cancelled'",
+            [workshopId, date]
+        );
+        return parseInt(rows[0]?.total || 0, 10);
+    }
+
     static async getBookingsByUser(userId) {
         const [rows] = await db.query(`
             SELECT wb.*, w.title as workshop_title, w.image as workshop_image, w.type as workshop_type,

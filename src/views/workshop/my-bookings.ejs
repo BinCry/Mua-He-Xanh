@@ -1,25 +1,178 @@
 <% /* My Workshop Bookings */ %>
 <section class="py-5" style="margin-top: 80px;">
     <div class="container" style="max-width: 900px;">
-        <h2 class="fw-black mb-4"><i class="bi bi-ticket-perforated text-primary me-2"></i>Workshop của tôi</h2>
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h2 class="fw-black mb-0"><i class="bi bi-ticket-perforated text-primary me-2"></i>Workshop của tôi</h2>
+            <a href="/workshops" class="btn btn-outline-primary rounded-pill px-4 btn-sm fw-bold">
+                <i class="bi bi-plus-circle me-1"></i>Đăng ký thêm
+            </a>
+        </div>
+
         <% if (bookings.length === 0) { %>
-            <div class="text-center py-5"><i class="bi bi-palette display-1 text-muted"></i><p class="text-muted mt-3">Bạn chưa đăng ký workshop nào.</p><a href="/workshops" class="btn btn-premium rounded-pill px-5 mt-2">Khám phá Workshop</a></div>
+            <div class="text-center py-5 bg-white shadow-sm rounded-4 border">
+                <i class="bi bi-palette display-1 text-muted"></i>
+                <p class="text-muted mt-3 fs-5">Bạn chưa đăng ký workshop nào.</p>
+                <a href="/workshops" class="btn btn-premium rounded-pill px-5 mt-2 text-white" style="background: var(--primary);">Khám phá Workshop</a>
+            </div>
         <% } else { %>
             <% bookings.forEach(b => { %>
-            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3">
-                <div class="d-flex gap-3 align-items-center">
-                    <img src="<%= b.workshop_image || '/images/hero-2.png' %>" class="rounded-3" style="width:80px;height:80px;object-fit:cover;">
-                    <div class="flex-grow-1">
-                        <h5 class="fw-bold mb-1"><%= b.workshop_title %></h5>
-                        <small class="text-muted"><i class="bi bi-geo-alt me-1"></i><%= b.destination_name || 'Bình Lợi' %> · <%= new Date(b.booking_date).toLocaleDateString('vi-VN') %> · <%= b.num_people %> người</small>
+            <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 bg-white border position-relative" style="border-left: 5px solid <%= b.status === 'confirmed' ? '#198754' : b.status === 'completed' ? '#0d6efd' : b.status === 'cancelled' ? '#dc3545' : '#ffc107' %> !important;">
+                <div class="d-flex flex-column flex-md-row gap-3 align-items-md-center justify-content-between">
+                    <div class="d-flex gap-3 align-items-center">
+                        <img src="<%= fixImg(b.workshop_image, '/images/hero-2.png') %>" class="rounded-3" style="width:80px;height:80px;object-fit:cover;">
+                        <div>
+                            <h5 class="fw-bold mb-1"><%= b.workshop_title %></h5>
+                            <div class="small text-muted mb-2">
+                                <i class="bi bi-geo-alt me-1"></i><%= b.destination_name || 'Bình Lợi' %>
+                                <span class="mx-1">·</span>
+                                <i class="bi bi-calendar-event me-1"></i><%= new Date(b.booking_date).toLocaleDateString('vi-VN') %>
+                                <span class="mx-1">·</span>
+                                <i class="bi bi-clock me-1"></i><%= b.booking_time || '08:00' %>
+                                <span class="mx-1">·</span>
+                                <i class="bi bi-people me-1"></i><%= b.num_people %> người
+                            </div>
+                            <div class="fw-bold text-success small">
+                                <i class="bi bi-cash-stack me-1"></i><%= b.total_price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(b.total_price) + 'đ' %>
+                            </div>
+                        </div>
                     </div>
-                    <div class="text-end">
-                        <span class="badge bg-<%= b.status === 'confirmed' ? 'success' : b.status === 'completed' ? 'primary' : b.status === 'cancelled' ? 'danger' : 'warning' %> rounded-pill px-3 py-2"><%= b.status === 'confirmed' ? 'Đã xác nhận' : b.status === 'completed' ? 'Hoàn thành' : b.status === 'cancelled' ? 'Đã hủy' : 'Chờ xác nhận' %></span>
-                        <br><code class="small"><%= b.qr_ticket %></code>
+                    <div class="text-md-end mt-2 mt-md-0 d-flex flex-column align-items-md-end">
+                        <div class="mb-2">
+                            <span class="badge bg-<%= b.status === 'confirmed' ? 'success' : b.status === 'completed' ? 'primary' : b.status === 'cancelled' ? 'danger' : 'warning' %> rounded-pill px-3 py-2">
+                                <%= b.status === 'confirmed' ? 'Đã xác nhận' : b.status === 'completed' ? 'Hoàn thành' : b.status === 'cancelled' ? 'Đã hủy' : 'Chờ xác nhận' %>
+                            </span>
+                        </div>
+                        <code class="small text-secondary mb-2 bg-light px-2 py-1 rounded">Vé QR: <%= b.qr_ticket %></code>
+                        
+                        <!-- Cancel Button -->
+                        <% if (b.status === 'pending' || b.status === 'confirmed') { %>
+                            <button class="btn btn-sm btn-outline-danger rounded-pill px-3 mt-1 fw-bold" onclick="cancelBooking('<%= b.id %>')">
+                                <i class="bi bi-x-circle me-1"></i>Hủy đăng ký
+                            </button>
+                        <% } %>
                     </div>
                 </div>
+
+                <!-- Review Section -->
+                <% if (b.status === 'completed') { %>
+                    <div class="border-top mt-3 pt-3">
+                        <% if (b.rating) { %>
+                            <div class="bg-light p-3 rounded-3">
+                                <div class="d-flex align-items-center mb-1">
+                                    <span class="fw-bold me-2 text-dark small">Đánh giá của bạn:</span>
+                                    <div class="text-warning">
+                                        <% for(let i = 1; i <= 5; i++) { %>
+                                            <i class="bi bi-star<%= i <= b.rating ? '-fill' : '' %>"></i>
+                                        <% } %>
+                                    </div>
+                                    <span class="ms-2 small text-muted font-monospace">(<%= b.rating %>/5)</span>
+                                </div>
+                                <% if (b.review) { %>
+                                    <p class="small text-secondary mb-0 italic">"<%= b.review %>"</p>
+                                <% } %>
+                            </div>
+                        <% } else { %>
+                            <div class="bg-light bg-opacity-50 p-3 rounded-3" id="review-box-<%= b.id %>">
+                                <p class="small text-muted mb-2"><i class="bi bi-chat-left-heart me-1"></i> Bạn đã tham gia workshop này? Hãy chia sẻ cảm nghĩ của bạn nhé!</p>
+                                <button class="btn btn-sm btn-primary rounded-pill px-3 fw-bold" onclick="toggleReviewForm('<%= b.id %>')">
+                                    <i class="bi bi-pencil-square me-1"></i>Viết đánh giá
+                                </button>
+                                
+                                <form id="form-review-<%= b.id %>" class="d-none mt-3" onsubmit="submitReview(event, '<%= b.id %>')">
+                                    <div class="mb-2">
+                                        <label class="form-label small fw-bold text-secondary mb-1">Đánh giá (sao)</label>
+                                        <select class="form-select form-select-sm rounded-3 w-auto" name="rating" required>
+                                            <option value="5">⭐⭐⭐⭐⭐ 5 Sao</option>
+                                            <option value="4">⭐⭐⭐⭐ 4 Sao</option>
+                                            <option value="3">⭐⭐⭐ 3 Sao</option>
+                                            <option value="2">⭐⭐ 2 Sao</option>
+                                            <option value="1">⭐ 1 Sao</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label small fw-bold text-secondary mb-1">Nội dung đánh giá</label>
+                                        <textarea class="form-control rounded-3" name="review" rows="2" placeholder="Chia sẻ trải nghiệm chữa lành của bạn..." required></textarea>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <button type="submit" class="btn btn-sm btn-success rounded-pill px-3 fw-bold">Gửi đánh giá</button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3" onclick="toggleReviewForm('<%= b.id %>')">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        <% } %>
+                    </div>
+                <% } %>
             </div>
             <% }); %>
         <% } %>
     </div>
 </section>
+
+<script>
+    async function cancelBooking(bookingId) {
+        if (!confirm('Bạn có chắc chắn muốn hủy đăng ký workshop này? (Bạn sẽ bị trừ 50 điểm thưởng)')) {
+            return;
+        }
+
+        try {
+            const res = await axios.post('/api/workshop/cancel', { bookingId });
+            if (res.data.success) {
+                alert(res.data.message);
+                window.location.reload();
+            } else {
+                alert('Lỗi: ' + res.data.message);
+            }
+        } catch (err) {
+            console.error('Cancel booking error:', err);
+            alert('Lỗi hủy đặt chỗ: ' + (err.response?.data?.message || err.message));
+        }
+    }
+
+    function toggleReviewForm(bookingId) {
+        const form = document.getElementById(`form-review-${bookingId}`);
+        if (form) {
+            form.classList.toggle('d-none');
+        }
+    }
+
+    async function submitReview(e, bookingId) {
+        e.preventDefault();
+        const form = e.target;
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const rating = form.rating.value;
+        const review = form.review.value;
+
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang gửi...';
+
+        try {
+            const res = await axios.post('/api/workshop/review', {
+                booking_id: bookingId,
+                rating: parseInt(rating, 10),
+                review: review
+            });
+
+            if (res.data.success) {
+                // Confetti celebration
+                if (typeof confetti === 'function') {
+                    confetti({
+                        particleCount: 80,
+                        spread: 60,
+                        origin: { y: 0.7 }
+                    });
+                }
+                alert(res.data.message);
+                window.location.reload();
+            } else {
+                alert('Lỗi: ' + res.data.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Gửi đánh giá';
+            }
+        } catch (err) {
+            console.error('Review submit error:', err);
+            alert('Lỗi gửi đánh giá: ' + (err.response?.data?.message || err.message));
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Gửi đánh giá';
+        }
+    }
+</script>

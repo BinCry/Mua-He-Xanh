@@ -73,6 +73,31 @@ const WorkshopController = {
             res.status(500).send('Lỗi hệ thống');
         }
     },
+    // GET /api/workshop/slots - Kiểm tra số chỗ trống
+    getSlots: async (req, res) => {
+        try {
+            const { workshopId, date } = req.query;
+            if (!workshopId || !date) {
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin workshop hoặc ngày.' });
+            }
+            const workshop = await Workshop.getById(workshopId);
+            if (!workshop) {
+                return res.status(404).json({ success: false, message: 'Workshop không tồn tại.' });
+            }
+            const bookedSeats = await Workshop.getBookedParticipants(workshopId, date);
+            const remaining = Math.max(0, workshop.max_participants - bookedSeats);
+            
+            res.json({
+                success: true,
+                total: workshop.max_participants,
+                booked: bookedSeats,
+                remaining: remaining
+            });
+        } catch (error) {
+            console.error('Workshop slots error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống khi kiểm tra số chỗ trống.' });
+        }
+    },
 
     // POST /api/workshop/book - Đặt chỗ workshop (JSON API, pattern Relioo)
     book: async (req, res) => {
@@ -93,7 +118,19 @@ const WorkshopController = {
                 return res.status(404).json({ success: false, message: 'Workshop không tồn tại' });
             }
 
-            const totalPrice = workshop.price * (num_people || 1);
+            // Check capacity
+            const requestedSeats = parseInt(num_people || 1, 10);
+            const bookedSeats = await Workshop.getBookedParticipants(workshop_id, booking_date);
+            const remainingSeats = workshop.max_participants - bookedSeats;
+            
+            if (bookedSeats + requestedSeats > workshop.max_participants) {
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Xin lỗi, lớp học đã đạt giới hạn người tham gia vào ngày này (chỉ còn ${remainingSeats > 0 ? remainingSeats : 0} chỗ trống)` 
+                });
+            }
+
+            const totalPrice = workshop.price * requestedSeats;
 
             const booking = await Workshop.createBooking({
                 workshop_id,
@@ -127,6 +164,57 @@ const WorkshopController = {
         } catch (error) {
             console.error('Workshop book error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đặt chỗ' });
+        }
+    },
+
+    // POST /api/workshop/cancel - Hủy đặt chỗ workshop
+    cancel: async (req, res) => {
+        try {
+            const user = req.user || req.session.user;
+            if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
+
+            const { bookingId } = req.body;
+            if (!bookingId) return res.status(400).json({ success: false, message: 'Thiếu mã đặt chỗ' });
+
+            // Fetch booking
+            const [bookings] = await db.query(
+                "SELECT wb.*, w.title as workshop_title FROM workshop_bookings wb JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = ? AND wb.user_id = ?",
+                [bookingId, user.id]
+            );
+
+            if (bookings.length === 0) {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin đặt chỗ của bạn' });
+            }
+
+            const booking = bookings[0];
+            if (booking.status === 'completed' || booking.status === 'cancelled') {
+                return res.status(400).json({ success: false, message: 'Không thể hủy lịch hẹn ở trạng thái này' });
+            }
+
+            // Update status to cancelled
+            await db.query(
+                "UPDATE workshop_bookings SET status = 'cancelled' WHERE id = ?",
+                [bookingId]
+            );
+
+            // Deduct points
+            await db.query(
+                "UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - 50) WHERE id = ?",
+                [user.id]
+            );
+
+            // Send notification
+            await NotificationController.create(
+                user.id, 'workshop',
+                `Đã hủy đặt workshop`,
+                `Bạn đã hủy đăng ký "${booking.workshop_title || 'workshop'}". Điểm thưởng trừ 50đ.`,
+                '/my-workshops'
+            );
+
+            res.json({ success: true, message: 'Đã hủy đặt chỗ thành công.' });
+        } catch (error) {
+            console.error('Workshop cancel error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống khi hủy đặt chỗ' });
         }
     },
 

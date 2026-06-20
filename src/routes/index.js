@@ -39,6 +39,11 @@ router.get('/explore/:slug', ExploreController.show);
 // ===== WORKSHOP =====
 router.get('/workshops', WorkshopController.index);
 router.get('/workshops/:id', WorkshopController.show);
+router.get('/my-workshops', ensureAuthenticated, WorkshopController.myBookings);
+router.get('/api/workshop/slots', WorkshopController.getSlots);
+router.post('/api/workshop/book', ensureAuthenticated, WorkshopController.book);
+router.post('/api/workshop/cancel', ensureAuthenticated, WorkshopController.cancel);
+router.post('/api/workshop/review', ensureAuthenticated, WorkshopController.review);
 
 // ===== COMMUNITY (Reviews) =====
 router.get('/reviews', ReviewController.index);
@@ -82,9 +87,13 @@ router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistor
 router.get('/manager', ensureManager, ManagerController.index);
 router.get('/manager/chat', ensureManager, ManagerController.chat);
 router.get('/manager/destination', ensureManager, ManagerController.destination);
+router.get('/manager/workshops', ensureManager, ManagerController.workshops);
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
 router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
+router.post('/api/manager/create-workshop', ensureManager, ManagerController.createWorkshop);
+router.post('/api/manager/update-workshop', ensureManager, ManagerController.updateWorkshop);
+router.post('/api/manager/delete-workshop', ensureManager, ManagerController.deleteWorkshop);
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);

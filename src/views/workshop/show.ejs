@@ -74,33 +74,168 @@
                 <% } %>
             </div>
 
-            <!-- Sidebar: Workshop Info -->
+            <!-- Sidebar: Workshop Info & Booking Form -->
             <div class="col-lg-5">
-                <div class="card border-0 shadow-sm rounded-4 p-4 sticky-top bg-white border" style="top: 100px; border-left: 5px solid #198754 !important;">
+                <!-- Info Card -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border" style="border-left: 5px solid #198754 !important;">
                     <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; color: #198754;">
                         <i class="bi bi-clock-history me-2"></i>Thời Điểm Mở Cửa
                     </h4>
                     
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-2"></i>Lịch trình mở lớp:</div>
-                        <div class="fw-bold fs-5 text-dark" style="font-family: 'Inter', sans-serif;"><%= workshop.schedule_note || 'Liên hệ đại diện để biết thêm chi tiết' %></div>
+                        <div class="fw-bold fs-6 text-dark" style="font-family: 'Inter', sans-serif;"><%= workshop.schedule_note || 'Liên hệ đại diện để biết thêm chi tiết' %></div>
                     </div>
 
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <div class="small text-muted mb-1"><i class="bi bi-clock me-2"></i>Thời lượng lớp học:</div>
                         <div class="fw-bold text-dark" style="font-family: 'Inter', sans-serif;"><%= workshop.duration_minutes %> phút / buổi</div>
                     </div>
 
-                    <div class="mb-4">
+                    <div class="mb-3">
                         <div class="small text-muted mb-1"><i class="bi bi-cash-stack me-2"></i>Chi phí tham gia:</div>
-                        <div class="fw-bold text-success fs-5" style="font-family: 'Inter', sans-serif;"><%= workshop.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %></div>
+                        <div class="fw-bold text-success fs-6" style="font-family: 'Inter', sans-serif;"><%= workshop.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %></div>
                     </div>
 
                     <div class="p-3 bg-light rounded-3">
                         <p class="small text-secondary mb-0"><i class="bi bi-info-circle-fill me-1"></i> Workshop này được tổ chức trực tiếp tại điểm đến. Quý khách vui lòng đến đúng giờ để tham gia trải nghiệm trọn vẹn.</p>
                     </div>
                 </div>
+
+                <!-- Booking Form Card -->
+                <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white border" style="border-left: 5px solid var(--primary) !important;">
+                    <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; color: var(--primary);">
+                        <i class="bi bi-ticket-perforated me-2"></i>Đăng Ký Tham Gia
+                    </h4>
+                    
+                    <% if (locals.user) { %>
+                    <form onsubmit="handleBooking(event)">
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Chọn Ngày</label>
+                            <input type="date" class="form-control rounded-3" id="booking_date" required onchange="checkSlots()" min="<%= new Date().toISOString().split('T')[0] %>">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Giờ Tham Gia</label>
+                            <select class="form-select rounded-3" id="booking_time" required>
+                                <option value="08:00">08:00 Sáng</option>
+                                <option value="10:00">10:00 Sáng</option>
+                                <option value="14:00">14:00 Chiều</option>
+                                <option value="16:00">16:00 Chiều</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Số Người Tham Gia</label>
+                            <input type="number" class="form-control rounded-3" id="num_people" value="1" min="1" max="<%= workshop.max_participants %>" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold text-secondary">Ghi Chú (Nếu có)</label>
+                            <textarea class="form-control rounded-3" id="note" rows="2" placeholder="Yêu cầu đặc biệt..."></textarea>
+                        </div>
+
+                        <!-- Slots Status Display -->
+                        <div class="mb-3 d-flex align-items-center">
+                            <span id="slots-badge" class="badge rounded-pill d-none px-3 py-2"></span>
+                            <span id="slots-text" class="small text-muted ms-2">Vui lòng chọn ngày để kiểm tra chỗ trống</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" id="bookSubmitBtn">
+                            <i class="bi bi-check-circle-fill me-2"></i>ĐẶT CHỖ NGAY
+                        </button>
+                    </form>
+                    <% } else { %>
+                    <div class="text-center py-4">
+                        <i class="bi bi-shield-lock display-6 text-muted mb-3 d-block"></i>
+                        <p class="small text-muted">Vui lòng đăng nhập để đăng ký tham gia workshop này.</p>
+                        <a href="/auth/login?redirect=/workshops/<%= workshop.id %>" class="btn btn-premium rounded-pill px-4 py-2 mt-2 fw-bold" style="background: var(--primary); color: white;">Đăng nhập</a>
+                    </div>
+                    <% } %>
+                </div>
             </div>
         </div>
     </div>
 </section>
+
+<script>
+    const maxParticipants = <%= workshop.max_participants %>;
+    const workshopId = '<%= workshop.id %>';
+
+    async function checkSlots() {
+        const dateInput = document.getElementById('booking_date');
+        const date = dateInput.value;
+        if (!date) return;
+
+        const badge = document.getElementById('slots-badge');
+        const text = document.getElementById('slots-text');
+        const submitBtn = document.getElementById('bookSubmitBtn');
+
+        try {
+            const res = await axios.get(`/api/workshop/slots?workshopId=${workshopId}&date=${date}`);
+            if (res.data.success) {
+                const { total, booked, remaining } = res.data;
+                badge.classList.remove('d-none', 'bg-success', 'bg-warning', 'bg-danger');
+                
+                if (remaining === 0) {
+                    badge.classList.add('bg-danger');
+                    badge.innerText = 'ĐÃ ĐẦY';
+                    text.innerText = `Lớp học đã đủ ${total}/${total} người`;
+                    submitBtn.disabled = true;
+                } else if (remaining <= total * 0.2) {
+                    badge.classList.add('bg-warning', 'text-dark');
+                    badge.innerText = 'SẮP ĐẦY';
+                    text.innerText = `Chỉ còn lại ${remaining} chỗ trống`;
+                    submitBtn.disabled = false;
+                } else {
+                    badge.classList.add('bg-success');
+                    badge.innerText = 'CÒN CHỖ';
+                    text.innerText = `Còn trống ${remaining}/${total} chỗ`;
+                    submitBtn.disabled = false;
+                }
+
+                // Adjust num_people max limit
+                document.getElementById('num_people').max = remaining;
+            }
+        } catch (e) {
+            console.error('Error checking slots:', e);
+        }
+    }
+
+    async function handleBooking(e) {
+        e.preventDefault();
+        const submitBtn = document.getElementById('bookSubmitBtn');
+        const oldHtml = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+        const data = {
+            workshop_id: workshopId,
+            booking_date: document.getElementById('booking_date').value,
+            booking_time: document.getElementById('booking_time').value,
+            num_people: document.getElementById('num_people').value,
+            note: document.getElementById('note').value
+        };
+
+        try {
+            const res = await axios.post('/api/workshop/book', data);
+            if (res.data.success) {
+                // Confetti animation
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+
+                // Alert success
+                alert(res.data.message);
+                window.location.href = '/my-workshops';
+            }
+        } catch (err) {
+            alert('Lỗi đặt chỗ: ' + (err.response?.data?.message || err.message));
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = oldHtml;
+        }
+    }
+</script>

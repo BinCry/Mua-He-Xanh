@@ -479,6 +479,10 @@ const AdminController = {
     // ==================== API: Workshop CRUD ====================
     createWorkshop: async (req, res) => {
         try {
+            const user = req.user || req.session?.user;
+            if (user && user.role === 'admin') {
+                return res.status(403).json({ success: false, message: 'Chỉ Quản lý địa điểm mới được tạo Workshop.' });
+            }
             const { title, description, type, price, duration, max_participants, destination_id, image, start_date, end_date } = req.body;
             await db.query(
                 `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
