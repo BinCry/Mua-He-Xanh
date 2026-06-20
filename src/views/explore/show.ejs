@@ -13,22 +13,23 @@
                     <i class="bi bi-geo-alt-fill text-danger"></i> <%= dest.short_desc %>
                 </p>
                 
+
                 <!-- Interactive Actions -->
                 <div class="d-flex flex-wrap gap-3 mb-4">
-                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="toggleLike(this)">
-                        <i class="bi bi-heart text-danger"></i> Thích
+                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasLiked ? 'text-danger' : '' %>" onclick="handleLikeToggle(this, '<%= dest.id %>')">
+                        <i class="bi <%= hasLiked ? 'bi-heart-fill' : 'bi-heart' %> <%= hasLiked ? 'text-danger' : '' %>"></i> Thích (<span id="likes-count"><%= totalLikes %></span>)
                     </button>
-                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2">
-                        <i class="bi bi-bookmark-fill text-primary"></i> Lưu điểm đến
+                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasSaved ? 'text-primary' : '' %>" onclick="handleSaveToggle(this, '<%= dest.id %>')">
+                        <i class="bi <%= hasSaved ? 'bi-bookmark-fill' : 'bi-bookmark' %> <%= hasSaved ? 'text-primary' : '' %>"></i> <%= hasSaved ? 'Đã lưu' : 'Lưu điểm đến' %>
                     </button>
-                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2">
+                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="shareDestination('<%= dest.name %>', '<%= baseUrl %>/explore/<%= dest.slug %>')">
                         <i class="bi bi-share-fill text-success"></i> Chia sẻ
                     </button>
-                    <button class="btn btn-primary-bl rounded-pill px-4 fw-bold shadow-lg d-flex align-items-center gap-2">
+                    <button class="btn btn-primary-bl rounded-pill px-4 fw-bold shadow-lg d-flex align-items-center gap-2" onclick="addToJourney('<%= dest.id %>')">
                         <i class="bi bi-signpost-split-fill"></i> Thêm vào hành trình
                     </button>
                 </div>
-                
+
                 <% if (user && (user.role === 'manager' || user.role === 'admin') && user.managed_destination_id === dest.id) { %>
                     <a href="/manager" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold backdrop-blur-md">
                         <i class="bi bi-pencil-square me-1"></i> Quản lý điểm đến
@@ -253,43 +254,195 @@
 </div>
 
 <script>
-function toggleLike(btn) {
-    const icon = btn.querySelector('i');
-    if (icon.classList.contains('bi-heart')) {
-        icon.classList.replace('bi-heart', 'bi-heart-fill');
-        btn.classList.add('text-danger');
+// Premium Dynamic Toast Notifications
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `position-fixed bottom-0 end-0 m-4 p-3 rounded-4 text-white shadow-premium animate__animated animate__fadeInUp bg-${type}`;
+    toast.style.zIndex = '9999';
+    toast.innerHTML = `<i class="bi bi-info-circle-fill me-2"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.classList.replace('animate__fadeInUp', 'animate__fadeOutDown');
+        setTimeout(() => toast.remove(), 500);
+    }, 3000);
+}
+
+function handleLikeToggle(btn, destinationId) {
+    axios.post(window.APP_CONFIG.apiUrl + '/destination/like', { destinationId })
+        .then(res => {
+            if (res.data.success) {
+                const icon = btn.querySelector('i');
+                const countSpan = document.getElementById('likes-count');
+                countSpan.innerText = res.data.likesCount;
+                if (res.data.liked) {
+                    icon.className = 'bi bi-heart-fill text-danger';
+                    btn.classList.add('text-danger');
+                    showToast('Đã thêm vào danh sách yêu thích!', 'danger');
+                } else {
+                    icon.className = 'bi bi-heart';
+                    btn.classList.remove('text-danger');
+                    showToast('Đã bỏ yêu thích.', 'secondary');
+                }
+            }
+        })
+        .catch(err => {
+            if (err.response?.status === 401) {
+                showToast('Vui lòng đăng nhập để thích địa điểm.', 'warning');
+            } else {
+                showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
+            }
+        });
+}
+
+function handleSaveToggle(btn, destinationId) {
+    axios.post(window.APP_CONFIG.apiUrl + '/destination/save', { destinationId })
+        .then(res => {
+            if (res.data.success) {
+                const icon = btn.querySelector('i');
+                const textNode = btn.childNodes[btn.childNodes.length - 1];
+                if (res.data.saved) {
+                    icon.className = 'bi bi-bookmark-fill text-primary';
+                    btn.classList.add('text-primary');
+                    textNode.textContent = ' Đã lưu';
+                    showToast('Đã lưu địa điểm thành công!', 'primary');
+                } else {
+                    icon.className = 'bi bi-bookmark';
+                    btn.classList.remove('text-primary');
+                    textNode.textContent = ' Lưu điểm đến';
+                    showToast('Đã xóa khỏi danh sách lưu.', 'secondary');
+                }
+            }
+        })
+        .catch(err => {
+            if (err.response?.status === 401) {
+                showToast('Vui lòng đăng nhập để lưu địa điểm.', 'warning');
+            } else {
+                showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
+            }
+        });
+}
+
+function shareDestination(name, url) {
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(url)
+            .then(() => {
+                showToast('Đã sao chép liên kết vào bộ nhớ tạm!', 'success');
+            })
+            .catch(() => {
+                prompt('Sao chép liên kết dưới đây để chia sẻ:', url);
+            });
     } else {
-        icon.classList.replace('bi-heart-fill', 'bi-heart');
-        btn.classList.remove('text-danger');
+        prompt('Sao chép liên kết dưới đây để chia sẻ:', url);
     }
+}
+
+function addToJourney(destinationId) {
+    axios.post(window.APP_CONFIG.apiUrl + '/destination/add-to-journey', { destinationId })
+        .then(res => {
+            if (res.data.success) {
+                showToast('Đã thêm vào hành trình! <a href="/hanh-trinh-cua-toi" class="text-white fw-bold text-decoration-underline ms-2">Xem ngay</a>', 'success');
+            }
+        })
+        .catch(err => {
+            if (err.response?.status === 401) {
+                showToast('Vui lòng đăng nhập để thêm địa điểm vào hành trình.', 'warning');
+            } else {
+                showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
+            }
+        });
 }
 
 function startStorytelling() {
     alert('Đang kết nối thư viện Audio... Chào mừng bạn đến với <%= dest.name %>. Hãy đeo tai nghe để trải nghiệm không gian âm thanh thực tế!');
 }
 
+// Live Chat History Polling & Rendering
+let lastMessagesCount = 0;
+function pollMessages(destinationId) {
+    axios.get(window.APP_CONFIG.apiUrl + '/get-messages?destinationId=' + destinationId)
+        .then(res => {
+            if (res.data.success && res.data.data) {
+                const messages = res.data.data;
+                if (messages.length !== lastMessagesCount) {
+                    lastMessagesCount = messages.length;
+                    renderChatHistory(messages);
+                }
+            }
+        })
+        .catch(err => console.error("Polling messages error:", err));
+}
+
+function renderChatHistory(messages) {
+    const chatHistory = document.getElementById('chat-history');
+    if (!chatHistory) return;
+
+    let html = '';
+    if (messages.length > 0) {
+        messages.forEach(msg => {
+            const currentUserId = '<%= user ? user.id : "" %>';
+            const currentSessionDbId = '<%= sessionDbId %>';
+            const isMe = (msg.sender_id && msg.sender_id === currentUserId) || (msg.sender_uuid && msg.sender_uuid === currentSessionDbId);
+            
+            const timeStr = new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            
+            html += `
+                <div class="mb-3 d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'}">
+                    <div class="p-3 rounded-4 small shadow-sm ${isMe ? 'bg-primary text-white' : 'bg-white text-dark'}" style="max-width: 85%;">
+                        ${msg.message}
+                        <div class="x-small opacity-50 mt-1 text-end">${timeStr}</div>
+                    </div>
+                </div>
+            `;
+        });
+    } else {
+        html = `
+            <div class="text-center mb-4">
+                <span class="badge bg-secondary text-dark rounded-pill px-3 py-1">Hôm nay</span>
+            </div>
+            <div class="d-flex justify-content-start mb-3">
+                <div class="p-3 rounded-4 small shadow-sm bg-white text-dark" style="max-width: 85%;">
+                    <strong>👋 Chào bạn!</strong><br>
+                    Tôi là quản lý tại đây. Bạn cần hỗ trợ thông tin gì về giá cả, thời gian mở cửa, hay đặt chỗ trước không?
+                </div>
+            </div>
+        `;
+    }
+    chatHistory.innerHTML = html;
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+
 function sendChatMessage(destinationId) {
-    const message = document.getElementById('chat-message').value;
+    const input = document.getElementById('chat-message');
+    const message = input.value.trim();
     if (!message) return;
+
+    input.value = ''; // Clear input for snappy UI
 
     axios.post(window.APP_CONFIG.apiUrl + '/send-message', {
         destinationId,
         message
     }).then(res => {
         if (res.data.success) {
-            location.reload(); // Quick reload to show message
+            pollMessages(destinationId);
         }
     }).catch(err => {
-        alert('Lỗi: ' + (err.response?.data?.message || err.message));
+        showToast('Lỗi gửi tin nhắn: ' + (err.response?.data?.message || err.message), 'warning');
     });
 }
 
-// Auto scroll chat to bottom
+// DOM Setup
 document.addEventListener('DOMContentLoaded', function() {
     const chatHistory = document.getElementById('chat-history');
-    if(chatHistory) {
+    if (chatHistory) {
         chatHistory.scrollTop = chatHistory.scrollHeight;
     }
+    
+    // Start Chat Polling every 5 seconds if modal is active or page is open
+    const destId = '<%= dest.id %>';
+    pollMessages(destId);
+    setInterval(() => {
+        pollMessages(destId);
+    }, 5000);
 });
 </script>
 

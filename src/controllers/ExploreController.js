@@ -78,12 +78,40 @@ class ExploreController {
                 ];
             }
 
+            // Check if logged-in user has liked or favorited
+            const user = req.user || req.session?.user || null;
+            let hasLiked = false;
+            let hasSaved = false;
+            if (user) {
+                const [likeRows] = await Destination.db.query(
+                    "SELECT id FROM destination_likes WHERE user_id = ? AND destination_id = ?",
+                    [user.id, dest.id]
+                );
+                hasLiked = likeRows.length > 0;
+
+                const [favRows] = await Destination.db.query(
+                    "SELECT id FROM user_favorites WHERE user_id = ? AND destination_id = ?",
+                    [user.id, dest.id]
+                );
+                hasSaved = favRows.length > 0;
+            }
+
+            // Get total likes count
+            const [likesCountRows] = await Destination.db.query(
+                "SELECT COUNT(*) as count FROM destination_likes WHERE destination_id = ?",
+                [dest.id]
+            );
+            const totalLikes = likesCountRows[0]?.count || 0;
+
             res.render('explore/show', {
                 title: dest.name,
                 dest: dest,
                 related: related,
                 messages: messages,
-                galleryImages: galleryImages
+                galleryImages: galleryImages,
+                hasLiked: hasLiked,
+                hasSaved: hasSaved,
+                totalLikes: totalLikes
             });
         } catch (error) {
             console.error("Explore show error:", error);

@@ -140,6 +140,11 @@ router.get('/api/get-messages', ApiController.getMessages);
 router.post('/api/festival/book', FestivalController.book);
 router.get('/api/soundscapes', ApiController.getSoundscapes);
 
+// Destination interactions
+router.post('/api/destination/like', ensureAuthenticated, ApiController.like);
+router.post('/api/destination/save', ensureAuthenticated, ApiController.save);
+router.post('/api/destination/add-to-journey', ensureAuthenticated, ApiController.addToJourney);
+
 // Review API
 router.post('/api/reviews', ensureAuthenticated, ReviewController.create);
 router.post('/api/reviews/like', ensureAuthenticated, ReviewController.toggleLike);

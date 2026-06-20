@@ -338,6 +338,150 @@ class ApiController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+
+    // --- DESTINATION INTERACTIONS API ---
+    async like(req, res) {
+        const { destinationId } = req.body;
+        const user = req.user || req.session?.user;
+
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để thích địa điểm.' });
+        }
+        if (!destinationId) {
+            return res.status(400).json({ success: false, message: 'Thiếu ID địa điểm.' });
+        }
+
+        try {
+            const [rows] = await UserSession.db.query(
+                "SELECT id FROM destination_likes WHERE user_id = ? AND destination_id = ?",
+                [user.id, destinationId]
+            );
+
+            let liked = false;
+            if (rows.length > 0) {
+                await UserSession.db.query(
+                    "DELETE FROM destination_likes WHERE user_id = ? AND destination_id = ?",
+                    [user.id, destinationId]
+                );
+                liked = false;
+            } else {
+                await UserSession.db.query(
+                    "INSERT INTO destination_likes (id, user_id, destination_id) VALUES (?, ?, ?)",
+                    [uuidv4(), user.id, destinationId]
+                );
+                liked = true;
+            }
+
+            const [countRows] = await UserSession.db.query(
+                "SELECT COUNT(*) as count FROM destination_likes WHERE destination_id = ?",
+                [destinationId]
+            );
+            const likesCount = countRows[0]?.count || 0;
+
+            res.json({ success: true, liked, likesCount });
+        } catch (error) {
+            console.error("Like destination error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    async save(req, res) {
+        const { destinationId } = req.body;
+        const user = req.user || req.session?.user;
+
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để lưu địa điểm.' });
+        }
+        if (!destinationId) {
+            return res.status(400).json({ success: false, message: 'Thiếu ID địa điểm.' });
+        }
+
+        try {
+            const [rows] = await UserSession.db.query(
+                "SELECT id FROM user_favorites WHERE user_id = ? AND destination_id = ?",
+                [user.id, destinationId]
+            );
+
+            let saved = false;
+            if (rows.length > 0) {
+                await UserSession.db.query(
+                    "DELETE FROM user_favorites WHERE user_id = ? AND destination_id = ?",
+                    [user.id, destinationId]
+                );
+                saved = false;
+            } else {
+                await UserSession.db.query(
+                    "INSERT INTO user_favorites (id, user_id, destination_id) VALUES (?, ?, ?)",
+                    [uuidv4(), user.id, destinationId]
+                );
+                saved = true;
+            }
+
+            res.json({ success: true, saved });
+        } catch (error) {
+            console.error("Save destination error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    async addToJourney(req, res) {
+        const { destinationId } = req.body;
+        const sessionUuid = req.cookies.session_uuid;
+
+        if (!sessionUuid || !destinationId) {
+            return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ.' });
+        }
+
+        try {
+            const session = await UserSession.findByUuid(sessionUuid);
+            if (!session) {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy session.' });
+            }
+
+            let journey = await Journey.getActiveBySession(session.id);
+            if (!journey) {
+                const journeyId = await Journey.create({
+                    session_id: session.id,
+                    mood: 'Hành trình tự chọn',
+                    duration: 'half_day',
+                    total_km: 0,
+                    total_minutes: 60,
+                    status: 'active',
+                    interests: '[]'
+                });
+                journey = { id: journeyId };
+            }
+
+            const [existing] = await UserSession.db.query(
+                "SELECT id FROM journey_stops WHERE journey_id = ? AND destination_id = ?",
+                [journey.id, destinationId]
+            );
+
+            if (existing.length === 0) {
+                const [rows] = await UserSession.db.query(
+                    "SELECT MAX(stop_order) as max_order FROM journey_stops WHERE journey_id = ?",
+                    [journey.id]
+                );
+                const nextOrder = (rows[0] && rows[0].max_order !== null) ? rows[0].max_order + 1 : 0;
+                
+                const JourneyStop = require('../models/JourneyStop');
+                await JourneyStop.create({
+                    journey_id: journey.id,
+                    destination_id: destinationId,
+                    stop_order: nextOrder,
+                    is_completed: 0
+                });
+
+                await Journey.recalculateMetrics(journey.id);
+                return res.json({ success: true, message: 'Đã thêm địa điểm vào hành trình.' });
+            } else {
+                return res.json({ success: true, message: 'Địa điểm đã có trong hành trình của bạn.' });
+            }
+        } catch (error) {
+            console.error("Add to journey error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
 }
 
 module.exports = new ApiController();
