@@ -29,8 +29,22 @@ const WorkshopController = {
             }
 
             if (searchQuery) {
-                query += ' AND (w.title LIKE ? OR w.description LIKE ?)';
-                params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+                const searchLower = searchQuery.toLowerCase().trim();
+                let typeMatch = null;
+                if (searchLower.includes('nhang')) typeMatch = 'nhang';
+                else if (searchLower.includes('mai')) typeMatch = 'mai';
+                else if (searchLower.includes('thiền') || searchLower.includes('thien') || searchLower.includes('healing')) typeMatch = 'thien';
+                else if (searchLower.includes('bánh') || searchLower.includes('banh')) typeMatch = 'banh';
+                else if (searchLower.includes('sinh thái') || searchLower.includes('sinh thai') || searchLower.includes('ecology')) typeMatch = 'ecology';
+                else if (searchLower.includes('văn hóa') || searchLower.includes('van hoa') || searchLower.includes('culture')) typeMatch = 'culture';
+
+                if (typeMatch) {
+                    query += ' AND (w.title LIKE ? OR w.description LIKE ? OR w.type = ?)';
+                    params.push(`%${searchQuery}%`, `%${searchQuery}%`, typeMatch);
+                } else {
+                    query += ' AND (w.title LIKE ? OR w.description LIKE ?)';
+                    params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+                }
             }
 
             query += ' ORDER BY w.sort_order ASC, w.created_at DESC LIMIT 50';

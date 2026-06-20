@@ -73,10 +73,7 @@
     <!-- Footer -->
     <%- include('../partials/footer') %>
 
-    <!-- Back to Top -->
-    <div id="back-to-top" class="d-none d-lg-block">
-        <i class="bi bi-arrow-up"></i>
-    </div>
+
 
     <!-- Mobile Bottom: Only QR Scan Button (centered) -->
     <div class="d-lg-none position-fixed bottom-0 start-50 translate-middle-x" style="z-index: 1050; margin-bottom: 20px; padding-bottom: env(safe-area-inset-bottom, 0);">
@@ -131,18 +128,7 @@
             }
         });
 
-        // Back to Top
-        const btt = document.getElementById('back-to-top');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 300) {
-                btt.classList.add('show');
-            } else {
-                btt.classList.remove('show');
-            }
-        });
-        btt.addEventListener('click', () => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        });
+
     </script>
     <script src="/js/app.js?v=<%= assetV %>"></script>
 
@@ -208,31 +194,62 @@
             box-shadow: 0 6px 20px rgba(15, 118, 110, 0.4) !important;
         }
 
-        /* Desktop alignment */
+        /* Uniform size and styles for desktop floating action buttons */
+        .fab-qr, 
+        #floatingChatFabContainer button, 
+        #notifBell button {
+            width: 60px !important;
+            height: 60px !important;
+            border-radius: 50% !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border: 3px solid white !important;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15) !important;
+            transition: all 0.4s ease !important;
+            padding: 0 !important;
+        }
+
+        /* Hover animations */
+        .fab-qr:hover, 
+        #floatingChatFabContainer button:hover, 
+        #notifBell button:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25) !important;
+        }
+
+        /* Desktop position alignment (centers them horizontally since they all have width 60px) */
         .fab-qr {
-            position: fixed;
+            position: fixed !important;
             bottom: 32px !important;
             right: 32px !important;
             z-index: 1040;
+            background: var(--grad-nature) !important;
+            color: white !important;
+            font-size: 1.5rem !important;
+            text-decoration: none !important;
         }
         #floatingChatFabContainer {
             position: fixed !important;
-            bottom: 110px !important;
+            bottom: 112px !important;
             right: 32px !important;
             z-index: 1040;
+        }
+        #floatingChatFabContainer button {
+            background-color: var(--primary) !important;
+            color: white !important;
+            font-size: 1.5rem !important;
         }
         #notifBell {
             position: fixed !important;
-            bottom: 188px !important;
+            bottom: 192px !important;
             right: 32px !important;
             z-index: 1040;
         }
-        #back-to-top {
-            position: fixed !important;
-            bottom: 266px !important;
-            right: 32px !important;
-            left: auto !important;
-            z-index: 1040;
+        #notifBell button {
+            background-color: #3b82f6 !important; /* Blue color for notifications */
+            color: white !important;
+            font-size: 1.5rem !important;
         }
 
         /* Mobile alignment */
@@ -245,19 +262,21 @@
                 right: 20px !important;
                 z-index: 1040;
             }
+            #floatingChatFabContainer button {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 1.25rem !important;
+            }
             #notifBell {
                 position: fixed !important;
                 bottom: 85px !important;
                 right: 20px !important;
                 z-index: 1040;
             }
-            #back-to-top {
-                position: fixed !important;
-                bottom: 150px !important;
-                right: 20px !important;
-                width: 40px !important;
-                height: 40px !important;
-                z-index: 1040;
+            #notifBell button {
+                width: 50px !important;
+                height: 50px !important;
+                font-size: 1.25rem !important;
             }
         }
 
@@ -274,8 +293,8 @@
 
     <!-- Floating Chat FAB -->
     <div id="floatingChatFabContainer">
-        <button class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="width: 50px; height: 50px; background-color: var(--primary) !important; border: none;" onclick="toggleFloatingChat()">
-            <i class="bi bi-chat-dots-fill fs-5"></i>
+        <button class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="background-color: var(--primary) !important; border: none;" onclick="toggleFloatingChat()">
+            <i class="bi bi-chat-dots-fill"></i>
         </button>
     </div>
 

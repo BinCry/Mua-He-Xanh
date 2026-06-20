@@ -47,13 +47,42 @@ const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
                 public_id: result.public_id
             };
         } else {
-            // Local fallback
-            const filename = path.basename(filePath);
-            console.log(`[CLOUDINARY FALLBACK] File kept at: /uploads/media/${filename}`);
-            return {
-                url: `/uploads/media/${filename}`,
-                public_id: `local-${Date.now()}`
-            };
+            // Local fallback: convert to base64 data URL to persist across ephemeral Render restarts
+            try {
+                const ext = path.extname(filePath).toLowerCase();
+                const mimeTypes = {
+                    '.png': 'image/png',
+                    '.jpg': 'image/jpeg',
+                    '.jpeg': 'image/jpeg',
+                    '.gif': 'image/gif',
+                    '.svg': 'image/svg+xml',
+                    '.webp': 'image/webp',
+                    '.mp3': 'audio/mpeg',
+                    '.wav': 'audio/wav'
+                };
+                const mimeType = mimeTypes[ext] || 'application/octet-stream';
+                const fileData = fs.readFileSync(filePath);
+                const base64Data = fileData.toString('base64');
+                const dataUrl = `data:${mimeType};base64,${base64Data}`;
+                
+                // Delete temporary file
+                if (fs.existsSync(filePath)) {
+                    fs.unlinkSync(filePath);
+                }
+                
+                console.log(`[CLOUDINARY FALLBACK] Converted ${ext} file to Base64 data URL.`);
+                return {
+                    url: dataUrl,
+                    public_id: `local-base64-${Date.now()}`
+                };
+            } catch (err) {
+                console.error('Cloudinary: Error converting fallback to base64:', err);
+                const filename = path.basename(filePath);
+                return {
+                    url: `/uploads/media/${filename}`,
+                    public_id: `local-fallback-${Date.now()}`
+                };
+            }
         }
     } catch (error) {
         console.error('Cloudinary: Upload error:', error);

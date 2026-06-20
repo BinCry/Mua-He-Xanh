@@ -65,8 +65,12 @@ class Destination extends Model {
         const params = [];
 
         if (type) {
-            where += " AND type = ?";
-            params.push(type);
+            if (type === 'park') {
+                where += " AND (type = 'park' OR type = 'nature')";
+            } else {
+                where += " AND type = ?";
+                params.push(type);
+            }
         }
         if (mood) {
             where += " AND moods LIKE ?";
@@ -77,7 +81,26 @@ class Destination extends Model {
             params.push(`%${season}%`);
         }
         if (search) {
-            where += " AND (name LIKE ? OR short_desc LIKE ? OR story LIKE ?)";
+            const searchLower = search.toLowerCase().trim();
+            let typeMatch = null;
+            if (searchLower.includes('tâm linh') || searchLower.includes('tam linh') || searchLower.includes('chữa lành') || searchLower.includes('chua lanh')) {
+                typeMatch = 'temple';
+            } else if (searchLower.includes('sinh thái') || searchLower.includes('sinh thai') || searchLower.includes('sông nước') || searchLower.includes('song nuoc')) {
+                typeMatch = 'park_or_nature';
+            } else if (searchLower.includes('làng nghề') || searchLower.includes('lang nghe') || searchLower.includes('bản sắc') || searchLower.includes('ban sac')) {
+                typeMatch = 'craft';
+            }
+
+            if (typeMatch) {
+                if (typeMatch === 'park_or_nature') {
+                    where += " AND (name LIKE ? OR short_desc LIKE ? OR story LIKE ? OR type = 'park' OR type = 'nature')";
+                } else {
+                    where += " AND (name LIKE ? OR short_desc LIKE ? OR story LIKE ? OR type = ?)";
+                    params.push(typeMatch);
+                }
+            } else {
+                where += " AND (name LIKE ? OR short_desc LIKE ? OR story LIKE ?)";
+            }
             params.push(`%${search}%`, `%${search}%`, `%${search}%`);
         }
 

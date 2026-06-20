@@ -1,94 +1,100 @@
-<section class="py-5 bg-dark min-vh-100 text-light" style="margin-top: 80px;">
+<section class="py-5 text-light" style="margin-top: 80px; background: linear-gradient(135deg, #0a110d 0%, #050706 100%); min-vh-100;">
     <div class="container py-4">
         
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
-            <div>
-                <span class="badge bg-primary text-uppercase fw-bold tracking-widest px-3 py-2 rounded-pill mb-2"><i class="bi bi-magic me-1"></i> Studio Sáng Tạo</span>
-                <h1 class="display-5 fw-black text-white mb-1">Hành Trình Cảm Giác</h1>
-                <p class="text-muted mb-0">Biến những bức ảnh check-in thành video kể chuyện ngắn kèm nhạc nền chữa lành.</p>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 border-bottom border-secondary border-opacity-30 pb-4">
+            <div class="mb-3 mb-md-0">
+                <span class="badge bg-success bg-opacity-25 text-success text-uppercase fw-bold tracking-widest px-3 py-2 rounded-pill mb-2 border border-success border-opacity-35" style="letter-spacing: 1.5px; font-size: 0.7rem;">
+                    <i class="bi bi-magic me-1"></i> Studio Sáng Tạo Premium
+                </span>
+                <h1 class="display-5 fw-black text-white mb-1" style="font-family: 'Inter', sans-serif;">Hành Trình Cảm Giác</h1>
+                <p class="text-muted mb-0 small">Biến những bức ảnh check-in mộc mạc thành video kể chuyện nghệ thuật kèm nhạc nền chữa lành.</p>
             </div>
-            <a href="/reviews" class="btn btn-outline-light rounded-pill px-4"><i class="bi bi-arrow-left me-1"></i> Quay lại Bảng Tin</a>
+            <a href="/reviews" class="btn btn-outline-light rounded-pill px-4 btn-premium-outline"><i class="bi bi-arrow-left me-1"></i> Quay lại Cộng đồng</a>
         </div>
 
-        <div class="row g-5">
+        <div class="row g-4">
             <!-- Left Config Panels -->
             <div class="col-lg-7 col-xl-8">
                 
                 <!-- 1. TEMPLATE SELECTOR -->
-                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp">
                     <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
-                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">1</span>
-                        Chọn mẫu video (Duration)
+                        <span class="step-num">1</span>
+                        Chọn mẫu video (Thời lượng)
                     </h5>
                     <div class="row g-3">
                         <div class="col-md-4">
-                            <label class="template-card border border-2 border-secondary rounded-3 p-3 d-block text-center cursor-pointer active" data-duration="15">
+                            <label class="template-card template-card-premium rounded-4 p-3 d-block text-center cursor-pointer active" data-duration="15">
                                 <input type="radio" name="video_duration" value="15" checked class="d-none">
-                                <div class="fs-4 fw-black text-primary mb-1">15 giây</div>
-                                <div class="small text-muted">Nhịp điệu nhanh (4 ảnh)</div>
+                                <div class="fs-4 fw-black text-success mb-1">15 giây</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;">Nhịp điệu nhanh (4 ảnh)</div>
                             </label>
                         </div>
                         <div class="col-md-4">
-                            <label class="template-card border border-2 border-secondary rounded-3 p-3 d-block text-center cursor-pointer" data-duration="20">
+                            <label class="template-card template-card-premium rounded-4 p-3 d-block text-center cursor-pointer" data-duration="20">
                                 <input type="radio" name="video_duration" value="20" class="d-none">
                                 <div class="fs-4 fw-black text-white mb-1">20 giây</div>
-                                <div class="small text-muted">Vừa vặn cảm xúc (4 ảnh)</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;">Vừa vặn cảm xúc (4 ảnh)</div>
                             </label>
                         </div>
                         <div class="col-md-4">
-                            <label class="template-card border border-2 border-secondary rounded-3 p-3 d-block text-center cursor-pointer" data-duration="30">
+                            <label class="template-card template-card-premium rounded-4 p-3 d-block text-center cursor-pointer" data-duration="30">
                                 <input type="radio" name="video_duration" value="30" class="d-none">
                                 <div class="fs-4 fw-black text-white mb-1">30 giây</div>
-                                <div class="small text-muted">Trải nghiệm sâu (5 ảnh)</div>
+                                <div class="small text-muted" style="font-size: 0.75rem;">Trải nghiệm sâu (5 ảnh)</div>
                             </label>
                         </div>
                     </div>
                 </div>
 
                 <!-- 2. UPLOAD ZONE -->
-                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
                     <h5 class="fw-bold text-white mb-2 d-flex align-items-center gap-2">
-                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">2</span>
-                        Tải ảnh lên (3 - 5 bức ảnh)
+                        <span class="step-num">2</span>
+                        Tải ảnh lên (Từ 3 - 5 bức ảnh)
                     </h5>
-                    <p class="text-muted small mb-3">Tải lên các bức ảnh bạn đã chụp tại Bình Lợi để ghép vào các phân đoạn (Hook, Immersion, Highlight, Outro).</p>
+                    <p class="text-muted small mb-3">Tải lên các bức ảnh bạn đã chụp tại Bình Lợi để lấp đầy dòng thời gian cảm xúc.</p>
                     
-                    <div id="dropzone" class="border border-2 border-dashed border-secondary rounded-4 p-5 text-center cursor-pointer hover-border-primary transition-all bg-dark bg-opacity-50">
-                        <i class="bi bi-cloud-upload display-3 text-muted mb-3"></i>
-                        <h6 class="fw-bold">Kéo và thả tệp của bạn tại đây</h6>
-                        <p class="small text-muted">Hỗ trợ JPG, PNG (tối đa 5 file, mỗi file < 10MB)</p>
-                        <input type="file" id="media-files" multiple accept="image/*" class="d-none">
-                        <button type="button" class="btn btn-primary rounded-pill px-4 mt-2" onclick="document.getElementById('media-files').click()">Chọn file</button>
+                    <div id="dropzone" class="dropzone-premium rounded-4 p-4 text-center cursor-pointer transition-all">
+                        <div class="py-4">
+                            <i class="bi bi-cloud-arrow-up-fill display-4 text-success mb-3 upload-pulse d-inline-block"></i>
+                            <h6 class="fw-bold text-white mb-1">Kéo và thả ảnh tại đây</h6>
+                            <p class="small text-muted mb-3">Hỗ trợ JPG, PNG (tối đa 5 file, mỗi file < 10MB)</p>
+                            <input type="file" id="media-files" multiple accept="image/*" class="d-none">
+                            <button type="button" class="btn btn-success rounded-pill px-4 py-2 text-white font-weight-semibold" style="background: var(--success); border: none; font-size: 0.85rem;" onclick="document.getElementById('media-files').click()">Chọn tệp từ máy</button>
+                        </div>
                     </div>
 
                     <!-- Uploaded Thumbnails Visualizer -->
-                    <div id="thumbnails-container" class="row g-2 mt-3 d-none">
+                    <div id="thumbnails-container" class="row g-2 mt-4 d-none">
                         <!-- Populated by JS -->
                     </div>
                 </div>
 
                 <!-- 3. SOUNDSCAPE SELECTOR -->
-                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
                     <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
-                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+                        <span class="step-num">3</span>
                         Chọn nhạc nền Soundscape (Mood)
                     </h5>
                     <div class="row g-3" id="soundscape-list">
                         <% if (soundscapes && soundscapes.length > 0) { %>
                             <% soundscapes.forEach((sound, index) => { %>
                                 <div class="col-md-6">
-                                    <div class="sound-card border border-secondary rounded-3 p-3 d-flex align-items-center justify-content-between cursor-pointer transition-all w-100 <%= index === 0 ? 'active' : '' %>" data-audio-url="<%= fixImg(sound.audio_url) %>">
+                                    <div class="sound-card sound-card-premium rounded-4 p-3 d-flex align-items-center justify-content-between cursor-pointer transition-all <%= index === 0 ? 'active' : '' %>" data-audio-url="<%= fixImg(sound.audio_url) %>">
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="sound-icon bg-secondary bg-opacity-50 text-primary p-2 rounded-circle">
+                                            <div class="sound-icon-circle bg-success bg-opacity-10 text-success p-2 rounded-circle">
                                                 <i class="bi bi-music-note-beamed"></i>
                                             </div>
                                             <div>
-                                                <div class="fw-bold text-white font-size-sm"><%= sound.name %></div>
-                                                <span class="badge bg-info bg-opacity-10 text-info text-capitalize" style="font-size: 0.65rem;"><%= sound.mood %></span>
+                                                <div class="fw-bold text-white" style="font-size: 0.88rem;"><%= sound.name %></div>
+                                                <span class="badge bg-success bg-opacity-20 text-success text-capitalize border border-success border-opacity-25" style="font-size: 0.65rem;"><%= sound.mood %></span>
                                             </div>
                                         </div>
-                                        <input type="radio" name="soundscape_select" value="<%= sound.id %>" <%= index === 0 ? 'checked' : '' %> class="form-check-input">
+                                        <div class="form-check sound-check-container">
+                                            <input type="radio" name="soundscape_select" value="<%= sound.id %>" <%= index === 0 ? 'checked' : '' %> class="form-check-input">
+                                        </div>
                                     </div>
                                 </div>
                             <% }) %>
@@ -103,45 +109,55 @@
                 </div>
 
                 <!-- 4. TEXT OVERLAY EDITOR -->
-                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
                     <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
-                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">4</span>
+                        <span class="step-num">4</span>
                         Biên tập phụ đề (Text Overlay)
                     </h5>
                     
                     <div class="row g-3">
-                        <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">Phần mở đầu (Hook Text)</label>
-                            <input type="text" id="text-hook" class="form-control bg-dark border-secondary text-white" value="Lạc vào miền xanh Bình Lợi...">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-success me-1"></i>Phần mở đầu (Hook Text)</label>
+                            <input type="text" id="text-hook" class="form-control premium-input" value="Lạc vào miền xanh Bình Lợi...">
                         </div>
-                        <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">Phần trải nghiệm (Immersion Text)</label>
-                            <input type="text" id="text-immersion" class="form-control bg-dark border-secondary text-white" value="Hương nhang thơm đưa bước chân tĩnh lặng.">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-success me-1"></i>Phần trải nghiệm (Immersion Text)</label>
+                            <input type="text" id="text-immersion" class="form-control premium-input" value="Hương nhang thơm đưa bước chân tĩnh lặng.">
                         </div>
-                        <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">Khoảnh khắc chính (Highlight Text)</label>
-                            <input type="text" id="text-highlight" class="form-control bg-dark border-secondary text-white" value="Chữa lành từ những điều mộc mạc nhất.">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-success me-1"></i>Khoảnh khắc chính (Highlight Text)</label>
+                            <input type="text" id="text-highlight" class="form-control premium-input" value="Chữa lành từ những điều mộc mạc nhất.">
                         </div>
-                        <div class="col-12">
-                            <label class="form-label text-muted small fw-bold">Phần kết (Outro / CTA Text)</label>
-                            <input type="text" id="text-outro" class="form-control bg-dark border-secondary text-white" value="Nghe Bình Lợi theo cách của bạn.">
+                        <div class="col-md-6">
+                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-success me-1"></i>Phần kết (Outro / CTA Text)</label>
+                            <input type="text" id="text-outro" class="form-control premium-input" value="Nghe Bình Lợi theo cách của bạn.">
                         </div>
                     </div>
                 </div>
 
                 <!-- 5. FILTER SELECTOR -->
-                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
                     <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
-                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">5</span>
+                        <span class="step-num">5</span>
                         Bộ lọc nghệ thuật (Color Preset)
                     </h5>
                     
-                    <div class="d-flex flex-wrap gap-3">
-                        <button class="btn btn-outline-secondary filter-preset active" data-filter="none">Không bộ lọc</button>
-                        <button class="btn btn-outline-secondary filter-preset" data-filter="warm">Nắng Ấm (Warm)</button>
-                        <button class="btn btn-outline-secondary filter-preset" data-filter="cool">Xanh Mát (Cool)</button>
-                        <button class="btn btn-outline-secondary filter-preset" data-filter="vintage">Cổ Kính (Vintage)</button>
-                        <button class="btn btn-outline-secondary filter-preset" data-filter="grayscale">Trắng Đen (B&W)</button>
+                    <div class="d-flex flex-wrap gap-2">
+                        <button class="btn btn-premium-filter filter-preset active" data-filter="none">
+                            <i class="bi bi-droplet-half me-1"></i>Gốc
+                        </button>
+                        <button class="btn btn-premium-filter filter-preset" data-filter="warm">
+                            <i class="bi bi-sun-fill me-1 text-warning"></i>Nắng Ấm
+                        </button>
+                        <button class="btn btn-premium-filter filter-preset" data-filter="cool">
+                            <i class="bi bi-snow2 me-1 text-info"></i>Xanh Mát
+                        </button>
+                        <button class="btn btn-premium-filter filter-preset" data-filter="vintage">
+                            <i class="bi bi-hourglass-split me-1 text-secondary"></i>Cổ Kính
+                        </button>
+                        <button class="btn btn-premium-filter filter-preset" data-filter="grayscale">
+                            <i class="bi bi-circle-half me-1"></i>Trắng Đen
+                        </button>
                     </div>
                 </div>
             </div>
@@ -151,43 +167,49 @@
                 <div class="sticky-top" style="top: 100px; z-index: 10;">
                     
                     <!-- Preview Screen (9:16 Mockup Frame) -->
-                    <div class="card bg-dark border-secondary shadow-lg rounded-4 p-3 text-center overflow-hidden position-relative">
-                        <div class="d-flex justify-content-between align-items-center mb-2 px-1 text-muted small">
-                            <span><i class="bi bi-eye-fill text-primary"></i> PREVIEW 9:16</span>
-                            <span id="player-time">00:00 / 00:15</span>
+                    <div class="editor-glass-card p-4 text-center overflow-hidden position-relative">
+                        <div class="d-flex justify-content-between align-items-center mb-3 px-1 text-muted small">
+                            <span class="fw-bold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.72rem;"><i class="bi bi-phone-fill text-success me-1"></i> Màn hình dọc 9:16</span>
+                            <span class="badge bg-dark px-2 py-1 rounded text-white" id="player-time">00:00 / 00:15</span>
                         </div>
                         
-                        <!-- Portrait Canvas Inside Phone Frame -->
-                        <div class="phone-mockup mx-auto position-relative bg-black rounded-4 shadow border border-3 border-secondary overflow-hidden" style="width: 270px; height: 480px;">
+                        <!-- Portrait Canvas Inside Premium Phone Frame -->
+                        <div class="phone-mockup-premium mx-auto position-relative bg-black rounded-5 shadow-lg border border-4 border-dark overflow-hidden">
+                            <!-- Notch/Dynamic Island mockup -->
+                            <div class="notch-island"></div>
+                            
                             <canvas id="videoCanvas" width="540" height="960" class="w-100 h-100 object-fit-cover"></canvas>
                             
                             <!-- Control Overlays -->
                             <div class="canvas-overlay-center position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center" style="z-index: 20;">
-                                <button id="playBtn" class="btn btn-primary rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
-                                    <i class="bi bi-play-fill fs-3"></i>
+                                <button id="playBtn" class="btn btn-success play-btn-premium rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-play-fill" style="margin-left: 3px;"></i>
                                 </button>
                             </div>
                         </div>
 
                         <!-- Progress Bar under Canvas -->
-                        <div class="progress bg-secondary bg-opacity-50 mt-3 rounded-pill" style="height: 6px;">
-                            <div id="playProgress" class="progress-bar bg-primary" role="progressbar" style="width: 0%;"></div>
+                        <div class="progress mt-4 bg-dark rounded-pill" style="height: 6px; border: 1px solid rgba(255,255,255,0.05);">
+                            <div id="playProgress" class="progress-bar bg-success-gradient" role="progressbar" style="width: 0%;"></div>
                         </div>
 
                         <!-- Export Status Container -->
-                        <div id="export-status-panel" class="mt-4 d-none">
-                            <div class="small fw-bold text-primary mb-2" id="export-status-text">Đang kết xuất video...</div>
-                            <div class="progress bg-secondary bg-opacity-50 rounded-pill mb-3" style="height: 10px;">
-                                <div id="exportProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%;"></div>
+                        <div id="export-status-panel" class="mt-4 d-none text-start p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-20">
+                            <div class="small fw-bold text-success mb-2 d-flex align-items-center justify-content-between">
+                                <span id="export-status-text">Đang kết xuất video...</span>
+                                <span class="spinner-border spinner-border-sm"></span>
+                            </div>
+                            <div class="progress bg-dark rounded-pill" style="height: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                                <div id="exportProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-success-gradient" role="progressbar" style="width: 0%;"></div>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="d-grid gap-3 mt-4">
-                            <button id="exportBtn" class="btn btn-success btn-lg rounded-pill fw-black shadow d-flex align-items-center justify-content-center gap-2" disabled>
-                                <i class="bi bi-file-earmark-play-fill"></i> XUẤT VIDEO (MP4/WebM)
+                            <button id="exportBtn" class="btn btn-success btn-lg rounded-pill fw-black shadow-lg d-flex align-items-center justify-content-center gap-2 py-3 btn-export-premium" disabled>
+                                <i class="bi bi-file-earmark-play-fill fs-5"></i> XUẤT VIDEO TIKTOK (MP4)
                             </button>
-                            <div class="text-muted small"><i class="bi bi-shield-fill-check text-success"></i> Quá trình kết xuất xử lý 100% trên trình duyệt của bạn</div>
+                            <div class="text-muted" style="font-size: 0.72rem;"><i class="bi bi-shield-fill-check text-success"></i> Quá trình kết xuất xử lý 100% trên thiết bị của bạn</div>
                         </div>
                     </div>
                 </div>
@@ -197,34 +219,36 @@
         <!-- Visual Timeline Preview -->
         <div class="row mt-5">
             <div class="col-12">
-                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 shadow-sm">
-                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-collection-play me-2"></i>Dòng thời gian (Timeline segments)</h5>
-                    <div class="row g-2 text-center" id="timeline-slots">
+                <div class="editor-glass-card p-4">
+                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-collection-play-fill text-success"></i> Dòng thời gian phân cảnh (Storyboard timeline)
+                    </h5>
+                    <div class="row g-3 text-center" id="timeline-slots">
                         <div class="col-3">
-                            <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
-                                <div class="x-small text-muted fw-bold text-uppercase">HOOK (Mở đầu)</div>
-                                <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
+                            <div class="timeline-slot-card rounded-4 p-3">
+                                <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">HOOK (Mở đầu)</div>
+                                <div class="timeline-slot-thumb mt-2 rounded-3 border border-secondary border-opacity-30 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
                                 <div class="small text-white-50 mt-2 font-size-xs">0s - 3.75s</div>
                             </div>
                         </div>
                         <div class="col-3">
-                            <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
-                                <div class="x-small text-muted fw-bold text-uppercase">IMMERSION (Chi tiết)</div>
-                                <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
+                            <div class="timeline-slot-card rounded-4 p-3">
+                                <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">IMMERSION (Chi tiết)</div>
+                                <div class="timeline-slot-thumb mt-2 rounded-3 border border-secondary border-opacity-30 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
                                 <div class="small text-white-50 mt-2 font-size-xs">3.75s - 7.5s</div>
                             </div>
                         </div>
                         <div class="col-3">
-                            <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
-                                <div class="x-small text-muted fw-bold text-uppercase">HIGHLIGHT (Điểm nhấn)</div>
-                                <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
+                            <div class="timeline-slot-card rounded-4 p-3">
+                                <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">HIGHLIGHT (Điểm nhấn)</div>
+                                <div class="timeline-slot-thumb mt-2 rounded-3 border border-secondary border-opacity-30 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
                                 <div class="small text-white-50 mt-2 font-size-xs">7.5s - 11.25s</div>
                             </div>
                         </div>
                         <div class="col-3">
-                            <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
-                                <div class="x-small text-muted fw-bold text-uppercase">OUTRO (Kết thúc)</div>
-                                <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
+                            <div class="timeline-slot-card rounded-4 p-3">
+                                <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">OUTRO (Kết thúc)</div>
+                                <div class="timeline-slot-thumb mt-2 rounded-3 border border-secondary border-opacity-30 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
                                 <div class="small text-white-50 mt-2 font-size-xs">11.25s - 15s</div>
                             </div>
                         </div>
@@ -235,32 +259,199 @@
     </div>
 </section>
 
-<!-- Audio Tag for Soundscape playing (will be controller-assigned) -->
-<audio id="soundscapeAudio" crossorigin="anonymous" class="d-none" preload="auto">
-    <source src="" type="audio/mpeg">
-</audio>
-
-<!-- Load Axios for browser calls -->
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<!-- Client-side Video Editor Engine -->
-<script src="/js/video-editor.js"></script>
-
 <style>
-.template-card:hover, .sound-card:hover {
-    border-color: var(--v5-primary) !important;
-    background: rgba(255,255,255,0.05) !important;
+/* Custom premium CSS override for Studio editor */
+.editor-glass-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    backdrop-filter: blur(20px) saturate(120%);
+    border-radius: 20px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    transition: all 0.3s ease;
 }
-.template-card.active, .sound-card.active {
-    border-color: var(--v5-primary) !important;
-    background: rgba(146, 39, 36, 0.15) !important; /* Brand accent bg */
+.step-num {
+    background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+    color: white;
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    font-weight: 800;
 }
-.hover-border-primary:hover {
-    border-color: var(--v5-primary) !important;
+.template-card-premium {
+    border: 1.5px dashed rgba(255,255,255,0.15) !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    background: rgba(255,255,255,0.01) !important;
 }
-.font-size-xs {
-    font-size: 0.7rem;
+.template-card-premium:hover {
+    border-color: #22c55e !important;
+    background: rgba(21, 128, 61, 0.05) !important;
+    transform: translateY(-2px);
 }
-.sound-card input[type="radio"] {
-    cursor: pointer;
+.template-card-premium.active {
+    border: 2px solid #22c55e !important;
+    background: rgba(21, 128, 61, 0.15) !important;
+    box-shadow: 0 0 15px rgba(21, 128, 61, 0.2);
+}
+.template-card-premium.active .fs-4 {
+    color: #22c55e !important;
+}
+
+.dropzone-premium {
+    border: 2px dashed rgba(255,255,255,0.15) !important;
+    background: rgba(0, 0, 0, 0.2) !important;
+    transition: all 0.3s ease;
+}
+.dropzone-premium:hover {
+    border-color: #22c55e !important;
+    background: rgba(21, 128, 61, 0.04) !important;
+}
+.upload-pulse {
+    animation: bouncePulse 2s infinite;
+}
+@keyframes bouncePulse {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+.sound-card-premium {
+    border: 1px solid rgba(255,255,255,0.08) !important;
+    background: rgba(255,255,255,0.02) !important;
+    transition: all 0.3s ease;
+}
+.sound-card-premium:hover {
+    border-color: #22c55e !important;
+    background: rgba(21, 128, 61, 0.05) !important;
+}
+.sound-card-premium.active {
+    border: 1.5px solid #22c55e !important;
+    background: rgba(21, 128, 61, 0.12) !important;
+    box-shadow: 0 4px 12px rgba(21, 128, 61, 0.1);
+}
+.sound-icon-circle {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.premium-input {
+    background: rgba(0,0,0,0.2) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    border-radius: 12px !important;
+    color: white !important;
+    padding: 12px !important;
+    font-size: 0.9rem !important;
+    transition: all 0.3s ease !important;
+}
+.premium-input:focus {
+    border-color: #22c55e !important;
+    box-shadow: 0 0 10px rgba(21, 128, 61, 0.25) !important;
+    outline: none !important;
+}
+
+.btn-premium-filter {
+    background: rgba(255,255,255,0.03) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
+    color: #cbd5e1 !important;
+    border-radius: 30px !important;
+    padding: 8px 18px !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+.btn-premium-filter:hover {
+    border-color: #22c55e !important;
+    background: rgba(21, 128, 61, 0.05) !important;
+    color: white !important;
+}
+.btn-premium-filter.active {
+    background: #22c55e !important;
+    border-color: #22c55e !important;
+    color: white !important;
+    box-shadow: 0 4px 12px rgba(21, 128, 61, 0.3) !important;
+}
+
+/* Phone Mockup */
+.phone-mockup-premium {
+    width: 270px;
+    height: 480px;
+    border: 8px solid #181a1b !important;
+    border-radius: 40px !important;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
+    outline: 2px solid rgba(255,255,255,0.05);
+}
+.notch-island {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 70px;
+    height: 18px;
+    background: #181a1b;
+    border-radius: 10px;
+    z-index: 30;
+}
+.play-btn-premium {
+    width: 60px;
+    height: 60px;
+    background: #22c55e !important;
+    border: none !important;
+    font-size: 1.8rem;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+.play-btn-premium:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px rgba(21, 128, 61, 0.5) !important;
+}
+.bg-success-gradient {
+    background: linear-gradient(90deg, #22c55e 0%, #15803d 100%) !important;
+}
+
+.btn-export-premium {
+    background: linear-gradient(135deg, #22c55e 0%, #166534 100%) !important;
+    border: none !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.5px !important;
+    box-shadow: 0 8px 24px rgba(22, 101, 52, 0.35) !important;
+    transition: all 0.3s ease !important;
+}
+.btn-export-premium:hover:not(:disabled) {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 30px rgba(22, 101, 52, 0.5) !important;
+}
+.btn-export-premium:disabled {
+    background: #1f2937 !important;
+    color: #4b5563 !important;
+    box-shadow: none !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+}
+
+.timeline-slot-card {
+    background: rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(255,255,255,0.05) !important;
+    transition: all 0.3s ease;
+}
+.timeline-slot-card:hover {
+    border-color: rgba(34, 197, 94, 0.3) !important;
+    background: rgba(0, 0, 0, 0.35) !important;
+}
+
+.btn-premium-outline {
+    border: 1.5px solid rgba(255,255,255,0.3) !important;
+    color: white !important;
+    transition: all 0.2s ease;
+}
+.btn-premium-outline:hover {
+    background: white !important;
+    color: black !important;
+    border-color: white !important;
 }
 </style>

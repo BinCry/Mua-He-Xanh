@@ -68,12 +68,20 @@ class HomeController {
                 avgRating = Math.round(parseFloat(avgRating) * 10) / 10;
             }
 
-            // Festival/Events from DB (admin managed) - query is_countdown = 1 first, fallback to nearest upcoming active event
+            // Festival/Events from DB (admin managed) - query is_featured = 1 first, fallback to is_countdown = 1, then nearest upcoming active event
             let [events] = await db.query(`
                 SELECT * FROM events 
-                WHERE is_active = 1 AND is_countdown = 1 
+                WHERE is_active = 1 AND is_featured = 1 
+                ORDER BY event_date DESC
                 LIMIT 1
             `);
+            if (events.length === 0) {
+                [events] = await db.query(`
+                    SELECT * FROM events 
+                    WHERE is_active = 1 AND is_countdown = 1 
+                    LIMIT 1
+                `);
+            }
             if (events.length === 0) {
                 [events] = await db.query(`
                     SELECT * FROM events 
