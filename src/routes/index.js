@@ -47,6 +47,7 @@ router.post('/api/workshop/review', ensureAuthenticated, WorkshopController.revi
 
 // ===== COMMUNITY (Reviews) =====
 router.get('/reviews', ReviewController.index);
+router.get('/reviews/video-editor', ensureAuthenticated, ReviewController.videoEditor);
 
 // ===== MAP =====
 router.get('/map', MapController.index);

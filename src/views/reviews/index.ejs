@@ -58,16 +58,24 @@
                         </select>
                     </div>
 
-                    <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold" style="font-size: 0.85rem;">
-                        ĐĂNG BÀI
-                    </button>
+                    <div class="d-flex gap-2">
+                        <a href="/reviews/video-editor" class="btn btn-outline-primary-bl rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-1" style="font-size: 0.82rem;">
+                            <i class="bi bi-camera-reels-fill"></i> TẠO VIDEO
+                        </a>
+                        <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold" style="font-size: 0.85rem;">
+                            ĐĂNG BÀI
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
         <% } else { %>
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center bg-white">
-            <p class="text-muted mb-3 small">Vui lòng đăng nhập tài khoản để đăng bài viết chia sẻ check-in của bạn.</p>
-            <a href="/auth/login" class="btn btn-primary-bl rounded-pill px-4 py-2">ĐĂNG NHẬP NGAY</a>
+            <p class="text-muted mb-3 small">Vui lòng đăng nhập tài khoản để đăng bài viết chia sẻ check-in hoặc tạo video.</p>
+            <div class="d-flex justify-content-center gap-2">
+                <a href="/auth/login" class="btn btn-primary-bl rounded-pill px-4 py-2">ĐĂNG NHẬP NGAY</a>
+                <a href="/reviews/video-editor" class="btn btn-outline-primary-bl rounded-pill px-4 py-2"><i class="bi bi-camera-reels-fill me-1"></i>TẠO VIDEO HÀNH TRÌNH</a>
+            </div>
         </div>
         <% } %>
 
@@ -127,11 +135,18 @@
                         <span class="fw-bold"><%= r.comments_count || 0 %></span>
                     </button>
                     
-                    <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(baseUrl + '/reviews') %>" 
-                       target="_blank" class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted ms-auto">
-                        <i class="bi bi-facebook fs-5 text-primary"></i>
-                        <span class="fw-bold">Chia sẻ</span>
-                    </a>
+                    <div class="d-flex gap-3 ms-auto">
+                        <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(baseUrl + '/reviews') %>" 
+                           target="_blank" class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted">
+                            <i class="bi bi-facebook fs-5 text-primary"></i>
+                            <span class="fw-bold" style="font-size: 0.8rem;">Facebook</span>
+                        </a>
+                        <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" 
+                                onclick="shareTikTok('<%= r.content.replace(/\'/g, "\\'").replace(/\n/g, " ") %>', '<%= r.destination_name || r.location_name || "" %>', '<%= baseUrl %>/reviews')">
+                            <i class="bi bi-tiktok fs-5 text-dark"></i>
+                            <span class="fw-bold" style="font-size: 0.8rem;">TikTok</span>
+                        </button>
+                    </div>
                 </div>
             </div>
             <% }) %>
@@ -180,6 +195,32 @@
             );
         }
     });
+
+    // TikTok Share with fallback copy
+    function shareTikTok(content, destinationName, url) {
+        const text = `Check-in tại ${destinationName || 'Bình Lợi'} - Bình Lợi Healing: "${content.substring(0, 80)}..." #BinhLoiHealing #ChuaLanh #MietVuonGiuaPho`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Chia sẻ Bình Lợi Healing',
+                text: text,
+                url: url
+            }).catch(err => console.error("Web Share failed:", err));
+        } else {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text + " " + url)
+                    .then(() => {
+                        alert('Đã sao chép nội dung chia sẻ (kèm hashtag)! Đang chuyển hướng bạn sang TikTok...');
+                        window.open('https://www.tiktok.com/upload', '_blank');
+                    })
+                    .catch(() => {
+                        window.open(`https://www.tiktok.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                    });
+            } else {
+                window.open(`https://www.tiktok.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+            }
+        }
+    }
 
     // Handle Likes via API
     async function likeReview(id, btn) {

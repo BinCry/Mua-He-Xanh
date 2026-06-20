@@ -1,0 +1,266 @@
+<section class="py-5 bg-dark min-vh-100 text-light" style="margin-top: 80px;">
+    <div class="container py-4">
+        
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-5 border-bottom border-secondary pb-3">
+            <div>
+                <span class="badge bg-primary text-uppercase fw-bold tracking-widest px-3 py-2 rounded-pill mb-2"><i class="bi bi-magic me-1"></i> Studio Sáng Tạo</span>
+                <h1 class="display-5 fw-black text-white mb-1">Hành Trình Cảm Giác</h1>
+                <p class="text-muted mb-0">Biến những bức ảnh check-in thành video kể chuyện ngắn kèm nhạc nền chữa lành.</p>
+            </div>
+            <a href="/reviews" class="btn btn-outline-light rounded-pill px-4"><i class="bi bi-arrow-left me-1"></i> Quay lại Bảng Tin</a>
+        </div>
+
+        <div class="row g-5">
+            <!-- Left Config Panels -->
+            <div class="col-lg-7 col-xl-8">
+                
+                <!-- 1. TEMPLATE SELECTOR -->
+                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">1</span>
+                        Chọn mẫu video (Duration)
+                    </h5>
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="template-card border border-2 border-secondary rounded-3 p-3 d-block text-center cursor-pointer active" data-duration="15">
+                                <input type="radio" name="video_duration" value="15" checked class="d-none">
+                                <div class="fs-4 fw-black text-primary mb-1">15 giây</div>
+                                <div class="small text-muted">Nhịp điệu nhanh (4 ảnh)</div>
+                            </label>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="template-card border border-2 border-secondary rounded-3 p-3 d-block text-center cursor-pointer" data-duration="20">
+                                <input type="radio" name="video_duration" value="20" class="d-none">
+                                <div class="fs-4 fw-black text-white mb-1">20 giây</div>
+                                <div class="small text-muted">Vừa vặn cảm xúc (4 ảnh)</div>
+                            </label>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="template-card border border-2 border-secondary rounded-3 p-3 d-block text-center cursor-pointer" data-duration="30">
+                                <input type="radio" name="video_duration" value="30" class="d-none">
+                                <div class="fs-4 fw-black text-white mb-1">30 giây</div>
+                                <div class="small text-muted">Trải nghiệm sâu (5 ảnh)</div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. UPLOAD ZONE -->
+                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                    <h5 class="fw-bold text-white mb-2 d-flex align-items-center gap-2">
+                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+                        Tải ảnh lên (3 - 5 bức ảnh)
+                    </h5>
+                    <p class="text-muted small mb-3">Tải lên các bức ảnh bạn đã chụp tại Bình Lợi để ghép vào các phân đoạn (Hook, Immersion, Highlight, Outro).</p>
+                    
+                    <div id="dropzone" class="border border-2 border-dashed border-secondary rounded-4 p-5 text-center cursor-pointer hover-border-primary transition-all bg-dark bg-opacity-50">
+                        <i class="bi bi-cloud-upload display-3 text-muted mb-3"></i>
+                        <h6 class="fw-bold">Kéo và thả tệp của bạn tại đây</h6>
+                        <p class="small text-muted">Hỗ trợ JPG, PNG (tối đa 5 file, mỗi file < 10MB)</p>
+                        <input type="file" id="media-files" multiple accept="image/*" class="d-none">
+                        <button type="button" class="btn btn-primary rounded-pill px-4 mt-2" onclick="document.getElementById('media-files').click()">Chọn file</button>
+                    </div>
+
+                    <!-- Uploaded Thumbnails Visualizer -->
+                    <div id="thumbnails-container" class="row g-2 mt-3 d-none">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- 3. SOUNDSCAPE SELECTOR -->
+                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+                        Chọn nhạc nền Soundscape (Mood)
+                    </h5>
+                    <div class="row g-3" id="soundscape-list">
+                        <% if (soundscapes && soundscapes.length > 0) { %>
+                            <% soundscapes.forEach((sound, index) => { %>
+                                <div class="col-md-6">
+                                    <div class="sound-card border border-secondary rounded-3 p-3 d-flex align-items-center justify-content-between cursor-pointer transition-all w-100 <%= index === 0 ? 'active' : '' %>" data-audio-url="<%= fixImg(sound.audio_url) %>">
+                                        <div class="d-flex align-items-center gap-3">
+                                            <div class="sound-icon bg-secondary bg-opacity-50 text-primary p-2 rounded-circle">
+                                                <i class="bi bi-music-note-beamed"></i>
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold text-white font-size-sm"><%= sound.name %></div>
+                                                <span class="badge bg-info bg-opacity-10 text-info text-capitalize" style="font-size: 0.65rem;"><%= sound.mood %></span>
+                                            </div>
+                                        </div>
+                                        <input type="radio" name="soundscape_select" value="<%= sound.id %>" <%= index === 0 ? 'checked' : '' %> class="form-check-input">
+                                    </div>
+                                </div>
+                            <% }) %>
+                        <% } else { %>
+                            <div class="col-12">
+                                <div class="alert alert-warning bg-opacity-10 border-warning text-warning mb-0 small">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i> Chưa có âm thanh mẫu trong DB. Vui lòng thêm trong admin panel.
+                                </div>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- 4. TEXT OVERLAY EDITOR -->
+                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">4</span>
+                        Biên tập phụ đề (Text Overlay)
+                    </h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold">Phần mở đầu (Hook Text)</label>
+                            <input type="text" id="text-hook" class="form-control bg-dark border-secondary text-white" value="Lạc vào miền xanh Bình Lợi...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold">Phần trải nghiệm (Immersion Text)</label>
+                            <input type="text" id="text-immersion" class="form-control bg-dark border-secondary text-white" value="Hương nhang thơm đưa bước chân tĩnh lặng.">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold">Khoảnh khắc chính (Highlight Text)</label>
+                            <input type="text" id="text-highlight" class="form-control bg-dark border-secondary text-white" value="Chữa lành từ những điều mộc mạc nhất.">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small fw-bold">Phần kết (Outro / CTA Text)</label>
+                            <input type="text" id="text-outro" class="form-control bg-dark border-secondary text-white" value="Nghe Bình Lợi theo cách của bạn.">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. FILTER SELECTOR -->
+                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 mb-4 shadow-sm backdrop-blur-md">
+                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                        <span class="badge bg-primary rounded-circle" style="width: 26px; height: 26px; display: inline-flex; align-items: center; justify-content: center;">5</span>
+                        Bộ lọc nghệ thuật (Color Preset)
+                    </h5>
+                    
+                    <div class="d-flex flex-wrap gap-3">
+                        <button class="btn btn-outline-secondary filter-preset active" data-filter="none">Không bộ lọc</button>
+                        <button class="btn btn-outline-secondary filter-preset" data-filter="warm">Nắng Ấm (Warm)</button>
+                        <button class="btn btn-outline-secondary filter-preset" data-filter="cool">Xanh Mát (Cool)</button>
+                        <button class="btn btn-outline-secondary filter-preset" data-filter="vintage">Cổ Kính (Vintage)</button>
+                        <button class="btn btn-outline-secondary filter-preset" data-filter="grayscale">Trắng Đen (B&W)</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Preview & Export Panel -->
+            <div class="col-lg-5 col-xl-4">
+                <div class="sticky-top" style="top: 100px; z-index: 10;">
+                    
+                    <!-- Preview Screen (9:16 Mockup Frame) -->
+                    <div class="card bg-dark border-secondary shadow-lg rounded-4 p-3 text-center overflow-hidden position-relative">
+                        <div class="d-flex justify-content-between align-items-center mb-2 px-1 text-muted small">
+                            <span><i class="bi bi-eye-fill text-primary"></i> PREVIEW 9:16</span>
+                            <span id="player-time">00:00 / 00:15</span>
+                        </div>
+                        
+                        <!-- Portrait Canvas Inside Phone Frame -->
+                        <div class="phone-mockup mx-auto position-relative bg-black rounded-4 shadow border border-3 border-secondary overflow-hidden" style="width: 270px; height: 480px;">
+                            <canvas id="videoCanvas" width="540" height="960" class="w-100 h-100 object-fit-cover"></canvas>
+                            
+                            <!-- Control Overlays -->
+                            <div class="canvas-overlay-center position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center" style="z-index: 20;">
+                                <button id="playBtn" class="btn btn-primary rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+                                    <i class="bi bi-play-fill fs-3"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Progress Bar under Canvas -->
+                        <div class="progress bg-secondary bg-opacity-50 mt-3 rounded-pill" style="height: 6px;">
+                            <div id="playProgress" class="progress-bar bg-primary" role="progressbar" style="width: 0%;"></div>
+                        </div>
+
+                        <!-- Export Status Container -->
+                        <div id="export-status-panel" class="mt-4 d-none">
+                            <div class="small fw-bold text-primary mb-2" id="export-status-text">Đang kết xuất video...</div>
+                            <div class="progress bg-secondary bg-opacity-50 rounded-pill mb-3" style="height: 10px;">
+                                <div id="exportProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="d-grid gap-3 mt-4">
+                            <button id="exportBtn" class="btn btn-success btn-lg rounded-pill fw-black shadow d-flex align-items-center justify-content-center gap-2" disabled>
+                                <i class="bi bi-file-earmark-play-fill"></i> XUẤT VIDEO (MP4/WebM)
+                            </button>
+                            <div class="text-muted small"><i class="bi bi-shield-fill-check text-success"></i> Quá trình kết xuất xử lý 100% trên trình duyệt của bạn</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Visual Timeline Preview -->
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-secondary bg-opacity-25 border-secondary rounded-4 p-4 shadow-sm">
+                    <h5 class="fw-bold text-white mb-3"><i class="bi bi-collection-play me-2"></i>Dòng thời gian (Timeline segments)</h5>
+                    <div class="row g-2 text-center" id="timeline-slots">
+                        <div class="col-3">
+                            <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
+                                <div class="x-small text-muted fw-bold text-uppercase">HOOK (Mở đầu)</div>
+                                <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
+                                <div class="small text-white-50 mt-2 font-size-xs">0s - 3.75s</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
+                                <div class="x-small text-muted fw-bold text-uppercase">IMMERSION (Chi tiết)</div>
+                                <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
+                                <div class="small text-white-50 mt-2 font-size-xs">3.75s - 7.5s</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
+                                <div class="x-small text-muted fw-bold text-uppercase">HIGHLIGHT (Điểm nhấn)</div>
+                                <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
+                                <div class="small text-white-50 mt-2 font-size-xs">7.5s - 11.25s</div>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
+                                <div class="x-small text-muted fw-bold text-uppercase">OUTRO (Kết thúc)</div>
+                                <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Trống</div>
+                                <div class="small text-white-50 mt-2 font-size-xs">11.25s - 15s</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Audio Tag for Soundscape playing (will be controller-assigned) -->
+<audio id="soundscapeAudio" crossorigin="anonymous" class="d-none" preload="auto">
+    <source src="" type="audio/mpeg">
+</audio>
+
+<!-- Load Axios for browser calls -->
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<!-- Client-side Video Editor Engine -->
+<script src="/js/video-editor.js"></script>
+
+<style>
+.template-card:hover, .sound-card:hover {
+    border-color: var(--v5-primary) !important;
+    background: rgba(255,255,255,0.05) !important;
+}
+.template-card.active, .sound-card.active {
+    border-color: var(--v5-primary) !important;
+    background: rgba(146, 39, 36, 0.15) !important; /* Brand accent bg */
+}
+.hover-border-primary:hover {
+    border-color: var(--v5-primary) !important;
+}
+.font-size-xs {
+    font-size: 0.7rem;
+}
+.sound-card input[type="radio"] {
+    cursor: pointer;
+}
+</style>

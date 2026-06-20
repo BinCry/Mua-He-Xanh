@@ -126,6 +126,21 @@ const ReviewController = {
         } catch (error) {
             res.status(500).json({ success: false });
         }
+    },
+
+    videoEditor: async (req, res) => {
+        try {
+            const [soundscapes] = await db.query(
+                "SELECT * FROM soundscapes WHERE is_active = 1 ORDER BY created_at DESC"
+            );
+            res.render('reviews/video-editor', {
+                title: 'Tạo Video Hành Trình Cảm Giác',
+                soundscapes
+            });
+        } catch (error) {
+            console.error('Video editor page error:', error);
+            res.status(500).send('Lỗi hệ thống');
+        }
     }
 };
 
