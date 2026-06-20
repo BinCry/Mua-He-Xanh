@@ -46,8 +46,9 @@ const ReviewController = {
             const id = uuidv4();
             let images = null;
             if (req.file) {
-                const publicPath = '/uploads/' + req.file.filename;
-                images = JSON.stringify([publicPath]);
+                const { uploadToCloudinary } = require('../config/cloudinary');
+                const result = await uploadToCloudinary(req.file.path, 'binh-loi/reviews');
+                images = JSON.stringify([result.url]);
             }
 
             // Auto-detect location name via reverse geocoding if coordinates provided

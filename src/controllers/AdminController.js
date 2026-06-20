@@ -525,14 +525,16 @@ const AdminController = {
         }
     },
 
-    // ==================== API: Events CRUD ====================
     createEvent: async (req, res) => {
         try {
-            const { title, description, season, event_date, end_date, location, image, is_featured } = req.body;
+            const { title, description, season, event_date, end_date, location, image, is_featured, is_countdown } = req.body;
+            if (is_countdown) {
+                await db.query('UPDATE events SET is_countdown = 0');
+            }
             await db.query(
-                `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, is_featured, is_active) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
-                [uuidv4(), title, description, season || 'all', event_date, end_date || null, location, image, is_featured ? 1 : 0]
+                `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, is_featured, is_countdown, is_active) 
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+                [uuidv4(), title, description, season || 'all', event_date, end_date || null, location, image, is_featured ? 1 : 0, is_countdown ? 1 : 0]
             );
             res.json({ success: true, message: 'Đã tạo sự kiện!' });
         } catch (error) {
@@ -542,10 +544,13 @@ const AdminController = {
 
     updateEvent: async (req, res) => {
         try {
-            const { id, title, description, season, event_date, end_date, location, image, is_featured, is_active } = req.body;
+            const { id, title, description, season, event_date, end_date, location, image, is_featured, is_countdown, is_active } = req.body;
+            if (is_countdown) {
+                await db.query('UPDATE events SET is_countdown = 0');
+            }
             await db.query(
-                `UPDATE events SET title = ?, description = ?, season = ?, event_date = ?, end_date = ?, location = ?, image = ?, is_featured = ?, is_active = ? WHERE id = ?`,
-                [title, description, season, event_date, end_date, location, image, is_featured ? 1 : 0, is_active ? 1 : 0, id]
+                `UPDATE events SET title = ?, description = ?, season = ?, event_date = ?, end_date = ?, location = ?, image = ?, is_featured = ?, is_countdown = ?, is_active = ? WHERE id = ?`,
+                [title, description, season, event_date, end_date, location, image, is_featured ? 1 : 0, is_countdown ? 1 : 0, is_active ? 1 : 0, id]
             );
             res.json({ success: true, message: 'Đã cập nhật sự kiện!' });
         } catch (error) {

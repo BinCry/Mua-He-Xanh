@@ -19,6 +19,7 @@
                 <th>Ngày</th>
                 <th>Địa điểm</th>
                 <th>Nổi bật</th>
+                <th>Countdown</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
             </tr>
@@ -36,6 +37,10 @@
                 <td class="small"><%= evt.location || '-' %></td>
                 <td>
                     <% if (evt.is_featured) { %><span class="text-warning"><i class="bi bi-star-fill"></i></span>
+                    <% } else { %><span class="text-muted">-</span><% } %>
+                </td>
+                <td>
+                    <% if (evt.is_countdown) { %><span class="text-danger"><i class="bi bi-alarm-fill"></i></span>
                     <% } else { %><span class="text-muted">-</span><% } %>
                 </td>
                 <td>
@@ -104,13 +109,19 @@
                             <label class="form-label small fw-bold">Địa điểm</label>
                             <input type="text" class="form-control admin-input" id="evt_location" name="location">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-check form-switch mt-3">
                                 <input class="form-check-input" type="checkbox" id="evt_is_featured" name="is_featured">
                                 <label class="form-check-label small" for="evt_is_featured">Nổi bật trên trang chủ</label>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" id="evt_is_countdown" name="is_countdown">
+                                <label class="form-check-label small" for="evt_is_countdown">Hiện Countdown trang chủ</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-check form-switch mt-3">
                                 <input class="form-check-input" type="checkbox" id="evt_is_active" name="is_active" checked>
                                 <label class="form-check-label small" for="evt_is_active">Hoạt động</label>
@@ -135,6 +146,8 @@ function openEventForm() {
     document.getElementById('eventModalTitle').textContent = 'Thêm Sự kiện';
     document.getElementById('eventForm').reset();
     document.getElementById('evt_id').value = '';
+    document.getElementById('evt_is_featured').checked = false;
+    document.getElementById('evt_is_countdown').checked = false;
     document.getElementById('evt_is_active').checked = true;
 }
 
@@ -151,6 +164,7 @@ function editEvent(target) {
     document.getElementById('evt_season').value = evt.season;
     document.getElementById('evt_location').value = evt.location || '';
     document.getElementById('evt_is_featured').checked = evt.is_featured;
+    document.getElementById('evt_is_countdown').checked = evt.is_countdown;
     document.getElementById('evt_is_active').checked = evt.is_active;
     if (evt.event_date) {
         document.getElementById('evt_event_date').value = new Date(new Date(evt.event_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -175,6 +189,7 @@ async function saveEvent() {
         end_date: document.getElementById('evt_end_date').value || null,
         location: document.getElementById('evt_location').value,
         is_featured: document.getElementById('evt_is_featured').checked,
+        is_countdown: document.getElementById('evt_is_countdown').checked,
         is_active: document.getElementById('evt_is_active').checked
     };
     

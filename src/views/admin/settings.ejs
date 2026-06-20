@@ -124,24 +124,6 @@
                     <input type="email" name="contact_email" class="form-control admin-input" value="<%= settings.contact_email || '' %>" placeholder="email@example.com">
                 </div>
             </div>
-
-            <div class="chart-card">
-                <h6 class="fw-bold mb-3"><i class="bi bi-calendar-event me-2" style="color: var(--admin-accent);"></i>Lễ hội Sắp tới</h6>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Tên Lễ hội</label>
-                    <input type="text" name="festival_name" class="form-control admin-input" value="<%= settings.festival_name || 'Lễ hội Mai Vàng Bình Lợi 2026' %>">
-                </div>
-                <div class="row g-3">
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Ngày tổ chức</label>
-                        <input type="text" name="festival_date" class="form-control admin-input" value="<%= settings.festival_date || '2026-02-15T08:00:00' %>" placeholder="YYYY-MM-DDTHH:mm:ss">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label small fw-bold" style="color: var(--admin-muted);">Địa điểm</label>
-                        <input type="text" name="festival_location" class="form-control admin-input" value="<%= settings.festival_location || 'Làng nghề Mai Vàng' %>">
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Social & SEO -->
@@ -192,21 +174,24 @@ async function uploadLogo(input) {
         });
         
         if (res.data.success) {
-            // Add cache-buster to refresh the preview
-            preview.src = res.data.url + '?v=' + Date.now();
-            // Update hidden input so it gets saved on form submit
+            preview.src = res.data.url;
             document.getElementById('brand_logo').value = res.data.url;
             btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã tải!';
             
-            // Show success toast
-            alert('Logo đã được tải lên! Vui lòng nhấn nút "Lưu Cài Đặt" ở cuối trang để áp dụng toàn website.');
+            // Automatically save settings and reload page to apply logo everywhere
+            const form = document.getElementById('settingsForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData);
+            const saveRes = await axios.post('/api/admin/update-settings', data);
+            if (saveRes.data.success) {
+                window.location.reload();
+            }
         }
     } catch (err) {
         alert('Lỗi tải logo: ' + (err.response?.data?.message || err.message));
         btn.innerHTML = oldHtml;
     } finally {
         btn.disabled = false;
-        setTimeout(() => { btn.innerHTML = oldHtml; }, 3000);
     }
 }
 

@@ -1,16 +1,16 @@
-<footer class="footer-main py-5" style="background: #071912; color: rgba(255,255,255,0.7); font-size: 0.88rem; border-top: 1px solid rgba(255,255,255,0.05);">
+<footer class="footer-main py-5" style="background: #e8f0ec; color: #2c4c38; font-size: 0.88rem; border-top: 1px solid rgba(30, 90, 62, 0.15);">
     <div class="container">
         <div class="row g-5">
             <!-- Brand Column -->
             <div class="col-lg-4">
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 40px; filter: brightness(10);" onerror="this.src='/images/logo.png'">
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 40px;" onerror="this.src='/images/logo.png'">
                     <div class="d-flex flex-column justify-content-center">
-                        <span class="d-block fw-black text-white lh-1" style="font-family: 'Inter', sans-serif; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px;"><%= settings.brand_name || 'BÌNH LỢI' %></span>
-                        <span class="d-block" style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: var(--primary-green); font-weight: 600; margin-top: 5px; letter-spacing: 0.5px; line-height: 1;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
+                        <span class="d-block fw-black lh-1" style="font-family: 'Inter', sans-serif; font-size: 1.25rem; font-weight: 900; letter-spacing: 0.5px; color: #1e3a2b;"><%= settings.brand_name || 'BÌNH LỢI' %></span>
+                        <span class="d-block" style="font-family: 'Inter', sans-serif; font-size: 0.75rem; color: #1e5a3e; font-weight: 600; margin-top: 5px; letter-spacing: 0.5px; line-height: 1;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
                     </div>
                 </div>
-                <p class="mb-4" style="line-height: 1.8; max-width: 320px; color: rgba(255,255,255,0.6);">
+                <p class="mb-4" style="line-height: 1.8; max-width: 320px; color: rgba(30, 90, 62, 0.85);">
                     <%= settings.site_description || '"Bình từ tâm, Lợi từ tầm" - Hệ sinh thái du lịch chữa lành và văn hóa số thông minh tại cửa ngõ TP.HCM, mang đến trải nghiệm thiên nhiên độc bản.' %>
                 </p>
                 <div class="d-flex gap-2">
@@ -22,7 +22,7 @@
 
             <!-- Quick Links -->
             <div class="col-6 col-lg-2">
-                <h6 class="text-white fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem;">Khám phá</h6>
+                <h6 class="fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem; color: #1e3a2b;">Khám phá</h6>
                 <ul class="list-unstyled d-flex flex-column gap-2">
                     <li><a href="/explore" class="footer-link-premium">Điểm đến</a></li>
                     <li><a href="/workshops" class="footer-link-premium">Lớp Workshop</a></li>
@@ -33,7 +33,7 @@
 
             <!-- Community & Social -->
             <div class="col-6 col-lg-3">
-                <h6 class="text-white fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem;">Cộng đồng</h6>
+                <h6 class="fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem; color: #1e3a2b;">Cộng đồng</h6>
                 <ul class="list-unstyled d-flex flex-column gap-2">
                     <li><a href="/reviews" class="footer-link-premium">Chia sẻ Check-in</a></li>
                     <li><a href="/checkin" class="footer-link-premium">Quét mã QR Code</a></li>
@@ -49,8 +49,8 @@
 
             <!-- Contact -->
             <div class="col-lg-3">
-                <h6 class="text-white fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem;">Liên hệ với chúng tôi</h6>
-                <ul class="list-unstyled d-flex flex-column gap-3" style="color: rgba(255,255,255,0.6);">
+                <h6 class="fw-bold mb-3 text-uppercase tracking-widest" style="font-size: 0.8rem; color: #1e3a2b;">Liên hệ với chúng tôi</h6>
+                <ul class="list-unstyled d-flex flex-column gap-3" style="color: rgba(30, 90, 62, 0.85);">
                     <li class="d-flex gap-2">
                         <i class="bi bi-geo-alt text-primary" style="margin-top: 2px;"></i>
                         <span>Xã Bình Lợi, Huyện Bình Chánh,<br>TP. Hồ Chí Minh</span>
@@ -67,12 +67,12 @@
             </div>
         </div>
 
-        <hr class="my-4" style="border-color: rgba(255,255,255,0.08);">
+        <hr class="my-4" style="border-color: rgba(30, 90, 62, 0.15);">
 
         <!-- Bottom Copyright -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style="color: rgba(255,255,255,0.4); font-size: 0.8rem;">
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3" style="color: rgba(30, 90, 62, 0.6); font-size: 0.8rem;">
             <span>© <%= new Date().getFullYear() %> Bình Lợi Healing. Mọi quyền được bảo lưu.</span>
-            <span>Đồng hành chiến lược bởi <span class="text-white fw-bold">LOMAR 2026</span></span>
+            <span>Đồng hành chiến lược bởi <span class="fw-bold" style="color: #1e3a2b;">LOMAR 2026</span></span>
         </div>
     </div>
 </footer>
@@ -81,8 +81,8 @@
     .footer-social-btn {
         width: 38px; height: 38px;
         border-radius: 50%;
-        background: rgba(255,255,255,0.05);
-        color: rgba(255,255,255,0.6);
+        background: rgba(30, 90, 62, 0.08);
+        color: #1e3a2b;
         display: flex; align-items: center; justify-content: center;
         transition: all 0.3s ease;
         font-size: 1rem;
@@ -95,7 +95,7 @@
         box-shadow: 0 5px 15px rgba(146, 39, 36, 0.3);
     }
     .footer-link-premium {
-        color: rgba(255,255,255,0.55);
+        color: rgba(30, 90, 62, 0.8);
         text-decoration: none;
         transition: all 0.2s ease;
     }

@@ -1,24 +1,25 @@
 const fs = require('fs');
 const path = require('path');
+const { uploadToCloudinary } = require('../config/cloudinary');
 
 const UploadController = {
     /**
-     * General image upload - saves to /uploads/media/ and returns URL path
+     * General image upload - saves to Cloudinary and returns URL path
      */
-    uploadImage: (req, res) => {
+    uploadImage: async (req, res) => {
         try {
             if (!req.file) {
                 return res.status(400).json({ success: false, message: 'Không có tệp nào được tải lên.' });
             }
             
-            // Return the public URL path (relative to public/)
-            const publicUrl = '/uploads/media/' + req.file.filename;
+            // Upload to Cloudinary
+            const result = await uploadToCloudinary(req.file.path, 'binh-loi/media');
             
             res.json({
                 success: true,
                 message: 'Tải lên thành công!',
-                url: publicUrl,
-                path: publicUrl
+                url: result.url,
+                path: result.url
             });
         } catch (error) {
             console.error('Upload Error:', error);
@@ -27,7 +28,7 @@ const UploadController = {
     },
 
     /**
-     * Logo upload - saves/overwrites logo to /images/logo.png and updates database settings
+     * Logo upload - saves to Cloudinary and updates database settings
      */
     uploadLogo: async (req, res) => {
         try {
@@ -35,16 +36,9 @@ const UploadController = {
                 return res.status(400).json({ success: false, message: 'Không có tệp nào được tải lên.' });
             }
 
-            const ext = path.extname(req.file.originalname).toLowerCase() || '.png';
-            const logoFilename = 'logo' + ext;
-            const destPath = path.join(__dirname, '../../public/images', logoFilename);
-
-            // Copy uploaded file to /images/logo.xxx
-            fs.copyFileSync(req.file.path, destPath);
-            // Remove temp upload
-            fs.unlinkSync(req.file.path);
-
-            const publicUrl = '/images/' + logoFilename;
+            // Upload logo to Cloudinary brand folder
+            const result = await uploadToCloudinary(req.file.path, 'binh-loi/brand');
+            const publicUrl = result.url;
 
             // Automatically save to database settings table to ensure synchronization instantly
             const db = require('../core/database');

@@ -47,50 +47,36 @@
     </div>
 </section>
 
-<!-- STATS: Dark Section with Impressive Numbers and Wave Separators -->
-<section class="stats-dark">
-    <!-- Top Wave divider (white wave curving into the dark section) -->
-    <div class="position-absolute top-0 start-0 w-100 overflow-hidden" style="height: 60px; pointer-events: none; z-index: 2;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
-            <path d="M0,0 C480,50 960,50 1440,0 L1440,60 L0,60 Z" fill="#ffffff"></path>
-        </svg>
-    </div>
-
-    <div class="container py-4">
-        <h2 class="stats-heading text-center">NHỮNG CON SỐ ẤN TƯỢNG</h2>
+<!-- STATS: Light Section with Impressive Numbers -->
+<section class="stats-dark py-5" style="border-bottom: 1px solid rgba(0,0,0,0.05);">
+    <div class="container py-3">
+        <h2 class="stats-heading text-center mb-5" style="font-size: 1.8rem; font-weight: 800; letter-spacing: 0.5px;">NHỮNG CON SỐ ẤN TƯỢNG</h2>
         <div class="row g-4 text-center">
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
-                    <div class="stat-number"><%= stats.checkins.toLocaleString() %>+</div>
-                    <div class="stat-text">LƯỢT CHECK-IN</div>
+                    <div class="stat-number" style="font-size: 3rem; font-weight: 900; color: var(--primary);"><%= stats.checkins.toLocaleString() %>+</div>
+                    <div class="stat-text" style="font-size: 0.75rem; letter-spacing: 1.5px; color: #64748b; font-weight: 700; margin-top: 8px;">LƯỢT CHECK-IN</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
-                    <div class="stat-number"><%= stats.destinations %>+</div>
-                    <div class="stat-text">ĐỊA ĐIỂM TRỌNG TÂM</div>
+                    <div class="stat-number" style="font-size: 3rem; font-weight: 900; color: var(--primary);"><%= stats.destinations %>+</div>
+                    <div class="stat-text" style="font-size: 0.75rem; letter-spacing: 1.5px; color: #64748b; font-weight: 700; margin-top: 8px;">ĐỊA ĐIỂM TRỌNG TÂM</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
-                    <div class="stat-number"><%= stats.workshopCount || '50' %>+</div>
-                    <div class="stat-text">WORKSHOP ĐÃ TỔ CHỨC</div>
+                    <div class="stat-number" style="font-size: 3rem; font-weight: 900; color: var(--primary);"><%= stats.workshopCount || '50' %>+</div>
+                    <div class="stat-text" style="font-size: 0.75rem; letter-spacing: 1.5px; color: #64748b; font-weight: 700; margin-top: 8px;">WORKSHOP ĐÃ TỔ CHỨC</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
-                    <div class="stat-number"><%= stats.avgRating || '4.9' %>/5</div>
-                    <div class="stat-text">ĐÁNH GIÁ TRUNG BÌNH</div>
+                    <div class="stat-number" style="font-size: 3rem; font-weight: 900; color: var(--primary);"><%= stats.avgRating || '4.9' %>/5</div>
+                    <div class="stat-text" style="font-size: 0.75rem; letter-spacing: 1.5px; color: #64748b; font-weight: 700; margin-top: 8px;">ĐÁNH GIÁ TRUNG BÌNH</div>
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Bottom Wave divider (white wave curving out of the dark section) -->
-    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="height: 60px; pointer-events: none; z-index: 2;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
-            <path d="M0,60 C480,10 960,10 1440,60 L1440,0 L0,0 Z" fill="#ffffff"></path>
-        </svg>
     </div>
 </section>
 
@@ -158,11 +144,22 @@
                         </div>
                         
                         <div>
-                            <!-- Event status label -->
-                            <div class="mb-4">
-                                <span class="font-extrabold text-uppercase x-small" style="color: #ffc847; letter-spacing: 1.5px;">
-                                    SỰ KIỆN ĐANG DIỄN RA!
-                                </span>
+                            <!-- Countdown timer -->
+                            <div class="mb-4" id="countdown">
+                                <div class="d-flex gap-3 text-white text-center">
+                                    <div class="p-2 px-3 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
+                                        <span class="fs-4 fw-black d-block" id="days">00</span>
+                                        <span class="x-small opacity-60" style="font-size: 0.65rem;">NGÀY</span>
+                                    </div>
+                                    <div class="p-2 px-3 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
+                                        <span class="fs-4 fw-black d-block" id="hours">00</span>
+                                        <span class="x-small opacity-60" style="font-size: 0.65rem;">GIỜ</span>
+                                    </div>
+                                    <div class="p-2 px-3 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
+                                        <span class="fs-4 fw-black d-block" id="mins">00</span>
+                                        <span class="x-small opacity-60" style="font-size: 0.65rem;">PHÚT</span>
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="d-flex flex-column gap-2" style="font-size: 0.9rem;">
