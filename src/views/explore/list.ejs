@@ -3,8 +3,10 @@
     <div class="container py-4">
         
         <!-- Hero Header -->
-        <div class="position-relative overflow-hidden mb-5 rounded-4" style="height: 280px; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.65)), url('<%= fixImg(settings.banner_explore, "/images/hero-1.png") %>') center/cover;">
-            <div class="position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
+        <div class="position-relative overflow-hidden mb-5 rounded-4" style="height: 320px;">
+            <div style="position: absolute; top:0; left:0; width:100%; height:100%; background-image: url('<%= fixImg(settings.banner_explore, '/images/hero-1.png') %>'); background-size: cover; background-position: center; z-index: 1;"></div>
+            <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.65)); z-index: 2;"></div>
+            <div class="position-absolute top-50 start-50 translate-middle text-center w-100 px-3" style="z-index: 5;">
                 <span class="badge bg-success bg-opacity-20 text-white border border-success border-opacity-35 rounded-pill px-3 py-2 mb-3 fw-bold tracking-widest text-uppercase" style="backdrop-filter: blur(8px);"><i class="bi bi-compass-fill me-1"></i> Hệ bản đồ số</span>
                 <h1 class="fw-black text-white mb-2 font-display display-5">Khám Phá Bình Lợi</h1>
                 <p class="text-white-50 lead mx-auto small mb-0" style="max-width: 550px; font-size: 0.95rem;">Lọc tìm những địa điểm chữa lành tâm hồn, trải nghiệm sinh thái sông nước và văn hóa bản địa lâu đời.</p>

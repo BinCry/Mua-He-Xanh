@@ -136,10 +136,10 @@
             <div class="col-lg-6 reveal-up">
                 <% if (nextEvent) { %>
                 <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift h-100" 
-                     style="min-height: 480px; transition: all 0.4s var(--ease-out); background: <%= nextEvent.image ? 'linear-gradient(to bottom, rgba(0,0,0,0.25), rgba(0,0,0,0.85)), url(' + fixImg(nextEvent.image) + ') center/cover' : 'linear-gradient(135deg, #0d2315 0%, #06120b 100%)' %>; border: 1px solid rgba(30, 90, 62, 0.15);">
+                     style="min-height: 480px; transition: all 0.4s var(--ease-out); background: linear-gradient(135deg, #922724 0%, #581816 100%); border: 1px solid rgba(146, 39, 36, 0.3);">
                     
                     <!-- Gradient overlay for text readability -->
-                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.75) 100%); z-index: 1;"></div>
+                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(146,39,36,0.8) 100%); z-index: 1;"></div>
                     
                     <div class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100" style="z-index: 5; min-height: 480px;">
                         <div>
@@ -207,18 +207,16 @@
                 <div class="scrollable-events-container" style="max-height: 420px; overflow-y: auto; padding-right: 8px;">
                     <% if (typeof otherEvents !== 'undefined' && otherEvents.length > 0) { %>
                         <div class="d-flex flex-column gap-3">
-                            <% otherEvents.forEach(evt => { %>
+                            <% otherEvents.forEach((evt, index) => { 
+                                const colorClass = index % 2 === 0 ? 'text-primary bg-primary' : 'text-success bg-success';
+                            %>
                             <div class="d-flex gap-3 align-items-center p-3 rounded-4 border bg-white" 
                                  style="border-color: var(--border) !important; transition: all 0.3s;"
                                  onmouseover="this.style.background='var(--primary-50)'; this.style.borderColor='var(--primary-200)';" 
                                  onmouseout="this.style.background='#ffffff'; this.style.borderColor='var(--border)';" >
-                                <% if (evt.image) { %>
-                                    <img src="<%= fixImg(evt.image) %>" class="rounded-3" style="width: 60px; height: 60px; object-fit: cover;">
-                                <% } else { %>
-                                    <div class="rounded-3 d-flex align-items-center justify-content-center bg-light text-muted" style="width: 60px; height: 60px;">
-                                        <i class="bi bi-calendar-event fs-4"></i>
-                                    </div>
-                                <% } %>
+                                <div class="rounded-3 d-flex align-items-center justify-content-center <%= colorClass %> bg-opacity-10" style="width: 50px; height: 50px;">
+                                    <i class="bi bi-calendar-event fs-5"></i>
+                                </div>
                                 <div class="flex-grow-1">
                                     <h6 class="text-dark font-extrabold mb-1" style="font-size: 0.95rem;"><%= evt.title %></h6>
                                     <div class="d-flex align-items-center gap-2 x-small text-muted mb-1">

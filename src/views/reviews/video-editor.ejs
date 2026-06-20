@@ -1,4 +1,4 @@
-<section class="py-5 text-light" style="margin-top: 80px; background: linear-gradient(135deg, #0a110d 0%, #050706 100%); min-vh-100;">
+<section class="py-5" style="margin-top: 80px; background: #f8faf9; min-vh-100;">
     <div class="container py-4">
         
         <!-- Header -->
@@ -7,10 +7,10 @@
                 <span class="badge bg-danger bg-opacity-25 text-danger text-uppercase fw-bold tracking-widest px-3 py-2 rounded-pill mb-2 border border-danger border-opacity-35" style="letter-spacing: 1.5px; font-size: 0.7rem;">
                     <i class="bi bi-magic me-1"></i> Studio Sáng Tạo Premium
                 </span>
-                <h1 class="display-5 fw-black text-white mb-1" style="font-family: 'Inter', sans-serif;">Hành Trình Cảm Giác</h1>
+                <h1 class="display-5 fw-black text-dark mb-1" style="font-family: 'Inter', sans-serif;">Hành Trình Cảm Giác</h1>
                 <p class="text-muted mb-0 small">Biến những bức ảnh check-in mộc mạc thành video kể chuyện nghệ thuật kèm nhạc nền chữa lành.</p>
             </div>
-            <a href="/reviews" class="btn btn-outline-light rounded-pill px-4 btn-premium-outline"><i class="bi bi-arrow-left me-1"></i> Quay lại Cộng đồng</a>
+            <a href="/reviews" class="btn btn-outline-dark rounded-pill px-4"><i class="bi bi-arrow-left me-1"></i> Quay lại Cộng đồng</a>
         </div>
 
         <div class="row g-4">
@@ -19,7 +19,7 @@
                 
                 <!-- 1. TEMPLATE SELECTOR -->
                 <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp">
-                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                    <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
                         <span class="step-num">1</span>
                         Chọn mẫu video (Thời lượng)
                     </h5>
@@ -34,14 +34,14 @@
                         <div class="col-md-4">
                             <label class="template-card template-card-premium rounded-4 p-3 d-block text-center cursor-pointer" data-duration="20">
                                 <input type="radio" name="video_duration" value="20" class="d-none">
-                                <div class="fs-4 fw-black text-white mb-1">20 giây</div>
+                                <div class="fs-4 fw-black text-dark mb-1">20 giây</div>
                                 <div class="small text-muted" style="font-size: 0.75rem;">Vừa vặn cảm xúc (4 ảnh)</div>
                             </label>
                         </div>
                         <div class="col-md-4">
                             <label class="template-card template-card-premium rounded-4 p-3 d-block text-center cursor-pointer" data-duration="30">
                                 <input type="radio" name="video_duration" value="30" class="d-none">
-                                <div class="fs-4 fw-black text-white mb-1">30 giây</div>
+                                <div class="fs-4 fw-black text-dark mb-1">30 giây</div>
                                 <div class="small text-muted" style="font-size: 0.75rem;">Trải nghiệm sâu (5 ảnh)</div>
                             </label>
                         </div>
@@ -50,7 +50,7 @@
 
                 <!-- 2. UPLOAD ZONE -->
                 <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
-                    <h5 class="fw-bold text-white mb-2 d-flex align-items-center gap-2">
+                    <h5 class="fw-bold text-dark mb-2 d-flex align-items-center gap-2">
                         <span class="step-num">2</span>
                         Tải ảnh lên (Từ 3 - 5 bức ảnh)
                     </h5>
@@ -59,7 +59,7 @@
                     <div id="dropzone" class="dropzone-premium rounded-4 p-4 text-center cursor-pointer transition-all">
                         <div class="py-4">
                             <i class="bi bi-cloud-arrow-up-fill display-4 text-danger mb-3 upload-pulse d-inline-block"></i>
-                            <h6 class="fw-bold text-white mb-1">Kéo và thả ảnh tại đây</h6>
+                            <h6 class="fw-bold text-dark mb-1">Kéo và thả ảnh tại đây</h6>
                             <p class="small text-muted mb-3">Hỗ trợ JPG, PNG (tối đa 5 file, mỗi file < 10MB)</p>
                             <input type="file" id="media-files" multiple accept="image/*" class="d-none">
                             <button type="button" class="btn btn-danger rounded-pill px-4 py-2 text-white font-weight-semibold" style="background: var(--primary); border: none; font-size: 0.85rem;" onclick="document.getElementById('media-files').click()">Chọn tệp từ máy</button>
@@ -74,7 +74,7 @@
 
                 <!-- 3. SOUNDSCAPE SELECTOR -->
                 <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                    <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
                         <span class="step-num">3</span>
                         Chọn nhạc nền Soundscape (Mood)
                     </h5>
@@ -88,7 +88,7 @@
                                                 <i class="bi bi-music-note-beamed"></i>
                                             </div>
                                             <div>
-                                                <div class="fw-bold text-white" style="font-size: 0.88rem;"><%= sound.name %></div>
+                                                <div class="fw-bold text-dark" style="font-size: 0.88rem;"><%= sound.name %></div>
                                                 <span class="badge bg-danger bg-opacity-20 text-danger text-capitalize border border-danger border-opacity-25" style="font-size: 0.65rem;"><%= sound.mood %></span>
                                             </div>
                                         </div>
@@ -110,7 +110,7 @@
 
                 <!-- 4. TEXT OVERLAY EDITOR -->
                 <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
-                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                    <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
                         <span class="step-num">4</span>
                         Biên tập phụ đề (Text Overlay)
                     </h5>
@@ -137,7 +137,7 @@
 
                 <!-- 5. FILTER SELECTOR -->
                 <div class="editor-glass-card p-4 mb-4 animate__animated animate__fadeInUp" style="animation-delay: 0.4s;">
-                    <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
+                    <h5 class="fw-bold text-dark mb-3 d-flex align-items-center gap-2">
                         <span class="step-num">5</span>
                         Bộ lọc nghệ thuật (Color Preset)
                     </h5>
@@ -262,11 +262,11 @@
 <style>
 /* Custom premium CSS override for Studio editor */
 .editor-glass-card {
-    background: rgba(255, 255, 255, 0.03) !important;
-    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
     backdrop-filter: blur(20px) saturate(120%);
     border-radius: 20px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
     transition: all 0.3s ease;
 }
 .step-num {
@@ -282,9 +282,9 @@
     font-weight: 800;
 }
 .template-card-premium {
-    border: 1.5px dashed rgba(255,255,255,0.15) !important;
+    border: 1.5px dashed rgba(0,0,0,0.15) !important;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    background: rgba(255,255,255,0.01) !important;
+    background: #ffffff !important;
 }
 .template-card-premium:hover {
     border-color: #922724 !important;
@@ -301,8 +301,8 @@
 }
 
 .dropzone-premium {
-    border: 2px dashed rgba(255,255,255,0.15) !important;
-    background: rgba(0, 0, 0, 0.2) !important;
+    border: 2px dashed rgba(0,0,0,0.15) !important;
+    background: rgba(0, 0, 0, 0.02) !important;
     transition: all 0.3s ease;
 }
 .dropzone-premium:hover {
@@ -318,8 +318,8 @@
 }
 
 .sound-card-premium {
-    border: 1px solid rgba(255,255,255,0.08) !important;
-    background: rgba(255,255,255,0.02) !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    background: #ffffff !important;
     transition: all 0.3s ease;
 }
 .sound-card-premium:hover {
@@ -340,10 +340,10 @@
 }
 
 .premium-input {
-    background: rgba(0,0,0,0.2) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
     border-radius: 12px !important;
-    color: white !important;
+    color: #333 !important;
     padding: 12px !important;
     font-size: 0.9rem !important;
     transition: all 0.3s ease !important;
@@ -355,9 +355,9 @@
 }
 
 .btn-premium-filter {
-    background: rgba(255,255,255,0.03) !important;
-    border: 1px solid rgba(255,255,255,0.1) !important;
-    color: #cbd5e1 !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    color: #555 !important;
     border-radius: 30px !important;
     padding: 8px 18px !important;
     font-size: 0.85rem !important;
@@ -382,8 +382,8 @@
     height: 480px;
     border: 8px solid #181a1b !important;
     border-radius: 40px !important;
-    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6) !important;
-    outline: 2px solid rgba(255,255,255,0.05);
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.2) !important;
+    outline: 2px solid rgba(0,0,0,0.05);
 }
 .notch-island {
     position: absolute;
@@ -435,8 +435,8 @@
 }
 
 .timeline-slot-card {
-    background: rgba(0, 0, 0, 0.25) !important;
-    border: 1px solid rgba(255,255,255,0.05) !important;
+    background: rgba(0, 0, 0, 0.03) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
     transition: all 0.3s ease;
 }
 .timeline-slot-card:hover {
@@ -445,8 +445,8 @@
 }
 
 .btn-premium-outline {
-    border: 1.5px solid rgba(255,255,255,0.3) !important;
-    color: white !important;
+    border: 1.5px solid rgba(0,0,0,0.15) !important;
+    color: #333 !important;
     transition: all 0.2s ease;
 }
 .btn-premium-outline:hover {

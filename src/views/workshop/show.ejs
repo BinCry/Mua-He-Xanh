@@ -235,13 +235,22 @@
                     spread: 70,
                     origin: { y: 0.6 }
                 });
-
-                alert(res.data.message);
+                // Instead of alert, show visual feedback or just reload
                 window.location.reload();
             }
         } catch (err) {
-            alert('Lỗi đăng ký: ' + (err.response?.data?.message || err.message));
-        } finally {
+            console.error('Lỗi đăng ký: ' + (err.response?.data?.message || err.message));
+            // Show inline error if possible, or fallback to simple alert if needed
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>Lỗi: ' + (err.response?.data?.message || 'Có lỗi xảy ra');
+                submitBtn.classList.replace('btn-primary', 'btn-danger');
+                setTimeout(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.classList.replace('btn-danger', 'btn-primary');
+                    submitBtn.innerHTML = oldHtml;
+                }, 3000);
+            }
+        }
             if (submitBtn) {
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = oldHtml;
@@ -259,15 +268,16 @@
         try {
             const res = await axios.post('/api/workshop/cancel', { bookingId });
             if (res.data.success) {
-                alert(res.data.message);
                 window.location.reload();
             }
         } catch (err) {
-            alert('Lỗi hủy đăng ký: ' + (err.response?.data?.message || err.message));
-        } finally {
+            console.error('Lỗi hủy đăng ký: ' + (err.response?.data?.message || err.message));
             if (cancelBtn) {
-                cancelBtn.disabled = false;
-                cancelBtn.innerHTML = oldHtml;
+                cancelBtn.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i>Lỗi: ' + (err.response?.data?.message || 'Có lỗi xảy ra');
+                setTimeout(() => {
+                    cancelBtn.disabled = false;
+                    cancelBtn.innerHTML = oldHtml;
+                }, 3000);
             }
         }
     }
