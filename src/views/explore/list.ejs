@@ -11,57 +11,64 @@
             <p class="text-muted small mx-auto" style="max-width: 500px;">Lọc tìm những địa điểm chữa lành tâm hồn, trải nghiệm sinh thái sông nước và văn hóa bản địa lâu đời.</p>
         </div>
 
-        <!-- Premium Search & Multi-Filter Control Board -->
-        <div class="card border-0 shadow-premium rounded-4 p-4 mb-5 bg-white reveal-up">
+        <!-- Redesigned Search & Collapse Filter Bar -->
+        <div class="card border-0 shadow-premium rounded-4 p-3 mb-5 bg-white reveal-up">
             <form action="/explore" method="GET" id="exploreSearchForm">
-                <div class="row g-3">
-                    <!-- Search Input -->
-                    <div class="col-lg-5 col-md-12">
-                        <label class="form-label text-muted fw-bold x-small text-uppercase mb-2"><i class="bi bi-search text-success"></i> Từ khóa tìm kiếm</label>
-                        <div class="position-relative">
-                            <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 16px;"></i>
-                            <input type="text" name="q" class="form-control border bg-light bg-opacity-50 rounded-pill py-2 ps-5 pe-4 shadow-none small" 
-                                placeholder="Tên vườn mai, xưởng nhang, chùa cổ..." 
-                                value="<%= searchQuery || '' %>">
+                <!-- Search bar and collapse trigger -->
+                <div class="d-flex flex-column flex-md-row gap-2">
+                    <div class="position-relative flex-grow-1">
+                        <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 18px;"></i>
+                        <input type="text" name="q" class="form-control border-0 bg-light rounded-pill py-3 ps-5 pe-4 shadow-none" 
+                            placeholder="Tên vườn mai, xưởng nhang, chùa cổ..." 
+                            value="<%= searchQuery || '' %>" style="font-size: 0.9rem;">
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-bold d-flex align-items-center justify-content-center" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" style="font-size: 0.85rem; border: 1px solid rgba(0,0,0,0.15); height: 48px;">
+                            <i class="bi bi-funnel me-1"></i> Bộ lọc <%= (currentType || currentSeason) ? '(Đang lọc)' : '' %>
+                        </button>
+                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold text-white btn-premium d-flex align-items-center justify-content-center" style="background: var(--primary); font-size: 0.85rem; height: 48px;">
+                            Tìm kiếm
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Collapsible Filters -->
+                <div class="collapse <%= (currentType || currentSeason) ? 'show' : '' %> mt-3 pt-3 border-top" id="filterCollapse">
+                    <div class="row g-3">
+                        <!-- Category Type Filter -->
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-bold x-small text-uppercase mb-2"><i class="bi bi-tag text-primary me-1"></i>Danh mục trải nghiệm</label>
+                            <select name="type" class="form-select border bg-light rounded-pill py-2 px-3 shadow-none small" onchange="this.form.submit()">
+                                <option value="">Tất cả danh mục</option>
+                                <option value="temple" <%= currentType === 'temple' ? 'selected' : '' %>>Tâm linh - Chữa lành</option>
+                                <option value="park" <%= currentType === 'park' ? 'selected' : '' %>>Sinh thái - Sông nước</option>
+                                <option value="craft" <%= currentType === 'craft' ? 'selected' : '' %>>Làng nghề - Bản sắc</option>
+                            </select>
+                        </div>
+
+                        <!-- Seasonal Experience Filter -->
+                        <div class="col-md-6">
+                            <label class="form-label text-muted fw-bold x-small text-uppercase mb-2"><i class="bi bi-cloud-sun text-warning me-1"></i>Mùa trải nghiệm đẹp nhất</label>
+                            <select name="season" class="form-select border bg-light rounded-pill py-2 px-3 shadow-none small" onchange="this.form.submit()">
+                                <option value="">Mọi thời điểm trong năm</option>
+                                <option value="spring" <%= currentSeason === 'spring' ? 'selected' : '' %>>Mùa xuân (Mai Vàng khoe sắc)</option>
+                                <option value="summer" <%= currentSeason === 'summer' ? 'selected' : '' %>>Mùa hạ (Miệt vườn cây trái)</option>
+                                <option value="autumn" <%= currentSeason === 'autumn' ? 'selected' : '' %>>Mùa thu (Lễ hội thả hoa đăng)</option>
+                                <option value="winter" <%= currentSeason === 'winter' ? 'selected' : '' %>>Mùa đông (Mùa cấy cẩm chướng)</option>
+                            </select>
                         </div>
                     </div>
 
-                    <!-- Category Type Filter -->
-                    <div class="col-lg-4 col-md-6">
-                        <label class="form-label text-muted fw-bold x-small text-uppercase mb-2"><i class="bi bi-tag text-primary"></i> Danh mục trải nghiệm</label>
-                        <select name="type" class="form-select border bg-light bg-opacity-50 rounded-pill py-2 px-3 shadow-none small" onchange="this.form.submit()">
-                            <option value="">Tất cả danh mục</option>
-                            <option value="temple" <%= currentType === 'temple' ? 'selected' : '' %>>Tâm linh - Chữa lành</option>
-                            <option value="park" <%= currentType === 'park' ? 'selected' : '' %>>Sinh thái - Sông nước</option>
-                            <option value="craft" <%= currentType === 'craft' ? 'selected' : '' %>>Làng nghề - Bản sắc</option>
-                        </select>
+                    <!-- Reset Link -->
+                    <% if (searchQuery || currentType || currentSeason) { %>
+                    <div class="text-end mt-3">
+                        <a href="/explore" class="text-danger small fw-bold text-decoration-none"><i class="bi bi-x-circle me-1"></i>Xóa tất cả bộ lọc</a>
                     </div>
-
-                    <!-- Seasonal Experience Filter -->
-                    <div class="col-lg-3 col-md-6">
-                        <label class="form-label text-muted fw-bold x-small text-uppercase mb-2"><i class="bi bi-cloud-sun text-warning"></i> Mùa trải nghiệm đẹp nhất</label>
-                        <select name="season" class="form-select border bg-light bg-opacity-50 rounded-pill py-2 px-3 shadow-none small" onchange="this.form.submit()">
-                            <option value="">Mọi thời điểm trong năm</option>
-                            <option value="spring" <%= currentSeason === 'spring' ? 'selected' : '' %>>Mùa xuân (Mai Vàng khoe sắc)</option>
-                            <option value="summer" <%= currentSeason === 'summer' ? 'selected' : '' %>>Mùa hạ (Miệt vườn cây trái)</option>
-                            <option value="autumn" <%= currentSeason === 'autumn' ? 'selected' : '' %>>Mùa thu (Lễ hội thả hoa đăng)</option>
-                            <option value="winter" <%= currentSeason === 'winter' ? 'selected' : '' %>>Mùa đông (Mùa cấy cẩm chướng)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Submit and Reset Buttons -->
-                <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top border-light">
-                    <span class="text-muted small fw-bold"><%= destinations.length %> địa điểm tìm thấy</span>
-                    <div class="d-flex gap-2">
-                        <% if (searchQuery || currentType || currentSeason) { %>
-                        <a href="/explore" class="btn btn-light rounded-pill px-4 py-2 small fw-bold"><i class="bi bi-x-circle me-1"></i> Xóa bộ lọc</a>
-                        <% } %>
-                        <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 small fw-bold">ÁP DỤNG BỘ LỌC</button>
-                    </div>
+                    <% } %>
                 </div>
             </form>
         </div>
+
 
         <!-- Destination Cards Catalog -->
         <div class="row g-4">

@@ -5,8 +5,10 @@
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
+const { uploadToCloudinary } = require('../config/cloudinary');
 
 const AdminController = {
+
 
     // ==================== DASHBOARD ====================
     dashboard: async (req, res) => {
@@ -18,6 +20,24 @@ const AdminController = {
             const [workshopCount] = await db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = TRUE');
             const [pointsSum] = await db.query('SELECT SUM(total_points) as total FROM users');
             const [eventCount] = await db.query('SELECT COUNT(*) as total FROM events WHERE is_active = TRUE');
+
+            // Average session duration (from analytics duration_ms)
+            const [avgDurationRow] = await db.query(
+                "SELECT COALESCE(AVG(duration_ms), 0) as avg_duration FROM analytics WHERE duration_ms > 0"
+            );
+            const avgDurationSec = Math.round((avgDurationRow[0]?.avg_duration || 0) / 1000);
+
+            // Ratings distribution (1-5 stars)
+            const [ratingDistRows] = await db.query(`
+                SELECT rating, COUNT(*) as count 
+                FROM reviews 
+                WHERE rating IS NOT NULL AND rating >= 1 AND rating <= 5 
+                GROUP BY rating 
+                ORDER BY rating ASC
+            `);
+            const ratingsMap = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+            ratingDistRows.forEach(r => { ratingsMap[r.rating] = r.count; });
+            const ratingsDistribution = [ratingsMap[1], ratingsMap[2], ratingsMap[3], ratingsMap[4], ratingsMap[5]];
 
             // Monthly check-in trend (last 6 months)
             const [checkinRows] = await db.query(`
@@ -36,6 +56,27 @@ const AdminController = {
                 monthlyCheckins.push({
                     month: monthStr,
                     count: checkinMap[monthStr] || 0
+                });
+            }
+
+            // Monthly Workshop Bookings trend (last 6 months)
+            const [workshopBookingRows] = await db.query(`
+                SELECT DATE_FORMAT(booking_date, '%Y-%m') as month, COUNT(*) as count
+                FROM workshop_bookings
+                WHERE booking_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) AND status != 'cancelled'
+                GROUP BY month ORDER BY month ASC
+            `);
+            const wsBookingMap = {};
+            workshopBookingRows.forEach(r => { wsBookingMap[r.month] = r.count; });
+
+            const monthlyWSBookings = [];
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date();
+                d.setMonth(d.getMonth() - i);
+                const monthStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                monthlyWSBookings.push({
+                    month: monthStr,
+                    count: wsBookingMap[monthStr] || 0
                 });
             }
 
@@ -96,9 +137,10 @@ const AdminController = {
                     reviews: reviewCount[0].total,
                     workshops: workshopCount[0].total,
                     totalPoints: pointsSum[0].total || 0,
-                    events: eventCount[0].total
+                    events: eventCount[0].total,
+                    avgDuration: avgDurationSec
                 },
-                chartData: { monthlyCheckins, dailyCheckins, monthlyUsers },
+                chartData: { monthlyCheckins, dailyCheckins, monthlyUsers, ratingsDistribution, monthlyWSBookings },
                 topDests,
                 recentUsers
             });
@@ -107,6 +149,7 @@ const AdminController = {
             res.status(500).send('Lỗi hệ thống: ' + error.message);
         }
     },
+
 
     // ==================== USERS ====================
     users: async (req, res) => {
@@ -229,20 +272,23 @@ const AdminController = {
             `, params);
             
             const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = TRUE ORDER BY name');
+            const [soundscapes] = await db.query('SELECT * FROM soundscapes ORDER BY created_at DESC');
             
             res.render('admin/reviews', {
-                title: 'Duyệt Đánh Giá',
+                title: 'Quản lý Cộng đồng',
                 layout: 'layouts/admin',
                 adminPage: 'reviews',
                 reviews,
                 destinations,
-                currentDestination: destFilter
+                currentDestination: destFilter,
+                soundscapes
             });
         } catch (error) {
             console.error('Admin reviews error:', error);
             res.status(500).send('Lỗi hệ thống');
         }
     },
+
 
     // ==================== EVENTS ====================
     events: async (req, res) => {
@@ -638,8 +684,49 @@ const AdminController = {
             res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
         }
     },
+    createSoundscape: async (req, res) => {
+        try {
+
+            const { name, mood, duration_seconds } = req.body;
+            if (!name || !mood) {
+                return res.status(400).json({ success: false, message: 'Thiếu tên hoặc mood.' });
+            }
+            if (!req.file) {
+                return res.status(400).json({ success: false, message: 'Thiếu file âm thanh.' });
+            }
+
+            // Upload to Cloudinary
+            const result = await uploadToCloudinary(req.file.path, 'binh-loi/soundscapes');
+            const audioUrl = result.url;
+
+            await db.query(
+                `INSERT INTO soundscapes (id, name, mood, audio_url, duration_seconds, is_active, created_at) 
+                 VALUES (?, ?, ?, ?, ?, 1, NOW())`,
+                [uuidv4(), name, mood, audioUrl, parseInt(duration_seconds) || 0]
+            );
+
+            res.json({ success: true, message: 'Đã thêm âm thanh soundscape!' });
+        } catch (error) {
+            console.error('Create soundscape error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+        }
+    },
+
+    deleteSoundscape: async (req, res) => {
+        try {
+            const { id } = req.body;
+            if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID.' });
+
+            await db.query('DELETE FROM soundscapes WHERE id = ?', [id]);
+            res.json({ success: true, message: 'Đã xóa âm thanh!' });
+        } catch (error) {
+            console.error('Delete soundscape error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+        }
+    },
 
     chat: async (req, res) => {
+
         try {
             // Conversation List for Admin (destination_id IS NULL)
             const [conversations] = await db.query(

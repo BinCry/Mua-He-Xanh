@@ -12,13 +12,31 @@ const WorkshopController = {
     index: async (req, res) => {
         try {
             const typeFilter = req.query.type || null;
+            const searchQuery = req.query.q || '';
             let workshops;
             
+            let query = `
+                SELECT w.*, d.name as destination_name, d.slug as destination_slug
+                FROM workshops w
+                LEFT JOIN destinations d ON w.destination_id = d.id
+                WHERE w.is_active = TRUE
+            `;
+            const params = [];
+
             if (typeFilter) {
-                workshops = await Workshop.getByType(typeFilter);
-            } else {
-                workshops = await Workshop.getAll(50);
+                query += ' AND w.type = ?';
+                params.push(typeFilter);
             }
+
+            if (searchQuery) {
+                query += ' AND (w.title LIKE ? OR w.description LIKE ?)';
+                params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+            }
+
+            query += ' ORDER BY w.sort_order ASC, w.created_at DESC LIMIT 50';
+
+            const [rows] = await db.query(query, params);
+            workshops = rows;
 
             // Get stats for each workshop
             for (let ws of workshops) {
@@ -34,13 +52,15 @@ const WorkshopController = {
                 title: 'Workshop & Trải Nghiệm',
                 workshops,
                 typeFilter,
-                typeLabels
+                typeLabels,
+                searchQuery
             });
         } catch (error) {
             console.error('Workshop index error:', error);
             res.status(500).send('Lỗi hệ thống');
         }
     },
+
 
     // GET /workshops/:id - Chi tiết workshop + form đăng ký
     show: async (req, res) => {

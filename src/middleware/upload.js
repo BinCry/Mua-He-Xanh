@@ -17,19 +17,20 @@ const storage = multer.diskStorage({
     }
 });
 
-// File filter (images only)
+// File filter (images and audio)
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
+    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('audio/') || file.mimetype === 'application/octet-stream') {
         cb(null, true);
     } else {
-        cb(new Error('Chỉ được phép tải lên hình ảnh!'), false);
+        cb(new Error('Chỉ được phép tải lên hình ảnh hoặc âm thanh!'), false);
     }
 };
 
 const upload = multer({ 
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 5 * 1024 * 1024 } // 5MB limit
+    limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit for audio/video files
 });
+
 
 module.exports = upload;

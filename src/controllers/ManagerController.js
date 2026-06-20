@@ -49,10 +49,12 @@ class ManagerController {
                 [dest.id]
             );
 
-            // 4. Page Views (Lượt truy cập)
-            const [pageViewsStats] = await UserSession.db.query(
-                "SELECT COUNT(*) as total FROM analytics WHERE page_url LIKE ? OR page_url LIKE ?",
-                [`%/explore/${dest.slug}%`, `%/explore/${dest.id}%`]
+            // 4. Workshop Bookings Count (thay cho page views)
+            const [workshopBookingsCount] = await UserSession.db.query(
+                `SELECT COUNT(*) as total FROM workshop_bookings wb 
+                 JOIN workshops w ON wb.workshop_id = w.id 
+                 WHERE w.destination_id = ? AND wb.status != 'cancelled'`,
+                [dest.id]
             );
 
             // 5. Doanh thu (Revenue)
@@ -60,9 +62,68 @@ class ManagerController {
                 `SELECT COALESCE(SUM(wb.total_price), 0) as total
                  FROM workshop_bookings wb
                  JOIN workshops w ON wb.workshop_id = w.id
-                 WHERE w.destination_id = ?`,
+                 WHERE w.destination_id = ? AND wb.status != 'cancelled'`,
                 [dest.id]
             );
+
+            // --- Charts Data Queries ---
+            // 1. Daily Check-ins (last 7 days)
+            const [dailyCheckinRows] = await UserSession.db.query(`
+                SELECT DATE(created_at) as day, COUNT(*) as count
+                FROM check_ins 
+                WHERE destination_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                GROUP BY day ORDER BY day ASC
+            `, [dest.id]);
+            
+            const checkinsMap = {};
+            dailyCheckinRows.forEach(r => {
+                try {
+                    const dateStr = new Date(r.day).toISOString().split('T')[0];
+                    checkinsMap[dateStr] = r.count;
+                } catch(e) {}
+            });
+
+            const dailyCheckins = [];
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dayStr = d.toISOString().split('T')[0];
+                dailyCheckins.push({
+                    day: dayStr,
+                    count: checkinsMap[dayStr] || 0
+                });
+            }
+
+            // 2. Rating trend (last 7 days)
+            const [dailyRatingRows] = await UserSession.db.query(`
+                SELECT DATE(created_at) as day, AVG(rating) as avg_rating
+                FROM reviews
+                WHERE destination_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
+                GROUP BY day ORDER BY day ASC
+            `, [dest.id]);
+            
+            const ratingsMap = {};
+            dailyRatingRows.forEach(r => {
+                try {
+                    const dateStr = new Date(r.day).toISOString().split('T')[0];
+                    ratingsMap[dateStr] = parseFloat(r.avg_rating || 5.0);
+                } catch(e) {}
+            });
+
+            const dailyRatings = [];
+            let lastRating = 5.0; // fallback rating
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dayStr = d.toISOString().split('T')[0];
+                if (ratingsMap[dayStr] !== undefined) {
+                    lastRating = ratingsMap[dayStr];
+                }
+                dailyRatings.push({
+                    day: dayStr,
+                    rating: parseFloat(lastRating).toFixed(1)
+                });
+            }
 
             // --- Dashboard Data Lists ---
             // 1. Recent Check-ins
@@ -94,9 +155,10 @@ class ManagerController {
                     chats: convoStats[0].total,
                     reviewsCount: reviewStats[0].count,
                     avgRating: parseFloat(reviewStats[0].avg_rating).toFixed(1),
-                    pageViews: pageViewsStats[0].total,
+                    workshopBookings: workshopBookingsCount[0].total,
                     revenue: revenueStats[0].total
                 },
+                chartData: { dailyCheckins, dailyRatings },
                 recentCheckins,
                 recentReviews,
                 success: req.query.success || null,
@@ -110,6 +172,7 @@ class ManagerController {
             res.status(500).send("Internal Server Error: " + error.message);
         }
     }
+
 
     async chat(req, res) {
         try {

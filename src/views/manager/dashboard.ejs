@@ -56,17 +56,18 @@
 
                 <!-- 2x2 Stats Dashboard Grid -->
                 <div class="row g-3">
-                    <!-- Page Views -->
+                    <!-- Workshop Bookings -->
                     <div class="col-6">
                         <div class="stat-card position-relative overflow-hidden">
                             <div class="stat-icon mb-3" style="background: rgba(240,165,0,0.12); color: #f0a500;">
-                                <i class="bi bi-eye-fill"></i>
+                                <i class="bi bi-ticket-perforated-fill"></i>
                             </div>
-                            <small class="text-uppercase tracking-wider text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">Lượt truy cập thực</small>
-                            <h3 class="fw-black mt-1 mb-0 font-display" style="color: var(--admin-text);"><%= stats.pageViews.toLocaleString() %></h3>
+                            <small class="text-uppercase tracking-wider text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">Lượt đặt Workshop</small>
+                            <h3 class="fw-black mt-1 mb-0 font-display" style="color: var(--admin-text);"><%= stats.workshopBookings.toLocaleString() %></h3>
                             <div class="stat-bg-glow" style="background: radial-gradient(circle, rgba(240,165,0,0.08) 0%, transparent 70%);"></div>
                         </div>
                     </div>
+
                     <!-- Revenue -->
                     <div class="col-6">
                         <div class="stat-card position-relative overflow-hidden">
@@ -183,11 +184,94 @@
             </div>
         </div>
     </div>
+
+    <!-- Manager Charts Row -->
+    <div class="row g-4 mt-2 mb-4">
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif; color: var(--admin-primary);">Lượt Check-in (7 ngày gần nhất)</h6>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="managerCheckinChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif; color: #8b5cf6;">Xu hướng Đánh giá (7 ngày gần nhất)</h6>
+                <div style="position: relative; height: 220px;">
+                    <canvas id="managerRatingChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Check-in Chart
+    const checkinData = <%- JSON.stringify(chartData.dailyCheckins) %>;
+    new Chart(document.getElementById('managerCheckinChart'), {
+        type: 'line',
+        data: {
+            labels: checkinData.map(d => { const date = new Date(d.day); return date.getDate() + '/' + (date.getMonth()+1); }),
+            datasets: [{
+                label: 'Lượt Check-in',
+                data: checkinData.map(d => d.count),
+                borderColor: '#1e5a3e',
+                backgroundColor: 'rgba(30, 90, 62, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 3,
+                pointBackgroundColor: '#1e5a3e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { color: '#71717a', font: { size: 10 } } },
+                y: { grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { color: '#71717a', font: { size: 10 } }, beginAtZero: true }
+            }
+        }
+    });
+
+    // Rating Chart
+    const ratingData = <%- JSON.stringify(chartData.dailyRatings) %>;
+    new Chart(document.getElementById('managerRatingChart'), {
+        type: 'line',
+        data: {
+            labels: ratingData.map(d => { const date = new Date(d.day); return date.getDate() + '/' + (date.getMonth()+1); }),
+            datasets: [{
+                label: 'Điểm Đánh giá',
+                data: ratingData.map(d => d.rating),
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2,
+                pointRadius: 3,
+                pointBackgroundColor: '#8b5cf6'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { color: '#71717a', font: { size: 10 } } },
+                y: { grid: { color: 'rgba(0,0,0,0.03)' }, ticks: { color: '#71717a', font: { size: 10 } }, min: 1, max: 5 }
+            }
+        }
+    });
+});
+</script>
 
 <style>
     /* Stat Cards */
     .stat-card {
+
         background: var(--admin-surface);
         border: 1px solid var(--admin-border);
         border-radius: 16px;

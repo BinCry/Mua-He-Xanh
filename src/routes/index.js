@@ -138,6 +138,7 @@ router.post('/api/checkin', ApiController.checkin);
 router.post('/api/send-message', ApiController.sendMessage);
 router.get('/api/get-messages', ApiController.getMessages);
 router.post('/api/festival/book', FestivalController.book);
+router.get('/api/soundscapes', ApiController.getSoundscapes);
 
 // Review API
 router.post('/api/reviews', ensureAuthenticated, ReviewController.create);
@@ -166,6 +167,8 @@ router.post('/api/admin/delete-workshop', ensureAdmin, AdminController.deleteWor
 
 // Admin API - Reviews
 router.post('/api/admin/delete-review', ensureAdmin, AdminController.deleteReview);
+router.post('/api/admin/create-soundscape', ensureAdmin, upload.single('audio'), AdminController.createSoundscape);
+router.post('/api/admin/delete-soundscape', ensureAdmin, AdminController.deleteSoundscape);
 
 // Admin API - Events
 router.post('/api/admin/create-event', ensureAdmin, AdminController.createEvent);

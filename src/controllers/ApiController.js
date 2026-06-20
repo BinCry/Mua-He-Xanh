@@ -325,6 +325,20 @@ class ApiController {
 
         res.json({ success: true, data: messages });
     }
+
+    async getSoundscapes(req, res) {
+        try {
+            const db = require('../core/database');
+            const [soundscapes] = await db.query(
+                "SELECT * FROM soundscapes WHERE is_active = 1 ORDER BY created_at DESC"
+            );
+            res.json({ success: true, data: soundscapes });
+        } catch (error) {
+            console.error("API get soundscapes error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
 }
 
 module.exports = new ApiController();
+
