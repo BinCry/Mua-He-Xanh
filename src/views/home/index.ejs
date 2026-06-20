@@ -200,32 +200,43 @@
             
             <div class="col-lg-6 reveal-up">
                 <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
-                    <i class="bi bi-calendar3 me-1"></i> Trải nghiệm bốn mùa
+                    <i class="bi bi-calendar3 me-1"></i> Sự kiện khác
                 </span>
-                <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Trải nghiệm theo mùa độc đáo</h2>
-                <p class="mb-4 text-secondary" style="line-height: 1.7; font-size: 1rem;">Mỗi mùa tại Bình Lợi đều được lập trình với các workshop, lễ hội và danh mục trải nghiệm độc nhất vô nhị để chữa lành tâm hồn bạn.</p>
+                <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Lịch sự kiện sắp diễn ra</h2>
                 
-                <div class="d-flex flex-column gap-3">
-                    <% seasonalExperiences.forEach(se => { %>
-                    <div class="d-flex gap-3 align-items-center p-3 rounded-4 border" 
-                         style="background: #ffffff; border-color: var(--border) !important; transition: all 0.3s;" 
-                         onmouseover="this.style.background='var(--primary-50)'; this.style.borderColor='var(--primary-200)';" 
-                         onmouseout="this.style.background='#ffffff'; this.style.borderColor='var(--border)';" >
-                        <% 
-                            let colorStyle = 'background: rgba(30, 90, 62, 0.1); color: var(--primary) !important; border: 1px solid rgba(30, 90, 62, 0.2);';
-                            if (se.icon_color === 'warning') colorStyle = 'background: rgba(240, 165, 0, 0.1); color: var(--accent-dark) !important; border: 1px solid rgba(240, 165, 0, 0.2);';
-                            if (se.icon_color === 'danger') colorStyle = 'background: rgba(239, 68, 68, 0.1); color: var(--danger) !important; border: 1px solid rgba(239, 68, 68, 0.2);';
-                            if (se.icon_color === 'info') colorStyle = 'background: rgba(59, 130, 246, 0.1); color: var(--info) !important; border: 1px solid rgba(59, 130, 246, 0.2);';
-                        %>
-                        <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 48px; height: 48px; <%= colorStyle %>">
-                            <i class="bi <%= se.icon %> fs-5"></i>
+                <div class="scrollable-events-container" style="max-height: 420px; overflow-y: auto; padding-right: 8px;">
+                    <% if (typeof otherEvents !== 'undefined' && otherEvents.length > 0) { %>
+                        <div class="d-flex flex-column gap-3">
+                            <% otherEvents.forEach(evt => { %>
+                            <div class="d-flex gap-3 align-items-center p-3 rounded-4 border bg-white" 
+                                 style="border-color: var(--border) !important; transition: all 0.3s;"
+                                 onmouseover="this.style.background='var(--primary-50)'; this.style.borderColor='var(--primary-200)';" 
+                                 onmouseout="this.style.background='#ffffff'; this.style.borderColor='var(--border)';" >
+                                <% if (evt.image) { %>
+                                    <img src="<%= fixImg(evt.image) %>" class="rounded-3" style="width: 60px; height: 60px; object-fit: cover;">
+                                <% } else { %>
+                                    <div class="rounded-3 d-flex align-items-center justify-content-center bg-light text-muted" style="width: 60px; height: 60px;">
+                                        <i class="bi bi-calendar-event fs-4"></i>
+                                    </div>
+                                <% } %>
+                                <div class="flex-grow-1">
+                                    <h6 class="text-dark font-extrabold mb-1" style="font-size: 0.95rem;"><%= evt.title %></h6>
+                                    <div class="d-flex align-items-center gap-2 x-small text-muted mb-1">
+                                        <span><i class="bi bi-geo-alt me-1"></i><%= evt.location || 'Bình Lợi' %></span>
+                                        <span>•</span>
+                                        <span><i class="bi bi-calendar me-1"></i><%= new Date(evt.event_date).toLocaleDateString('vi-VN') %></span>
+                                    </div>
+                                    <p class="mb-0 x-small text-secondary line-clamp-1" style="line-height: 1.5;"><%= evt.description %></p>
+                                </div>
+                            </div>
+                            <% }) %>
                         </div>
-                        <div>
-                            <h6 class="text-dark font-extrabold mb-1" style="font-size: 0.95rem;"><%= se.title %></h6>
-                            <p class="mb-0 x-small text-secondary" style="line-height: 1.5;"><%= se.description %></p>
+                    <% } else { %>
+                        <div class="text-center py-5 text-muted border rounded-4 bg-white border-dashed">
+                            <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary opacity-50"></i>
+                            <span class="small">Chưa có sự kiện nào khác sắp diễn ra</span>
                         </div>
-                    </div>
-                    <% }) %>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -238,7 +249,7 @@
     <div class="container py-5">
         <div class="text-center mb-5 reveal-up">
             <span class="section-label">LIVE FROM BÌNH LỢI</span>
-            <h2 class="section-title mx-auto" style="max-width: 500px;">Khoảnh khắc Chữa lành</h2>
+            <h2 class="section-title mx-auto">Khoảnh khắc Chữa lành</h2>
             <p class="section-desc mx-auto">Câu chuyện thật, hình ảnh thật từ cộng đồng du khách.</p>
         </div>
         

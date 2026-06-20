@@ -2,72 +2,61 @@
 <section class="py-5" style="margin-top: 80px; background: #f8faf9;">
     <div class="container py-4">
         
-        <!-- Header Section -->
-        <div class="text-center mb-5 reveal-up">
-            <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mb-2 text-uppercase fw-bold" style="letter-spacing: 1px; font-size: 0.72rem;">
-                <i class="bi bi-compass-fill"></i> Hệ bản đồ số
-            </span>
-            <h1 class="fw-black text-dark mb-1 letter-spacing-sm" style="font-family: 'Inter', sans-serif;">Khám Phá Bình Lợi</h1>
-            <p class="text-muted small mx-auto" style="max-width: 500px;">Lọc tìm những địa điểm chữa lành tâm hồn, trải nghiệm sinh thái sông nước và văn hóa bản địa lâu đời.</p>
+        <!-- Hero Header -->
+        <div class="position-relative overflow-hidden mb-5 rounded-4" style="height: 280px; background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.65)), url('<%= fixImg(settings.banner_explore, "/images/hero-1.png") %>') center/cover;">
+            <div class="position-absolute top-50 start-50 translate-middle text-center w-100 px-3">
+                <span class="badge bg-success bg-opacity-20 text-white border border-success border-opacity-35 rounded-pill px-3 py-2 mb-3 fw-bold tracking-widest text-uppercase" style="backdrop-filter: blur(8px);"><i class="bi bi-compass-fill me-1"></i> Hệ bản đồ số</span>
+                <h1 class="fw-black text-white mb-2 font-display display-5">Khám Phá Bình Lợi</h1>
+                <p class="text-white-50 lead mx-auto small mb-0" style="max-width: 550px; font-size: 0.95rem;">Lọc tìm những địa điểm chữa lành tâm hồn, trải nghiệm sinh thái sông nước và văn hóa bản địa lâu đời.</p>
+            </div>
         </div>
 
-        <!-- Redesigned Search & Collapse Filter Bar -->
-        <div class="card border-0 shadow-premium rounded-4 p-3 mb-5 bg-white reveal-up">
+        <!-- Redesigned Search & Category Filter Bar -->
+        <div class="card border-0 shadow-premium rounded-4 p-4 mb-5 bg-white reveal-up">
             <form action="/explore" method="GET" id="exploreSearchForm">
-                <!-- Search bar and collapse trigger -->
-                <div class="d-flex flex-column flex-md-row gap-2">
-                    <div class="position-relative flex-grow-1">
-                        <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 18px;"></i>
-                        <input type="text" name="q" class="form-control border-0 bg-light rounded-pill py-3 ps-5 pe-4 shadow-none" 
-                            placeholder="Tên vườn mai, xưởng nhang, chùa cổ..." 
-                            value="<%= searchQuery || '' %>" style="font-size: 0.9rem;">
-                    </div>
-                    <div class="d-flex gap-2">
-                        <button type="button" class="btn btn-outline-secondary rounded-pill px-4 fw-bold d-flex align-items-center justify-content-center" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" style="font-size: 0.85rem; border: 1px solid rgba(0,0,0,0.15); height: 48px;">
-                            <i class="bi bi-funnel me-1"></i> Bộ lọc <%= (currentType || currentSeason) ? '(Đang lọc)' : '' %>
-                        </button>
-                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold text-white btn-premium d-flex align-items-center justify-content-center" style="background: var(--primary); font-size: 0.85rem; height: 48px;">
-                            Tìm kiếm
-                        </button>
-                    </div>
+                <!-- Search bar -->
+                <div class="position-relative mb-4">
+                    <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 20px;"></i>
+                    <input type="text" name="q" class="form-control border-0 bg-light rounded-pill py-3 ps-5 pe-4 shadow-none" 
+                        placeholder="Tên Vườn mai, Xưởng nhang, Chùa cổ..." 
+                        value="<%= searchQuery || '' %>" style="font-size: 0.95rem; height: 52px;">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold text-white btn-premium position-absolute end-0 top-50 translate-middle-y me-2" style="background: var(--primary); font-size: 0.88rem; height: 38px;">
+                        Tìm kiếm
+                    </button>
                 </div>
 
-                <!-- Collapsible Filters -->
-                <div class="collapse <%= (currentType || currentSeason) ? 'show' : '' %> mt-3 pt-3 border-top" id="filterCollapse">
-                    <div class="row g-3">
-                        <!-- Category Type Filter -->
-                        <div class="col-md-6">
-                            <label class="form-label text-muted fw-bold x-small text-uppercase mb-2"><i class="bi bi-tag text-primary me-1"></i>Danh mục trải nghiệm</label>
-                            <select name="type" class="form-select border bg-light rounded-pill py-2 px-3 shadow-none small" onchange="this.form.submit()">
-                                <option value="">Tất cả danh mục</option>
-                                <option value="temple" <%= currentType === 'temple' ? 'selected' : '' %>>Tâm linh - Chữa lành</option>
-                                <option value="park" <%= currentType === 'park' ? 'selected' : '' %>>Sinh thái - Sông nước</option>
-                                <option value="craft" <%= currentType === 'craft' ? 'selected' : '' %>>Làng nghề - Bản sắc</option>
-                            </select>
-                        </div>
-
-                        <!-- Seasonal Experience Filter -->
-                        <div class="col-md-6">
-                            <label class="form-label text-muted fw-bold x-small text-uppercase mb-2"><i class="bi bi-cloud-sun text-warning me-1"></i>Mùa trải nghiệm đẹp nhất</label>
-                            <select name="season" class="form-select border bg-light rounded-pill py-2 px-3 shadow-none small" onchange="this.form.submit()">
-                                <option value="">Mọi thời điểm trong năm</option>
-                                <option value="spring" <%= currentSeason === 'spring' ? 'selected' : '' %>>Mùa xuân (Mai Vàng khoe sắc)</option>
-                                <option value="summer" <%= currentSeason === 'summer' ? 'selected' : '' %>>Mùa hạ (Miệt vườn cây trái)</option>
-                                <option value="autumn" <%= currentSeason === 'autumn' ? 'selected' : '' %>>Mùa thu (Lễ hội thả hoa đăng)</option>
-                                <option value="winter" <%= currentSeason === 'winter' ? 'selected' : '' %>>Mùa đông (Mùa cấy cẩm chướng)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Reset Link -->
-                    <% if (searchQuery || currentType || currentSeason) { %>
-                    <div class="text-end mt-3">
-                        <a href="/explore" class="text-danger small fw-bold text-decoration-none"><i class="bi bi-x-circle me-1"></i>Xóa tất cả bộ lọc</a>
-                    </div>
-                    <% } %>
+                <!-- Capsule Filters -->
+                <div class="d-flex flex-wrap gap-2 justify-content-center align-items-center">
+                    <span class="small text-muted fw-bold text-uppercase me-2 d-none d-md-inline"><i class="bi bi-funnel me-1"></i> Danh mục:</span>
+                    <button type="button" onclick="setFilterType('')" class="btn-filter-capsule <%= !currentType ? 'active' : '' %>">
+                        <i class="bi bi-grid-fill"></i> Tất cả
+                    </button>
+                    <button type="button" onclick="setFilterType('temple')" class="btn-filter-capsule <%= currentType === 'temple' ? 'active' : '' %>">
+                        <i class="bi bi-brightness-high-fill"></i> Tâm linh
+                    </button>
+                    <button type="button" onclick="setFilterType('park')" class="btn-filter-capsule <%= currentType === 'park' ? 'active' : '' %>">
+                        <i class="bi bi-tree-fill"></i> Sinh thái
+                    </button>
+                    <button type="button" onclick="setFilterType('craft')" class="btn-filter-capsule <%= currentType === 'craft' ? 'active' : '' %>">
+                        <i class="bi bi-flower1"></i> Làng nghề
+                    </button>
                 </div>
+                <input type="hidden" name="type" id="filterTypeInput" value="<%= currentType || '' %>">
+                
+                <% if (searchQuery || currentType) { %>
+                <div class="text-center mt-3 mb-0">
+                    <a href="/explore" class="text-danger small fw-bold text-decoration-none"><i class="bi bi-x-circle me-1"></i>Xóa bộ lọc</a>
+                </div>
+                <% } %>
             </form>
         </div>
+
+        <script>
+        function setFilterType(val) {
+            document.getElementById('filterTypeInput').value = val;
+            document.getElementById('exploreSearchForm').submit();
+        }
+        </script>
 
 
         <!-- Destination Cards Catalog -->
@@ -137,7 +126,6 @@
             <% 
             let queryParts = [];
             if (currentType) queryParts.push(`type=${currentType}`);
-            if (currentSeason) queryParts.push(`season=${currentSeason}`);
             if (searchQuery) queryParts.push(`q=${encodeURIComponent(searchQuery)}`);
             let paginationUrl = '/explore' + (queryParts.length > 0 ? '?' + queryParts.join('&') : '');
             %>
@@ -154,5 +142,33 @@
     }
     .destination-card-custom:hover img {
         transform: scale(1.06);
+    }
+    
+    /* Capsule Filter buttons */
+    .btn-filter-capsule {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        color: var(--text-secondary);
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.88rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.25s ease;
+        cursor: pointer;
+    }
+    .btn-filter-capsule:hover {
+        background: var(--primary-50);
+        border-color: var(--primary-200);
+        color: var(--primary);
+        transform: translateY(-1px);
+    }
+    .btn-filter-capsule.active {
+        background: var(--primary);
+        color: #ffffff;
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(146, 39, 36, 0.15);
     }
 </style>

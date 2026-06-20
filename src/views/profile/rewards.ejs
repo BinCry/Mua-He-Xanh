@@ -1,4 +1,4 @@
-<section class="py-5" style="margin-top: 90px; background: radial-gradient(circle at top, #0f2214 0%, #060e08 100%); min-vh-100; color: #f8fafc;">
+<section class="py-5" style="margin-top: 90px; background: radial-gradient(circle at top, #220f0f 0%, #0e0606 100%); min-vh-100; color: #f8fafc;">
     <div class="container py-4" style="max-width: 900px;">
         
         <!-- Gamified Points Dashboard Header -->
@@ -40,7 +40,7 @@
                         
                         <!-- Left side: Voucher Main details -->
                         <div class="p-4 flex-grow-1">
-                            <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-2 py-1 mb-2 fw-bold text-uppercase" style="font-size: 0.65rem; border: 1px solid rgba(25, 135, 84, 0.25);">
+                            <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-2 py-1 mb-2 fw-bold text-uppercase" style="font-size: 0.65rem; border: 1px solid rgba(146, 39, 36, 0.25);">
                                 Hạt giống xanh
                             </span>
                             <h6 class="fw-bold mb-1 text-white text-truncate" style="font-size: 1.05rem; font-family: 'Inter', sans-serif;"><%= r.title %></h6>
@@ -78,14 +78,14 @@
         <% if (myRewards.length > 0) { %>
         <div class="reveal-up">
             <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">
-                <i class="bi bi-clock-history text-success me-2"></i>Lịch sử đổi quà gần đây
+                <i class="bi bi-clock-history text-danger me-2"></i>Lịch sử đổi quà gần đây
             </h5>
             
             <div class="d-flex flex-column gap-3">
                 <% myRewards.forEach(r => { %>
                 <div class="d-flex align-items-center justify-content-between p-3 rounded-4" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);">
                     <div class="d-flex align-items-center gap-3">
-                        <span class="badge bg-success bg-opacity-20 text-success rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;">
+                        <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;">
                             <i class="bi bi-patch-check-fill me-1"></i><%= r.status %>
                         </span>
                         <span class="fw-bold text-white small" style="font-size: 0.88rem;"><%= r.title %></span>

@@ -102,57 +102,72 @@
                     </div>
                 </div>
 
-                <!-- Booking Form Card -->
-                <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white border" style="border-left: 5px solid var(--primary) !important;">
-                    <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; color: var(--primary);">
-                        <i class="bi bi-ticket-perforated me-2"></i>Đăng Ký Tham Gia
-                    </h4>
-                    
-                    <% if (locals.user) { %>
-                    <form onsubmit="handleBooking(event)">
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Chọn Ngày</label>
-                            <input type="date" class="form-control rounded-3" id="booking_date" required onchange="checkSlots()" min="<%= new Date().toISOString().split('T')[0] %>">
-                        </div>
+                <%
+                    let bookingDate = '';
+                    let bookingTime = '08:00';
+                    if (workshop.start_date) {
+                        const d = new Date(workshop.start_date);
+                        bookingDate = d.toISOString().split('T')[0];
+                        bookingTime = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+                    } else {
+                        bookingDate = new Date().toISOString().split('T')[0];
+                    }
+                    const hasBooked = typeof userBookings !== 'undefined' && userBookings.length > 0;
+                    const activeBooking = hasBooked ? userBookings[0] : null;
+                %>
 
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Giờ Tham Gia</label>
-                            <select class="form-select rounded-3" id="booking_time" required>
-                                <option value="08:00">08:00 Sáng</option>
-                                <option value="10:00">10:00 Sáng</option>
-                                <option value="14:00">14:00 Chiều</option>
-                                <option value="16:00">16:00 Chiều</option>
-                            </select>
+                <!-- Booking Card -->
+                <% if (locals.user) { %>
+                    <% if (hasBooked) { %>
+                        <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white border animate__animated animate__fadeIn" style="border-left: 5px solid #ffc107 !important;">
+                            <h4 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif; color: #ffc107;">
+                                <i class="bi bi-ticket-perforated-fill me-2"></i>Vé Đã Đăng Ký
+                            </h4>
+                            <div class="p-3 bg-light rounded-4 mb-3 border">
+                                <div class="mb-2"><span class="text-muted small">Mã vé:</span> <strong class="text-primary font-monospace"><%= activeBooking.qr_ticket || 'BHL-WS-' + activeBooking.id.substring(0,8).toUpperCase() %></strong></div>
+                                <div class="mb-2"><span class="text-muted small">Thời gian:</span> <strong><%= new Date(activeBooking.booking_date).toLocaleDateString('vi-VN') %> lúc <%= activeBooking.booking_time %></strong></div>
+                                <div class="mb-2"><span class="text-muted small">Số người:</span> <strong><%= activeBooking.num_people %> người</strong></div>
+                                <div><span class="text-muted small">Trạng thái:</span> <span class="badge bg-warning text-dark"><%= activeBooking.status %></span></div>
+                            </div>
+                            
+                            <button onclick="cancelBooking('<%= activeBooking.id %>')" class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold" id="cancelSubmitBtn">
+                                <i class="bi bi-x-circle-fill me-2"></i>HỦY ĐĂNG KÝ
+                            </button>
                         </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Số Người Tham Gia</label>
-                            <input type="number" class="form-control rounded-3" id="num_people" value="1" min="1" max="<%= workshop.max_participants %>" required>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label small fw-bold text-secondary">Ghi Chú (Nếu có)</label>
-                            <textarea class="form-control rounded-3" id="note" rows="2" placeholder="Yêu cầu đặc biệt..."></textarea>
-                        </div>
-
-                        <!-- Slots Status Display -->
-                        <div class="mb-3 d-flex align-items-center">
-                            <span id="slots-badge" class="badge rounded-pill d-none px-3 py-2"></span>
-                            <span id="slots-text" class="small text-muted ms-2">Vui lòng chọn ngày để kiểm tra chỗ trống</span>
-                        </div>
-
-                        <button type="submit" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" id="bookSubmitBtn">
-                            <i class="bi bi-check-circle-fill me-2"></i>ĐẶT CHỖ NGAY
-                        </button>
-                    </form>
                     <% } else { %>
-                    <div class="text-center py-4">
-                        <i class="bi bi-shield-lock display-6 text-muted mb-3 d-block"></i>
-                        <p class="small text-muted">Vui lòng đăng nhập để đăng ký tham gia workshop này.</p>
-                        <a href="/auth/login?redirect=/workshops/<%= workshop.id %>" class="btn btn-premium rounded-pill px-4 py-2 mt-2 fw-bold" style="background: var(--primary); color: white;">Đăng nhập</a>
-                    </div>
+                        <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white border animate__animated animate__fadeIn" style="border-left: 5px solid var(--primary) !important;">
+                            <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; color: var(--primary);">
+                                <i class="bi bi-ticket-perforated me-2"></i>Đăng Ký Tham Gia
+                            </h4>
+                            
+                            <div class="p-3 bg-light rounded-4 mb-4 border">
+                                <div class="mb-2"><span class="text-muted small">Ngày diễn ra:</span> <strong><%= workshop.start_date ? new Date(workshop.start_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hàng ngày' %></strong></div>
+                                <div class="mb-2"><span class="text-muted small">Giờ học:</span> <strong><%= bookingTime %></strong></div>
+                                <div class="mb-2"><span class="text-muted small">Thời lượng:</span> <strong><%= workshop.duration_minutes %> phút / buổi</strong></div>
+                                <div class="mb-2"><span class="text-muted small">Địa điểm:</span> <strong><%= workshop.destination_name || 'Bình Lợi' %></strong></div>
+                                <div class="mb-3 d-flex align-items-center">
+                                    <span id="slots-badge" class="badge rounded-pill bg-success px-3 py-2">CÒN CHỖ</span>
+                                    <span id="slots-text" class="small text-muted ms-2">Đang tải số chỗ trống...</span>
+                                </div>
+                            </div>
+                            
+                            <button onclick="registerWorkshop()" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" id="bookSubmitBtn">
+                                <i class="bi bi-check-circle-fill me-2"></i>ĐĂNG KÝ NGAY
+                            </button>
+                        </div>
                     <% } %>
-                </div>
+                <% } else { %>
+                    <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white border" style="border-left: 5px solid var(--primary) !important;">
+                        <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; color: var(--primary);">
+                            <i class="bi bi-ticket-perforated me-2"></i>Đăng Ký Tham Gia
+                        </h4>
+                        <div class="text-center py-4">
+                            <i class="bi bi-shield-lock display-6 text-muted mb-3 d-block"></i>
+                            <p class="small text-muted">Vui lòng đăng nhập để đăng ký tham gia workshop này.</p>
+                            <a href="/auth/login?redirect=/workshops/<%= workshop.id %>" class="btn btn-premium rounded-pill px-4 py-2 mt-2 fw-bold" style="background: var(--primary); color: white;">Đăng nhập</a>
+                        </div>
+                    </div>
+                <% } %>
             </div>
         </div>
     </div>
@@ -161,49 +176,44 @@
 <script>
     const maxParticipants = <%= workshop.max_participants %>;
     const workshopId = '<%= workshop.id %>';
+    const bookingDate = '<%= bookingDate %>';
+    const bookingTime = '<%= bookingTime %>';
 
     async function checkSlots() {
-        const dateInput = document.getElementById('booking_date');
-        const date = dateInput.value;
-        if (!date) return;
-
         const badge = document.getElementById('slots-badge');
         const text = document.getElementById('slots-text');
         const submitBtn = document.getElementById('bookSubmitBtn');
+        if (!badge || !text) return;
 
         try {
-            const res = await axios.get(`/api/workshop/slots?workshopId=${workshopId}&date=${date}`);
+            const res = await axios.get(`/api/workshop/slots?workshopId=${workshopId}&date=${bookingDate}`);
             if (res.data.success) {
                 const { total, booked, remaining } = res.data;
-                badge.classList.remove('d-none', 'bg-success', 'bg-warning', 'bg-danger');
+                badge.className = 'badge rounded-pill px-3 py-2';
                 
                 if (remaining === 0) {
                     badge.classList.add('bg-danger');
                     badge.innerText = 'ĐÃ ĐẦY';
                     text.innerText = `Lớp học đã đủ ${total}/${total} người`;
-                    submitBtn.disabled = true;
+                    if (submitBtn) submitBtn.disabled = true;
                 } else if (remaining <= total * 0.2) {
                     badge.classList.add('bg-warning', 'text-dark');
                     badge.innerText = 'SẮP ĐẦY';
                     text.innerText = `Chỉ còn lại ${remaining} chỗ trống`;
-                    submitBtn.disabled = false;
+                    if (submitBtn) submitBtn.disabled = false;
                 } else {
                     badge.classList.add('bg-success');
                     badge.innerText = 'CÒN CHỖ';
                     text.innerText = `Còn trống ${remaining}/${total} chỗ`;
-                    submitBtn.disabled = false;
+                    if (submitBtn) submitBtn.disabled = false;
                 }
-
-                // Adjust num_people max limit
-                document.getElementById('num_people').max = remaining;
             }
         } catch (e) {
             console.error('Error checking slots:', e);
         }
     }
 
-    async function handleBooking(e) {
-        e.preventDefault();
+    async function registerWorkshop() {
         const submitBtn = document.getElementById('bookSubmitBtn');
         const oldHtml = submitBtn.innerHTML;
         submitBtn.disabled = true;
@@ -211,31 +221,60 @@
 
         const data = {
             workshop_id: workshopId,
-            booking_date: document.getElementById('booking_date').value,
-            booking_time: document.getElementById('booking_time').value,
-            num_people: document.getElementById('num_people').value,
-            note: document.getElementById('note').value
+            booking_date: bookingDate,
+            booking_time: bookingTime,
+            num_people: 1,
+            note: 'Đăng ký nhanh từ trang chi tiết'
         };
 
         try {
             const res = await axios.post('/api/workshop/book', data);
             if (res.data.success) {
-                // Confetti animation
                 confetti({
                     particleCount: 100,
                     spread: 70,
                     origin: { y: 0.6 }
                 });
 
-                // Alert success
                 alert(res.data.message);
-                window.location.href = '/my-workshops';
+                window.location.reload();
             }
         } catch (err) {
-            alert('Lỗi đặt chỗ: ' + (err.response?.data?.message || err.message));
+            alert('Lỗi đăng ký: ' + (err.response?.data?.message || err.message));
         } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = oldHtml;
+            if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = oldHtml;
+            }
         }
     }
+
+    async function cancelBooking(bookingId) {
+        if (!confirm('Bạn có chắc chắn muốn hủy đăng ký tham gia workshop này không?')) return;
+        const cancelBtn = document.getElementById('cancelSubmitBtn');
+        const oldHtml = cancelBtn.innerHTML;
+        cancelBtn.disabled = true;
+        cancelBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+
+        try {
+            const res = await axios.post('/api/workshop/cancel', { bookingId });
+            if (res.data.success) {
+                alert(res.data.message);
+                window.location.reload();
+            }
+        } catch (err) {
+            alert('Lỗi hủy đăng ký: ' + (err.response?.data?.message || err.message));
+        } finally {
+            if (cancelBtn) {
+                cancelBtn.disabled = false;
+                cancelBtn.innerHTML = oldHtml;
+            }
+        }
+    }
+
+    // Check slots on load
+    document.addEventListener('DOMContentLoaded', () => {
+        checkSlots();
+    });
 </script>
+

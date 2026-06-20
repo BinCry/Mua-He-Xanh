@@ -44,26 +44,7 @@
         <i class="bi bi-qr-code-scan"></i>
     </a>
 
-    <!-- Notification Bell (Chương 5.14) -->
-    <% if (user) { %>
-    <div class="position-fixed" style="bottom: 90px; right: 20px; z-index: 1040;" id="notifBell">
-        <button class="btn btn-primary rounded-circle shadow-lg position-relative" style="width: 50px; height: 50px;" onclick="toggleNotifications()">
-            <i class="bi bi-bell-fill"></i>
-            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger d-none" id="notifBadge">0</span>
-        </button>
-        <div class="position-absolute bottom-100 end-0 mb-2 d-none" id="notifPanel" style="width: 320px; max-height: 400px;">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
-                <div class="card-header bg-primary text-white border-0 p-3 d-flex justify-content-between">
-                    <span class="fw-bold"><i class="bi bi-bell me-2"></i>Thông báo</span>
-                    <button class="btn btn-sm btn-light rounded-pill px-2 py-0" onclick="markAllRead()">Đọc hết</button>
-                </div>
-                <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;" id="notifList">
-                    <div class="text-center py-4 text-muted small">Không có thông báo mới</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <% } %>
+
 
     <!-- Main Content -->
     <main>
@@ -132,53 +113,7 @@
     </script>
     <script src="/js/app.js?v=<%= assetV %>"></script>
 
-    <!-- Notification System JS (Chương 5.14) -->
-    <% if (user) { %>
-    <script>
-        async function loadNotifications() {
-            try {
-                const res = await axios.get('/api/notifications');
-                if (res.data.success) {
-                    const badge = document.getElementById('notifBadge');
-                    if (res.data.unreadCount > 0) {
-                        badge.classList.remove('d-none');
-                        badge.textContent = res.data.unreadCount;
-                    } else {
-                        badge.classList.add('d-none');
-                    }
-                    const list = document.getElementById('notifList');
-                    if (res.data.notifications.length === 0) {
-                        list.innerHTML = '<div class="text-center py-4 text-muted small">Không có thông báo mới</div>';
-                    } else {
-                        list.innerHTML = res.data.notifications.map(n => `
-                            <div class="p-3 border-bottom ${n.is_read ? '' : 'bg-primary bg-opacity-10'}" style="cursor:pointer;" onclick="readNotif('${n.id}', '${n.link || ''}')">
-                                <div class="fw-bold small">${n.title}</div>
-                                <div class="text-muted" style="font-size:0.75rem;">${n.message}</div>
-                                <div class="text-muted" style="font-size:0.65rem;">${new Date(n.created_at).toLocaleDateString('vi-VN')}</div>
-                            </div>
-                        `).join('');
-                    }
-                }
-            } catch(e) {}
-        }
-        function toggleNotifications() {
-            const panel = document.getElementById('notifPanel');
-            panel.classList.toggle('d-none');
-            if (!panel.classList.contains('d-none')) loadNotifications();
-        }
-        async function markAllRead() {
-            await axios.post('/api/notifications/read', {});
-            loadNotifications();
-        }
-        async function readNotif(id, link) {
-            await axios.post('/api/notifications/read', { id });
-            if (link) window.location.href = link;
-            else loadNotifications();
-        }
-        // Auto-load on page load
-        setTimeout(loadNotifications, 2000);
-    </script>
-    <% } %>
+
 
     <!-- Floating Buttons Alignment -->
     <style>
@@ -196,8 +131,7 @@
 
         /* Uniform size and styles for desktop floating action buttons */
         .fab-qr, 
-        #floatingChatFabContainer button, 
-        #notifBell button {
+        #floatingChatFabContainer button {
             width: 60px !important;
             height: 60px !important;
             border-radius: 50% !important;
@@ -212,8 +146,7 @@
 
         /* Hover animations */
         .fab-qr:hover, 
-        #floatingChatFabContainer button:hover, 
-        #notifBell button:hover {
+        #floatingChatFabContainer button:hover {
             transform: scale(1.1) !important;
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25) !important;
         }
@@ -240,17 +173,6 @@
             color: white !important;
             font-size: 1.5rem !important;
         }
-        #notifBell {
-            position: fixed !important;
-            bottom: 192px !important;
-            right: 32px !important;
-            z-index: 1040;
-        }
-        #notifBell button {
-            background-color: #3b82f6 !important; /* Blue color for notifications */
-            color: white !important;
-            font-size: 1.5rem !important;
-        }
 
         /* Mobile alignment */
         @media (max-width: 991.98px) {
@@ -263,17 +185,6 @@
                 z-index: 1040;
             }
             #floatingChatFabContainer button {
-                width: 50px !important;
-                height: 50px !important;
-                font-size: 1.25rem !important;
-            }
-            #notifBell {
-                position: fixed !important;
-                bottom: 85px !important;
-                right: 20px !important;
-                z-index: 1040;
-            }
-            #notifBell button {
                 width: 50px !important;
                 height: 50px !important;
                 font-size: 1.25rem !important;

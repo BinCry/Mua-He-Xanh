@@ -4,7 +4,7 @@
         <!-- Header -->
         <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 border-bottom border-secondary border-opacity-30 pb-4">
             <div class="mb-3 mb-md-0">
-                <span class="badge bg-success bg-opacity-25 text-success text-uppercase fw-bold tracking-widest px-3 py-2 rounded-pill mb-2 border border-success border-opacity-35" style="letter-spacing: 1.5px; font-size: 0.7rem;">
+                <span class="badge bg-danger bg-opacity-25 text-danger text-uppercase fw-bold tracking-widest px-3 py-2 rounded-pill mb-2 border border-danger border-opacity-35" style="letter-spacing: 1.5px; font-size: 0.7rem;">
                     <i class="bi bi-magic me-1"></i> Studio Sáng Tạo Premium
                 </span>
                 <h1 class="display-5 fw-black text-white mb-1" style="font-family: 'Inter', sans-serif;">Hành Trình Cảm Giác</h1>
@@ -27,7 +27,7 @@
                         <div class="col-md-4">
                             <label class="template-card template-card-premium rounded-4 p-3 d-block text-center cursor-pointer active" data-duration="15">
                                 <input type="radio" name="video_duration" value="15" checked class="d-none">
-                                <div class="fs-4 fw-black text-success mb-1">15 giây</div>
+                                <div class="fs-4 fw-black text-danger mb-1">15 giây</div>
                                 <div class="small text-muted" style="font-size: 0.75rem;">Nhịp điệu nhanh (4 ảnh)</div>
                             </label>
                         </div>
@@ -58,11 +58,11 @@
                     
                     <div id="dropzone" class="dropzone-premium rounded-4 p-4 text-center cursor-pointer transition-all">
                         <div class="py-4">
-                            <i class="bi bi-cloud-arrow-up-fill display-4 text-success mb-3 upload-pulse d-inline-block"></i>
+                            <i class="bi bi-cloud-arrow-up-fill display-4 text-danger mb-3 upload-pulse d-inline-block"></i>
                             <h6 class="fw-bold text-white mb-1">Kéo và thả ảnh tại đây</h6>
                             <p class="small text-muted mb-3">Hỗ trợ JPG, PNG (tối đa 5 file, mỗi file < 10MB)</p>
                             <input type="file" id="media-files" multiple accept="image/*" class="d-none">
-                            <button type="button" class="btn btn-success rounded-pill px-4 py-2 text-white font-weight-semibold" style="background: var(--success); border: none; font-size: 0.85rem;" onclick="document.getElementById('media-files').click()">Chọn tệp từ máy</button>
+                            <button type="button" class="btn btn-danger rounded-pill px-4 py-2 text-white font-weight-semibold" style="background: var(--primary); border: none; font-size: 0.85rem;" onclick="document.getElementById('media-files').click()">Chọn tệp từ máy</button>
                         </div>
                     </div>
 
@@ -84,12 +84,12 @@
                                 <div class="col-md-6">
                                     <div class="sound-card sound-card-premium rounded-4 p-3 d-flex align-items-center justify-content-between cursor-pointer transition-all <%= index === 0 ? 'active' : '' %>" data-audio-url="<%= fixImg(sound.audio_url) %>">
                                         <div class="d-flex align-items-center gap-3">
-                                            <div class="sound-icon-circle bg-success bg-opacity-10 text-success p-2 rounded-circle">
+                                            <div class="sound-icon-circle bg-danger bg-opacity-10 text-danger p-2 rounded-circle">
                                                 <i class="bi bi-music-note-beamed"></i>
                                             </div>
                                             <div>
                                                 <div class="fw-bold text-white" style="font-size: 0.88rem;"><%= sound.name %></div>
-                                                <span class="badge bg-success bg-opacity-20 text-success text-capitalize border border-success border-opacity-25" style="font-size: 0.65rem;"><%= sound.mood %></span>
+                                                <span class="badge bg-danger bg-opacity-20 text-danger text-capitalize border border-danger border-opacity-25" style="font-size: 0.65rem;"><%= sound.mood %></span>
                                             </div>
                                         </div>
                                         <div class="form-check sound-check-container">
@@ -117,19 +117,19 @@
                     
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-success me-1"></i>Phần mở đầu (Hook Text)</label>
+                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-danger me-1"></i>Phần mở đầu (Hook Text)</label>
                             <input type="text" id="text-hook" class="form-control premium-input" value="Lạc vào miền xanh Bình Lợi...">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-success me-1"></i>Phần trải nghiệm (Immersion Text)</label>
+                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-danger me-1"></i>Phần trải nghiệm (Immersion Text)</label>
                             <input type="text" id="text-immersion" class="form-control premium-input" value="Hương nhang thơm đưa bước chân tĩnh lặng.">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-success me-1"></i>Khoảnh khắc chính (Highlight Text)</label>
+                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-danger me-1"></i>Khoảnh khắc chính (Highlight Text)</label>
                             <input type="text" id="text-highlight" class="form-control premium-input" value="Chữa lành từ những điều mộc mạc nhất.">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-success me-1"></i>Phần kết (Outro / CTA Text)</label>
+                            <label class="form-label text-muted small fw-bold"><i class="bi bi-quote text-danger me-1"></i>Phần kết (Outro / CTA Text)</label>
                             <input type="text" id="text-outro" class="form-control premium-input" value="Nghe Bình Lợi theo cách của bạn.">
                         </div>
                     </div>
@@ -169,7 +169,7 @@
                     <!-- Preview Screen (9:16 Mockup Frame) -->
                     <div class="editor-glass-card p-4 text-center overflow-hidden position-relative">
                         <div class="d-flex justify-content-between align-items-center mb-3 px-1 text-muted small">
-                            <span class="fw-bold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.72rem;"><i class="bi bi-phone-fill text-success me-1"></i> Màn hình dọc 9:16</span>
+                            <span class="fw-bold text-uppercase" style="letter-spacing: 0.5px; font-size: 0.72rem;"><i class="bi bi-phone-fill text-danger me-1"></i> Màn hình dọc 9:16</span>
                             <span class="badge bg-dark px-2 py-1 rounded text-white" id="player-time">00:00 / 00:15</span>
                         </div>
                         
@@ -182,7 +182,7 @@
                             
                             <!-- Control Overlays -->
                             <div class="canvas-overlay-center position-absolute top-50 start-50 translate-middle d-flex align-items-center justify-content-center" style="z-index: 20;">
-                                <button id="playBtn" class="btn btn-success play-btn-premium rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center">
+                                <button id="playBtn" class="btn btn-danger play-btn-premium rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center">
                                     <i class="bi bi-play-fill" style="margin-left: 3px;"></i>
                                 </button>
                             </div>
@@ -190,26 +190,26 @@
 
                         <!-- Progress Bar under Canvas -->
                         <div class="progress mt-4 bg-dark rounded-pill" style="height: 6px; border: 1px solid rgba(255,255,255,0.05);">
-                            <div id="playProgress" class="progress-bar bg-success-gradient" role="progressbar" style="width: 0%;"></div>
+                            <div id="playProgress" class="progress-bar bg-primary-gradient" role="progressbar" style="width: 0%;"></div>
                         </div>
 
                         <!-- Export Status Container -->
                         <div id="export-status-panel" class="mt-4 d-none text-start p-3 rounded-4 bg-dark bg-opacity-50 border border-secondary border-opacity-20">
-                            <div class="small fw-bold text-success mb-2 d-flex align-items-center justify-content-between">
+                            <div class="small fw-bold text-danger mb-2 d-flex align-items-center justify-content-between">
                                 <span id="export-status-text">Đang kết xuất video...</span>
                                 <span class="spinner-border spinner-border-sm"></span>
                             </div>
                             <div class="progress bg-dark rounded-pill" style="height: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                                <div id="exportProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-success-gradient" role="progressbar" style="width: 0%;"></div>
+                                <div id="exportProgress" class="progress-bar progress-bar-striped progress-bar-animated bg-primary-gradient" role="progressbar" style="width: 0%;"></div>
                             </div>
                         </div>
 
                         <!-- Action Buttons -->
                         <div class="d-grid gap-3 mt-4">
-                            <button id="exportBtn" class="btn btn-success btn-lg rounded-pill fw-black shadow-lg d-flex align-items-center justify-content-center gap-2 py-3 btn-export-premium" disabled>
+                            <button id="exportBtn" class="btn btn-danger btn-lg rounded-pill fw-black shadow-lg d-flex align-items-center justify-content-center gap-2 py-3 btn-export-premium" disabled>
                                 <i class="bi bi-file-earmark-play-fill fs-5"></i> XUẤT VIDEO TIKTOK (MP4)
                             </button>
-                            <div class="text-muted" style="font-size: 0.72rem;"><i class="bi bi-shield-fill-check text-success"></i> Quá trình kết xuất xử lý 100% trên thiết bị của bạn</div>
+                            <div class="text-muted" style="font-size: 0.72rem;"><i class="bi bi-shield-fill-check text-danger"></i> Quá trình kết xuất xử lý 100% trên thiết bị của bạn</div>
                         </div>
                     </div>
                 </div>
@@ -221,7 +221,7 @@
             <div class="col-12">
                 <div class="editor-glass-card p-4">
                     <h5 class="fw-bold text-white mb-3 d-flex align-items-center gap-2">
-                        <i class="bi bi-collection-play-fill text-success"></i> Dòng thời gian phân cảnh (Storyboard timeline)
+                        <i class="bi bi-collection-play-fill text-danger"></i> Dòng thời gian phân cảnh (Storyboard timeline)
                     </h5>
                     <div class="row g-3 text-center" id="timeline-slots">
                         <div class="col-3">
@@ -270,7 +270,7 @@
     transition: all 0.3s ease;
 }
 .step-num {
-    background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+    background: linear-gradient(135deg, #922724 0%, #6e1d1b 100%);
     color: white;
     width: 26px;
     height: 26px;
@@ -287,17 +287,17 @@
     background: rgba(255,255,255,0.01) !important;
 }
 .template-card-premium:hover {
-    border-color: #22c55e !important;
-    background: rgba(21, 128, 61, 0.05) !important;
+    border-color: #922724 !important;
+    background: rgba(146, 39, 36, 0.05) !important;
     transform: translateY(-2px);
 }
 .template-card-premium.active {
-    border: 2px solid #22c55e !important;
-    background: rgba(21, 128, 61, 0.15) !important;
-    box-shadow: 0 0 15px rgba(21, 128, 61, 0.2);
+    border: 2px solid #922724 !important;
+    background: rgba(146, 39, 36, 0.15) !important;
+    box-shadow: 0 0 15px rgba(146, 39, 36, 0.2);
 }
 .template-card-premium.active .fs-4 {
-    color: #22c55e !important;
+    color: #922724 !important;
 }
 
 .dropzone-premium {
@@ -306,8 +306,8 @@
     transition: all 0.3s ease;
 }
 .dropzone-premium:hover {
-    border-color: #22c55e !important;
-    background: rgba(21, 128, 61, 0.04) !important;
+    border-color: #922724 !important;
+    background: rgba(146, 39, 36, 0.04) !important;
 }
 .upload-pulse {
     animation: bouncePulse 2s infinite;
@@ -323,13 +323,13 @@
     transition: all 0.3s ease;
 }
 .sound-card-premium:hover {
-    border-color: #22c55e !important;
-    background: rgba(21, 128, 61, 0.05) !important;
+    border-color: #922724 !important;
+    background: rgba(146, 39, 36, 0.05) !important;
 }
 .sound-card-premium.active {
-    border: 1.5px solid #22c55e !important;
-    background: rgba(21, 128, 61, 0.12) !important;
-    box-shadow: 0 4px 12px rgba(21, 128, 61, 0.1);
+    border: 1.5px solid #922724 !important;
+    background: rgba(146, 39, 36, 0.12) !important;
+    box-shadow: 0 4px 12px rgba(146, 39, 36, 0.1);
 }
 .sound-icon-circle {
     width: 40px;
@@ -349,8 +349,8 @@
     transition: all 0.3s ease !important;
 }
 .premium-input:focus {
-    border-color: #22c55e !important;
-    box-shadow: 0 0 10px rgba(21, 128, 61, 0.25) !important;
+    border-color: #922724 !important;
+    box-shadow: 0 0 10px rgba(146, 39, 36, 0.25) !important;
     outline: none !important;
 }
 
@@ -365,15 +365,15 @@
     transition: all 0.2s ease !important;
 }
 .btn-premium-filter:hover {
-    border-color: #22c55e !important;
-    background: rgba(21, 128, 61, 0.05) !important;
+    border-color: #922724 !important;
+    background: rgba(146, 39, 36, 0.05) !important;
     color: white !important;
 }
 .btn-premium-filter.active {
-    background: #22c55e !important;
-    border-color: #22c55e !important;
+    background: #922724 !important;
+    border-color: #922724 !important;
     color: white !important;
-    box-shadow: 0 4px 12px rgba(21, 128, 61, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(146, 39, 36, 0.3) !important;
 }
 
 /* Phone Mockup */
@@ -399,7 +399,7 @@
 .play-btn-premium {
     width: 60px;
     height: 60px;
-    background: #22c55e !important;
+    background: #922724 !important;
     border: none !important;
     font-size: 1.8rem;
     transition: all 0.3s ease;
@@ -409,23 +409,23 @@
 }
 .play-btn-premium:hover {
     transform: scale(1.1);
-    box-shadow: 0 0 20px rgba(21, 128, 61, 0.5) !important;
+    box-shadow: 0 0 20px rgba(146, 39, 36, 0.5) !important;
 }
-.bg-success-gradient {
-    background: linear-gradient(90deg, #22c55e 0%, #15803d 100%) !important;
+.bg-primary-gradient {
+    background: linear-gradient(90deg, #b03331 0%, #922724 100%) !important;
 }
 
 .btn-export-premium {
-    background: linear-gradient(135deg, #22c55e 0%, #166534 100%) !important;
+    background: linear-gradient(135deg, #922724 0%, #6e1d1b 100%) !important;
     border: none !important;
     font-weight: 700 !important;
     letter-spacing: 0.5px !important;
-    box-shadow: 0 8px 24px rgba(22, 101, 52, 0.35) !important;
+    box-shadow: 0 8px 24px rgba(146, 39, 36, 0.35) !important;
     transition: all 0.3s ease !important;
 }
 .btn-export-premium:hover:not(:disabled) {
     transform: translateY(-2px) !important;
-    box-shadow: 0 12px 30px rgba(22, 101, 52, 0.5) !important;
+    box-shadow: 0 12px 30px rgba(146, 39, 36, 0.5) !important;
 }
 .btn-export-premium:disabled {
     background: #1f2937 !important;
@@ -440,7 +440,7 @@
     transition: all 0.3s ease;
 }
 .timeline-slot-card:hover {
-    border-color: rgba(34, 197, 94, 0.3) !important;
+    border-color: rgba(146, 39, 36, 0.3) !important;
     background: rgba(0, 0, 0, 0.35) !important;
 }
 

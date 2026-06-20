@@ -99,6 +99,28 @@
                     </div>
                     <input type="hidden" name="login_bg" id="login_bg" value="<%= settings.login_bg || '/images/hero-1.png' %>">
                 </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Hình nền trang Khám phá (banner_explore)</label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <img id="banner_explore_preview" src="<%= settings.banner_explore || '/images/hero-1.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('banner_explore_file').click()">
+                            <i class="bi bi-upload me-1"></i>Chọn ảnh
+                        </button>
+                        <input type="file" id="banner_explore_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'banner_explore', 'banner_explore_preview')">
+                    </div>
+                    <input type="hidden" name="banner_explore" id="banner_explore" value="<%= settings.banner_explore || '/images/hero-1.png' %>">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Hình nền trang Workshop (banner_workshop)</label>
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <img id="banner_workshop_preview" src="<%= settings.banner_workshop || '/images/hero-2.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('banner_workshop_file').click()">
+                            <i class="bi bi-upload me-1"></i>Chọn ảnh
+                        </button>
+                        <input type="file" id="banner_workshop_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'banner_workshop', 'banner_workshop_preview')">
+                    </div>
+                    <input type="hidden" name="banner_workshop" id="banner_workshop" value="<%= settings.banner_workshop || '/images/hero-2.png' %>">
+                </div>
             </div>
         </div>
 

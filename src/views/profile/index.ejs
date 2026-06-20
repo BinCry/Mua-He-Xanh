@@ -1,10 +1,10 @@
-<section class="py-5" style="margin-top: 90px; background: radial-gradient(circle at top, #0f2214 0%, #060e08 100%); min-vh-100; color: #f8fafc;">
+<section class="py-5" style="margin-top: 90px; background: radial-gradient(circle at top, #220f0f 0%, #0e0606 100%); min-vh-100; color: #f8fafc;">
     <div class="container py-4" style="max-width: 900px;">
         
         <!-- Passport-Style Tourist Profile Header -->
         <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-5 reveal-up" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);">
             <!-- Elegant Natural Cover Gradient -->
-            <div class="position-relative" style="height: 180px; background: linear-gradient(135deg, #163e26 0%, #0c2013 100%);">
+            <div class="position-relative" style="height: 180px; background: linear-gradient(135deg, #581816 0%, #2d0c0b 100%);">
                 <!-- Decorative Gold Grid Overlays -->
                 <div class="position-absolute w-100 h-100 opacity-10" style="background-image: radial-gradient(#d97706 1px, transparent 1px); background-size: 20px 20px;"></div>
                 <span class="position-absolute top-0 end-0 m-3 badge bg-warning bg-opacity-20 text-warning px-3 py-2 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.72rem; border: 1px solid rgba(217, 119, 6, 0.3);">
@@ -25,13 +25,13 @@
                         <span class="x-small text-warning fw-bold text-uppercase" style="letter-spacing: 2px;">HỘ CHIẾU DU KHÁCH</span>
                         <h2 class="fw-black mb-1 text-white font-display text-uppercase" style="font-size: 1.8rem; font-family: 'Inter', sans-serif;"><%= profileUser.full_name %></h2>
                         <p class="text-white-50 mb-0" style="font-size: 0.85rem;">
-                            <% if (profileUser.phone) { %><span class="me-2"><i class="bi bi-telephone-fill text-success me-1"></i><%= profileUser.phone %></span> · <% } %>
-                            <span><i class="bi bi-envelope-fill text-success me-1"></i><%= profileUser.email %></span>
+                            <% if (profileUser.phone) { %><span class="me-2"><i class="bi bi-telephone-fill text-danger me-1"></i><%= profileUser.phone %></span> · <% } %>
+                            <span><i class="bi bi-envelope-fill text-danger me-1"></i><%= profileUser.email %></span>
                         </p>
                     </div>
                     
                     <div class="d-flex gap-2">
-                        <a href="/profile/edit" class="btn btn-outline-success btn-sm rounded-pill px-4 py-2 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
+                        <a href="/profile/edit" class="btn btn-outline-danger btn-sm rounded-pill px-4 py-2 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px; border-color: var(--primary) !important; color: white !important;" onmouseover="this.style.background='var(--primary)'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='white';">
                             <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
                         </a>
                         <% if (profileUser.role === 'admin' || profileUser.role === 'manager') { %>
@@ -46,7 +46,7 @@
 
         <!-- Traveler Statistics Grid (Frosted Glassmorphism Widgets) -->
         <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">
-            <i class="bi bi-activity text-success me-2"></i>Chỉ số hành trình
+            <i class="bi bi-activity text-danger me-2"></i>Chỉ số hành trình
         </h5>
         <div class="row g-3 mb-5">
             <div class="col-6 col-md-3 reveal-up">
@@ -61,7 +61,7 @@
             
             <div class="col-6 col-md-3 reveal-up">
                 <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(25, 135, 84, 0.1); color: #198754; border: 1px solid rgba(25, 135, 84, 0.2);">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(146, 39, 36, 0.1); color: #922724; border: 1px solid rgba(146, 39, 36, 0.2);">
                         <i class="bi bi-geo-alt-fill fs-5"></i>
                     </div>
                     <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Inter', sans-serif;"><%= stats.checkins %></div>
@@ -71,7 +71,7 @@
             
             <div class="col-6 col-md-3 reveal-up">
                 <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(13, 148, 136, 0.1); color: #0d9488; border: 1px solid rgba(13, 148, 136, 0.2);">
+                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(146, 39, 36, 0.1); color: #922724; border: 1px solid rgba(146, 39, 36, 0.2);">
                         <i class="bi bi-signpost-split-fill fs-5"></i>
                     </div>
                     <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Inter', sans-serif;"><%= stats.journeys %></div>
@@ -114,7 +114,7 @@
 
         <!-- Premium Quick Actions -->
         <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">
-            <i class="bi bi-lightning-fill text-success me-2"></i>Lối tắt nhanh
+            <i class="bi bi-lightning-fill text-danger me-2"></i>Lối tắt nhanh
         </h5>
         <div class="row g-3 reveal-up">
             <div class="col-6 col-md-4">
@@ -125,7 +125,7 @@
             </div>
             <div class="col-6 col-md-4">
                 <a href="/journey" class="d-block p-4 rounded-4 text-center text-decoration-none shadow-lg" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
-                    <i class="bi bi-compass-fill d-block mb-2 text-success" style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(25, 135, 84, 0.3));"></i>
+                    <i class="bi bi-compass-fill d-block mb-2 text-danger" style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(146, 39, 36, 0.3));"></i>
                     <span class="fw-bold d-block text-white" style="font-size: 0.85rem;">Hành trình thông minh</span>
                 </a>
             </div>

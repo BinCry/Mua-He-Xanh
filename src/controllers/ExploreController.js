@@ -68,14 +68,9 @@ class ExploreController {
                 } catch(e) {}
             });
 
-            // If empty, fallback to cover_image + default seeds for visual aesthetic wow factor
+            // If empty, keep it empty to let the UI show a custom placeholder
             if (galleryImages.length === 0) {
-                galleryImages = [
-                    dest.cover_image,
-                    '/images/hero-1.png',
-                    '/images/hero-2.png',
-                    '/images/hero-3.png'
-                ];
+                galleryImages = [];
             }
 
             // Check if logged-in user has liked or favorited

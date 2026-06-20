@@ -96,6 +96,22 @@ class HomeController {
                 location: nextEvent?.location || "Bình Lợi"
             };
 
+            // Get other active events
+            let otherEvents = [];
+            if (nextEvent) {
+                [otherEvents] = await db.query(`
+                    SELECT * FROM events 
+                    WHERE is_active = 1 AND id != ?
+                    ORDER BY event_date ASC
+                `, [nextEvent.id]);
+            } else {
+                [otherEvents] = await db.query(`
+                    SELECT * FROM events 
+                    WHERE is_active = 1
+                    ORDER BY event_date ASC
+                `);
+            }
+
             // Seasonal experiences from DB (admin managed)
             const [seasonalExperiences] = await db.query(`
                 SELECT * FROM seasonal_experiences 
@@ -144,7 +160,8 @@ class HomeController {
                 },
                 socialFeed,
                 seasonalExperiences,
-                nextEvent
+                nextEvent,
+                otherEvents
             });
         } catch (error) {
             console.error("Home index error:", error);
