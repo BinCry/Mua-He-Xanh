@@ -140,7 +140,7 @@ class ApiController {
         const method = body.method || 'qr';
         
         if (!sessionUuid || !slug || lat === null || lng === null) {
-            return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ' });
+            return res.status(400).json({ success: false, message: 'Xác thực thất bại' });
         }
 
         const session = await UserSession.findByUuid(sessionUuid);
@@ -149,9 +149,8 @@ class ApiController {
         const dest = await Destination.findBySlug(slug);
         console.log(`[CHECKIN DEBUG] Received slug: "${slug}", Found: ${dest ? dest.name : 'NULL'}`);
         if (!dest) {
-            const [allDests] = await UserSession.db.query('SELECT slug, qr_secret, name FROM destinations WHERE is_active = 1');
-            console.log('[CHECKIN DEBUG] Available:', allDests.map(d => d.slug).join(', '));
-            return res.status(404).json({ success: false, message: `Mã QR không hợp lệ. Vui lòng quét mã QR chính thức từ hệ thống. (Dữ liệu nhận: "${slug}")` });
+            console.log('[CHECKIN DEBUG] Slug not found:', slug);
+            return res.status(404).json({ success: false, message: 'Xác thực thất bại' });
         }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
@@ -159,20 +158,12 @@ class ApiController {
         console.log(`[CHECKIN] Distance: ${Math.round(distance)}m, MaxRadius: ${maxRadius}m, DestCoords: (${dest.lat}, ${dest.lng}), UserCoords: (${lat}, ${lng})`);
         
         if (distance > maxRadius) {
-            return res.status(400).json({ 
-                success: false, 
-                message: `Bạn đang cách địa điểm "${dest.name}" khoảng ${Math.round(distance)}m. Vui lòng đến gần hơn (trong phạm vi ${maxRadius}m) để check-in.`,
-                debug: {
-                    user_coords: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
-                    dest_coords: `${dest.lat.toFixed(6)}, ${dest.lng.toFixed(6)}`,
-                    distance: Math.round(distance)
-                }
-            });
+            return res.status(400).json({ success: false, message: 'Xác thực thất bại' });
         }
 
         try {
             if (await CheckIn.existsForStop(session.id, dest.id)) {
-                return res.status(400).json({ success: false, message: 'Bạn đã check-in điểm này rồi' });
+                return res.status(400).json({ success: false, message: 'Xác thực thất bại' });
             }
 
             await CheckIn.create({
@@ -212,7 +203,7 @@ class ApiController {
             });
         } catch (err) {
             console.error('[CHECKIN ERROR]', err);
-            return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi check-in: ' + err.message });
+            return res.status(500).json({ success: false, message: 'Xác thực thất bại' });
         }
     }
 
