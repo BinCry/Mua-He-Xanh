@@ -414,8 +414,8 @@ function extractCoordsFromUrl(url) {
 
 // QR Modal Helpers
 function showQrModal(name, slug, qrSecret) {
-    // Standardize scanned content: we encode the secret key to make it secure, or full URL
-    const qrData = qrSecret || `SECURE_${slug.toUpperCase()}`;
+    // Use slug directly as QR data - simplest and most reliable matching
+    const qrData = slug;
     const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
     
     document.getElementById('qrDestName').textContent = name;

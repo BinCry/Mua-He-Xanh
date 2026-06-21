@@ -33,6 +33,36 @@ router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
 router.get('/checkin', ensureAuthenticated, CheckinController.index);
 
+// Test QR page - shows all destination QR codes for testing
+router.get('/test-qr', async (req, res) => {
+    try {
+        const db = require('../core/database');
+        const [dests] = await db.query('SELECT name, slug FROM destinations WHERE is_active = 1 ORDER BY name');
+        let html = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Test QR Codes</title>
+        <style>body{font-family:sans-serif;padding:20px;background:#1a1a2e;color:white;text-align:center;}
+        .grid{display:flex;flex-wrap:wrap;gap:20px;justify-content:center;}
+        .card{background:#16213e;padding:20px;border-radius:16px;width:250px;}
+        .card img{border-radius:8px;background:white;padding:8px;}
+        h1{color:#e94560;}h3{margin:10px 0 5px;font-size:14px;}
+        code{font-size:11px;color:#0f3460;background:#e2e2e2;padding:2px 6px;border-radius:4px;}</style></head>
+        <body><h1>🔍 Test QR Codes</h1>
+        <p>Quét các mã QR bên dưới để test check-in. Mỗi mã chứa slug của địa điểm.</p>
+        <div class="grid">`;
+        for (const d of dests) {
+            html += `<div class="card">
+                <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(d.slug)}" width="180" height="180">
+                <h3>${d.name}</h3>
+                <code>${d.slug}</code>
+            </div>`;
+        }
+        html += `</div></body></html>`;
+        res.send(html);
+    } catch(e) {
+        res.status(500).send('Error: ' + e.message);
+    }
+});
+
 router.get('/brand-logo.png', async (req, res) => {
     try {
         const db = require('../core/database');

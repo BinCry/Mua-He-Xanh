@@ -147,13 +147,11 @@ class ApiController {
         if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
 
         const dest = await Destination.findBySlug(slug);
-        console.log(`[CHECKIN DEBUG] Received slug: "${slug}", Found destination: ${dest ? dest.name + ' (slug=' + dest.slug + ', qr_secret=' + dest.qr_secret + ')' : 'NULL'}`);
+        console.log(`[CHECKIN DEBUG] Received slug: "${slug}", Found: ${dest ? dest.name : 'NULL'}`);
         if (!dest) {
-            // Log all destinations for debugging
             const [allDests] = await UserSession.db.query('SELECT slug, qr_secret, name FROM destinations WHERE is_active = 1');
-            const debugList = allDests.map(d => `${d.slug}(${d.qr_secret})`).join(' | ');
-            console.log('[CHECKIN DEBUG] Available destinations:', debugList);
-            return res.status(404).json({ success: false, message: `Điểm đến không tồn tại. (DEBUG: Received: "${slug}". Available: ${debugList})` });
+            console.log('[CHECKIN DEBUG] Available:', allDests.map(d => d.slug).join(', '));
+            return res.status(404).json({ success: false, message: `Mã QR không hợp lệ. Vui lòng quét mã QR chính thức từ hệ thống. (Dữ liệu nhận: "${slug}")` });
         }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);

@@ -145,7 +145,7 @@
                 <p class="text-muted small mb-4">Tải về hoặc in mã QR check-in này đặt tại địa điểm để du khách quét tích lũy điểm và mở khóa huy hiệu.</p>
                 
                 <div class="bg-white p-3 rounded-4 d-inline-block mb-4 shadow" style="max-width: 220px; margin: 0 auto;">
-                    <img id="managerQrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<%= encodeURIComponent(dest.qr_secret || 'SECURE_' + dest.slug.toUpperCase()) %>" style="width: 180px; height: 180px;" alt="QR Code">
+                    <img id="managerQrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<%= encodeURIComponent(dest.slug) %>" style="width: 180px; height: 180px;" alt="QR Code">
                 </div>
                 
                 <div class="d-flex gap-2 justify-content-center">
@@ -154,7 +154,7 @@
                     </button>
                 </div>
                 <div class="mt-2">
-                    <a id="managerQrDownload" href="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=<%= encodeURIComponent(dest.qr_secret || 'SECURE_' + dest.slug.toUpperCase()) %>" download="checkin-qr-<%= dest.slug %>.png" class="btn btn-outline-light rounded-pill px-4 py-2 w-100" target="_blank">
+                    <a id="managerQrDownload" href="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=<%= encodeURIComponent(dest.slug) %>" download="checkin-qr-<%= dest.slug %>.png" class="btn btn-outline-light rounded-pill px-4 py-2 w-100" target="_blank">
                         <i class="bi bi-download me-1"></i> Tải ảnh QR
                     </a>
                 </div>
