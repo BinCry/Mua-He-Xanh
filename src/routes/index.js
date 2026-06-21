@@ -33,6 +33,77 @@ router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
 router.get('/checkin', ensureAuthenticated, CheckinController.index);
 
+// Dynamic manifest.json endpoint to keep PWA name and logo synchronized with Admin Settings
+router.get('/manifest.json', async (req, res) => {
+    try {
+        const db = require('../core/database');
+        const [rows] = await db.query('SELECT * FROM settings');
+        const settings = {};
+        rows.forEach(s => { settings[s.key_name] = s.key_value; });
+        
+        let logoUrl = '/images/logo.png';
+        if (settings.brand_logo && settings.brand_logo !== 'undefined' && settings.brand_logo !== 'NULL') {
+            let clean = settings.brand_logo.replace(/^public\//, '');
+            if (!clean.startsWith('/')) clean = '/' + clean;
+            logoUrl = clean;
+        }
+
+        const manifest = {
+            "name": settings.brand_name || "Bình Lợi - Miền Tây giữa lòng Sài Gòn",
+            "short_name": settings.brand_name || "Bình Lợi Healing",
+            "description": settings.brand_subtext || "Hành trình khám phá và chữa lành tại làng quê Bình Lợi",
+            "start_url": "/",
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#922724",
+            "orientation": "portrait-primary",
+            "icons": [
+                {
+                    "src": logoUrl,
+                    "sizes": "192x192",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": logoUrl,
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any"
+                }
+            ]
+        };
+        
+        res.header('Content-Type', 'application/manifest+json');
+        res.json(manifest);
+    } catch (e) {
+        console.error("Error generating manifest dynamically:", e);
+        res.header('Content-Type', 'application/manifest+json');
+        res.json({
+            "name": "Bình Lợi - Miền Tây giữa lòng Sài Gòn",
+            "short_name": "Bình Lợi Healing",
+            "start_url": "/",
+            "display": "standalone",
+            "background_color": "#ffffff",
+            "theme_color": "#922724",
+            "orientation": "portrait-primary",
+            "icons": [
+                {
+                    "src": "/images/logo.png",
+                    "sizes": "192x192",
+                    "type": "image/png",
+                    "purpose": "any"
+                },
+                {
+                    "src": "/images/logo.png",
+                    "sizes": "512x512",
+                    "type": "image/png",
+                    "purpose": "any"
+                }
+            ]
+        });
+    }
+});
+
 // Test QR page - shows all destination QR codes for testing
 router.get('/test-qr', async (req, res) => {
     try {
