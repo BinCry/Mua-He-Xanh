@@ -147,7 +147,13 @@ class ApiController {
         if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
 
         const dest = await Destination.findBySlug(slug);
-        if (!dest) return res.status(404).json({ success: false, message: 'Điểm đến không tồn tại' });
+        console.log(`[CHECKIN DEBUG] Received slug: "${slug}", Found destination: ${dest ? dest.name + ' (slug=' + dest.slug + ', qr_secret=' + dest.qr_secret + ')' : 'NULL'}`);
+        if (!dest) {
+            // Log all destinations for debugging
+            const [allDests] = await UserSession.db.query('SELECT slug, qr_secret, name FROM destinations WHERE is_active = 1');
+            console.log('[CHECKIN DEBUG] Available destinations:', allDests.map(d => `slug="${d.slug}" qr_secret="${d.qr_secret}" name="${d.name}"`).join(' | '));
+            return res.status(404).json({ success: false, message: 'Điểm đến không tồn tại' });
+        }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
         const isDev = process.env.NODE_ENV !== 'production' || process.env.BYPASS_GPS === 'true';

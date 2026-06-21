@@ -274,11 +274,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Parse destination slug from QR data
         let slug = decodedText.trim();
+        console.log('[QR DEBUG] Raw scanned text:', decodedText);
         if (slug.indexOf('slug=') !== -1) {
             let match = slug.match(/slug=([^&]+)/);
             if (match) slug = match[1];
         } else if (slug.indexOf('/explore/') !== -1) {
             slug = slug.split('/explore/').pop().split('?')[0].split('#')[0];
+        } else if (slug.indexOf('/checkin') !== -1) {
+            // Handle checkin URLs - extract slug param
+            let match = slug.match(/slug=([^&]+)/);
+            if (match) slug = match[1];
         } else if (slug.indexOf('/') !== -1) {
             let parts = slug.split('/').filter(s => s);
             slug = parts[parts.length - 1] || slug;
@@ -288,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function() {
             slug = slug.slice(0, -1);
         }
         slug = slug.split('?')[0].split('#')[0].trim();
+        console.log('[QR DEBUG] Parsed slug to send:', slug);
 
         // Request GPS permission after successful QR scan
         if (navigator.geolocation) {
