@@ -155,7 +155,7 @@ class ApiController {
         }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
-        const maxRadius = Math.max(dest.radius_meter || 100, 500) * 2; // Tối thiểu 500m, nhân 2 cho dung sai GPS
+        const maxRadius = dest.radius_meter || 100; // Bán kính 100m
         console.log(`[CHECKIN] Distance: ${Math.round(distance)}m, MaxRadius: ${maxRadius}m, DestCoords: (${dest.lat}, ${dest.lng}), UserCoords: (${lat}, ${lng})`);
         
         if (distance > maxRadius) {
