@@ -479,8 +479,8 @@ const AdminController = {
             const hashedManagerPassword = await bcrypt.hash(manager_password, salt);
 
             await db.query(
-                `INSERT INTO users (id, full_name, email, password, role, role_id, managed_destination_id, total_points, is_active) 
-                 VALUES (?, ?, ?, ?, 'manager', 2, ?, 0, 1)`,
+                `INSERT INTO users (id, full_name, email, password, role, role_id, managed_destination_id, avatar, total_points, is_active) 
+                 VALUES (?, ?, ?, ?, 'manager', 2, ?, '/images/placeholder.jpg', 0, 1)`,
                 [managerId, manager_name || `QL ${name}`, manager_email, hashedManagerPassword, destinationId]
             );
             
@@ -512,6 +512,15 @@ const AdminController = {
             params.push(id);
 
             await db.query(query, params);
+
+            // Sync destination cover image to the manager's avatar
+            if (cover_image && cover_image.trim() !== '') {
+                await db.query(
+                    'UPDATE users SET avatar = ? WHERE role = "manager" AND managed_destination_id = ?',
+                    [cover_image, id]
+                );
+            }
+
             res.json({ success: true, message: 'Đã cập nhật địa điểm thành công!' });
         } catch (error) {
             console.error('Update destination error:', error);

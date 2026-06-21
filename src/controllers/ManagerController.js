@@ -357,6 +357,14 @@ class ManagerController {
 
             await Destination.update(targetDestId, updateData);
 
+            if (typeof cover_image !== 'undefined' && cover_image && cover_image.trim() !== '') {
+                const db = require('../core/database');
+                await db.query('UPDATE users SET avatar = ? WHERE role = "manager" AND managed_destination_id = ?', [cover_image, targetDestId]);
+                if (user.role === 'manager' && req.session.user) {
+                    req.session.user.avatar = cover_image;
+                }
+            }
+
             if (user.role === 'admin') {
                 res.redirect(`/manager/destination?dest_id=${targetDestId}&success=${encodeURIComponent('Đã cập nhật thông tin địa điểm')}`);
             } else {

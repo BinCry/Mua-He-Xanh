@@ -92,6 +92,13 @@ const ProfileController = {
                 WHERE id = ?
             `, [full_name, phone, city, preferences, travel_style, avatar, user.id]);
 
+            // Sync to destination cover image if the user is a manager
+            if (user.role === 'manager' && user.managed_destination_id) {
+                await db.query(`
+                    UPDATE destinations SET cover_image = ? WHERE id = ?
+                `, [avatar, user.managed_destination_id]);
+            }
+
             // Update session
             if (req.session.user) {
                 req.session.user.full_name = full_name;
