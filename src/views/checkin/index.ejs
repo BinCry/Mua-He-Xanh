@@ -427,11 +427,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display error messages during check-in process
     function showCheckinError(message) {
         document.getElementById('qr-result').innerHTML = 
-            '<div class="alert alert-danger rounded-3 d-flex align-items-start gap-2 mt-2">' +
-                '<i class="bi bi-exclamation-triangle-fill mt-1 fs-5"></i>' +
-                '<div>' +
-                    '<strong>Xác thực thất bại</strong><br>' +
-                    '<small>' + message + '</small>' +
+            '<div class="alert alert-danger rounded-3 mt-2 p-3">' +
+                '<div class="d-flex align-items-center gap-2 mb-2">' +
+                    '<i class="bi bi-exclamation-triangle-fill fs-4"></i>' +
+                    '<strong class="fs-6">Xác thực thất bại</strong>' +
+                '</div>' +
+                '<div class="bg-white bg-opacity-75 rounded-2 p-2 mt-1" style="color:#333;">' +
+                    '<i class="bi bi-info-circle me-1"></i>' +
+                    '<span>' + (message || 'Không rõ nguyên nhân') + '</span>' +
                 '</div>' +
             '</div>' +
             '<button class="btn btn-sm btn-outline-danger rounded-pill mt-2" onclick="location.reload()">' +
