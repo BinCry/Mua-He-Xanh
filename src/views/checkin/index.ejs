@@ -320,8 +320,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('qr-result').innerHTML = 
             '<div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">' +
                 '<div class="spinner-border spinner-border-sm" role="status" style="color: var(--primary);"></div>' +
-                '<span class="fw-bold small" style="color: var(--primary);">Đang xác thực vị trí GPS...</span>' +
+                '<span class="fw-bold small" style="color: var(--primary);">Đang đối chiếu vị trí GPS...</span>' +
             '</div>';
+        
+        document.getElementById('location-status').innerHTML = 
+            '<span class="text-primary"><i class="bi bi-hourglass-split me-1"></i> Đang đối chiếu vị trí...</span>';
 
         // Parse destination slug from QR data
         var slug = decodedText.trim();
@@ -356,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
             );
         } else {
-            showCheckinError();
+            showCheckinError('Không thiết lập được GPS');
         }
     }
 
@@ -384,14 +387,14 @@ document.addEventListener('DOMContentLoaded', function() {
                     console.error("GPS manual error:", err);
                     btn.disabled = false;
                     btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
-                    showCheckinError();
+                    showCheckinError('Không lấy được vị trí GPS');
                 },
                 { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         } else {
             btn.disabled = false;
             btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
-            showCheckinError();
+            showCheckinError('Thiết bị không hỗ trợ định vị');
         }
     };
     <% } %>
@@ -399,7 +402,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Core Checkin API Submission
     function doCheckin(slug, method, lat, lng) {
         if (!slug || lat === null || lng === null) {
-            showCheckinError();
+            showCheckinError('Thiếu thông tin vị trí hoặc địa điểm');
             return;
         }
 
@@ -434,26 +437,49 @@ document.addEventListener('DOMContentLoaded', function() {
                             '</div>' +
                         '</div>';
 
+                    document.getElementById('location-status').innerHTML = 
+                        '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> GPS hợp lệ</span>';
+
                     var successModal = new bootstrap.Modal(document.getElementById('checkinSuccessModal'));
                     successModal.show();
                 } else {
-                    showCheckinError();
+                    showCheckinError(res.data.message, res.data.error_type);
                 }
             })
             .catch(function(err) {
-                showCheckinError();
+                var msg = 'Xác thực thất bại';
+                var type = '';
+                if (err.response && err.response.data) {
+                    msg = err.response.data.message || msg;
+                    type = err.response.data.error_type || type;
+                }
+                showCheckinError(msg, type);
             });
     }
 
-    // Display simple error message - only "Xác thực thất bại"
-    function showCheckinError() {
+    // Display simple error message - only "Xác thực thất bại" + descriptive message
+    function showCheckinError(msg, type) {
+        msg = msg || 'Xác thực thất bại';
         document.getElementById('qr-result').innerHTML = 
             '<div class="alert alert-danger rounded-3 mt-2 p-3 text-center">' +
                 '<i class="bi bi-exclamation-triangle-fill fs-4 d-block mb-2"></i>' +
-                '<strong class="fs-6">Xác thực thất bại</strong>' +
+                '<strong class="fs-6 d-block mb-1">Xác thực thất bại</strong>' +
+                '<span class="small opacity-90">' + msg + '</span>' +
             '</div>' +
             '<button class="btn btn-sm btn-outline-danger rounded-pill mt-2" onclick="location.reload()">' +
                 '<i class="bi bi-arrow-clockwise me-1"></i> Quét lại</button>';
+        
+        // Update location status based on error type
+        if (type === 'OUT_OF_RADIUS') {
+            document.getElementById('location-status').innerHTML = 
+                '<span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i> Nằm ngoài bán kính địa điểm</span>';
+        } else if (type === 'ALREADY_CHECKED_IN') {
+            document.getElementById('location-status').innerHTML = 
+                '<span class="text-warning"><i class="bi bi-exclamation-circle-fill me-1"></i> Đã xác thực địa điểm này</span>';
+        } else {
+            document.getElementById('location-status').innerHTML = 
+                '<span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> ' + msg + '</span>';
+        }
         
         var btn = document.getElementById('btn-gps-check');
         if (btn) {

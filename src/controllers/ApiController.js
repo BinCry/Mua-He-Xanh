@@ -140,7 +140,7 @@ class ApiController {
         const method = body.method || 'qr';
         
         if (!sessionUuid || !slug || lat === null || lng === null) {
-            return res.status(400).json({ success: false, message: 'Xác thực thất bại' });
+            return res.status(400).json({ success: false, message: 'Thiếu thông tin xác thực' });
         }
 
         const session = await UserSession.findByUuid(sessionUuid);
@@ -150,7 +150,7 @@ class ApiController {
         console.log(`[CHECKIN DEBUG] Received slug: "${slug}", Found: ${dest ? dest.name : 'NULL'}`);
         if (!dest) {
             console.log('[CHECKIN DEBUG] Slug not found:', slug);
-            return res.status(404).json({ success: false, message: 'Xác thực thất bại' });
+            return res.status(404).json({ success: false, message: 'Địa điểm không hợp lệ' });
         }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
@@ -158,12 +158,12 @@ class ApiController {
         console.log(`[CHECKIN] Distance: ${Math.round(distance)}m, MaxRadius: ${maxRadius}m, DestCoords: (${dest.lat}, ${dest.lng}), UserCoords: (${lat}, ${lng})`);
         
         if (distance > maxRadius) {
-            return res.status(400).json({ success: false, message: 'Xác thực thất bại' });
+            return res.status(400).json({ success: false, message: 'Nằm ngoài bán kính địa điểm', error_type: 'OUT_OF_RADIUS' });
         }
 
         try {
             if (await CheckIn.existsForStop(session.id, dest.id)) {
-                return res.status(400).json({ success: false, message: 'Xác thực thất bại' });
+                return res.status(400).json({ success: false, message: 'Bạn đã xác thực địa điểm này rồi', error_type: 'ALREADY_CHECKED_IN' });
             }
 
             await CheckIn.create({
