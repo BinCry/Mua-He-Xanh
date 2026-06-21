@@ -14,29 +14,47 @@ class Destination extends Model {
         return rows;
     }
 
-    /** Find by slug, name or ID */
-    async findBySlug(slug) {
-        if (!slug) return null;
+    /** Find by slug, name, qr_secret or ID */
+    async findBySlug(input) {
+        if (!input) return null;
+        const slug = input.trim();
+        
+        // 1. Direct slug match
         let dest = await this.findOne({ slug });
-        if (!dest) {
-            dest = await this.findOne({ qr_secret: slug });
+        if (dest) return dest;
+
+        // 2. qr_secret exact match (case-insensitive via SQL)
+        const [qrRows] = await this.db.query(
+            `SELECT * FROM ${this.table} WHERE LOWER(qr_secret) = LOWER(?) LIMIT 1`, [slug]
+        );
+        if (qrRows.length > 0) return qrRows[0];
+
+        // 3. If starts with SECURE_, derive slug from it
+        if (slug.toUpperCase().startsWith('SECURE_')) {
+            const derivedSlug = slug.substring(7).toLowerCase(); // remove "SECURE_"
+            dest = await this.findOne({ slug: derivedSlug });
+            if (dest) return dest;
         }
-        if (!dest) {
-            dest = await this.findOne({ qr_secret: slug.toUpperCase() });
+
+        // 4. Name match
+        dest = await this.findOne({ name: slug });
+        if (dest) return dest;
+
+        // 5. UUID match
+        const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+        if (uuidRegex.test(slug)) {
+            dest = await this.findById(slug);
+            if (dest) return dest;
         }
-        if (!dest) {
-            dest = await this.findOne({ qr_secret: slug.toLowerCase() });
-        }
-        if (!dest) {
-            dest = await this.findOne({ name: slug });
-        }
-        if (!dest) {
-            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-            if (uuidRegex.test(slug)) {
-                dest = await this.findById(slug);
-            }
-        }
-        return dest;
+
+        // 6. Partial/fuzzy slug match (contains)
+        const [fuzzyRows] = await this.db.query(
+            `SELECT * FROM ${this.table} WHERE slug LIKE ? OR qr_secret LIKE ? LIMIT 1`,
+            [`%${slug}%`, `%${slug}%`]
+        );
+        if (fuzzyRows.length > 0) return fuzzyRows[0];
+
+        return null;
     }
 
     /** Get Hub */
