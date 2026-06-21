@@ -91,8 +91,8 @@ require('dotenv').config();
             if (existing.length > 0) {
                 const id = existing[0].id;
                 await db.query(
-                    "UPDATE destinations SET name=?, type=?, short_desc=?, description=?, story=?, highlight=?, cover_image=?, open_hours=?, cost=?, best_time=?, points=?, lat=?, lng=?, moods=?, seasons=?, is_active=1 WHERE id=?",
-                    [dest.name, dest.type, dest.short_desc, dest.story, dest.story, dest.highlight, dest.cover_image, dest.open_hours, dest.cost, dest.best_time, dest.points, dest.lat, dest.lng, dest.moods, dest.seasons, id]
+                    "UPDATE destinations SET name=?, type=?, short_desc=?, description=?, story=?, highlight=?, cover_image=?, open_hours=?, cost=?, best_time=?, points=?, lat=?, lng=?, moods=?, seasons=?, qr_secret=?, is_active=1 WHERE id=?",
+                    [dest.name, dest.type, dest.short_desc, dest.story, dest.story, dest.highlight, dest.cover_image, dest.open_hours, dest.cost, dest.best_time, dest.points, dest.lat, dest.lng, dest.moods, dest.seasons, "SECURE_" + dest.slug.toUpperCase(), id]
                 );
                 console.log(`Updated: ${dest.name}`);
             } else {
