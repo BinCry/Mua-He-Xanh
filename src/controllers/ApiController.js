@@ -151,8 +151,9 @@ class ApiController {
         if (!dest) {
             // Log all destinations for debugging
             const [allDests] = await UserSession.db.query('SELECT slug, qr_secret, name FROM destinations WHERE is_active = 1');
-            console.log('[CHECKIN DEBUG] Available destinations:', allDests.map(d => `slug="${d.slug}" qr_secret="${d.qr_secret}" name="${d.name}"`).join(' | '));
-            return res.status(404).json({ success: false, message: 'Điểm đến không tồn tại' });
+            const debugList = allDests.map(d => `${d.slug}(${d.qr_secret})`).join(' | ');
+            console.log('[CHECKIN DEBUG] Available destinations:', debugList);
+            return res.status(404).json({ success: false, message: `Điểm đến không tồn tại. (DEBUG: Received: "${slug}". Available: ${debugList})` });
         }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
