@@ -14,9 +14,13 @@ class Destination extends Model {
         return rows;
     }
 
-    /** Find by slug */
+    /** Find by slug or name */
     async findBySlug(slug) {
-        return this.findOne({ slug });
+        let dest = await this.findOne({ slug });
+        if (!dest) {
+            dest = await this.findOne({ name: slug });
+        }
+        return dest;
     }
 
     /** Get Hub */
