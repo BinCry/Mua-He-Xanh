@@ -523,10 +523,30 @@ const AdminController = {
     deleteDestination: async (req, res) => {
         try {
             const { id } = req.body;
+            if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID địa điểm' });
+
+            // 1. Delete associated manager users
+            await db.query('DELETE FROM users WHERE managed_destination_id = ?', [id]);
+
+            // 2. Delete associated workshops
+            await db.query('DELETE FROM workshops WHERE destination_id = ?', [id]);
+
+            // 3. Delete associated reviews
+            await db.query('DELETE FROM reviews WHERE destination_id = ?', [id]);
+
+            // 4. Delete associated destination likes
+            await db.query('DELETE FROM destination_likes WHERE destination_id = ?', [id]);
+
+            // 5. Delete associated user favorites
+            await db.query('DELETE FROM user_favorites WHERE destination_id = ?', [id]);
+
+            // 6. Delete the destination itself
             await db.query('DELETE FROM destinations WHERE id = ?', [id]);
-            res.json({ success: true, message: 'Đã xóa địa điểm' });
+
+            res.json({ success: true, message: 'Đã xóa địa điểm và tất cả các tài khoản/dữ liệu liên quan thành công!' });
         } catch (error) {
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
+            console.error('Delete destination error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
         }
     },
 

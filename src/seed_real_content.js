@@ -14,6 +14,14 @@ require('dotenv').config();
 
         console.log("Connected to database. Seeding real content...");
 
+        // Ensure stop_id is nullable in check_ins to prevent Field 'stop_id' doesn't have a default value
+        try {
+            await db.query("ALTER TABLE check_ins MODIFY COLUMN stop_id VARCHAR(36) NULL");
+            console.log("Check-in schema migration: stop_id is now nullable");
+        } catch (schemaErr) {
+            console.warn("Check-in schema migration warning:", schemaErr.message);
+        }
+
         const destinations = [
             {
                 name: 'Chùa Pháp Tạng',
