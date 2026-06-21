@@ -1,11 +1,10 @@
-const CACHE_NAME = 'binh-loi-healing-v1';
+const CACHE_NAME = 'binh-loi-healing-v2';
 const STATIC_ASSETS = [
     '/offline.html',
     '/css/style-v5.css',
     '/images/logo.png',
     '/images/hero-1.png',
-    '/images/hero-bg.jpg',
-    '/manifest.json'
+    '/images/hero-bg.jpg'
 ];
 
 // Install Event

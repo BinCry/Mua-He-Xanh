@@ -18,31 +18,36 @@
                 </div>
             </div>
             <div class="p-4">
-                <!-- Scanner view area -->
-                <div id="reader" style="width: 100%; border-radius: 12px; overflow: hidden; background: #f1f5f9; min-height: 280px; position: relative; border: 1px solid rgba(0,0,0,0.05);">
-                    <div id="scanner-placeholder" class="position-absolute top-50 start-50 translate-middle text-center w-100 p-3">
-                        <div class="spinner-border text-danger mb-2" role="status"></div>
-                        <p class="text-muted small mb-0">Đang yêu cầu quyền truy cập camera...</p>
+                <!-- Camera Preview Area -->
+                <div id="qr-scanner-area" style="width: 100%; border-radius: 12px; overflow: hidden; background: #1a1a2e; min-height: 300px; position: relative;">
+                    <!-- Loading placeholder while camera initializes -->
+                    <div id="camera-loading" class="d-flex flex-column align-items-center justify-content-center text-white" style="min-height: 300px;">
+                        <div class="spinner-border text-light mb-3" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="small opacity-75 mb-1">Đang mở camera...</p>
+                        <p class="x-small opacity-50 mb-0">Vui lòng cho phép truy cập khi được hỏi</p>
                     </div>
+                    <!-- html5-qrcode will render inside this div -->
+                    <div id="reader" style="width: 100%; display: none;"></div>
                 </div>
                 <div id="qr-result" class="mt-3"></div>
             </div>
         </div>
 
         <!-- GPS Status Card -->
-        <div class="card border-0 shadow-sm rounded-4 p-4 text-center reveal-up bg-white">
+        <div id="gps-card" class="card border-0 shadow-sm rounded-4 p-4 text-center reveal-up bg-white">
             <div class="d-flex align-items-center justify-content-center gap-2 mb-2">
-                <i class="bi bi-geo-alt-fill text-primary fs-4"></i>
-                <h6 class="fw-bold mb-0">Định vị GPS</h6>
+                <i class="bi bi-geo-alt-fill text-muted fs-4"></i>
+                <h6 class="fw-bold mb-0 text-muted">Định vị GPS</h6>
             </div>
-            <p id="location-status" class="small text-muted mb-3">Đang kiểm tra vị trí của bạn...</p>
-            <div id="gps-coords" class="small text-muted mb-3" style="display:none;"></div>
+            <p id="location-status" class="small text-muted mb-0">
+                <i class="bi bi-info-circle me-1"></i> Quét mã QR trước, hệ thống sẽ tự động kiểm tra GPS sau.
+            </p>
             <% if (dest) { %>
-            <button id="btn-gps-check" class="btn rounded-pill px-4 py-2 fw-bold text-white" style="background: var(--primary);" onclick="doGpsCheckin()">
+            <button id="btn-gps-check" class="btn rounded-pill px-4 py-2 fw-bold text-white mt-3" style="background: var(--primary);" onclick="doGpsCheckin()">
                 <i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí tại "<%= dest.name %>"
             </button>
-            <% } else { %>
-            <p class="text-muted small mb-0"><i class="bi bi-info-circle me-1"></i> Quét mã QR trước để xác định địa điểm, sau đó hệ thống sẽ tự động kiểm tra GPS.</p>
             <% } %>
         </div>
     </div>
@@ -79,273 +84,281 @@
 </div>
 
 <script>
-// ========== GPS Tracking ==========
-let userLat = null;
-let userLng = null;
-let gpsReady = false;
+document.addEventListener('DOMContentLoaded', function() {
+    // ========== GPS (thu thập ngầm, KHÔNG hiện trạng thái) ==========
+    let userLat = null;
+    let userLng = null;
+    let gpsReady = false;
 
-function initGPS() {
-    if (!navigator.geolocation) {
-        document.getElementById('location-status').innerHTML = '<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i>Trình duyệt không hỗ trợ định vị GPS.</span>';
-        return;
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        (pos) => {
-            userLat = pos.coords.latitude;
-            userLng = pos.coords.longitude;
-            gpsReady = true;
-            document.getElementById('location-status').innerHTML = '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> Đã xác định vị trí GPS thành công</span>';
-            document.getElementById('gps-coords').style.display = 'block';
-            document.getElementById('gps-coords').innerHTML = `<i class="bi bi-pin-map me-1"></i> Tọa độ: ${userLat.toFixed(6)}, ${userLng.toFixed(6)}`;
-        },
-        (err) => {
-            console.warn('GPS error:', err);
-            document.getElementById('location-status').innerHTML = '<span class="text-warning"><i class="bi bi-exclamation-triangle me-1"></i> Không thể lấy vị trí. Vui lòng cho phép truy cập vị trí trong trình duyệt.</span>';
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-    );
-}
-
-// Start GPS tracking immediately
-initGPS();
-
-// ========== QR Scanner using Html5Qrcode (low-level class) ==========
-let scannerStopped = false;
-const html5QrCode = new Html5Qrcode("reader");
-const qrConfig = { fps: 10, qrbox: 250 };
-
-function onScanSuccess(decodedText, decodedResult) {
-    if (scannerStopped) return;
-    scannerStopped = true;
-
-    // Stop scanner to prevent duplicate scans
-    try {
-        if (html5QrCode.isScanning) {
-            html5QrCode.stop();
-        }
-    } catch(e) {}
-
-    document.getElementById('qr-result').innerHTML = `
-        <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">
-            <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-            <span class="fw-bold small" style="color: var(--primary);">Đã quét thành công! Đang xác thực vị trí GPS...</span>
-        </div>
-    `;
-
-    // Extract slug from QR content
-    let slug = decodedText.trim();
-    if (slug.includes('slug=')) {
-        const match = slug.match(/slug=([^&]+)/);
-        if (match) slug = match[1];
-    } else if (slug.includes('/explore/')) {
-        slug = slug.split('/explore/').pop().split('?')[0].split('#')[0];
-    } else if (slug.includes('/')) {
-        slug = slug.split('/').filter(s => s).pop() || slug;
-    }
-
-    try { slug = decodeURIComponent(slug); } catch(e) {}
-
-    // Now get GPS and do checkin
-    if (gpsReady && userLat !== null) {
-        doCheckin(slug, 'qr', userLat, userLng);
-    } else {
-        document.getElementById('qr-result').innerHTML = `
-            <div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">
-                <div class="spinner-border spinner-border-sm text-primary" role="status"></div>
-                <span class="fw-bold small" style="color: var(--primary);">Đang lấy tọa độ GPS để xác thực vị trí...</span>
-            </div>
-        `;
+    // Chỉ lấy GPS ngầm, không cập nhật UI
+    if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
-            (pos) => {
+            function(pos) {
                 userLat = pos.coords.latitude;
                 userLng = pos.coords.longitude;
                 gpsReady = true;
-                doCheckin(slug, 'qr', userLat, userLng);
+                console.log('GPS ready:', userLat, userLng);
             },
-            (err) => {
-                document.getElementById('qr-result').innerHTML = `
-                    <div class="alert alert-danger rounded-3 mb-0">
-                        <i class="bi bi-exclamation-triangle me-1"></i>
-                        <strong>Không thể xác định vị trí GPS.</strong><br>
-                        <small>Vui lòng cho phép truy cập vị trí trong cài đặt trình duyệt, sau đó tải lại trang và quét lại.</small>
-                    </div>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill mt-2" onclick="location.reload()">
-                        <i class="bi bi-arrow-clockwise me-1"></i> Thử lại
-                    </button>
-                `;
+            function(err) {
+                console.warn('GPS pre-fetch error (OK, will retry after scan):', err.message);
             },
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
         );
     }
-}
 
-function startCamera() {
-    document.getElementById('scanner-placeholder').style.display = 'block';
-    
-    // Check if secure context (HTTPS or localhost)
-    if (!window.isSecureContext) {
-        showCameraError("Trình duyệt chặn truy cập camera do kết nối không bảo mật (HTTP). Vui lòng sử dụng kết nối HTTPS để bắt đầu quét.");
-        return;
+    // ========== QR Scanner ==========
+    let scannerStopped = false;
+    let html5QrCode = null;
+
+    function showCameraError(errorMsg) {
+        document.getElementById('camera-loading').style.display = 'none';
+        document.getElementById('qr-scanner-area').innerHTML = 
+            '<div class="p-4 text-center d-flex flex-column align-items-center justify-content-center" style="min-height: 300px; color: #fff;">' +
+                '<i class="bi bi-camera-video-off fs-1 mb-3" style="color: #ff6b6b;"></i>' +
+                '<h6 class="fw-bold mb-2" style="color: #ff6b6b;">Không mở được Camera</h6>' +
+                '<p class="small mb-3 opacity-75" style="max-width: 300px; line-height: 1.6; color: #ccc;">' +
+                    (errorMsg || 'Vui lòng cho phép truy cập Camera trong cài đặt trình duyệt, sau đó tải lại trang.') +
+                '</p>' +
+                '<button class="btn btn-sm btn-outline-light rounded-pill px-4" onclick="location.reload()">' +
+                    '<i class="bi bi-arrow-clockwise me-1"></i> Thử lại' +
+                '</button>' +
+            '</div>';
     }
 
-    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        showCameraError("Thiết bị hoặc trình duyệt của bạn không hỗ trợ truy cập camera.");
-        return;
-    }
-
-    // Request native camera permission explicitly
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
-        .then((stream) => {
-            // Stop the temporary stream tracks immediately
-            stream.getTracks().forEach(track => track.stop());
-
-            // Initialize and start scanner using html5QrCode
-            Html5Qrcode.getCameras().then(devices => {
-                if (devices && devices.length > 0) {
-                    // Find back camera if available
-                    let backCamera = devices.find(device => {
-                        const label = (device.label || "").toLowerCase();
-                        return label.includes('back') || label.includes('sau') || label.includes('environment') || label.includes('rear');
-                    });
-                    let selectedCameraId = backCamera ? backCamera.id : devices[0].id;
-                    
-                    html5QrCode.start(selectedCameraId, qrConfig, onScanSuccess)
-                        .then(() => {
-                            document.getElementById('scanner-placeholder').style.display = 'none';
-                        })
-                        .catch(err => {
-                            showCameraError("Không thể khởi chạy camera: " + err);
-                        });
-                } else {
-                    showCameraError("Không tìm thấy thiết bị camera.");
-                }
-            }).catch(err => {
-                showCameraError("Lỗi quét danh sách camera: " + err);
-            });
-        })
-        .catch((err) => {
-            console.error("Camera permission error:", err);
-            showCameraError("Vui lòng cấp quyền truy cập camera trong hộp thoại thông báo của thiết bị để bắt đầu quét QR.");
-        });
-}
-
-function showCameraError(msg) {
-    document.getElementById('scanner-placeholder').style.display = 'none';
-    document.getElementById('reader').style.background = '#ffebee';
-    document.getElementById('reader').innerHTML = `
-        <div class="p-4 text-center text-danger d-flex flex-column align-items-center justify-content-center h-100" style="min-height: 280px;">
-            <i class="bi bi-camera-video-off fs-1 mb-2"></i>
-            <h6 class="fw-bold mb-2">Yêu cầu quyền truy cập Camera</h6>
-            <p class="small mb-0 text-muted" style="max-width: 320px; line-height: 1.5;">${msg}</p>
-        </div>
-    `;
-}
-
-// Start camera scanner on load
-startCamera();
-
-// ========== GPS-only Checkin (for pre-selected destination) ==========
-<% if (dest) { %>
-function doGpsCheckin() {
-    const btn = document.getElementById('btn-gps-check');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang xác thực...';
-
-    if (gpsReady && userLat !== null) {
-        doCheckin('<%= slug %>', 'gps', userLat, userLng);
-    } else {
-        navigator.geolocation.getCurrentPosition(
-            (pos) => {
-                userLat = pos.coords.latitude;
-                userLng = pos.coords.longitude;
-                doCheckin('<%= slug %>', 'gps', userLat, userLng);
-            },
-            (err) => {
-                btn.disabled = false;
-                btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
-                alert('Không thể lấy vị trí GPS. Vui lòng cho phép quyền truy cập vị trí.');
-            },
-            { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-        );
-    }
-}
-<% } %>
-
-// ========== Core Checkin Function ==========
-function doCheckin(slug, method, lat, lng) {
-    if (!slug) {
-        document.getElementById('qr-result').innerHTML = '<div class="alert alert-warning rounded-3">Mã QR không hợp lệ. Vui lòng quét lại.</div>';
-        return;
-    }
-
-    axios.post('/api/checkin', {
-        slug: slug,
-        method: method,
-        lat: lat,
-        lng: lng
-    }).then(res => {
-        if (res.data.success) {
-            if (typeof confetti === 'function') {
-                confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
-            }
-
-            const dest = res.data.destination;
-            document.getElementById('modal-title').innerText = dest.name;
-            
-            let imgSrc = dest.cover_image || '/images/hero-1.png';
-            if (imgSrc && !imgSrc.startsWith('http') && !imgSrc.startsWith('data:') && !imgSrc.startsWith('/')) {
-                imgSrc = '/' + imgSrc;
-            }
-            document.getElementById('modal-img').src = imgSrc;
-            
-            document.getElementById('modal-story').innerText = dest.story || dest.highlight || 'Chào mừng bạn đã đến với địa điểm này!';
-            document.getElementById('modal-points').innerHTML = `
-                <div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">
-                    <i class="bi bi-star-fill text-warning"></i>
-                    <span class="fw-bold" style="color: var(--primary);">+${res.data.points_earned} điểm thưởng</span>
-                </div>
-            `;
-
-            document.getElementById('qr-result').innerHTML = `
-                <div class="d-flex align-items-center gap-2 p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25">
-                    <i class="bi bi-check-circle-fill text-success fs-4"></i>
-                    <div>
-                        <span class="fw-bold text-success d-block">Check-in thành công!</span>
-                        <small class="text-muted">Địa điểm: ${dest.name}</small>
-                    </div>
-                </div>
-            `;
-
-            const modal = new bootstrap.Modal(document.getElementById('checkinSuccessModal'));
-            modal.show();
-        } else {
-            showCheckinError(res.data.message);
+    function startScanner() {
+        // Kiểm tra trình duyệt hỗ trợ camera
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            showCameraError('Trình duyệt của bạn không hỗ trợ truy cập camera. Hãy mở trang này bằng Chrome hoặc Safari.');
+            return;
         }
-    }).catch(err => {
-        const msg = err.response?.data?.message || err.message;
-        showCheckinError(msg);
-    });
-}
 
-function showCheckinError(message) {
-    document.getElementById('qr-result').innerHTML = `
-        <div class="alert alert-danger rounded-3 d-flex align-items-start gap-2">
-            <i class="bi bi-exclamation-triangle-fill mt-1"></i>
-            <div>
-                <strong>Check-in thất bại</strong><br>
-                <small>${message}</small>
-            </div>
-        </div>
-        <button class="btn btn-sm btn-outline-primary rounded-pill mt-2" onclick="location.reload()">
-            <i class="bi bi-arrow-clockwise me-1"></i> Quét lại
-        </button>
-    `;
-
-    const btn = document.getElementById('btn-gps-check');
-    if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
+        // Bước 1: Xin quyền camera từ trình duyệt (hiện hộp thoại native)
+        navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+            .then(function(stream) {
+                // Quyền đã được cấp! Dừng stream test ngay
+                stream.getTracks().forEach(function(track) { track.stop(); });
+                
+                // Bước 2: Khởi động QR scanner
+                document.getElementById('camera-loading').style.display = 'none';
+                document.getElementById('reader').style.display = 'block';
+                
+                html5QrCode = new Html5Qrcode('reader');
+                html5QrCode.start(
+                    { facingMode: 'environment' },
+                    { fps: 10, qrbox: { width: 250, height: 250 }, aspectRatio: 1.0 },
+                    onScanSuccess,
+                    function() {} // ignore scan errors (no QR found yet)
+                ).catch(function(err) {
+                    console.error('Html5Qrcode start failed:', err);
+                    showCameraError('Không thể khởi động scanner. Vui lòng tải lại trang.');
+                });
+            })
+            .catch(function(err) {
+                console.error('Camera permission error:', err);
+                var msg = 'Vui lòng cho phép truy cập Camera khi trình duyệt hỏi.';
+                if (err.name === 'NotAllowedError') {
+                    msg = 'Bạn đã từ chối quyền Camera. Vui lòng vào Cài đặt trình duyệt → Quyền riêng tư → Camera → cho phép trang này, sau đó tải lại.';
+                } else if (err.name === 'NotFoundError') {
+                    msg = 'Không tìm thấy camera trên thiết bị này.';
+                } else if (err.name === 'NotReadableError') {
+                    msg = 'Camera đang được sử dụng bởi ứng dụng khác. Hãy đóng app khác và thử lại.';
+                } else if (err.name === 'OverconstrainedError') {
+                    msg = 'Không tìm thấy camera phù hợp. Đang thử camera trước...';
+                    // Thử lại với camera trước (fallback)
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                        .then(function(stream) {
+                            stream.getTracks().forEach(function(t) { t.stop(); });
+                            document.getElementById('camera-loading').style.display = 'none';
+                            document.getElementById('reader').style.display = 'block';
+                            html5QrCode = new Html5Qrcode('reader');
+                            html5QrCode.start(
+                                { facingMode: 'user' },
+                                { fps: 10, qrbox: { width: 250, height: 250 } },
+                                onScanSuccess,
+                                function() {}
+                            ).catch(function(e) { showCameraError('Không thể mở camera.'); });
+                        })
+                        .catch(function() { showCameraError(msg); });
+                    return;
+                }
+                showCameraError(msg);
+            });
     }
-}
+
+    function onScanSuccess(decodedText) {
+        if (scannerStopped) return;
+        scannerStopped = true;
+
+        // Dừng camera ngay
+        if (html5QrCode) {
+            html5QrCode.stop().catch(function() {});
+        }
+
+        // Hiện trạng thái đang xử lý
+        document.getElementById('qr-result').innerHTML = 
+            '<div class="d-flex align-items-center gap-2 p-3 rounded-3" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">' +
+                '<div class="spinner-border spinner-border-sm" role="status" style="color: var(--primary);"></div>' +
+                '<span class="fw-bold small" style="color: var(--primary);">Đã quét thành công! Đang xác thực vị trí GPS...</span>' +
+            '</div>';
+
+        // Cập nhật GPS card
+        document.getElementById('location-status').innerHTML = 
+            '<span class="text-primary"><i class="bi bi-hourglass-split me-1"></i> Đang lấy tọa độ GPS...</span>';
+
+        // Trích slug từ nội dung QR
+        var slug = decodedText.trim();
+        if (slug.indexOf('slug=') !== -1) {
+            var match = slug.match(/slug=([^&]+)/);
+            if (match) slug = match[1];
+        } else if (slug.indexOf('/explore/') !== -1) {
+            slug = slug.split('/explore/').pop().split('?')[0].split('#')[0];
+        } else if (slug.indexOf('/') !== -1) {
+            var parts = slug.split('/').filter(function(s) { return s; });
+            slug = parts[parts.length - 1] || slug;
+        }
+        try { slug = decodeURIComponent(slug); } catch(e) {}
+
+        // GPS check + checkin
+        if (gpsReady && userLat !== null) {
+            updateGpsStatus(userLat, userLng);
+            doCheckin(slug, 'qr', userLat, userLng);
+        } else {
+            // GPS chưa sẵn sàng, xin lại
+            if (!navigator.geolocation) {
+                gpsError('Thiết bị không hỗ trợ GPS.');
+                return;
+            }
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    userLat = pos.coords.latitude;
+                    userLng = pos.coords.longitude;
+                    gpsReady = true;
+                    updateGpsStatus(userLat, userLng);
+                    doCheckin(slug, 'qr', userLat, userLng);
+                },
+                function(err) {
+                    gpsError('Không lấy được vị trí GPS. ' + err.message);
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        }
+    }
+
+    function updateGpsStatus(lat, lng) {
+        document.getElementById('location-status').innerHTML = 
+            '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> GPS: ' + 
+            lat.toFixed(6) + ', ' + lng.toFixed(6) + '</span>';
+    }
+
+    function gpsError(msg) {
+        document.getElementById('location-status').innerHTML = 
+            '<span class="text-danger"><i class="bi bi-exclamation-triangle me-1"></i> ' + msg + '</span>';
+        document.getElementById('qr-result').innerHTML = 
+            '<div class="alert alert-warning rounded-3">' +
+                '<i class="bi bi-exclamation-triangle me-1"></i> QR đã quét nhưng không xác định được GPS.<br>' +
+                '<small>Vui lòng cho phép truy cập vị trí và tải lại trang.</small>' +
+            '</div>' +
+            '<button class="btn btn-sm btn-outline-primary rounded-pill mt-2" onclick="location.reload()">' +
+                '<i class="bi bi-arrow-clockwise me-1"></i> Thử lại</button>';
+    }
+
+    // ========== GPS-only Checkin (khi có slug từ URL) ==========
+    <% if (dest) { %>
+    window.doGpsCheckin = function() {
+        var btn = document.getElementById('btn-gps-check');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang xác thực...';
+
+        if (gpsReady && userLat !== null) {
+            updateGpsStatus(userLat, userLng);
+            doCheckin('<%= slug %>', 'gps', userLat, userLng);
+        } else {
+            navigator.geolocation.getCurrentPosition(
+                function(pos) {
+                    userLat = pos.coords.latitude;
+                    userLng = pos.coords.longitude;
+                    updateGpsStatus(userLat, userLng);
+                    doCheckin('<%= slug %>', 'gps', userLat, userLng);
+                },
+                function(err) {
+                    btn.disabled = false;
+                    btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
+                    alert('Không thể lấy vị trí GPS. Vui lòng cho phép quyền truy cập vị trí.');
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        }
+    };
+    <% } %>
+
+    // ========== Core Checkin API ==========
+    function doCheckin(slug, method, lat, lng) {
+        if (!slug) {
+            document.getElementById('qr-result').innerHTML = 
+                '<div class="alert alert-warning rounded-3">Mã QR không hợp lệ. Vui lòng quét lại.</div>';
+            return;
+        }
+
+        axios.post('/api/checkin', { slug: slug, method: method, lat: lat, lng: lng })
+            .then(function(res) {
+                if (res.data.success) {
+                    if (typeof confetti === 'function') {
+                        confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
+                    }
+
+                    var dest = res.data.destination;
+                    document.getElementById('modal-title').innerText = dest.name;
+                    
+                    var imgSrc = dest.cover_image || '/images/hero-1.png';
+                    if (imgSrc && imgSrc.indexOf('http') !== 0 && imgSrc.indexOf('data:') !== 0 && imgSrc.indexOf('/') !== 0) {
+                        imgSrc = '/' + imgSrc;
+                    }
+                    document.getElementById('modal-img').src = imgSrc;
+                    document.getElementById('modal-story').innerText = dest.story || dest.highlight || 'Chào mừng bạn đã đến với địa điểm này!';
+                    document.getElementById('modal-points').innerHTML = 
+                        '<div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">' +
+                            '<i class="bi bi-star-fill text-warning"></i>' +
+                            '<span class="fw-bold" style="color: var(--primary);">+' + res.data.points_earned + ' điểm thưởng</span>' +
+                        '</div>';
+
+                    document.getElementById('qr-result').innerHTML = 
+                        '<div class="d-flex align-items-center gap-2 p-3 rounded-3 bg-success bg-opacity-10 border border-success border-opacity-25">' +
+                            '<i class="bi bi-check-circle-fill text-success fs-4"></i>' +
+                            '<div>' +
+                                '<span class="fw-bold text-success d-block">Check-in thành công!</span>' +
+                                '<small class="text-muted">Địa điểm: ' + dest.name + '</small>' +
+                            '</div>' +
+                        '</div>';
+
+                    new bootstrap.Modal(document.getElementById('checkinSuccessModal')).show();
+                } else {
+                    showCheckinError(res.data.message);
+                }
+            })
+            .catch(function(err) {
+                showCheckinError((err.response && err.response.data && err.response.data.message) || err.message);
+            });
+    }
+
+    function showCheckinError(message) {
+        document.getElementById('qr-result').innerHTML = 
+            '<div class="alert alert-danger rounded-3 d-flex align-items-start gap-2">' +
+                '<i class="bi bi-exclamation-triangle-fill mt-1"></i>' +
+                '<div>' +
+                    '<strong>Check-in thất bại</strong><br>' +
+                    '<small>' + message + '</small>' +
+                '</div>' +
+            '</div>' +
+            '<button class="btn btn-sm btn-outline-primary rounded-pill mt-2" onclick="location.reload()">' +
+                '<i class="bi bi-arrow-clockwise me-1"></i> Quét lại</button>';
+        var btn = document.getElementById('btn-gps-check');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
+        }
+    }
+
+    // ========== Khởi động Scanner ==========
+    startScanner();
+});
 </script>
