@@ -9,6 +9,11 @@
             </div>
         </button>
 
+        <!-- PWA Standalone Back Button (only shown on PWA when not on homepage) -->
+        <button id="pwaBackButton" class="btn border-0 p-0 d-none" onclick="window.history.back()" style="z-index: 10; width: 30px; height: 30px; align-items: center; justify-content: center; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary);">
+            <i class="bi bi-chevron-left fs-3 fw-bold"></i>
+        </button>
+
         <!-- Brand -->
         <a class="navbar-brand d-flex align-items-center gap-2 mx-auto mx-lg-0" href="/">
             <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 42px;" onerror="this.src='/images/logo.png'">

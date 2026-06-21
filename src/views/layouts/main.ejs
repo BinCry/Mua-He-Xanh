@@ -22,12 +22,13 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/css/style-v5.css?v=<%= assetV %>">
     
-    <!-- PWA Meta Tags -->
+    <!-- PWA Meta Tags & iOS Compatibility -->
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#922724">
-    <link rel="apple-touch-icon" href="/brand-logo.png">
+    <link rel="apple-touch-icon" href="/images/logo.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Bình Lợi">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
@@ -64,11 +65,83 @@
 
 
 
-    <!-- Mobile Bottom: Only QR Scan Button (centered) -->
-    <div class="d-lg-none position-fixed bottom-0 start-50 translate-middle-x" style="z-index: 1050; margin-bottom: 20px; padding-bottom: env(safe-area-inset-bottom, 0);">
+    <!-- Mobile Bottom: Only QR Scan Button (centered for non-PWA fallback) -->
+    <div class="mobile-bottom-qr-container d-lg-none position-fixed bottom-0 start-50 translate-middle-x" style="z-index: 1030; margin-bottom: 20px; padding-bottom: env(safe-area-inset-bottom, 0);">
         <a href="/checkin" class="mobile-qr-fab d-flex align-items-center justify-content-center text-white text-decoration-none rounded-circle shadow-lg">
             <i class="bi bi-qr-code-scan fs-4"></i>
         </a>
+    </div>
+
+    <!-- PWA Bottom Navigation Bar (only visible in standalone/PWA mode) -->
+    <div class="pwa-bottom-nav">
+        <a href="/" class="pwa-nav-item" id="pwa-home">
+            <i class="bi bi-house-door"></i>
+            <span>Trang chủ</span>
+        </a>
+        <a href="/explore" class="pwa-nav-item" id="pwa-explore">
+            <i class="bi bi-compass"></i>
+            <span>Khám phá</span>
+        </a>
+        <div class="pwa-nav-item-qr-wrapper">
+            <a href="/checkin" class="pwa-nav-item-qr" id="pwa-checkin" title="Quét mã QR">
+                <i class="bi bi-qr-code-scan"></i>
+            </a>
+        </div>
+        <a href="/reviews" class="pwa-nav-item" id="pwa-reviews">
+            <i class="bi bi-chat-heart"></i>
+            <span>Cộng đồng</span>
+        </a>
+        <% if (user) { %>
+            <% if (user.role === 'admin') { %>
+                <a href="/admin" class="pwa-nav-item" id="pwa-profile">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Admin</span>
+                </a>
+            <% } else if (user.role === 'manager') { %>
+                <a href="/manager" class="pwa-nav-item" id="pwa-profile">
+                    <i class="bi bi-shield-check"></i>
+                    <span>Quản lý</span>
+                </a>
+            <% } else { %>
+                <a href="/profile" class="pwa-nav-item" id="pwa-profile">
+                    <i class="bi bi-person-circle"></i>
+                    <span>Cá nhân</span>
+                </a>
+            <% } %>
+        <% } else { %>
+            <a href="/auth/login" class="pwa-nav-item" id="pwa-profile">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>Đăng nhập</span>
+            </a>
+        <% } %>
+    </div>
+
+    <!-- Custom PWA Install Banner (Android/Chrome) -->
+    <div id="pwaInstallBanner" class="pwa-install-banner d-none animate__animated animate__slideInUp">
+        <div class="d-flex align-items-center justify-content-between w-100 p-3">
+            <div class="d-flex align-items-center gap-2">
+                <img src="/images/logo.png" alt="Logo" class="rounded-3" style="width: 40px; height: 40px; border: 1px solid rgba(0,0,0,0.1);" onerror="this.src='/images/logo.png'">
+                <div>
+                    <div class="fw-bold text-dark" style="font-size: 0.85rem; line-height: 1.2;">Ứng dụng Bình Lợi</div>
+                    <div class="text-muted" style="font-size: 0.72rem;">Thêm vào màn hình chính để sử dụng mượt mà hơn</div>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <button id="btnPwaClose" class="btn btn-sm btn-link text-muted text-decoration-none px-2 py-1" style="font-size: 0.75rem;">Đóng</button>
+                <button id="btnPwaInstall" class="btn btn-sm btn-premium rounded-pill px-3 py-1 fw-bold" style="font-size: 0.75rem; background: var(--primary); color: white; border: none;">Cài đặt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom PWA iOS Instructions Toast -->
+    <div id="pwaIosInstructions" class="pwa-ios-instructions d-none animate__animated animate__fadeIn">
+        <div class="p-3 text-center">
+            <div class="fw-bold mb-1" style="font-size: 0.88rem;">Cài đặt Ứng dụng Bình Lợi</div>
+            <div style="font-size: 0.75rem; line-height: 1.5; color: #475569;">
+                Để cài đặt, chạm vào biểu tượng Chia sẻ <i class="bi bi-box-arrow-up mx-1 text-primary"></i> bên dưới trình duyệt Safari, sau đó cuộn xuống và chọn <strong>"Thêm vào MH chính"</strong> <i class="bi bi-plus-square mx-1"></i>.
+            </div>
+            <button id="btnPwaIosClose" class="btn btn-sm btn-link text-muted text-decoration-none mt-2 w-100 fw-semibold" style="font-size: 0.75rem; border: none; background: none;">Tôi đã hiểu</button>
+        </div>
     </div>
 
     <!-- Scripts -->
@@ -198,6 +271,171 @@
                 bottom: 80px !important;
                 width: auto !important;
                 height: 450px !important;
+            }
+        }
+
+        /* PWA Bottom Navigation Bar */
+        .pwa-bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 64px;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid rgba(226, 232, 240, 0.8);
+            display: none; /* Hidden by default, shown only in standalone/pwa mode */
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1040;
+            padding-bottom: env(safe-area-inset-bottom, 0);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .pwa-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.68rem;
+            font-weight: 500;
+            width: 20%;
+            height: 100%;
+            transition: all 0.2s ease;
+            gap: 3px;
+        }
+
+        .pwa-nav-item i {
+            font-size: 1.25rem;
+            transition: transform 0.2s ease;
+        }
+
+        .pwa-nav-item.active {
+            color: var(--primary, #922724);
+            font-weight: 600;
+        }
+
+        .pwa-nav-item.active i {
+            transform: scale(1.1);
+        }
+
+        /* Floating QR Center Button */
+        .pwa-nav-item-qr-wrapper {
+            position: relative;
+            width: 20%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .pwa-nav-item-qr {
+            position: absolute;
+            top: -24px;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--primary, #922724);
+            box-shadow: 0 4px 15px rgba(146, 39, 36, 0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #ffffff !important;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 4px solid #ffffff;
+            z-index: 1041;
+        }
+
+        .pwa-nav-item-qr:hover, .pwa-nav-item-qr:active {
+            transform: scale(1.08) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(146, 39, 36, 0.5);
+        }
+
+        .pwa-nav-item-qr i {
+            font-size: 1.4rem;
+        }
+
+        /* PWA Install Banner & iOS Instructions CSS */
+        .pwa-install-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1060;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .pwa-ios-instructions {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            z-index: 1060;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        /* Standalone PWA UI overrides */
+        @media (display-mode: standalone) {
+            .pwa-bottom-nav {
+                display: flex !important;
+            }
+            .mobile-bottom-qr-container {
+                display: none !important;
+            }
+            .navbar-toggler {
+                display: none !important;
+            }
+            .footer-main {
+                display: none !important;
+            }
+            body {
+                padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 15px) !important;
+            }
+            @media (max-width: 991.98px) {
+                .navbar-brand {
+                    margin: 0 auto !important;
+                    text-align: center;
+                }
+            }
+        }
+
+        /* JS-detected PWA UI overrides */
+        body.is-pwa {
+            padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px) + 15px) !important;
+        }
+        body.is-pwa .pwa-bottom-nav {
+            display: flex !important;
+        }
+        body.is-pwa .mobile-bottom-qr-container {
+            display: none !important;
+        }
+        body.is-pwa .navbar-toggler {
+            display: none !important;
+        }
+        body.is-pwa .footer-main {
+            display: none !important;
+        }
+        @media (max-width: 991.98px) {
+            body.is-pwa .navbar-brand {
+                margin: 0 auto !important;
+                text-align: center;
+            }
+            .pwa-install-banner, .pwa-ios-instructions {
+                bottom: 80px; /* Space above bottom nav */
             }
         }
     </style>
@@ -342,8 +580,9 @@
 
     <%- typeof scripts !=='undefined' ? scripts : '' %>
 
-    <!-- PWA Service Worker Registration -->
+    <!-- PWA Service Worker & App Mode Handler -->
     <script>
+        // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw.js')
@@ -355,6 +594,126 @@
                     });
             });
         }
+
+        // PWA Mode Detection & Navigation Highlight
+        document.addEventListener('DOMContentLoaded', () => {
+            const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone || document.referrer.includes('android-app://');
+            if (isStandalone) {
+                document.body.classList.add('is-pwa');
+            }
+            
+            // PWA Standalone Back Button visibility (only shown in standalone mode when not on home page)
+            const pwaBackBtn = document.getElementById('pwaBackButton');
+            const path = window.location.pathname;
+            if (pwaBackBtn && isStandalone && path !== '/') {
+                pwaBackBtn.classList.remove('d-none');
+                pwaBackBtn.classList.add('d-flex');
+            }
+            
+            // Highlight active PWA bottom nav items
+            const homeTab = document.getElementById('pwa-home');
+            const exploreTab = document.getElementById('pwa-explore');
+            const checkinTab = document.getElementById('pwa-checkin');
+            const reviewsTab = document.getElementById('pwa-reviews');
+            const profileTab = document.getElementById('pwa-profile');
+
+            if (homeTab && exploreTab && reviewsTab && profileTab && checkinTab) {
+                // Reset active states
+                [homeTab, exploreTab, checkinTab, reviewsTab, profileTab].forEach(el => el.classList.remove('active'));
+                
+                if (path === '/') {
+                    homeTab.classList.add('active');
+                    const icon = homeTab.querySelector('i');
+                    if (icon) icon.className = 'bi bi-house-door-fill';
+                } else if (path.startsWith('/explore')) {
+                    exploreTab.classList.add('active');
+                    const icon = exploreTab.querySelector('i');
+                    if (icon) icon.className = 'bi bi-compass-fill';
+                } else if (path.startsWith('/checkin')) {
+                    checkinTab.classList.add('active');
+                } else if (path.startsWith('/reviews')) {
+                    reviewsTab.classList.add('active');
+                    const icon = reviewsTab.querySelector('i');
+                    if (icon) icon.className = 'bi bi-chat-heart-fill';
+                } else if (path.startsWith('/profile') || path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/auth')) {
+                    profileTab.classList.add('active');
+                    const icon = profileTab.querySelector('i');
+                    if (icon) {
+                        if (icon.classList.contains('bi-person-circle')) {
+                            icon.className = 'bi bi-person-fill';
+                        }
+                    }
+                }
+            }
+
+            // In-App Install Prompt Banner (Android/Chrome)
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                
+                const isDismissed = localStorage.getItem('pwa_install_dismissed');
+                if (!isDismissed && !isStandalone) {
+                    const banner = document.getElementById('pwaInstallBanner');
+                    if (banner) {
+                        banner.classList.remove('d-none');
+                    }
+                }
+            });
+
+            const btnPwaInstall = document.getElementById('btnPwaInstall');
+            if (btnPwaInstall) {
+                btnPwaInstall.addEventListener('click', async () => {
+                    if (!deferredPrompt) return;
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log(`PWA install prompt outcome: ${outcome}`);
+                    deferredPrompt = null;
+                    const banner = document.getElementById('pwaInstallBanner');
+                    if (banner) {
+                        banner.classList.add('d-none');
+                    }
+                });
+            }
+
+            const btnPwaClose = document.getElementById('btnPwaClose');
+            if (btnPwaClose) {
+                btnPwaClose.addEventListener('click', () => {
+                    const banner = document.getElementById('pwaInstallBanner');
+                    if (banner) {
+                        banner.classList.add('d-none');
+                    }
+                    localStorage.setItem('pwa_install_dismissed', 'true');
+                });
+            }
+
+            // iOS PWA support instructions popup
+            const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+            const isInStandaloneMode = window.navigator.standalone === true;
+
+            if (isIos && !isInStandaloneMode && !isStandalone) {
+                const isDismissedIos = localStorage.getItem('pwa_ios_dismissed');
+                if (!isDismissedIos) {
+                    const iosBanner = document.getElementById('pwaIosInstructions');
+                    if (iosBanner) {
+                        setTimeout(() => {
+                            iosBanner.classList.remove('d-none');
+                        }, 2500);
+                    }
+                }
+            }
+
+            const btnPwaIosClose = document.getElementById('btnPwaIosClose');
+            if (btnPwaIosClose) {
+                btnPwaIosClose.addEventListener('click', () => {
+                    const iosBanner = document.getElementById('pwaIosInstructions');
+                    if (iosBanner) {
+                        iosBanner.classList.add('d-none');
+                    }
+                    localStorage.setItem('pwa_ios_dismissed', 'true');
+                });
+            }
+        });
     </script>
 </body>
 
