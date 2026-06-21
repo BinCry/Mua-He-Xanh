@@ -45,6 +45,9 @@
                     </div>
                 </td>
                 <td>
+                    <button class="btn btn-sm btn-outline-info rounded-pill px-3 me-1" onclick="showQrModal('<%= d.name %>', '<%= d.slug %>', '<%= d.qr_secret %>')" title="Xem mã QR">
+                        <i class="bi bi-qr-code"></i>
+                    </button>
                     <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editDest(this)" data-destination="<%= encodeURIComponent(JSON.stringify({id: d.id, name: d.name, slug: d.slug, type: d.type, short_desc: d.short_desc, description: d.description, open_hours: d.open_hours, cost: d.cost, points: d.points, lat: d.lat, lng: d.lng, cover_image: d.cover_image})) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
@@ -408,4 +411,71 @@ function extractCoordsFromUrl(url) {
     
     return null;
 }
+
+// QR Modal Helpers
+function showQrModal(name, slug, qrSecret) {
+    // Standardize scanned content: we encode the secret key to make it secure, or full URL
+    const qrData = qrSecret || `SECURE_${slug.toUpperCase()}`;
+    const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrData)}`;
+    
+    document.getElementById('qrDestName').textContent = name;
+    document.getElementById('qrImage').src = qrImgUrl;
+    document.getElementById('qrDownloadLink').href = qrImgUrl;
+    document.getElementById('qrDownloadLink').setAttribute('download', `checkin-qr-${slug}.png`);
+    
+    new bootstrap.Modal(document.getElementById('qrModal')).show();
+}
+
+function printQr() {
+    const imgUrl = document.getElementById('qrImage').src;
+    const name = document.getElementById('qrDestName').textContent;
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+        <html>
+        <head>
+            <title>In mã QR - ${name}</title>
+            <style>
+                body { font-family: sans-serif; text-align: center; padding: 40px; }
+                h2 { margin-bottom: 5px; color: #1e5a3e; }
+                p { color: #666; margin-bottom: 30px; }
+                img { border: 2px solid #ccc; padding: 10px; border-radius: 8px; }
+            </style>
+        </head>
+        <body onload="window.print(); window.close();">
+            <h2>MÃ QR CHECK-IN CHÍNH THỨC</h2>
+            <h1>${name}</h1>
+            <p>Quét mã bằng Camera ứng dụng Bình Lợi Healing để tích luỹ điểm và nhận huy hiệu.</p>
+            <img src="${imgUrl}" width="300" height="300">
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
+}
 </script>
+
+<!-- QR Modal -->
+<div class="modal fade" id="qrModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface);">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="qrModalTitle">Mã QR Check-in</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <h6 id="qrDestName" class="fw-bold mb-3 text-white"></h6>
+                <div class="bg-white p-3 rounded-4 d-inline-block mb-3 shadow">
+                    <img id="qrImage" src="" style="width: 200px; height: 200px;" alt="QR Code">
+                </div>
+                <p class="text-muted small mb-3">Du khách quét mã này bằng Camera trong ứng dụng hoặc Camera điện thoại để check-in.</p>
+                <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-primary rounded-pill px-4" onclick="printQr()">
+                        <i class="bi bi-printer me-1"></i> In mã QR
+                    </button>
+                    <a id="qrDownloadLink" href="" download="" class="btn btn-outline-light rounded-pill px-4" target="_blank">
+                        <i class="bi bi-download me-1"></i> Tải về
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

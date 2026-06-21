@@ -150,7 +150,8 @@ class ApiController {
         if (!dest) return res.status(404).json({ success: false, message: 'Điểm đến không tồn tại' });
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
-        if (distance > dest.radius_meter * 1.5) {
+        const isDev = process.env.NODE_ENV !== 'production' || process.env.BYPASS_GPS === 'true';
+        if (distance > dest.radius_meter * 1.5 && !isDev) {
             return res.status(400).json({ success: false, message: `Bạn đang cách quá xa địa điểm (${Math.round(distance)}m)` });
         }
 

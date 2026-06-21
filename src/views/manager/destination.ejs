@@ -48,89 +48,117 @@
         </div>
     <% } %>
 
-    <div class="chart-card card border-secondary border-opacity-10 shadow-sm" style="background: var(--admin-surface); border-radius: 16px;">
-        <div class="card-body p-4">
-            <h5 class="fw-bold mb-4" style="color: var(--admin-text);"><i class="bi bi-pencil-square me-2 text-warning"></i>Thông tin Chi tiết Địa điểm</h5>
-            
-            <form action="/manager/update" method="POST" id="dest-update-form">
-                <input type="hidden" name="dest_id" value="<%= dest.id %>">
-                
-                <div class="row g-4">
-                    <!-- Open Hours -->
-                    <div class="col-md-6">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">⏰ Giờ mở cửa</label>
-                        <input type="text" name="open_hours" value="<%= dest.open_hours %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: 08:00 - 17:00" style="font-size: 0.85rem;">
-                    </div>
+    <div class="row g-4">
+        <!-- Form Left Column -->
+        <div class="col-lg-8">
+            <div class="chart-card card border-secondary border-opacity-10 shadow-sm" style="background: var(--admin-surface); border-radius: 16px;">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold mb-4" style="color: var(--admin-text);"><i class="bi bi-pencil-square me-2 text-warning"></i>Thông tin Chi tiết Địa điểm</h5>
                     
-                    <!-- Expected Cost -->
-                    <div class="col-md-6">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">💵 Chi phí dự kiến</label>
-                        <input type="text" name="cost" value="<%= dest.cost %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: Miễn phí / 50.000đ" style="font-size: 0.85rem;">
-                    </div>
-
-                    <!-- Cover Image Uploader -->
-                    <div class="col-12">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">🖼️ Ảnh bìa địa điểm</label>
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="position-relative overflow-hidden rounded-3 border border-secondary border-opacity-15 bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 100px; min-width: 150px;">
-                                <img id="cover-preview" src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                    <form action="/manager/update" method="POST" id="dest-update-form">
+                        <input type="hidden" name="dest_id" value="<%= dest.id %>">
+                        
+                        <div class="row g-4">
+                            <!-- Open Hours -->
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">⏰ Giờ mở cửa</label>
+                                <input type="text" name="open_hours" value="<%= dest.open_hours %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: 08:00 - 17:00" style="font-size: 0.85rem;">
                             </div>
-                            <div class="flex-grow-1">
-                                <input type="file" id="cover-file-input" class="form-control admin-input rounded-3 mb-2" accept="image/*" style="font-size: 0.8rem;">
-                                <input type="hidden" name="cover_image" id="cover-image-path" value="<%= dest.cover_image %>">
-                                <span id="upload-status" class="text-muted small" style="font-size: 0.7rem;">Hỗ trợ định dạng JPG, PNG, WEBP. Dung lượng tối đa 5MB.</span>
+                            
+                            <!-- Expected Cost -->
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">💵 Chi phí dự kiến</label>
+                                <input type="text" name="cost" value="<%= dest.cost %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: Miễn phí / 50.000đ" style="font-size: 0.85rem;">
+                            </div>
+        
+                            <!-- Cover Image Uploader -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">🖼️ Ảnh bìa địa điểm</label>
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="position-relative overflow-hidden rounded-3 border border-secondary border-opacity-15 bg-light d-flex align-items-center justify-content-center" style="width: 150px; height: 100px; min-width: 150px;">
+                                        <img id="cover-preview" src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <input type="file" id="cover-file-input" class="form-control admin-input rounded-3 mb-2" accept="image/*" style="font-size: 0.8rem;">
+                                        <input type="hidden" name="cover_image" id="cover-image-path" value="<%= dest.cover_image %>">
+                                        <span id="upload-status" class="text-muted small" style="font-size: 0.7rem;">Hỗ trợ định dạng JPG, PNG, WEBP. Dung lượng tối đa 5MB.</span>
+                                    </div>
+                                </div>
+                            </div>
+        
+                            <!-- Short Description -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📝 Mô tả ngắn</label>
+                                <input type="text" name="short_desc" value="<%= dest.short_desc || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Nhập mô tả ngắn hiển thị ở trang danh sách..." style="font-size: 0.85rem;">
+                            </div>
+        
+                            <!-- Best Time & Check-in Tip -->
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📅 Thời điểm tham quan tốt nhất</label>
+                                <input type="text" name="best_time" value="<%= dest.best_time || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: 06:00 - 09:00 hoặc 15:00 - 17:30" style="font-size: 0.85rem;">
+                            </div>
+        
+                            <div class="col-md-6">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">💡 Mẹo tham quan / Tip check-in</label>
+                                <input type="text" name="checkin_tip" value="<%= dest.checkin_tip || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: Nên mang theo nón và kem chống nắng" style="font-size: 0.85rem;">
+                            </div>
+        
+                            <!-- Highlights -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">✨ Hoạt động nổi bật / Đặc sản trải nghiệm</label>
+                                <textarea name="highlight" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập các hoạt động nổi bật hoặc đặc trưng riêng biệt tại địa điểm..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.highlight %></textarea>
+                            </div>
+        
+                            <!-- Description -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📖 Nội dung giới thiệu / Mô tả địa điểm</label>
+                                <textarea name="description" class="form-control admin-input rounded-3" rows="4" placeholder="Nhập mô tả chi tiết giới thiệu địa điểm của bạn đến với du khách..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.description %></textarea>
+                            </div>
+        
+                            <!-- Story -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📜 Câu chuyện lịch sử / Giá trị văn hóa</label>
+                                <textarea name="story" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập câu chuyện lịch sử, truyền thuyết hoặc câu chuyện văn hóa gắn liền..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.story || '' %></textarea>
+                            </div>
+        
+                            <!-- Zen Walk Description -->
+                            <div class="col-12">
+                                <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">🧘 Hướng dẫn Zen Walk / Tọa thiền tĩnh tâm</label>
+                                <textarea name="zen_walk_desc" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập hướng dẫn đi bộ thiền hành hoặc ngồi thiền tĩnh tâm tại địa điểm..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.zen_walk_desc || '' %></textarea>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Short Description -->
-                    <div class="col-12">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📝 Mô tả ngắn</label>
-                        <input type="text" name="short_desc" value="<%= dest.short_desc || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Nhập mô tả ngắn hiển thị ở trang danh sách..." style="font-size: 0.85rem;">
-                    </div>
-
-                    <!-- Best Time & Check-in Tip -->
-                    <div class="col-md-6">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📅 Thời điểm tham quan tốt nhất</label>
-                        <input type="text" name="best_time" value="<%= dest.best_time || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: 06:00 - 09:00 hoặc 15:00 - 17:30" style="font-size: 0.85rem;">
-                    </div>
-
-                    <div class="col-md-6">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">💡 Mẹo tham quan / Tip check-in</label>
-                        <input type="text" name="checkin_tip" value="<%= dest.checkin_tip || '' %>" class="form-control admin-input rounded-3 py-2 px-3" placeholder="Ví dụ: Nên mang theo nón và kem chống nắng" style="font-size: 0.85rem;">
-                    </div>
-
-                    <!-- Highlights -->
-                    <div class="col-12">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">✨ Hoạt động nổi bật / Đặc sản trải nghiệm</label>
-                        <textarea name="highlight" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập các hoạt động nổi bật hoặc đặc trưng riêng biệt tại địa điểm..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.highlight %></textarea>
-                    </div>
-
-                    <!-- Description -->
-                    <div class="col-12">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📖 Nội dung giới thiệu / Mô tả địa điểm</label>
-                        <textarea name="description" class="form-control admin-input rounded-3" rows="4" placeholder="Nhập mô tả chi tiết giới thiệu địa điểm của bạn đến với du khách..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.description %></textarea>
-                    </div>
-
-                    <!-- Story -->
-                    <div class="col-12">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">📜 Câu chuyện lịch sử / Giá trị văn hóa</label>
-                        <textarea name="story" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập câu chuyện lịch sử, truyền thuyết hoặc câu chuyện văn hóa gắn liền..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.story || '' %></textarea>
-                    </div>
-
-                    <!-- Zen Walk Description -->
-                    <div class="col-12">
-                        <label class="text-muted small fw-bold mb-2 d-block" style="font-size: 0.78rem;">🧘 Hướng dẫn Zen Walk / Tọa thiền tĩnh tâm</label>
-                        <textarea name="zen_walk_desc" class="form-control admin-input rounded-3" rows="3" placeholder="Nhập hướng dẫn đi bộ thiền hành hoặc ngồi thiền tĩnh tâm tại địa điểm..." style="font-size: 0.85rem; line-height: 1.5;"><%= dest.zen_walk_desc || '' %></textarea>
-                    </div>
+        
+                        <div class="mt-4 pt-2">
+                            <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold py-2 shadow-sm" style="background: var(--admin-primary); border: none; font-size: 0.85rem;">
+                                <i class="bi bi-save2-fill me-1"></i> LƯU THAY ĐỔI CHI TIẾT ĐỊA ĐIỂM
+                            </button>
+                        </div>
+                    </form>
                 </div>
+            </div>
+        </div>
 
-                <div class="mt-4 pt-2">
-                    <button type="submit" class="btn btn-primary rounded-pill w-100 fw-bold py-2 shadow-sm" style="background: var(--admin-primary); border: none; font-size: 0.85rem;">
-                        <i class="bi bi-save2-fill me-1"></i> LƯU THAY ĐỔI CHI TIẾT ĐỊA ĐIỂM
+        <!-- QR Right Column -->
+        <div class="col-lg-4">
+            <div class="chart-card card border-secondary border-opacity-10 shadow-sm text-center p-4" style="background: var(--admin-surface); border-radius: 16px;">
+                <h5 class="fw-bold mb-3" style="color: var(--admin-text);"><i class="bi bi-qr-code me-2 text-primary"></i>Mã QR Check-in</h5>
+                <p class="text-muted small mb-4">Tải về hoặc in mã QR check-in này đặt tại địa điểm để du khách quét tích lũy điểm và mở khóa huy hiệu.</p>
+                
+                <div class="bg-white p-3 rounded-4 d-inline-block mb-4 shadow" style="max-width: 220px; margin: 0 auto;">
+                    <img id="managerQrImage" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=<%= encodeURIComponent(dest.qr_secret || 'SECURE_' + dest.slug.toUpperCase()) %>" style="width: 180px; height: 180px;" alt="QR Code">
+                </div>
+                
+                <div class="d-flex gap-2 justify-content-center">
+                    <button class="btn btn-primary rounded-pill px-4 py-2 w-100" onclick="printManagerQr()">
+                        <i class="bi bi-printer me-1"></i> In mã QR
                     </button>
                 </div>
-            </form>
+                <div class="mt-2">
+                    <a id="managerQrDownload" href="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=<%= encodeURIComponent(dest.qr_secret || 'SECURE_' + dest.slug.toUpperCase()) %>" download="checkin-qr-<%= dest.slug %>.png" class="btn btn-outline-light rounded-pill px-4 py-2 w-100" target="_blank">
+                        <i class="bi bi-download me-1"></i> Tải ảnh QR
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -173,4 +201,30 @@
             });
         }
     });
+
+    function printManagerQr() {
+        const imgUrl = document.getElementById('managerQrImage').src;
+        const name = "<%= dest.name %>";
+        const printWindow = window.open('', '_blank');
+        printWindow.document.write(`
+            <html>
+            <head>
+                <title>In mã QR - ${name}</title>
+                <style>
+                    body { font-family: sans-serif; text-align: center; padding: 40px; }
+                    h2 { margin-bottom: 5px; color: #1e5a3e; }
+                    p { color: #666; margin-bottom: 30px; }
+                    img { border: 2px solid #ccc; padding: 10px; border-radius: 8px; }
+                </style>
+            </head>
+            <body onload="window.print(); window.close();">
+                <h2>MÃ QR CHECK-IN CHÍNH THỨC</h2>
+                <h1>${name}</h1>
+                <p>Quét mã bằng Camera ứng dụng Bình Lợi Healing để tích luỹ điểm và nhận huy hiệu.</p>
+                <img src="${imgUrl}" width="300" height="300">
+            </body>
+            </html>
+        `);
+        printWindow.document.close();
+    }
 </script>

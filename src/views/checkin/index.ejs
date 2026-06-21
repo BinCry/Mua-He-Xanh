@@ -284,6 +284,10 @@ document.addEventListener('DOMContentLoaded', function() {
             slug = parts[parts.length - 1] || slug;
         }
         try { slug = decodeURIComponent(slug); } catch(e) {}
+        if (slug.endsWith('/')) {
+            slug = slug.slice(0, -1);
+        }
+        slug = slug.split('?')[0].split('#')[0].trim();
 
         // Request GPS permission after successful QR scan
         if (navigator.geolocation) {

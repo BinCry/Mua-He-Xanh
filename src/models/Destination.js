@@ -14,11 +14,27 @@ class Destination extends Model {
         return rows;
     }
 
-    /** Find by slug or name */
+    /** Find by slug, name or ID */
     async findBySlug(slug) {
+        if (!slug) return null;
         let dest = await this.findOne({ slug });
         if (!dest) {
+            dest = await this.findOne({ qr_secret: slug });
+        }
+        if (!dest) {
+            dest = await this.findOne({ qr_secret: slug.toUpperCase() });
+        }
+        if (!dest) {
+            dest = await this.findOne({ qr_secret: slug.toLowerCase() });
+        }
+        if (!dest) {
             dest = await this.findOne({ name: slug });
+        }
+        if (!dest) {
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+            if (uuidRegex.test(slug)) {
+                dest = await this.findById(slug);
+            }
         }
         return dest;
     }
