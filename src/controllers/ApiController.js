@@ -155,53 +155,60 @@ class ApiController {
         }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
-        const isDev = process.env.NODE_ENV !== 'production' || process.env.BYPASS_GPS === 'true';
+        const maxRadius = Math.max(dest.radius_meter || 100, 500) * 2; // Tối thiểu 500m, nhân 2 cho dung sai GPS
+        console.log(`[CHECKIN] Distance: ${Math.round(distance)}m, MaxRadius: ${maxRadius}m, DestCoords: (${dest.lat}, ${dest.lng}), UserCoords: (${lat}, ${lng})`);
         
-        // TEMPORARY BYPASS: Cho phép check-in thành công dù ở xa để test QR dễ dàng
-        if (distance > dest.radius_meter * 1.5 && !isDev) {
-            console.log(`[CHECKIN DEBUG] Khoảng cách quá xa (${Math.round(distance)}m) nhưng được BYPASS để test.`);
-            // return res.status(400).json({ success: false, message: `Bạn đang cách quá xa địa điểm (${Math.round(distance)}m)` });
+        if (distance > maxRadius) {
+            return res.status(400).json({ 
+                success: false, 
+                message: `Bạn đang cách địa điểm "${dest.name}" khoảng ${Math.round(distance)}m. Vui lòng đến gần hơn (trong phạm vi ${maxRadius}m) để check-in.` 
+            });
         }
 
-        if (await CheckIn.existsForStop(session.id, dest.id)) {
-            return res.status(400).json({ success: false, message: 'Bạn đã check-in điểm này rồi' });
-        }
-
-        await CheckIn.create({
-            session_id: session.id,
-            destination_id: dest.id,
-            points_earned: dest.points,
-            checkin_method: method,
-            user_lat: lat,
-            user_lng: lng,
-            distance_meter: Math.round(distance)
-        });
-
-        await UserSession.addPoints(session.id, dest.points);
-
-        const journey = await Journey.getActiveBySession(session.id);
-        if (journey) {
-            await UserSession.db.query(
-                "UPDATE journey_stops SET is_completed = 1, completed_at = NOW() WHERE journey_id = ? AND destination_id = ?",
-                [journey.id, dest.id]
-            );
-        }
-
-        const newBadges = await UserBadge.checkAndUnlock(session.id);
-
-        res.json({
-            success: true,
-            points_earned: dest.points,
-            new_badges: newBadges,
-            destination: {
-                name: dest.name,
-                story: dest.story,
-                audio_url: dest.audio_url,
-                video_url: dest.video_url,
-                cover_image: dest.cover_image,
-                highlight: dest.highlight
+        try {
+            if (await CheckIn.existsForStop(session.id, dest.id)) {
+                return res.status(400).json({ success: false, message: 'Bạn đã check-in điểm này rồi' });
             }
-        });
+
+            await CheckIn.create({
+                session_id: session.id,
+                destination_id: dest.id,
+                points_earned: dest.points,
+                checkin_method: method,
+                user_lat: lat,
+                user_lng: lng,
+                distance_meter: Math.round(distance)
+            });
+
+            await UserSession.addPoints(session.id, dest.points);
+
+            const journey = await Journey.getActiveBySession(session.id);
+            if (journey) {
+                await UserSession.db.query(
+                    "UPDATE journey_stops SET is_completed = 1, completed_at = NOW() WHERE journey_id = ? AND destination_id = ?",
+                    [journey.id, dest.id]
+                );
+            }
+
+            const newBadges = await UserBadge.checkAndUnlock(session.id);
+
+            res.json({
+                success: true,
+                points_earned: dest.points,
+                new_badges: newBadges,
+                destination: {
+                    name: dest.name,
+                    story: dest.story,
+                    audio_url: dest.audio_url,
+                    video_url: dest.video_url,
+                    cover_image: dest.cover_image,
+                    highlight: dest.highlight
+                }
+            });
+        } catch (err) {
+            console.error('[CHECKIN ERROR]', err);
+            return res.status(500).json({ success: false, message: 'Lỗi hệ thống khi check-in: ' + err.message });
+        }
     }
 
     // --- CHAT API ---
