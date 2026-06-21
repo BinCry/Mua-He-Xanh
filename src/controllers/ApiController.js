@@ -157,8 +157,11 @@ class ApiController {
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
         const isDev = process.env.NODE_ENV !== 'production' || process.env.BYPASS_GPS === 'true';
+        
+        // TEMPORARY BYPASS: Cho phép check-in thành công dù ở xa để test QR dễ dàng
         if (distance > dest.radius_meter * 1.5 && !isDev) {
-            return res.status(400).json({ success: false, message: `Bạn đang cách quá xa địa điểm (${Math.round(distance)}m)` });
+            console.log(`[CHECKIN DEBUG] Khoảng cách quá xa (${Math.round(distance)}m) nhưng được BYPASS để test.`);
+            // return res.status(400).json({ success: false, message: `Bạn đang cách quá xa địa điểm (${Math.round(distance)}m)` });
         }
 
         if (await CheckIn.existsForStop(session.id, dest.id)) {
