@@ -126,6 +126,11 @@
                             <label class="form-label small fw-bold">Longitude</label>
                             <input type="text" class="form-control admin-input" id="d_lng" name="lng" placeholder="106.5028">
                         </div>
+                        <div class="col-12 text-end">
+                            <button type="button" class="btn btn-outline-info rounded-pill px-4 btn-sm fw-bold shadow-sm" onclick="getMyCoords()">
+                                <i class="bi bi-geo-fill me-1"></i>Lấy vị trí hiện tại của tôi (GPS)
+                            </button>
+                        </div>
                         <div class="col-12">
                             <label class="form-label small fw-bold">Ảnh bìa địa điểm</label>
                             <div class="d-flex align-items-center gap-3 mb-2">
@@ -380,6 +385,42 @@ async function autoExtractCoords(url) {
             }
         }, 500);
     }
+}
+
+function getMyCoords() {
+    if (!navigator.geolocation) {
+        alert('Thiết bị hoặc trình duyệt của bạn không hỗ trợ lấy định vị GPS.');
+        return;
+    }
+    
+    const feedback = document.getElementById('d_maps_feedback');
+    if (feedback) {
+        feedback.className = "form-text small mt-1 text-info";
+        feedback.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>Đang lấy vị trí hiện tại của thiết bị...';
+    }
+    
+    navigator.geolocation.getCurrentPosition(
+        function(pos) {
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            document.getElementById('d_lat').value = lat.toFixed(7);
+            document.getElementById('d_lng').value = lng.toFixed(7);
+            
+            if (feedback) {
+                feedback.className = "form-text small mt-1 text-success";
+                feedback.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Đã lấy vị trí GPS hiện tại thành công!';
+            }
+        },
+        function(err) {
+            console.error("GPS error:", err);
+            alert('Lỗi lấy vị trí: ' + err.message + '. Vui lòng cấp quyền truy cập vị trí cho trình duyệt.');
+            if (feedback) {
+                feedback.className = "form-text small mt-1 text-danger";
+                feedback.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1"></i>Lỗi lấy định vị GPS: ' + err.message;
+            }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
 }
 
 function extractCoordsFromUrl(url) {

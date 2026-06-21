@@ -161,7 +161,12 @@ class ApiController {
         if (distance > maxRadius) {
             return res.status(400).json({ 
                 success: false, 
-                message: `Bạn đang cách địa điểm "${dest.name}" khoảng ${Math.round(distance)}m. Vui lòng đến gần hơn (trong phạm vi ${maxRadius}m) để check-in.` 
+                message: `Bạn đang cách địa điểm "${dest.name}" khoảng ${Math.round(distance)}m. Vui lòng đến gần hơn (trong phạm vi ${maxRadius}m) để check-in.`,
+                debug: {
+                    user_coords: `${lat.toFixed(6)}, ${lng.toFixed(6)}`,
+                    dest_coords: `${dest.lat.toFixed(6)}, ${dest.lng.toFixed(6)}`,
+                    distance: Math.round(distance)
+                }
             });
         }
 

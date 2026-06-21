@@ -416,16 +416,29 @@ document.addEventListener('DOMContentLoaded', function() {
                     let successModal = new bootstrap.Modal(document.getElementById('checkinSuccessModal'));
                     successModal.show();
                 } else {
-                    showCheckinError(res.data.message);
+                    showCheckinError(res.data.message, res.data.debug);
                 }
             })
             .catch(function(err) {
-                showCheckinError((err.response && err.response.data && err.response.data.message) || err.message);
+                const data = err.response && err.response.data;
+                const msg = (data && data.message) || err.message;
+                const debug = data && data.debug;
+                showCheckinError(msg, debug);
             });
     }
 
     // Display error messages during check-in process
-    function showCheckinError(message) {
+    function showCheckinError(message, debug = null) {
+        let debugHtml = '';
+        if (debug) {
+            debugHtml = '<div class="mt-2 pt-2 border-top border-secondary border-opacity-10 small text-muted text-start" style="font-size:0.75rem;">' +
+                '<strong>Thông tin định vị (Dành cho Admin/Manager):</strong><br>' +
+                '• Tọa độ của bạn: <code class="user-select-all">' + debug.user_coords + '</code><br>' +
+                '• Tọa độ địa điểm: <code>' + debug.dest_coords + '</code><br>' +
+                '• Khoảng cách tính toán: ' + debug.distance + 'm' +
+                '</div>';
+        }
+
         document.getElementById('qr-result').innerHTML = 
             '<div class="alert alert-danger rounded-3 mt-2 p-3">' +
                 '<div class="d-flex align-items-center gap-2 mb-2">' +
@@ -435,6 +448,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<div class="bg-white bg-opacity-75 rounded-2 p-2 mt-1" style="color:#333;">' +
                     '<i class="bi bi-info-circle me-1"></i>' +
                     '<span>' + (message || 'Không rõ nguyên nhân') + '</span>' +
+                    debugHtml +
                 '</div>' +
             '</div>' +
             '<button class="btn btn-sm btn-outline-danger rounded-pill mt-2" onclick="location.reload()">' +
