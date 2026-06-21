@@ -19,11 +19,19 @@ const ReviewController = {
     index: async (req, res) => {
         try {
             const [reviews] = await db.query(`
-                SELECT r.*, u.full_name, u.avatar, d.name as destination_name
-                FROM reviews r
+                SELECT r.id, r.content, r.rating, r.images, r.created_at, r.likes_count,
+                       u.full_name, u.avatar,
+                       d.name as destination_name
+                FROM (
+                    SELECT id
+                    FROM reviews
+                    ORDER BY created_at DESC
+                    LIMIT 50
+                ) sub
+                JOIN reviews r ON sub.id = r.id
                 JOIN users u ON r.user_id = u.id
                 LEFT JOIN destinations d ON r.destination_id = d.id
-                ORDER BY r.created_at DESC LIMIT 50
+                ORDER BY r.created_at DESC
             `);
             res.render('reviews/index', {
                 title: 'Cộng đồng Bình Lợi',

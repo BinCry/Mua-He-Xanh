@@ -121,11 +121,19 @@ class HomeController {
 
             // Real Social Feed - actual reviews from community
             const [realReviews] = await db.query(`
-                SELECT r.*, u.full_name, u.avatar, d.name as destination_name
-                FROM reviews r
+                SELECT r.id, r.content, r.images, r.created_at, r.likes_count,
+                       u.full_name, u.avatar,
+                       d.name as destination_name
+                FROM (
+                    SELECT id
+                    FROM reviews
+                    ORDER BY created_at DESC
+                    LIMIT 6
+                ) sub
+                JOIN reviews r ON sub.id = r.id
                 JOIN users u ON r.user_id = u.id
                 LEFT JOIN destinations d ON r.destination_id = d.id
-                ORDER BY r.created_at DESC LIMIT 6
+                ORDER BY r.created_at DESC
             `);
 
             const socialFeed = realReviews.map(r => {

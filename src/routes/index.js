@@ -33,6 +33,38 @@ router.get('/', HomeController.index);
 router.get('/onboarding', OnboardingController.index);
 router.get('/checkin', ensureAuthenticated, CheckinController.index);
 
+router.get('/brand-logo.png', async (req, res) => {
+    try {
+        const db = require('../core/database');
+        const [rows] = await db.query('SELECT key_value FROM settings WHERE key_name = ?', ['brand_logo']);
+        const logoData = rows[0]?.key_value;
+
+        if (logoData && logoData.startsWith('data:image')) {
+            const matches = logoData.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+            if (matches && matches.length === 3) {
+                const contentType = matches[1];
+                const base64Data = matches[2];
+                const buffer = Buffer.from(base64Data, 'base64');
+                res.setHeader('Content-Type', contentType);
+                res.setHeader('Cache-Control', 'public, max-age=86400');
+                return res.send(buffer);
+            }
+        } else if (logoData && logoData.startsWith('http')) {
+            return res.redirect(logoData);
+        } else if (logoData) {
+            const path = require('path');
+            return res.sendFile(path.join(__dirname, '../../public', logoData));
+        }
+
+        const path = require('path');
+        return res.sendFile(path.join(__dirname, '../../public/images/logo.png'));
+    } catch (e) {
+        console.error("Logo generate error:", e);
+        const path = require('path');
+        return res.sendFile(path.join(__dirname, '../../public/images/logo.png'));
+    }
+});
+
 router.get('/manifest.json', async (req, res) => {
     try {
         const db = require('../core/database');
@@ -40,7 +72,6 @@ router.get('/manifest.json', async (req, res) => {
         const settings = {};
         rows.forEach(s => { settings[s.key_name] = s.key_value; });
         
-        const logoUrl = settings.brand_logo || '/images/logo.png';
         const brandName = settings.brand_name || 'Bình Lợi Healing';
         
         res.setHeader('Content-Type', 'application/json');
@@ -55,12 +86,12 @@ router.get('/manifest.json', async (req, res) => {
             "orientation": "portrait-primary",
             "icons": [
                 {
-                    "src": logoUrl,
+                    "src": "/brand-logo.png",
                     "sizes": "192x192",
                     "type": "image/png"
                 },
                 {
-                    "src": logoUrl,
+                    "src": "/brand-logo.png",
                     "sizes": "512x512",
                     "type": "image/png"
                 }
@@ -77,8 +108,13 @@ router.get('/manifest.json', async (req, res) => {
             "theme_color": "#922724",
             "icons": [
                 {
-                    "src": "/images/logo.png",
+                    "src": "/brand-logo.png",
                     "sizes": "192x192",
+                    "type": "image/png"
+                },
+                {
+                    "src": "/brand-logo.png",
+                    "sizes": "512x512",
                     "type": "image/png"
                 }
             ]

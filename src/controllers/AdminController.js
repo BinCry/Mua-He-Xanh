@@ -264,11 +264,19 @@ const AdminController = {
             }
 
             const [reviews] = await db.query(`
-                SELECT r.*, u.full_name, u.avatar, d.name as destination_name
-                FROM reviews r JOIN users u ON r.user_id = u.id
+                SELECT r.id, r.content, r.rating, r.images, r.location_name, r.created_at, r.likes_count,
+                       u.full_name, u.avatar,
+                       d.name as destination_name
+                FROM (
+                    SELECT r.id
+                    FROM reviews r
+                    WHERE 1=1 ${whereClause}
+                    ORDER BY r.created_at DESC LIMIT 50
+                ) sub
+                JOIN reviews r ON sub.id = r.id
+                JOIN users u ON r.user_id = u.id
                 LEFT JOIN destinations d ON r.destination_id = d.id
-                WHERE 1=1 ${whereClause}
-                ORDER BY r.created_at DESC LIMIT 50
+                ORDER BY r.created_at DESC
             `, params);
             
             const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = TRUE ORDER BY name');

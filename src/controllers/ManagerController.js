@@ -139,11 +139,16 @@ class ManagerController {
 
             // 2. Recent Reviews
             const [recentReviews] = await UserSession.db.query(
-                `SELECT r.*, u.full_name, u.avatar 
-                 FROM reviews r
+                `SELECT r.id, r.content, r.rating, r.images, r.created_at, u.full_name, u.avatar 
+                 FROM (
+                     SELECT id
+                     FROM reviews
+                     WHERE destination_id = ?
+                     ORDER BY created_at DESC LIMIT 3
+                 ) sub
+                 JOIN reviews r ON sub.id = r.id
                  LEFT JOIN users u ON r.user_id = u.id
-                 WHERE r.destination_id = ?
-                 ORDER BY r.created_at DESC LIMIT 3`,
+                 ORDER BY r.created_at DESC`,
                 [dest.id]
             );
 
