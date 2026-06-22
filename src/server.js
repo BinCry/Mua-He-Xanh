@@ -17,7 +17,7 @@ app.set('trust proxy', 1);
 
 // View engine setup
 app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
+app.set('views', path.join(process.cwd(), 'src', 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
 
@@ -83,7 +83,7 @@ const analyticsMiddleware = require('./middleware/analytics');
 app.use(analyticsMiddleware);
 
 // Static files
-app.use(express.static(path.join(__dirname, '../public')));
+app.use(express.static(path.join(process.cwd(), 'public')));
 
 // Global variables for templates
 app.use(async (req, res, next) => {
@@ -238,7 +238,14 @@ async function runMigrations() {
     }
 }
 
-app.listen(PORT, async () => {
-    console.log(`Server is running at http://localhost:${PORT}`);
-    await runMigrations();
-});
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, async () => {
+        console.log(`Server is running at http://localhost:${PORT}`);
+        await runMigrations();
+    });
+} else {
+    // Chạy migration trực tiếp khi khởi tạo trên Vercel Serverless
+    runMigrations().catch(err => console.error("Vercel startup migration failed:", err));
+}
+
+module.exports = app;

@@ -154,15 +154,15 @@ router.get('/brand-logo.png', async (req, res) => {
             return res.redirect(logoData);
         } else if (logoData) {
             const path = require('path');
-            return res.sendFile(path.join(__dirname, '../../public', logoData));
+            return res.sendFile(path.join(process.cwd(), 'public', logoData));
         }
 
         const path = require('path');
-        return res.sendFile(path.join(__dirname, '../../public/images/logo.png'));
+        return res.sendFile(path.join(process.cwd(), 'public/images/logo.png'));
     } catch (e) {
         console.error("Logo generate error:", e);
         const path = require('path');
-        return res.sendFile(path.join(__dirname, '../../public/images/logo.png'));
+        return res.sendFile(path.join(process.cwd(), 'public/images/logo.png'));
     }
 });
 
@@ -175,7 +175,7 @@ router.get('/manifest.json', async (req, res) => {
         
         const brandName = settings.brand_name || 'Bình Lợi Healing';
         
-        res.setHeader('Content-Type', 'application/json');
+        res.setHeader('Content-Type', 'application/manifest+json');
         res.json({
             "name": brandName,
             "short_name": brandName.split(' ')[0] || "Bình Lợi",
@@ -303,12 +303,25 @@ router.get('/auth/google', (req, res, next) => {
     if (!config.auth.google.clientId || config.auth.google.clientId === 'MISSING_CLIENT_ID') {
         return res.redirect('/auth/login?error=Lỗi cấu hình Google: Thiếu Client ID trên Server.');
     }
-    passport.authenticate('google', { scope: ['profile', 'email'] })(req, res, next);
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.get('host');
+    const dynamicCallbackUrl = `${protocol}://${host}/auth/google/callback`;
+
+    passport.authenticate('google', { 
+        scope: ['profile', 'email'],
+        callbackURL: dynamicCallbackUrl
+    })(req, res, next);
 });
-router.get('/auth/google/callback', 
-    passport.authenticate('google', { failureRedirect: '/auth/login' }), 
-    AuthController.oauthCallback
-);
+router.get('/auth/google/callback', (req, res, next) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.get('host');
+    const dynamicCallbackUrl = `${protocol}://${host}/auth/google/callback`;
+
+    passport.authenticate('google', { 
+        failureRedirect: '/auth/login',
+        callbackURL: dynamicCallbackUrl
+    })(req, res, next);
+}, AuthController.oauthCallback);
 
 // Facebook OAuth
 router.get('/auth/facebook', (req, res, next) => {
