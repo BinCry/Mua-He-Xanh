@@ -76,6 +76,18 @@
         .admin-input { background: #ffffff; border: 1px solid #cbd5e1; color: var(--admin-text); border-radius: 10px; padding: 10px 14px; }
         .admin-input:focus { background: #ffffff; border-color: var(--admin-primary); color: var(--admin-text); box-shadow: 0 0 0 3px rgba(26, 77, 46, 0.1); outline: none; }
         
+        .btn-admin-outline {
+            border: 1.5px solid var(--admin-primary) !important;
+            color: var(--admin-primary) !important;
+            background: transparent !important;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-admin-outline:hover {
+            background: var(--admin-primary) !important;
+            color: #ffffff !important;
+        }
+        
         @media (max-width: 991px) {
             .admin-sb { display: none; }
             .admin-main { margin-left: 0; padding: 16px; }

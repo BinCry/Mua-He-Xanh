@@ -8,8 +8,8 @@
         <!-- Left Sidebar (Destinations List) -->
         <div class="col-lg-3 bg-white shadow-lg z-index-10 d-flex flex-column" style="height: calc(100vh - 80px);">
             <div class="p-4 border-bottom bg-light">
-                <h5 class="fw-black text-primary mb-1"><i class="bi bi-map-fill me-2"></i>Bản đồ Google Maps</h5>
-                <p class="small text-muted mb-3">Khám phá và định vị không gian Bình Lợi</p>
+                <h5 class="fw-black text-primary mb-1"><i class="bi bi-map-fill me-2"></i>Bản đồ du lịch Bình Lợi</h5>
+                <p class="small text-muted mb-3">Khám phá và định vị không gian xã Bình Lợi</p>
                 
                 <div class="input-group">
                     <span class="input-group-text bg-white border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
@@ -26,8 +26,11 @@
 
             <!-- Destinations List -->
             <div class="flex-grow-1 overflow-auto p-3" id="mapDestList">
-                <% allDests.forEach(dest => { %>
-                    <div class="card-bl border-0 shadow-sm p-2 mb-3 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" data-lat="<%= dest.lat || 10.74 %>" data-lng="<%= dest.lng || 106.5 %>" onclick="focusMarker(<%= dest.lat || 10.74 %>, <%= dest.lng || 106.5 %>, '<%= dest.name %>')">
+                <% allDests.forEach(dest => { 
+                    const lat = parseFloat(dest.lat);
+                    const lng = parseFloat(dest.lng);
+                    if (lat >= 10.730 && lat <= 10.788 && lng >= 106.465 && lng <= 106.570) { %>
+                    <div class="card-bl border-0 shadow-sm p-2 mb-3 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" data-lat="<%= dest.lat %>" data-lng="<%= dest.lng %>" onclick="focusMarker(<%= dest.lat %>, <%= dest.lng %>, '<%= dest.name %>')">
                         <div class="d-flex gap-3">
                             <div class="rounded-3 overflow-hidden shadow-sm" style="width: 70px; height: 70px; flex-shrink: 0;">
                                 <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
@@ -39,7 +42,7 @@
                             </div>
                         </div>
                     </div>
-                <% }) %>
+                <% } }) %>
             </div>
         </div>
 
@@ -59,28 +62,46 @@
 
 <script>
 let map, markers = [];
-const destData = <%- JSON.stringify(allDests) %>;
+const destData = (<%- JSON.stringify(allDests) %>).filter(dest => {
+    const lat = parseFloat(dest.lat);
+    const lng = parseFloat(dest.lng);
+    return lat >= 10.730 && lat <= 10.788 && lng >= 106.465 && lng <= 106.570;
+});
 
 function initMap() {
-    const center = [10.7431, 106.5028];
+    const bounds = [[10.730, 106.465], [10.788, 106.570]];
+    const center = [10.758, 106.518];
     
     map = L.map('map', {
         center: center,
         zoom: 14,
+        minZoom: 14,             // Giới hạn zoom nhỏ nhất (không cho thu nhỏ vượt ngoài Bình Lợi)
+        maxZoom: 17,             // Giới hạn zoom lớn nhất
+        maxBounds: bounds,       // Giới hạn ranh giới kéo bản đồ trong xã Bình Lợi
+        maxBoundsViscosity: 1.0, // Ngăn chặn hoàn toàn việc kéo ra ngoài ranh giới
         zoomControl: true,
         attributionControl: false
     });
 
+    // Ẩn lớp bản đồ mặc định để chỉ hiển thị sơ đồ vẽ tay Bình Lợi
+    /*
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CartoDB',
         subdomains: 'abcd',
         maxZoom: 20
     }).addTo(map);
+    */
+
+    // Hiển thị sơ đồ du lịch Bình Lợi vẽ tay làm bản đồ chính (độ đục 100% để hiển thị trọn vẹn màu sắc)
+    L.imageOverlay('/images/binh-loi-travel-map.png', bounds, {
+        opacity: 1.0,
+        interactive: true
+    }).addTo(map);
 
     // Add destination markers
     destData.forEach(dest => {
-        const lat = parseFloat(dest.lat) || (10.74 + (Math.random() * 0.05 - 0.025));
-        const lng = parseFloat(dest.lng) || (106.5 + (Math.random() * 0.05 - 0.025));
+        const lat = parseFloat(dest.lat);
+        const lng = parseFloat(dest.lng);
         
         const greenIcon = L.divIcon({
             className: 'custom-div-icon',
@@ -145,7 +166,17 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
 function locateMe() {
     if (!navigator.geolocation) { alert('Trình duyệt không hỗ trợ định vị.'); return; }
     navigator.geolocation.getCurrentPosition(pos => {
-        const myPos = [pos.coords.latitude, pos.coords.longitude];
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        const myPos = [lat, lng];
+        
+        // Kiểm tra xem vị trí người dùng có nằm trong ranh giới xã Bình Lợi không
+        const minLat = 10.730, maxLat = 10.788, minLng = 106.465, maxLng = 106.570;
+        if (lat < minLat || lat > maxLat || lng < minLng || lng > maxLng) {
+            alert('Vị trí hiện tại của bạn đang nằm ngoài ranh giới bản đồ du lịch xã Bình Lợi.');
+            return;
+        }
+        
         map.panTo(myPos);
         map.setZoom(16);
         
@@ -157,6 +188,8 @@ function locateMe() {
         });
         
         L.marker(myPos, { icon: blueIcon }).addTo(map).bindPopup('Vị trí của bạn').openPopup();
+    }, err => {
+        alert('Không thể lấy vị trí. Hãy chắc chắn bạn đã cấp quyền định vị cho trình duyệt.');
     });
 }
 </script>
@@ -168,4 +201,5 @@ function locateMe() {
     .z-index-10 { z-index: 10; }
     .map-control-btn { transition: all 0.2s; }
     .map-control-btn:hover { transform: scale(1.1); }
+    #map { background-color: #d5f2e3 !important; } /* Thiết lập màu nền xanh ngọc giống sơ đồ */
 </style>

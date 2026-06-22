@@ -5,7 +5,8 @@ const fs = require('fs');
 // Configure storage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.join(__dirname, '../../public/uploads/media');
+        const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+        const uploadPath = isProduction ? '/tmp' : path.join(__dirname, '../../public/uploads/media');
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath, { recursive: true });
         }

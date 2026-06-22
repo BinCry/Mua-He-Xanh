@@ -8,7 +8,8 @@ class JourneyController {
             const uuid = req.cookies.session_uuid;
             if (!uuid) return res.redirect('/onboarding');
 
-            if (!req.session.user) {
+            const user = req.user || req.session?.user;
+            if (!user) {
                 return res.redirect('/auth/login?error=Vui lòng đăng nhập để xem hành trình của bạn');
             }
 

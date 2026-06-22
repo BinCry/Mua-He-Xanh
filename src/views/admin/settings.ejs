@@ -146,6 +146,26 @@
                     <input type="email" name="contact_email" class="form-control admin-input" value="<%= settings.contact_email || '' %>" placeholder="email@example.com">
                 </div>
             </div>
+            
+            <div class="chart-card mt-4">
+                <h6 class="fw-bold mb-3"><i class="bi bi-list-stars me-2" style="color: var(--admin-primary);"></i>Thông tin nhanh (Trang chủ)</h6>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Vị trí</label>
+                    <input type="text" name="quick_info_location" class="form-control admin-input" value="<%= settings.quick_info_location || 'Huyện Bình Chánh, TP.HCM' %>" placeholder="Vị trí...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Đặc sản</label>
+                    <input type="text" name="quick_info_specialty" class="form-control admin-input" value="<%= settings.quick_info_specialty || 'Mai Vàng, Nhang Thơm, Cá Koi' %>" placeholder="Đặc sản...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Không gian</label>
+                    <input type="text" name="quick_info_space" class="form-control admin-input" value="<%= settings.quick_info_space || 'Miệt vườn sinh thái, tâm linh' %>" placeholder="Không gian...">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Cách trung tâm</label>
+                    <input type="text" name="quick_info_distance" class="form-control admin-input" value="<%= settings.quick_info_distance || 'Khoảng 20km (45-60 phút)' %>" placeholder="Cách trung tâm...">
+                </div>
+            </div>
         </div>
 
         <!-- Social & SEO -->

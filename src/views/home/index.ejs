@@ -26,19 +26,19 @@
                     <table class="quick-info-table">
                         <tr>
                             <td class="qi-label">VỊ TRÍ:</td>
-                            <td class="qi-value">Huyện Bình Chánh, TP.HCM</td>
+                            <td class="qi-value"><%= settings.quick_info_location || 'Huyện Bình Chánh, TP.HCM' %></td>
                         </tr>
                         <tr>
                             <td class="qi-label">ĐẶC SẢN:</td>
-                            <td class="qi-value accent">Mai Vàng, Nhang Thơm, Cá Koi</td>
+                            <td class="qi-value accent"><%= settings.quick_info_specialty || 'Mai Vàng, Nhang Thơm, Cá Koi' %></td>
                         </tr>
                         <tr>
                             <td class="qi-label">KHÔNG GIAN:</td>
-                            <td class="qi-value">Miệt vườn sinh thái, tâm linh</td>
+                            <td class="qi-value"><%= settings.quick_info_space || 'Miệt vườn sinh thái, tâm linh' %></td>
                         </tr>
                         <tr>
                             <td class="qi-label">CÁCH TRUNG TÂM:</td>
-                            <td class="qi-value">Khoảng 20km (45-60 phút)</td>
+                            <td class="qi-value"><%= settings.quick_info_distance || 'Khoảng 20km (45-60 phút)' %></td>
                         </tr>
                     </table>
                 </div>
