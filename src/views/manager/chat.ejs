@@ -288,8 +288,11 @@
         stream.innerHTML = '';
         if (messages && messages.length > 0) {
             messages.forEach(msg => {
-                const isReply = msg.sender_id !== null && !msg.is_ai;
+                // A message is FROM the visitor if sender_uuid matches the activeSessionId
+                // Manager replies have sender_uuid = null and sender_id set
+                const isFromVisitor = msg.sender_uuid !== null && String(msg.sender_uuid) === String(activeSessionId);
                 const isAI = msg.is_ai === 1;
+                const isReply = !isFromVisitor && !isAI;
 
                 const wrapper = document.createElement('div');
                 wrapper.className = `d-flex flex-column mb-3 ${isReply ? 'align-items-end' : 'align-items-start'}`;

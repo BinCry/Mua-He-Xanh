@@ -1,42 +1,605 @@
-<section class="py-5" style="margin-top: 90px; background: radial-gradient(circle at top, #220f0f 0%, #0e0606 100%); min-vh-100; color: #f8fafc;">
+<style>
+/* ============================================================
+   PROFILE PAGE — Premium Light Theme
+   Brand palette: Maroon (#922724) + Green (#1e5a3e) + Gold (#f0a500)
+   ============================================================ */
+
+/* --- Entrance Animations --- */
+@keyframes profileFadeUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes profileScaleIn {
+    from { opacity: 0; transform: scale(0.88); }
+    to   { opacity: 1; transform: scale(1); }
+}
+@keyframes profileSlideRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to   { opacity: 1; transform: translateX(0); }
+}
+@keyframes avatarRingSpin {
+    from { transform: translate(-50%, -50%) rotate(0deg); }
+    to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+@keyframes avatarRingPulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(240, 165, 0, 0.35); }
+    50%      { box-shadow: 0 0 0 8px rgba(240, 165, 0, 0); }
+}
+@keyframes shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+@keyframes badgeFloat {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-4px); }
+}
+@keyframes iconPulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.08); }
+}
+@keyframes gradientShift {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* --- Section Wrapper --- */
+.profile-section {
+    margin-top: 90px;
+    padding: 3rem 0 4rem;
+    background: var(--bg, #fafbf9);
+    min-height: 100vh;
+    font-family: var(--font-display, 'Inter', sans-serif);
+}
+
+/* --- Profile Header Card --- */
+.profile-header-card {
+    position: relative;
+    border-radius: var(--radius-2xl, 32px);
+    overflow: hidden;
+    background: var(--surface, #fff);
+    box-shadow: var(--shadow-xl, 0 24px 64px rgba(0,0,0,0.1));
+    margin-bottom: 2.5rem;
+    animation: profileFadeUp 0.7s var(--ease-out, cubic-bezier(0.16,1,0.3,1)) both;
+}
+
+.profile-cover {
+    position: relative;
+    height: 200px;
+    background:
+        linear-gradient(135deg, #1e5a3e 0%, #2d7a54 35%, #922724 70%, #6e1d1b 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 12s ease infinite;
+    overflow: hidden;
+}
+
+/* Decorative leaf-dot pattern on the cover */
+.profile-cover::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.06) 2px, transparent 2px),
+        radial-gradient(circle at 60% 70%, rgba(240,165,0,0.08) 1.5px, transparent 1.5px),
+        radial-gradient(circle at 80% 20%, rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-size: 40px 40px, 55px 55px, 30px 30px;
+    pointer-events: none;
+}
+
+/* Soft bottom fade into card body */
+.profile-cover::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(to top, var(--surface, #fff), transparent);
+    pointer-events: none;
+}
+
+.profile-elite-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: var(--radius-full, 9999px);
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    animation: profileScaleIn 0.6s 0.3s var(--ease-spring, cubic-bezier(0.34,1.56,0.64,1)) both;
+}
+
+.profile-bio-area {
+    padding: 0 2rem 2rem;
+    position: relative;
+}
+
+.profile-bio-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    margin-top: -56px;
+}
+
+@media (min-width: 768px) {
+    .profile-bio-inner {
+        flex-direction: row;
+        align-items: flex-end;
+        gap: 1.5rem;
+    }
+}
+
+/* Avatar with gold ring */
+.profile-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+    animation: profileScaleIn 0.6s 0.2s var(--ease-spring) both;
+}
+
+.profile-avatar-ring {
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 120px; height: 120px;
+    border: 2px dashed var(--accent, #f0a500);
+    border-radius: 50%;
+    animation: avatarRingSpin 25s linear infinite;
+    z-index: 1;
+    opacity: 0.6;
+}
+
+.profile-avatar-img {
+    position: relative;
+    z-index: 5;
+    width: 108px; height: 108px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--surface, #fff);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    animation: avatarRingPulse 3s ease-in-out infinite;
+}
+
+.profile-info-block {
+    flex: 1;
+    text-align: center;
+    padding-bottom: 4px;
+    animation: profileSlideRight 0.6s 0.35s var(--ease-out) both;
+}
+
+@media (min-width: 768px) {
+    .profile-info-block { text-align: left; }
+}
+
+.profile-info-label {
+    display: inline-block;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent, #f0a500);
+    margin-bottom: 2px;
+}
+
+.profile-info-name {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 900;
+    color: var(--text, #1a1a1a);
+    margin: 0 0 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.profile-info-contact {
+    font-size: 0.84rem;
+    color: var(--text-secondary, #64748b);
+    margin: 0;
+}
+.profile-info-contact i {
+    color: var(--primary, #922724);
+    margin-right: 4px;
+}
+
+/* Action buttons */
+.profile-actions {
+    display: flex;
+    gap: 0.5rem;
+    animation: profileFadeUp 0.5s 0.5s var(--ease-out) both;
+}
+
+.btn-profile-edit {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 22px;
+    border-radius: var(--radius-full, 9999px);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 2px solid var(--primary, #922724);
+    color: var(--primary, #922724);
+    background: transparent;
+    transition: all 0.35s var(--ease-out);
+    cursor: pointer;
+}
+.btn-profile-edit:hover {
+    background: var(--primary, #922724);
+    color: #fff;
+    box-shadow: 0 4px 20px rgba(146,39,36,0.25);
+    transform: translateY(-2px);
+}
+
+.btn-profile-admin {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 22px;
+    border-radius: var(--radius-full, 9999px);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: none;
+    background: linear-gradient(135deg, var(--accent, #f0a500), var(--accent-light, #ffc847));
+    color: #1a1a1a;
+    transition: all 0.35s var(--ease-out);
+    cursor: pointer;
+}
+.btn-profile-admin:hover {
+    box-shadow: 0 4px 20px rgba(240,165,0,0.35);
+    transform: translateY(-2px);
+    color: #1a1a1a;
+}
+
+/* --- Section Headers --- */
+.profile-section-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text, #1a1a1a);
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.profile-section-title i {
+    font-size: 1.1rem;
+}
+.profile-section-title .title-icon-stat   { color: var(--primary, #922724); }
+.profile-section-title .title-icon-badge  { color: var(--accent, #f0a500); }
+.profile-section-title .title-icon-action { color: var(--primary-green, #1e5a3e); }
+
+/* Decorative shimmer bar under title */
+.profile-section-title::after {
+    content: '';
+    flex: 1;
+    height: 2px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--border, #e8ece9), transparent 80%);
+}
+
+/* --- Stat Cards --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+@media (min-width: 768px) {
+    .stats-grid { grid-template-columns: repeat(4, 1fr); }
+}
+
+.stat-card {
+    position: relative;
+    padding: 1.5rem 1rem;
+    border-radius: var(--radius-xl, 24px);
+    text-align: center;
+    background: var(--surface, #fff);
+    border: 1px solid var(--border-light, #f0f2ef);
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
+    transition: all 0.4s var(--ease-out);
+    animation: profileFadeUp 0.6s var(--ease-out) both;
+}
+.stat-card:nth-child(1) { animation-delay: 0.15s; }
+.stat-card:nth-child(2) { animation-delay: 0.25s; }
+.stat-card:nth-child(3) { animation-delay: 0.35s; }
+.stat-card:nth-child(4) { animation-delay: 0.45s; }
+
+.stat-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-xl);
+    border-color: transparent;
+}
+
+/* Colored top gradient strip */
+.stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 4px 4px 0 0;
+}
+.stat-card--gold::before   { background: linear-gradient(90deg, #f0a500, #ffc847); }
+.stat-card--maroon::before { background: linear-gradient(90deg, #922724, #b03331); }
+.stat-card--green::before  { background: linear-gradient(90deg, #1e5a3e, #2d7a54); }
+.stat-card--blue::before   { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+
+/* Soft radial bg accent inside cards */
+.stat-card--gold   { background: linear-gradient(180deg, #fffbeb 0%, var(--surface, #fff) 50%); }
+.stat-card--maroon { background: linear-gradient(180deg, #fdf5f5 0%, var(--surface, #fff) 50%); }
+.stat-card--green  { background: linear-gradient(180deg, #ecfdf5 0%, var(--surface, #fff) 50%); }
+.stat-card--blue   { background: linear-gradient(180deg, #eff6ff 0%, var(--surface, #fff) 50%); }
+
+.stat-icon-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    margin-bottom: 0.85rem;
+    font-size: 1.2rem;
+    animation: iconPulse 3s ease-in-out infinite;
+}
+.stat-icon-circle--gold {
+    background: rgba(240,165,0,0.12);
+    color: #d97706;
+    border: 1px solid rgba(240,165,0,0.2);
+}
+.stat-icon-circle--maroon {
+    background: rgba(146,39,36,0.1);
+    color: var(--primary, #922724);
+    border: 1px solid rgba(146,39,36,0.18);
+}
+.stat-icon-circle--green {
+    background: rgba(30,90,62,0.1);
+    color: var(--primary-green, #1e5a3e);
+    border: 1px solid rgba(30,90,62,0.18);
+}
+.stat-icon-circle--blue {
+    background: rgba(59,130,246,0.1);
+    color: #3b82f6;
+    border: 1px solid rgba(59,130,246,0.18);
+}
+
+.stat-value {
+    font-family: var(--font-display);
+    font-size: 1.85rem;
+    font-weight: 900;
+    color: var(--text, #1a1a1a);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted, #94a3b8);
+}
+
+/* --- Badge Cards --- */
+.badges-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+}
+
+.badge-card {
+    position: relative;
+    min-width: 140px;
+    flex: 1 1 140px;
+    max-width: 180px;
+    padding: 1.25rem 1rem;
+    text-align: center;
+    border-radius: var(--radius-xl, 24px);
+    background: var(--surface, #fff);
+    border: 1px solid var(--border-light, #f0f2ef);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    transition: all 0.4s var(--ease-out);
+    animation: profileScaleIn 0.5s var(--ease-spring) both;
+}
+
+.badge-card:hover {
+    transform: translateY(-6px) scale(1.03);
+    box-shadow: 0 12px 36px rgba(240,165,0,0.15), var(--shadow-lg);
+    border-color: rgba(240,165,0,0.3);
+}
+
+/* Subtle golden shimmer on hover */
+.badge-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #f0a500, #ffc847, transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.badge-card:hover::before {
+    opacity: 1;
+}
+
+.badge-emoji {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 0.5rem;
+    filter: drop-shadow(0 2px 6px rgba(217,119,6,0.2));
+    animation: badgeFloat 4s ease-in-out infinite;
+}
+
+.badge-card-name {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text, #1a1a1a);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.badge-card-date {
+    font-size: 0.68rem;
+    color: var(--text-muted, #94a3b8);
+    margin-top: 4px;
+}
+
+/* --- Quick Action Cards --- */
+.actions-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+@media (min-width: 768px) {
+    .actions-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.75rem 1rem;
+    border-radius: var(--radius-xl, 24px);
+    text-decoration: none !important;
+    background: var(--surface, #fff);
+    border: 1px solid var(--border-light, #f0f2ef);
+    box-shadow: var(--shadow-sm);
+    transition: all 0.4s var(--ease-out);
+    animation: profileFadeUp 0.55s var(--ease-out) both;
+    position: relative;
+    overflow: hidden;
+}
+.action-card:nth-child(1) { animation-delay: 0.2s; }
+.action-card:nth-child(2) { animation-delay: 0.3s; }
+.action-card:nth-child(3) { animation-delay: 0.4s; }
+
+.action-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-xl);
+    border-color: transparent;
+}
+
+/* Color-coded bottom bar */
+.action-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 20%; right: 20%;
+    height: 3px;
+    border-radius: 3px 3px 0 0;
+    opacity: 0;
+    transition: all 0.35s var(--ease-out);
+}
+.action-card:hover::after { opacity: 1; left: 10%; right: 10%; }
+
+.action-card--reward::after  { background: linear-gradient(90deg, #922724, #b03331); }
+.action-card--journey::after { background: linear-gradient(90deg, #1e5a3e, #2d7a54); }
+.action-card--review::after  { background: linear-gradient(90deg, #f0a500, #ffc847); }
+
+.action-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 52px; height: 52px;
+    border-radius: var(--radius-lg, 16px);
+    font-size: 1.4rem;
+    transition: transform 0.4s var(--ease-spring);
+}
+.action-card:hover .action-icon { transform: scale(1.12) rotate(-4deg); }
+
+.action-icon--reward {
+    background: rgba(146,39,36,0.08);
+    color: var(--primary, #922724);
+}
+.action-icon--journey {
+    background: rgba(30,90,62,0.08);
+    color: var(--primary-green, #1e5a3e);
+}
+.action-icon--review {
+    background: rgba(240,165,0,0.1);
+    color: #d97706;
+}
+
+.action-card-label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text, #1a1a1a);
+    text-align: center;
+    line-height: 1.3;
+}
+
+/* --- Responsive fine-tuning --- */
+@media (max-width: 575.98px) {
+    .profile-cover { height: 160px; }
+    .profile-bio-area { padding: 0 1.25rem 1.5rem; }
+    .profile-info-name { font-size: 1.35rem; }
+    .profile-avatar-img { width: 88px; height: 88px; }
+    .profile-avatar-ring { width: 100px; height: 100px; }
+    .profile-bio-inner { margin-top: -46px; }
+    .stat-value { font-size: 1.5rem; }
+    .stat-card { padding: 1.25rem 0.75rem; }
+}
+</style>
+
+<section class="profile-section">
     <div class="container py-4" style="max-width: 900px;">
-        
-        <!-- Passport-Style Tourist Profile Header -->
-        <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-5 reveal-up" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);">
-            <!-- Elegant Natural Cover Gradient -->
-            <div class="position-relative" style="height: 180px; background: linear-gradient(135deg, #581816 0%, #2d0c0b 100%);">
-                <!-- Decorative Gold Grid Overlays -->
-                <div class="position-absolute w-100 h-100 opacity-10" style="background-image: radial-gradient(#d97706 1px, transparent 1px); background-size: 20px 20px;"></div>
-                <span class="position-absolute top-0 end-0 m-3 badge bg-warning bg-opacity-20 text-warning px-3 py-2 fw-bold text-uppercase" style="letter-spacing: 1px; font-size: 0.72rem; border: 1px solid rgba(217, 119, 6, 0.3);">
-                    <i class="bi bi-shield-fill-check me-1"></i> THÀNH VIÊN ELITE
+
+        <!-- ============ Profile Header Card ============ -->
+        <div class="profile-header-card">
+            <!-- Cover Gradient -->
+            <div class="profile-cover">
+                <span class="profile-elite-badge">
+                    <i class="bi bi-shield-fill-check"></i> THÀNH VIÊN ELITE
                 </span>
             </div>
-            
-            <!-- Passport Profile Bio Section -->
-            <div class="px-4 pb-4 pt-0 position-relative">
-                <div class="d-flex flex-column flex-md-row align-items-center align-items-md-end gap-4" style="margin-top: -60px;">
-                    <!-- Avatar with rotating golden ring -->
-                    <div class="position-relative">
-                        <div class="position-absolute top-50 start-50 translate-middle rounded-circle" style="width: 114px; height: 114px; border: 2px dashed #d97706; animation: spin 20s linear infinite; z-index: 1;"></div>
-                        <img src="<%= profileUser.avatar || '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-dark shadow-lg position-relative" style="width: 104px; height: 104px; object-fit: cover; z-index: 5;">
+
+            <!-- Bio Area -->
+            <div class="profile-bio-area">
+                <div class="profile-bio-inner">
+                    <!-- Avatar -->
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar-ring"></div>
+                        <img src="<%= profileUser.avatar || '/images/default-avatar.png' %>"
+                             alt="Avatar"
+                             class="profile-avatar-img">
                     </div>
-                    
-                    <div class="flex-grow-1 text-center text-md-start pb-1">
-                        <span class="x-small text-warning fw-bold text-uppercase" style="letter-spacing: 2px;">HỘ CHIẾU DU KHÁCH</span>
-                        <h2 class="fw-black mb-1 text-white font-display text-uppercase" style="font-size: 1.8rem; font-family: 'Inter', sans-serif;"><%= profileUser.full_name %></h2>
-                        <p class="text-white-50 mb-0" style="font-size: 0.85rem;">
-                            <% if (profileUser.phone) { %><span class="me-2"><i class="bi bi-telephone-fill text-danger me-1"></i><%= profileUser.phone %></span> · <% } %>
-                            <span><i class="bi bi-envelope-fill text-danger me-1"></i><%= profileUser.email %></span>
+
+                    <!-- Name & Contact -->
+                    <div class="profile-info-block">
+                        <span class="profile-info-label">HỘ CHIẾU DU KHÁCH</span>
+                        <h2 class="profile-info-name"><%= profileUser.full_name %></h2>
+                        <p class="profile-info-contact">
+                            <% if (profileUser.phone) { %><span class="me-2"><i class="bi bi-telephone-fill"></i><%= profileUser.phone %></span> · <% } %>
+                            <span><i class="bi bi-envelope-fill"></i><%= profileUser.email %></span>
                         </p>
                     </div>
-                    
-                    <div class="d-flex gap-2">
-                        <a href="/profile/edit" class="btn btn-outline-danger btn-sm rounded-pill px-4 py-2 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px; border-color: var(--primary) !important; color: white !important;" onmouseover="this.style.background='var(--primary)'; this.style.color='white';" onmouseout="this.style.background='transparent'; this.style.color='white';">
-                            <i class="bi bi-pencil-square me-1"></i>Chỉnh sửa
+
+                    <!-- Actions -->
+                    <div class="profile-actions">
+                        <a href="/profile/edit" class="btn-profile-edit">
+                            <i class="bi bi-pencil-square"></i>Chỉnh sửa
                         </a>
                         <% if (profileUser.role === 'admin' || profileUser.role === 'manager') { %>
-                            <a href="/admin" class="btn btn-warning btn-sm rounded-pill px-4 py-2 fw-bold text-uppercase" style="font-size: 0.75rem; letter-spacing: 1px;">
-                                <i class="bi bi-speedometer2 me-1"></i>Quản trị
+                            <a href="/admin" class="btn-profile-admin">
+                                <i class="bi bi-speedometer2"></i>Quản trị
                             </a>
                         <% } %>
                     </div>
@@ -44,109 +607,90 @@
             </div>
         </div>
 
-        <!-- Traveler Statistics Grid (Frosted Glassmorphism Widgets) -->
-        <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">
-            <i class="bi bi-activity text-danger me-2"></i>Chỉ số hành trình
+        <!-- ============ Statistics ============ -->
+        <h5 class="profile-section-title">
+            <i class="bi bi-activity title-icon-stat"></i>Chỉ số hành trình
         </h5>
-        <div class="row g-3 mb-5">
-            <div class="col-6 col-md-3 reveal-up">
-                <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(217, 119, 6, 0.1); color: #d97706; border: 1px solid rgba(217, 119, 6, 0.2);">
-                        <i class="bi bi-star-fill fs-5 animate-pulse"></i>
-                    </div>
-                    <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Inter', sans-serif;"><%= stats.points %></div>
-                    <div class="x-small text-white-50 fw-bold text-uppercase" style="letter-spacing: 1px;">Điểm tích lũy</div>
+        <div class="stats-grid">
+            <!-- Points -->
+            <div class="stat-card stat-card--gold">
+                <div class="stat-icon-circle stat-icon-circle--gold">
+                    <i class="bi bi-star-fill"></i>
                 </div>
+                <div class="stat-value"><%= stats.points %></div>
+                <div class="stat-label">Điểm tích lũy</div>
             </div>
-            
-            <div class="col-6 col-md-3 reveal-up">
-                <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(146, 39, 36, 0.1); color: #922724; border: 1px solid rgba(146, 39, 36, 0.2);">
-                        <i class="bi bi-geo-alt-fill fs-5"></i>
-                    </div>
-                    <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Inter', sans-serif;"><%= stats.checkins %></div>
-                    <div class="x-small text-white-50 fw-bold text-uppercase" style="letter-spacing: 1px;">Lượt Check-in</div>
+
+            <!-- Check-ins -->
+            <div class="stat-card stat-card--maroon">
+                <div class="stat-icon-circle stat-icon-circle--maroon">
+                    <i class="bi bi-geo-alt-fill"></i>
                 </div>
+                <div class="stat-value"><%= stats.checkins %></div>
+                <div class="stat-label">Lượt Check-in</div>
             </div>
-            
-            <div class="col-6 col-md-3 reveal-up">
-                <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(146, 39, 36, 0.1); color: #922724; border: 1px solid rgba(146, 39, 36, 0.2);">
-                        <i class="bi bi-signpost-split-fill fs-5"></i>
-                    </div>
-                    <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Inter', sans-serif;"><%= stats.journeys %></div>
-                    <div class="x-small text-white-50 fw-bold text-uppercase" style="letter-spacing: 1px;">Hành trình xanh</div>
+
+            <!-- Journeys -->
+            <div class="stat-card stat-card--green">
+                <div class="stat-icon-circle stat-icon-circle--green">
+                    <i class="bi bi-signpost-split-fill"></i>
                 </div>
+                <div class="stat-value"><%= stats.journeys %></div>
+                <div class="stat-label">Hành trình xanh</div>
             </div>
-            
-            <div class="col-6 col-md-3 reveal-up">
-                <div class="p-4 rounded-4 text-center h-100" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); backdrop-filter: blur(12px); transition: all 0.3s;" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'">
-                    <div class="d-inline-flex align-items-center justify-content-center rounded-circle mb-3 shadow" style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.1); color: #3b82f6; border: 1px solid rgba(59, 130, 246, 0.2);">
-                        <i class="bi bi-award-fill fs-5"></i>
-                    </div>
-                    <div class="fw-black text-white" style="font-size: 1.8rem; font-family: 'Inter', sans-serif;"><%= stats.badges %></div>
-                    <div class="x-small text-white-50 fw-bold text-uppercase" style="letter-spacing: 1px;">Danh hiệu đạt</div>
+
+            <!-- Badges count -->
+            <div class="stat-card stat-card--blue">
+                <div class="stat-icon-circle stat-icon-circle--blue">
+                    <i class="bi bi-award-fill"></i>
                 </div>
+                <div class="stat-value"><%= stats.badges %></div>
+                <div class="stat-label">Danh hiệu đạt</div>
             </div>
         </div>
 
-        <!-- Badges Section with Golden Frame -->
+        <!-- ============ Badges ============ -->
         <% if (badges && badges.length > 0) { %>
-        <div class="mb-5 reveal-up">
-            <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">
-                <i class="bi bi-award-fill text-warning me-2 animate-pulse"></i>Hộp huy hiệu tích lũy
+        <div class="mb-5">
+            <h5 class="profile-section-title">
+                <i class="bi bi-award-fill title-icon-badge"></i>Hộp huy hiệu tích lũy
             </h5>
-            <div class="d-flex gap-4 flex-wrap">
+            <div class="badges-grid">
                 <% badges.forEach(b => { %>
-                <div class="text-center p-3 rounded-4 position-relative overflow-hidden badge-hover-card" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05); min-width: 130px; transition: all 0.3s;">
-                    <!-- Inner golden gradient overlay on hover -->
-                    <div class="position-absolute w-100 h-100 top-0 start-0 opacity-10 bg-warning bg-opacity-25" style="z-index: 0;"></div>
-                    <div class="position-relative" style="z-index: 1;">
-                        <div class="mb-2 fs-1 animate-bounce" style="filter: drop-shadow(0 0 10px rgba(217, 119, 6, 0.3));"><%= b.icon || '🏅' %></div>
-                        <div class="fw-bold small text-white text-truncate"><%= b.name || b.badge_name %></div>
-                        <div class="x-small text-white-50 mt-1" style="font-size: 0.7rem;"><%= new Date(b.earned_at || b.created_at).toLocaleDateString('vi-VN') %></div>
-                    </div>
+                <div class="badge-card">
+                    <span class="badge-emoji"><%= b.icon || '🏅' %></span>
+                    <div class="badge-card-name"><%= b.name || b.badge_name %></div>
+                    <div class="badge-card-date"><%= new Date(b.earned_at || b.created_at).toLocaleDateString('vi-VN') %></div>
                 </div>
                 <% }) %>
             </div>
         </div>
         <% } %>
 
-        <!-- Premium Quick Actions -->
-        <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">
-            <i class="bi bi-lightning-fill text-danger me-2"></i>Lối tắt nhanh
+        <!-- ============ Quick Actions ============ -->
+        <h5 class="profile-section-title">
+            <i class="bi bi-lightning-fill title-icon-action"></i>Lối tắt nhanh
         </h5>
-        <div class="row g-3 reveal-up">
-            <div class="col-6 col-md-4">
-                <a href="/profile/rewards" class="d-block p-4 rounded-4 text-center text-decoration-none shadow-lg" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
-                    <i class="bi bi-gift-fill d-block mb-2 text-danger" style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(220, 53, 69, 0.3));"></i>
-                    <span class="fw-bold d-block text-white" style="font-size: 0.85rem;">Đổi điểm thưởng</span>
-                </a>
-            </div>
-            <div class="col-6 col-md-4">
-                <a href="/journey" class="d-block p-4 rounded-4 text-center text-decoration-none shadow-lg" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
-                    <i class="bi bi-compass-fill d-block mb-2 text-danger" style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(146, 39, 36, 0.3));"></i>
-                    <span class="fw-bold d-block text-white" style="font-size: 0.85rem;">Hành trình thông minh</span>
-                </a>
-            </div>
-            <div class="col-6 col-md-4">
-                <a href="/reviews" class="d-block p-4 rounded-4 text-center text-decoration-none shadow-lg" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
-                    <i class="bi bi-camera-fill d-block mb-2 text-info" style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(13, 202, 240, 0.3));"></i>
-                    <span class="fw-bold d-block text-white" style="font-size: 0.85rem;">Góc nhìn cộng đồng</span>
-                </a>
-            </div>
+        <div class="actions-grid">
+            <a href="/profile/rewards" class="action-card action-card--reward">
+                <div class="action-icon action-icon--reward">
+                    <i class="bi bi-gift-fill"></i>
+                </div>
+                <span class="action-card-label">Đổi điểm thưởng</span>
+            </a>
+            <a href="/journey" class="action-card action-card--journey">
+                <div class="action-icon action-icon--journey">
+                    <i class="bi bi-compass-fill"></i>
+                </div>
+                <span class="action-card-label">Hành trình thông minh</span>
+            </a>
+            <a href="/reviews" class="action-card action-card--review">
+                <div class="action-icon action-icon--review">
+                    <i class="bi bi-camera-fill"></i>
+                </div>
+                <span class="action-card-label">Góc nhìn cộng đồng</span>
+            </a>
         </div>
+
     </div>
 </section>
-
-<style>
-    @keyframes spin {
-        from { transform: translate(-50%, -50%) rotate(0deg); }
-        to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-    .badge-hover-card:hover {
-        transform: translateY(-5px);
-        border-color: rgba(217, 119, 6, 0.3) !important;
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
-    }
-</style>

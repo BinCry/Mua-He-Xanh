@@ -212,7 +212,7 @@ const WorkshopController = {
 
             // Fetch booking
             const [bookings] = await db.query(
-                "SELECT wb.*, w.title as workshop_title FROM workshop_bookings wb JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = ? AND wb.user_id = ?",
+                "SELECT wb.*, w.title as workshop_title FROM workshop_bookings wb LEFT JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = ? AND wb.user_id = ?",
                 [bookingId, user.id]
             );
 

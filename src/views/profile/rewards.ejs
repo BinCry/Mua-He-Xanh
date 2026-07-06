@@ -1,70 +1,444 @@
-<section class="py-5" style="margin-top: 90px; background: radial-gradient(circle at top, #220f0f 0%, #0e0606 100%); min-vh-100; color: #f8fafc;">
-    <div class="container py-4" style="max-width: 900px;">
-        
-        <!-- Gamified Points Dashboard Header -->
-        <div class="card border-0 shadow-lg rounded-5 overflow-hidden mb-5 text-center p-5 position-relative" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); backdrop-filter: blur(15px);">
-            <!-- Decorative light leaks -->
-            <div class="position-absolute top-0 start-50 translate-middle-x rounded-circle opacity-10" style="width: 250px; height: 250px; background: #d97706; filter: blur(80px); z-index: 0;"></div>
-            
-            <div class="position-relative" style="z-index: 1;">
-                <span class="badge bg-warning bg-opacity-20 text-warning rounded-pill px-3 py-2 mb-3 fw-bold text-uppercase x-small" style="letter-spacing: 2px; border: 1px solid rgba(217, 119, 6, 0.3);">
-                    <i class="bi bi-trophy-fill me-1"></i>HỆ THỐNG ĐỔI THƯỞNG GAMIFIED
+<!-- ============================================================
+     REWARDS / EXCHANGE — Premium Light Theme Redesign
+     ============================================================ -->
+<style>
+/* ── Page-scoped custom properties ── */
+.rewards-page {
+    --rw-maroon: var(--primary);
+    --rw-maroon-light: var(--primary-light);
+    --rw-green: var(--primary-green);
+    --rw-green-light: var(--primary-green-light);
+    --rw-gold: var(--accent);
+    --rw-gold-light: var(--accent-light);
+    --rw-bg: var(--bg);
+    --rw-surface: var(--surface);
+    --rw-text: var(--text);
+    --rw-text-secondary: var(--text-secondary);
+    --rw-text-muted: var(--text-muted);
+    --rw-border: var(--border);
+}
+
+/* ── Keyframes ── */
+@keyframes rw-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-8px); }
+}
+@keyframes rw-spin-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+@keyframes rw-pulse-ring {
+    0%   { transform: scale(1);   opacity: .55; }
+    50%  { transform: scale(1.08); opacity: .25; }
+    100% { transform: scale(1);   opacity: .55; }
+}
+@keyframes rw-shimmer {
+    0%   { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+@keyframes rw-fade-up {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes rw-count-glow {
+    0%, 100% { text-shadow: 0 0 20px rgba(240,165,0,.25); }
+    50%      { text-shadow: 0 0 40px rgba(240,165,0,.45); }
+}
+@keyframes rw-leaf-drift {
+    0%   { transform: translate(0, 0) rotate(0deg); opacity: .7; }
+    50%  { transform: translate(15px, -10px) rotate(15deg); opacity: .4; }
+    100% { transform: translate(0, 0) rotate(0deg); opacity: .7; }
+}
+
+/* ── Hero section (nature gradient header) ── */
+.rw-hero {
+    position: relative;
+    background: linear-gradient(165deg, #143d2a 0%, var(--rw-green) 35%, var(--rw-green-light) 70%, #3d9e6b 100%);
+    border-radius: var(--radius-2xl);
+    padding: 3rem 2rem 3.5rem;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl), 0 0 60px rgba(30,90,62,.12);
+    color: #fff;
+}
+.rw-hero::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='30' cy='30' r='1.5' fill='rgba(255,255,255,0.07)'/%3E%3C/svg%3E");
+    pointer-events: none;
+}
+/* Floating decorative blobs */
+.rw-hero__blob {
+    position: absolute; border-radius: 50%; pointer-events: none;
+    filter: blur(50px); opacity: .25;
+}
+.rw-hero__blob--gold  { background: var(--rw-gold); width: 200px; height: 200px; top: -40px; right: -30px; animation: rw-leaf-drift 8s ease-in-out infinite; }
+.rw-hero__blob--light { background: #fff;           width: 140px; height: 140px; bottom: -30px; left: 10%; animation: rw-leaf-drift 10s ease-in-out infinite 2s; }
+
+/* ── Points orb ── */
+.rw-orb-wrap {
+    position: relative;
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-bottom: 1.25rem;
+}
+.rw-orb {
+    position: relative;
+    width: 170px; height: 170px;
+    border-radius: var(--radius-full);
+    background: radial-gradient(circle at 35% 35%, rgba(255,255,255,.22) 0%, rgba(255,255,255,.04) 70%);
+    border: 3px solid rgba(255,255,255,.3);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: inset 0 0 30px rgba(255,255,255,.08), 0 8px 32px rgba(0,0,0,.18);
+    animation: rw-float 5s ease-in-out infinite;
+    z-index: 2;
+}
+.rw-orb__ring {
+    position: absolute; inset: -10px;
+    border-radius: var(--radius-full);
+    border: 2px dashed rgba(240,165,0,.4);
+    animation: rw-spin-slow 40s linear infinite;
+    z-index: 1;
+}
+.rw-orb__pulse {
+    position: absolute; inset: -18px;
+    border-radius: var(--radius-full);
+    border: 1.5px solid rgba(255,255,255,.15);
+    animation: rw-pulse-ring 3s ease-in-out infinite;
+    z-index: 0;
+}
+.rw-orb__icon {
+    font-size: 1.6rem; margin-bottom: .15rem;
+    color: var(--rw-gold-light);
+    filter: drop-shadow(0 0 6px rgba(240,165,0,.5));
+}
+.rw-orb__number {
+    font-family: var(--font-display);
+    font-weight: 900; font-size: 2.8rem; line-height: 1;
+    background: linear-gradient(135deg, #fff 30%, var(--rw-gold-light));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    animation: rw-count-glow 3s ease-in-out infinite;
+}
+.rw-orb__label {
+    font-size: .7rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.5px; color: rgba(255,255,255,.7); margin-top: .25rem;
+}
+
+.rw-hero__title {
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 1.35rem; margin-bottom: .35rem;
+}
+.rw-hero__sub {
+    font-size: .88rem; color: rgba(255,255,255,.72);
+    max-width: 460px; margin: 0 auto; line-height: 1.6;
+}
+.rw-hero__badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(240,165,0,.18); border: 1px solid rgba(240,165,0,.35);
+    color: var(--rw-gold-light); font-size: .68rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.8px;
+    padding: .4rem .9rem; border-radius: var(--radius-full);
+    margin-bottom: 1.5rem; backdrop-filter: blur(4px);
+}
+
+/* ── Section header ── */
+.rw-section-header {
+    display: flex; align-items: center; gap: .6rem;
+    font-family: var(--font-display); font-weight: 800;
+    font-size: 1.15rem; color: var(--rw-text);
+    margin-bottom: 1.5rem; letter-spacing: -.01em;
+}
+.rw-section-header i {
+    font-size: 1.3rem;
+}
+.rw-section-header__line {
+    flex: 1; height: 1px;
+    background: linear-gradient(90deg, var(--rw-border) 0%, transparent 100%);
+}
+
+/* ── Reward ticket cards ── */
+.rw-ticket {
+    position: relative;
+    display: flex; align-items: stretch;
+    background: var(--rw-surface);
+    border: 1px solid var(--rw-border);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: transform .35s var(--ease-spring), box-shadow .35s var(--ease-out);
+    animation: rw-fade-up .6s var(--ease-out) both;
+}
+.rw-ticket:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(30,90,62,.08);
+}
+
+/* Left coloured accent strip */
+.rw-ticket__accent {
+    width: 6px; flex-shrink: 0;
+    background: linear-gradient(180deg, var(--rw-green) 0%, var(--rw-green-light) 100%);
+    border-radius: var(--radius-xl) 0 0 var(--radius-xl);
+}
+
+/* Main content area */
+.rw-ticket__body {
+    flex: 1; padding: 1.25rem 1.35rem;
+    display: flex; flex-direction: column; justify-content: center;
+    min-width: 0;
+}
+.rw-ticket__tag {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: .62rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--rw-green);
+    background: rgba(30,90,62,.08); border: 1px solid rgba(30,90,62,.12);
+    padding: .2rem .55rem; border-radius: var(--radius-full);
+    margin-bottom: .5rem; width: fit-content;
+}
+.rw-ticket__title {
+    font-family: var(--font-display); font-weight: 700;
+    font-size: 1.02rem; color: var(--rw-text);
+    margin-bottom: .2rem;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rw-ticket__desc {
+    font-size: .82rem; color: var(--rw-text-secondary);
+    margin-bottom: .6rem;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.rw-ticket__cost {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: .82rem; font-weight: 700;
+    color: var(--rw-gold);
+}
+.rw-ticket__cost i { font-size: .9rem; }
+
+/* Perforation divider */
+.rw-ticket__perf {
+    position: relative;
+    width: 0; flex-shrink: 0;
+    border-left: 2px dashed var(--rw-border);
+    margin: 0;
+}
+.rw-ticket__perf::before,
+.rw-ticket__perf::after {
+    content: '';
+    position: absolute; left: -8px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--rw-bg);
+    border: 1px solid var(--rw-border);
+}
+.rw-ticket__perf::before { top: -7px; }
+.rw-ticket__perf::after  { bottom: -7px; }
+
+/* Right action zone */
+.rw-ticket__action {
+    display: flex; align-items: center; justify-content: center;
+    padding: 1rem 1.25rem; flex-shrink: 0;
+    min-width: 105px;
+}
+.rw-btn-redeem {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 5px; padding: .55rem 1.1rem;
+    font-size: .72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .6px; border: none; cursor: pointer;
+    border-radius: var(--radius-full);
+    color: #fff;
+    background: linear-gradient(135deg, var(--rw-green) 0%, var(--rw-green-light) 100%);
+    box-shadow: 0 4px 14px rgba(30,90,62,.25);
+    transition: transform .3s var(--ease-spring), box-shadow .3s var(--ease-out);
+}
+.rw-btn-redeem:hover {
+    transform: scale(1.06);
+    box-shadow: 0 6px 20px rgba(30,90,62,.35);
+}
+.rw-btn-redeem:active { transform: scale(.97); }
+
+.rw-btn-disabled {
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 4px; padding: .55rem 1rem;
+    font-size: .72rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .5px; border: 1px solid var(--rw-border);
+    border-radius: var(--radius-full);
+    color: var(--rw-text-muted); background: var(--surface-alt);
+    cursor: not-allowed; opacity: .7;
+}
+
+/* ── History section ── */
+.rw-history-item {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 1rem; padding: 1rem 1.25rem;
+    background: var(--rw-surface);
+    border: 1px solid var(--rw-border);
+    border-radius: var(--radius-lg);
+    transition: background .25s ease, box-shadow .25s ease;
+    animation: rw-fade-up .5s var(--ease-out) both;
+}
+.rw-history-item:hover {
+    background: var(--surface-alt);
+    box-shadow: var(--shadow-sm);
+}
+.rw-history__left {
+    display: flex; align-items: center; gap: .85rem; min-width: 0;
+}
+.rw-history__icon {
+    width: 38px; height: 38px; border-radius: var(--radius-md);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(146,39,36,.08), rgba(146,39,36,.15));
+    color: var(--rw-maroon); font-size: 1rem;
+}
+.rw-history__status {
+    font-size: .68rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .8px; color: var(--rw-maroon);
+    background: rgba(146,39,36,.08); border: 1px solid rgba(146,39,36,.12);
+    padding: .15rem .5rem; border-radius: var(--radius-full);
+}
+.rw-history__title {
+    font-weight: 600; font-size: .9rem; color: var(--rw-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.rw-history__date {
+    font-size: .78rem; color: var(--rw-text-muted); white-space: nowrap; flex-shrink: 0;
+}
+
+/* ── Stagger animations ── */
+.rw-ticket:nth-child(1) { animation-delay: .05s; }
+.rw-ticket:nth-child(2) { animation-delay: .12s; }
+.rw-ticket:nth-child(3) { animation-delay: .19s; }
+.rw-ticket:nth-child(4) { animation-delay: .26s; }
+.rw-ticket:nth-child(5) { animation-delay: .33s; }
+.rw-ticket:nth-child(6) { animation-delay: .40s; }
+
+.rw-history-item:nth-child(1) { animation-delay: .05s; }
+.rw-history-item:nth-child(2) { animation-delay: .10s; }
+.rw-history-item:nth-child(3) { animation-delay: .15s; }
+.rw-history-item:nth-child(4) { animation-delay: .20s; }
+.rw-history-item:nth-child(5) { animation-delay: .25s; }
+
+/* ── Progress shimmer bar ── */
+.rw-shimmer-bar {
+    height: 6px; border-radius: 3px; margin-top: 1.2rem;
+    background: rgba(255,255,255,.12); overflow: hidden;
+    max-width: 320px; margin-left: auto; margin-right: auto;
+}
+.rw-shimmer-bar__fill {
+    height: 100%; border-radius: 3px;
+    background: linear-gradient(90deg, var(--rw-gold), var(--rw-gold-light), var(--rw-gold));
+    background-size: 200% 100%;
+    animation: rw-shimmer 2.5s linear infinite;
+}
+
+/* ── Empty state ── */
+.rw-empty {
+    text-align: center; padding: 2.5rem 1rem;
+    color: var(--rw-text-muted); font-size: .92rem;
+}
+.rw-empty i { font-size: 2.2rem; display: block; margin-bottom: .6rem; opacity: .4; }
+
+/* ── Responsive ── */
+@media (max-width: 767.98px) {
+    .rw-hero { padding: 2rem 1.25rem 2.5rem; border-radius: var(--radius-xl); }
+    .rw-orb  { width: 140px; height: 140px; }
+    .rw-orb__number { font-size: 2.2rem; }
+    .rw-orb__ring   { inset: -8px; }
+    .rw-orb__pulse  { inset: -14px; }
+    .rw-hero__title { font-size: 1.15rem; }
+
+    .rw-ticket { flex-direction: column; }
+    .rw-ticket__accent { width: 100%; height: 5px; border-radius: var(--radius-xl) var(--radius-xl) 0 0; }
+    .rw-ticket__perf {
+        width: 100%; height: 0; border-left: none;
+        border-top: 2px dashed var(--rw-border);
+    }
+    .rw-ticket__perf::before { top: -7px; left: -7px; }
+    .rw-ticket__perf::after  { top: -7px; left: auto; right: -7px; bottom: auto; }
+    .rw-ticket__action { padding: .85rem 1.25rem; min-width: auto; }
+
+    .rw-history-item { flex-direction: column; align-items: flex-start; gap: .6rem; }
+    .rw-history__date { align-self: flex-end; }
+}
+</style>
+
+<section class="rewards-page" style="margin-top: 90px; padding: 2.5rem 0 4rem; background: var(--bg); min-height: 100vh;">
+    <div class="container" style="max-width: 880px;">
+
+        <!-- ═══════════════════════════════════════════
+             1. GAMIFIED POINTS HERO DASHBOARD
+             ═══════════════════════════════════════════ -->
+        <div class="rw-hero text-center mb-5">
+            <!-- Decorative blobs -->
+            <div class="rw-hero__blob rw-hero__blob--gold"></div>
+            <div class="rw-hero__blob rw-hero__blob--light"></div>
+
+            <div style="position: relative; z-index: 2;">
+                <span class="rw-hero__badge">
+                    <i class="bi bi-trophy-fill"></i> Hệ thống đổi thưởng
                 </span>
-                
-                <!-- Glowing Golden Points Circle -->
-                <div class="d-inline-flex flex-column align-items-center justify-content-center rounded-circle border border-4 border-warning shadow-lg p-5 mb-4 position-relative" style="width: 200px; height: 200px; background: rgba(255, 255, 255, 0.02); box-shadow: 0 0 30px rgba(217, 119, 6, 0.25) !important;">
-                    <div class="position-absolute rounded-circle" style="width: 208px; height: 208px; border: 2px dashed rgba(217, 119, 6, 0.3); animation: spin 30s linear infinite;"></div>
-                    <i class="bi bi-stars text-warning fs-3 mb-1 animate-pulse"></i>
-                    <h1 class="fw-black text-white mb-0" style="font-family: 'Inter', sans-serif; font-size: 3rem; background: linear-gradient(135deg, #ffffff, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent;"><%= currentPoints %></h1>
-                    <span class="x-small text-white-50 fw-bold text-uppercase" style="font-size: 0.68rem; letter-spacing: 1px;">Điểm hiện có</span>
+
+                <!-- Points Orb -->
+                <div class="rw-orb-wrap">
+                    <div class="rw-orb">
+                        <i class="bi bi-stars rw-orb__icon"></i>
+                        <span class="rw-orb__number"><%= currentPoints %></span>
+                        <span class="rw-orb__label">Điểm hiện có</span>
+                    </div>
+                    <div class="rw-orb__ring"></div>
+                    <div class="rw-orb__pulse"></div>
                 </div>
-                
-                <h3 class="fw-bold mb-2 text-white" style="font-family: 'Inter', sans-serif;">Cấp độ: Lữ khách thông thái</h3>
-                <p class="text-white-50 mb-0 mx-auto" style="max-width: 500px; font-size: 0.88rem;">
+
+                <h3 class="rw-hero__title">Cấp độ: Lữ khách thông thái</h3>
+                <p class="rw-hero__sub">
                     Tích lũy thêm điểm Healing bằng cách check-in quét QR tại các điểm dừng chân hoặc chia sẻ những khoảnh khắc đẹp cùng cộng đồng.
                 </p>
+
+                <!-- Shimmer progress bar -->
+                <div class="rw-shimmer-bar">
+                    <div class="rw-shimmer-bar__fill" style="width: 62%;"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Available Rewards (Golden Ticket Cards) -->
+        <!-- ═══════════════════════════════════════════
+             2. AVAILABLE REWARDS — Ticket Cards
+             ═══════════════════════════════════════════ -->
         <div class="mb-5">
-            <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">
-                <i class="bi bi-gift-fill text-warning me-2 animate-bounce"></i>Voucher & Quà tặng sẵn sàng đổi
-            </h5>
-            
+            <div class="rw-section-header">
+                <i class="bi bi-gift-fill" style="color: var(--rw-gold);"></i>
+                <span>Voucher &amp; Quà tặng sẵn sàng đổi</span>
+                <span class="rw-section-header__line"></span>
+            </div>
+
             <div class="row g-4">
                 <% availableRewards.forEach(r => { %>
-                <div class="col-md-6 reveal-up">
-                    <!-- Ticket Design with dashed divider -->
-                    <div class="card border-0 rounded-4 overflow-hidden shadow-lg position-relative d-flex flex-row" style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.06); min-height: 140px; transition: all 0.3s; transform: translateY(0);" onmouseover="this.style.background='rgba(255, 255, 255, 0.06)'; this.style.transform='translateY(-5px)'" onmouseout="this.style.background='rgba(255, 255, 255, 0.03)'; this.style.transform='translateY(0)'">
-                        
-                        <!-- Left side: Voucher Main details -->
-                        <div class="p-4 flex-grow-1">
-                            <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-2 py-1 mb-2 fw-bold text-uppercase" style="font-size: 0.65rem; border: 1px solid rgba(146, 39, 36, 0.25);">
-                                Hạt giống xanh
+                <div class="col-md-6">
+                    <div class="rw-ticket">
+                        <!-- Accent strip -->
+                        <div class="rw-ticket__accent"></div>
+
+                        <!-- Body -->
+                        <div class="rw-ticket__body">
+                            <span class="rw-ticket__tag">
+                                <i class="bi bi-leaf"></i> Hạt giống xanh
                             </span>
-                            <h6 class="fw-bold mb-1 text-white text-truncate" style="font-size: 1.05rem; font-family: 'Inter', sans-serif;"><%= r.title %></h6>
-                            <p class="text-white-50 mb-0 line-clamp-1" style="font-size: 0.8rem;"><%= r.description %></p>
-                            <div class="mt-3 text-warning fw-bold" style="font-size: 0.85rem;">
-                                <i class="bi bi-stars me-1 animate-pulse"></i><%= r.points_required %> điểm
-                            </div>
+                            <h6 class="rw-ticket__title"><%= r.title %></h6>
+                            <p class="rw-ticket__desc"><%= r.description %></p>
+                            <span class="rw-ticket__cost">
+                                <i class="bi bi-stars"></i> <%= r.points_required %> điểm
+                            </span>
                         </div>
 
-                        <!-- Ticket dashed border divider -->
-                        <div class="d-flex flex-column justify-content-between py-2" style="border-left: 2px dashed rgba(255, 255, 255, 0.15); height: 100%;">
-                            <div class="bg-dark rounded-circle" style="width: 12px; height: 12px; margin-left: -7px; margin-top: -8px;"></div>
-                            <div class="bg-dark rounded-circle" style="width: 12px; height: 12px; margin-left: -7px; margin-bottom: -8px;"></div>
-                        </div>
+                        <!-- Perforation -->
+                        <div class="rw-ticket__perf"></div>
 
-                        <!-- Right side: Quick Action Claim button -->
-                        <div class="p-4 d-flex align-items-center justify-content-center flex-shrink-0" style="min-width: 100px;">
+                        <!-- Action -->
+                        <div class="rw-ticket__action">
                             <% if (currentPoints < r.points_required) { %>
-                                <button class="btn btn-secondary btn-sm rounded-pill px-3 py-2 fw-bold text-uppercase disabled" style="font-size: 0.72rem; letter-spacing: 0.5px; opacity: 0.5;">
-                                    Chưa đủ
+                                <button class="rw-btn-disabled" disabled>
+                                    <i class="bi bi-lock-fill"></i> Chưa đủ
                                 </button>
                             <% } else { %>
-                                <button class="btn btn-warning btn-sm rounded-pill px-3 py-2 fw-bold text-uppercase shadow-lg" style="font-size: 0.72rem; letter-spacing: 0.5px; box-shadow: 0 0 10px rgba(217, 119, 6, 0.3);" onclick="redeem('<%= r.id %>', '<%= r.title %>')">
-                                    Đổi quà
+                                <button class="rw-btn-redeem" onclick="redeem('<%= r.id %>', '<%= r.title %>')">
+                                    <i class="bi bi-check2-circle"></i> Đổi quà
                                 </button>
                             <% } %>
                         </div>
@@ -74,28 +448,38 @@
             </div>
         </div>
 
-        <!-- Redeemed History list -->
+        <!-- ═══════════════════════════════════════════
+             3. REDEMPTION HISTORY
+             ═══════════════════════════════════════════ -->
         <% if (myRewards.length > 0) { %>
-        <div class="reveal-up">
-            <h5 class="fw-bold mb-4 text-white text-uppercase" style="font-family: 'Inter', sans-serif; letter-spacing: 1px;">
-                <i class="bi bi-clock-history text-danger me-2"></i>Lịch sử đổi quà gần đây
-            </h5>
-            
+        <div>
+            <div class="rw-section-header">
+                <i class="bi bi-clock-history" style="color: var(--rw-maroon);"></i>
+                <span>Lịch sử đổi quà gần đây</span>
+                <span class="rw-section-header__line"></span>
+            </div>
+
             <div class="d-flex flex-column gap-3">
                 <% myRewards.forEach(r => { %>
-                <div class="d-flex align-items-center justify-content-between p-3 rounded-4" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);">
-                    <div class="d-flex align-items-center gap-3">
-                        <span class="badge bg-danger bg-opacity-20 text-danger rounded-pill px-3 py-2 fw-bold" style="font-size: 0.75rem;">
-                            <i class="bi bi-patch-check-fill me-1"></i><%= r.status %>
-                        </span>
-                        <span class="fw-bold text-white small" style="font-size: 0.88rem;"><%= r.title %></span>
+                <div class="rw-history-item">
+                    <div class="rw-history__left">
+                        <div class="rw-history__icon">
+                            <i class="bi bi-patch-check-fill"></i>
+                        </div>
+                        <div style="min-width: 0;">
+                            <span class="rw-history__status"><%= r.status %></span>
+                            <div class="rw-history__title mt-1"><%= r.title %></div>
+                        </div>
                     </div>
-                    <span class="text-white-50" style="font-size: 0.78rem;"><%= new Date(r.redeemed_at).toLocaleDateString('vi-VN') %></span>
+                    <span class="rw-history__date">
+                        <i class="bi bi-calendar3 me-1"></i><%= new Date(r.redeemed_at).toLocaleDateString('vi-VN') %>
+                    </span>
                 </div>
                 <% }) %>
             </div>
         </div>
         <% } %>
+
     </div>
 </section>
 
@@ -111,10 +495,3 @@ async function redeem(id, title) {
     }
 }
 </script>
-
-<style>
-    @keyframes spin {
-        from { transform: translate(-50%, -50%) rotate(0deg); }
-        to { transform: translate(-50%, -50%) rotate(360deg); }
-    }
-</style>

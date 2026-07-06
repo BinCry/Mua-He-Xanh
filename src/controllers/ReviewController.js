@@ -6,12 +6,21 @@ const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
 
+const fs = require('fs');
+
 const upload = multer({
     storage: multer.diskStorage({
-        destination: (req, file, cb) => cb(null, path.join(__dirname, '../../public/uploads')),
+        destination: (req, file, cb) => {
+            const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
+            const uploadPath = isProduction ? '/tmp' : path.join(__dirname, '../../public/uploads');
+            if (!fs.existsSync(uploadPath)) {
+                fs.mkdirSync(uploadPath, { recursive: true });
+            }
+            cb(null, uploadPath);
+        },
         filename: (req, file, cb) => cb(null, 'review_' + Date.now() + path.extname(file.originalname))
     }),
-    limits: { fileSize: 5 * 1024 * 1024 }
+    limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 const ReviewController = {

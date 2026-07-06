@@ -83,14 +83,13 @@ function initMap() {
         attributionControl: false
     });
 
-    // Ẩn lớp bản đồ mặc định để chỉ hiển thị sơ đồ vẽ tay Bình Lợi
-    /*
+    // Hiển thị lớp bản đồ mặc định bên dưới sơ đồ vẽ tay Bình Lợi
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CartoDB',
         subdomains: 'abcd',
         maxZoom: 20
     }).addTo(map);
-    */
+
 
     // Hiển thị sơ đồ du lịch Bình Lợi vẽ tay làm bản đồ chính (độ đục 100% để hiển thị trọn vẹn màu sắc)
     L.imageOverlay('/images/binh-loi-travel-map.png', bounds, {

@@ -153,7 +153,7 @@ class JourneyController {
             }
 
             res.render('journey/suggestions', {
-                title: 'Đề xuất hành trình',
+                title: 'Đề xuất hành trình/tour',
                 suggestions: mappedSuggestions,
                 session: session
             });

@@ -395,11 +395,33 @@ router.post('/api/admin/create-journey-template', ensureAdmin, AdminController.c
 router.post('/api/admin/update-journey-template', ensureAdmin, AdminController.updateJourneyTemplate);
 router.post('/api/admin/delete-journey-template', ensureAdmin, AdminController.deleteJourneyTemplate);
 
-// General Upload API
-router.post('/api/upload', ensureAuthenticated, upload.single('image'), UploadController.uploadImage);
+// General Upload API (with multer error handling)
+router.post('/api/upload', ensureAuthenticated, (req, res, next) => {
+    upload.single('image')(req, res, (err) => {
+        if (err) {
+            console.error('Multer Upload Error:', err);
+            const message = err.code === 'LIMIT_FILE_SIZE' 
+                ? 'File quá lớn! Giới hạn 25MB.' 
+                : (err.message || 'Lỗi khi tải file lên.');
+            return res.status(400).json({ success: false, message });
+        }
+        UploadController.uploadImage(req, res).catch(next);
+    });
+});
 
-// Logo Upload API (Admin only)
-router.post('/api/admin/upload-logo', ensureAdmin, upload.single('image'), UploadController.uploadLogo);
+// Logo Upload API (Admin only, with multer error handling)
+router.post('/api/admin/upload-logo', ensureAdmin, (req, res, next) => {
+    upload.single('image')(req, res, (err) => {
+        if (err) {
+            console.error('Multer Logo Upload Error:', err);
+            const message = err.code === 'LIMIT_FILE_SIZE'
+                ? 'File quá lớn! Giới hạn 25MB.'
+                : (err.message || 'Lỗi khi tải file lên.');
+            return res.status(400).json({ success: false, message });
+        }
+        UploadController.uploadLogo(req, res).catch(next);
+    });
+});
 
 module.exports = router;
 

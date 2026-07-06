@@ -513,10 +513,9 @@ const AdminController = {
 
             await db.query(query, params);
 
-            // Sync destination cover image to the manager's avatar
             if (cover_image && cover_image.trim() !== '') {
                 await db.query(
-                    'UPDATE users SET avatar = ? WHERE role = "manager" AND managed_destination_id = ?',
+                    "UPDATE users SET avatar = ? WHERE role = 'manager' AND managed_destination_id = ?",
                     [cover_image, id]
                 );
             }

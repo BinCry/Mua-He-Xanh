@@ -2,8 +2,8 @@
 
 <style>
 .sug-hero {
-    background: linear-gradient(135deg, #0f766e 0%, #15803d 60%, #1e3a5f 100%);
-    padding: 110px 0 60px;
+    background: linear-gradient(135deg, var(--primary-green-dark) 0%, var(--primary-green) 50%, #0c251a 100%);
+    padding: 120px 0 70px;
     position: relative;
     overflow: hidden;
 }
@@ -11,196 +11,220 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.05) 0%, transparent 60%);
+    background: radial-gradient(ellipse at 80% 50%, rgba(240,165,0,0.1) 0%, transparent 60%);
+    pointer-events: none;
 }
 .sug-criteria-bar {
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255,255,255,0.2);
-    border-radius: 20px;
-    padding: 20px 28px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 24px;
+    padding: 24px;
     display: flex;
-    gap: 24px;
+    gap: 20px;
+    justify-content: space-around;
     flex-wrap: wrap;
-    margin-top: 32px;
+    margin-top: 40px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
 }
 .sug-criteria-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    color: rgba(255,255,255,0.9);
-    font-size: 0.85rem;
+    gap: 12px;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 0.88rem;
     font-weight: 600;
 }
 .sug-criteria-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    background: rgba(255,255,255,0.15);
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1rem;
+    font-size: 1.15rem;
+    box-shadow: var(--shadow-sm);
 }
-
-/* Cards */
-.sug-section { background: #f0fdf4; padding: 60px 0; min-height: 60vh; }
+.sug-section {
+    background: var(--bg);
+    padding: 70px 0;
+    min-height: 60vh;
+}
 .sug-card {
-    background: #fff;
-    border-radius: 24px;
+    background: #ffffff;
+    border-radius: 28px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.07);
-    border: 1px solid #e2e8f0;
-    transition: all 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: var(--shadow-md);
+    border: 1px solid var(--border-light);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
     height: 100%;
     display: flex;
     flex-direction: column;
 }
 .sug-card:hover {
-    transform: translateY(-12px);
-    box-shadow: 0 20px 50px rgba(13,148,136,0.15);
-    border-color: #0d9488;
+    transform: translateY(-10px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--primary-green-light);
 }
 .sug-card-img-wrap {
     position: relative;
-    height: 200px;
+    height: 220px;
     overflow: hidden;
 }
 .sug-card-img-wrap img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    transition: transform 0.5s ease;
+    transition: transform 0.8s var(--ease-out);
 }
 .sug-card:hover .sug-card-img-wrap img {
-    transform: scale(1.08);
+    transform: scale(1.1);
 }
 .sug-card-img-overlay {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 55%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.2) 60%, transparent 100%);
 }
 .sug-card-img-bottom {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    padding: 16px;
+    padding: 20px;
 }
 .sug-recommended-badge {
     position: absolute;
-    top: 12px;
-    left: 12px;
-    background: linear-gradient(135deg, #f59e0b, #d97706);
+    top: 16px;
+    left: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent-dark));
     color: #fff;
-    border-radius: 50px;
-    padding: 5px 14px;
-    font-size: 0.7rem;
+    border-radius: var(--radius-full);
+    padding: 6px 16px;
+    font-size: 0.72rem;
     font-weight: 800;
     letter-spacing: 1px;
     text-transform: uppercase;
     display: flex;
     align-items: center;
-    gap: 5px;
-    box-shadow: 0 3px 10px rgba(245,158,11,0.4);
+    gap: 6px;
+    box-shadow: 0 4px 12px rgba(240, 165, 0, 0.3);
+    z-index: 2;
 }
 .sug-card-body {
-    padding: 22px;
+    padding: 24px;
     flex: 1;
     display: flex;
     flex-direction: column;
 }
-.sug-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.sug-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+}
 .sug-tag {
-    background: #f0fdf4;
-    border: 1px solid #bbf7d0;
-    color: #15803d;
-    border-radius: 50px;
-    padding: 4px 12px;
+    background: rgba(30, 90, 62, 0.06);
+    border: 1px solid rgba(30, 90, 62, 0.15);
+    color: var(--primary-green-light);
+    border-radius: var(--radius-full);
+    padding: 4px 14px;
     font-size: 0.72rem;
     font-weight: 700;
 }
 .sug-stops-list {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 18px;
+    gap: 10px;
+    margin-bottom: 22px;
 }
 .sug-stop-item {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 0.8rem;
-    color: #374151;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: var(--text);
+    font-weight: 550;
 }
 .sug-stop-num {
-    width: 22px;
-    height: 22px;
+    width: 24px;
+    height: 24px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #0d9488, #16a34a);
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
     color: #fff;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
     font-weight: 900;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: 0 2px 6px rgba(30, 90, 62, 0.25);
 }
 .sug-metrics {
     display: flex;
-    gap: 0;
-    border: 1px solid #e2e8f0;
-    border-radius: 14px;
+    border: 1px solid var(--border);
+    border-radius: 16px;
     overflow: hidden;
-    margin-bottom: 18px;
+    margin-bottom: 22px;
+    background: var(--surface-alt);
 }
 .sug-metric {
     flex: 1;
     text-align: center;
     padding: 12px 8px;
-    border-right: 1px solid #e2e8f0;
-    font-size: 0.72rem;
-    color: #64748b;
+    border-right: 1px solid var(--border);
+    font-size: 0.75rem;
+    color: var(--text-secondary);
     font-weight: 600;
 }
-.sug-metric:last-child { border-right: none; }
-.sug-metric .val { font-size: 1.1rem; font-weight: 900; color: #0d9488; display: block; }
+.sug-metric:last-child {
+    border-right: none;
+}
+.sug-metric .val {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--primary-green);
+    display: block;
+    margin-bottom: 2px;
+}
 .btn-sug-primary {
     width: 100%;
     padding: 14px;
-    border-radius: 50px;
+    border-radius: var(--radius-full);
     border: none;
-    background: linear-gradient(135deg, #0d9488, #16a34a);
+    background: linear-gradient(135deg, var(--primary-green) 0%, var(--primary-green-light) 100%);
     color: #fff;
     font-weight: 800;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     letter-spacing: 1px;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.3s;
-    box-shadow: 0 4px 16px rgba(13,148,136,0.3);
+    box-shadow: 0 4px 16px rgba(30, 90, 62, 0.3);
 }
 .btn-sug-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(13,148,136,0.45);
+    box-shadow: 0 8px 24px rgba(30, 90, 62, 0.45);
 }
 .btn-sug-outline {
     width: 100%;
     padding: 14px;
-    border-radius: 50px;
-    border: 2px solid #0d9488;
+    border-radius: var(--radius-full);
+    border: 2px solid var(--primary-green);
     background: transparent;
-    color: #0d9488;
+    color: var(--primary-green);
     font-weight: 800;
-    font-size: 0.85rem;
+    font-size: 0.88rem;
     letter-spacing: 1px;
     text-transform: uppercase;
     cursor: pointer;
     transition: all 0.3s;
 }
 .btn-sug-outline:hover {
-    background: #0d9488;
+    background: var(--primary-green);
     color: #fff;
+    box-shadow: 0 4px 12px rgba(30, 90, 62, 0.2);
 }
 </style>
 
@@ -208,44 +232,44 @@
 <div class="sug-hero">
     <div class="container position-relative" style="z-index:1;">
         <div class="text-center">
-            <div style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1.5px solid rgba(255,255,255,0.3);margin-bottom:16px;">
-                <i class="bi bi-robot" style="font-size:1.8rem;color:#fff;"></i>
+            <div style="display:inline-flex;align-items:center;justify-content:center;width:64px;height:64px;border-radius:20px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.18);margin-bottom:20px;">
+                <i class="bi bi-compass-fill" style="font-size:1.8rem;color:var(--accent);"></i>
             </div>
-            <h1 style="color:#fff;font-family: 'Inter', sans-serif;font-size:clamp(1.8rem,4vw,2.6rem);font-weight:900;margin-bottom:10px;">
-                AI Đề Xuất Lộ Trình Cho Bạn
+            <h1 style="color:#fff;font-family: var(--font-display);font-size:clamp(2rem,4.5vw,2.8rem);font-weight:900;margin-bottom:12px;letter-spacing:-0.03em;">
+                Đề Xuất Hành Trình & Tour Tối Ưu
             </h1>
-            <p style="color:rgba(255,255,255,0.75);max-width:540px;margin:0 auto;font-size:0.95rem;line-height:1.7;">
-                Dựa trên sở thích của bạn, chúng tôi đã tối ưu hoá <strong style="color:#fff;"><%= suggestions.length %> lộ trình</strong> khác nhau. Chọn một lộ trình phù hợp nhất!
+            <p style="color:rgba(255,255,255,0.75);max-width:580px;margin:0 auto;font-size:1rem;line-height:1.75;">
+                Dựa trên sở thích cá nhân, hệ thống đã chuẩn bị <strong style="color:var(--accent);"><%= suggestions.length %> lộ trình</strong> đặc biệt dành riêng cho bạn khám phá Bình Lợi.
             </p>
 
             <!-- Criteria bar -->
-            <div class="sug-criteria-bar mx-auto" style="max-width:720px;">
+            <div class="sug-criteria-bar mx-auto" style="max-width:760px;">
                 <div class="sug-criteria-item">
-                    <span class="sug-criteria-icon">😊</span>
+                    <span class="sug-criteria-icon">🌸</span>
                     <div>
-                        <div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Tâm trạng</div>
-                        <div><%= session.mood ? session.mood.replace(/,/g,' & ').toUpperCase() : 'Chữa lành' %></div>
+                        <div style="font-size:0.65rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:2px;">Tâm trạng</div>
+                        <div style="font-size:0.85rem;"><%= session.mood ? session.mood.replace(/,/g,' & ').toUpperCase() : 'CHỮA LÀNH' %></div>
                     </div>
                 </div>
                 <div class="sug-criteria-item">
                     <span class="sug-criteria-icon">👥</span>
                     <div>
-                        <div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Quy mô</div>
-                        <div><%= session.pax || 1 %> Người</div>
+                        <div style="font-size:0.65rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:2px;">Quy mô</div>
+                        <div style="font-size:0.85rem;"><%= session.pax || 1 %> Người</div>
                     </div>
                 </div>
                 <div class="sug-criteria-item">
                     <span class="sug-criteria-icon">💰</span>
                     <div>
-                        <div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Ngân sách</div>
-                        <div><%= session.budget === 'low' ? 'Tiết kiệm' : (session.budget === 'high' ? 'Cao cấp' : 'Tiêu chuẩn') %></div>
+                        <div style="font-size:0.65rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:2px;">Ngân sách</div>
+                        <div style="font-size:0.85rem;"><%= session.budget === 'low' ? 'Tiết kiệm' : (session.budget === 'high' ? 'Cao cấp' : 'Tiêu chuẩn') %></div>
                     </div>
                 </div>
                 <div class="sug-criteria-item">
                     <span class="sug-criteria-icon">🌤️</span>
                     <div>
-                        <div style="font-size:0.65rem;opacity:0.7;text-transform:uppercase;letter-spacing:1px;">Mùa</div>
-                        <div><%= session.season === 'spring' ? 'Lễ hội 🌸' : (session.season === 'summer' ? 'Mùa hè ☀️' : 'Hôm nay') %></div>
+                        <div style="font-size:0.65rem;color:rgba(255,255,255,0.6);text-transform:uppercase;letter-spacing:1px;font-weight:700;margin-bottom:2px;">Thời điểm</div>
+                        <div style="font-size:0.85rem;"><%= session.season === 'spring' ? 'Lễ hội 🌸' : (session.season === 'summer' ? 'Mùa hè ☀️' : 'Hôm nay') %></div>
                     </div>
                 </div>
             </div>
@@ -265,10 +289,10 @@
                         <img src="<%= (sug.stops && sug.stops[0] && sug.stops[0].cover_image) ? (sug.stops[0].cover_image.startsWith('http') || sug.stops[0].cover_image.startsWith('data:') ? sug.stops[0].cover_image : sug.stops[0].cover_image.replace(/^public\//, '/')) : '/images/placeholder.png' %>" alt="<%= sug.name %>" onerror="this.src='/images/placeholder.png'">
                         <div class="sug-card-img-overlay"></div>
                         <% if (i === 0) { %>
-                        <div class="sug-recommended-badge"><i class="bi bi-star-fill"></i> Đề xuất cao nhất</div>
+                        <div class="sug-recommended-badge"><i class="bi bi-star-fill"></i> Đề xuất tốt nhất</div>
                         <% } %>
                         <div class="sug-card-img-bottom">
-                            <h4 style="color:#fff;font-family: 'Inter', sans-serif;font-weight:900;margin:0;text-shadow:0 2px 8px rgba(0,0,0,0.4);font-size:1.15rem;"><%= sug.name %></h4>
+                            <h4 style="color:#fff;font-family: var(--font-display);font-weight:900;margin:0;text-shadow:0 2px 8px rgba(0,0,0,0.5);font-size:1.25rem;"><%= sug.name %></h4>
                         </div>
                     </div>
 
@@ -282,7 +306,7 @@
                         </div>
 
                         <!-- Desc -->
-                        <p style="font-size:0.82rem;color:#64748b;line-height:1.65;margin-bottom:16px;"><%= sug.desc %></p>
+                        <p style="font-size:0.85rem;color:var(--text-secondary);line-height:1.7;margin-bottom:20px;"><%= sug.desc %></p>
 
                         <!-- Stops list -->
                         <% if (sug.stops && sug.stops.length > 0) { %>
@@ -290,12 +314,12 @@
                             <% sug.stops.slice(0, 3).forEach((stop, si) => { %>
                             <div class="sug-stop-item">
                                 <span class="sug-stop-num"><%= si + 1 %></span>
-                                <span><%= stop.name %></span>
-                                <% if (stop.type) { %><span style="color:#94a3b8;font-size:0.7rem;">· <%= stop.type %></span><% } %>
+                                <span class="text-dark"><%= stop.name %></span>
+                                <% if (stop.type) { %><span class="badge bg-light text-primary-green border small py-1" style="font-size: 0.65rem;"><%= stop.type %></span><% } %>
                             </div>
                             <% }) %>
                             <% if (sug.stops.length > 3) { %>
-                            <div style="font-size:0.72rem;color:#94a3b8;padding-left:32px;">+ <%= sug.stops.length - 3 %> địa điểm khác…</div>
+                            <div style="font-size:0.75rem;color:var(--text-muted);padding-left:36px;font-style:italic;">+ <%= sug.stops.length - 3 %> địa điểm khác…</div>
                             <% } %>
                         </div>
                         <% } %>
@@ -304,15 +328,15 @@
                         <div class="sug-metrics">
                             <div class="sug-metric">
                                 <span class="val"><%= sug.stops.length %></span>
-                                <i class="bi bi-geo-alt-fill"></i> Điểm
+                                <i class="bi bi-geo-alt-fill text-success"></i> Điểm đến
                             </div>
                             <div class="sug-metric">
                                 <span class="val"><%= sug.duration %></span>
-                                <i class="bi bi-clock-fill"></i>
+                                <i class="bi bi-clock-fill text-warning"></i> Thời gian
                             </div>
                             <div class="sug-metric">
                                 <span class="val"><%= sug.km %></span>
-                                <i class="bi bi-signpost-split-fill"></i> km
+                                <i class="bi bi-signpost-split-fill text-info"></i> Quãng đường
                             </div>
                         </div>
 
@@ -321,7 +345,7 @@
                             <form action="/journey/confirm" method="POST">
                                 <input type="hidden" name="journeyData" value='<%= JSON.stringify(sug).replace(/'/g, "&#39;") %>'>
                                 <button type="submit" class="<%= i === 0 ? 'btn-sug-primary' : 'btn-sug-outline' %>">
-                                    Chọn lộ trình này <i class="bi bi-arrow-right ms-1"></i>
+                                    Khám phá lộ trình này <i class="bi bi-arrow-right ms-1"></i>
                                 </button>
                             </form>
                         </div>
@@ -333,7 +357,7 @@
 
         <!-- Back link -->
         <div class="text-center mt-5">
-            <a href="/onboarding" style="color:#64748b;font-weight:700;font-size:0.85rem;text-decoration:none;">
+            <a href="/onboarding" style="color:var(--text-secondary);font-weight:700;font-size:0.9rem;text-decoration:none;" class="transition-all" onmouseover="this.style.color='var(--primary-green)'" onmouseout="this.style.color='var(--text-secondary)'">
                 <i class="bi bi-arrow-left me-2"></i>Thay đổi tiêu chí tìm kiếm
             </a>
         </div>

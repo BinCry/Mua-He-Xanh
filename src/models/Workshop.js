@@ -66,7 +66,7 @@ class Workshop {
             SELECT wb.*, w.title as workshop_title, w.image as workshop_image, w.type as workshop_type,
                    d.name as destination_name
             FROM workshop_bookings wb
-            JOIN workshops w ON wb.workshop_id = w.id
+            LEFT JOIN workshops w ON wb.workshop_id = w.id
             LEFT JOIN destinations d ON w.destination_id = d.id
             WHERE wb.user_id = ?
             ORDER BY wb.booking_date DESC
