@@ -86,10 +86,41 @@ const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
         }
     } catch (error) {
         console.error('Cloudinary: Upload error:', error);
-        // Fallback to local on error
-        const filename = path.basename(filePath);
+        // Fallback: convert to base64 data URL (same as unconfigured path)
+        // This ensures the image data is embedded directly and persists even on ephemeral hosts
+        try {
+            if (fs.existsSync(filePath)) {
+                const ext = path.extname(filePath).toLowerCase();
+                const mimeTypes = {
+                    '.png': 'image/png',
+                    '.jpg': 'image/jpeg',
+                    '.jpeg': 'image/jpeg',
+                    '.gif': 'image/gif',
+                    '.svg': 'image/svg+xml',
+                    '.webp': 'image/webp',
+                    '.mp3': 'audio/mpeg',
+                    '.wav': 'audio/wav'
+                };
+                const mimeType = mimeTypes[ext] || 'application/octet-stream';
+                const fileData = fs.readFileSync(filePath);
+                const base64Data = fileData.toString('base64');
+                const dataUrl = `data:${mimeType};base64,${base64Data}`;
+                
+                // Delete temporary file
+                try { fs.unlinkSync(filePath); } catch (e) { /* ignore */ }
+                
+                console.log(`[CLOUDINARY ERROR FALLBACK] Converted ${ext} file to Base64 data URL.`);
+                return {
+                    url: dataUrl,
+                    public_id: `local-error-base64-${Date.now()}`
+                };
+            }
+        } catch (fallbackErr) {
+            console.error('Cloudinary: Base64 fallback also failed:', fallbackErr);
+        }
+        // Last resort: return a placeholder
         return {
-            url: `/uploads/media/${filename}`,
+            url: '/images/placeholder.jpg',
             public_id: `local-error-${Date.now()}`
         };
     }
