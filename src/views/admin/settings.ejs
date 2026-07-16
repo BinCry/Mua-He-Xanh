@@ -69,7 +69,7 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Ảnh Hero (Trang chủ)</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
-                        <img id="hero_preview" src="<%= settings.hero_image || '/images/hero-1.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <img id="hero_preview" src="<%= fixImg(settings.hero_image, '/images/hero-1.png') %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                         <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('hero_file').click()">
                             <i class="bi bi-upload me-1"></i>Chọn ảnh
                         </button>
@@ -80,7 +80,7 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Background Giới thiệu</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
-                        <img id="about_preview" src="<%= settings.about_bg || '/images/nature-bg.jpg' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <img id="about_preview" src="<%= fixImg(settings.about_bg, '/images/nature-bg.jpg') %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                         <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('about_file').click()">
                             <i class="bi bi-upload me-1"></i>Chọn ảnh
                         </button>
@@ -91,7 +91,7 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Background Đăng nhập</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
-                        <img id="login_preview" src="<%= settings.login_bg || '/images/hero-1.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <img id="login_preview" src="<%= fixImg(settings.login_bg, '/images/hero-1.png') %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                         <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('login_file').click()">
                             <i class="bi bi-upload me-1"></i>Chọn ảnh
                         </button>
@@ -102,7 +102,7 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Hình nền trang Khám phá (banner_explore)</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
-                        <img id="banner_explore_preview" src="<%= settings.banner_explore || '/images/hero-1.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <img id="banner_explore_preview" src="<%= fixImg(settings.banner_explore, '/images/hero-1.png') %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                         <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('banner_explore_file').click()">
                             <i class="bi bi-upload me-1"></i>Chọn ảnh
                         </button>
@@ -113,7 +113,7 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Hình nền trang Workshop (banner_workshop)</label>
                     <div class="d-flex align-items-center gap-3 mb-2">
-                        <img id="banner_workshop_preview" src="<%= settings.banner_workshop || '/images/hero-2.png' %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                        <img id="banner_workshop_preview" src="<%= fixImg(settings.banner_workshop, '/images/hero-2.png') %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                         <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('banner_workshop_file').click()">
                             <i class="bi bi-upload me-1"></i>Chọn ảnh
                         </button>

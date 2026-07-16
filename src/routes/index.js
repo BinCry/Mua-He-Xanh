@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const passport = require('passport');
 const config = require('../config/env');
+const { normalizeImagePath } = require('../utils/imagePaths');
 
 // Controllers
 const HomeController = require('../controllers/HomeController');
@@ -41,12 +42,8 @@ router.get('/manifest.json', async (req, res) => {
         const settings = {};
         rows.forEach(s => { settings[s.key_name] = s.key_value; });
         
-        let logoUrl = '/images/logo.png';
-        if (settings.brand_logo && settings.brand_logo !== 'undefined' && settings.brand_logo !== 'NULL') {
-            let clean = settings.brand_logo.replace(/^public\//, '');
-            if (!clean.startsWith('/')) clean = '/' + clean;
-            logoUrl = clean;
-        }
+        const normalizedLogo = normalizeImagePath(settings.brand_logo, '/images/logo.png');
+        const logoUrl = normalizedLogo.startsWith('data:image') ? '/brand-logo.png' : normalizedLogo;
 
         const manifest = {
             "name": settings.brand_name || "Bình Lợi - Miền Tây giữa lòng Sài Gòn",
@@ -140,8 +137,10 @@ router.get('/brand-logo.png', async (req, res) => {
         const [rows] = await db.query('SELECT key_value FROM settings WHERE key_name = ?', ['brand_logo']);
         const logoData = rows[0]?.key_value;
 
-        if (logoData && logoData.startsWith('data:image')) {
-            const matches = logoData.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
+        const normalizedLogo = normalizeImagePath(logoData, '/images/logo.png');
+
+        if (normalizedLogo && normalizedLogo.startsWith('data:image')) {
+            const matches = normalizedLogo.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
             if (matches && matches.length === 3) {
                 const contentType = matches[1];
                 const base64Data = matches[2];
@@ -150,11 +149,11 @@ router.get('/brand-logo.png', async (req, res) => {
                 res.setHeader('Cache-Control', 'public, max-age=86400');
                 return res.send(buffer);
             }
-        } else if (logoData && logoData.startsWith('http')) {
-            return res.redirect(logoData);
-        } else if (logoData) {
+        } else if (normalizedLogo && normalizedLogo.startsWith('http')) {
+            return res.redirect(normalizedLogo);
+        } else if (normalizedLogo) {
             const path = require('path');
-            return res.sendFile(path.join(process.cwd(), 'public', logoData));
+            return res.sendFile(path.join(process.cwd(), 'public', normalizedLogo.replace(/^\//, '').split('?')[0]));
         }
 
         const path = require('path');

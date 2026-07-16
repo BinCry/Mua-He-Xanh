@@ -1,4 +1,4 @@
-const CACHE_NAME = 'binh-loi-healing-v3';
+const CACHE_NAME = 'binh-loi-healing-v4';
 const STATIC_ASSETS = [
     '/offline.html',
     '/css/style-v5.css',
@@ -15,6 +15,16 @@ const LEGACY_IMAGE_ALIASES = {
     '/images/placeholder.png': '/images/hero-1.png',
     '/images/placeholder.jpg': '/images/hero-1.png'
 };
+
+function isBareBase64ImagePath(pathname) {
+    const value = pathname.replace(/^\//, '');
+    if (value.length < 512) return false;
+    return value.startsWith('iVBORw0KGgo')
+        || value.startsWith('/9j/')
+        || value.startsWith('R0lGOD')
+        || value.startsWith('UklGR')
+        || value.startsWith('data:image');
+}
 
 // Install Event
 self.addEventListener('install', (event) => {
@@ -49,6 +59,11 @@ self.addEventListener('fetch', (event) => {
 
     // Only handle GET requests
     if (req.method !== 'GET') {
+        return;
+    }
+
+    if (isBareBase64ImagePath(url.pathname)) {
+        event.respondWith(cacheFirst(new Request(new URL('/images/hero-1.png', self.location.origin).toString())));
         return;
     }
 
