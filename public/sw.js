@@ -1,4 +1,4 @@
-const CACHE_NAME = 'binh-loi-healing-v2';
+const CACHE_NAME = 'binh-loi-healing-v3';
 const STATIC_ASSETS = [
     '/offline.html',
     '/css/style-v5.css',
@@ -6,6 +6,15 @@ const STATIC_ASSETS = [
     '/images/hero-1.png',
     '/images/hero-bg.jpg'
 ];
+
+const LEGACY_IMAGE_ALIASES = {
+    '/images/cau-chu-z-1.png': '/uploads/destinations/cau-chu-u.jpg',
+    '/images/xuong-nhang-1.png': '/uploads/destinations/xuong-nhang.jpg',
+    '/images/chua-phap-tang-1.png': '/uploads/destinations/chua-phap-tang.png',
+    '/images/vuon-mai-1.png': '/uploads/destinations/lang-mai.jpg',
+    '/images/placeholder.png': '/images/hero-1.png',
+    '/images/placeholder.jpg': '/images/hero-1.png'
+};
 
 // Install Event
 self.addEventListener('install', (event) => {
@@ -43,6 +52,13 @@ self.addEventListener('fetch', (event) => {
         return;
     }
 
+    const legacyImageTarget = LEGACY_IMAGE_ALIASES[url.pathname];
+    if (legacyImageTarget) {
+        url.pathname = legacyImageTarget;
+        event.respondWith(networkFirst(new Request(url.toString(), req)));
+        return;
+    }
+
     // Static Assets Strategy: Cache-First
     if (STATIC_ASSETS.includes(url.pathname)) {
         event.respondWith(cacheFirst(req));
@@ -64,7 +80,7 @@ async function networkFirst(req) {
     try {
         const networkResponse = await fetch(req);
         // Do not cache API requests or chrome-extensions
-        if (!req.url.includes('/api/') && req.url.startsWith('http')) {
+        if (networkResponse.ok && !req.url.includes('/api/') && req.url.startsWith('http')) {
             cache.put(req, networkResponse.clone());
         }
         return networkResponse;
