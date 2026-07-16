@@ -16,17 +16,17 @@
                     <div class="p-4 p-md-5">
                         
                         <!-- Social Logins (Primary) -->
-                        <div class="row g-2 mb-4">
+                        <div class="row g-2 mb-4 social-login-row">
                             <div class="col-6">
-                                <a href="/auth/google" class="btn btn-light w-100 rounded-pill shadow-sm py-2 d-flex align-items-center justify-content-center gap-2">
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" height="20" alt="Google">
-                                    <span class="fw-bold text-dark small">Google</span>
+                                <a href="/auth/google" class="btn btn-light w-100 rounded-pill shadow-sm social-login-btn">
+                                    <img class="social-login-icon" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
+                                    <span class="fw-bold text-dark">Google</span>
                                 </a>
                             </div>
                             <div class="col-6">
-                                <a href="/auth/facebook" class="btn btn-primary w-100 rounded-pill shadow-sm py-2 border-0 d-flex align-items-center justify-content-center gap-2" style="background-color: #1877F2;">
-                                    <i class="bi bi-facebook fs-5"></i>
-                                    <span class="fw-bold small">Facebook</span>
+                                <a href="/auth/facebook" class="btn btn-primary w-100 rounded-pill shadow-sm border-0 social-login-btn" style="background-color: #1877F2;">
+                                    <i class="bi bi-facebook social-login-icon"></i>
+                                    <span class="fw-bold">Facebook</span>
                                 </a>
                             </div>
                         </div>
@@ -284,4 +284,40 @@
     .nav-pills .nav-link.active { background-color: var(--primary); }
     .tracking-widest { letter-spacing: 2px; }
     .z-index-10 { z-index: 10; }
+    .social-login-row {
+        align-items: stretch;
+    }
+    .social-login-btn {
+        min-height: 50px;
+        padding: 0 14px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        line-height: 1;
+        font-size: 0.95rem;
+        white-space: nowrap;
+    }
+    .social-login-icon {
+        width: 24px;
+        height: 24px;
+        flex: 0 0 24px;
+        display: block;
+        font-size: 24px;
+        line-height: 1;
+    }
+    @media (max-width: 380px) {
+        .social-login-btn {
+            min-height: 48px;
+            gap: 8px;
+            padding: 0 10px !important;
+            font-size: 0.88rem;
+        }
+        .social-login-icon {
+            width: 22px;
+            height: 22px;
+            flex-basis: 22px;
+            font-size: 22px;
+        }
+    }
 </style>
