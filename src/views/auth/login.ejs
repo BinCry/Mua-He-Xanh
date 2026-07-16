@@ -16,7 +16,7 @@
                     <div class="p-4 p-md-5">
                         
                         <!-- Social Logins (Primary) -->
-                        <div class="row g-2 mb-4 social-login-row">
+                        <div class="row g-2 mb-3 social-login-row">
                             <div class="col-6">
                                 <a href="/auth/google" class="btn btn-light w-100 rounded-pill shadow-sm social-login-btn">
                                     <img class="social-login-icon" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
@@ -29,6 +29,11 @@
                                     <span class="fw-bold">Facebook</span>
                                 </a>
                             </div>
+                        </div>
+
+                        <div class="phone-login-notice mb-4">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            <span>Hệ thống tạm thời không cho phép đăng kí hoặc đăng nhập bằng số điện thoại</span>
                         </div>
 
                         <div class="d-flex align-items-center mb-4 mt-2">
@@ -306,6 +311,29 @@
         font-size: 24px;
         line-height: 1;
     }
+    .phone-login-notice {
+        display: flex;
+        align-items: flex-start;
+        justify-content: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 18px;
+        background: linear-gradient(135deg, rgba(146,39,36,0.42), rgba(255,193,7,0.14));
+        border: 1px solid rgba(255,255,255,0.14);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.12);
+        color: #fff;
+        font-size: 0.84rem;
+        font-weight: 700;
+        line-height: 1.42;
+        text-align: center;
+    }
+    .phone-login-notice i {
+        color: #fff;
+        flex: 0 0 auto;
+        font-size: 1rem;
+        line-height: 1.42;
+        margin-top: 1px;
+    }
     @media (max-width: 380px) {
         .social-login-btn {
             min-height: 48px;
@@ -318,6 +346,10 @@
             height: 22px;
             flex-basis: 22px;
             font-size: 22px;
+        }
+        .phone-login-notice {
+            font-size: 0.78rem;
+            padding: 9px 12px;
         }
     }
 </style>
