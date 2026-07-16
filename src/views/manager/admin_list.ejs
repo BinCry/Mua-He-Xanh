@@ -12,7 +12,7 @@
         <a href="/manager?dest_id=<%= d.id %>" class="text-decoration-none">
             <div class="chart-card h-100 p-3 hover-lift border border-opacity-10" style="border-color: var(--admin-accent) !important; transition: transform 0.2s;">
                 <div class="d-flex align-items-center gap-3">
-                    <img src="/<%= d.cover_image || 'images/placeholder.jpg' %>" class="rounded-3" style="width: 80px; height: 60px; object-fit: cover;">
+                    <img src="<%= fixImg(d.cover_image) %>" class="rounded-3" style="width: 80px; height: 60px; object-fit: cover;">
                     <div class="overflow-hidden">
                         <h6 class="fw-bold mb-1 text-truncate" style="color: var(--admin-text);"><%= d.name %></h6>
                         <span class="badge rounded-pill" style="background: rgba(240,165,0,0.1); color: var(--admin-accent); font-size: 0.65rem;">

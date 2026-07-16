@@ -7,6 +7,7 @@ const expressLayouts = require('express-ejs-layouts');
 const passport = require('./config/passport');
 const config = require('./config/env');
 const UserSession = require('./models/UserSession');
+const { LEGACY_IMAGE_ALIASES, DEFAULT_IMAGE, normalizeImagePath } = require('./utils/imagePaths');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
@@ -85,6 +86,18 @@ app.use(analyticsMiddleware);
 // Static files
 app.use(express.static(path.join(process.cwd(), 'public')));
 
+// Keep old image URLs working after assets were moved into /uploads/destinations.
+app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+
+    const target = LEGACY_IMAGE_ALIASES[req.path];
+    if (!target) return next();
+
+    res.sendFile(path.join(process.cwd(), 'public', target.replace(/^\//, '')), (err) => {
+        if (err) next();
+    });
+});
+
 // Global variables for templates
 app.use(async (req, res, next) => {
     // Dynamic Base URL detection (Prioritize current request host for local testing)
@@ -106,13 +119,9 @@ app.use(async (req, res, next) => {
     res.locals.assetV = '1.1.0_' + Date.now(); 
 
     res.locals.fixImg = (imgPath, fallback) => {
-        fallback = fallback || '/images/placeholder.png';
-        if (!imgPath || imgPath === 'undefined' || imgPath === 'NULL') return fallback;
-        if (imgPath.startsWith('http') || imgPath.startsWith('data:')) return imgPath;
-        // Strip 'public/' prefix if present
-        let clean = imgPath.replace(/^public\//, '');
-        if (!clean.startsWith('/')) clean = '/' + clean;
-        
+        const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
+        if (clean.startsWith('http') || clean.startsWith('data:')) return clean;
+
         // Add cache buster for fresh updates
         const v = res.locals.assetV || Date.now();
         return clean + (clean.includes('?') ? '&' : '?') + 'v=' + v;

@@ -9,4 +9,5 @@ yarn-error.log*
 .vercel
 scratch/
 src/test_maps.js
+Claude-Kit/
 
