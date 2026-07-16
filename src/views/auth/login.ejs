@@ -33,7 +33,10 @@
 
                         <div class="phone-login-notice mb-4">
                             <i class="bi bi-exclamation-triangle-fill"></i>
-                            <span>Hệ thống tạm thời không cho phép đăng kí hoặc đăng nhập bằng số điện thoại</span>
+                            <span class="phone-login-notice-text">
+                                <span>Tạm thời không cho phép đăng kí</span>
+                                <span>hoặc đăng nhập bằng số điện thoại</span>
+                            </span>
                         </div>
 
                         <div class="d-flex align-items-center mb-4 mt-2">
@@ -312,27 +315,39 @@
         line-height: 1;
     }
     .phone-login-notice {
+        position: relative;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
-        gap: 10px;
-        padding: 12px 14px;
+        padding: 12px 14px 12px 42px;
         border-radius: 18px;
         background: linear-gradient(135deg, rgba(146,39,36,0.42), rgba(255,193,7,0.14));
         border: 1px solid rgba(255,255,255,0.14);
         box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.12);
         color: #fff;
-        font-size: 0.84rem;
         font-weight: 700;
-        line-height: 1.42;
         text-align: center;
     }
     .phone-login-notice i {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
         color: #fff;
-        flex: 0 0 auto;
-        font-size: 1rem;
-        line-height: 1.42;
-        margin-top: 1px;
+        font-size: 1.05rem;
+        line-height: 1;
+    }
+    .phone-login-notice-text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        max-width: 100%;
+        font-size: clamp(0.7rem, 3.1vw, 0.84rem);
+        line-height: 1.28;
+    }
+    .phone-login-notice-text span {
+        display: block;
+        white-space: nowrap;
     }
     @media (max-width: 380px) {
         .social-login-btn {
@@ -348,8 +363,12 @@
             font-size: 22px;
         }
         .phone-login-notice {
-            font-size: 0.78rem;
-            padding: 9px 12px;
+            padding: 10px 10px 10px 34px;
+            border-radius: 16px;
+        }
+        .phone-login-notice i {
+            left: 12px;
+            font-size: 0.95rem;
         }
     }
 </style>
