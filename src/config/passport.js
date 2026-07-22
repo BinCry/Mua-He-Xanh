@@ -133,7 +133,16 @@ if (config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID
               }
 
               const email = profile.emails && profile.emails.length > 0 ? profile.emails[0].value : null;
-              
+              if (email) {
+                  const [emailUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+                  if (emailUsers.length > 0) {
+                      await db.query('UPDATE users SET facebook_id = ?, avatar = COALESCE(avatar, ?) WHERE id = ?', 
+                          [profile.id, profile.photos ? profile.photos[0].value : null, emailUsers[0].id]);
+                      const [updatedUser] = await db.query('SELECT * FROM users WHERE id = ?', [emailUsers[0].id]);
+                      return cb(null, updatedUser[0]);
+                  }
+              }
+
               const { v4: uuidv4 } = require('uuid');
               const newUser = {
                   id: uuidv4(),

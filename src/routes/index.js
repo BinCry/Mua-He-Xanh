@@ -327,12 +327,25 @@ router.get('/auth/facebook', (req, res, next) => {
     if (!config.auth.facebook.appId || config.auth.facebook.appId === 'MISSING_APP_ID') {
         return res.redirect('/auth/login?error=Lỗi cấu hình Facebook: Thiếu App ID trên Server.');
     }
-    passport.authenticate('facebook', { scope: ['public_profile', 'email'] })(req, res, next);
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.get('host');
+    const dynamicCallbackUrl = `${protocol}://${host}/auth/facebook/callback`;
+
+    passport.authenticate('facebook', { 
+        scope: ['public_profile', 'email'],
+        callbackURL: dynamicCallbackUrl
+    })(req, res, next);
 });
-router.get('/auth/facebook/callback', 
-    passport.authenticate('facebook', { failureRedirect: '/auth/login' }), 
-    AuthController.oauthCallback
-);
+router.get('/auth/facebook/callback', (req, res, next) => {
+    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    const host = req.get('host');
+    const dynamicCallbackUrl = `${protocol}://${host}/auth/facebook/callback`;
+
+    passport.authenticate('facebook', { 
+        failureRedirect: '/auth/login',
+        callbackURL: dynamicCallbackUrl
+    })(req, res, next);
+}, AuthController.oauthCallback);
 
 // ===== API ROUTES =====
 router.all('/api/session', ApiController.session);
