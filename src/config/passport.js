@@ -115,47 +115,36 @@ if (config.auth.google.clientId && config.auth.google.clientId !== 'MISSING_CLIE
     console.log('⚠️  Google OAuth: Chưa cấu hình Client ID - Bỏ qua');
 }
 
-// --- FACEBOOK OAUTH STRATEGY (Safe init - won't crash if keys missing) ---
+// --- FACEBOOK OAUTH STRATEGY (Separate account per Facebook ID) ---
 if (config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID') {
     passport.use(new FacebookStrategy({
         clientID: config.auth.facebook.appId,
         clientSecret: config.auth.facebook.appSecret,
         callbackURL: config.auth.facebook.callbackUrl,
-        profileFields: ['id', 'displayName', 'photos', 'email'],
+        profileFields: ['id', 'displayName', 'photos'],
         proxy: true
       },
       async function(accessToken, refreshToken, profile, cb) {
           try {
+              // 1. Match ONLY by facebook_id (completely independent from email/Gmail)
               const [existingUsers] = await db.query('SELECT * FROM users WHERE facebook_id = ?', [profile.id]);
               
               if (existingUsers.length > 0) {
                   return cb(null, existingUsers[0]);
               }
 
+              // 2. Extract Avatar photo URL
               const avatarUrl = (profile.photos && profile.photos.length > 0 && profile.photos[0].value) 
                   ? profile.photos[0].value 
                   : `https://graph.facebook.com/${profile.id}/picture?type=large`;
 
-              const email = (profile.emails && profile.emails.length > 0 && profile.emails[0].value) 
-                  ? profile.emails[0].value 
-                  : null;
-
-              if (email) {
-                  const [emailUsers] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-                  if (emailUsers.length > 0) {
-                      await db.query('UPDATE users SET facebook_id = ?, avatar = COALESCE(avatar, ?) WHERE id = ?', 
-                          [profile.id, avatarUrl, emailUsers[0].id]);
-                      const [updatedUser] = await db.query('SELECT * FROM users WHERE id = ?', [emailUsers[0].id]);
-                      return cb(null, updatedUser[0]);
-                  }
-              }
-
+              // 3. Create independent Facebook user account
               const { v4: uuidv4 } = require('uuid');
               const newUser = {
                   id: uuidv4(),
                   facebook_id: profile.id,
                   full_name: profile.displayName || 'Người dùng Facebook',
-                  email: email,
+                  email: profile.id + '@facebook.local', // Placeholder email for Facebook account
                   avatar: avatarUrl,
                   role: 'user',
                   role_id: 3
