@@ -71,56 +71,57 @@
     </div>
 </nav>
 
-<!-- MOBILE OFFCANVAS MENU (completely outside nav to avoid any nesting issues) -->
-<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu" style="width: 300px; z-index: 1060;">
-    <div class="offcanvas-header p-4" style="border-bottom: 1px solid #f1f5f9;">
+<!-- MOBILE OFFCANVAS MENU (Modern App Sidebar Style) -->
+<div class="offcanvas offcanvas-start border-0 shadow-lg" tabindex="-1" id="mobileMenu" style="width: 285px; z-index: 1060; border-radius: 0 24px 24px 0;">
+    <div class="offcanvas-header p-4" style="background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 100%); border-bottom: 1px solid var(--border-light);">
         <div class="d-flex align-items-center gap-2">
-            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 32px;" onerror="this.src='/images/logo.png'">
+            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 34px;" onerror="this.src='/images/logo.png'">
             <div class="d-flex flex-column justify-content-center">
-                <span class="fw-black d-block lh-1" style="font-family: 'Inter', sans-serif; color: var(--primary); font-size: 1.1rem; font-weight: 900;"><%= settings.brand_name || 'BÌNH LỢI' %></span>
-                <span class="d-block" style="font-family: 'Inter', sans-serif; font-size: 0.65rem; color: var(--primary-green); font-weight: 600; margin-top: 4px; letter-spacing: 0.5px; line-height: 1;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
+                <span class="fw-black d-block lh-1" style="font-family: 'Inter', sans-serif; color: var(--primary); font-size: 1.05rem; font-weight: 900;"><%= settings.brand_name || 'BÌNH LỢI' %></span>
+                <span class="d-block text-truncate" style="font-family: 'Dancing Script', cursive; font-size: 0.95rem; color: var(--primary-green); font-weight: 700; margin-top: 1px;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
             </div>
         </div>
-        <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+        <button type="button" class="btn-close shadow-none p-2" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
     </div>
     <div class="offcanvas-body d-flex flex-column p-0">
         <!-- Navigation Links -->
         <div class="p-3">
-            <a class="mobile-menu-link" href="/"><i class="bi bi-house-door"></i> Trang chủ</a>
-            <a class="mobile-menu-link" href="/explore"><i class="bi bi-compass"></i> Khám phá</a>
-            <a class="mobile-menu-link" href="/workshops"><i class="bi bi-palette"></i> Workshop</a>
-            <a class="mobile-menu-link" href="/reviews"><i class="bi bi-chat-heart"></i> Cộng đồng</a>
-            <a class="mobile-menu-link" href="/journey"><i class="bi bi-signpost-split"></i> Đề xuất hành trình/tour</a>
-            <a class="mobile-menu-link" href="/map"><i class="bi bi-map"></i> Bản đồ</a>
-            <a class="mobile-menu-link" href="/festivals"><i class="bi bi-calendar-event"></i> Lễ hội</a>
+            <div class="text-uppercase x-small text-muted fw-bold px-3 mb-2" style="letter-spacing: 1px; font-size: 0.65rem;">DANH MỤC MENU</div>
+            <a class="mobile-menu-link" href="/"><i class="bi bi-house-door-fill text-primary"></i> Trang chủ</a>
+            <a class="mobile-menu-link" href="/explore"><i class="bi bi-compass-fill text-success"></i> Khám phá</a>
+            <a class="mobile-menu-link" href="/workshops"><i class="bi bi-palette-fill text-warning"></i> Workshop</a>
+            <a class="mobile-menu-link" href="/reviews"><i class="bi bi-chat-heart-fill text-danger"></i> Cộng đồng</a>
+            <a class="mobile-menu-link" href="/journey"><i class="bi bi-signpost-split-fill text-info"></i> Đề xuất hành trình</a>
+            <a class="mobile-menu-link" href="/map"><i class="bi bi-map-fill text-primary"></i> Bản đồ</a>
+            <a class="mobile-menu-link" href="/festivals"><i class="bi bi-calendar-event-fill text-success"></i> Lễ hội</a>
             <% if (locals.user) { %>
-            <a class="mobile-menu-link" href="/chat" style="color: var(--primary); font-weight: 600;"><i class="bi bi-envelope-heart" style="color: var(--primary);"></i> Hộp thư hỗ trợ</a>
+            <a class="mobile-menu-link" href="/chat" style="color: var(--primary); font-weight: 600;"><i class="bi bi-envelope-heart-fill text-danger"></i> Hộp thư hỗ trợ</a>
             <% } %>
         </div>
 
         <!-- User Section at Bottom -->
-        <div class="mt-auto border-top p-3">
+        <div class="mt-auto border-top p-3 bg-light bg-opacity-50">
             <% if (user) { %>
             <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
-                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
-                <div>
-                    <div class="fw-bold" style="font-size: 0.9rem;"><%= user.full_name %></div>
-                    <div style="font-size: 0.72rem; color: var(--text-muted);"><%= user.phone || user.email %></div>
+                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle shadow-sm" style="width: 38px; height: 38px; object-fit: cover; border: 2px solid var(--primary-100);">
+                <div class="overflow-hidden">
+                    <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem;"><%= user.full_name %></div>
+                    <div class="x-small text-muted text-truncate"><%= user.phone || user.email %></div>
                 </div>
             </div>
             <% if (user.role === 'user') { %>
-            <a class="mobile-menu-link" href="/profile"><i class="bi bi-person-circle"></i> Hồ sơ du khách</a>
-            <a class="mobile-menu-link" href="/profile/rewards"><i class="bi bi-gift" style="color: #f59e0b;"></i> Điểm thưởng</a>
+            <a class="mobile-menu-link" href="/profile"><i class="bi bi-person-circle text-primary"></i> Hồ sơ du khách</a>
+            <a class="mobile-menu-link" href="/profile/rewards"><i class="bi bi-gift-fill text-warning"></i> Điểm thưởng</a>
             <% } %>
             <% if (user.role === 'admin') { %>
-            <a class="mobile-menu-link" href="/admin" style="color: var(--primary); font-weight: 700;"><i class="bi bi-shield-check"></i> Admin Panel</a>
+            <a class="mobile-menu-link text-primary fw-bold" href="/admin"><i class="bi bi-shield-check"></i> Admin Panel</a>
             <% } %>
             <% if (user.role === 'manager') { %>
-            <a class="mobile-menu-link" href="/manager" style="color: var(--primary); font-weight: 700;"><i class="bi bi-shield-check"></i> Quản lý Panel</a>
+            <a class="mobile-menu-link text-primary fw-bold" href="/manager"><i class="bi bi-shield-check"></i> Quản lý Panel</a>
             <% } %>
-            <a class="mobile-menu-link text-danger" href="/auth/logout" style="margin-top: 8px;"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+            <a class="mobile-menu-link text-danger mt-1" href="/auth/logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
             <% } else { %>
-            <a href="/auth/login" class="btn btn-premium rounded-pill w-100 py-2 fw-bold" style="font-size: 0.88rem;">
+            <a href="/auth/login" class="btn btn-premium rounded-pill w-100 py-2 fw-bold shadow-sm" style="font-size: 0.82rem;">
                 <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
             </a>
             <% } %>
@@ -130,11 +131,11 @@
 
 <style>
     /* Hamburger */
-    .nav-hamburger { width: 24px; height: 18px; position: relative; cursor: pointer; }
+    .nav-hamburger { width: 22px; height: 16px; position: relative; cursor: pointer; }
     .nav-hamburger span { display: block; height: 2px; background: var(--primary); border-radius: 2px; transition: all 0.3s ease; position: absolute; left: 0; width: 100%; }
     .nav-hamburger span:nth-child(1) { top: 0; }
-    .nav-hamburger span:nth-child(2) { top: 8px; width: 70%; }
-    .nav-hamburger span:nth-child(3) { top: 16px; width: 85%; }
+    .nav-hamburger span:nth-child(2) { top: 7px; width: 70%; }
+    .nav-hamburger span:nth-child(3) { top: 14px; width: 85%; }
 
     /* Mobile: Center the brand */
     @media (max-width: 991.98px) {
@@ -152,31 +153,32 @@
         .navbar-brand { margin: 0 auto !important; }
     }
 
-    /* Mobile Offcanvas Menu */
+    /* Mobile Offcanvas Menu Sidebar */
     #mobileMenu {
-        background: rgba(255,255,255,0.99) !important;
-        backdrop-filter: blur(20px) !important;
+        background: #ffffff !important;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
     }
     .mobile-menu-link {
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 13px 16px;
-        font-size: 0.92rem;
-        font-weight: 500;
-        color: var(--text, #1e293b);
+        padding: 10px 14px;
+        font-size: 0.84rem;
+        font-weight: 600;
+        color: #334155;
         text-decoration: none;
         border-radius: 12px;
-        transition: all 0.15s ease;
+        transition: all 0.2s ease;
+        margin-bottom: 3px;
     }
-    .mobile-menu-link:hover, .mobile-menu-link:focus {
-        background: var(--primary-50, #fbf5f5);
+    .mobile-menu-link:hover, .mobile-menu-link:active {
+        background: var(--primary-50, #fdf5f5);
         color: var(--primary, #922724);
     }
     .mobile-menu-link i {
-        width: 20px;
+        width: 22px;
         text-align: center;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
     }
 
     /* Dropdown polish */
