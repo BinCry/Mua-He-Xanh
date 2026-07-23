@@ -967,20 +967,38 @@ img { max-width: 100%; }
    RESPONSIVE - New sections
    ========================================================================== */
 @media (max-width: 991.98px) {
-    .hero-new { padding-top: 120px; padding-bottom: 60px; }
-    .hero-brand-title { font-size: 3rem; letter-spacing: -2px; }
+    .hero-new { padding-top: 100px; padding-bottom: 50px; }
+    .hero-brand-title { font-size: 2.8rem; letter-spacing: -1px; }
     .quick-info-card { margin-top: 20px; }
-    .stats-dark { padding: 80px 0; }
-    .stats-heading { font-size: 1.8rem; margin-bottom: 32px; }
+    .stats-dark { padding: 70px 0; }
+    .stats-heading { font-size: 1.6rem; margin-bottom: 28px; }
+}
+
+@media (max-width: 767.98px) {
+    .hero-brand-title { font-size: 2.2rem; }
+    .hero-tagline { font-size: 0.72rem; letter-spacing: 1px; white-space: nowrap; }
+    .stats-heading { font-size: 1.4rem; white-space: nowrap; }
+    .stat-number { font-size: 1.75rem; white-space: nowrap; }
+    .stat-text { font-size: 0.7rem; white-space: nowrap; letter-spacing: 0.5px; }
+    .qi-title { font-size: 0.95rem; white-space: nowrap; }
+    .quick-info-table .qi-label { font-size: 0.68rem; min-width: 90px; white-space: nowrap; }
+    .quick-info-table .qi-value { font-size: 0.8rem; }
+    .btn-explore-new, .btn-map-new { font-size: 0.78rem; padding: 12px 20px; white-space: nowrap; }
+    .nav-link { font-size: 0.78rem !important; padding: 6px 12px !important; }
 }
 
 @media (max-width: 575.98px) {
-    .hero-brand-title { font-size: 2.5rem; }
-    .hero-tagline { font-size: 0.7rem; letter-spacing: 2px; }
-    .quick-info-card { padding: 24px; }
-    .quick-info-table .qi-label { font-size: 0.65rem; min-width: 80px; }
-    .quick-info-table .qi-value { font-size: 0.82rem; }
-    .stat-number { font-size: 2rem; }
+    .hero-brand-title { font-size: 1.85rem; letter-spacing: 0; }
+    .hero-tagline { font-size: 0.65rem; letter-spacing: 0.5px; white-space: nowrap; }
+    .quick-info-card { padding: 18px; }
+    .quick-info-table .qi-label { font-size: 0.62rem; min-width: 80px; white-space: nowrap; }
+    .quick-info-table .qi-value { font-size: 0.75rem; }
+    .stat-number { font-size: 1.45rem; white-space: nowrap; }
+    .stat-text { font-size: 0.62rem; white-space: nowrap; }
+    .stats-heading { font-size: 1.15rem; white-space: nowrap; }
+    h1, h2, .h1, .h2 { font-size: 1.4rem !important; }
+    h3, .h3 { font-size: 1.2rem !important; }
+    .btn { font-size: 0.8rem; }
 }
 
 /* Container width enhancements for widescreen displays to prevent empty side whitespace */
