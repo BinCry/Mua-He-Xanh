@@ -970,9 +970,12 @@ img { max-width: 100%; }
 @media (max-width: 767.98px) {
     body { font-size: 13.5px !important; line-height: 1.6 !important; }
     .container, .container-fluid, .container-site { padding-left: 14px !important; padding-right: 14px !important; }
-    .hero-new { padding-top: 80px !important; padding-bottom: 35px !important; }
-    .hero-brand-title { font-size: 1.6rem !important; letter-spacing: 0 !important; line-height: 1.25 !important; }
-    .hero-tagline { font-size: 0.65rem !important; letter-spacing: 0.5px !important; line-height: 1.4 !important; margin-bottom: 12px !important; }
+    .hero-new { padding-top: 110px !important; padding-bottom: 50px !important; text-align: center !important; }
+    .hero-new .d-flex { justify-content: center !important; }
+    .hero-brand-title { font-size: 2rem !important; letter-spacing: 0 !important; line-height: 1.2 !important; color: #ffffff !important; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .hero-tagline { font-size: 0.7rem !important; letter-spacing: 1px !important; color: #f0a500 !important; font-weight: 700; margin-bottom: 14px !important; }
+    .hero-title-line { margin: 10px auto 14px auto !important; }
+    .text-secondary { color: rgba(255,255,255,0.85) !important; text-align: center !important; margin: 0 auto 20px auto !important; }
     .stats-dark { padding: 45px 0 !important; }
     .stats-heading { font-size: 1.2rem !important; margin-bottom: 20px !important; }
     .stat-number { font-size: 1.35rem !important; }
@@ -992,17 +995,17 @@ img { max-width: 100%; }
 
 @media (max-width: 575.98px) {
     body { font-size: 13px !important; }
-    .hero-new { padding-top: 70px !important; padding-bottom: 25px !important; }
-    .hero-brand-title { font-size: 1.35rem !important; letter-spacing: 0 !important; line-height: 1.2 !important; }
-    .hero-tagline { font-size: 0.58rem !important; letter-spacing: 0 !important; line-height: 1.35 !important; }
-    .quick-info-card { padding: 12px !important; margin-top: 10px !important; border-radius: 14px !important; }
-    .quick-info-table .qi-label { font-size: 0.58rem !important; min-width: 70px !important; }
-    .quick-info-table .qi-value { font-size: 0.7rem !important; }
+    .hero-new { padding-top: 100px !important; padding-bottom: 40px !important; }
+    .hero-brand-title { font-size: 1.7rem !important; letter-spacing: 0 !important; line-height: 1.25 !important; }
+    .hero-tagline { font-size: 0.65rem !important; letter-spacing: 0.5px !important; }
+    .quick-info-card { padding: 14px !important; margin-top: 20px !important; border-radius: 16px !important; background: rgba(255,255,255,0.92) !important; backdrop-filter: blur(10px); }
+    .quick-info-table .qi-label { font-size: 0.6rem !important; min-width: 70px !important; }
+    .quick-info-table .qi-value { font-size: 0.72rem !important; }
     .stat-number { font-size: 1.2rem !important; }
     .stat-text { font-size: 0.55rem !important; }
-    .stats-heading { font-size: 1rem !important; }
-    .btn-explore-new, .btn-map-new { font-size: 0.65rem !important; padding: 7px 12px !important; }
-    h1, h2, .h1, .h2 { font-size: 1.2rem !important; }
+    .stats-heading { font-size: 1.05rem !important; }
+    .btn-explore-new, .btn-map-new { font-size: 0.68rem !important; padding: 8px 12px !important; }
+    h1, h2, .h1, .h2 { font-size: 1.25rem !important; }
     h3, .h3 { font-size: 1.02rem !important; }
     h4, h5, .h4, .h5 { font-size: 0.92rem !important; }
     .btn { font-size: 0.72rem !important; padding: 8px 14px !important; }
