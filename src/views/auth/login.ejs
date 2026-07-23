@@ -272,12 +272,15 @@
 
     function loginWithFacebookSDK() {
         if (typeof FB === 'undefined') {
+            alert('Facebook SDK chưa tải xong, vui lòng thử lại sau 2 giây!');
             window.location.href = '/auth/facebook';
             return;
         }
         FB.login(function(response) {
+            console.log('FB Login Response:', response);
             if (response.authResponse) {
                 FB.api('/me', { fields: 'id, name, email, picture.type(large)' }, function(userInfo) {
+                    console.log('FB User Info:', userInfo);
                     axios.post('/auth/social', {
                         platform: 'facebook',
                         id: userInfo.id,
@@ -288,14 +291,15 @@
                         if (res.data && res.data.success) {
                             window.location.href = res.data.redirect || '/';
                         } else {
-                            window.location.href = '/auth/facebook';
+                            alert('Lỗi lưu tài khoản Facebook: ' + (res.data.message || 'Thất bại'));
                         }
                     }).catch(err => {
-                        window.location.href = '/auth/facebook';
+                        console.error('FB API error:', err);
+                        alert('Lỗi kết nối máy chủ khi đăng nhập Facebook!');
                     });
                 });
             } else {
-                console.log('User cancelled login or did not fully authorize.');
+                console.log('User cancelled login or did not fully authorize:', response);
             }
         }, { scope: 'public_profile' });
     }
