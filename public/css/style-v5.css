@@ -975,30 +975,31 @@ img { max-width: 100%; }
 }
 
 @media (max-width: 767.98px) {
-    .hero-brand-title { font-size: 2.2rem; }
-    .hero-tagline { font-size: 0.72rem; letter-spacing: 1px; white-space: nowrap; }
-    .stats-heading { font-size: 1.4rem; white-space: nowrap; }
-    .stat-number { font-size: 1.75rem; white-space: nowrap; }
-    .stat-text { font-size: 0.7rem; white-space: nowrap; letter-spacing: 0.5px; }
-    .qi-title { font-size: 0.95rem; white-space: nowrap; }
-    .quick-info-table .qi-label { font-size: 0.68rem; min-width: 90px; white-space: nowrap; }
-    .quick-info-table .qi-value { font-size: 0.8rem; }
-    .btn-explore-new, .btn-map-new { font-size: 0.78rem; padding: 12px 20px; white-space: nowrap; }
+    .hero-brand-title { font-size: 1.8rem; letter-spacing: -0.5px; line-height: 1.25; }
+    .hero-tagline { font-size: 0.68rem; letter-spacing: 0.5px; }
+    .stats-heading { font-size: 1.3rem; }
+    .stat-number { font-size: 1.6rem; }
+    .stat-text { font-size: 0.65rem; letter-spacing: 0.5px; }
+    .qi-title { font-size: 0.9rem; }
+    .quick-info-table .qi-label { font-size: 0.65rem; min-width: 85px; }
+    .quick-info-table .qi-value { font-size: 0.78rem; }
+    .btn-explore-new, .btn-map-new { font-size: 0.75rem; padding: 10px 16px; }
     .nav-link { font-size: 0.78rem !important; padding: 6px 12px !important; }
 }
 
 @media (max-width: 575.98px) {
-    .hero-brand-title { font-size: 1.85rem; letter-spacing: 0; }
-    .hero-tagline { font-size: 0.65rem; letter-spacing: 0.5px; white-space: nowrap; }
-    .quick-info-card { padding: 18px; }
-    .quick-info-table .qi-label { font-size: 0.62rem; min-width: 80px; white-space: nowrap; }
-    .quick-info-table .qi-value { font-size: 0.75rem; }
-    .stat-number { font-size: 1.45rem; white-space: nowrap; }
-    .stat-text { font-size: 0.62rem; white-space: nowrap; }
-    .stats-heading { font-size: 1.15rem; white-space: nowrap; }
-    h1, h2, .h1, .h2 { font-size: 1.4rem !important; }
-    h3, .h3 { font-size: 1.2rem !important; }
-    .btn { font-size: 0.8rem; }
+    .hero-brand-title { font-size: 1.5rem !important; letter-spacing: 0; line-height: 1.25; }
+    .hero-tagline { font-size: 0.62rem !important; letter-spacing: 0; word-break: break-word; }
+    .quick-info-card { padding: 16px; margin-top: 15px; }
+    .quick-info-table .qi-label { font-size: 0.6rem; min-width: 75px; }
+    .quick-info-table .qi-value { font-size: 0.72rem; }
+    .stat-number { font-size: 1.35rem; }
+    .stat-text { font-size: 0.6rem; }
+    .stats-heading { font-size: 1.1rem; }
+    .btn-explore-new, .btn-map-new { font-size: 0.7rem; padding: 9px 14px; }
+    h1, h2, .h1, .h2 { font-size: 1.3rem !important; }
+    h3, .h3 { font-size: 1.1rem !important; }
+    .btn { font-size: 0.75rem; }
 }
 
 /* ==========================================================================
