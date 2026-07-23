@@ -1001,6 +1001,47 @@ img { max-width: 100%; }
     .btn { font-size: 0.8rem; }
 }
 
+/* ==========================================================================
+   MOBILE MENU DRAWER (Mobile App Offcanvas Style)
+   ========================================================================== */
+.mobile-menu-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    color: #1e293b;
+    font-size: 0.88rem;
+    font-weight: 600;
+    border-radius: 12px;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    margin-bottom: 4px;
+}
+.mobile-menu-link i {
+    font-size: 1.15rem;
+    color: var(--primary);
+    width: 24px;
+    text-align: center;
+}
+.mobile-menu-link:hover, .mobile-menu-link:active {
+    background-color: var(--primary-50);
+    color: var(--primary-dark);
+}
+
+@media (max-width: 575.98px) {
+    .offcanvas-start {
+        width: 280px !important;
+        border-radius: 0 24px 24px 0;
+    }
+    .mobile-menu-link {
+        font-size: 0.82rem;
+        padding: 10px 14px;
+    }
+    .mobile-menu-link i {
+        font-size: 1.05rem;
+    }
+}
+
 /* Container width enhancements for widescreen displays to prevent empty side whitespace */
 @media (min-width: 1200px) {
     .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
