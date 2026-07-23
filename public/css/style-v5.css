@@ -966,42 +966,52 @@ img { max-width: 100%; }
 /* ==========================================================================
    RESPONSIVE - New sections
    ========================================================================== */
-@media (max-width: 991.98px) {
-    .hero-new { padding-top: 100px; padding-bottom: 50px; }
-    .hero-brand-title { font-size: 2.8rem; letter-spacing: -1px; }
-    .quick-info-card { margin-top: 20px; }
-    .stats-dark { padding: 70px 0; }
-    .stats-heading { font-size: 1.6rem; margin-bottom: 28px; }
-}
-
+/* Global Mobile Optimization Rules for Entire Site */
 @media (max-width: 767.98px) {
-    .hero-new { padding-top: 85px !important; padding-bottom: 40px !important; }
-    .hero-brand-title { font-size: 1.65rem !important; letter-spacing: 0 !important; line-height: 1.3 !important; }
+    body { font-size: 13.5px !important; line-height: 1.6 !important; }
+    .container, .container-fluid, .container-site { padding-left: 14px !important; padding-right: 14px !important; }
+    .hero-new { padding-top: 80px !important; padding-bottom: 35px !important; }
+    .hero-brand-title { font-size: 1.6rem !important; letter-spacing: 0 !important; line-height: 1.25 !important; }
     .hero-tagline { font-size: 0.65rem !important; letter-spacing: 0.5px !important; line-height: 1.4 !important; margin-bottom: 12px !important; }
-    .stats-heading { font-size: 1.25rem !important; }
-    .stat-number { font-size: 1.45rem !important; }
-    .stat-text { font-size: 0.62rem !important; letter-spacing: 0.5px !important; }
+    .stats-dark { padding: 45px 0 !important; }
+    .stats-heading { font-size: 1.2rem !important; margin-bottom: 20px !important; }
+    .stat-number { font-size: 1.35rem !important; }
+    .stat-text { font-size: 0.6rem !important; letter-spacing: 0.5px !important; }
     .qi-title { font-size: 0.85rem !important; }
     .quick-info-table .qi-label { font-size: 0.62rem !important; min-width: 75px !important; }
     .quick-info-table .qi-value { font-size: 0.75rem !important; }
     .btn-explore-new, .btn-map-new { font-size: 0.72rem !important; padding: 8px 14px !important; }
-    .nav-link { font-size: 0.75rem !important; padding: 6px 10px !important; }
+    .py-section { padding-top: 50px !important; padding-bottom: 50px !important; }
+    .card-bl, .card-heal, .card-healing, .card-social-new, .chart-card { padding: 16px !important; border-radius: 16px !important; }
+    .display-1 { font-size: 1.8rem !important; }
+    .display-2 { font-size: 1.6rem !important; }
+    .display-3 { font-size: 1.4rem !important; }
+    .display-text { font-size: 1.3rem !important; }
+    .explore-hero-premium { height: 50vh !important; min-height: 360px !important; }
 }
 
 @media (max-width: 575.98px) {
-    .hero-new { padding-top: 75px !important; padding-bottom: 30px !important; }
-    .hero-brand-title { font-size: 1.4rem !important; letter-spacing: 0 !important; line-height: 1.25 !important; }
-    .hero-tagline { font-size: 0.6rem !important; letter-spacing: 0 !important; line-height: 1.35 !important; }
-    .quick-info-card { padding: 14px !important; margin-top: 12px !important; border-radius: 16px !important; }
+    body { font-size: 13px !important; }
+    .hero-new { padding-top: 70px !important; padding-bottom: 25px !important; }
+    .hero-brand-title { font-size: 1.35rem !important; letter-spacing: 0 !important; line-height: 1.2 !important; }
+    .hero-tagline { font-size: 0.58rem !important; letter-spacing: 0 !important; line-height: 1.35 !important; }
+    .quick-info-card { padding: 12px !important; margin-top: 10px !important; border-radius: 14px !important; }
     .quick-info-table .qi-label { font-size: 0.58rem !important; min-width: 70px !important; }
     .quick-info-table .qi-value { font-size: 0.7rem !important; }
-    .stat-number { font-size: 1.25rem !important; }
-    .stat-text { font-size: 0.58rem !important; }
-    .stats-heading { font-size: 1.05rem !important; }
-    .btn-explore-new, .btn-map-new { font-size: 0.68rem !important; padding: 8px 12px !important; }
-    h1, h2, .h1, .h2 { font-size: 1.25rem !important; }
-    h3, .h3 { font-size: 1.05rem !important; }
-    .btn { font-size: 0.72rem !important; }
+    .stat-number { font-size: 1.2rem !important; }
+    .stat-text { font-size: 0.55rem !important; }
+    .stats-heading { font-size: 1rem !important; }
+    .btn-explore-new, .btn-map-new { font-size: 0.65rem !important; padding: 7px 12px !important; }
+    h1, h2, .h1, .h2 { font-size: 1.2rem !important; }
+    h3, .h3 { font-size: 1.02rem !important; }
+    h4, h5, .h4, .h5 { font-size: 0.92rem !important; }
+    .btn { font-size: 0.72rem !important; padding: 8px 14px !important; }
+    .btn-lg { font-size: 0.8rem !important; padding: 10px 18px !important; }
+    .btn-sm { font-size: 0.68rem !important; padding: 5px 10px !important; }
+    .badge { font-size: 0.62rem !important; }
+    .modal-dialog { margin: 10px !important; }
+    .modal-content { border-radius: 20px !important; }
+    .py-section { padding-top: 40px !important; padding-bottom: 40px !important; }
 }
 
 /* ==========================================================================
