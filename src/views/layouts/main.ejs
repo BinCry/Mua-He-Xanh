@@ -63,12 +63,6 @@
     <!-- Footer -->
     <%- include('../partials/footer') %>
 
-    <!-- Floating Mobile Simulator Toggle (Desktop / Laptop only) -->
-    <button type="button" id="btnToggleMobileFrame" class="btn btn-dark position-fixed bottom-0 end-0 m-4 rounded-pill shadow-lg d-none d-lg-flex align-items-center gap-2 px-3 py-2 z-3 border border-secondary" style="font-size: 0.8rem; background: #0f172a;" onclick="toggleMobileFrameMode()">
-        <i class="bi bi-phone fs-6 text-warning"></i>
-        <span>Xem giao diện Mobile</span>
-    </button>
-
 
 
     <!-- Mobile Bottom: Only QR Scan Button (centered for mobile & PWA) -->
@@ -135,19 +129,6 @@
                 );
             });
         };
-
-        function toggleMobileFrameMode() {
-            document.body.classList.toggle('mobile-frame-active');
-            const isActive = document.body.classList.contains('mobile-frame-active');
-            const btn = document.getElementById('btnToggleMobileFrame');
-            if (btn) {
-                if (isActive) {
-                    btn.innerHTML = '<i class="bi bi-laptop fs-6 text-success"></i><span>Về màn hình Laptop</span>';
-                } else {
-                    btn.innerHTML = '<i class="bi bi-phone fs-6 text-warning"></i><span>Xem giao diện Mobile</span>';
-                }
-            }
-        }
 
         // Run reveal immediately on DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
