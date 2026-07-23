@@ -1023,3 +1023,36 @@ img { max-width: 100%; }
     padding-top: 100px !important;
     padding-bottom: 100px !important;
 }
+
+/* Mobile Frame Simulator mode for Desktop/Laptop */
+body.mobile-frame-active {
+    background-color: #0f172a !important;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 30px 0;
+}
+
+body.mobile-frame-active #mobileAppContainer {
+    width: 412px !important;
+    max-width: 100% !important;
+    min-height: 840px;
+    background-color: #ffffff;
+    border-radius: 40px;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 0 12px #1e293b;
+    overflow-x: hidden;
+    overflow-y: auto;
+    position: relative;
+}
+
+body.mobile-frame-active .navbar-premium {
+    width: 412px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    border-radius: 40px 40px 0 0;
+}
+
+body.mobile-frame-active .mobile-bottom-qr-container {
+    width: 412px !important;
+}
