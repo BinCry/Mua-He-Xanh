@@ -253,56 +253,7 @@
         }
     }
 
-    // Facebook JS SDK Initialization
-    window.fbAsyncInit = function() {
-        FB.init({
-            appId      : '1566975911629251',
-            cookie     : true,
-            xfbml      : true,
-            version    : 'v18.0'
-        });
-    };
-    (function(d, s, id){
-        var js, fjs = d.getElementsByTagName(s)[0];
-        if (d.getElementById(id)) {return;}
-        js = d.createElement(s); js.id = id;
-        js.src = "https://connect.facebook.net/vi_VN/sdk.js";
-        fjs.parentNode.insertBefore(js, fjs);
-    }(document, 'script', 'facebook-jssdk'));
 
-    function loginWithFacebookSDK() {
-        if (typeof FB === 'undefined') {
-            alert('Facebook SDK chưa tải xong, vui lòng thử lại sau 2 giây!');
-            window.location.href = '/auth/facebook';
-            return;
-        }
-        FB.login(function(response) {
-            console.log('FB Login Response:', response);
-            if (response.authResponse) {
-                FB.api('/me', { fields: 'id, name, email, picture.type(large)' }, function(userInfo) {
-                    console.log('FB User Info:', userInfo);
-                    axios.post('/auth/social', {
-                        platform: 'facebook',
-                        id: userInfo.id,
-                        name: userInfo.name,
-                        email: userInfo.email || null,
-                        avatar: userInfo.picture ? userInfo.picture.data.url : null
-                    }).then(res => {
-                        if (res.data && res.data.success) {
-                            window.location.href = res.data.redirect || '/';
-                        } else {
-                            alert('Lỗi lưu tài khoản Facebook: ' + (res.data.message || 'Thất bại'));
-                        }
-                    }).catch(err => {
-                        console.error('FB API error:', err);
-                        alert('Lỗi kết nối máy chủ khi đăng nhập Facebook!');
-                    });
-                });
-            } else {
-                console.log('User cancelled login or did not fully authorize:', response);
-            }
-        }, { scope: 'public_profile' });
-    }
 
     function togglePwd(inputId, btn) {
         const input = document.getElementById(inputId);
