@@ -970,20 +970,60 @@ img { max-width: 100%; }
 @media (max-width: 767.98px) {
     body { font-size: 13.5px !important; line-height: 1.6 !important; }
     .container, .container-fluid, .container-site { padding-left: 14px !important; padding-right: 14px !important; }
-    .hero-new { padding-top: 110px !important; padding-bottom: 50px !important; text-align: center !important; }
+    .hero-new { 
+        padding-top: 110px !important; 
+        padding-bottom: 50px !important; 
+        text-align: center !important;
+        background-size: cover !important;
+        background-position: center !important;
+    }
     .hero-new .d-flex { justify-content: center !important; }
-    .hero-brand-title { font-size: 2rem !important; letter-spacing: 0 !important; line-height: 1.2 !important; color: #ffffff !important; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-    .hero-tagline { font-size: 0.7rem !important; letter-spacing: 1px !important; color: #f0a500 !important; font-weight: 700; margin-bottom: 14px !important; }
-    .hero-title-line { margin: 10px auto 14px auto !important; }
-    .text-secondary { color: rgba(255,255,255,0.85) !important; text-align: center !important; margin: 0 auto 20px auto !important; }
+    .hero-brand-title { 
+        font-size: 1.9rem !important; 
+        letter-spacing: 0 !important; 
+        line-height: 1.25 !important; 
+        color: #ffffff !important; 
+        text-shadow: 0 2px 12px rgba(0,0,0,0.6); 
+        margin-bottom: 8px !important;
+    }
+    .hero-title-line { margin: 8px auto 12px auto !important; }
+    .hero-tagline { 
+        font-size: 0.72rem !important; 
+        letter-spacing: 1px !important; 
+        color: #f0a500 !important; 
+        font-weight: 800 !important; 
+        margin-bottom: 14px !important; 
+        text-transform: uppercase;
+        text-shadow: 0 1px 4px rgba(0,0,0,0.5);
+    }
+    .text-secondary { 
+        color: rgba(255,255,255,0.9) !important; 
+        text-align: center !important; 
+        margin: 0 auto 20px auto !important; 
+        font-size: 0.85rem !important;
+        line-height: 1.6 !important;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    }
+    .btn-explore-new, .btn-map-new { 
+        font-size: 0.72rem !important; 
+        padding: 9px 16px !important; 
+        border-radius: 30px !important; 
+    }
+    .quick-info-card { 
+        padding: 16px !important; 
+        margin-top: 24px !important; 
+        border-radius: 18px !important; 
+        background: rgba(255, 255, 255, 0.95) !important; 
+        backdrop-filter: blur(12px); 
+        text-align: left !important;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;
+    }
+    .quick-info-table .qi-label { font-size: 0.65rem !important; min-width: 78px !important; }
+    .quick-info-table .qi-value { font-size: 0.78rem !important; }
     .stats-dark { padding: 45px 0 !important; }
     .stats-heading { font-size: 1.2rem !important; margin-bottom: 20px !important; }
     .stat-number { font-size: 1.35rem !important; }
     .stat-text { font-size: 0.6rem !important; letter-spacing: 0.5px !important; }
-    .qi-title { font-size: 0.85rem !important; }
-    .quick-info-table .qi-label { font-size: 0.62rem !important; min-width: 75px !important; }
-    .quick-info-table .qi-value { font-size: 0.75rem !important; }
-    .btn-explore-new, .btn-map-new { font-size: 0.72rem !important; padding: 8px 14px !important; }
     .py-section { padding-top: 50px !important; padding-bottom: 50px !important; }
     .card-bl, .card-heal, .card-healing, .card-social-new, .chart-card { padding: 16px !important; border-radius: 16px !important; }
     .display-1 { font-size: 1.8rem !important; }
@@ -995,16 +1035,10 @@ img { max-width: 100%; }
 
 @media (max-width: 575.98px) {
     body { font-size: 13px !important; }
-    .hero-new { padding-top: 100px !important; padding-bottom: 40px !important; }
-    .hero-brand-title { font-size: 1.7rem !important; letter-spacing: 0 !important; line-height: 1.25 !important; }
+    .hero-new { padding-top: 100px !important; padding-bottom: 35px !important; }
+    .hero-brand-title { font-size: 1.65rem !important; letter-spacing: 0 !important; line-height: 1.25 !important; }
     .hero-tagline { font-size: 0.65rem !important; letter-spacing: 0.5px !important; }
-    .quick-info-card { padding: 14px !important; margin-top: 20px !important; border-radius: 16px !important; background: rgba(255,255,255,0.92) !important; backdrop-filter: blur(10px); }
-    .quick-info-table .qi-label { font-size: 0.6rem !important; min-width: 70px !important; }
-    .quick-info-table .qi-value { font-size: 0.72rem !important; }
-    .stat-number { font-size: 1.2rem !important; }
-    .stat-text { font-size: 0.55rem !important; }
-    .stats-heading { font-size: 1.05rem !important; }
-    .btn-explore-new, .btn-map-new { font-size: 0.68rem !important; padding: 8px 12px !important; }
+    .btn-explore-new, .btn-map-new { font-size: 0.68rem !important; padding: 8px 14px !important; }
     h1, h2, .h1, .h2 { font-size: 1.25rem !important; }
     h3, .h3 { font-size: 1.02rem !important; }
     h4, h5, .h4, .h5 { font-size: 0.92rem !important; }
