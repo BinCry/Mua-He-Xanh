@@ -13,6 +13,11 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const PORT = config.port;
 
+// Debug: Log Facebook OAuth config status on startup
+console.log('🔍 [DEBUG] FACEBOOK_APP_ID from env:', process.env.FACEBOOK_APP_ID ? 'SET (' + process.env.FACEBOOK_APP_ID.substring(0, 6) + '...)' : '❌ NOT SET');
+console.log('🔍 [DEBUG] FACEBOOK_APP_SECRET from env:', process.env.FACEBOOK_APP_SECRET ? 'SET' : '❌ NOT SET');
+console.log('🔍 [DEBUG] config.auth.facebook.appId:', config.auth.facebook.appId ? 'SET' : '❌ NOT SET');
+
 // Trust proxy for Render (required for secure cookies behind proxy)
 app.set('trust proxy', 1);
 
