@@ -332,7 +332,7 @@ router.get('/auth/facebook', (req, res, next) => {
     const dynamicCallbackUrl = `${protocol}://${host}/auth/facebook/callback`;
 
     passport.authenticate('facebook', { 
-        scope: ['public_profile', 'email'],
+        scope: ['public_profile'],
         callbackURL: dynamicCallbackUrl
     })(req, res, next);
 });
@@ -342,10 +342,32 @@ router.get('/auth/facebook/callback', (req, res, next) => {
     const dynamicCallbackUrl = `${protocol}://${host}/auth/facebook/callback`;
 
     passport.authenticate('facebook', { 
-        failureRedirect: '/auth/login',
         callbackURL: dynamicCallbackUrl
+    }, (err, user, info) => {
+        console.log('=== FACEBOOK CALLBACK DEBUG ===');
+        console.log('Error:', err);
+        console.log('User:', user ? user.id : 'NULL');
+        console.log('Info:', info);
+        console.log('===============================');
+        
+        if (err) {
+            console.error('Facebook Auth Error:', err);
+            return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi Facebook: ' + err.message));
+        }
+        if (!user) {
+            const msg = (info && info.message) ? info.message : 'Đăng nhập Facebook thất bại';
+            return res.redirect('/auth/login?error=' + encodeURIComponent(msg));
+        }
+        
+        req.logIn(user, (loginErr) => {
+            if (loginErr) {
+                console.error('Facebook Login Session Error:', loginErr);
+                return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi tạo phiên đăng nhập'));
+            }
+            AuthController.oauthCallback(req, res, next);
+        });
     })(req, res, next);
-}, AuthController.oauthCallback);
+});
 
 // ===== API ROUTES =====
 router.all('/api/session', ApiController.session);
