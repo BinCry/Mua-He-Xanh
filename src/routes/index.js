@@ -352,11 +352,12 @@ router.get('/auth/facebook/callback', (req, res, next) => {
         
         if (err) {
             console.error('Facebook Auth Error:', err);
-            return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi Facebook: ' + err.message));
+            const detailErr = err.message || JSON.stringify(err);
+            return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi Facebook: ' + detailErr));
         }
         if (!user) {
-            const msg = (info && info.message) ? info.message : 'Đăng nhập Facebook thất bại';
-            return res.redirect('/auth/login?error=' + encodeURIComponent(msg));
+            const msg = (info && info.message) ? info.message : (info ? JSON.stringify(info) : 'Đăng nhập Facebook thất bại');
+            return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi Facebook: ' + msg));
         }
         
         req.logIn(user, (loginErr) => {
