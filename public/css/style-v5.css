@@ -202,6 +202,17 @@ img { max-width: 100%; }
 .btn-premium:hover::before { opacity: 1; }
 .btn-premium:active { transform: translateY(-1px); }
 
+/* Compact submit buttons: keep the label optically centered within a fixed-height pill. */
+.btn.search-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 38px;
+    padding: 0 24px !important;
+    line-height: 1;
+    white-space: nowrap;
+}
+
 .btn-gold {
     background: var(--grad-gold);
     color: var(--primary-dark);
