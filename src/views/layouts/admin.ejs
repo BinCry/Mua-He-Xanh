@@ -38,8 +38,11 @@
         /* Sidebar */
         .admin-sb { width: var(--sb-width); background: var(--admin-surface); border-right: 1px solid var(--admin-border); display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
         .sb-brand { padding: 24px 20px; border-bottom: 1px solid var(--admin-border); }
+        .sb-brand-title { display: flex; align-items: center; gap: 10px; }
+        .sb-brand-mark { width: 32px; height: 32px; border: 1px solid var(--admin-border); border-radius: 9px; background: var(--admin-bg); color: var(--admin-primary); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+        .sb-brand-mark i { font-size: 1rem; line-height: 1; }
         .sb-brand h5 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--admin-primary); margin: 0; letter-spacing: 1px; }
-        .sb-brand small { color: var(--admin-muted); font-size: 0.72rem; }
+        .sb-brand small { color: var(--admin-muted); font-size: 0.72rem; display: block; margin-top: 6px; }
         .sb-nav { padding: 16px 12px; flex-grow: 1; overflow-y: auto; }
         .sb-label { font-size: 0.65rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase; letter-spacing: 2px; padding: 8px 12px; margin-top: 16px; }
         .sb-link { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; color: var(--admin-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; margin-bottom: 2px; }
@@ -49,7 +52,7 @@
         .sb-footer { padding: 16px; border-top: 1px solid var(--admin-border); }
         
         /* Main content */
-        .admin-main { margin-left: var(--sb-width); flex-grow: 1; padding: 32px; min-height: 100vh; }
+        .admin-main { margin-left: var(--sb-width); flex-grow: 1; min-width: 0; padding: 32px; min-height: 100vh; }
         
         /* Stat cards */
         .stat-card { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 16px; padding: 20px; }
@@ -99,11 +102,17 @@
         <!-- Sidebar -->
         <aside class="admin-sb">
             <div class="sb-brand">
+                <div class="sb-brand-title">
+                    <span class="sb-brand-mark" aria-hidden="true">
+                        <i class="bi <%= user.role === 'manager' ? 'bi-geo-alt' : 'bi-buildings' %>"></i>
+                    </span>
                 <% if (user.role === 'manager') { %>
-                    <h5>🏛️ QUẢN LÝ PANEL</h5>
+                    <h5>QUẢN LÝ PANEL</h5>
+                </div>
                     <small>Hệ thống Quản lý Địa điểm</small>
                 <% } else { %>
-                    <h5>🏛️ BÌNH LỢI ADMIN</h5>
+                    <h5>BÌNH LỢI ADMIN</h5>
+                </div>
                     <small>Hệ thống Quản trị cấp Xã</small>
                 <% } %>
             </div>

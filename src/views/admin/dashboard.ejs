@@ -105,7 +105,9 @@
     <div class="col-lg-8">
         <div class="chart-card">
             <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Lượt Check-in (14 ngày gần nhất)</h6>
-            <canvas id="viewsChart" height="240"></canvas>
+            <div class="dashboard-chart dashboard-chart--daily">
+                <canvas id="viewsChart" role="img" aria-label="Biểu đồ lượt check-in trong 14 ngày gần nhất"></canvas>
+            </div>
         </div>
     </div>
     <div class="col-lg-4">
@@ -132,7 +134,9 @@
     <div class="col-lg-6">
         <div class="chart-card">
             <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Check-in theo tháng</h6>
-            <canvas id="checkinChart" height="200"></canvas>
+            <div class="dashboard-chart dashboard-chart--monthly">
+                <canvas id="checkinChart" role="img" aria-label="Biểu đồ lượt check-in theo tháng"></canvas>
+            </div>
         </div>
     </div>
     <div class="col-lg-6">
@@ -186,8 +190,41 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const formatCheckinCount = (value) => new Intl.NumberFormat('vi-VN').format(value);
+    const createIntegerCheckinAxis = (values) => {
+        const largestValue = Math.max(0, ...values);
+        const maxTickCount = 4;
+        const stepSize = Math.max(1, Math.ceil(largestValue / maxTickCount));
+        const max = Math.max(1, Math.ceil(largestValue / stepSize) * stepSize);
+
+        return {
+            beginAtZero: true,
+            max,
+            grid: { color: 'rgba(255,255,255,0.05)' },
+            ticks: {
+                color: '#71717a',
+                font: { size: 11 },
+                stepSize,
+                precision: 0,
+                maxTicksLimit: maxTickCount + 1,
+                callback: (value) => Number.isInteger(value) ? formatCheckinCount(value) : ''
+            }
+        };
+    };
+
+    const checkinTooltip = {
+        displayColors: false,
+        padding: 10,
+        callbacks: {
+            label: (context) => `${context.dataset.label}: ${formatCheckinCount(context.parsed.y)} lượt`
+        }
+    };
+
+    const checkinInteraction = { mode: 'nearest', intersect: false };
+
     // Daily Check-ins Chart
     const dailyData = <%- JSON.stringify(chartData.dailyCheckins) %>;
+    const dailyCheckinCounts = dailyData.map(d => d.count);
     new Chart(document.getElementById('viewsChart'), {
         type: 'line',
         data: {
@@ -206,16 +243,32 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            maintainAspectRatio: false,
+            interaction: checkinInteraction,
+            plugins: {
+                legend: { display: false },
+                tooltip: checkinTooltip
+            },
             scales: {
-                x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 11 } } },
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 11 } }, beginAtZero: true }
+                x: {
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: {
+                        color: '#71717a',
+                        font: { size: 11 },
+                        autoSkip: true,
+                        maxTicksLimit: 7,
+                        maxRotation: 0,
+                        minRotation: 0
+                    }
+                },
+                y: createIntegerCheckinAxis(dailyCheckinCounts)
             }
         }
     });
 
     // Monthly Check-in Chart
     const monthlyData = <%- JSON.stringify(chartData.monthlyCheckins) %>;
+    const monthlyCheckinCounts = monthlyData.map(d => d.count);
     new Chart(document.getElementById('checkinChart'), {
         type: 'bar',
         data: {
@@ -231,10 +284,15 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         options: {
             responsive: true,
-            plugins: { legend: { display: false } },
+            maintainAspectRatio: false,
+            interaction: checkinInteraction,
+            plugins: {
+                legend: { display: false },
+                tooltip: checkinTooltip
+            },
             scales: {
                 x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 11 } } },
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 11 } }, beginAtZero: true }
+                y: createIntegerCheckinAxis(monthlyCheckinCounts)
             }
         }
     });
@@ -292,4 +350,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
+<style>
+    .dashboard-chart {
+        position: relative;
+        height: 240px;
+    }
+
+    .dashboard-chart--monthly {
+        height: 220px;
+    }
+
+    @media (max-width: 991px) {
+        .dashboard-chart,
+        .dashboard-chart--monthly {
+            height: 190px;
+        }
+    }
+</style>
 
