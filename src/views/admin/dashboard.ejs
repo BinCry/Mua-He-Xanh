@@ -131,16 +131,16 @@
 
 <!-- Recent Users & Check-in Trends -->
 <div class="row g-4 mb-4">
-    <div class="col-lg-6">
-        <div class="chart-card">
+    <div class="col-lg-6 d-flex">
+        <div class="chart-card w-100 dashboard-row-match-height">
             <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Check-in theo tháng</h6>
             <div class="dashboard-chart dashboard-chart--monthly">
                 <canvas id="checkinChart" role="img" aria-label="Biểu đồ lượt check-in theo tháng"></canvas>
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
-        <div class="admin-table">
+    <div class="col-lg-6 d-flex">
+        <div class="admin-table w-100 dashboard-row-match-height">
             <div class="p-3 d-flex justify-content-between align-items-center" style="border-bottom: 1px solid var(--admin-border);">
                 <h6 class="fw-bold mb-0" style="font-family: 'Inter', sans-serif;">Người dùng mới nhất</h6>
                 <a href="/admin/users" class="small" style="color: var(--admin-primary); text-decoration: none;">Xem tất cả →</a>
@@ -380,6 +380,12 @@ document.addEventListener('DOMContentLoaded', () => {
         .dashboard-chart,
         .dashboard-chart--monthly {
             height: 190px;
+        }
+    }
+
+    @media (min-width: 992px) {
+        .dashboard-row-match-height {
+            height: 100%;
         }
     }
 </style>

@@ -123,7 +123,7 @@ const AdminController = {
             // Recent users
             const [recentUsers] = await db.query(`
                 SELECT id, full_name, email, phone, avatar, role, total_points, created_at
-                FROM users ORDER BY created_at DESC LIMIT 8
+                FROM users ORDER BY created_at DESC LIMIT 4
             `);
 
             res.render('admin/dashboard', {
