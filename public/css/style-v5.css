@@ -1125,3 +1125,41 @@ img { max-width: 100%; }
     padding-top: 100px !important;
     padding-bottom: 100px !important;
 }
+
+/* Keep the upcoming-event list visually even when event content varies. */
+.home-event-card {
+    height: 122px;
+    overflow: hidden;
+}
+
+.home-event-icon {
+    flex: 0 0 50px;
+    width: 50px;
+    height: 50px;
+}
+
+.home-event-content,
+.home-event-meta,
+.home-event-location {
+    min-width: 0;
+}
+
+.home-event-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 1;
+    overflow: hidden;
+}
+
+@media (max-width: 575.98px) {
+    .home-event-card {
+        height: 122px;
+    }
+
+    .home-event-icon {
+        flex-basis: 46px;
+        width: 46px;
+        height: 46px;
+        margin-top: 2px;
+    }
+}

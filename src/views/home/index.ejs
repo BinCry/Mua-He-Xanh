@@ -210,19 +210,19 @@
                     <% if (typeof otherEvents !== 'undefined' && otherEvents.length > 0) { %>
                         <div class="d-flex flex-column gap-3">
                             <% otherEvents.forEach((evt, index) => { %>
-                            <a href="/events/<%= evt.id %>" class="d-flex gap-3 align-items-center p-3 rounded-4 border bg-white text-decoration-none" 
+                            <a href="/events/<%= evt.id %>" class="home-event-card d-flex gap-3 align-items-center p-3 rounded-4 border bg-white text-decoration-none"
                                  style="border-color: rgba(0,0,0,0.08) !important; transition: all 0.3s;"
                                  onmouseover="this.classList.replace('bg-white', 'bg-light');" 
                                  onmouseout="this.classList.replace('bg-light', 'bg-white');" >
-                                <div class="rounded-3 d-flex align-items-center justify-content-center bg-light" style="width: 50px; height: 50px; border: 1px solid rgba(0,0,0,0.03);">
+                                <div class="home-event-icon rounded-3 d-flex align-items-center justify-content-center bg-light" style="border: 1px solid rgba(0,0,0,0.03);">
                                     <i class="bi bi-calendar-event fs-5 text-primary"></i>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <h6 class="text-dark font-extrabold mb-1" style="font-size: 0.95rem;"><%= evt.title %></h6>
-                                    <div class="d-flex align-items-center gap-2 x-small text-muted mb-1">
-                                        <span><i class="bi bi-geo-alt me-1"></i><%= evt.location || 'Bình Lợi' %></span>
+                                <div class="home-event-content flex-grow-1">
+                                    <h6 class="home-event-title text-dark font-extrabold mb-1" style="font-size: 0.95rem;" title="<%= evt.title %>"><%= evt.title %></h6>
+                                    <div class="home-event-meta d-flex align-items-center gap-2 x-small text-muted mb-1">
+                                        <span class="home-event-location text-truncate"><i class="bi bi-geo-alt me-1"></i><%= evt.location || 'Bình Lợi' %></span>
                                         <span>•</span>
-                                        <span><i class="bi bi-calendar me-1"></i><%= new Date(evt.event_date).toLocaleDateString('vi-VN') %></span>
+                                        <span class="flex-shrink-0"><i class="bi bi-calendar me-1"></i><%= new Date(evt.event_date).toLocaleDateString('vi-VN') %></span>
                                     </div>
                                     <p class="mb-0 x-small text-secondary line-clamp-1" style="line-height: 1.5;"><%= evt.description %></p>
                                 </div>
