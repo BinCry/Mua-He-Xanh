@@ -182,7 +182,7 @@
         <div class="chart-card">
             <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Lượt đặt Workshop theo tháng</h6>
             <div style="position: relative; height: 220px;">
-                <canvas id="workshopsBookingChart"></canvas>
+                <canvas id="workshopsBookingChart" role="img" aria-label="Biểu đồ lượt đặt workshop theo tháng"></canvas>
             </div>
         </div>
     </div>
@@ -191,11 +191,21 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const formatCheckinCount = (value) => new Intl.NumberFormat('vi-VN').format(value);
+    const getNiceIntegerStep = (targetStep) => {
+        const magnitude = 10 ** Math.floor(Math.log10(targetStep));
+        const normalizedStep = targetStep / magnitude;
+        const multiplier = [1, 2, 2.5, 5, 10].find(value => value >= normalizedStep);
+
+        return multiplier * magnitude;
+    };
+
     const createIntegerCheckinAxis = (values) => {
         const largestValue = Math.max(0, ...values);
         const maxTickCount = 4;
-        const stepSize = Math.max(1, Math.ceil(largestValue / maxTickCount));
-        const max = Math.max(1, Math.ceil(largestValue / stepSize) * stepSize);
+        const minimumDisplayMaximum = 20;
+        const displayMaximum = Math.max(largestValue, minimumDisplayMaximum);
+        const stepSize = getNiceIntegerStep(displayMaximum / maxTickCount);
+        const max = Math.ceil(displayMaximum / stepSize) * stepSize;
 
         return {
             beginAtZero: true,
@@ -325,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Monthly Workshop Bookings Chart
     const wsBookingsData = <%- JSON.stringify(chartData.monthlyWSBookings) %>;
+    const workshopBookingCounts = wsBookingsData.map(d => d.count);
     new Chart(document.getElementById('workshopsBookingChart'), {
         type: 'bar',
         data: {
@@ -341,10 +352,14 @@ document.addEventListener('DOMContentLoaded', () => {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
+            interaction: checkinInteraction,
+            plugins: {
+                legend: { display: false },
+                tooltip: checkinTooltip
+            },
             scales: {
                 x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 11 } } },
-                y: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#71717a', font: { size: 11 } }, beginAtZero: true }
+                y: createIntegerCheckinAxis(workshopBookingCounts)
             }
         }
     });
