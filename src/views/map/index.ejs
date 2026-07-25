@@ -62,6 +62,9 @@
 
 <script>
 let map, markers = [];
+const districtBounds = [[10.730, 106.465], [10.788, 106.570]];
+const desktopNavigationBounds = [[10.730, 106.465], [10.796, 106.582]];
+const desktopMapQuery = window.matchMedia('(min-width: 992px)');
 const destData = (<%- JSON.stringify(allDests) %>).filter(dest => {
     const lat = parseFloat(dest.lat);
     const lng = parseFloat(dest.lng);
@@ -76,8 +79,20 @@ function normalizeImageUrl(src) {
     return clean.startsWith('/') ? clean : '/' + clean;
 }
 
+function getMapNavigationBounds() {
+    return desktopMapQuery.matches ? desktopNavigationBounds : districtBounds;
+}
+
+function updateMapNavigationBounds() {
+    if (!map) return;
+
+    const navigationBounds = getMapNavigationBounds();
+    map.setMaxBounds(navigationBounds);
+    map.panInsideBounds(navigationBounds, { animate: false });
+}
+
 function initMap() {
-    const bounds = [[10.730, 106.465], [10.788, 106.570]];
+    const bounds = getMapNavigationBounds();
     const center = [10.758, 106.518];
     
     map = L.map('map', {
@@ -100,7 +115,7 @@ function initMap() {
 
 
     // Hiển thị sơ đồ du lịch Bình Lợi vẽ tay làm bản đồ chính (độ đục 100% để hiển thị trọn vẹn màu sắc)
-    L.imageOverlay('/images/binh-loi-travel-map.png', bounds, {
+    L.imageOverlay('/images/binh-loi-travel-map.png', districtBounds, {
         opacity: 1.0,
         interactive: true
     }).addTo(map);
@@ -137,6 +152,12 @@ function initMap() {
 }
 
 document.addEventListener('DOMContentLoaded', initMap);
+
+if (desktopMapQuery.addEventListener) {
+    desktopMapQuery.addEventListener('change', updateMapNavigationBounds);
+} else {
+    desktopMapQuery.addListener(updateMapNavigationBounds);
+}
 
 function focusMarker(lat, lng, name) {
     map.panTo([parseFloat(lat), parseFloat(lng)]);
