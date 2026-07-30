@@ -1,25 +1,32 @@
 <nav class="navbar navbar-expand-lg navbar-premium fixed-top">
     <div class="container position-relative">
         <!-- Mobile: Hamburger LEFT (Hidden to match Đình Bình Trường layout) -->
-        <button class="navbar-toggler border-0 shadow-none p-0 d-none" type="button"
-                data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"
-                aria-controls="mobileMenu" aria-label="Menu" style="z-index: 10;">
+        <button class="navbar-toggler border-0 shadow-none p-0 d-none" type="button" data-bs-toggle="offcanvas"
+            data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="Menu" style="z-index: 10;">
             <div class="nav-hamburger">
                 <span></span><span></span><span></span>
             </div>
         </button>
 
         <!-- PWA Standalone Back Button (only shown on PWA when not on homepage) -->
-        <button id="pwaBackButton" class="btn border-0 p-0 d-none" onclick="window.history.back()" style="z-index: 10; width: 30px; height: 30px; align-items: center; justify-content: center; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary);">
+        <button id="pwaBackButton" class="btn border-0 p-0 d-none" onclick="window.history.back()"
+            style="z-index: 10; width: 30px; height: 30px; align-items: center; justify-content: center; position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--primary);">
             <i class="bi bi-chevron-left fs-3 fw-bold"></i>
         </button>
 
         <!-- Brand -->
         <a class="navbar-brand d-flex align-items-center gap-2 mx-auto mx-lg-0" href="/">
-            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 42px;" onerror="this.src='/images/logo.png'">
+            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 42px;"
+                onerror="this.src='/images/logo.png'">
             <div class="d-flex flex-column justify-content-center">
-                <span class="d-block fw-black lh-1" style="font-family: 'Inter', sans-serif; font-size: 1.35rem; font-weight: 900; color: var(--primary); letter-spacing: 0.5px;"><%= settings.brand_name || 'BÌNH LỢI' %></span>
-                <span class="d-block" style="font-family: 'Dancing Script', cursive; font-size: 1.15rem; color: var(--primary-green); font-weight: 700; margin-top: 2px; line-height: 1;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
+                <span class="d-block fw-black lh-1"
+                    style="font-family: 'Inter', sans-serif; font-size: 1.35rem; font-weight: 900; color: var(--primary); letter-spacing: 0.5px;">
+                    <%= settings.brand_name || 'BÌNH LỢI' %>
+                </span>
+                <span class="d-block"
+                    style="font-family: 'Dancing Script', cursive; font-size: 1.15rem; color: var(--primary-green); font-weight: 700; margin-top: 2px; line-height: 1;">
+                    <%= settings.brand_subtext || 'Chạm vào bình yên' %>
+                </span>
             </div>
         </a>
 
@@ -30,7 +37,7 @@
                 <li class="nav-item"><a class="nav-link" href="/explore">Khám phá</a></li>
                 <li class="nav-item"><a class="nav-link" href="/workshops">Workshop</a></li>
                 <li class="nav-item"><a class="nav-link" href="/reviews">Cộng đồng</a></li>
-                <li class="nav-item"><a class="nav-link" href="/journey">Đề xuất hành trình/tour</a></li>
+                <li class="nav-item"><a class="nav-link" href="/journey">Hành Trình</a></li>
                 <li class="nav-item"><a class="nav-link" href="/map">Bản đồ</a></li>
             </ul>
         </div>
@@ -38,10 +45,14 @@
         <!-- Desktop Auth (hidden on mobile) -->
         <div class="d-none d-lg-flex align-items-center gap-3" style="z-index: 10;">
             <% if (user) { %>
-            <div class="dropdown">
-                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none p-1 rounded-pill" data-bs-toggle="dropdown" style="background: var(--primary-50); padding-right: 14px !important;">
-                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
-                    <span class="fw-bold" style="font-size: 0.82rem; color: var(--primary);"><%= user.full_name.split(' ').pop() %></span>
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none p-1 rounded-pill"
+                        data-bs-toggle="dropdown"
+                        style="background: var(--primary-50); padding-right: 14px !important;">
+                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
+                            style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
+                        <span class="fw-bold" style="font-size: 0.82rem; color: var(--primary);">
+                            <%= user.full_name.split(' ').pop() %></span>
                     <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 220px;">
@@ -50,53 +61,81 @@
                         <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
                     </li>
                     <li><hr class="dropdown-divider my-1"></li>
-                    <% if (user.role === 'admin') { %>
-                    <li><a class="dropdown-item py-2 rounded-2" href="/admin" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
+                    <% if (user.role === ' admin') { %>
+                                <li><a class="dropdown-item py-2 rounded-2" href="/admin"
+                                        style="color: var(--primary); font-weight: 600;"><i
+                                            class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
+                                <% } %>
+                                    <% if (user.role==='manager' ) { %>
+                                        <li><a class="dropdown-item py-2 rounded-2" href="/manager"
+                                                style="color: var(--primary); font-weight: 600;"><i
+                                                    class="bi bi-shield-check me-2"></i>Quản lý Panel</a></li>
+                                        <% } %>
+                                            <% if (user.role==='user' ) { %>
+                                                <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i
+                                                            class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a>
+                                                </li>
+                                                <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i
+                                                            class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
+                                                <% } %>
+                                                    <li>
+                                                        <hr class="dropdown-divider my-1">
+                                                    </li>
+                                                    <li><a class="dropdown-item py-2 rounded-2 text-danger"
+                                                            href="/auth/logout"><i
+                                                                class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a>
+                                                    </li>
+                                                    </ul>
+                </div>
+                <% } else { %>
+                    <button id="langToggleBtnDesktop" onclick="toggleLanguage()"
+                        class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 py-1 x-small me-2"
+                        style="font-size: 0.78rem; border-color: rgba(0,0,0,0.3);">EN</button>
+                    <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold"
+                        style="font-size: 0.82rem;">Đăng nhập</a>
                     <% } %>
-                    <% if (user.role === 'manager') { %>
-                    <li><a class="dropdown-item py-2 rounded-2" href="/manager" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Quản lý Panel</a></li>
-                    <% } %>
-                    <% if (user.role === 'user') { %>
-                    <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
-                    <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
-                    <% } %>
-                    <li><hr class="dropdown-divider my-1"></li>
-                    <li><a class="dropdown-item py-2 rounded-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
-                </ul>
-            </div>
-            <% } else { %>
-            <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold" style="font-size: 0.82rem;">Đăng nhập</a>
-            <% } %>
         </div>
 
         <!-- Mobile EN Language Switcher (Right side like Đình Bình Trường) -->
         <div class="d-lg-none position-absolute end-0 me-3" style="z-index: 10;">
-            <button class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-2 py-0 x-small" style="font-size: 0.65rem; border-color: rgba(0,0,0,0.3);">EN</button>
+            <button id="langToggleBtn" onclick="toggleLanguage()"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-2 py-0 x-small"
+                style="font-size: 0.65rem; border-color: rgba(0,0,0,0.3);">EN</button>
         </div>
     </div>
 
     <!-- Mobile Top Horizontal Scroll Nav (Identical to Đình Bình Trường style) -->
-    <div class="d-lg-none w-100 border-top mt-1 pt-1 overflow-x-auto text-nowrap mobile-top-nav-bar" style="background: rgba(255,255,255,0.98); -webkit-overflow-scrolling: touch; scrollbar-width: none;">
-        <div class="d-flex align-items-center justify-content-start px-3 gap-3 py-1" style="font-size: 0.72rem; font-weight: 700;">
-            <a href="/" class="text-dark text-decoration-none py-1 border-bottom border-2 border-primary">Trang Chủ</a>
-            <a href="/explore" class="text-secondary text-decoration-none py-1">Khám Phá</a>
-            <a href="/workshops" class="text-secondary text-decoration-none py-1">Workshop</a>
-            <a href="/reviews" class="text-secondary text-decoration-none py-1">Cộng Đồng</a>
-            <a href="/journey" class="text-secondary text-decoration-none py-1">Hành Trình</a>
-            <a href="/map" class="text-secondary text-decoration-none py-1">Bản Đồ</a>
-            <a href="/festivals" class="text-secondary text-decoration-none py-1">Lễ Hội</a>
+    <div class="d-lg-none w-100 border-top mt-0 pt-0 mobile-top-nav-bar"
+        style="background: #ffffff; border-bottom: 1px solid rgba(0,0,0,0.08);">
+        <div class="d-flex align-items-center justify-content-between px-2 py-1 w-100"
+            style="font-size: 0.68rem; font-weight: 700;">
+            <a href="/" class="mobile-subnav-link text-decoration-none py-1 px-1">Trang Chủ</a>
+            <a href="/explore" class="mobile-subnav-link text-decoration-none py-1 px-1">Khám Phá</a>
+            <a href="/workshops" class="mobile-subnav-link text-decoration-none py-1 px-1">Workshop</a>
+            <a href="/reviews" class="mobile-subnav-link text-decoration-none py-1 px-1">Cộng Đồng</a>
+            <a href="/journey" class="mobile-subnav-link text-decoration-none py-1 px-1">Hành Trình</a>
+            <a href="/map" class="mobile-subnav-link text-decoration-none py-1 px-1">Bản Đồ</a>
         </div>
     </div>
 </nav>
 
 <!-- MOBILE OFFCANVAS MENU (Modern App Sidebar Style) -->
-<div class="offcanvas offcanvas-start border-0 shadow-lg" tabindex="-1" id="mobileMenu" style="width: 285px; z-index: 1060; border-radius: 0 24px 24px 0;">
-    <div class="offcanvas-header p-4" style="background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 100%); border-bottom: 1px solid var(--border-light);">
+<div class="offcanvas offcanvas-start border-0 shadow-lg" tabindex="-1" id="mobileMenu"
+    style="width: 285px; z-index: 1060; border-radius: 0 24px 24px 0;">
+    <div class="offcanvas-header p-4"
+        style="background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 100%); border-bottom: 1px solid var(--border-light);">
         <div class="d-flex align-items-center gap-2">
-            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 34px;" onerror="this.src='/images/logo.png'">
+            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 34px;"
+                onerror="this.src='/images/logo.png'">
             <div class="d-flex flex-column justify-content-center">
-                <span class="fw-black d-block lh-1" style="font-family: 'Inter', sans-serif; color: var(--primary); font-size: 1.05rem; font-weight: 900;"><%= settings.brand_name || 'BÌNH LỢI' %></span>
-                <span class="d-block text-truncate" style="font-family: 'Dancing Script', cursive; font-size: 0.95rem; color: var(--primary-green); font-weight: 700; margin-top: 1px;"><%= settings.brand_subtext || 'Chạm vào bình yên' %></span>
+                <span class="fw-black d-block lh-1"
+                    style="font-family: 'Inter', sans-serif; color: var(--primary); font-size: 1.05rem; font-weight: 900;">
+                    <%= settings.brand_name || 'BÌNH LỢI' %>
+                </span>
+                <span class="d-block text-truncate"
+                    style="font-family: 'Dancing Script', cursive; font-size: 0.95rem; color: var(--primary-green); font-weight: 700; margin-top: 1px;">
+                    <%= settings.brand_subtext || 'Chạm vào bình yên' %>
+                </span>
             </div>
         </div>
         <button type="button" class="btn-close shadow-none p-2" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
@@ -104,78 +143,125 @@
     <div class="offcanvas-body d-flex flex-column p-0">
         <!-- Navigation Links -->
         <div class="p-3">
-            <div class="text-uppercase x-small text-muted fw-bold px-3 mb-2" style="letter-spacing: 1px; font-size: 0.65rem;">DANH MỤC MENU</div>
+            <div class="text-uppercase x-small text-muted fw-bold px-3 mb-2"
+                style="letter-spacing: 1px; font-size: 0.65rem;">DANH MỤC MENU</div>
             <a class="mobile-menu-link" href="/"><i class="bi bi-house-door-fill text-primary"></i> Trang chủ</a>
             <a class="mobile-menu-link" href="/explore"><i class="bi bi-compass-fill text-success"></i> Khám phá</a>
             <a class="mobile-menu-link" href="/workshops"><i class="bi bi-palette-fill text-warning"></i> Workshop</a>
             <a class="mobile-menu-link" href="/reviews"><i class="bi bi-chat-heart-fill text-danger"></i> Cộng đồng</a>
-            <a class="mobile-menu-link" href="/journey"><i class="bi bi-signpost-split-fill text-info"></i> Đề xuất hành trình</a>
+            <a class="mobile-menu-link" href="/journey"><i class="bi bi-signpost-split-fill text-info"></i> Đề xuất hành
+                trình</a>
             <a class="mobile-menu-link" href="/map"><i class="bi bi-map-fill text-primary"></i> Bản đồ</a>
-            <a class="mobile-menu-link" href="/festivals"><i class="bi bi-calendar-event-fill text-success"></i> Lễ hội</a>
+            <a class="mobile-menu-link" href="/festivals"><i class="bi bi-calendar-event-fill text-success"></i> Lễ
+                hội</a>
             <% if (locals.user) { %>
-            <a class="mobile-menu-link" href="/chat" style="color: var(--primary); font-weight: 600;"><i class="bi bi-envelope-heart-fill text-danger"></i> Hộp thư hỗ trợ</a>
-            <% } %>
+                <a class="mobile-menu-link" href="/chat" style="color: var(--primary); font-weight: 600;"><i
+                        class="bi bi-envelope-heart-fill text-danger"></i> Hộp thư hỗ trợ</a>
+                <% } %>
         </div>
 
         <!-- User Section at Bottom -->
         <div class="mt-auto border-top p-3 bg-light bg-opacity-50">
             <% if (user) { %>
-            <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
-                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle shadow-sm" style="width: 38px; height: 38px; object-fit: cover; border: 2px solid var(--primary-100);">
-                <div class="overflow-hidden">
-                    <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem;"><%= user.full_name %></div>
-                    <div class="x-small text-muted text-truncate"><%= user.phone || user.email %></div>
+                <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
+                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle shadow-sm"
+                        style="width: 38px; height: 38px; object-fit: cover; border: 2px solid var(--primary-100);">
+                    <div class="overflow-hidden">
+                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem;">
+                            <%= user.full_name %>
+                        </div>
+                        <div class="x-small text-muted text-truncate">
+                            <%= user.phone || user.email %>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <% if (user.role === 'user') { %>
-            <a class="mobile-menu-link" href="/profile"><i class="bi bi-person-circle text-primary"></i> Hồ sơ du khách</a>
-            <a class="mobile-menu-link" href="/profile/rewards"><i class="bi bi-gift-fill text-warning"></i> Điểm thưởng</a>
-            <% } %>
-            <% if (user.role === 'admin') { %>
-            <a class="mobile-menu-link text-primary fw-bold" href="/admin"><i class="bi bi-shield-check"></i> Admin Panel</a>
-            <% } %>
-            <% if (user.role === 'manager') { %>
-            <a class="mobile-menu-link text-primary fw-bold" href="/manager"><i class="bi bi-shield-check"></i> Quản lý Panel</a>
-            <% } %>
-            <a class="mobile-menu-link text-danger mt-1" href="/auth/logout"><i class="bi bi-box-arrow-right"></i> Đăng xuất</a>
-            <% } else { %>
-            <a href="/auth/login" class="btn btn-premium rounded-pill w-100 py-2 fw-bold shadow-sm" style="font-size: 0.82rem;">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
-            </a>
-            <% } %>
+                <% if (user.role==='user' ) { %>
+                    <a class="mobile-menu-link" href="/profile"><i class="bi bi-person-circle text-primary"></i> Hồ sơ
+                        du khách</a>
+                    <a class="mobile-menu-link" href="/profile/rewards"><i class="bi bi-gift-fill text-warning"></i>
+                        Điểm thưởng</a>
+                    <% } %>
+                        <% if (user.role==='admin' ) { %>
+                            <a class="mobile-menu-link text-primary fw-bold" href="/admin"><i
+                                    class="bi bi-shield-check"></i> Admin Panel</a>
+                            <% } %>
+                                <% if (user.role==='manager' ) { %>
+                                    <a class="mobile-menu-link text-primary fw-bold" href="/manager"><i
+                                            class="bi bi-shield-check"></i> Quản lý Panel</a>
+                                    <% } %>
+                                        <a class="mobile-menu-link text-danger mt-1" href="/auth/logout"><i
+                                                class="bi bi-box-arrow-right"></i> Đăng xuất</a>
+                                        <% } else { %>
+                                            <a href="/auth/login"
+                                                class="btn btn-premium rounded-pill w-100 py-2 fw-bold shadow-sm"
+                                                style="font-size: 0.82rem;">
+                                                <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
+                                            </a>
+                                            <% } %>
         </div>
     </div>
 </div>
 
 <style>
     /* Hamburger */
-    .nav-hamburger { width: 22px; height: 16px; position: relative; cursor: pointer; }
-    .nav-hamburger span { display: block; height: 2px; background: var(--primary); border-radius: 2px; transition: all 0.3s ease; position: absolute; left: 0; width: 100%; }
-    .nav-hamburger span:nth-child(1) { top: 0; }
-    .nav-hamburger span:nth-child(2) { top: 7px; width: 70%; }
-    .nav-hamburger span:nth-child(3) { top: 14px; width: 85%; }
+    .nav-hamburger {
+        width: 22px;
+        height: 16px;
+        position: relative;
+        cursor: pointer;
+    }
+
+    .nav-hamburger span {
+        display: block;
+        height: 2px;
+        background: var(--primary);
+        border-radius: 2px;
+        transition: all 0.3s ease;
+        position: absolute;
+        left: 0;
+        width: 100%;
+    }
+
+    .nav-hamburger span:nth-child(1) {
+        top: 0;
+    }
+
+    .nav-hamburger span:nth-child(2) {
+        top: 7px;
+        width: 70%;
+    }
+
+    .nav-hamburger span:nth-child(3) {
+        top: 14px;
+        width: 85%;
+    }
 
     /* Mobile: Center the brand */
     @media (max-width: 991.98px) {
-        .navbar > .container {
+        .navbar>.container {
             display: flex;
             justify-content: center;
             position: relative;
         }
+
         .navbar-toggler {
             position: absolute !important;
             left: 12px;
             top: 50%;
             transform: translateY(-50%);
         }
-        .navbar-brand { margin: 0 auto !important; }
+
+        .navbar-brand {
+            margin: 0 auto !important;
+        }
     }
 
     /* Mobile Offcanvas Menu Sidebar */
     #mobileMenu {
         background: #ffffff !important;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.15) !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
     }
+
     .mobile-menu-link {
         display: flex;
         align-items: center;
@@ -189,10 +275,13 @@
         transition: all 0.2s ease;
         margin-bottom: 3px;
     }
-    .mobile-menu-link:hover, .mobile-menu-link:active {
+
+    .mobile-menu-link:hover,
+    .mobile-menu-link:active {
         background: var(--primary-50, #fdf5f5);
         color: var(--primary, #922724);
     }
+
     .mobile-menu-link i {
         width: 22px;
         text-align: center;
@@ -200,7 +289,261 @@
     }
 
     /* Dropdown polish */
-    .dropdown-item { font-size: 0.85rem; transition: all 0.15s ease; }
-    .dropdown-item:hover { background: var(--primary-50); color: var(--primary); }
-    .dropdown-item:active { background: var(--primary-100); }
+    .dropdown-item {
+        font-size: 0.85rem;
+        transition: all 0.15s ease;
+    }
+
+    .dropdown-item:hover {
+        background: var(--primary-50);
+        color: var(--primary);
+    }
+
+    .dropdown-item:active {
+        background: var(--primary-100);
+    }
 </style>
+
+
+<script>
+    /* ===================================================================
+       BINH LOI i18n — Pure JS Full-Site Translation Engine v2
+       Covers EVERY visible Vietnamese text across all pages.
+       =================================================================== */
+    (function () {
+        var _originals = new WeakMap();
+
+        var VI_EN = {
+            // ============ NAVIGATION ============
+            'Trang Chủ': 'Home', 'Trang chủ': 'Home',
+            'Khám Phá': 'Explore', 'Khám phá': 'Explore', 'KHÁM PHÁ': 'EXPLORE',
+            'Workshop': 'Workshops', 'WORKSHOP': 'WORKSHOPS',
+            'Workshop & Hoạt Động': 'Workshops & Activities',
+            'Cộng Đồng': 'Community', 'Cộng đồng': 'Community', 'CỘNG ĐỒNG': 'COMMUNITY',
+            'Hành Trình': 'Journey', 'Hành trình': 'Journey', 'HÀNH TRÌNH': 'JOURNEY',
+            'Bản Đồ': 'Map', 'Bản đồ': 'Map', 'BẢN ĐỒ': 'MAP', 'Bản đồ số': 'Digital Map',
+            'Lễ Hội': 'Festivals', 'Lễ hội': 'Festivals',
+            'Chạm vào bình yên': 'Touch the Peace',
+            'Đăng nhập': 'Login', 'Đăng xuất': 'Logout',
+
+            // ============ HERO ============
+            'Bình Lợi - Giữ hồn quê giữa nhịp sống mới': 'Binh Loi — Preserving Heritage in Modern Times',
+            'KHÁM PHÁ MIỀN TÂY GIỮA LÒNG SÀI GÒN': 'EXPLORE MEKONG DELTA IN SAIGON',
+            'Bình Lợi là vùng đất yên bình, nổi bật với làng mai, làng nhang và những không gian văn hóa truyền thống, mang đến một trải nghiệm gần gũi và đậm chất địa phương.':
+                'Binh Loi is a peaceful land known for yellow apricot gardens, traditional incense craft, and cultural heritage spaces — offering an authentic, deeply local experience.',
+            'EXPLORE LOCATIONS': 'EXPLORE LOCATIONS',
+            'VIEW MAP': 'VIEW MAP',
+
+            // ============ QUICK INFO ============
+            'THÔNG TIN NHANH': 'QUICK INFO',
+            'VỊ TRÍ:': 'LOCATION:', 'Vị trí:': 'Location:',
+            'Xã Bình Lợi, TP.HCM': 'Binh Loi, HCMC',
+            'Xã Bình Lợi, TP. Hồ Chí Minh': 'Binh Loi, Ho Chi Minh City',
+            'ĐẶC SẢN:': 'SPECIALTY:', 'Đặc sản:': 'Specialty:',
+            'Mai Vàng, Nhang Thơm, Cá Koi': 'Yellow Apricot, Incense, Koi Fish',
+            'KHÔNG GIAN:': 'ATMOSPHERE:', 'Không gian:': 'Atmosphere:',
+            'Miệt vườn sinh thái, tâm linh': 'Eco-garden & Spiritual',
+            'CÁCH TRUNG TÂM:': 'FROM CENTRE:', 'Cách trung tâm:': 'From centre:',
+            'Khoảng 20km (45-60 phút)': '~20 km (45-60 min)',
+            'KHÁM PHÁ ĐỊA ĐIỂM': 'EXPLORE LOCATIONS',
+            'XEM BẢN ĐỒ': 'VIEW MAP',
+
+            // ============ STATS SECTION ============
+            'NHỮNG CON SỐ ẤN TƯỢNG': 'IMPRESSIVE NUMBERS',
+            'Những con số ấn tượng': 'Impressive Numbers',
+            'LƯỢT CHECK-IN': 'CHECK-INS', 'Lượt check-in': 'Check-ins',
+            'ĐỊA ĐIỂM TRỌNG TÂM': 'KEY DESTINATIONS', 'Địa điểm trọng tâm': 'Key Destinations',
+            'WORKSHOP ĐÃ TỔ CHỨC': 'WORKSHOPS HELD', 'WORKSHOPS ĐÃ TỔ CHỨC': 'WORKSHOPS HELD',
+            'Workshops đã tổ chức': 'Workshops Held', 'Workshop đã tổ chức': 'Workshops Held',
+            'ĐÁNH GIÁ TRUNG BÌNH': 'AVG RATING', 'Đánh giá trung bình': 'Average Rating',
+
+            // ============ DESTINATIONS SECTION ============
+            'Điểm dừng chân trọng tâm': 'Key Destinations',
+            'Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên chữa lành.':
+                'Each destination is carefully curated for aesthetics, culture, and healing tranquility.',
+            'XEM TẤT CẢ ĐỊA ĐIỂM': 'VIEW ALL DESTINATIONS',
+            'ĐỊA ĐIỂM NỔI BẬT': 'FEATURED DESTINATIONS',
+            'Địa điểm nổi bật': 'Featured Destinations',
+            'Địa điểm chữa lành & trải nghiệm sinh thái': 'Healing destinations & eco-experiences',
+            'Khám phá Bình Lợi': 'Explore Binh Loi',
+            'Khám phá những điểm đến hấp dẫn nhất tại Bình Lợi': 'Discover the most exciting destinations in Binh Loi',
+
+            // ============ EVENTS SECTION ============
+            'Sự kiện nổi bật': 'Featured Event',
+            'SỰ KIỆN NỔI BẬT': 'FEATURED EVENTS',
+            'Sự kiện khác': 'Other Events',
+            'Lịch sự kiện sắp diễn ra': 'Upcoming Events',
+            'Chưa có sự kiện nổi bật sắp diễn ra': 'No featured events coming up',
+            'Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.': 'The system will auto-update when admin adds events.',
+            'Chưa có sự kiện nào khác sắp diễn ra': 'No other events scheduled',
+            'SỰ KIỆN ĐANG DIỄN RA!': 'EVENT IN PROGRESS!',
+            'lúc': 'at',
+            'NGÀY': 'DAYS', 'Ngày': 'Days',
+            'GIỜ': 'HRS', 'Giờ': 'Hrs',
+            'PHÚT': 'MIN', 'Phút': 'Min',
+
+            // ============ SOCIAL FEED / COMMUNITY SECTION ============
+            'LIVE FROM BÌNH LỢI': 'LIVE FROM BINH LOI',
+            'Khoảnh khắc Chữa lành': 'Healing Moments',
+            'Câu chuyện thật, hình ảnh thật từ cộng đồng du khách.': 'Real stories, real photos from the traveler community.',
+            'CHIA SẺ KHOẢNH KHẮC CỦA BẠN': 'SHARE YOUR MOMENT',
+            'CỘNG ĐỒNG & CHIA SẺ': 'COMMUNITY & SHARING',
+            'Bài viết mới nhất từ du khách': 'Latest posts from visitors',
+            'Bài viết nổi bật': 'Featured Posts',
+            'Tạo bài viết': 'Create Post',
+
+            // ============ WORKSHOP PAGE ============
+            'Workshop & Trải Nghiệm': 'Workshops & Experiences',
+            'Trải nghiệm văn hóa & nghề truyền thống': 'Experience culture & traditional crafts',
+            'Chưa có workshop nào trong danh mục này.': 'No workshops found in this category.',
+            'Xem tất cả Workshop': 'View All Workshops',
+
+            // ============ FILTERS & BUTTONS ============
+            'Tất cả': 'All', 'TẤT CẢ': 'ALL',
+            'Tâm linh': 'Spiritual', 'TÂM LINH': 'SPIRITUAL',
+            'Sinh thái': 'Eco', 'SINH THÁI': 'ECO',
+            'Làng nghề': 'Craft', 'LÀNG NGHỀ': 'CRAFT',
+            'Trải nghiệm': 'Experience', 'TRẢI NGHIỆM': 'EXPERIENCE',
+            'Nông nghiệp': 'Agriculture', 'Văn hóa': 'Culture', 'Ẩm thực': 'Cuisine',
+            'Miễn phí': 'Free',
+            'Xem tất cả': 'View All',
+            'Xem chi tiết': 'View Details', 'Chi tiết': 'Details',
+            'Tìm kiếm': 'Search', 'Xóa bộ lọc': 'Clear Filters',
+            'Đặt ngay': 'Book Now', 'Đang mở': 'Open',
+            '/người': '/guest', 'người': 'guests',
+            'phút': 'min', 'giờ': 'hr',
+
+            // ============ FOOTER ============
+            'HỖ TRỢ': 'SUPPORT', 'Hỗ trợ': 'Support',
+            'LIÊN HỆ VỚI CHÚNG TÔI': 'CONTACT US', 'Liên hệ với chúng tôi': 'Contact Us',
+            'ĐĂNG KÍ NHẬN TIN': 'NEWSLETTER', 'Đăng kí nhận tin': 'Newsletter',
+            'Hướng dẫn': 'Guide',
+            'Câu hỏi thường gặp': 'FAQ',
+            'Liên hệ': 'Contact',
+            'Chính sách bảo mật': 'Privacy Policy',
+            'Hành trình khám phá Bình Lợi bắt đầu từ đây': 'Your Binh Loi journey starts here',
+            'Cập nhật thông tin mới nhất về Bình Lợi và các trải nghiệm hấp dẫn.': 'Stay updated with the latest Binh Loi news and experiences.',
+            'Mọi quyền được bảo lưu.': 'All rights reserved.',
+            'Đồng hành chiến lược bởi': 'Strategic partner:',
+
+            // ============ CHAT MODAL ============
+            'Phản hồi bởi Ban Quản Trị': 'Response by Administration',
+            'Hôm nay': 'Today',
+            'Chào mừng bạn đến với': 'Welcome to',
+            'Ban quản trị xã luôn sẵn sàng giải đáp mọi thắc mắc của bạn về hành trình khám phá.':
+                'The administration is always ready to answer your questions about your exploration journey.',
+            'Ban quản trị xã luôn sẵn sàng giải đáp mọi thắc mắc.':
+                'The administration is always ready to help.',
+            'Nhập câu hỏi...': 'Type a question...',
+
+            // ============ PROFILE / AUTH ============
+            'Hồ sơ du khách': 'Tourist Profile',
+            'Điểm thưởng': 'Reward Points',
+            'Admin Panel': 'Admin Panel',
+            'Quản lý Panel': 'Manager Panel',
+
+            // ============ DESTINATION TYPES & TAGS ============
+            'Chùa': 'Temple', 'chùa': 'temple',
+            'Đình': 'Communal House', 'đình': 'communal house',
+            'Vườn lan': 'Orchid Garden', 'vườn lan': 'orchid garden',
+            'Làng mai': 'Apricot Village', 'làng mai': 'apricot village',
+            'Làng nhang': 'Incense Village', 'làng nhang': 'incense village',
+            'Sinh Thái': 'Eco-Tourism',
+            'Tâm Linh': 'Spiritual',
+            'Làng Nghề': 'Craft Village',
+        };
+
+        var viKeys = Object.keys(VI_EN).sort(function (a, b) { return b.length - a.length; });
+
+        function translatePage(lang) {
+            var mb = document.getElementById('langToggleBtn');
+            var db = document.getElementById('langToggleBtnDesktop');
+            if (mb) mb.textContent = lang === 'en' ? 'VI' : 'EN';
+            if (db) db.textContent = lang === 'en' ? 'VI' : 'EN';
+
+            var walker = document.createTreeWalker(
+                document.body, NodeFilter.SHOW_TEXT, null, false
+            );
+            var textNode;
+            while (textNode = walker.nextNode()) {
+                var el = textNode.parentElement;
+                if (!el) continue;
+                var tag = el.tagName;
+                if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA') continue;
+
+                var val = textNode.nodeValue;
+                if (!val || !val.trim()) continue;
+
+                if (!_originals.has(textNode)) {
+                    _originals.set(textNode, val);
+                }
+
+                if (lang === 'en') {
+                    var src = _originals.get(textNode);
+                    var result = src;
+                    for (var i = 0; i < viKeys.length; i++) {
+                        if (result.indexOf(viKeys[i]) !== -1) {
+                            result = result.split(viKeys[i]).join(VI_EN[viKeys[i]]);
+                        }
+                    }
+                    textNode.nodeValue = result;
+                } else {
+                    textNode.nodeValue = _originals.get(textNode);
+                }
+            }
+
+            // Translate placeholders
+            document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(function (input) {
+                var ph = input.getAttribute('placeholder');
+                if (!ph) return;
+                if (!input.dataset.origPh) input.dataset.origPh = ph;
+                if (lang === 'en') {
+                    var r = input.dataset.origPh;
+                    for (var i = 0; i < viKeys.length; i++) {
+                        if (r.indexOf(viKeys[i]) !== -1) {
+                            r = r.split(viKeys[i]).join(VI_EN[viKeys[i]]);
+                        }
+                    }
+                    input.setAttribute('placeholder', r);
+                } else {
+                    input.setAttribute('placeholder', input.dataset.origPh);
+                }
+            });
+
+            // Translate title attributes on buttons
+            document.querySelectorAll('[title]').forEach(function (el) {
+                var t = el.getAttribute('title');
+                if (!t) return;
+                if (!el.dataset.origTitle) el.dataset.origTitle = t;
+                if (lang === 'en') {
+                    var r = el.dataset.origTitle;
+                    for (var i = 0; i < viKeys.length; i++) {
+                        if (r.indexOf(viKeys[i]) !== -1) {
+                            r = r.split(viKeys[i]).join(VI_EN[viKeys[i]]);
+                        }
+                    }
+                    el.setAttribute('title', r);
+                } else {
+                    el.setAttribute('title', el.dataset.origTitle);
+                }
+            });
+        }
+
+        window.toggleLanguage = function () {
+            var current = localStorage.getItem('app_lang') || 'vi';
+            var next = current === 'vi' ? 'en' : 'vi';
+            localStorage.setItem('app_lang', next);
+            translatePage(next);
+        };
+
+        function init() {
+            var lang = localStorage.getItem('app_lang') || 'vi';
+            translatePage(lang);
+        }
+
+        document.addEventListener('DOMContentLoaded', init);
+        window.addEventListener('pageshow', function (e) {
+            if (e.persisted) init();
+        });
+    })();
+</script>

@@ -33,7 +33,7 @@ exports.ensureAuthenticated = (req, res, next) => {
     if (req.originalUrl && req.originalUrl.startsWith('/api')) {
         return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để thực hiện thao tác này.' });
     }
-    res.redirect('/auth/login?error=Vui lòng đăng nhập để thực hiện thao tác này');
+    res.redirect('/auth/login?error=auth_required');
 };
 
 /**
@@ -92,7 +92,7 @@ exports.ensureTourist = (req, res, next) => {
     if (req.originalUrl && req.originalUrl.startsWith('/api')) {
         return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập bằng tài khoản du khách.' });
     }
-    res.redirect('/auth/login?error=Vui lòng đăng nhập bằng tài khoản du khách');
+    res.redirect('/auth/login?error=tourist_required');
 };
 
 /**
@@ -121,7 +121,7 @@ exports.requireRole = (...allowedRoleIds) => {
     return (req, res, next) => {
         const user = req.user || req.session.user;
         if (!user) {
-            return res.redirect('/auth/login?error=Vui lòng đăng nhập');
+            return res.redirect('/auth/login?error=auth_required');
         }
 
         const userRoleId = user.role_id || (user.role === 'admin' ? 1 : user.role === 'manager' ? 2 : 3);

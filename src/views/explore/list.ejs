@@ -5,7 +5,7 @@
         <!-- Hero Header -->
         <div class="mb-5 text-center px-3" style="padding-top: 20px; padding-bottom: 20px;">
             <h1 class="fw-black text-dark mb-3 font-display display-5">Khám Phá Bình Lợi</h1>
-            <p class="text-secondary mx-auto small mb-0" style="max-width: 550px; font-size: 0.95rem;">Lọc tìm những địa điểm chữa lành tâm hồn, trải nghiệm sinh thái sông nước và văn hóa bản địa lâu đời.</p>
+            <p class="text-dark mx-auto small mb-0 fw-semibold" style="max-width: 550px; font-size: 0.95rem; color: #334155 !important; line-height: 1.6;">Địa điểm chữa lành & trải nghiệm sinh thái</p>
         </div>
 
         <!-- Redesigned Search & Category Filter Bar -->
@@ -15,7 +15,7 @@
                 <div class="position-relative mb-4">
                     <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 20px;"></i>
                     <input type="text" name="q" class="form-control border-0 bg-light rounded-pill py-3 ps-5 pe-4 shadow-none" 
-                        placeholder="Tên Vườn mai, Xưởng nhang, Chùa cổ..." 
+                        placeholder="" 
                         value="<%= searchQuery || '' %>" style="font-size: 0.95rem; height: 52px;">
                     <button type="submit" class="btn btn-primary rounded-pill fw-bold text-white btn-premium search-submit-btn position-absolute end-0 top-50 translate-middle-y me-2" style="background: var(--primary); font-size: 0.88rem;">
                         Tìm kiếm
@@ -23,19 +23,18 @@
                 </div>
 
                 <!-- Capsule Filters -->
-                <div class="d-flex flex-wrap gap-2 justify-content-center align-items-center">
-                    <span class="small text-muted fw-bold text-uppercase me-2 d-none d-md-inline"><i class="bi bi-funnel me-1"></i> Danh mục:</span>
+                <div class="d-flex flex-nowrap gap-2 justify-content-between align-items-center w-100 explore-capsules-single-row">
                     <button type="button" onclick="setFilterType('')" class="btn-filter-capsule <%= !currentType ? 'active' : '' %>">
-                        <i class="bi bi-grid-fill"></i> Tất cả
+                        Tất cả
                     </button>
                     <button type="button" onclick="setFilterType('temple')" class="btn-filter-capsule <%= currentType === 'temple' ? 'active' : '' %>">
-                        <i class="bi bi-brightness-high-fill"></i> Tâm linh
+                        Tâm linh
                     </button>
                     <button type="button" onclick="setFilterType('park')" class="btn-filter-capsule <%= currentType === 'park' ? 'active' : '' %>">
-                        <i class="bi bi-tree-fill"></i> Sinh thái
+                        Sinh thái
                     </button>
                     <button type="button" onclick="setFilterType('craft')" class="btn-filter-capsule <%= currentType === 'craft' ? 'active' : '' %>">
-                        <i class="bi bi-flower1"></i> Làng nghề
+                        Làng nghề
                     </button>
                 </div>
                 <input type="hidden" name="type" id="filterTypeInput" value="<%= currentType || '' %>">
@@ -59,7 +58,7 @@
         <!-- Destination Cards Catalog -->
         <div class="row g-4">
             <% destinations.forEach(dest => { %>
-            <div class="col-md-6 col-lg-4 reveal-up">
+            <div class="col-6 col-md-6 col-lg-4 reveal-up px-2 mb-3">
                 <a href="/explore/<%= dest.slug %>" class="text-decoration-none">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 destination-card-custom" style="transition: all 0.3s ease;">
                         

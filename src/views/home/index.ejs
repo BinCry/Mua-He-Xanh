@@ -6,7 +6,7 @@
                 <h1 class="hero-brand-title"><%= season.title || 'BÌNH LỢI' %></h1>
                 <div class="hero-title-line"></div>
                 <p class="hero-tagline">KHÁM PHÁ MIỀN TÂY GIỮA LÒNG SÀI GÒN</p>
-                <p class="text-secondary mb-4" style="max-width: 520px; line-height: 1.8; font-size: 0.95rem;">
+                <p class="text-secondary mb-4 hero-description-text" style="max-width: 520px; line-height: 1.8; font-size: 0.95rem; text-align: justify;">
                     Bình Lợi là vùng đất yên bình, nổi bật với làng mai, làng nhang và 
                     những không gian văn hóa truyền thống, mang đến một trải 
                     nghiệm gần gũi và đậm chất địa phương.
@@ -26,7 +26,7 @@
                     <table class="quick-info-table">
                         <tr>
                             <td class="qi-label">VỊ TRÍ:</td>
-                            <td class="qi-value"><%= settings.quick_info_location || 'Huyện Bình Chánh, TP.HCM' %></td>
+                            <td class="qi-value"><%= settings.quick_info_location || 'Xã Bình Lợi, TP.HCM' %></td>
                         </tr>
                         <tr>
                             <td class="qi-label">ĐẶC SẢN:</td>
@@ -99,7 +99,7 @@
     <div class="container py-5">
         <div class="row align-items-end mb-5">
             <div class="col-md-8 reveal-up">
-                <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3 py-2 mb-2 fw-bold text-uppercase x-small" style="letter-spacing: 1px;">MUST-VISIT</span>
+                
                 <h2 class="fw-black text-dark mb-1 letter-spacing-sm">Điểm dừng chân trọng tâm</h2>
                 <p class="text-muted">Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên chữa lành.</p>
             </div>
@@ -110,7 +110,7 @@
         
         <div class="row g-4">
             <% featured.forEach((dest, i) => { %>
-            <div class="col-md-6 col-lg-4 reveal-up">
+            <div class="col-6 col-md-6 col-lg-4 reveal-up px-1 px-sm-2 mb-3">
                 <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift" style="height: 340px; transition: all 0.3s ease;">
                         <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100" style="object-fit: cover; transition: transform 0.5s ease;">

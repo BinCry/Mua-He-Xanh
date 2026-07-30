@@ -293,7 +293,7 @@ router.get('/auth/login', AuthController.loginPage);
 router.post('/auth/register', AuthController.handleRegister);
 router.post('/auth/send-otp', AuthController.sendOtp);
 router.post('/auth/verify-otp', AuthController.verifyOtp);
-router.post('/auth/login', passport.authenticate('local', { failureRedirect: '/auth/login?error=Sai email hoặc mật khẩu' }), AuthController.oauthCallback);
+router.post('/auth/login', passport.authenticate('local', { failureRedirect: '/auth/login?error=invalid_credentials' }), AuthController.oauthCallback);
 router.post('/auth/social', AuthController.handleSocialLogin);
 router.get('/auth/logout', AuthController.logout);
 

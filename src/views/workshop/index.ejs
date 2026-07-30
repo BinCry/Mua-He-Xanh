@@ -5,7 +5,7 @@
         <!-- Hero Header -->
         <div class="mb-5 text-center px-3" style="padding-top: 20px; padding-bottom: 20px;">
             <h1 class="display-4 fw-black text-dark mb-3">Workshop & Hoạt Động</h1>
-            <p class="text-secondary mx-auto" style="max-width: 600px;">Học làm nhang, chăm mai, nặn bánh dân gian - trải nghiệm cùng nghệ nhân địa phương. Đến trong khung giờ là có thể tham gia!</p>
+            <p class="text-dark mx-auto fw-semibold" style="max-width: 600px; font-size: 0.95rem; color: #334155 !important; line-height: 1.6;">Trải nghiệm văn hóa & nghề truyền thống</p>
         </div>
         <!-- Redesigned Search & Category Filter Bar -->
         <div class="card border-0 shadow-premium rounded-4 p-4 mb-5 bg-white reveal-up">
@@ -14,7 +14,7 @@
                 <div class="position-relative">
                     <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 20px;"></i>
                     <input type="text" name="q" class="form-control border-0 bg-light rounded-pill py-3 ps-5 pe-4 shadow-none" 
-                        placeholder="Tìm kiếm workshop (Làm nhang, Chăm mai, Thiền...)" 
+                        placeholder="" 
                         value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" style="font-size: 0.95rem; height: 52px;">
                     <button type="submit" class="btn btn-primary rounded-pill fw-bold text-white btn-premium search-submit-btn position-absolute end-0 top-50 translate-middle-y me-2" style="background: var(--primary); font-size: 0.88rem;">
                         Tìm kiếm
@@ -22,16 +22,19 @@
                 </div>
 
                 <!-- Capsule Filters -->
-                <div class="d-flex flex-wrap gap-2 justify-content-center align-items-center mt-4">
-                    <span class="small text-muted fw-bold text-uppercase me-2 d-none d-md-inline"><i class="bi bi-funnel me-1"></i> Danh mục:</span>
+                <div class="d-flex flex-nowrap gap-2 justify-content-between align-items-center w-100 explore-capsules-single-row mt-4">
                     <button type="button" onclick="setWorkshopType('')" class="btn-filter-capsule <%= !typeFilter ? 'active' : '' %>">
-                        <i class="bi bi-grid-fill"></i> Tất cả
+                        Tất cả
                     </button>
-                    <% Object.entries(typeLabels).forEach(([key, label]) => { %>
-                        <button type="button" onclick="setWorkshopType('<%= key %>')" class="btn-filter-capsule <%= typeFilter === key ? 'active' : '' %>">
-                            <%= label %>
-                        </button>
-                    <% }) %>
+                    <button type="button" onclick="setWorkshopType('làng-nghề')" class="btn-filter-capsule <%= typeFilter === 'làng-nghề' ? 'active' : '' %>">
+                        Làng nghề
+                    </button>
+                    <button type="button" onclick="setWorkshopType('trải-nghiệm')" class="btn-filter-capsule <%= typeFilter === 'trải-nghiệm' ? 'active' : '' %>">
+                        Trải nghiệm
+                    </button>
+                    <button type="button" onclick="setWorkshopType('văn-hóa')" class="btn-filter-capsule <%= typeFilter === 'văn-hóa' ? 'active' : '' %>">
+                        Văn hóa
+                    </button>
                 </div>
                 <input type="hidden" name="type" id="filterTypeInput" value="<%= typeFilter || '' %>">
                 
@@ -54,7 +57,7 @@
         <!-- Grid -->
         <div class="row g-4">
             <% workshops.forEach((ws, i) => { %>
-            <div class="col-md-6 col-lg-4 reveal-up">
+            <div class="col-6 col-md-6 col-lg-4 reveal-up px-2 mb-3">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 d-flex flex-column bg-white" style="transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.12)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
                     <div class="position-relative" style="height: 220px; overflow: hidden;">
                         <img src="<%= fixImg(ws.image) %>" alt="<%= ws.title %>" class="w-100 h-100" style="object-fit: cover;">
@@ -76,16 +79,20 @@
                                 <span><i class="bi bi-clock me-1"></i><%= ws.duration || '2-3 giờ' %></span>
                                 <span><i class="bi bi-people me-1"></i><%= ws.max_participants || 20 %> người</span>
                             </div>
-                            <div class="d-flex justify-content-between align-items-center pt-3" style="border-top: 1px solid var(--border-light);">
-                                <div>
+                            <div class="d-flex justify-content-between align-items-center pt-2 mt-auto border-top ws-card-footer">
+                                <div class="ws-price-block d-flex align-items-baseline gap-1 text-nowrap">
                                     <% if (ws.price === 0) { %>
-                                        <span class="fw-black" style="color: var(--success); font-size: 1.1rem;">Miễn phí</span>
+                                        <span class="fw-black ws-price" style="color: var(--success);">Miễn phí</span>
                                     <% } else { %>
-                                        <span class="fw-black" style="color: var(--primary); font-size: 1.1rem;"><%= new Intl.NumberFormat('vi-VN').format(ws.price) %>đ</span>
-                                        <span class="text-muted" style="font-size: 0.75rem;">/người</span>
+                                        <span class="fw-black ws-price" style="color: var(--primary);"><%= new Intl.NumberFormat('vi-VN').format(ws.price) %>đ</span>
+                                        <span class="text-muted ws-unit">/người</span>
                                     <% } %>
                                 </div>
-                                <a href="/workshops/<%= ws.id %>" class="btn btn-primary-bl btn-sm rounded-pill px-3">Xem chi tiết <i class="bi bi-arrow-right ms-1"></i></a>
+                                <a href="/workshops/<%= ws.id %>" class="btn btn-primary-bl ws-detail-btn text-nowrap">
+                                    <span class="d-none d-sm-inline">Xem chi tiết</span>
+                                    <span class="d-inline d-sm-none">Chi tiết</span>
+                                    <i class="bi bi-chevron-right ms-1 small"></i>
+                                </a>
                             </div>
                         </div>
                     </div>

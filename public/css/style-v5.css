@@ -1163,3 +1163,980 @@ img { max-width: 100%; }
         margin-top: 2px;
     }
 }
+
+
+/* ==========================================================================
+   MOBILE UI REFINEMENTS (Matching Desktop Layout & Aesthetics)
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    /* 1. Hero Section Padding Top Fix so Fixed Header NEVER Covers Text */
+    .hero-new {
+        padding-top: 130px !important;
+        padding-bottom: 40px !important;
+        text-align: center !important;
+    }
+
+    .hero-brand-title {
+        font-size: clamp(1.8rem, 6vw, 2.5rem) !important;
+        line-height: 1.2 !important;
+        margin-bottom: 8px !important;
+        text-align: center !important;
+    }
+
+    .hero-title-line {
+        margin: 10px auto 16px auto !important;
+    }
+
+    .hero-tagline {
+        font-size: 0.85rem !important;
+        margin-bottom: 12px !important;
+        text-align: center !important;
+    }
+
+    /* 2. Section Titles Centered on Mobile */
+    h1, h2, .section-title, .display-4, .display-5 {
+        text-align: center !important;
+    }
+
+    .section-title::after {
+        margin: 8px auto 0 auto !important;
+    }
+
+    /* 3. Filter Capsule Buttons 1 Single Row Fit on Mobile */
+    .capsule-row-container {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        gap: 3px !important;
+        width: 100% !important;
+    }
+
+    .btn-filter-capsule {
+        flex: 1 1 0px !important;
+        min-width: 0 !important;
+        padding: 6px 3px !important;
+        font-size: 0.68rem !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        border-radius: 24px !important;
+    }
+
+    .btn-filter-capsule i {
+        font-size: 0.7rem !important;
+        margin-right: 2px !important;
+    }
+
+    /* 4. Compact 2-Column Bento Card Scaling on Mobile */
+    .col-6 .card {
+        border-radius: 16px !important;
+    }
+
+    .col-6 .position-relative[style*="height: 240px"],
+    .col-6 .position-relative[style*="height: 220px"] {
+        height: 130px !important;
+    }
+
+    .col-6 .card-body,
+    .col-6 .p-4 {
+        padding: 10px !important;
+    }
+
+    .col-6 h5 {
+        font-size: 0.82rem !important;
+        line-height: 1.25 !important;
+        margin-bottom: 4px !important;
+        font-weight: 800 !important;
+    }
+
+    .col-6 p {
+        font-size: 0.7rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 6px !important;
+    }
+
+    .col-6 .badge-nature,
+    .col-6 .badge-gold {
+        font-size: 0.6rem !important;
+        padding: 2px 6px !important;
+    }
+}
+
+
+/* ==========================================================================
+   COMPLETE RESPONSIVE MOBILE FIXES FOR BINH LOI APP
+   ========================================================================== */
+
+/* HÌNH 1 & HÌNH 5: Navbar & Header alignment & padding */
+.navbar-premium,
+.mobile-top-nav-bar {
+    width: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: #2b1810 !important;
+    padding: 6px 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+}
+
+.mobile-subnav-container {
+    width: 100% !important;
+    display: flex !important;
+    justify-content: space-around !important;
+    align-items: center !important;
+    padding: 2px 8px !important;
+    background-color: #2b1810 !important;
+    border: none !important;
+}
+
+.mobile-subnav-link {
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    padding: 4px 6px !important;
+    white-space: nowrap !important;
+    color: #ffffff !important;
+}
+
+/* Hero Section Mobile Top Offset (Prevents fixed header overlap) */
+@media (max-width: 768px) {
+    .hero-new {
+        padding-top: 115px !important;
+        padding-bottom: 24px !important;
+        text-align: center !important;
+    }
+
+    .hero-brand-title {
+        font-size: clamp(1.35rem, 5.2vw, 1.8rem) !important;
+        margin-bottom: 6px !important;
+        text-align: center !important;
+    }
+
+    .hero-title-line {
+        margin: 0 auto 10px auto !important;
+    }
+
+    .hero-tagline {
+        font-size: 0.75rem !important;
+        letter-spacing: 1px !important;
+        text-align: center !important;
+        margin-bottom: 10px !important;
+    }
+}
+
+/* HÌNH 2: Centered Section Headings & Scaled Cards on Mobile */
+@media (max-width: 768px) {
+    h2, .section-title, .font-display, .display-4 {
+        text-align: center !important;
+        font-size: clamp(1.25rem, 5vw, 1.55rem) !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .section-desc, .py-section p.text-muted {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        font-size: 0.78rem !important;
+    }
+}
+
+/* HÌNH 4: High Contrast Text & 2-Column Bento Grid for Explore & Workshop */
+.explore-subtitle,
+.workshop-subtitle,
+.explore-subtitle-full,
+.workshop-subtitle-full {
+    color: #334155 !important;
+    font-size: 0.8rem !important;
+    line-height: 1.5 !important;
+    text-align: center !important;
+    white-space: normal !important;
+    overflow: visible !important;
+}
+
+.explore-capsules-single-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 4px !important;
+    width: 100% !important;
+}
+
+.explore-capsules-single-row .btn-filter-capsule {
+    flex: 1 1 0px !important;
+    min-width: 0 !important;
+    padding: 6px 4px !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    justify-content: center !important;
+    border-radius: 30px !important;
+}
+
+/* 2-Column Compact Bento Grid Cards Scaling */
+@media (max-width: 768px) {
+    .col-6 .card,
+    .col-6 .card-bl,
+    .col-6 .destination-card-custom {
+        border-radius: 12px !important;
+    }
+
+    .col-6 .position-relative[style*="height"] {
+        height: 135px !important;
+    }
+
+    .col-6 .card-body,
+    .col-6 .p-4.d-flex.flex-column {
+        padding: 10px !important;
+    }
+
+    .col-6 h5, .col-6 .fw-bold.mb-2 {
+        font-size: 0.82rem !important;
+        line-height: 1.25 !important;
+        margin-bottom: 4px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 1 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        color: #0f172a !important;
+        font-weight: 800 !important;
+    }
+
+    .col-6 p.text-muted, .col-6 p.line-clamp-2, .col-6 p.line-clamp-3 {
+        font-size: 0.65rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 6px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 1 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        color: #475569 !important;
+    }
+
+    .col-6 .ws-price {
+        font-size: 0.78rem !important;
+        white-space: nowrap !important;
+    }
+    .col-6 .ws-unit {
+        font-size: 0.62rem !important;
+        white-space: nowrap !important;
+    }
+}
+
+
+/* ==========================================================================
+   PURE WHITE HEADER BAR STYLING
+   ========================================================================== */
+
+/* Main Header Navbar & Mobile Subnav Bar background to White */
+.navbar,
+.navbar-premium,
+.mobile-top-nav-bar,
+.mobile-subnav-container {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Links & Brand title inside White Header */
+.navbar .nav-link,
+.navbar-premium .nav-link,
+.mobile-subnav-link {
+    color: #1e293b !important;
+    font-weight: 700 !important;
+}
+
+.navbar .nav-link:hover,
+.navbar-premium .nav-link:hover,
+.mobile-subnav-link:hover,
+.mobile-subnav-link.active {
+    color: #922724 !important; /* Soft Red Accent */
+}
+
+/* EN / VI & Login Buttons Contrast */
+#langToggleBtn,
+#langToggleBtnDesktop {
+    color: #1e293b !important;
+    border-color: rgba(30, 41, 59, 0.3) !important;
+    background-color: transparent !important;
+}
+
+#langToggleBtn:hover,
+#langToggleBtnDesktop:hover {
+    background-color: #f1f5f9 !important;
+    color: #922724 !important;
+}
+
+
+/* ==========================================================================
+   SCALED COMPACT HEADER LINKS & MOBILE CARDS FIT
+   ========================================================================== */
+
+/* Header subnav links scaling down for Mobile 1-row fit */
+@media (max-width: 768px) {
+    .mobile-top-nav-bar {
+        padding: 4px 0 !important;
+        background-color: #ffffff !important;
+    }
+
+    .mobile-subnav-container {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-around !important;
+        align-items: center !important;
+        width: 100% !important;
+        padding: 2px 2px !important;
+    }
+
+    .mobile-subnav-link {
+        flex: 1 1 auto !important;
+        text-align: center !important;
+        font-size: 0.68rem !important;
+        font-weight: 700 !important;
+        padding: 3px 2px !important;
+        white-space: nowrap !important;
+        color: #1e293b !important;
+        text-decoration: none !important;
+        border-bottom: none !important;
+    }
+
+    .mobile-subnav-link:hover,
+    .mobile-subnav-link.active {
+        color: #922724 !important;
+        border-bottom: 2px solid #922724 !important;
+    }
+
+    /* Scaling down destination & workshop cards on Mobile */
+    .col-6 .card,
+    .col-6 .card-bl,
+    .col-6 .destination-card-custom,
+    .col-6 .workshop-card {
+        border-radius: 10px !important;
+        overflow: hidden !important;
+    }
+
+    .col-6 .ratio,
+    .col-6 .position-relative[style*="height"],
+    .col-6 img[style*="height"] {
+        height: 120px !important;
+        min-height: 120px !important;
+    }
+
+    .col-6 .card-body,
+    .col-6 .p-4.d-flex.flex-column,
+    .col-6 .p-3 {
+        padding: 8px !important;
+    }
+
+    .col-6 h5, 
+    .col-6 h6,
+    .col-6 .card-title,
+    .col-6 .fw-bold.mb-2 {
+        font-size: 0.78rem !important;
+        line-height: 1.25 !important;
+        margin-bottom: 3px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 1 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        color: #0f172a !important;
+        font-weight: 800 !important;
+    }
+
+    .col-6 p,
+    .col-6 .text-muted,
+    .col-6 .line-clamp-2,
+    .col-6 .line-clamp-3 {
+        font-size: 0.64rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 4px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 1 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        color: #475569 !important;
+    }
+
+    .col-6 .badge {
+        font-size: 0.58rem !important;
+        padding: 2px 5px !important;
+    }
+
+    .col-6 .ws-price {
+        font-size: 0.75rem !important;
+        white-space: nowrap !important;
+    }
+
+    .col-6 .ws-unit {
+        font-size: 0.60rem !important;
+        white-space: nowrap !important;
+    }
+}
+
+
+/* ==========================================================================
+   SHORT HEADINGS & FIT 1-ROW SUBNAV HEADER
+   ========================================================================== */
+
+/* Subnav links forced 1-row compact fit */
+.mobile-top-nav-bar {
+    width: 100% !important;
+    background-color: #ffffff !important;
+    padding: 4px 0 !important;
+    margin: 0 !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.mobile-subnav-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    width: 100% !important;
+    padding: 0 4px !important;
+}
+
+.mobile-subnav-link {
+    flex: 1 1 0px !important;
+    min-width: 0 !important;
+    font-size: clamp(0.58rem, 2.5vw, 0.72rem) !important;
+    font-weight: 700 !important;
+    padding: 4px 2px !important;
+    white-space: nowrap !important;
+    text-align: center !important;
+    color: #1e293b !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+.mobile-subnav-link:hover,
+.mobile-subnav-link.active {
+    color: #922724 !important;
+}
+
+/* Page Subtitles styling */
+.section-desc,
+.explore-subtitle,
+.workshop-subtitle,
+.mb-5.text-center p,
+.py-section p.text-muted {
+    font-size: clamp(0.78rem, 3vw, 0.88rem) !important;
+    font-weight: 600 !important;
+    color: #475569 !important;
+    text-align: center !important;
+    margin: 0 auto 16px auto !important;
+    max-width: 480px !important;
+    line-height: 1.4 !important;
+}
+
+
+/* ==========================================================================
+   FIX HEADER BLURRY TEXT & HOME 2-COLUMN BENTO GRID
+   ========================================================================== */
+
+/* Remove any white text-shadow / blur on Mobile Subnav Header */
+.mobile-top-nav-bar,
+.mobile-subnav-container {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+}
+
+.mobile-subnav-link,
+.navbar .nav-link,
+.navbar-premium .nav-link {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+    -webkit-text-stroke: 0 !important;
+    filter: none !important;
+    border-bottom: none !important;
+    text-decoration: none !important;
+    font-size: clamp(0.6rem, 2.6vw, 0.74rem) !important;
+}
+
+.mobile-subnav-link:hover,
+.mobile-subnav-link.active {
+    color: #922724 !important;
+    border-bottom: none !important;
+    text-decoration: none !important;
+}
+
+/* Home Section Headings Centering on Mobile */
+@media (max-width: 768px) {
+    .py-section .d-flex.flex-column.align-items-center,
+    .py-section h2,
+    .py-section .section-title,
+    .py-section p {
+        text-align: center !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* Home 2-Column Bento Destination Cards Scaling */
+    .col-6 .card-heal-wrapper,
+    .col-6 .destination-card-custom,
+    .col-6 .card {
+        border-radius: 12px !important;
+        overflow: hidden !important;
+    }
+
+    .col-6 .card-heal-img,
+    .col-6 .ratio,
+    .col-6 img[style*="height"] {
+        height: 125px !important;
+        min-height: 125px !important;
+    }
+
+    .col-6 .card-heal-body,
+    .col-6 .p-4 {
+        padding: 8px !important;
+    }
+
+    .col-6 h4,
+    .col-6 h5,
+    .col-6 .font-display {
+        font-size: 0.78rem !important;
+        line-height: 1.25 !important;
+        margin-bottom: 3px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 1 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+        color: #ffffff !important;
+        font-weight: 800 !important;
+    }
+
+    .col-6 p.text-white-50,
+    .col-6 p.text-muted {
+        font-size: 0.62rem !important;
+        line-height: 1.3 !important;
+        margin-bottom: 4px !important;
+        display: -webkit-box !important;
+        -webkit-line-clamp: 1 !important;
+        -webkit-box-orient: vertical !important;
+        overflow: hidden !important;
+    }
+}
+
+
+/* ==========================================================================
+   FIX MOBILE SUBNAV BAR FIT & CRISP DARK TEXT
+   ========================================================================== */
+.mobile-top-nav-bar {
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    padding: 3px 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+}
+
+.mobile-subnav-link {
+    flex: 1 1 0px !important;
+    min-width: 0 !important;
+    text-align: center !important;
+    font-size: clamp(0.58rem, 2.7vw, 0.70rem) !important;
+    font-weight: 800 !important;
+    padding: 4px 1px !important;
+    white-space: nowrap !important;
+    color: #0f172a !important;
+    text-decoration: none !important;
+    border-bottom: none !important;
+    text-shadow: none !important;
+    -webkit-text-stroke: 0 !important;
+    filter: none !important;
+}
+
+.mobile-subnav-link:hover,
+.mobile-subnav-link.active {
+    color: #922724 !important;
+    border-bottom: none !important;
+    text-decoration: none !important;
+}
+
+
+/* ==========================================================================
+   JUSTIFY HERO PARAGRAPH TEXT ALIGNMENT & CRISP TEXT
+   ========================================================================== */
+.hero-new .text-secondary,
+.hero-description-text {
+    text-align: justify !important;
+    text-justify: inter-word !important;
+    color: #1e293b !important;
+    text-shadow: none !important;
+    font-weight: 500 !important;
+}
+
+@media (max-width: 768px) {
+    .hero-new .text-secondary,
+    .hero-description-text {
+        text-align: justify !important;
+        text-justify: inter-word !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+}
+
+
+/* ==========================================================================
+   5 SCREENSHOT USER REQUESTED FIXES
+   ========================================================================== */
+
+/* HÌNH 1: Compact vertical spacing between mobile sections */
+@media (max-width: 768px) {
+    .py-section, section {
+        padding-top: 24px !important;
+        padding-bottom: 24px !important;
+    }
+    .my-5, .mb-5, .mt-5 {
+        margin-top: 16px !important;
+        margin-bottom: 16px !important;
+    }
+}
+
+/* HÌNH 2: Clear dark text for home event cards (No text shadow blur) */
+.home-event-card,
+.home-event-card * {
+    text-shadow: none !important;
+}
+
+.home-event-title {
+    color: #0f172a !important;
+    font-weight: 800 !important;
+}
+
+.home-event-meta,
+.home-event-meta * {
+    color: #475569 !important;
+    font-weight: 600 !important;
+}
+
+.home-event-content,
+.home-event-content p,
+.home-event-desc {
+    color: #334155 !important;
+    font-weight: 500 !important;
+    font-size: 0.78rem !important;
+    opacity: 1 !important;
+    text-shadow: none !important;
+}
+
+/* HÌNH 3: Footer Headings & Link Text Colors */
+footer h6,
+footer .fw-black.text-uppercase {
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+
+footer a.text-white-50,
+footer a {
+    color: #cbd5e1 !important;
+    text-decoration: none !important;
+}
+
+footer a:hover {
+    color: #ffffff !important;
+}
+
+/* HÌNH 4: Capsule Filter Bar Horizontal Smooth Scroll (No text overflow) */
+.explore-capsules-single-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+    width: 100% !important;
+    padding: 4px 2px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+}
+
+.explore-capsules-single-row::-webkit-scrollbar {
+    display: none !important;
+}
+
+.explore-capsules-single-row .btn,
+.explore-capsules-single-row .btn-filter-capsule {
+    flex: 0 0 auto !important;
+    white-space: nowrap !important;
+    padding: 6px 14px !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    border-radius: 30px !important;
+}
+
+/* HÌNH 5: Workshop Detail Button Scaling on Mobile (No text jump) */
+@media (max-width: 768px) {
+    .btn-detail-ws,
+    .col-6 .btn-primary-bl,
+    .col-6 .btn {
+        padding: 5px 10px !important;
+        font-size: 0.68rem !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
+        border-radius: 20px !important;
+        min-height: 28px !important;
+        line-height: 1.2 !important;
+    }
+}
+
+
+/* ==========================================================================
+   FIX BLURRY PARAGRAPH TEXT & FOOTER HEADINGS WHITE COLOR
+   ========================================================================== */
+
+/* Remove blurry text shadow and force crisp dark charcoal for event & section descriptions */
+.home-event-desc,
+.event-description,
+.modal-body p,
+section p.text-muted,
+section p.text-secondary,
+p.text-secondary,
+p.text-muted {
+    color: #334155 !important;
+    font-weight: 500 !important;
+    text-shadow: none !important;
+    -webkit-text-stroke: 0 !important;
+    filter: none !important;
+    opacity: 1 !important;
+}
+
+/* Footer Headings ("KHÁM PHÁ", "HỖ TRỢ") - Same White Color as Links */
+footer h6,
+footer h5,
+footer .fw-black,
+footer .fw-black.text-uppercase {
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    text-shadow: none !important;
+}
+
+footer a {
+    color: #ffffff !important;
+    opacity: 0.9 !important;
+}
+
+footer a:hover {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-decoration: underline !important;
+}
+
+
+/* ==========================================================================
+   FIX CAPSULE BUTTON TEXT FIT & 4 BUTTONS LAYOUT
+   ========================================================================== */
+.explore-capsules-single-row {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 6px !important;
+    width: 100% !important;
+    padding: 4px 2px !important;
+    -webkit-overflow-scrolling: touch !important;
+    scrollbar-width: none !important;
+}
+
+.explore-capsules-single-row::-webkit-scrollbar {
+    display: none !important;
+}
+
+.explore-capsules-single-row .btn-filter-capsule,
+.explore-capsules-single-row .btn {
+    flex: 1 1 0px !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    padding: 7px 6px !important;
+    font-size: 0.76rem !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    justify-content: center !important;
+    border-radius: 30px !important;
+    overflow: visible !important;
+}
+
+@media (max-width: 768px) {
+    .btn-filter-capsule {
+        padding: 6px 4px !important;
+        font-size: 0.72rem !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
+    }
+}
+
+
+/* ==========================================================================
+   FIX WORKSHOP CARD FOOTER OVERLAP & CAPSULE BUTTON FONT SIZE
+   ========================================================================== */
+
+/* Scaled down capsule filter buttons on Mobile */
+@media (max-width: 768px) {
+    .explore-capsules-single-row .btn-filter-capsule,
+    .btn-filter-capsule {
+        padding: 5px 6px !important;
+        font-size: 0.66rem !important;
+        font-weight: 700 !important;
+        white-space: nowrap !important;
+        letter-spacing: -0.2px !important;
+    }
+
+    .explore-capsules-single-row .btn-filter-capsule i,
+    .btn-filter-capsule i {
+        font-size: 0.68rem !important;
+        margin-right: 2px !important;
+    }
+
+    /* Workshop Card Price & Detail Button Compact Fit */
+    .ws-price-block {
+        white-space: nowrap !important;
+    }
+
+    .ws-price {
+        font-size: 0.70rem !important;
+        font-weight: 800 !important;
+        white-space: nowrap !important;
+    }
+
+    .ws-unit {
+        font-size: 0.56rem !important;
+        white-space: nowrap !important;
+    }
+
+    .ws-detail-btn {
+        font-size: 0.58rem !important;
+        padding: 3px 6px !important;
+        white-space: nowrap !important;
+        border-radius: 16px !important;
+        line-height: 1.2 !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+
+/* ==========================================================================
+   PERFECT NO-OVERLAP WORKSHOP CARD FOOTER ON MOBILE
+   ========================================================================== */
+@media (max-width: 768px) {
+    .ws-card-footer {
+        padding-top: 6px !important;
+        gap: 2px !important;
+        width: 100% !important;
+    }
+
+    .ws-price-block {
+        white-space: nowrap !important;
+        flex-shrink: 1 !important;
+    }
+
+    .ws-price {
+        font-size: 0.68rem !important;
+        font-weight: 800 !important;
+        line-height: 1 !important;
+    }
+
+    .ws-unit {
+        font-size: 0.52rem !important;
+        line-height: 1 !important;
+    }
+
+    .ws-detail-btn {
+        font-size: 0.58rem !important;
+        padding: 3px 6px !important;
+        border-radius: 12px !important;
+        line-height: 1.1 !important;
+        background-color: #922724 !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
+        box-shadow: none !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+
+/* ==========================================================================
+   EXACT FOOTER MOBILE MATCH (PURE WHITE HEADINGS & LINKS ON #922724 BACKGROUND)
+   ========================================================================== */
+.footer-main {
+    background-color: #922724 !important;
+    background: #922724 !important;
+    color: #ffffff !important;
+}
+
+.footer-section-title {
+    color: #ffffff !important;
+    font-size: 0.88rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+    margin-bottom: 14px !important;
+    text-shadow: none !important;
+}
+
+.footer-link-premium,
+.footer-main a {
+    color: #ffffff !important;
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+    text-decoration: none !important;
+    opacity: 0.92 !important;
+    transition: all 0.2s ease !important;
+}
+
+.footer-link-premium:hover,
+.footer-main a:hover {
+    color: #ffffff !important;
+    opacity: 1 !important;
+    text-decoration: none !important;
+}
+
+@media (max-width: 768px) {
+    .footer-main {
+        padding-top: 32px !important;
+        padding-bottom: 32px !important;
+    }
+    
+    .footer-section-title {
+        font-size: 0.85rem !important;
+        font-weight: 900 !important;
+        margin-bottom: 12px !important;
+    }
+
+    .footer-link-premium {
+        font-size: 0.82rem !important;
+        line-height: 1.6 !important;
+    }
+}
+
+
+/* ==========================================================================
+   HIDE GOOGLE TRANSLATE BANNER & KEEP PRESTINE SITE DESIGN
+   ========================================================================== */
+.goog-te-banner-frame,
+iframe.goog-te-banner-frame,
+.goog-te-balloon-frame {
+    display: none !important;
+}
+
+body {
+    top: 0px !important;
+    position: static !important;
+}
+
+.skiptranslate,
+body > .skiptranslate {
+    display: none !important;
+}
+
+#google_translate_element {
+    display: none !important;
+}

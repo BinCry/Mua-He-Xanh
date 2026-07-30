@@ -10,7 +10,7 @@ class JourneyController {
 
             const user = req.user || req.session?.user;
             if (!user) {
-                return res.redirect('/auth/login?error=Vui lòng đăng nhập để xem hành trình của bạn');
+                return res.redirect('/auth/login?error=journey');
             }
 
             const session = await UserSession.findByUuid(uuid);
@@ -36,14 +36,14 @@ class JourneyController {
             const month = new Date().getMonth() + 1;
             let seasonName = 'Miệt vườn giữa Phố';
             if (month >= 11 || month <= 3) seasonName = 'Du xuân Bình Lợi';
-            
+
             const allDestinations = await Destination.getActive();
-            
+
             // Get journey templates from admin
             const [templates] = await UserSession.db.query(
                 'SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC'
             );
-            
+
             res.render('journey/story_mode', {
                 title: 'Hành trình của tôi',
                 journey: journeyWithStops,
@@ -88,7 +88,7 @@ class JourneyController {
 
             let mappedSuggestions = templates.map(t => {
                 let stopIds = [];
-                try { stopIds = JSON.parse(t.stops); } catch(e) {}
+                try { stopIds = JSON.parse(t.stops); } catch (e) { }
                 const stops = stopIds.map(id => destMap[id]).filter(Boolean);
                 if (stops.length === 0) return null;
 
@@ -198,7 +198,7 @@ class JourneyController {
 
             const t = templates[0];
             let stopIds = [];
-            try { stopIds = JSON.parse(t.stops); } catch(e) {}
+            try { stopIds = JSON.parse(t.stops); } catch (e) { }
 
             // Load active destinations
             const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
@@ -209,7 +209,7 @@ class JourneyController {
             if (stops.length > 0) {
                 // Replaced previous active journey
                 await UserSession.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [session.id]);
-                
+
                 // Create new active journey
                 const journeyId = await Journey.create({
                     session_id: session.id,

@@ -7,9 +7,28 @@ const AuthController = {
     
     loginPage: (req, res) => {
         const config = require('../config/env');
+        const rawError = req.query.error || null;
+        
+        const ERROR_MAP = {
+            'journey': 'Vui lòng đăng nhập để xem hành trình của bạn',
+            'auth_required': 'Vui lòng đăng nhập để thực hiện thao tác này',
+            'tourist_required': 'Vui lòng đăng nhập bằng tài khoản du khách',
+            'invalid_credentials': 'Sai email hoặc mật khẩu',
+            'fill_fields': 'Vui lòng điền đầy đủ thông tin',
+            'invalid_phone': 'Số điện thoại không hợp lệ (10-11 chữ số)',
+            'phone_exists': 'Số điện thoại này đã được sử dụng',
+            'no_manager_dest': 'Bạn không có quyền quản lý địa điểm nào',
+            'google_config': 'Lỗi cấu hình Google: Thiếu Client ID trên Server',
+            'facebook_config': 'Lỗi cấu hình Facebook: Thiếu App ID trên Server',
+            'reg_system_error': 'Lỗi hệ thống khi đăng ký',
+            'session_error': 'Lỗi tạo phiên đăng nhập'
+        };
+
+        const errorMessage = rawError ? (ERROR_MAP[rawError] || decodeURIComponent(rawError)) : null;
+
         res.render('auth/login', {
             title: 'Đăng nhập - Bình Lợi Healing',
-            error: req.query.error || null,
+            error: errorMessage,
             facebookConfigured: !!(config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID')
         });
     },
