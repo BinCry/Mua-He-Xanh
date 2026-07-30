@@ -983,43 +983,6 @@ img { max-width: 100%; }
     .container, .container-fluid, .container-site { padding-left: 14px !important; padding-right: 14px !important; }
     .hero-new { 
         padding-top: 110px !important; 
-        padding-bottom: 50px !important; 
-        text-align: center !important;
-        background-size: cover !important;
-        background-position: center !important;
-    }
-    .hero-new .d-flex { justify-content: center !important; }
-    .hero-brand-title { 
-        font-size: 1.9rem !important; 
-        letter-spacing: 0 !important; 
-        line-height: 1.25 !important; 
-        color: #ffffff !important; 
-        text-shadow: 0 2px 12px rgba(0,0,0,0.6); 
-        margin-bottom: 8px !important;
-    }
-    .hero-title-line { margin: 8px auto 12px auto !important; }
-    .hero-tagline { 
-        font-size: 0.72rem !important; 
-        letter-spacing: 1px !important; 
-        color: #f0a500 !important; 
-        font-weight: 800 !important; 
-        margin-bottom: 14px !important; 
-        text-transform: uppercase;
-        text-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    }
-    .text-secondary { 
-        color: rgba(255,255,255,0.9) !important; 
-        text-align: center !important; 
-        margin: 0 auto 20px auto !important; 
-        font-size: 0.85rem !important;
-        line-height: 1.6 !important;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-    }
-    .btn-explore-new, .btn-map-new { 
-        font-size: 0.72rem !important; 
-        padding: 9px 16px !important; 
-        border-radius: 30px !important; 
-    }
     .quick-info-card { 
         padding: 16px !important; 
         margin-top: 24px !important; 
@@ -1269,17 +1232,18 @@ img { max-width: 100%; }
    COMPLETE RESPONSIVE MOBILE FIXES FOR BINH LOI APP
    ========================================================================== */
 
-/* HÌNH 1 & HÌNH 5: Navbar & Header alignment & padding */
-.navbar-premium,
+/* Mobile Navbar & Subnav styling */
+.navbar-premium {
+    width: 100% !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06) !important;
+}
+
 .mobile-top-nav-bar {
     width: 100% !important;
-    left: 0 !important;
-    right: 0 !important;
-    background-color: #2b1810 !important;
-    padding: 6px 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15) !important;
+    background-color: #ffffff !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    padding: 2px 0 !important;
 }
 
 .mobile-subnav-container {
@@ -1288,16 +1252,22 @@ img { max-width: 100%; }
     justify-content: space-around !important;
     align-items: center !important;
     padding: 2px 8px !important;
-    background-color: #2b1810 !important;
-    border: none !important;
+    background-color: #ffffff !important;
 }
 
 .mobile-subnav-link {
-    font-size: 0.78rem !important;
+    font-size: 0.76rem !important;
     font-weight: 700 !important;
     padding: 4px 6px !important;
     white-space: nowrap !important;
-    color: #ffffff !important;
+    color: #1e293b !important;
+    text-decoration: none !important;
+}
+
+.mobile-subnav-link:hover,
+.mobile-subnav-link.active {
+    color: var(--primary) !important;
+    border-bottom: 2px solid var(--primary) !important;
 }
 
 /* Hero Section Mobile Top Offset (Prevents fixed header overlap) */

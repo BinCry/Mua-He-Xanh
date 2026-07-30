@@ -121,7 +121,7 @@ app.use(async (req, res, next) => {
     res.locals.user = req.user || req.session.user || null;
     
     // Cache Buster for assets
-    res.locals.assetV = '1.1.0_' + Date.now(); 
+    res.locals.assetV = '1.5.0_' + Date.now(); 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
