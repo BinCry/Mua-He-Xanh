@@ -165,63 +165,6 @@ router.get('/brand-logo.png', async (req, res) => {
     }
 });
 
-router.get('/manifest.json', async (req, res) => {
-    try {
-        const db = require('../core/database');
-        const [rows] = await db.query('SELECT * FROM settings');
-        const settings = {};
-        rows.forEach(s => { settings[s.key_name] = s.key_value; });
-        
-        const brandName = settings.brand_name || 'Bình Lợi Healing';
-        
-        res.setHeader('Content-Type', 'application/manifest+json');
-        res.json({
-            "name": brandName,
-            "short_name": brandName.split(' ')[0] || "Bình Lợi",
-            "description": "Nền tảng du lịch chữa lành và khám phá văn hóa Bình Lợi.",
-            "start_url": "/",
-            "display": "standalone",
-            "background_color": "#f8faf9",
-            "theme_color": "#922724",
-            "orientation": "portrait-primary",
-            "icons": [
-                {
-                    "src": "/brand-logo.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                {
-                    "src": "/brand-logo.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
-            ]
-        });
-    } catch (e) {
-        console.error("Manifest generate error:", e);
-        res.json({
-            "name": "Bình Lợi Healing",
-            "short_name": "Bình Lợi",
-            "start_url": "/",
-            "display": "standalone",
-            "background_color": "#f8faf9",
-            "theme_color": "#922724",
-            "icons": [
-                {
-                    "src": "/brand-logo.png",
-                    "sizes": "192x192",
-                    "type": "image/png"
-                },
-                {
-                    "src": "/brand-logo.png",
-                    "sizes": "512x512",
-                    "type": "image/png"
-                }
-            ]
-        });
-    }
-});
-
 
 // ===== EXPLORE =====
 router.get('/explore', ExploreController.list);
