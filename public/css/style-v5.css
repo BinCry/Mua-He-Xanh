@@ -93,6 +93,16 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+/* Offset top content to prevent fixed navbar from overlapping page titles */
+main {
+    padding-top: 76px;
+}
+@media (max-width: 991.98px) {
+    main {
+        padding-top: 105px;
+    }
+}
+
 h1, h2, h3 { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
 h4, h5, h6 { font-family: var(--font-accent); font-weight: 700; color: var(--text); }
 
@@ -133,35 +143,33 @@ img { max-width: 100%; }
     font-weight: 600;
     font-size: 0.82rem;
     letter-spacing: 0.02em;
-    color: var(--primary) !important;
-    padding: 8px 16px !important;
-    border-radius: var(--radius-full);
+    color: #475569 !important;
+    padding: 8px 18px !important;
+    border-radius: 50px !important;
     transition: all 0.25s ease;
     position: relative;
 }
 
-.navbar-premium .nav-link:hover,
-.navbar-premium .nav-link.active {
-    color: var(--primary-dark) !important;
-    background: var(--primary-50);
+.navbar-premium .nav-link:hover {
+    color: #922724 !important;
+    background: #fdf2f2 !important;
+}
+
+/* ACTIVE PAGE MENU BUTTON: SOLID RED PILL WITH WHITE TEXT */
+.navbar-premium .nav-link.active,
+.navbar-nav .nav-link.active,
+.mobile-subnav-link.active,
+.mobile-menu-link.active {
+    background: linear-gradient(135deg, #922724 0%, #7f1d1d 100%) !important;
+    background-color: #922724 !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    box-shadow: 0 4px 14px rgba(146, 39, 36, 0.35) !important;
+    border-radius: 50px !important;
 }
 
 .navbar-premium .nav-link::after {
-    content: '';
-    position: absolute;
-    bottom: 2px;
-    left: 50%;
-    transform: translateX(-50%) scaleX(0);
-    width: 20px;
-    height: 2px;
-    background: var(--primary);
-    border-radius: 2px;
-    transition: transform 0.3s var(--ease-out);
-}
-
-.navbar-premium .nav-link:hover::after,
-.navbar-premium .nav-link.active::after {
-    transform: translateX(-50%) scaleX(1);
+    display: none !important;
 }
 
 /* ==========================================================================
@@ -2075,13 +2083,16 @@ footer a:hover {
         padding-bottom: 32px !important;
     }
     
-    .footer-section-title {
+    .footer-main h1, .footer-main h2, .footer-main h3, .footer-main h4, .footer-main h5, .footer-main h6,
+    .footer-main .fw-bold, .footer-section-title {
+        color: #ffffff !important;
         font-size: 0.85rem !important;
         font-weight: 900 !important;
         margin-bottom: 12px !important;
     }
 
     .footer-link-premium {
+        color: rgba(255, 255, 255, 0.9) !important;
         font-size: 0.82rem !important;
         line-height: 1.6 !important;
     }

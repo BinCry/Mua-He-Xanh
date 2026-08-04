@@ -198,13 +198,21 @@ const AuthController = {
             await AuthController.establishSession(req, res, req.user);
         }
         
-        // Redirect based on role
+        // Priority 1: Redirect to stored intended URL if present
+        if (req.session && req.session.redirectUrl) {
+            const target = req.session.redirectUrl;
+            delete req.session.redirectUrl;
+            return res.redirect(target);
+        }
+
+        // Priority 2: Default redirect based on role
         if (req.user && req.user.role === 'admin') {
             return res.redirect('/admin');
         }
         if (req.user && req.user.role === 'manager') {
             return res.redirect('/manager');
         }
+
         res.redirect('/');
     },
 

@@ -41,28 +41,28 @@
                     </div>
                 </div>
 
-                <!-- Actions Bar -->
-                <div class="d-flex justify-content-between align-items-center pt-3 border-top border-light">
-                    <div class="d-flex gap-2 align-items-center">
+                <!-- Actions Bar (Responsive Mobile Optimized) -->
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch gap-2 pt-3 border-top border-light">
+                    <div class="d-flex gap-2 align-items-center flex-fill">
                         <!-- Upload Photo -->
-                        <label class="btn btn-light btn-sm rounded-pill px-3 py-2 d-flex align-items-center gap-2 mb-0" style="cursor: pointer; font-size: 0.8rem; font-weight: 600;">
+                        <label class="btn btn-light btn-sm rounded-pill px-3 py-2 d-flex align-items-center justify-content-center gap-2 mb-0 flex-fill" style="cursor: pointer; font-size: 0.8rem; font-weight: 600;">
                             <i class="bi bi-image text-success fs-6"></i> Chọn ảnh từ thư viện
                             <input type="file" name="image" accept="image/*" class="d-none" id="imageInput" onchange="previewImage(this)">
                         </label>
                         
                         <!-- Rating Selector -->
-                        <select class="form-select form-select-sm rounded-pill border bg-light px-3 py-2" name="rating" style="width: auto; font-size: 0.8rem; font-weight: 600;">
+                        <select class="form-select form-select-sm rounded-pill border bg-light px-2 py-2 text-center" name="rating" style="width: 110px; font-size: 0.8rem; font-weight: 600;">
                             <option value="5">⭐⭐⭐⭐⭐</option>
                             <option value="4">⭐⭐⭐⭐</option>
                             <option value="3">⭐⭐⭐</option>
                         </select>
                     </div>
 
-                    <div class="d-flex gap-2">
-                        <a href="/reviews/video-editor" class="btn btn-outline-primary-bl rounded-pill px-3 py-2 fw-bold d-flex align-items-center gap-1" style="font-size: 0.82rem;">
+                    <div class="d-flex gap-2 flex-fill justify-content-end">
+                        <a href="/reviews/video-editor" class="btn btn-outline-primary-bl rounded-pill px-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-1 flex-fill" style="font-size: 0.82rem;">
                             <i class="bi bi-camera-reels-fill"></i> TẠO VIDEO
                         </a>
-                        <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold" style="font-size: 0.85rem;">
+                        <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold flex-fill" style="font-size: 0.85rem;">
                             ĐĂNG BÀI
                         </button>
                     </div>
@@ -72,7 +72,7 @@
         <% } else { %>
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center bg-white">
             <p class="text-muted mb-3 small">Vui lòng đăng nhập tài khoản để đăng bài viết chia sẻ check-in hoặc tạo video.</p>
-            <div class="d-flex justify-content-center gap-2">
+            <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
                 <a href="/auth/login" class="btn btn-primary-bl rounded-pill px-4 py-2">ĐĂNG NHẬP NGAY</a>
                 <a href="/reviews/video-editor" class="btn btn-outline-primary-bl rounded-pill px-4 py-2"><i class="bi bi-camera-reels-fill me-1"></i>TẠO VIDEO HÀNH TRÌNH</a>
             </div>
@@ -80,30 +80,32 @@
         <% } %>
 
         <!-- Feed List -->
-        <div class="d-flex flex-column gap-4" id="communityFeed">
+        <div class="d-flex flex-column gap-4 mb-5 pb-5" id="communityFeed">
             <% reviews.forEach((r, i) => { %>
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white reveal-up">
                 <!-- User Header -->
-                <div class="d-flex align-items-center gap-3 p-4 pb-2">
-                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
-                    <div class="flex-grow-1">
-                        <span class="fw-bold d-block" style="font-size: 0.92rem; color: #333;"><%= r.full_name %></span>
-                        <span class="text-muted" style="font-size: 0.72rem;">
-                            <% if (r.destination_name) { %>
-                                <span class="text-danger fw-bold"><i class="bi bi-geo-alt-fill me-1"></i><%= r.destination_name %></span> · 
-                            <% } else if (r.location_name) { %>
-                                <span class="text-secondary"><i class="bi bi-pin-map-fill me-1"></i><%= r.location_name %></span> · 
-                            <% } %>
-                            <%= new Date(r.created_at).toLocaleDateString('vi-VN') %>
-                        </span>
+                <div class="d-flex align-items-start justify-content-between gap-2 p-3 p-sm-4 pb-2">
+                    <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
+                        <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
+                        <div class="min-w-0 flex-grow-1">
+                            <span class="fw-bold d-block text-truncate" style="font-size: 0.92rem; color: #333;"><%= r.full_name %></span>
+                            <span class="text-muted d-block text-truncate" style="font-size: 0.72rem;">
+                                <% if (r.destination_name) { %>
+                                    <span class="text-danger fw-bold"><i class="bi bi-geo-alt-fill me-1"></i><%= r.destination_name %></span> · 
+                                <% } else if (r.location_name) { %>
+                                    <span class="text-secondary"><i class="bi bi-pin-map-fill me-1"></i><%= r.location_name %></span> · 
+                                <% } %>
+                                <%= new Date(r.created_at).toLocaleDateString('vi-VN') %>
+                            </span>
+                        </div>
                     </div>
-                    <div class="text-warning" style="font-size: 0.7rem;">
+                    <div class="text-warning flex-shrink-0 pt-1" style="font-size: 0.75rem;">
                         <% for(let s = 0; s < (r.rating || 5); s++) { %><i class="bi bi-star-fill"></i><% } %>
                     </div>
                 </div>
                 
                 <!-- Content text -->
-                <div class="px-4 pb-2">
+                <div class="px-3 px-sm-4 pb-2">
                     <p class="mb-0" style="font-size: 0.92rem; line-height: 1.7; color: #444;"><%= r.content %></p>
                 </div>
 
@@ -112,7 +114,7 @@
                     let imgs = [];
                     try { imgs = JSON.parse(r.images); } catch(e) {}
                     if (imgs.length > 0) { %>
-                <div class="px-4 py-2">
+                <div class="px-3 px-sm-4 py-2">
                     <div class="row g-2">
                         <% imgs.forEach((img, idx) => { %>
                         <div class="col-12">
@@ -124,7 +126,7 @@
                 <% } } %>
                 
                 <!-- Footer Action Buttons (Instagram Style) -->
-                <div class="d-flex align-items-center gap-4 px-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
+                <div class="d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
                     <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="likeReview('<%= r.id %>', this)">
                         <i class="bi bi-heart fs-5"></i>
                         <span class="fw-bold"><%= r.likes_count || 0 %></span>
@@ -135,16 +137,16 @@
                         <span class="fw-bold"><%= r.comments_count || 0 %></span>
                     </button>
                     
-                    <div class="d-flex gap-3 ms-auto">
+                    <div class="d-flex gap-2 ms-auto">
                         <a href="https://www.facebook.com/sharer/sharer.php?u=<%= encodeURIComponent(baseUrl + '/reviews') %>" 
                            target="_blank" class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted">
                             <i class="bi bi-facebook fs-5 text-primary"></i>
-                            <span class="fw-bold" style="font-size: 0.8rem;">Facebook</span>
+                            <span class="fw-bold d-none d-sm-inline" style="font-size: 0.8rem;">Facebook</span>
                         </a>
                         <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" 
                                 onclick="shareTikTok('<%= r.content.replace(/\'/g, "\\'").replace(/\n/g, " ") %>', '<%= r.destination_name || r.location_name || "" %>', '<%= baseUrl %>/reviews')">
                             <i class="bi bi-tiktok fs-5 text-dark"></i>
-                            <span class="fw-bold" style="font-size: 0.8rem;">TikTok</span>
+                            <span class="fw-bold d-none d-sm-inline" style="font-size: 0.8rem;">TikTok</span>
                         </button>
                     </div>
                 </div>

@@ -2,29 +2,29 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
 <section class="min-vh-100 d-flex flex-column pt-5 mt-4">
-    <!-- Map UI Layout: Sidebar + Full Map -->
+    <!-- Map UI Layout: Sidebar (Desktop) + Full Map -->
     <div class="row g-0 flex-grow-1 position-relative">
         
-        <!-- Left Sidebar (Destinations List) -->
-        <div class="col-lg-3 bg-white shadow-lg z-index-10 d-flex flex-column" style="height: calc(100vh - 80px);">
+        <!-- Left Sidebar (Desktop Only) -->
+        <div class="col-lg-3 bg-white shadow-lg z-index-10 d-none d-lg-flex flex-column" style="height: calc(100vh - 80px);">
             <div class="p-4 border-bottom bg-light">
                 <h5 class="fw-black text-primary mb-1"><i class="bi bi-map-fill me-2"></i>Bản đồ du lịch Bình Lợi</h5>
                 <p class="small text-muted mb-3">Khám phá và định vị không gian xã Bình Lợi</p>
                 
-                <div class="input-group">
+                <div class="input-group mb-3">
                     <span class="input-group-text bg-white border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
                     <input type="text" id="mapSearch" class="form-control border-start-0 rounded-end-pill px-0 shadow-none" placeholder="Tìm địa điểm..." onkeyup="filterMapList()">
                 </div>
                 
-                <div class="d-flex gap-2 overflow-auto pb-2 mt-3 no-scrollbar">
-                    <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 active filter-btn" data-type="all">Tất cả</button>
+                <div class="d-flex gap-2 overflow-auto pb-2 no-scrollbar">
+                    <button class="btn btn-primary btn-sm rounded-pill flex-shrink-0 active filter-btn" data-type="all">Tất cả</button>
                     <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="temple">Tâm linh</button>
                     <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="park">Sinh thái</button>
                     <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="craft">Làng nghề</button>
                 </div>
             </div>
 
-            <!-- Destinations List -->
+            <!-- Destinations List (Desktop) -->
             <div class="flex-grow-1 overflow-auto p-3" id="mapDestList">
                 <% allDests.forEach(dest => { 
                     const lat = parseFloat(dest.lat);
@@ -38,7 +38,7 @@
                             <div>
                                 <h6 class="fw-bold mb-1 text-dark small"><%= dest.name %></h6>
                                 <p class="x-small text-muted mb-2 line-clamp-1"><%= dest.short_desc %></p>
-                                <span class="badge bg-light text-primary border"><%= dest.type %></span>
+                                <span class="badge bg-light text-primary border"><%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm')))) %></span>
                             </div>
                         </div>
                     </div>
@@ -46,12 +46,19 @@
             </div>
         </div>
 
-        <!-- Right Side: Google Map -->
-        <div class="col-lg-9 position-relative">
+        <!-- Right Side: Google Map & Mobile Controls -->
+        <div class="col-lg-9 col-12 position-relative">
             <div id="map" style="width: 100%; height: calc(100vh - 80px); z-index: 1;"></div>
             
+            <!-- Mobile 3-Bar Button (Nút 3 gạch góc trái thay thế ô tìm kiếm trên di động) -->
+            <div class="position-absolute top-0 start-0 m-3 d-lg-none" style="z-index: 1000;">
+                <button class="btn btn-primary-bl rounded-pill shadow-lg px-3 py-2 fw-bold d-flex align-items-center gap-2 border-0" data-bs-toggle="offcanvas" data-bs-target="#mobileDestDrawer" style="font-size: 0.82rem;">
+                    <i class="bi bi-list fs-5"></i> <span>Danh sách địa điểm</span>
+                </button>
+            </div>
+
             <!-- Map Controls Overlay -->
-            <div class="position-absolute top-0 end-0 m-4 d-flex flex-column gap-2" style="z-index: 1000;">
+            <div class="position-absolute top-0 end-0 m-3 m-md-4 d-flex flex-column gap-2" style="z-index: 1000;">
                 <button class="btn btn-white rounded-circle shadow-lg p-0 map-control-btn" style="width: 45px; height: 45px;" onclick="locateMe()" title="Vị trí của tôi">
                     <i class="bi bi-geo-fill text-primary fs-5"></i>
                 </button>
@@ -59,6 +66,45 @@
         </div>
     </div>
 </section>
+
+<!-- Mobile Offcanvas Drawer (Khay vuốt 3 gạch danh sách địa điểm Mobile) -->
+<div class="offcanvas offcanvas-bottom rounded-top-4 d-lg-none" tabindex="-1" id="mobileDestDrawer" style="height: 75vh; z-index: 1055;">
+    <div class="offcanvas-header border-bottom py-3 px-4 bg-light">
+        <h6 class="offcanvas-title fw-black text-primary mb-0"><i class="bi bi-map-fill me-2"></i>Địa điểm du lịch Bình Lợi</h6>
+        <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-3">
+        <!-- Filter Tabs Mobile -->
+        <div class="d-flex gap-2 overflow-auto pb-3 no-scrollbar mb-2">
+            <button class="btn btn-primary btn-sm rounded-pill flex-shrink-0 active filter-btn" data-type="all">Tất cả</button>
+            <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="temple">Tâm linh</button>
+            <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="park">Sinh thái</button>
+            <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="craft">Làng nghề</button>
+        </div>
+
+        <!-- Mobile Destinations List -->
+        <div class="d-flex flex-column gap-2" id="mobileDestList">
+            <% allDests.forEach(dest => { 
+                const lat = parseFloat(dest.lat);
+                const lng = parseFloat(dest.lng);
+                if (lat >= 10.730 && lat <= 10.788 && lng >= 106.465 && lng <= 106.570) { %>
+                <div class="card-bl border-0 shadow-sm p-2 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" onclick="focusMarkerMobile(<%= dest.lat %>, <%= dest.lng %>, '<%= dest.name %>')">
+                    <div class="d-flex gap-3 align-items-center">
+                        <div class="rounded-3 overflow-hidden shadow-sm" style="width: 60px; height: 60px; flex-shrink: 0;">
+                            <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                        </div>
+                        <div class="min-w-0 flex-grow-1">
+                            <h6 class="fw-bold mb-1 text-dark small text-truncate"><%= dest.name %></h6>
+                            <p class="x-small text-muted mb-1 line-clamp-1"><%= dest.short_desc %></p>
+                            <span class="badge bg-light text-primary border" style="font-size: 0.65rem;"><%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm')))) %></span>
+                        </div>
+                        <i class="bi bi-chevron-right text-muted me-2"></i>
+                    </div>
+                </div>
+            <% } }) %>
+        </div>
+    </div>
+</div>
 
 <script>
 let map, markers = [];
@@ -138,7 +184,7 @@ function initMap() {
         const content = `
             <div style="width: 220px; padding: 5px; font-family: 'Inter', sans-serif;">
                 <img src="${normalizeImageUrl(dest.cover_image)}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" onerror="this.src='/images/hero-1.png'">
-                <span class="badge bg-success bg-opacity-10 text-success mb-1" style="font-size: 11px;">${dest.type}</span>
+                <span class="badge bg-success bg-opacity-10 text-success mb-1" style="font-size: 11px;">${dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm'))))}</span>
                 <h6 style="margin: 5px 0; font-weight: bold; font-family: 'Inter', sans-serif;">${dest.name}</h6>
                 <p style="font-size: 12px; color: #475569; margin: 0 0 8px; font-family: 'Inter', sans-serif;">${dest.short_desc || ''}</p>
                 <a href="/explore/${dest.slug}" style="display: block; text-align: center; background: #198754; color: white; padding: 6px 12px; border-radius: 20px; text-decoration: none; font-size: 13px; font-weight: bold; font-family: 'Inter', sans-serif;">Khám phá chi tiết</a>
@@ -169,14 +215,24 @@ function focusMarker(lat, lng, name) {
     }
 }
 
+function focusMarkerMobile(lat, lng, name) {
+    const drawerEl = document.getElementById('mobileDestDrawer');
+    if (drawerEl && typeof bootstrap !== 'undefined') {
+        const drawer = bootstrap.Offcanvas.getInstance(drawerEl) || new bootstrap.Offcanvas(drawerEl);
+        if (drawer) drawer.hide();
+    }
+    focusMarker(lat, lng, name);
+}
+
 function filterMapList() {
-    const query = document.getElementById('mapSearch').value.toLowerCase();
+    const queryInput = document.getElementById('mapSearch');
+    const query = queryInput ? queryInput.value.toLowerCase() : '';
     const activeFilter = document.querySelector('.filter-btn.active')?.getAttribute('data-type') || 'all';
     
     document.querySelectorAll('.dest-item').forEach(item => {
         const name = item.getAttribute('data-name');
         const type = item.getAttribute('data-type');
-        const matchesQuery = name.includes(query);
+        const matchesQuery = !query || name.includes(query);
         const matchesType = activeFilter === 'all' || type === activeFilter;
         item.style.display = (matchesQuery && matchesType) ? 'block' : 'none';
     });

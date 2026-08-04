@@ -15,7 +15,7 @@
         <thead>
             <tr style="border-bottom: 2px solid #f1f5f9;">
                 <th>Tên hành trình</th>
-                <th>Mùa đề xuất</th>
+                <th>Mùa / Khung ngày</th>
                 <th>Sở thích/Vibe</th>
                 <th>Số điểm dừng</th>
                 <th>Thời lượng</th>
@@ -26,9 +26,11 @@
         <tbody>
             <% templates.forEach(t => { %>
             <tr class="align-middle" style="border-bottom: 1px solid #f8fafc;">
-                <td class="fw-bold text-dark"><%= t.name %></td>
+                <td class="fw-bold text-dark">
+                    <%= t.name %>
+                </td>
                 <td>
-                    <span class="badge rounded-pill px-3 py-1 text-uppercase fw-bold fs-7
+                    <span class="badge rounded-pill px-3 py-1 text-uppercase fw-bold fs-7 mb-1 d-inline-block
                         <%= t.season === 'spring' ? 'bg-success bg-opacity-10 text-success' : 
                             t.season === 'summer' ? 'bg-warning bg-opacity-10 text-warning' : 
                             t.season === 'autumn' ? 'bg-danger bg-opacity-10 text-danger' : 
@@ -38,6 +40,13 @@
                             t.season === 'autumn' ? '🍂 Thu' : 
                             '❄️ Đông' %>
                     </span>
+                    <% if (t.valid_from || t.valid_until) { %>
+                        <div class="small text-muted" style="font-size: 0.73rem;">
+                            📅 <%= t.valid_from ? new Date(t.valid_from).toLocaleDateString('vi-VN') : '...' %> - <%= t.valid_until ? new Date(t.valid_until).toLocaleDateString('vi-VN') : '...' %>
+                        </div>
+                    <% } else { %>
+                        <div class="small text-muted" style="font-size: 0.73rem;">📅 Quanh năm</div>
+                    <% } %>
                 </td>
                 <td>
                     <span class="badge rounded-pill px-3 py-1 bg-light text-secondary border">
@@ -121,6 +130,14 @@
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Tổng khoảng cách (km)</label>
                             <input type="number" step="0.1" class="form-control admin-input" id="tpl_km" name="km" placeholder="Ví dụ: 4.8" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Khung ngày áp dụng (Từ ngày)</label>
+                            <input type="date" class="form-control admin-input" id="tpl_valid_from" name="valid_from">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Khung ngày áp dụng (Đến ngày)</label>
+                            <input type="date" class="form-control admin-input" id="tpl_valid_until" name="valid_until">
                         </div>
 
                         <!-- Dynamic Stops Section -->
@@ -207,6 +224,8 @@
         document.getElementById('tpl_interest').value = t.interest;
         document.getElementById('tpl_duration').value = t.duration;
         document.getElementById('tpl_km').value = t.km;
+        document.getElementById('tpl_valid_from').value = t.valid_from ? t.valid_from.substring(0, 10) : '';
+        document.getElementById('tpl_valid_until').value = t.valid_until ? t.valid_until.substring(0, 10) : '';
 
         const container = document.getElementById('stopsContainer');
         container.innerHTML = '';
@@ -250,6 +269,8 @@
         const interest = document.getElementById('tpl_interest').value;
         const duration = document.getElementById('tpl_duration').value;
         const km = document.getElementById('tpl_km').value;
+        const valid_from = document.getElementById('tpl_valid_from').value;
+        const valid_until = document.getElementById('tpl_valid_until').value;
 
         // Gather stops
         const selects = document.querySelectorAll('.dest-select');
@@ -271,7 +292,9 @@
             interest,
             stops: JSON.stringify(stops),
             duration,
-            km: parseFloat(km)
+            km: parseFloat(km),
+            valid_from,
+            valid_until
         };
 
         const url = editingTemplate ? '/api/admin/update-journey-template' : '/api/admin/create-journey-template';

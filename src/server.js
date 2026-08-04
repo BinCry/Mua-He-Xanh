@@ -116,6 +116,7 @@ app.use(async (req, res, next) => {
     res.locals.appName = 'Bình Lợi - Miền Tây giữa lòng Sài Gòn';
     res.locals.session = req.session;
     res.locals.user = req.user || req.session.user || null;
+    res.locals.currentPath = req.path;
     
     // Cache Buster for assets
     res.locals.assetV = '1.5.0_' + Date.now(); 
@@ -239,6 +240,21 @@ async function runMigrations() {
             "ALTER TABLE destinations MODIFY COLUMN type VARCHAR(100) DEFAULT 'nature'",
             "ALTER TABLE rewards MODIFY COLUMN type VARCHAR(100) DEFAULT 'voucher'",
             "ALTER TABLE notifications MODIFY COLUMN type VARCHAR(100) DEFAULT 'system'",
+            // Create missing interaction tables
+            `CREATE TABLE IF NOT EXISTS destination_likes (
+                id VARCHAR(36) PRIMARY KEY,
+                user_id VARCHAR(36) NOT NULL,
+                destination_id VARCHAR(36) NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY user_like_dest (user_id, destination_id)
+            )`,
+            `CREATE TABLE IF NOT EXISTS user_favorites (
+                id VARCHAR(36) PRIMARY KEY,
+                user_id VARCHAR(36) NOT NULL,
+                destination_id VARCHAR(36) NOT NULL,
+                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                UNIQUE KEY user_fav_dest (user_id, destination_id)
+            )`,
         ];
         for (const sql of migrations) {
             try { await db.query(sql); } catch(e) { /* skip if already correct */ }

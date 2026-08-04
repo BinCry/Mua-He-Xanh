@@ -5,13 +5,14 @@ const Destination = require('../models/Destination');
 class JourneyController {
     async index(req, res) {
         try {
-            const uuid = req.cookies.session_uuid;
-            if (!uuid) return res.redirect('/onboarding');
-
             const user = req.user || req.session?.user;
             if (!user) {
-                return res.redirect('/auth/login?error=journey');
+                req.session.redirectUrl = '/journey';
+                return res.redirect('/auth/login?error=auth_required');
             }
+
+            const uuid = req.cookies.session_uuid;
+            if (!uuid) return res.redirect('/onboarding');
 
             const session = await UserSession.findByUuid(uuid);
             if (!session || !session.mood) return res.redirect('/onboarding');
@@ -53,12 +54,19 @@ class JourneyController {
             });
         } catch (error) {
             console.error("Journey index error:", error);
-            res.status(500).send("Internal Server Error");
+            // Catch ECONNRESET or missing session errors and redirect safely to onboarding instead of 500 error
+            return res.redirect('/onboarding');
         }
     }
 
     async suggestions(req, res) {
         try {
+            const user = req.user || req.session?.user;
+            if (!user) {
+                req.session.redirectUrl = '/journey/suggestions';
+                return res.redirect('/auth/login?error=auth_required');
+            }
+
             const uuid = req.cookies.session_uuid;
             const session = await UserSession.findByUuid(uuid);
             if (!session || !session.mood) return res.redirect('/onboarding');
@@ -71,14 +79,17 @@ class JourneyController {
 
             const mood = session.mood || 'chill';
 
-            // Query templates, sorting matching season and matching mood first
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            // Query templates, sorting matching valid date range, matching season, and matching mood first
             const [templates] = await UserSession.db.query(
                 `SELECT * FROM seasonal_journey_templates 
                  ORDER BY 
+                    CASE WHEN (valid_from IS NULL OR valid_from <= ?) AND (valid_until IS NULL OR valid_until >= ?) THEN 0 ELSE 1 END,
                     CASE WHEN season = ? THEN 0 ELSE 1 END,
                     CASE WHEN interest = ? THEN 0 ELSE 1 END,
                     created_at DESC`
-                , [currentSeason, mood]
+                , [todayStr, todayStr, currentSeason, mood]
             );
 
             // Fetch all active destinations
@@ -165,15 +176,77 @@ class JourneyController {
 
     async confirm(req, res) {
         try {
-            const { journeyData } = req.body;
-            if (!journeyData) return res.redirect('/onboarding');
-            const data = JSON.parse(journeyData);
+            const user = req.user || req.session?.user;
+            if (!user) {
+                req.session.redirectUrl = '/journey/suggestions';
+                return res.redirect('/auth/login?error=auth_required');
+            }
+
+            const { templateId, journeyData } = req.body;
             const uuid = req.cookies.session_uuid;
             const session = await UserSession.findByUuid(uuid);
             if (!session) return res.redirect('/onboarding');
 
-            await Journey.createFromSuggestion(session.id, data);
-            res.redirect('/hanh-trinh-cua-toi');
+            // Handle confirm by templateId from database if available
+            if (templateId) {
+                const [templates] = await UserSession.db.query(
+                    "SELECT * FROM seasonal_journey_templates WHERE id = ?",
+                    [templateId]
+                );
+                if (templates.length > 0) {
+                    const t = templates[0];
+                    let stopIds = [];
+                    try { stopIds = JSON.parse(t.stops); } catch (e) { }
+
+                    const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
+                    const destMap = {};
+                    dests.forEach(d => { destMap[d.id] = d; });
+                    const stops = stopIds.map(id => destMap[id]).filter(Boolean);
+
+                    if (stops.length > 0) {
+                        await UserSession.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [session.id]);
+
+                        const journeyId = await Journey.create({
+                            session_id: session.id,
+                            mood: t.name,
+                            duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
+                            total_km: parseFloat(t.km) || 5.0,
+                            total_minutes: t.duration === 'full_day' ? 360 : 180,
+                            status: 'active',
+                            interests: JSON.stringify([t.season, t.interest])
+                        });
+
+                        const JourneyStop = require('../models/JourneyStop');
+                        for (let idx = 0; idx < stops.length; idx++) {
+                            await JourneyStop.create({
+                                journey_id: journeyId,
+                                destination_id: stops[idx].id,
+                                stop_order: idx,
+                                is_completed: 0
+                            });
+                        }
+
+                        return res.redirect('/hanh-trinh-cua-toi');
+                    }
+                }
+            }
+
+            // Fallback for journeyData JSON
+            if (journeyData) {
+                let data = null;
+                try {
+                    data = typeof journeyData === 'string' ? JSON.parse(journeyData) : journeyData;
+                } catch (e) {
+                    console.error("Parse journeyData error:", e);
+                }
+
+                if (data) {
+                    await Journey.createFromSuggestion(session.id, data);
+                    return res.redirect('/hanh-trinh-cua-toi');
+                }
+            }
+
+            res.redirect('/onboarding');
         } catch (error) {
             console.error("Confirm error:", error);
             res.redirect('/onboarding');
@@ -182,6 +255,11 @@ class JourneyController {
 
     async loadTemplate(req, res) {
         try {
+            const user = req.user || req.session?.user;
+            if (!user) {
+                return res.redirect('/auth/login?error=auth_required');
+            }
+
             const { id } = req.params;
             const uuid = req.cookies.session_uuid;
             if (!uuid) return res.redirect('/onboarding');
@@ -241,6 +319,11 @@ class JourneyController {
 
     async preset(req, res) {
         try {
+            const user = req.user || req.session?.user;
+            if (!user) {
+                return res.redirect('/auth/login?error=auth_required');
+            }
+
             const { theme } = req.params;
             const uuid = req.cookies.session_uuid;
             if (!uuid) return res.redirect('/onboarding');

@@ -667,7 +667,38 @@
         </div>
         <% } %>
 
-        <!-- ============ Quick Actions ============ -->
+        <!-- ============ Saved Destinations Only ============ -->
+        <% 
+          const mySaved = (typeof savedDestinations !== 'undefined' && savedDestinations) ? savedDestinations : [];
+        %>
+        <% if (mySaved.length > 0) { %>
+        <div class="mb-5">
+            <h5 class="profile-section-title">
+                <i class="bi bi-bookmark-fill" style="color: var(--primary, #0f766e);"></i> Địa điểm đã lưu (<%= mySaved.length %>)
+            </h5>
+            
+            <div class="row g-3">
+                <% mySaved.forEach(d => { %>
+                <div class="col-6 col-md-4">
+                    <a href="/explore/<%= d.slug %>" class="text-decoration-none">
+                        <div class="fav-dest-card rounded-4 overflow-hidden bg-white shadow-sm border" style="transition: all 0.3s ease;">
+                            <div class="position-relative" style="height: 140px;">
+                                <img src="<%= fixImg(d.cover_image, '/images/placeholder.jpg') %>" class="w-100 h-100" style="object-fit: cover;" alt="<%= d.name %>">
+                                <span class="position-absolute top-0 end-0 m-2 badge bg-primary bg-opacity-75 rounded-pill" style="font-size: 0.65rem;">
+                                    <i class="bi bi-bookmark-fill"></i>
+                                </span>
+                            </div>
+                            <div class="p-2 px-3">
+                                <div class="fw-bold text-dark small line-clamp-1"><%= d.name %></div>
+                                <div class="x-small text-muted"><i class="bi bi-tag-fill me-1"></i><%= d.type %></div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
         <h5 class="profile-section-title">
             <i class="bi bi-lightning-fill title-icon-action"></i>Lối tắt nhanh
         </h5>

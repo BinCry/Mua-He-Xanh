@@ -1,59 +1,22 @@
 <section class="auth-section min-vh-100 d-flex align-items-center position-relative overflow-hidden py-5">
     <!-- Cinematic Background -->
-    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg(settings.login_bg, '/images/hero-1.png') %>') center/cover; z-index: 0; filter: brightness(0.4);"></div>
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg(settings.login_bg, '/images/hero-1.png') %>') center/cover; z-index: 0; filter: brightness(0.35);"></div>
 
     <div class="container position-relative z-index-10">
         <div class="row justify-content-center">
-            <div class="col-lg-5 col-md-8">
+            <div class="col-lg-5 col-md-7 col-sm-10">
                 
                 <div class="text-center mb-4 reveal-up">
-                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" height="60" class="mb-3" onerror="this.src='/images/logo.png'">
-                    <h2 class="text-white fw-black tracking-widest text-uppercase"><%= settings.brand_name || 'BÌNH LỢI' %></h2>
-                    <p class="text-white-50 small"><%= settings.brand_subtext || 'Chạm vào bình yên' %></p>
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" height="65" class="mb-3" onerror="this.src='/images/logo.png'">
+                    <h2 class="text-white fw-black tracking-widest text-uppercase mb-1"><%= settings.brand_name || 'BÌNH LỢI' %></h2>
+                    <p class="text-white-50 small mb-0"><%= settings.brand_subtext || 'Chạm vào bình yên' %></p>
                 </div>
 
                 <div class="auth-card border-0 shadow-premium rounded-5 overflow-hidden reveal-up" style="transition-delay: 0.1s">
-                    <div class="p-4 p-md-5">
+                    <div class="p-4 p-md-5 text-center">
                         
-                        <!-- Social Logins (Primary) -->
-                        <div class="row g-2 mb-3 social-login-row">
-                            <div class="col-6">
-                                <a href="/auth/google" class="btn btn-light w-100 rounded-pill shadow-sm social-login-btn">
-                                    <img class="social-login-icon" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google">
-                                    <span class="fw-bold text-dark">Google</span>
-                                </a>
-                            </div>
-                            <div class="col-6">
-                                <a href="/auth/facebook" class="btn btn-primary w-100 rounded-pill shadow-sm border-0 social-login-btn" style="background-color: #1877F2;">
-                                    <i class="bi bi-facebook social-login-icon"></i>
-                                    <span class="fw-bold">Facebook</span>
-                                </a>
-                            </div>
-                        </div>
-
-                        <div class="phone-login-notice mb-4">
-                            <i class="bi bi-exclamation-triangle-fill"></i>
-                            <span class="phone-login-notice-text">
-                                <span>Tạm thời không cho phép đăng kí</span>
-                                <span>hoặc đăng nhập bằng số điện thoại</span>
-                            </span>
-                        </div>
-
-                        <div class="d-flex align-items-center mb-4 mt-2">
-                            <div class="flex-grow-1" style="border-bottom: 1px solid rgba(255,255,255,0.2);"></div>
-                            <span class="px-3 small x-small text-uppercase tracking-widest" style="color: rgba(255,255,255,0.5);">Hoặc</span>
-                            <div class="flex-grow-1" style="border-bottom: 1px solid rgba(255,255,255,0.2);"></div>
-                        </div>
-
-                        <!-- Tabs -->
-                        <ul class="nav nav-pills nav-fill gap-2 p-1 rounded-pill mb-4" id="authTabs" role="tablist" style="background: rgba(255,255,255,0.15);">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill text-white fw-bold" id="login-tab" data-bs-toggle="tab" data-bs-target="#login-pane" type="button" role="tab">Đăng Nhập</button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill text-white fw-bold" id="register-tab" data-bs-toggle="tab" data-bs-target="#register-pane" type="button" role="tab">Đăng Ký</button>
-                            </li>
-                        </ul>
+                        <h4 class="text-white fw-bold mb-2">Đăng Nhập Nhanh</h4>
+                        <p class="text-white-50 small mb-4">Vui lòng chọn phương thức đăng nhập để tiếp tục trải nghiệm tuyệt vời cùng Bình Lợi Healing</p>
 
                         <% if (typeof error !== 'undefined' && error) { %>
                             <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-4 small text-center mb-4 animate__animated animate__shakeX">
@@ -61,92 +24,31 @@
                             </div>
                         <% } %>
 
-                        <div class="tab-content" id="authTabsContent">
-                            <!-- Login Form -->
-                            <div class="tab-pane fade show active" id="login-pane" role="tabpanel" tabindex="0">
-                                <form action="/auth/login" method="POST">
-                                    <div class="mb-3">
-                                        <label for="loginEmail" class="form-label small fw-bold text-white">Số điện thoại</label>
-                                        <input type="tel" class="form-control auth-input" id="loginEmail" name="email" placeholder="0901234567" required inputmode="numeric" autocomplete="tel">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="loginPassword" class="form-label small fw-bold text-white">Mật khẩu</label>
-                                        <div class="position-relative">
-                                            <input type="password" class="form-control auth-input pe-5" id="loginPassword" name="password" placeholder="Nhập mật khẩu" required autocomplete="current-password">
-                                            <button type="button" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0" onclick="togglePwd('loginPassword', this)" style="background: none;">
-                                                <i class="bi bi-eye text-white fs-5"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest mb-3">ĐĂNG NHẬP</button>
-                                </form>
-                            </div>
+                        <!-- Social Logins (Primary) -->
+                        <div class="d-flex flex-column gap-3 mb-3">
+                            <a href="/auth/google" class="btn btn-light w-100 rounded-pill shadow-sm social-login-btn py-3">
+                                <img class="social-login-icon me-2" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style="width: 22px; height: 22px;">
+                                <span class="fw-bold text-dark fs-6">Đăng nhập với Google</span>
+                            </a>
+                            <a href="/auth/facebook" class="btn btn-primary w-100 rounded-pill shadow-sm border-0 social-login-btn py-3" style="background-color: #1877F2;">
+                                <i class="bi bi-facebook social-login-icon me-2 fs-5"></i>
+                                <span class="fw-bold fs-6">Đăng nhập với Facebook</span>
+                            </a>
+                        </div>
 
-                            <!-- Register Form -->
-                            <div class="tab-pane fade" id="register-pane" role="tabpanel" tabindex="0">
-                                <form id="registerForm" action="/auth/register" method="POST" onsubmit="handleRegistrationSubmit(event)">
-                                    <div class="mb-3">
-                                        <label for="regName" class="form-label small fw-bold text-white">Họ và tên</label>
-                                        <input type="text" class="form-control auth-input" id="regName" name="fullName" placeholder="Nguyễn Văn A" required>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label for="regPhone" class="form-label small fw-bold text-white">Số điện thoại</label>
-                                        <input type="tel" class="form-control auth-input" id="regPhone" name="phone" placeholder="0901234567" required pattern="[0-9]{10,11}" title="Số điện thoại 10-11 chữ số">
-                                    </div>
-                                    <div class="mb-4">
-                                        <label for="regPassword" class="form-label small fw-bold text-white">Mật khẩu (tối thiểu 6 ký tự)</label>
-                                        <div class="position-relative">
-                                            <input type="password" class="form-control auth-input pe-5" id="regPassword" name="password" placeholder="••••••" required minlength="6">
-                                            <button type="button" class="btn btn-sm position-absolute top-50 end-0 translate-middle-y me-2 p-0 border-0" onclick="togglePwd('regPassword', this)" style="background: none;">
-                                                <i class="bi bi-eye text-white opacity-50 fs-5"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <button type="submit" class="btn btn-success w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest mb-3">TẠO TÀI KHOẢN</button>
-                                </form>
-                            </div>
+                        <div class="mt-4 pt-2 border-top border-white border-opacity-10">
+                            <p class="x-small text-white-50 mb-0">
+                                Bằng cách đăng nhập, bạn đồng ý với <a href="#" class="text-white text-decoration-underline">Điều khoản dịch vụ</a> và <a href="#" class="text-white text-decoration-underline">Chính sách bảo mật</a> của chúng tôi.
+                            </p>
                         </div>
 
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 </section>
-
-<!-- SMS OTP Verification Modal -->
-<div class="modal fade" id="otpModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 450px;">
-        <div class="modal-content border-0 rounded-4 shadow-premium bg-dark text-white p-4" style="border: 1px solid rgba(255,255,255,0.1) !important;">
-            <div class="text-center mb-4">
-                <div class="bg-success bg-opacity-25 text-success rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
-                    <i class="bi bi-shield-lock-fill fs-3"></i>
-                </div>
-                <h4 class="fw-black mb-1">Xác thực OTP</h4>
-                <p class="text-white-50 small mb-0">Mã OTP xác thực gồm 6 chữ số đã được gửi qua tin nhắn SMS tới số điện thoại của bạn.</p>
-            </div>
-            
-            <div class="mb-4">
-                <div class="d-flex justify-content-center gap-2" id="otpInputContainer">
-                    <input type="text" maxlength="1" class="form-control text-center fs-3 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 45px; height: 55px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, 'otp2')" id="otp1">
-                    <input type="text" maxlength="1" class="form-control text-center fs-3 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 45px; height: 55px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, 'otp3')" id="otp2">
-                    <input type="text" maxlength="1" class="form-control text-center fs-3 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 45px; height: 55px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, 'otp4')" id="otp3">
-                    <input type="text" maxlength="1" class="form-control text-center fs-3 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 45px; height: 55px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, 'otp5')" id="otp4">
-                    <input type="text" maxlength="1" class="form-control text-center fs-3 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 45px; height: 55px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, 'otp6')" id="otp5">
-                    <input type="text" maxlength="1" class="form-control text-center fs-3 fw-bold text-white rounded-3 shadow-none otp-box" style="width: 45px; height: 55px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);" onkeyup="moveOtpFocus(this, null)" id="otp6">
-                </div>
-                <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-3 mt-3 py-2 px-3 small text-center d-none" id="otpErrorAlert">
-                    Mã xác thực OTP không chính xác hoặc đã hết hạn. Vui lòng thử lại!
-                </div>
-            </div>
-
-            <div class="d-grid gap-2">
-                <button type="button" class="btn btn-success rounded-pill py-3 fw-bold text-uppercase tracking-widest" id="btnVerifyOtp" onclick="verifyOtpCode()">XÁC NHẬN KÍCH HOẠT</button>
-                <button type="button" class="btn btn-link text-white-50 text-decoration-none small text-center" data-bs-dismiss="modal">Hủy bỏ</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
@@ -158,224 +60,25 @@
             window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
         }
     });
-
-    let otpModalInstance = null;
-
-    async function handleRegistrationSubmit(event) {
-        event.preventDefault();
-        
-        const phone = document.getElementById('regPhone').value.trim();
-        const fullName = document.getElementById('regName').value.trim();
-        const password = document.getElementById('regPassword').value.trim();
-
-        if (!phone || !fullName || !password) {
-            alert('Vui lòng nhập đầy đủ thông tin!');
-            return;
-        }
-
-        const submitBtn = event.target.querySelector('button[type="submit"]');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang gửi OTP...';
-
-        try {
-            // Call API to send OTP via Axios
-            const response = await axios.post('/auth/send-otp', { phone });
-            
-            if (response.data && response.data.success) {
-                // Show OTP Modal
-                if (!otpModalInstance) {
-                    otpModalInstance = new bootstrap.Modal(document.getElementById('otpModal'));
-                }
-                
-                // Reset inputs
-                document.querySelectorAll('.otp-box').forEach(el => el.value = '');
-                document.getElementById('otpErrorAlert').classList.add('d-none');
-                
-
-
-                otpModalInstance.show();
-                setTimeout(() => document.getElementById('otp1').focus(), 500);
-            } else {
-                alert(response.data.message || 'Gửi mã OTP thất bại. Vui lòng thử lại!');
-            }
-        } catch (err) {
-            console.error("OTP Send request failed:", err);
-            alert('Lỗi kết nối máy chủ. Vui lòng kiểm tra lại!');
-        } finally {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = originalText;
-        }
-    }
-
-    function moveOtpFocus(current, nextId) {
-        if (current.value.length === 1 && nextId) {
-            document.getElementById(nextId).focus();
-        }
-    }
-
-    async function verifyOtpCode() {
-        const phone = document.getElementById('regPhone').value.trim();
-        const o1 = document.getElementById('otp1').value;
-        const o2 = document.getElementById('otp2').value;
-        const o3 = document.getElementById('otp3').value;
-        const o4 = document.getElementById('otp4').value;
-        const o5 = document.getElementById('otp5').value;
-        const o6 = document.getElementById('otp6').value;
-        
-        const code = o1 + o2 + o3 + o4 + o5 + o6;
-        if (code.length < 6) {
-            alert('Vui lòng điền đủ 6 chữ số OTP!');
-            return;
-        }
-
-        const verifyBtn = document.getElementById('btnVerifyOtp');
-        verifyBtn.disabled = true;
-        verifyBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Đang xác thực...';
-
-        try {
-            // Call API to verify OTP via Axios
-            const response = await axios.post('/auth/verify-otp', { phone, otp: code });
-
-            if (response.data && response.data.success) {
-                otpModalInstance.hide();
-                // Programmatically submit registration form since OTP is correct
-                document.getElementById('registerForm').submit();
-            } else {
-                const errAlert = document.getElementById('otpErrorAlert');
-                errAlert.innerText = response.data.message || 'Mã OTP không chính xác. Vui lòng thử lại!';
-                errAlert.classList.remove('d-none');
-                
-                // Shake modal
-                gsap.to('#otpModal .modal-content', { x: 10, duration: 0.05, yoyo: true, repeat: 5 });
-            }
-        } catch (err) {
-            console.error("OTP verification request failed:", err);
-            alert('Lỗi kết nối máy chủ khi xác thực OTP!');
-        } finally {
-            verifyBtn.disabled = false;
-            verifyBtn.innerHTML = 'XÁC NHẬN KÍCH HOẠT';
-        }
-    }
-
-
-
-    function togglePwd(inputId, btn) {
-        const input = document.getElementById(inputId);
-        const icon = btn.querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.replace('bi-eye', 'bi-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.replace('bi-eye-slash', 'bi-eye');
-        }
-    }
 </script>
 
 <style>
     .auth-card { 
-        background: rgba(0,0,0,0.45); 
-        backdrop-filter: blur(20px); 
-        -webkit-backdrop-filter: blur(20px); 
-        border: 1px solid rgba(255,255,255,0.1); 
+        background: rgba(0, 0, 0, 0.55); 
+        backdrop-filter: blur(25px); 
+        -webkit-backdrop-filter: blur(25px); 
+        border: 1px solid rgba(255, 255, 255, 0.15); 
     }
-    .auth-input {
-        background: rgba(255,255,255,0.15) !important;
-        border: 1px solid rgba(255,255,255,0.25) !important;
-        color: #fff !important;
-        border-radius: 12px !important;
-        padding: 14px 18px !important;
-        font-size: 0.95rem;
-        font-weight: 500;
-    }
-    .auth-input::placeholder { color: rgba(255,255,255,0.55) !important; }
-    .auth-input:focus { 
-        background: rgba(255,255,255,0.22) !important; 
-        border-color: rgba(255,255,255,0.4) !important; 
-        box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.12) !important;
-        color: #fff !important;
-    }
-    .nav-pills .nav-link.active { background-color: var(--primary); }
     .tracking-widest { letter-spacing: 2px; }
     .z-index-10 { z-index: 10; }
-    .social-login-row {
-        align-items: stretch;
-    }
     .social-login-btn {
-        min-height: 50px;
-        padding: 0 14px !important;
         display: flex;
         align-items: center;
         justify-content: center;
-        gap: 10px;
-        line-height: 1;
-        font-size: 0.95rem;
-        white-space: nowrap;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .social-login-icon {
-        width: 24px;
-        height: 24px;
-        flex: 0 0 24px;
-        display: block;
-        font-size: 24px;
-        line-height: 1;
-    }
-    .phone-login-notice {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 12px 14px 12px 42px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, rgba(146,39,36,0.42), rgba(255,193,7,0.14));
-        border: 1px solid rgba(255,255,255,0.14);
-        box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 10px 24px rgba(0,0,0,0.12);
-        color: #fff;
-        font-weight: 700;
-        text-align: center;
-    }
-    .phone-login-notice i {
-        position: absolute;
-        left: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #fff;
-        font-size: 1.05rem;
-        line-height: 1;
-    }
-    .phone-login-notice-text {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        max-width: 100%;
-        font-size: clamp(0.7rem, 3.1vw, 0.84rem);
-        line-height: 1.28;
-    }
-    .phone-login-notice-text span {
-        display: block;
-        white-space: nowrap;
-    }
-    @media (max-width: 380px) {
-        .social-login-btn {
-            min-height: 48px;
-            gap: 8px;
-            padding: 0 10px !important;
-            font-size: 0.88rem;
-        }
-        .social-login-icon {
-            width: 22px;
-            height: 22px;
-            flex-basis: 22px;
-            font-size: 22px;
-        }
-        .phone-login-notice {
-            padding: 10px 10px 10px 34px;
-            border-radius: 16px;
-        }
-        .phone-login-notice i {
-            left: 12px;
-            font-size: 0.95rem;
-        }
+    .social-login-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
     }
 </style>

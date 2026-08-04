@@ -41,6 +41,32 @@ const ProfileController = {
                 ORDER BY ur.redeemed_at DESC
             `, [user.id]);
 
+            // Liked destinations
+            let likedDestinations = [];
+            try {
+                const [liked] = await db.query(`
+                    SELECT d.id, d.name, d.slug, d.cover_image, d.short_desc, d.type, dl.created_at as liked_at
+                    FROM destination_likes dl
+                    JOIN destinations d ON dl.destination_id = d.id
+                    WHERE dl.user_id = ? AND d.is_active = TRUE
+                    ORDER BY dl.created_at DESC
+                `, [user.id]);
+                likedDestinations = liked;
+            } catch(e) {}
+
+            // Saved destinations
+            let savedDestinations = [];
+            try {
+                const [saved] = await db.query(`
+                    SELECT d.id, d.name, d.slug, d.cover_image, d.short_desc, d.type, uf.created_at as saved_at
+                    FROM user_favorites uf
+                    JOIN destinations d ON uf.destination_id = d.id
+                    WHERE uf.user_id = ? AND d.is_active = TRUE
+                    ORDER BY uf.created_at DESC
+                `, [user.id]);
+                savedDestinations = saved;
+            } catch(e) {}
+
             res.render('profile/index', {
                 title: 'Hồ sơ Du Khách',
                 profileUser: fullUser,
@@ -54,7 +80,9 @@ const ProfileController = {
                 },
                 badges,
                 workshopBookings: workshopBookings.slice(0, 5),
-                rewards
+                rewards,
+                likedDestinations,
+                savedDestinations
             });
         } catch (error) {
             console.error('Profile index error:', error);

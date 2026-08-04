@@ -304,7 +304,8 @@ function handleLikeToggle(btn, destinationId) {
         })
         .catch(err => {
             if (err.response?.status === 401) {
-                showToast('Vui lòng đăng nhập để thích địa điểm.', 'warning');
+                showToast('Vui lòng đăng nhập để sử dụng tính năng này!', 'warning');
+                setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
             } else {
                 showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
             }
@@ -332,7 +333,8 @@ function handleSaveToggle(btn, destinationId) {
         })
         .catch(err => {
             if (err.response?.status === 401) {
-                showToast('Vui lòng đăng nhập để lưu địa điểm.', 'warning');
+                showToast('Vui lòng đăng nhập để sử dụng tính năng này!', 'warning');
+                setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
             } else {
                 showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
             }
@@ -340,16 +342,33 @@ function handleSaveToggle(btn, destinationId) {
 }
 
 function shareDestination(name, url) {
-    if (navigator.clipboard) {
-        navigator.clipboard.writeText(url)
-            .then(() => {
-                showToast('Đã sao chép liên kết vào bộ nhớ tạm!', 'success');
-            })
-            .catch(() => {
-                prompt('Sao chép liên kết dưới đây để chia sẻ:', url);
-            });
+    // Native share (mobile - like TikTok share)
+    if (navigator.share) {
+        navigator.share({
+            title: name + ' - Bình Lợi Healing',
+            text: 'Khám phá ' + name + ' tại Bình Lợi Healing!',
+            url: url
+        }).catch(() => {});
     } else {
-        prompt('Sao chép liên kết dưới đây để chia sẻ:', url);
+        // Desktop fallback: copy link
+        if (navigator.clipboard) {
+            navigator.clipboard.writeText(url)
+                .then(() => {
+                    showToast('Đã sao chép liên kết', 'success');
+                })
+                .catch(() => {
+                    showToast('Đã sao chép liên kết', 'success');
+                });
+        } else {
+            // Final fallback for older browsers
+            const textarea = document.createElement('textarea');
+            textarea.value = url;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            textarea.remove();
+            showToast('Đã sao chép liên kết', 'success');
+        }
     }
 }
 
@@ -362,7 +381,8 @@ function addToJourney(destinationId) {
         })
         .catch(err => {
             if (err.response?.status === 401) {
-                showToast('Vui lòng đăng nhập để thêm địa điểm vào hành trình.', 'warning');
+                showToast('Vui lòng đăng nhập để sử dụng tính năng này!', 'warning');
+                setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
             } else {
                 showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
             }

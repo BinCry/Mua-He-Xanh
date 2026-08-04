@@ -438,16 +438,29 @@ class ApiController {
 
     async addToJourney(req, res) {
         const { destinationId } = req.body;
-        const sessionUuid = req.cookies.session_uuid;
+        const user = req.user || req.session?.user;
 
-        if (!sessionUuid || !destinationId) {
+        if (!user) {
+            return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để thêm địa điểm vào hành trình.' });
+        }
+        if (!destinationId) {
             return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ.' });
         }
 
+        const sessionUuid = req.cookies.session_uuid;
+
         try {
-            const session = await UserSession.findByUuid(sessionUuid);
+            let session = sessionUuid ? await UserSession.findByUuid(sessionUuid) : null;
             if (!session) {
-                return res.status(404).json({ success: false, message: 'Không tìm thấy session.' });
+                // Find or create session for logged in user
+                const [userSessions] = await UserSession.db.query("SELECT * FROM user_sessions WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1", [user.id]);
+                if (userSessions.length > 0) {
+                    session = userSessions[0];
+                } else {
+                    const newUuid = uuidv4();
+                    session = await UserSession.findOrCreate(newUuid, req);
+                    await UserSession.db.query("UPDATE user_sessions SET user_id = ? WHERE id = ?", [user.id, session.id]);
+                }
             }
 
             let journey = await Journey.getActiveBySession(session.id);

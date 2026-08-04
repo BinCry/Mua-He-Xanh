@@ -31,7 +31,7 @@ const ManagerController = require('../controllers/ManagerController');
 
 // ===== PUBLIC PAGES =====
 router.get('/', HomeController.index);
-router.get('/onboarding', OnboardingController.index);
+router.get('/onboarding', ensureAuthenticated, OnboardingController.index);
 router.get('/checkin', ensureAuthenticated, CheckinController.index);
 
 // Dynamic manifest.json endpoint to keep PWA name and logo synchronized with Admin Settings
@@ -187,12 +187,12 @@ router.get('/reviews/video-editor', ensureAuthenticated, ReviewController.videoE
 router.get('/map', MapController.index);
 
 // ===== JOURNEY =====
-router.get('/journey', JourneyController.index);
-router.get('/hanh-trinh-cua-toi', JourneyController.index);
-router.get('/journey/suggestions', JourneyController.suggestions);
-router.post('/journey/confirm', JourneyController.confirm);
-router.get('/journey/preset/:theme', JourneyController.preset);
-router.get('/journey/load-template/:id', JourneyController.loadTemplate);
+router.get('/journey', ensureAuthenticated, JourneyController.index);
+router.get('/hanh-trinh-cua-toi', ensureAuthenticated, JourneyController.index);
+router.get('/journey/suggestions', ensureAuthenticated, JourneyController.suggestions);
+router.post('/journey/confirm', ensureAuthenticated, JourneyController.confirm);
+router.get('/journey/preset/:theme', ensureAuthenticated, JourneyController.preset);
+router.get('/journey/load-template/:id', ensureAuthenticated, JourneyController.loadTemplate);
 
 // ===== AUTH PAGES =====
 router.get('/passport', ensureTourist, PassportController.index);
@@ -233,11 +233,6 @@ router.post('/api/manager/delete-workshop', ensureManager, ManagerController.del
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);
-router.post('/auth/register', AuthController.handleRegister);
-router.post('/auth/send-otp', AuthController.sendOtp);
-router.post('/auth/verify-otp', AuthController.verifyOtp);
-router.post('/auth/login', passport.authenticate('local', { failureRedirect: '/auth/login?error=invalid_credentials' }), AuthController.oauthCallback);
-router.post('/auth/social', AuthController.handleSocialLogin);
 router.get('/auth/logout', AuthController.logout);
 
 // Google OAuth

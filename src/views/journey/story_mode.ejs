@@ -1,402 +1,293 @@
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 <style>
 :root {
-    --j-teal: #0d9488;
-    --j-teal-dark: #0f766e;
-    --j-green: #16a34a;
-    --j-amber: #f59e0b;
-    --j-bg: #f0fdf4;
-    --j-card: #ffffff;
-    --j-border: #e2e8f0;
-    --j-text: #1e293b;
-    --j-muted: #64748b;
+    --brand-maroon: #922724;
+    --brand-maroon-dark: #6e1b19;
+    --brand-green: #15803d;
+    --brand-gold: #d97706;
+    --brand-bg: #faf9f6;
+    --brand-card: #ffffff;
+    --brand-border: #f0eae1;
+    --brand-text: #1e293b;
+    --brand-muted: #64748b;
 }
 
-.journey-hero {
-    background: linear-gradient(135deg, #0f766e 0%, #15803d 50%, #166534 100%);
+/* Premium Hero Section */
+.journey-hero-brand {
+    background: linear-gradient(135deg, var(--brand-maroon) 0%, #7f1d1d 50%, #15803d 100%);
     position: relative;
     overflow: hidden;
-    padding: 100px 0 60px;
+    padding: 35px 0 45px;
 }
-.journey-hero::before {
+.journey-hero-brand::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 30px;
+    background: linear-gradient(to top, var(--brand-bg), transparent);
 }
-.journey-hero-badge {
+.hero-tag-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(8px);
+    background: rgba(255,255,255,0.18);
+    backdrop-filter: blur(12px);
     border: 1px solid rgba(255,255,255,0.3);
     color: #fff;
     border-radius: 50px;
-    padding: 6px 16px;
-    font-size: 0.72rem;
-    font-weight: 700;
+    padding: 6px 18px;
+    font-size: 0.75rem;
+    font-weight: 800;
     letter-spacing: 2px;
     text-transform: uppercase;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
-.journey-hero h1 {
+.journey-hero-brand h1 {
     color: #fff;
-    font-family: 'Inter', sans-serif;
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 900;
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
     line-height: 1.2;
-    text-shadow: 0 2px 20px rgba(0,0,0,0.2);
+    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
 }
-.metric-glass {
-    background: rgba(255,255,255,0.12);
-    backdrop-filter: blur(12px);
+.metric-card-glass {
+    background: rgba(255,255,255,0.15);
+    backdrop-filter: blur(16px);
     border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 16px;
-    padding: 20px 16px;
+    border-radius: 20px;
+    padding: 16px;
     text-align: center;
     color: #fff;
-    transition: all 0.3s;
+    transition: transform 0.3s ease, background 0.3s ease;
 }
-.metric-glass:hover {
-    background: rgba(255,255,255,0.2);
+.metric-card-glass:hover {
+    background: rgba(255,255,255,0.25);
     transform: translateY(-3px);
 }
-.metric-glass .metric-val {
+.metric-card-glass .metric-val {
     font-size: 1.6rem;
     font-weight: 900;
-    font-family: 'Inter', sans-serif;
-    line-height: 1;
+    font-family: 'Montserrat', sans-serif;
+    line-height: 1.1;
     margin-bottom: 4px;
 }
-.metric-glass .metric-label {
-    font-size: 0.65rem;
+.metric-card-glass .metric-label {
+    font-size: 0.68rem;
     font-weight: 700;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     text-transform: uppercase;
-    opacity: 0.8;
+    opacity: 0.85;
 }
 
-/* Preset Cards */
-.preset-strip {
-    background: #fff;
-    border-bottom: 1px solid var(--j-border);
-    padding: 16px 0;
+/* Template Selector Strip */
+.template-strip-brand {
+    background: #ffffff;
+    border-bottom: 1px solid var(--brand-border);
+    padding: 14px 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
 }
-.preset-btn {
+.template-pill {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 10px 20px;
+    padding: 8px 18px;
     border-radius: 50px;
-    border: 2px solid var(--j-border);
+    border: 1.5px solid var(--brand-border);
     background: #fff;
-    color: var(--j-text);
+    color: var(--brand-text);
     font-weight: 600;
     font-size: 0.8rem;
     cursor: pointer;
-    transition: all 0.25s;
+    transition: all 0.25s ease;
     text-decoration: none;
     white-space: nowrap;
 }
-.preset-btn:hover, .preset-btn.active {
-    border-color: var(--j-teal);
-    background: #f0fdfc;
-    color: var(--j-teal);
+.template-pill:hover, .template-pill.active {
+    border-color: var(--brand-maroon);
+    background: #fdf2f2;
+    color: var(--brand-maroon);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(13,148,136,0.15);
+    box-shadow: 0 4px 14px rgba(146, 39, 36, 0.15);
 }
-.preset-btn .preset-emoji { font-size: 1.1rem; }
 
-/* Timeline */
-.timeline-wrap {
-    position: relative;
-}
-.timeline-line {
+/* Timeline Components */
+.timeline-line-brand {
     position: absolute;
     left: 22px;
     top: 0;
     bottom: 0;
     width: 3px;
-    background: linear-gradient(to bottom, var(--j-teal), var(--j-green));
+    background: linear-gradient(to bottom, var(--brand-maroon), var(--brand-green));
     border-radius: 3px;
-    opacity: 0.3;
+    opacity: 0.25;
 }
-.timeline-stop {
+.timeline-stop-item {
     display: flex;
-    gap: 20px;
-    margin-bottom: 20px;
+    gap: 18px;
+    margin-bottom: 18px;
     position: relative;
     z-index: 2;
 }
-.stop-badge {
+.stop-badge-number {
     flex-shrink: 0;
     width: 44px;
     height: 44px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--j-teal), var(--j-green));
+    background: linear-gradient(135deg, var(--brand-maroon) 0%, var(--brand-green) 100%);
     color: #fff;
     font-weight: 900;
     font-size: 0.95rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(13,148,136,0.35);
+    box-shadow: 0 4px 12px rgba(146, 39, 36, 0.25);
     border: 3px solid #fff;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    font-family: 'Inter', sans-serif;
+    transition: transform 0.3s ease;
     margin-top: 4px;
 }
-.stop-badge.active, .timeline-stop:hover .stop-badge {
-    transform: scale(1.2);
-    box-shadow: 0 6px 20px rgba(13,148,136,0.5);
-}
-.stop-card {
+.stop-card-main {
     flex: 1;
     background: #fff;
-    border: 1px solid var(--j-border);
+    border: 1px solid var(--brand-border);
     border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
-    transition: all 0.3s;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.04);
+    transition: all 0.3s ease;
     cursor: pointer;
 }
-.stop-card:hover {
-    box-shadow: 0 8px 30px rgba(13,148,136,0.15);
-    border-color: var(--j-teal);
+.stop-card-main:hover {
+    box-shadow: 0 8px 25px rgba(146, 39, 36, 0.12);
+    border-color: var(--brand-maroon);
     transform: translateY(-2px);
 }
-.stop-card.highlighted {
-    border-color: var(--j-teal);
-    box-shadow: 0 0 0 3px rgba(13,148,136,0.2), 0 8px 24px rgba(13,148,136,0.15);
+.stop-card-main.highlighted {
+    border-color: var(--brand-maroon);
+    box-shadow: 0 0 0 3px rgba(146, 39, 36, 0.2), 0 8px 24px rgba(0,0,0,0.1);
 }
-.stop-card-img {
-    width: 120px;
-    min-width: 120px;
-    height: 110px;
+.stop-thumb-img {
+    width: 125px;
+    min-width: 125px;
+    height: 115px;
     object-fit: cover;
 }
-.stop-time-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: #f0fdfc;
-    border: 1px solid rgba(13,148,136,0.2);
-    color: var(--j-teal);
+
+/* Action Buttons */
+.btn-brand-primary {
+    padding: 14px 28px;
     border-radius: 50px;
-    padding: 3px 10px;
-    font-size: 0.7rem;
-    font-weight: 700;
+    border: none;
+    background: linear-gradient(135deg, var(--brand-maroon) 0%, #7f1d1d 100%);
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.88rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 6px 20px rgba(146, 39, 36, 0.3);
 }
-.stop-type-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    background: #f8fafc;
-    border: 1px solid var(--j-border);
-    color: var(--j-muted);
+.btn-brand-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 28px rgba(146, 39, 36, 0.4);
+    color: #fff;
+}
+.btn-brand-outline {
+    padding: 14px 22px;
     border-radius: 50px;
-    padding: 3px 10px;
-    font-size: 0.7rem;
-    font-weight: 600;
-}
-.stop-name {
-    font-size: 1rem;
+    border: 2px solid var(--brand-maroon);
+    background: transparent;
+    color: var(--brand-maroon);
     font-weight: 700;
-    font-family: 'Inter', sans-serif;
-    color: var(--j-text);
-    margin: 6px 0 4px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
-.stop-desc {
-    font-size: 0.8rem;
-    color: var(--j-muted);
-    line-height: 1.5;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-.stop-pts {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: var(--j-green);
+.btn-brand-outline:hover {
+    background: var(--brand-maroon);
+    color: #fff;
 }
 
-/* Map Panel */
-.map-panel {
+/* Map Styling */
+.map-container-sticky {
     position: sticky;
-    top: 80px;
-    height: calc(100vh - 120px);
-    max-height: 780px;
+    top: 90px;
+    height: calc(100vh - 130px);
+    max-height: 750px;
     min-height: 480px;
     border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.12);
-    border: 1px solid var(--j-border);
+    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
+    border: 1px solid var(--brand-border);
 }
-.map-overlay-info {
+.map-bottom-banner {
     position: absolute;
     bottom: 16px;
     left: 16px;
     right: 16px;
     z-index: 500;
-    background: rgba(255,255,255,0.95);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(13,148,136,0.15);
+    background: rgba(255,255,255,0.94);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(146, 39, 36, 0.15);
     border-radius: 16px;
-    padding: 14px 18px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-}
-.map-stop-legend {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-wrap: wrap;
-}
-.map-legend-dot {
-    width: 12px;
-    height: 12px;
-    border-radius: 50%;
-    background: var(--j-teal);
-    flex-shrink: 0;
-}
-
-/* Sidebar actions */
-.action-bar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-}
-.btn-journey-main {
-    flex: 1;
-    min-width: 160px;
-    padding: 14px 24px;
-    border-radius: 50px;
-    border: none;
-    background: linear-gradient(135deg, var(--j-teal), var(--j-green));
-    color: #fff;
-    font-weight: 700;
-    font-size: 0.9rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    cursor: pointer;
-    transition: all 0.3s;
-    box-shadow: 0 4px 16px rgba(13,148,136,0.3);
-}
-.btn-journey-main:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(13,148,136,0.4);
-}
-.btn-journey-outline {
-    padding: 14px 20px;
-    border-radius: 50px;
-    border: 2px solid var(--j-teal);
-    background: transparent;
-    color: var(--j-teal);
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-.btn-journey-outline:hover {
-    background: var(--j-teal);
-    color: #fff;
-}
-
-/* Edit panel */
-.edit-zone {
-    background: #f8fffe;
-    border: 1.5px dashed var(--j-teal);
-    border-radius: 16px;
-    padding: 18px;
-    margin-bottom: 20px;
-}
-.edit-zone select {
-    border-radius: 50px;
-    border: 1.5px solid var(--j-border);
-    padding: 8px 16px;
-    font-size: 0.85rem;
-}
-
-/* Drag handle */
-.drag-handle {
-    cursor: grab;
-    opacity: 0.4;
-    transition: opacity 0.2s;
-}
-.drag-handle:hover { opacity: 1; }
-
-/* Connector between stops */
-.stop-connector {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 0 0 0 54px;
-    margin: -8px 0 -8px;
-    color: var(--j-muted);
-    font-size: 0.72rem;
-    font-weight: 600;
-}
-.stop-connector-line {
-    flex: 1;
-    height: 1px;
-    background: repeating-linear-gradient(to right, var(--j-teal) 0, var(--j-teal) 6px, transparent 6px, transparent 12px);
-    opacity: 0.4;
+    padding: 12px 18px;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
 }
 </style>
 
 <!-- HERO SECTION -->
-<div class="journey-hero">
-    <div class="container position-relative">
+<div class="journey-hero-brand">
+    <div class="container position-relative z-index-10">
         <div class="row align-items-center">
             <div class="col-lg-8">
-                <div class="journey-hero-badge">
-                    <i class="bi bi-compass-fill"></i> HÀNH TRÌNH CHỮA LÀNH
+                <div class="hero-tag-badge">
+                    <i class="bi bi-compass-fill"></i> LỘ TRÌNH TỐI ƯU HÓA
                 </div>
                 <h1><%= journey.mood.replace(/_/g, ' ') %></h1>
-                <p style="color:rgba(255,255,255,0.8); font-size:0.95rem; margin-top:10px;">
-                    Lộ trình được cá nhân hoá theo sở thích của bạn. Bạn có thể chỉnh sửa và lưu lại bất cứ lúc nào.
+                <p style="color: rgba(255,255,255,0.85); font-size: 0.95rem; margin-top: 8px;" class="mb-0">
+                    Hành trình được tùy chỉnh theo sở thích & mùa trong năm tại Bình Lợi.
                 </p>
             </div>
             <div class="col-lg-4 mt-4 mt-lg-0 text-lg-end">
-                <div style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,0.12); backdrop-filter:blur(8px); border:1px solid rgba(255,255,255,0.25); border-radius:50px; padding:10px 20px;">
+                <div style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,0.15); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.3); border-radius:50px; padding:8px 18px;">
                     <span class="badge rounded-circle p-1" id="lock-status-dot" style="width:10px;height:10px;background:#4ade80;box-shadow:0 0 8px #4ade80;"></span>
-                    <span style="color:#fff;font-size:0.82rem;font-weight:700;" id="lock-status-text">Lộ trình đã chốt</span>
-                    <button onclick="toggleTimelineLock()" id="btn-lock-toggle" style="background:rgba(255,255,255,0.2);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:50px;padding:6px 14px;font-size:0.75rem;font-weight:700;cursor:pointer;">
-                        <i class="bi bi-pencil-square me-1"></i>Thay đổi
+                    <span style="color:#fff;font-size:0.82rem;font-weight:700;" id="lock-status-text">Đã chốt hành trình</span>
+                    <button onclick="toggleTimelineLock()" id="btn-lock-toggle" style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:50px;padding:5px 14px;font-size:0.75rem;font-weight:700;cursor:pointer;">
+                        <i class="bi bi-pencil-square me-1"></i>Đổi
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Metrics -->
-        <div class="row g-3 mt-4">
+        <!-- Metrics Glass -->
+        <div class="row g-3 mt-3">
             <div class="col-6 col-md-3">
-                <div class="metric-glass">
+                <div class="metric-card-glass">
                     <div class="metric-val"><%= journey.total_minutes %></div>
-                    <div class="metric-label"><i class="bi bi-clock-fill me-1"></i>Phút</div>
+                    <div class="metric-label"><i class="bi bi-clock-fill me-1"></i>Thời lượng (Phút)</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="metric-glass">
+                <div class="metric-card-glass">
                     <div class="metric-val" id="metric-stops"><%= journey.stops.length %></div>
                     <div class="metric-label"><i class="bi bi-geo-alt-fill me-1"></i>Điểm dừng</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="metric-glass">
+                <div class="metric-card-glass">
                     <div class="metric-val"><%= journey.total_km %></div>
-                    <div class="metric-label"><i class="bi bi-signpost-split-fill me-1"></i>Km</div>
+                    <div class="metric-label"><i class="bi bi-signpost-split-fill me-1"></i>Quãng đường (Km)</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="metric-glass" style="background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.3);">
-                    <div class="metric-val" style="color:#fbbf24;">+<%= journey.stops.reduce((s,x)=>s+(x.points||0),0) %></div>
+                <div class="metric-card-glass" style="background:rgba(217, 119, 6, 0.25); border-color:rgba(217, 119, 6, 0.4);">
+                    <div class="metric-val" style="color:#fef08a;">+<%= journey.stops.reduce((s,x)=>s+(x.points||0),0) %></div>
                     <div class="metric-label"><i class="bi bi-stars me-1"></i>Điểm thưởng</div>
                 </div>
             </div>
@@ -404,71 +295,69 @@
     </div>
 </div>
 
-<!-- PRESET STRIP: chuyển nhanh sang hành trình mẫu -->
-<div class="preset-strip">
+<!-- TEMPLATE SELECTOR STRIP -->
+<div class="template-strip-brand">
     <div class="container">
-        <div style="display:flex; align-items:center; gap:10px; overflow-x:auto; padding-bottom:4px;">
-            <span style="font-size:0.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--j-muted);white-space:nowrap;">Hành trình mẫu:</span>
+        <div style="display:flex; align-items:center; gap:10px; overflow-x:auto; padding-bottom:2px;">
+            <span style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--brand-maroon);white-space:nowrap;">
+                <i class="bi bi-journal-bookmark-fill me-1"></i> Tour mẫu từ Admin:
+            </span>
             <% 
                 const seasonEmoji = { spring:'🌸', summer:'☀️', autumn:'🍂', winter:'❄️' };
-                const interestEmoji = { chill:'🧘', peace:'🕊️', culture:'🏛️', family:'👨‍👩‍👧‍👦' };
                 const tplList = (typeof templates !== 'undefined' && templates.length > 0) ? templates : [];
             %>
             <% if (tplList.length > 0) { %>
                 <% tplList.forEach(tpl => { %>
-                <a href="/journey/load-template/<%= tpl.id %>" class="preset-btn <%= (journey && journey.mood === tpl.name) ? 'active' : '' %>">
-                    <span class="preset-emoji"><%= seasonEmoji[tpl.season] || '🌿' %></span> <%= tpl.name %>
+                <a href="/journey/load-template/<%= tpl.id %>" class="template-pill <%= (journey && journey.mood === tpl.name) ? 'active' : '' %>">
+                    <span><%= seasonEmoji[tpl.season] || '🌿' %></span> <%= tpl.name %>
                 </a>
                 <% }) %>
             <% } else { %>
-                <a href="/journey/preset/du-xuan" class="preset-btn">
-                    <span class="preset-emoji">🌸</span> Du xuân Bình Lợi
+                <a href="/journey/preset/du-xuan" class="template-pill">
+                    <span>🌸</span> Du xuân Bình Lợi
                 </a>
-                <a href="/journey/preset/miet-vuon" class="preset-btn">
-                    <span class="preset-emoji">🌿</span> Miệt vườn giữa phố
+                <a href="/journey/preset/miet-vuon" class="template-pill">
+                    <span>🌿</span> Miệt vườn giữa phố
                 </a>
-                <a href="/journey/preset/song-cham" class="preset-btn">
-                    <span class="preset-emoji">🕊️</span> Sống chậm Bình Lợi
+                <a href="/journey/preset/song-cham" class="template-pill">
+                    <span>🕊️</span> Sống chậm Bình Lợi
                 </a>
-                <a href="/journey/preset/tam-linh" class="preset-btn">
-                    <span class="preset-emoji">🛕</span> Tâm linh & Nguồn cội
+                <a href="/journey/preset/tam-linh" class="template-pill">
+                    <span>🛕</span> Tâm linh & Nguồn cội
                 </a>
             <% } %>
-            <a href="/journey/suggestions" class="preset-btn" style="margin-left:auto;">
-                <i class="bi bi-robot"></i> AI Gợi ý
+            <a href="/onboarding" class="template-pill" style="margin-left:auto; border-color: var(--brand-maroon); color: var(--brand-maroon);">
+                <i class="bi bi-sliders"></i> Tìm lại tour khác
             </a>
         </div>
     </div>
 </div>
 
-<!-- MAIN CONTENT -->
-<main style="background:var(--j-bg); min-height:100vh; padding: 40px 0 80px;">
+<!-- MAIN CONTENT SECTION -->
+<main style="background:var(--brand-bg); min-height:80vh; padding: 35px 0 70px;">
     <div class="container">
-        <div class="row g-5">
+        <div class="row g-4">
 
-            <!-- LEFT: Timeline -->
+            <!-- LEFT COLUMN: Timeline -->
             <div class="col-lg-6">
 
-                <!-- Edit Zone (hidden by default) -->
-                <div class="edit-zone d-none" id="timeline-edit-panel">
-                    <h6 style="font-weight:700;color:var(--j-teal);margin-bottom:14px;"><i class="bi bi-sliders me-2"></i>Thêm địa điểm vào lộ trình</h6>
+                <!-- Edit Zone (Hidden by default) -->
+                <div class="card p-3 mb-4 border-0 shadow-sm rounded-4 d-none" id="timeline-edit-panel" style="background:#fff5f5; border:1px dashed var(--brand-maroon) !important;">
+                    <h6 class="fw-bold text-danger mb-2"><i class="bi bi-plus-circle me-1"></i> Thêm điểm dừng mới vào tour</h6>
                     <div class="d-flex gap-2 flex-wrap">
-                        <select id="select-new-destination" style="flex:1;min-width:200px;border-radius:50px;border:1.5px solid var(--j-border);padding:8px 16px;font-size:0.85rem;">
-                            <option value="">-- Chọn địa điểm --</option>
+                        <select id="select-new-destination" class="form-select rounded-pill small" style="flex:1; min-width:200px;">
+                            <option value="">-- Chọn địa điểm muốn thêm --</option>
                             <% allDestinations.forEach(dest => { %>
                                 <option value="<%= dest.id %>"><%= dest.name %> (<%= dest.type %>)</option>
                             <% }) %>
                         </select>
-                        <button onclick="addDestinationToTimeline()" class="btn-journey-main" style="min-width:unset;padding:10px 20px;">
-                            <i class="bi bi-plus-lg me-1"></i>Thêm
-                        </button>
+                        <button onclick="addDestinationToTimeline()" class="btn btn-danger rounded-pill btn-sm px-3 fw-bold">Thêm</button>
                     </div>
-                    <p style="font-size:0.72rem;color:var(--j-muted);margin:10px 0 0;"><i class="bi bi-info-circle me-1"></i>Kéo thả biểu tượng ≡ để sắp xếp lại thứ tự các điểm dừng.</p>
                 </div>
 
-                <!-- Timeline -->
-                <div class="timeline-wrap" id="sortable-timeline">
-                    <div class="timeline-line"></div>
+                <!-- Timeline Stops -->
+                <div class="position-relative" id="sortable-timeline">
+                    <div class="timeline-line-brand"></div>
 
                     <% journey.stops.forEach((stop, i) => { %>
                         <%
@@ -479,40 +368,39 @@
                             let endHour = startHour + 1.25;
                             let endStr = Math.floor(endHour).toString().padStart(2,'0') + ':' + ((endHour%1)*60).toString().padStart(2,'0');
                         %>
-                        <% if (i > 0) { %>
-                        <div class="stop-connector">
-                            <div class="stop-connector-line"></div>
-                            <span style="white-space:nowrap;"><i class="bi bi-bicycle me-1"></i>~<%= Math.ceil(1.2 + i * 0.3) %> phút</span>
-                            <div class="stop-connector-line"></div>
-                        </div>
-                        <% } %>
 
-                        <div class="timeline-stop" data-id="<%= stop.destination_id %>" id="stop-card-<%= i %>" onclick="focusStopOnMap(<%= i %>)">
-                            <div class="stop-badge" id="stop-badge-<%= i %>"><%= i + 1 %></div>
-                            <div class="stop-card" id="stop-item-<%= i %>">
+                        <div class="timeline-stop-item" data-id="<%= stop.destination_id %>" id="stop-card-<%= i %>" onclick="focusStopOnMap(<%= i %>)">
+                            <div class="stop-badge-number" id="stop-badge-<%= i %>"><%= i + 1 %></div>
+                            <div class="stop-card-main" id="stop-item-<%= i %>">
                                 <div style="display:flex;">
-                                    <img src="<%= fixImg(stop.cover_image) %>" class="stop-card-img" alt="<%= stop.name %>">
-                                    <div style="flex:1; padding:14px 16px; position:relative;">
-                                        <!-- Edit controls -->
-                                        <div class="edit-actions d-none" style="position:absolute;top:10px;right:10px;display:flex;gap:6px;">
-                                            <div class="drag-handle btn btn-light btn-sm rounded-circle shadow-sm border" title="Kéo để sắp xếp" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+                                    <img src="<%= fixImg(stop.cover_image) %>" class="stop-thumb-img" alt="<%= stop.name %>">
+                                    <div style="flex:1; padding:12px 16px; position:relative;">
+                                        
+                                        <!-- Edit actions -->
+                                        <div class="edit-actions d-none" style="position:absolute;top:8px;right:8px;display:flex;gap:4px;">
+                                            <div class="drag-handle btn btn-light btn-sm rounded-circle shadow-sm border" title="Kéo để xếp lại" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
                                                 <i class="bi bi-grip-vertical"></i>
                                             </div>
-                                            <button onclick="event.stopPropagation(); removeStopFromTimeline('<%= stop.destination_id %>')" class="btn btn-danger btn-sm rounded-circle shadow-sm" style="width:32px;height:32px;display:flex;align-items:center;justify-content:center;">
+                                            <button onclick="event.stopPropagation(); removeStopFromTimeline('<%= stop.destination_id %>')" class="btn btn-danger btn-sm rounded-circle shadow-sm" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
                                                 <i class="bi bi-x-lg"></i>
                                             </button>
                                         </div>
-                                        <!-- Time & type -->
-                                        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
-                                            <span class="stop-time-badge"><i class="bi bi-clock-fill"></i> <%= startStr %> - <%= endStr %></span>
-                                            <span class="stop-type-badge"><%= typeIcon %> <%= stop.type || 'Địa điểm' %></span>
+
+                                        <div class="d-flex gap-2 flex-wrap mb-1">
+                                            <span class="badge bg-light text-dark border rounded-pill x-small fw-bold"><i class="bi bi-clock me-1 text-primary"></i><%= startStr %> - <%= endStr %></span>
+                                            <span class="badge bg-success-subtle text-success rounded-pill x-small fw-bold"><%= typeIcon %> <%= stop.type || 'Địa điểm' %></span>
                                         </div>
-                                        <div class="stop-name"><%= stop.name %></div>
-                                        <div class="stop-desc"><%= stop.short_desc || stop.highlight || '' %></div>
-                                        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:10px;">
-                                            <a href="/explore/<%= stop.slug %>" onclick="event.stopPropagation()" style="font-size:0.75rem;font-weight:700;color:var(--j-teal);text-decoration:none;">Chi tiết <i class="bi bi-chevron-right"></i></a>
-                                            <span class="stop-pts"><i class="bi bi-star-fill text-warning me-1"></i>+<%= stop.points || 0 %> điểm</span>
+
+                                        <div class="fw-bold text-dark mb-1" style="font-size: 0.95rem;"><%= stop.name %></div>
+                                        <div class="text-muted x-small line-clamp-1 mb-2"><%= stop.short_desc || stop.highlight || '' %></div>
+
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <a href="/explore/<%= stop.slug %>" onclick="event.stopPropagation()" class="x-small fw-bold text-danger text-decoration-none">
+                                                Xem thông tin <i class="bi bi-chevron-right"></i>
+                                            </a>
+                                            <span class="x-small fw-bold text-success"><i class="bi bi-star-fill text-warning me-1"></i>+<%= stop.points || 0 %> điểm</span>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -520,34 +408,38 @@
                     <% }) %>
                 </div>
 
-                <!-- Action bar -->
-                <div class="action-bar mt-5">
-                    <button class="btn-journey-main" id="btn-timeline-action" onclick="lockJourneyAndConfirm()">
-                        <i class="bi bi-check2-circle me-2"></i>CHỐT & LƯU LỘ TRÌNH
+                <!-- Footer Action Buttons -->
+                <div class="d-flex gap-3 mt-4 flex-wrap">
+                    <button class="btn-brand-primary flex-grow-1" id="btn-timeline-action" onclick="lockJourneyAndConfirm()">
+                        <i class="bi bi-check-circle-fill me-2"></i> CHỐT & LƯU LỘ TRÌNH
                     </button>
-                    <button class="btn-journey-outline" onclick="window.location.href='/onboarding'">
-                        <i class="bi bi-arrow-repeat me-1"></i>Làm lại
+                    <button class="btn-brand-outline" onclick="window.location.href='/onboarding'">
+                        <i class="bi bi-arrow-counterclockwise me-1"></i> Làm lại
                     </button>
                 </div>
+
             </div>
 
-            <!-- RIGHT: Map -->
+            <!-- RIGHT COLUMN: Map Panel -->
             <div class="col-lg-6">
-                <div class="map-panel position-relative">
-                    <div id="journey-leaflet-map" style="width:100%;height:100%;"></div>
-                    <div class="map-overlay-info">
-                        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-                            <span style="font-weight:700;font-size:0.85rem;color:var(--j-text);"><i class="bi bi-map-fill me-2 text-teal" style="color:var(--j-teal);"></i>Bản đồ lộ trình</span>
-                            <span style="background:#dcfce7;color:#16a34a;font-size:0.65rem;font-weight:700;border-radius:50px;padding:3px 10px;text-transform:uppercase;letter-spacing:1px;">● Trực tiếp</span>
+                <div class="map-container-sticky">
+                    <div id="journey-leaflet-map" style="width:100%; height:100%;"></div>
+                    <div class="map-bottom-banner">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <span class="fw-bold small text-dark"><i class="bi bi-map-fill text-danger me-1"></i> Chỉ đường Google Maps Lộ trình</span>
+                            <span class="badge bg-success text-white rounded-pill x-small">● OSRM Routing</span>
                         </div>
-                        <div class="map-stop-legend" id="map-legend">
+                        <div class="d-flex flex-wrap gap-2 mb-2" id="map-legend">
                             <% journey.stops.forEach((stop, i) => { %>
-                            <span style="display:inline-flex;align-items:center;gap:4px;font-size:0.7rem;font-weight:700;color:var(--j-muted);">
-                                <span style="width:18px;height:18px;border-radius:50%;background:var(--j-teal);color:#fff;font-size:0.6rem;font-weight:900;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;"><%= i+1 %></span>
+                            <span class="x-small fw-semibold text-muted d-inline-flex align-items-center gap-1">
+                                <span class="badge bg-danger rounded-circle p-1" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;"><%= i+1 %></span>
                                 <%= stop.name %>
                             </span>
                             <% }) %>
                         </div>
+                        <a id="btnGoogleMapsNav" href="#" target="_blank" class="btn btn-sm btn-success rounded-pill fw-bold shadow-sm px-3 py-2 w-100 text-center d-flex align-items-center justify-content-center gap-2">
+                            <i class="bi bi-cursor-fill"></i> MỞ CHỈ ĐƯỜNG BẰNG GOOGLE MAPS (TURN-BY-TURN)
+                        </a>
                     </div>
                 </div>
             </div>
@@ -557,7 +449,7 @@
 </main>
 
 <script>
-let map, markers = [], routeLine;
+let map, markers = [], routeLine, routeLineBorder;
 let isTimelineLocked = true;
 const journeyId = '<%= journey.id %>';
 const stopsData = <%- JSON.stringify(journey.stops) %>;
@@ -565,11 +457,24 @@ const stopsData = <%- JSON.stringify(journey.stops) %>;
 document.addEventListener('DOMContentLoaded', () => {
     initLeafletMap();
     initTimelineReordering();
-    // Entrance animations
-    gsap.from('.metric-glass', { opacity:0, y:20, stagger:0.08, duration:0.6, ease:'power2.out', delay:0.2 });
-    gsap.from('.timeline-stop', { opacity:0, x:-40, stagger:0.12, duration:0.65, ease:'power3.out', delay:0.4 });
-    gsap.from('.preset-btn', { opacity:0, y:10, stagger:0.06, duration:0.5, ease:'power2.out', delay:0.1 });
+    updateGoogleMapsLink();
+
+    gsap.from('.metric-card-glass', { opacity:0, y:20, stagger:0.08, duration:0.6, ease:'power2.out' });
+    gsap.from('.timeline-stop-item', { opacity:0, x:-30, stagger:0.1, duration:0.6, ease:'power3.out' });
 });
+
+function updateGoogleMapsLink() {
+    if (!stopsData || stopsData.length === 0) return;
+    const first = stopsData[0];
+    const last = stopsData[stopsData.length - 1];
+    const waypoints = stopsData.slice(1, stopsData.length - 1).map(s => `${s.lat},${s.lng}`).join('|');
+    let gmapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${first.lat},${first.lng}&destination=${last.lat},${last.lng}`;
+    if (waypoints) {
+        gmapsUrl += `&waypoints=${encodeURIComponent(waypoints)}`;
+    }
+    const btn = document.getElementById('btnGoogleMapsNav');
+    if (btn) btn.href = gmapsUrl;
+}
 
 function initLeafletMap() {
     try {
@@ -590,11 +495,13 @@ function renderRouteOnMap() {
     markers.forEach(m => map.removeLayer(m));
     markers = [];
     if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
+    if (routeLineBorder) { map.removeLayer(routeLineBorder); routeLineBorder = null; }
     if (!stopsData || stopsData.length === 0) return;
 
     const bounds = L.latLngBounds();
     const coords = [];
-    const colors = ['#0d9488','#16a34a','#0891b2','#7c3aed','#dc2626','#ea580c'];
+    const osrmWaypoints = [];
+    const colors = ['#922724', '#15803d', '#d97706', '#1e40af', '#b91c1c', '#047857'];
 
     stopsData.forEach((stop, i) => {
         const lat = parseFloat(stop.lat) || (10.79 + i * 0.005);
@@ -602,11 +509,12 @@ function renderRouteOnMap() {
         const pos = [lat, lng];
         bounds.extend(pos);
         coords.push(pos);
+        osrmWaypoints.push(`${lng},${lat}`);
 
         const color = colors[i % colors.length];
         const icon = L.divIcon({
             className: '',
-            html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;font-family:Georgia,serif;cursor:pointer;">${i+1}</div>`,
+            html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;cursor:pointer;">${i+1}</div>`,
             iconSize:[32,32], iconAnchor:[16,16], popupAnchor:[0,-16]
         });
 
@@ -617,26 +525,57 @@ function renderRouteOnMap() {
             : '/images/placeholder.png';
 
         m.bindPopup(`
-            <div style="width:200px;font-family:sans-serif;">
+            <div style="width:210px;font-family:sans-serif;">
                 <img src="${imgSrc}" style="width:100%;height:100px;object-fit:cover;border-radius:10px;margin-bottom:8px;">
                 <div style="font-weight:900;font-size:0.9rem;color:${color};margin-bottom:4px;">${i+1}. ${stop.name}</div>
                 <div style="font-size:0.72rem;color:#64748b;">⏰ ${stop.open_hours || '07:00 - 18:00'}</div>
-                <a href="/explore/${stop.slug}" style="display:block;margin-top:8px;font-size:0.75rem;font-weight:700;color:${color};text-decoration:none;">Xem chi tiết →</a>
+                <div class="d-flex gap-1 mt-2">
+                    <a href="/explore/${stop.slug}" style="display:inline-block;font-size:0.75rem;font-weight:700;color:${color};text-decoration:none;">Xem chi tiết →</a>
+                    <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" style="display:inline-block;margin-left:auto;font-size:0.72rem;font-weight:700;color:#2563eb;text-decoration:none;"><i class="bi bi-geo-alt"></i> Chỉ đường</a>
+                </div>
             </div>
-        `, { maxWidth: 220 });
+        `, { maxWidth: 230 });
 
         m.on('click', () => highlightTimelineStop(i));
         markers.push(m);
     });
 
+    // OSRM Routing for real road navigation lines
     if (coords.length >= 2) {
-        routeLine = L.polyline(coords, {
-            color: '#0d9488', opacity: 0.75, weight: 5,
-            dashArray: null
-        }).addTo(map);
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${osrmWaypoints.join(';')}?overview=full&geometries=geojson`;
+        fetch(osrmUrl)
+            .then(res => res.json())
+            .then(data => {
+                if (data.routes && data.routes.length > 0) {
+                    const routeGeoJSON = data.routes[0].geometry;
+                    const roadCoords = routeGeoJSON.coordinates.map(c => [c[1], c[0]]);
+
+                    // Outer dark border polyline
+                    routeLineBorder = L.polyline(roadCoords, {
+                        color: '#1e293b', opacity: 0.7, weight: 8
+                    }).addTo(map);
+
+                    // Inner Google Maps style blue line
+                    routeLine = L.polyline(roadCoords, {
+                        color: '#4285F4', opacity: 0.95, weight: 5
+                    }).addTo(map);
+                } else {
+                    drawFallbackPolyline(coords);
+                }
+            })
+            .catch(err => {
+                console.warn('OSRM routing fetch fallback:', err);
+                drawFallbackPolyline(coords);
+            });
     }
 
     if (bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40] });
+}
+
+function drawFallbackPolyline(coords) {
+    routeLine = L.polyline(coords, {
+        color: '#4285F4', opacity: 0.9, weight: 5, dashArray: '8, 8'
+    }).addTo(map);
 }
 
 function focusStopOnMap(idx) {
@@ -648,8 +587,10 @@ function focusStopOnMap(idx) {
 }
 
 function highlightTimelineStop(idx) {
-    document.querySelectorAll('.stop-badge').forEach((b, i) => b.classList.toggle('active', i === idx));
-    document.querySelectorAll('.stop-card').forEach((c, i) => c.classList.toggle('highlighted', i === idx));
+    document.querySelectorAll('.stop-badge-number').forEach((b, i) => {
+        b.style.transform = i === idx ? 'scale(1.2)' : 'scale(1)';
+    });
+    document.querySelectorAll('.stop-card-main').forEach((c, i) => c.classList.toggle('highlighted', i === idx));
     const card = document.getElementById(`stop-card-${idx}`);
     if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest' });
 }
@@ -662,7 +603,6 @@ function initTimelineReordering() {
         handle: '.drag-handle',
         animation: 300,
         disabled: true,
-        filter: '.stop-connector',
         onEnd: () => saveNewItineraryOrder()
     });
 }
@@ -678,10 +618,10 @@ function toggleTimelineLock() {
     if (isTimelineLocked) {
         dot.style.background = '#4ade80';
         dot.style.boxShadow = '0 0 8px #4ade80';
-        text.innerText = 'Lộ trình đã chốt';
-        btn.innerHTML = '<i class="bi bi-pencil-square me-1"></i>Thay đổi';
-        actionBtn.innerHTML = '<i class="bi bi-navigation-fill me-2"></i>BẮT ĐẦU KHÁM PHÁ';
-        actionBtn.setAttribute('onclick', 'startNavigation()');
+        text.innerText = 'Đã chốt hành trình';
+        btn.innerHTML = '<i class="bi bi-pencil-square me-1"></i>Đổi';
+        actionBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> CHỐT & LƯU LỘ TRÌNH';
+        actionBtn.setAttribute('onclick', 'lockJourneyAndConfirm()');
         editPanel.classList.add('d-none');
         document.querySelectorAll('.edit-actions').forEach(e => e.classList.add('d-none'));
         sortableInstance.option('disabled', true);
@@ -689,8 +629,8 @@ function toggleTimelineLock() {
         dot.style.background = '#f59e0b';
         dot.style.boxShadow = '0 0 8px #f59e0b';
         text.innerText = 'Đang chỉnh sửa…';
-        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Chốt';
-        actionBtn.innerHTML = '<i class="bi bi-floppy2-fill me-2"></i>LƯU HÀNH TRÌNH';
+        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Xong';
+        actionBtn.innerHTML = '<i class="bi bi-floppy2-fill me-2"></i> LƯU THAY ĐỔI';
         actionBtn.setAttribute('onclick', 'lockJourneyAndConfirm()');
         editPanel.classList.remove('d-none');
         document.querySelectorAll('.edit-actions').forEach(e => e.classList.remove('d-none'));
@@ -706,17 +646,16 @@ function lockJourneyAndConfirm() {
     setTimeout(() => {
         btn.disabled = false;
         btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>ĐÃ LƯU THÀNH CÔNG!';
-        btn.style.background = 'linear-gradient(135deg,#16a34a,#15803d)';
+        btn.style.background = 'linear-gradient(135deg,#15803d,#166534)';
         setTimeout(() => {
-            btn.innerHTML = '<i class="bi bi-navigation-fill me-2"></i>BẮT ĐẦU KHÁM PHÁ';
+            btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> CHỐT & LƯU LỘ TRÌNH';
             btn.style.background = '';
-            btn.setAttribute('onclick', 'startNavigation()');
         }, 2000);
     }, 800);
 }
 
 function saveNewItineraryOrder() {
-    const items = document.querySelectorAll('#sortable-timeline .timeline-stop');
+    const items = document.querySelectorAll('#sortable-timeline .timeline-stop-item');
     const order = Array.from(items).map(el => el.dataset.id);
     axios.post('/api/journey/update-stop', { journeyId, action:'reorder', order })
         .then(() => location.reload())
@@ -736,19 +675,5 @@ function addDestinationToTimeline() {
     axios.post('/api/journey/update-stop', { journeyId, action:'add', destinationId: destId })
         .then(() => location.reload())
         .catch(() => alert('Lỗi khi thêm địa điểm.'));
-}
-
-function startNavigation() {
-    const btn = document.getElementById('btn-timeline-action');
-    btn.innerHTML = '<span class="spinner-grow spinner-grow-sm me-2"></span>ĐANG DI CHUYỂN…';
-    let idx = 0;
-    const iv = setInterval(() => {
-        if (idx >= markers.length) {
-            clearInterval(iv);
-            btn.innerHTML = '🎉 HOÀN THÀNH HÀNH TRÌNH!';
-            return;
-        }
-        focusStopOnMap(idx++);
-    }, 3500);
 }
 </script>

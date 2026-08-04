@@ -671,16 +671,18 @@ const AdminController = {
 
     createJourneyTemplate: async (req, res) => {
         try {
-            const { name, description, season, interest, stops, duration, km } = req.body;
+            const { name, description, season, interest, stops, duration, km, valid_from, valid_until } = req.body;
             if (!name || !season || !interest || !stops) {
                 return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
             }
             const stopsJson = typeof stops === 'string' ? stops : JSON.stringify(stops);
+            const vFrom = valid_from ? valid_from : null;
+            const vUntil = valid_until ? valid_until : null;
 
             await db.query(
-                `INSERT INTO seasonal_journey_templates (id, name, description, season, interest, stops, duration, km)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-                [uuidv4(), name, description, season, interest, stopsJson, duration || 'full_day', km || 5.0]
+                `INSERT INTO seasonal_journey_templates (id, name, description, season, interest, stops, duration, km, valid_from, valid_until)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                [uuidv4(), name, description, season, interest, stopsJson, duration || 'full_day', km || 5.0, vFrom, vUntil]
             );
             res.json({ success: true, message: 'Đã tạo hành trình mẫu!' });
         } catch (error) {
@@ -690,17 +692,19 @@ const AdminController = {
 
     updateJourneyTemplate: async (req, res) => {
         try {
-            const { id, name, description, season, interest, stops, duration, km } = req.body;
+            const { id, name, description, season, interest, stops, duration, km, valid_from, valid_until } = req.body;
             if (!id || !name || !season || !interest || !stops) {
                 return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
             }
             const stopsJson = typeof stops === 'string' ? stops : JSON.stringify(stops);
+            const vFrom = valid_from ? valid_from : null;
+            const vUntil = valid_until ? valid_until : null;
 
             await db.query(
                 `UPDATE seasonal_journey_templates 
-                 SET name = ?, description = ?, season = ?, interest = ?, stops = ?, duration = ?, km = ? 
+                 SET name = ?, description = ?, season = ?, interest = ?, stops = ?, duration = ?, km = ?, valid_from = ?, valid_until = ? 
                  WHERE id = ?`,
-                [name, description, season, interest, stopsJson, duration, km, id]
+                [name, description, season, interest, stopsJson, duration, km, vFrom, vUntil, id]
             );
             res.json({ success: true, message: 'Đã cập nhật hành trình mẫu!' });
         } catch (error) {

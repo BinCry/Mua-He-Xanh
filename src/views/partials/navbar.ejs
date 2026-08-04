@@ -1,3 +1,15 @@
+<style>
+.brand-logo-img { height: 42px; transition: all 0.2s ease; }
+.brand-title-text { font-size: 1.35rem; }
+.brand-sub-text { font-size: 1.15rem; }
+
+@media (max-width: 991.98px) {
+    .brand-logo-img { height: 28px !important; }
+    .brand-title-text { font-size: 0.92rem !important; }
+    .brand-sub-text { font-size: 0.72rem !important; }
+}
+</style>
+
 <nav class="navbar navbar-expand-lg navbar-premium fixed-top">
     <div class="container position-relative">
         <!-- Mobile: Hamburger LEFT (Hidden to match Đình Bình Trường layout) -->
@@ -14,17 +26,17 @@
             <i class="bi bi-chevron-left fs-3 fw-bold"></i>
         </button>
 
-        <!-- Brand -->
-        <a class="navbar-brand d-flex align-items-center gap-2 mx-auto mx-lg-0" href="/">
-            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 42px;"
+        <!-- Brand (Left-aligned on mobile) -->
+        <a class="navbar-brand d-flex align-items-center gap-2 me-auto ms-0 mx-lg-0" href="/" style="max-width: 65%;">
+            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" class="brand-logo-img"
                 onerror="this.src='/images/logo.png'">
             <div class="d-flex flex-column justify-content-center">
-                <span class="d-block fw-black lh-1"
-                    style="font-family: 'Inter', sans-serif; font-size: 1.35rem; font-weight: 900; color: var(--primary); letter-spacing: 0.5px;">
+                <span class="d-block fw-black lh-1 brand-title-text"
+                    style="font-family: 'Inter', sans-serif; font-weight: 900; color: var(--primary); letter-spacing: 0.5px;">
                     <%= settings.brand_name || 'BÌNH LỢI' %>
                 </span>
-                <span class="d-block"
-                    style="font-family: 'Dancing Script', cursive; font-size: 1.15rem; color: var(--primary-green); font-weight: 700; margin-top: 2px; line-height: 1;">
+                <span class="d-block brand-sub-text"
+                    style="font-family: 'Dancing Script', cursive; color: var(--primary-green); font-weight: 700; margin-top: 2px; line-height: 1;">
                     <%= settings.brand_subtext || 'Chạm vào bình yên' %>
                 </span>
             </div>
@@ -32,13 +44,14 @@
 
         <!-- Desktop Nav Links (hidden on mobile) -->
         <div class="d-none d-lg-flex align-items-center flex-grow-1 justify-content-center">
+            <% const path = (locals.currentPath || '').toLowerCase(); %>
             <ul class="navbar-nav gap-1">
-                <li class="nav-item"><a class="nav-link" href="/">Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link" href="/explore">Khám phá</a></li>
-                <li class="nav-item"><a class="nav-link" href="/workshops">Workshop</a></li>
-                <li class="nav-item"><a class="nav-link" href="/reviews">Cộng đồng</a></li>
-                <li class="nav-item"><a class="nav-link" href="/journey">Hành Trình</a></li>
-                <li class="nav-item"><a class="nav-link" href="/map">Bản đồ</a></li>
+                <li class="nav-item"><a class="nav-link <%= path === '/' ? 'active' : '' %>" href="/">Trang chủ</a></li>
+                <li class="nav-item"><a class="nav-link <%= path.startsWith('/explore') ? 'active' : '' %>" href="/explore">Khám phá</a></li>
+                <li class="nav-item"><a class="nav-link <%= path.startsWith('/workshops') ? 'active' : '' %>" href="/workshops">Workshop</a></li>
+                <li class="nav-item"><a class="nav-link <%= path.startsWith('/reviews') ? 'active' : '' %>" href="/reviews">Cộng đồng</a></li>
+                <li class="nav-item"><a class="nav-link <%= (path.startsWith('/journey') || path.startsWith('/onboarding')) ? 'active' : '' %>" href="/journey">Hành Trình</a></li>
+                <li class="nav-item"><a class="nav-link <%= path.startsWith('/map') ? 'active' : '' %>" href="/map">Bản đồ</a></li>
             </ul>
         </div>
 
@@ -61,15 +74,15 @@
                         <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
                     </li>
                     <li><hr class="dropdown-divider my-1"></li>
-                    <% if (user.role === ' admin') { %>
+                    <% if (user.role === 'admin') { %>
                                 <li><a class="dropdown-item py-2 rounded-2" href="/admin"
                                         style="color: var(--primary); font-weight: 600;"><i
-                                            class="bi bi-shield-check me-2"></i>Admin Panel</a></li>
+                                            class="bi bi-shield-check me-2"></i>Trang quản trị</a></li>
                                 <% } %>
                                     <% if (user.role==='manager' ) { %>
                                         <li><a class="dropdown-item py-2 rounded-2" href="/manager"
                                                 style="color: var(--primary); font-weight: 600;"><i
-                                                    class="bi bi-shield-check me-2"></i>Quản lý Panel</a></li>
+                                                    class="bi bi-shield-check me-2"></i>Trang quản lý</a></li>
                                         <% } %>
                                             <% if (user.role==='user' ) { %>
                                                 <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i
@@ -96,28 +109,108 @@
                     <% } %>
         </div>
 
-        <!-- Mobile EN Language Switcher (Right side like Đình Bình Trường) -->
-        <div class="d-lg-none position-absolute end-0 me-3" style="z-index: 10;">
+        <!-- Mobile EN Language Switcher & User Auth (Right side) -->
+        <div class="d-lg-none position-absolute end-0 me-3 d-flex align-items-center gap-2" style="z-index: 10;">
             <button id="langToggleBtn" onclick="toggleLanguage()"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-2 py-0 x-small"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-2 py-1 x-small"
                 style="font-size: 0.65rem; border-color: rgba(0,0,0,0.3);">EN</button>
+
+            <% if (user) { %>
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown">
+                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
+                            style="width: 28px; height: 28px; object-fit: cover; border: 2px solid var(--primary);" alt="Avatar">
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 200px; z-index: 1050;">
+                        <li class="px-3 py-1">
+                            <div class="fw-bold small text-dark"><%= user.full_name %></div>
+                            <div class="x-small text-muted"><%= user.email %></div>
+                        </li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <% if (user.role === 'admin') { %>
+                            <li><a class="dropdown-item py-1.5 small text-primary fw-bold" href="/admin"><i class="bi bi-shield-check me-2"></i>Trang quản trị</a></li>
+                        <% } else if (user.role === 'manager') { %>
+                            <li><a class="dropdown-item py-1.5 small text-primary fw-bold" href="/manager"><i class="bi bi-shield-check me-2"></i>Trang quản lý</a></li>
+                        <% } else { %>
+                            <li><a class="dropdown-item py-1.5 small" href="/profile"><i class="bi bi-person me-2"></i>Hồ sơ du khách</a></li>
+                            <li><a class="dropdown-item py-1.5 small" href="/profile/rewards"><i class="bi bi-gift me-2"></i>Điểm thưởng</a></li>
+                        <% } %>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item py-1.5 small text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                    </ul>
+                </div>
+            <% } else { %>
+                <a href="/auth/login" class="btn btn-sm btn-primary-bl rounded-pill fw-bold px-2 py-1 shadow-sm" style="font-size: 0.7rem;">
+                    <i class="bi bi-person-fill me-1"></i>Đăng nhập
+                </a>
+            <% } %>
         </div>
     </div>
 
-    <!-- Mobile Top Horizontal Scroll Nav (Identical to Đình Bình Trường style) -->
-    <div class="d-lg-none w-100 border-top mt-0 pt-0 mobile-top-nav-bar"
-        style="background: #ffffff; border-bottom: 1px solid rgba(0,0,0,0.08);">
-        <div class="d-flex align-items-center justify-content-between px-2 py-1 w-100"
-            style="font-size: 0.68rem; font-weight: 700;">
-            <a href="/" class="mobile-subnav-link text-decoration-none py-1 px-1">Trang Chủ</a>
-            <a href="/explore" class="mobile-subnav-link text-decoration-none py-1 px-1">Khám Phá</a>
-            <a href="/workshops" class="mobile-subnav-link text-decoration-none py-1 px-1">Workshop</a>
-            <a href="/reviews" class="mobile-subnav-link text-decoration-none py-1 px-1">Cộng Đồng</a>
-            <a href="/journey" class="mobile-subnav-link text-decoration-none py-1 px-1">Hành Trình</a>
-            <a href="/map" class="mobile-subnav-link text-decoration-none py-1 px-1">Bản Đồ</a>
+    <!-- Mobile Top Fixed Horizontal Nav (No scroll, 100% fit) -->
+    <div class="d-lg-none w-100 border-top border-bottom py-1 mobile-top-nav-bar"
+        style="background: #ffffff; border-color: rgba(0,0,0,0.08) !important; overflow: hidden;">
+        <% const pathM = (locals.currentPath || '').toLowerCase(); %>
+        <%
+            const isHome = pathM === '/';
+            const isExp = pathM.startsWith('/explore');
+            const isWs = pathM.startsWith('/workshops');
+            const isRev = pathM.startsWith('/reviews');
+            const isJou = pathM.startsWith('/journey') || pathM.startsWith('/onboarding');
+            const isMap = pathM.startsWith('/map');
+            const activeStyle = 'color: #ffffff !important; background: linear-gradient(135deg, #922724 0%, #7f1d1d 100%) !important; background-color: #922724 !important; font-weight: 800 !important; border-radius: 50px !important; box-shadow: 0 2px 6px rgba(146, 39, 36, 0.25) !important; padding: 4px 7px !important;';
+        %>
+        <div class="d-flex align-items-center justify-content-between px-1 w-100">
+            <a href="/" class="mobile-subnav-link text-decoration-none <%= isHome ? 'active' : '' %>" <%= isHome ? `style="${activeStyle}"` : '' %>>Trang Chủ</a>
+            <a href="/explore" class="mobile-subnav-link text-decoration-none <%= isExp ? 'active' : '' %>" <%= isExp ? `style="${activeStyle}"` : '' %>>Khám Phá</a>
+            <a href="/workshops" class="mobile-subnav-link text-decoration-none <%= isWs ? 'active' : '' %>" <%= isWs ? `style="${activeStyle}"` : '' %>>Workshop</a>
+            <a href="/reviews" class="mobile-subnav-link text-decoration-none <%= isRev ? 'active' : '' %>" <%= isRev ? `style="${activeStyle}"` : '' %>>Cộng Đồng</a>
+            <a href="/journey" class="mobile-subnav-link text-decoration-none <%= isJou ? 'active' : '' %>" <%= isJou ? `style="${activeStyle}"` : '' %>>Hành Trình</a>
+            <a href="/map" class="mobile-subnav-link text-decoration-none <%= isMap ? 'active' : '' %>" <%= isMap ? `style="${activeStyle}"` : '' %>>Bản Đồ</a>
         </div>
     </div>
 </nav>
+
+<style>
+.mobile-top-nav-bar {
+    overflow: hidden !important;
+}
+
+.mobile-top-nav-bar .mobile-subnav-link {
+    font-family: var(--font-accent, sans-serif);
+    font-size: 0.65rem !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+    padding: 4px 2px !important;
+    border-radius: 50px !important;
+    transition: all 0.25s ease !important;
+    white-space: nowrap !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 1.2 !important;
+    letter-spacing: -0.02em !important;
+    text-decoration: none !important;
+    flex: 1 1 0 !important;
+    text-align: center !important;
+}
+
+.mobile-top-nav-bar .mobile-subnav-link:hover {
+    color: #922724 !important;
+    background: #fdf2f2 !important;
+}
+
+.mobile-top-nav-bar .mobile-subnav-link.active,
+a.mobile-subnav-link.active {
+    background: linear-gradient(135deg, #922724 0%, #7f1d1d 100%) !important;
+    background-color: #922724 !important;
+    color: #ffffff !important;
+    font-weight: 800 !important;
+    box-shadow: 0 2px 6px rgba(146, 39, 36, 0.25) !important;
+    border-radius: 50px !important;
+    padding: 4px 4px !important;
+}
+</style>
 
 <!-- MOBILE OFFCANVAS MENU (Modern App Sidebar Style) -->
 <div class="offcanvas offcanvas-start border-0 shadow-lg" tabindex="-1" id="mobileMenu"
