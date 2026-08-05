@@ -393,7 +393,8 @@ class ManagerController {
             if (!dest) return res.status(404).send("Địa điểm không tồn tại");
 
             const [workshops] = await UserSession.db.query(`
-                SELECT w.*, d.name as destination_name
+                SELECT w.*, d.name as destination_name,
+                       (SELECT COUNT(*) FROM workshop_bookings wb WHERE wb.workshop_id = w.id AND wb.status != 'cancelled') as booking_count
                 FROM workshops w 
                 LEFT JOIN destinations d ON w.destination_id = d.id
                 WHERE w.destination_id = ?
@@ -509,6 +510,43 @@ class ManagerController {
             res.json({ success: true, message: 'Đã xóa workshop.' });
         } catch (error) {
             console.error("Manager delete workshop error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    async getWorkshopBookings(req, res) {
+        try {
+            const { workshop_id } = req.query;
+            if (!workshop_id) {
+                return res.status(400).json({ success: false, message: 'Thiếu workshop_id' });
+            }
+            const [bookings] = await UserSession.db.query(`
+                SELECT wb.*, u.full_name, u.email, u.phone, u.avatar
+                FROM workshop_bookings wb
+                LEFT JOIN users u ON wb.user_id = u.id
+                WHERE wb.workshop_id = ?
+                ORDER BY wb.created_at DESC
+            `, [workshop_id]);
+            res.json({ success: true, bookings });
+        } catch (error) {
+            console.error("Manager getWorkshopBookings error:", error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    async updateBookingStatus(req, res) {
+        try {
+            const { booking_id, status } = req.body;
+            if (!booking_id || !status) {
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin' });
+            }
+            await UserSession.db.query(
+                "UPDATE workshop_bookings SET status = ? WHERE id = ?",
+                [status, booking_id]
+            );
+            res.json({ success: true, message: 'Cập nhật trạng thái thành công!' });
+        } catch (error) {
+            console.error("Manager updateBookingStatus error:", error);
             res.status(500).json({ success: false, message: error.message });
         }
     }

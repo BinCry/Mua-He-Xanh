@@ -61,6 +61,9 @@
                     <% } %>
                 </td>
                 <td>
+                    <button class="btn btn-sm btn-outline-info rounded-pill px-3 me-1" onclick="viewBookings('<%= ws.id %>', '<%= ws.title.replace(/'/g, "\\'") %>')">
+                        <i class="bi bi-people me-1"></i>Đăng ký (<%= ws.booking_count || 0 %>)
+                    </button>
                     <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editWs(this)" data-workshop="<%= encodeURIComponent(JSON.stringify(ws)) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
@@ -270,4 +273,107 @@ async function deleteWs(id) {
         else alert(res.data.message);
     } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
 }
+
+async function viewBookings(wsId, title) {
+    document.getElementById('bookingsModalTitle').textContent = 'Danh sách đăng ký: ' + title;
+    document.getElementById('bookingsLoading').style.display = 'block';
+    document.getElementById('bookingsContent').style.display = 'none';
+    const modal = new bootstrap.Modal(document.getElementById('bookingsModal'));
+    modal.show();
+
+    try {
+        const res = await axios.get('/api/manager/workshop-bookings?workshop_id=' + wsId);
+        document.getElementById('bookingsLoading').style.display = 'none';
+        document.getElementById('bookingsContent').style.display = 'block';
+        
+        const tbody = document.getElementById('bookingsTableBody');
+        tbody.innerHTML = '';
+        
+        if (!res.data.bookings || res.data.bookings.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Chưa có lượt đăng ký nào.</td></tr>';
+            return;
+        }
+
+        res.data.bookings.forEach(b => {
+            const tr = document.createElement('tr');
+            let statusBadge = '<span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Đã xác nhận</span>';
+            if (b.status === 'cancelled') statusBadge = '<span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-3">Đã hủy</span>';
+            else if (b.status === 'completed') statusBadge = '<span class="badge bg-info bg-opacity-25 text-info rounded-pill px-3">Hoàn thành</span>';
+
+            tr.innerHTML = `
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="${b.avatar || '/images/avatar-default.png'}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
+                        <span class="fw-bold small">${b.full_name || 'Khách vãng lai'}</span>
+                    </div>
+                </td>
+                <td class="small">
+                    <div>${b.phone || 'N/A'}</div>
+                    <div style="font-size: 0.75rem; color: var(--admin-muted);">${b.email || ''}</div>
+                </td>
+                <td class="small">
+                    <div>${new Date(b.booking_date).toLocaleDateString('vi-VN')}</div>
+                    <div style="font-size: 0.75rem; color: var(--admin-muted);">${b.booking_time || '08:00'} (${b.num_people} người)</div>
+                </td>
+                <td><code class="small fw-bold text-primary">${b.qr_ticket || 'N/A'}</code></td>
+                <td>${statusBadge}</td>
+                <td>
+                    ${b.status === 'confirmed' ? `
+                        <button class="btn btn-sm btn-success rounded-pill px-2 py-0 me-1" onclick="updateBookingStatus('${b.id}', 'completed', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Xác nhận hoàn thành">
+                            <i class="bi bi-check-lg"></i> Tham gia
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" onclick="updateBookingStatus('${b.id}', 'cancelled', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Hủy vé">
+                            <i class="bi bi-x-lg"></i> Hủy
+                        </button>
+                    ` : '<span class="text-muted small">-</span>'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch(e) {
+        alert('Lỗi tải danh sách: ' + (e.response?.data?.message || e.message));
+    }
+}
+
+async function updateBookingStatus(bookingId, status, wsId, title) {
+    try {
+        const res = await axios.post('/api/manager/update-booking-status', { booking_id: bookingId, status });
+        if (res.data.success) {
+            viewBookings(wsId, title);
+        }
+    } catch(e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
+}
 </script>
+
+<!-- Bookings List Modal -->
+<div class="modal fade" id="bookingsModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface);">
+            <div class="modal-header border-0">
+                <h5 class="modal-title fw-bold" id="bookingsModalTitle">Danh sách đăng ký Workshop</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="bookingsLoading" class="text-center py-4">
+                    <span class="spinner-border text-primary"></span>
+                </div>
+                <div id="bookingsContent" class="table-responsive" style="display:none;">
+                    <table class="table table-borderless align-middle mb-0 admin-table">
+                        <thead>
+                            <tr class="small">
+                                <th>Khách hàng</th>
+                                <th>Liên hệ</th>
+                                <th>Thời gian</th>
+                                <th>Mã vé</th>
+                                <th>Trạng thái</th>
+                                <th>Thao tác</th>
+                            </tr>
+                        </thead>
+                        <tbody id="bookingsTableBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

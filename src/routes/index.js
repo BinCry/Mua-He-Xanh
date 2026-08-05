@@ -230,6 +230,8 @@ router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
 router.post('/api/manager/create-workshop', ensureManager, ManagerController.createWorkshop);
 router.post('/api/manager/update-workshop', ensureManager, ManagerController.updateWorkshop);
 router.post('/api/manager/delete-workshop', ensureManager, ManagerController.deleteWorkshop);
+router.get('/api/manager/workshop-bookings', ensureManager, ManagerController.getWorkshopBookings);
+router.post('/api/manager/update-booking-status', ensureManager, ManagerController.updateBookingStatus);
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);

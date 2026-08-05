@@ -7,6 +7,46 @@
     .brand-logo-img { height: 28px !important; }
     .brand-title-text { font-size: 0.92rem !important; }
     .brand-sub-text { font-size: 0.72rem !important; }
+
+    html, body {
+        top: 0px !important;
+        margin-top: 0px !important;
+        position: static !important;
+        transform: none !important;
+        -webkit-transform: none !important;
+    }
+
+    .navbar-premium {
+        position: fixed !important;
+        top: 0px !important;
+        left: 0px !important;
+        right: 0px !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding-top: 4px !important;
+        padding-bottom: 2px !important;
+        transform: none !important;
+        -webkit-transform: none !important;
+        z-index: 1050 !important;
+        background: #ffffff !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
+    }
+
+    .navbar-premium .container {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        padding-left: 4px !important;
+        padding-right: 16px !important;
+    }
+
+    .navbar-premium .navbar-brand {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    main {
+        padding-top: 110px !important;
+    }
 }
 </style>
 
@@ -27,7 +67,7 @@
         </button>
 
         <!-- Brand (Left-aligned on mobile) -->
-        <a class="navbar-brand d-flex align-items-center gap-2 me-auto ms-0 mx-lg-0" href="/" style="max-width: 65%;">
+        <a class="navbar-brand d-flex align-items-center gap-2 me-auto ms-0 ps-0" href="/" style="max-width: 65%;">
             <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" class="brand-logo-img"
                 onerror="this.src='/images/logo.png'">
             <div class="d-flex flex-column justify-content-center">
@@ -55,8 +95,12 @@
             </ul>
         </div>
 
-        <!-- Desktop Auth (hidden on mobile) -->
+        <!-- Desktop Auth & Language Switcher (hidden on mobile) -->
         <div class="d-none d-lg-flex align-items-center gap-3" style="z-index: 10;">
+            <button id="langToggleBtnDesktop" onclick="toggleLanguage()"
+                class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 py-1 x-small me-1 lang-toggle-btn"
+                style="font-size: 0.78rem; border-color: rgba(0,0,0,0.3);">EN</button>
+
             <% if (user) { %>
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center gap-2 text-decoration-none p-1 rounded-pill"
@@ -64,13 +108,13 @@
                         style="background: var(--primary-50); padding-right: 14px !important;">
                         <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
                             style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
-                        <span class="fw-bold" style="font-size: 0.82rem; color: var(--primary);">
+                        <span class="fw-bold notranslate" translate="no" style="font-size: 0.82rem; color: var(--primary);">
                             <%= user.full_name.split(' ').pop() %></span>
                     <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 220px;">
                     <li class="px-3 py-2 mb-1">
-                        <div class="fw-bold" style="font-size: 0.88rem;"><%= user.full_name %></div>
+                        <div class="fw-bold notranslate" translate="no" style="font-size: 0.88rem;"><%= user.full_name %></div>
                         <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
                     </li>
                     <li><hr class="dropdown-divider my-1"></li>
@@ -101,16 +145,13 @@
                                                     </ul>
                 </div>
                 <% } else { %>
-                    <button id="langToggleBtnDesktop" onclick="toggleLanguage()"
-                        class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 py-1 x-small me-2"
-                        style="font-size: 0.78rem; border-color: rgba(0,0,0,0.3);">EN</button>
                     <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold"
                         style="font-size: 0.82rem;">Đăng nhập</a>
                     <% } %>
         </div>
 
-        <!-- Mobile EN Language Switcher & User Auth (Right side) -->
-        <div class="d-lg-none position-absolute end-0 me-3 d-flex align-items-center gap-2" style="z-index: 10;">
+        <!-- Mobile EN Language Switcher & User Auth (Right side - shifted slightly left) -->
+        <div class="d-lg-none position-absolute end-0 me-4 d-flex align-items-center gap-2" style="z-index: 10;">
             <button id="langToggleBtn" onclick="toggleLanguage()"
                 class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-2 py-1 x-small"
                 style="font-size: 0.65rem; border-color: rgba(0,0,0,0.3);">EN</button>
@@ -260,7 +301,7 @@ a.mobile-subnav-link.active {
                     <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle shadow-sm"
                         style="width: 38px; height: 38px; object-fit: cover; border: 2px solid var(--primary-100);">
                     <div class="overflow-hidden">
-                        <div class="fw-bold text-dark text-truncate" style="font-size: 0.85rem;">
+                        <div class="fw-bold text-dark text-truncate notranslate" translate="no" style="font-size: 0.85rem;">
                             <%= user.full_name %>
                         </div>
                         <div class="x-small text-muted text-truncate">
@@ -398,245 +439,7 @@ a.mobile-subnav-link.active {
 </style>
 
 
-<script>
-    /* ===================================================================
-       BINH LOI i18n — Pure JS Full-Site Translation Engine v2
-       Covers EVERY visible Vietnamese text across all pages.
-       =================================================================== */
-    (function () {
-        var _originals = new WeakMap();
-
-        var VI_EN = {
-            // ============ NAVIGATION ============
-            'Trang Chủ': 'Home', 'Trang chủ': 'Home',
-            'Khám Phá': 'Explore', 'Khám phá': 'Explore', 'KHÁM PHÁ': 'EXPLORE',
-            'Workshop': 'Workshops', 'WORKSHOP': 'WORKSHOPS',
-            'Workshop & Hoạt Động': 'Workshops & Activities',
-            'Cộng Đồng': 'Community', 'Cộng đồng': 'Community', 'CỘNG ĐỒNG': 'COMMUNITY',
-            'Hành Trình': 'Journey', 'Hành trình': 'Journey', 'HÀNH TRÌNH': 'JOURNEY',
-            'Bản Đồ': 'Map', 'Bản đồ': 'Map', 'BẢN ĐỒ': 'MAP', 'Bản đồ số': 'Digital Map',
-            'Lễ Hội': 'Festivals', 'Lễ hội': 'Festivals',
-            'Chạm vào bình yên': 'Touch the Peace',
-            'Đăng nhập': 'Login', 'Đăng xuất': 'Logout',
-
-            // ============ HERO ============
-            'Bình Lợi - Giữ hồn quê giữa nhịp sống mới': 'Binh Loi — Preserving Heritage in Modern Times',
-            'KHÁM PHÁ MIỀN TÂY GIỮA LÒNG SÀI GÒN': 'EXPLORE MEKONG DELTA IN SAIGON',
-            'Bình Lợi là vùng đất yên bình, nổi bật với làng mai, làng nhang và những không gian văn hóa truyền thống, mang đến một trải nghiệm gần gũi và đậm chất địa phương.':
-                'Binh Loi is a peaceful land known for yellow apricot gardens, traditional incense craft, and cultural heritage spaces — offering an authentic, deeply local experience.',
-            'EXPLORE LOCATIONS': 'EXPLORE LOCATIONS',
-            'VIEW MAP': 'VIEW MAP',
-
-            // ============ QUICK INFO ============
-            'THÔNG TIN NHANH': 'QUICK INFO',
-            'VỊ TRÍ:': 'LOCATION:', 'Vị trí:': 'Location:',
-            'Xã Bình Lợi, TP.HCM': 'Binh Loi, HCMC',
-            'Xã Bình Lợi, TP. Hồ Chí Minh': 'Binh Loi, Ho Chi Minh City',
-            'ĐẶC SẢN:': 'SPECIALTY:', 'Đặc sản:': 'Specialty:',
-            'Mai Vàng, Nhang Thơm, Cá Koi': 'Yellow Apricot, Incense, Koi Fish',
-            'KHÔNG GIAN:': 'ATMOSPHERE:', 'Không gian:': 'Atmosphere:',
-            'Miệt vườn sinh thái, tâm linh': 'Eco-garden & Spiritual',
-            'CÁCH TRUNG TÂM:': 'FROM CENTRE:', 'Cách trung tâm:': 'From centre:',
-            'Khoảng 20km (45-60 phút)': '~20 km (45-60 min)',
-            'KHÁM PHÁ ĐỊA ĐIỂM': 'EXPLORE LOCATIONS',
-            'XEM BẢN ĐỒ': 'VIEW MAP',
-
-            // ============ STATS SECTION ============
-            'NHỮNG CON SỐ ẤN TƯỢNG': 'IMPRESSIVE NUMBERS',
-            'Những con số ấn tượng': 'Impressive Numbers',
-            'LƯỢT CHECK-IN': 'CHECK-INS', 'Lượt check-in': 'Check-ins',
-            'ĐỊA ĐIỂM TRỌNG TÂM': 'KEY DESTINATIONS', 'Địa điểm trọng tâm': 'Key Destinations',
-            'WORKSHOP ĐÃ TỔ CHỨC': 'WORKSHOPS HELD', 'WORKSHOPS ĐÃ TỔ CHỨC': 'WORKSHOPS HELD',
-            'Workshops đã tổ chức': 'Workshops Held', 'Workshop đã tổ chức': 'Workshops Held',
-            'ĐÁNH GIÁ TRUNG BÌNH': 'AVG RATING', 'Đánh giá trung bình': 'Average Rating',
-
-            // ============ DESTINATIONS SECTION ============
-            'Điểm dừng chân trọng tâm': 'Key Destinations',
-            'Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên chữa lành.':
-                'Each destination is carefully curated for aesthetics, culture, and healing tranquility.',
-            'XEM TẤT CẢ ĐỊA ĐIỂM': 'VIEW ALL DESTINATIONS',
-            'ĐỊA ĐIỂM NỔI BẬT': 'FEATURED DESTINATIONS',
-            'Địa điểm nổi bật': 'Featured Destinations',
-            'Địa điểm chữa lành & trải nghiệm sinh thái': 'Healing destinations & eco-experiences',
-            'Khám phá Bình Lợi': 'Explore Binh Loi',
-            'Khám phá những điểm đến hấp dẫn nhất tại Bình Lợi': 'Discover the most exciting destinations in Binh Loi',
-
-            // ============ EVENTS SECTION ============
-            'Sự kiện nổi bật': 'Featured Event',
-            'SỰ KIỆN NỔI BẬT': 'FEATURED EVENTS',
-            'Sự kiện khác': 'Other Events',
-            'Lịch sự kiện sắp diễn ra': 'Upcoming Events',
-            'Chưa có sự kiện nổi bật sắp diễn ra': 'No featured events coming up',
-            'Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.': 'The system will auto-update when admin adds events.',
-            'Chưa có sự kiện nào khác sắp diễn ra': 'No other events scheduled',
-            'SỰ KIỆN ĐANG DIỄN RA!': 'EVENT IN PROGRESS!',
-            'lúc': 'at',
-            'NGÀY': 'DAYS', 'Ngày': 'Days',
-            'GIỜ': 'HRS', 'Giờ': 'Hrs',
-            'PHÚT': 'MIN', 'Phút': 'Min',
-
-            // ============ SOCIAL FEED / COMMUNITY SECTION ============
-            'LIVE FROM BÌNH LỢI': 'LIVE FROM BINH LOI',
-            'Khoảnh khắc Chữa lành': 'Healing Moments',
-            'Câu chuyện thật, hình ảnh thật từ cộng đồng du khách.': 'Real stories, real photos from the traveler community.',
-            'CHIA SẺ KHOẢNH KHẮC CỦA BẠN': 'SHARE YOUR MOMENT',
-            'CỘNG ĐỒNG & CHIA SẺ': 'COMMUNITY & SHARING',
-            'Bài viết mới nhất từ du khách': 'Latest posts from visitors',
-            'Bài viết nổi bật': 'Featured Posts',
-            'Tạo bài viết': 'Create Post',
-
-            // ============ WORKSHOP PAGE ============
-            'Workshop & Trải Nghiệm': 'Workshops & Experiences',
-            'Trải nghiệm văn hóa & nghề truyền thống': 'Experience culture & traditional crafts',
-            'Chưa có workshop nào trong danh mục này.': 'No workshops found in this category.',
-            'Xem tất cả Workshop': 'View All Workshops',
-
-            // ============ FILTERS & BUTTONS ============
-            'Tất cả': 'All', 'TẤT CẢ': 'ALL',
-            'Tâm linh': 'Spiritual', 'TÂM LINH': 'SPIRITUAL',
-            'Sinh thái': 'Eco', 'SINH THÁI': 'ECO',
-            'Làng nghề': 'Craft', 'LÀNG NGHỀ': 'CRAFT',
-            'Trải nghiệm': 'Experience', 'TRẢI NGHIỆM': 'EXPERIENCE',
-            'Nông nghiệp': 'Agriculture', 'Văn hóa': 'Culture', 'Ẩm thực': 'Cuisine',
-            'Miễn phí': 'Free',
-            'Xem tất cả': 'View All',
-            'Xem chi tiết': 'View Details', 'Chi tiết': 'Details',
-            'Tìm kiếm': 'Search', 'Xóa bộ lọc': 'Clear Filters',
-            'Đặt ngay': 'Book Now', 'Đang mở': 'Open',
-            '/người': '/guest', 'người': 'guests',
-            'phút': 'min', 'giờ': 'hr',
-
-            // ============ FOOTER ============
-            'HỖ TRỢ': 'SUPPORT', 'Hỗ trợ': 'Support',
-            'LIÊN HỆ VỚI CHÚNG TÔI': 'CONTACT US', 'Liên hệ với chúng tôi': 'Contact Us',
-            'ĐĂNG KÍ NHẬN TIN': 'NEWSLETTER', 'Đăng kí nhận tin': 'Newsletter',
-            'Hướng dẫn': 'Guide',
-            'Câu hỏi thường gặp': 'FAQ',
-            'Liên hệ': 'Contact',
-            'Chính sách bảo mật': 'Privacy Policy',
-            'Hành trình khám phá Bình Lợi bắt đầu từ đây': 'Your Binh Loi journey starts here',
-            'Cập nhật thông tin mới nhất về Bình Lợi và các trải nghiệm hấp dẫn.': 'Stay updated with the latest Binh Loi news and experiences.',
-            'Mọi quyền được bảo lưu.': 'All rights reserved.',
-            'Đồng hành chiến lược bởi': 'Strategic partner:',
-
-            // ============ CHAT MODAL ============
-            'Phản hồi bởi Ban Quản Trị': 'Response by Administration',
-            'Hôm nay': 'Today',
-            'Chào mừng bạn đến với': 'Welcome to',
-            'Ban quản trị xã luôn sẵn sàng giải đáp mọi thắc mắc của bạn về hành trình khám phá.':
-                'The administration is always ready to answer your questions about your exploration journey.',
-            'Ban quản trị xã luôn sẵn sàng giải đáp mọi thắc mắc.':
-                'The administration is always ready to help.',
-            'Nhập câu hỏi...': 'Type a question...',
-
-            // ============ PROFILE / AUTH ============
-            'Hồ sơ du khách': 'Tourist Profile',
-            'Điểm thưởng': 'Reward Points',
-            'Admin Panel': 'Admin Panel',
-            'Quản lý Panel': 'Manager Panel',
-
-            // ============ DESTINATION TYPES & TAGS ============
-            'Chùa': 'Temple', 'chùa': 'temple',
-            'Đình': 'Communal House', 'đình': 'communal house',
-            'Vườn lan': 'Orchid Garden', 'vườn lan': 'orchid garden',
-            'Làng mai': 'Apricot Village', 'làng mai': 'apricot village',
-            'Làng nhang': 'Incense Village', 'làng nhang': 'incense village',
-            'Sinh Thái': 'Eco-Tourism',
-            'Tâm Linh': 'Spiritual',
-            'Làng Nghề': 'Craft Village',
-        };
-
-        var viKeys = Object.keys(VI_EN).sort(function (a, b) { return b.length - a.length; });
-
-        function translatePage(lang) {
-            var mb = document.getElementById('langToggleBtn');
-            var db = document.getElementById('langToggleBtnDesktop');
-            if (mb) mb.textContent = lang === 'en' ? 'VI' : 'EN';
-            if (db) db.textContent = lang === 'en' ? 'VI' : 'EN';
-
-            var walker = document.createTreeWalker(
-                document.body, NodeFilter.SHOW_TEXT, null, false
-            );
-            var textNode;
-            while (textNode = walker.nextNode()) {
-                var el = textNode.parentElement;
-                if (!el) continue;
-                var tag = el.tagName;
-                if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'TEXTAREA') continue;
-
-                var val = textNode.nodeValue;
-                if (!val || !val.trim()) continue;
-
-                if (!_originals.has(textNode)) {
-                    _originals.set(textNode, val);
-                }
-
-                if (lang === 'en') {
-                    var src = _originals.get(textNode);
-                    var result = src;
-                    for (var i = 0; i < viKeys.length; i++) {
-                        if (result.indexOf(viKeys[i]) !== -1) {
-                            result = result.split(viKeys[i]).join(VI_EN[viKeys[i]]);
-                        }
-                    }
-                    textNode.nodeValue = result;
-                } else {
-                    textNode.nodeValue = _originals.get(textNode);
-                }
-            }
-
-            // Translate placeholders
-            document.querySelectorAll('input[placeholder], textarea[placeholder]').forEach(function (input) {
-                var ph = input.getAttribute('placeholder');
-                if (!ph) return;
-                if (!input.dataset.origPh) input.dataset.origPh = ph;
-                if (lang === 'en') {
-                    var r = input.dataset.origPh;
-                    for (var i = 0; i < viKeys.length; i++) {
-                        if (r.indexOf(viKeys[i]) !== -1) {
-                            r = r.split(viKeys[i]).join(VI_EN[viKeys[i]]);
-                        }
-                    }
-                    input.setAttribute('placeholder', r);
-                } else {
-                    input.setAttribute('placeholder', input.dataset.origPh);
-                }
-            });
-
-            // Translate title attributes on buttons
-            document.querySelectorAll('[title]').forEach(function (el) {
-                var t = el.getAttribute('title');
-                if (!t) return;
-                if (!el.dataset.origTitle) el.dataset.origTitle = t;
-                if (lang === 'en') {
-                    var r = el.dataset.origTitle;
-                    for (var i = 0; i < viKeys.length; i++) {
-                        if (r.indexOf(viKeys[i]) !== -1) {
-                            r = r.split(viKeys[i]).join(VI_EN[viKeys[i]]);
-                        }
-                    }
-                    el.setAttribute('title', r);
-                } else {
-                    el.setAttribute('title', el.dataset.origTitle);
-                }
-            });
-        }
-
-        window.toggleLanguage = function () {
-            var current = localStorage.getItem('app_lang') || 'vi';
-            var next = current === 'vi' ? 'en' : 'vi';
-            localStorage.setItem('app_lang', next);
-            translatePage(next);
-        };
-
-        function init() {
-            var lang = localStorage.getItem('app_lang') || 'vi';
-            translatePage(lang);
-        }
-
-        document.addEventListener('DOMContentLoaded', init);
-        window.addEventListener('pageshow', function (e) {
-            if (e.persisted) init();
-        });
-    })();
-</script>
+<!-- Hidden Google Translate container for auto-translation fallback -->
+<div id="google_translate_element" style="display:none !important;"></div>
+<script src="/js/i18n-switcher.js"></script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>

@@ -182,13 +182,29 @@ const WorkshopController = {
                 [user.id]
             );
 
-            // Send notification
+            // Send notification to visitor
             await NotificationController.create(
                 user.id, 'workshop',
                 `Đặt workshop thành công!`,
                 `Bạn đã đăng ký "${workshop.title}". Mã vé: ${booking.qr_ticket}. +50 điểm`,
                 '/my-workshops'
             );
+
+            // Send notification to Destination Manager
+            try {
+                const [managers] = await db.query(
+                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = ?",
+                    [workshop.destination_id]
+                );
+                for (let mgr of managers) {
+                    await NotificationController.create(
+                        mgr.id, 'workshop',
+                        `Khách mới đăng ký Workshop!`,
+                        `${user.full_name || 'Khách hàng'} vừa đăng ký "${workshop.title}" (${requestedSeats} người). Mã vé: ${booking.qr_ticket}`,
+                        '/manager/workshops'
+                    );
+                }
+            } catch (e) { console.error('Notify manager book error:', e); }
 
             res.json({
                 success: true,
@@ -212,7 +228,7 @@ const WorkshopController = {
 
             // Fetch booking
             const [bookings] = await db.query(
-                "SELECT wb.*, w.title as workshop_title FROM workshop_bookings wb LEFT JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = ? AND wb.user_id = ?",
+                "SELECT wb.*, w.title as workshop_title, w.destination_id FROM workshop_bookings wb LEFT JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = ? AND wb.user_id = ?",
                 [bookingId, user.id]
             );
 
@@ -237,13 +253,29 @@ const WorkshopController = {
                 [user.id]
             );
 
-            // Send notification
+            // Send notification to visitor
             await NotificationController.create(
                 user.id, 'workshop',
                 `Đã hủy đặt workshop`,
                 `Bạn đã hủy đăng ký "${booking.workshop_title || 'workshop'}". Điểm thưởng trừ 50đ.`,
                 '/my-workshops'
             );
+
+            // Send notification to Destination Manager
+            try {
+                const [managers] = await db.query(
+                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = ?",
+                    [booking.destination_id]
+                );
+                for (let mgr of managers) {
+                    await NotificationController.create(
+                        mgr.id, 'workshop',
+                        `Khách hàng hủy đăng ký Workshop`,
+                        `${user.full_name || 'Khách hàng'} đã hủy vé đăng ký "${booking.workshop_title || 'workshop'}".`,
+                        '/manager/workshops'
+                    );
+                }
+            } catch (e) { console.error('Notify manager cancel error:', e); }
 
             res.json({ success: true, message: 'Đã hủy đặt chỗ thành công.' });
         } catch (error) {

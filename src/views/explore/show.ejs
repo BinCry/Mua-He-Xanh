@@ -7,15 +7,27 @@
     <div class="hero-content container-site text-white d-flex flex-column justify-content-end h-100 pb-5">
         <div class="row align-items-end">
             <div class="col-lg-8 animate__animated animate__fadeInUp">
-                <span class="badge bg-white text-dark mb-3 px-3 py-2 rounded-pill fw-bold tracking-widest text-uppercase shadow-sm"><i class="bi bi-tag-fill text-primary me-1"></i> <%= dest.type %></span>
+                <% 
+                    const typeNames = { 
+                        nature: 'THIÊN NHIÊN', 
+                        temple: 'TÂM LINH', 
+                        culture: 'VĂN HÓA', 
+                        craft: 'LÀNG NGHỀ', 
+                        cuisine: 'ẨM THỰC', 
+                        eco: 'SINH THÁI' 
+                    }; 
+                    const displayType = typeNames[(dest.type || '').toLowerCase()] || (dest.type || '').toUpperCase();
+                %>
+                <span class="badge bg-white text-dark mb-3 px-3 py-2 rounded-pill fw-bold tracking-widest text-uppercase shadow-sm"><i class="bi bi-tag-fill text-primary me-1"></i> <%= displayType %></span>
                 <h1 class="display-1 fw-black mb-3 letter-spacing-sm text-shadow-lg" style="color: var(--accent);"><%= dest.name %></h1>
-                <p class="lead opacity-90 d-flex align-items-center gap-2 mb-4">
-                    <i class="bi bi-geo-alt-fill text-danger"></i> <%= dest.short_desc %>
-                </p>
+                <div class="lead opacity-90 d-flex align-items-start gap-2 mb-4 dest-hero-desc text-start">
+                    <i class="bi bi-geo-alt-fill text-danger mt-1 flex-shrink-0"></i> 
+                    <span class="dest-short-desc-text"><%= dest.short_desc %></span>
+                </div>
                 
 
                 <!-- Interactive Actions -->
-                <div class="d-flex flex-wrap gap-3 mb-4">
+                <div class="d-flex flex-wrap gap-3 mb-4 dest-hero-actions">
                     <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasLiked ? 'text-danger' : '' %>" onclick="handleLikeToggle(this, '<%= dest.id %>')">
                         <i class="bi <%= hasLiked ? 'bi-heart-fill' : 'bi-heart' %> <%= hasLiked ? 'text-danger' : '' %>"></i> Thích (<span id="likes-count"><%= totalLikes %></span>)
                     </button>
@@ -181,18 +193,11 @@
                         <a href="https://www.google.com/maps/dir/?api=1&destination=<%= dest.lat %>,<%= dest.lng %>" target="_blank" class="btn btn-light border-0 btn-lg rounded-pill fw-bold text-dark shadow-sm d-flex align-items-center justify-content-center gap-2">
                             <i class="bi bi-cursor-fill text-warning"></i> Chỉ đường Google Maps
                         </a>
-                        <button class="btn btn-link text-white-50 btn-sm text-decoration-none mt-1 d-none d-md-block" data-bs-toggle="modal" data-bs-target="#chatModal">
-                            <i class="bi bi-chat-dots me-1"></i> Hỏi đáp Quản lý địa điểm
+                        <button class="btn btn-outline-light rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2 mt-1" data-bs-toggle="modal" data-bs-target="#chatModal">
+                            <i class="bi bi-chat-dots-fill text-warning"></i> Nhắn với Quản lý
                         </button>
                     </div>
                 </div>
-            </div>
-
-            <!-- Floating Chat Toggle -->
-            <div class="fab-chat">
-                <button class="btn btn-primary-bl rounded-circle shadow-lg p-0 d-flex align-items-center justify-content-center" data-bs-toggle="modal" data-bs-target="#chatModal" title="Nhắn tin hỗ trợ">
-                    <i class="bi bi-chat-fill text-white"></i>
-                </button>
             </div>
         </div>
     </div>

@@ -855,20 +855,22 @@ img { max-width: 100%; }
 .quick-info-table .qi-label {
     font-family: 'Inter', sans-serif !important;
     font-weight: 700 !important;
-    font-size: 0.75rem;
-    letter-spacing: 1px;
+    font-size: 0.72rem;
+    letter-spacing: 0.5px;
     text-transform: uppercase;
-    color: #94a3b8;
-    white-space: nowrap;
-    padding-right: 20px;
-    min-width: 120px;
+    color: #64748b;
+    padding-right: 14px;
+    width: 44%;
+    line-height: 1.4;
 }
 
 .quick-info-table .qi-value {
     font-family: 'Inter', sans-serif !important;
-    font-weight: 900 !important;
-    font-size: 0.9rem;
+    font-weight: 800 !important;
+    font-size: 0.88rem;
     color: #1e293b;
+    width: 56%;
+    line-height: 1.4;
 }
 
 .quick-info-table .qi-value.accent {
@@ -2100,12 +2102,28 @@ footer a:hover {
 
 
 /* ==========================================================================
-   HIDE GOOGLE TRANSLATE BANNER & KEEP PRESTINE SITE DESIGN
+   HIDE ALL GOOGLE TRANSLATE BANNERS, TOOLBARS & IFRAMES
    ========================================================================== */
 .goog-te-banner-frame,
 iframe.goog-te-banner-frame,
-.goog-te-balloon-frame {
+.goog-te-balloon-frame,
+#goog-gt-tt,
+.goog-te-spinner-pos,
+.goog-text-highlight,
+iframe[id*=":1.container"],
+iframe[id*=":2.container"],
+iframe[id*="google_translate"],
+.VIpgJd-yDnbAf-xl0vld-ODZ2Z,
+.VIpgJd-yDnbAf-bN924e,
+.VIpgJd-yDnbAf-nsyBl,
+.VIpgJd-yDnbAf-OWXzab-wT3ffc,
+.VIpgJd-yDnbAf-a91WWe {
     display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    width: 0 !important;
+    pointer-events: none !important;
 }
 
 body {
@@ -2114,10 +2132,117 @@ body {
 }
 
 .skiptranslate,
-body > .skiptranslate {
-    display: none !important;
-}
-
+body > .skiptranslate,
 #google_translate_element {
     display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    width: 0 !important;
+    overflow: hidden !important;
 }
+
+font[style] {
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Site-wide auto-balance for English translated text */
+.badge, .btn, .stat-text, .section-title, .card-title, .nav-link, .qi-label, .qi-value {
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.quick-info-card {
+    min-width: 0;
+    overflow: hidden;
+}
+
+/* Fix flex layout cramping when English words are longer */
+.d-flex, .row {
+    min-width: 0;
+}
+
+/* Guarantee navbar stays 100% fixed at true viewport top on mobile & desktop without offset */
+html, body {
+    top: 0px !important;
+    margin-top: 0px !important;
+    position: static !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+}
+
+.navbar-premium {
+    position: fixed !important;
+    top: 0px !important;
+    left: 0px !important;
+    right: 0px !important;
+    width: 100% !important;
+    margin: 0 !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    z-index: 1050 !important;
+    background: rgba(255, 255, 255, 0.98) !important;
+}
+
+@media (max-width: 991.98px) {
+    .navbar-premium {
+        position: fixed !important;
+        top: 0px !important;
+        left: 0px !important;
+        right: 0px !important;
+        width: 100% !important;
+        margin: 0 !important;
+        padding-top: 6px !important;
+        padding-bottom: 2px !important;
+        transform: none !important;
+        -webkit-transform: none !important;
+        z-index: 1050 !important;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1) !important;
+        background: #ffffff !important;
+        backdrop-filter: blur(15px) !important;
+    }
+
+    .navbar-premium.scrolled {
+        padding-top: 6px !important;
+        padding-bottom: 2px !important;
+    }
+
+    .navbar-premium .container {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+        padding-left: 4px !important;
+        padding-right: 16px !important;
+    }
+
+    .navbar-premium .navbar-brand {
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    main {
+        padding-top: 110px !important;
+    }
+}
+
+@media (max-width: 768px) {
+    /* TRUE JUSTIFIED TEXT (Căn đều phẳng lề cả 2 bên trái & phải) */
+    .home-event-featured-desc,
+    .dest-hero-desc,
+    .dest-short-desc-text {
+        text-align: justify !important;
+        text-justify: inter-word !important;
+        -webkit-text-justify: inter-word !important;
+        width: 100% !important;
+        display: block !important;
+        line-height: 1.65 !important;
+    }
+
+    /* Destination hero button grid on mobile */
+    .dest-hero-actions .btn {
+        flex: 1 1 calc(50% - 8px) !important;
+        justify-content: center !important;
+        font-size: 0.8rem !important;
+        padding: 8px 12px !important;
+    }
+}
+
