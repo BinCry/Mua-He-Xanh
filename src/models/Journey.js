@@ -9,7 +9,11 @@ class Journey extends Model {
 
     /** Get active journey by session */
     async getActiveBySession(sessionId) {
-        return this.findOne({ session_id: sessionId, status: 'active' });
+        const [rows] = await this.db.query(
+            "SELECT * FROM journeys WHERE session_id = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1",
+            [sessionId]
+        );
+        return rows[0] || null;
     }
 
     /** Get journey with stops and destinations */
@@ -41,7 +45,7 @@ class Journey extends Model {
         const now = new Date();
         const month = now.getMonth() + 1;
         const hour = now.getHours();
-        
+
         let filteredCandidates = candidates.filter(d => {
             if (d.slug === 'lang-mai-vang' && !(month === 12 || month === 1 || month === 2)) return false;
             return true;
@@ -142,7 +146,7 @@ class Journey extends Model {
         let results = [];
         const moodFilter = (mood === 'all') ? '1=1' : "moods LIKE ?";
         const params = (mood === 'all') ? [count] : [`%${mood}%`, count];
-        
+
         [results] = await this.db.query(`SELECT * FROM destinations WHERE is_active = 1 AND ${moodFilter} ORDER BY RAND() LIMIT ?`, params);
         if (results.length === 0) {
             [results] = await this.db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT ?", [count]);
@@ -152,12 +156,40 @@ class Journey extends Model {
 
     async createFromSuggestion(sessionId, data) {
         await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [sessionId]);
+
+        let stopsArray = data.stops || [];
+        const cleanStops = [];
+        for (const st of stopsArray) {
+            const destId = typeof st === 'object' ? st.id : st;
+            if (destId) {
+                const dest = await Destination.findById(destId);
+                if (dest) cleanStops.push(dest);
+            }
+        }
+
+        let totalMeters = 0;
+        for (let i = 1; i < cleanStops.length; i++) {
+            totalMeters += Model.haversine(cleanStops[i - 1].lat, cleanStops[i - 1].lng, cleanStops[i].lat, cleanStops[i].lng);
+        }
+        const totalKm = cleanStops.length > 1 ? (Math.round((totalMeters / 1000) * 100) / 100) : (parseFloat(data.km) || 4.1);
+
         const journeyId = await this.create({
-            session_id: sessionId, mood: data.name, duration: data.duration,
-            total_km: data.km, total_minutes: 180, status: 'active', interests: JSON.stringify(data.tags)
+            session_id: sessionId,
+            mood: data.name || 'Hành trình gợi ý',
+            duration: data.duration || 'Nửa ngày',
+            total_km: totalKm,
+            total_minutes: cleanStops.length * 60 + Math.round(totalKm * 15),
+            status: 'active',
+            interests: JSON.stringify(data.tags || [])
         });
-        for (let idx = 0; idx < data.stops.length; idx++) {
-            await JourneyStop.create({ journey_id: journeyId, destination_id: data.stops[idx].id, stop_order: idx, is_completed: 0 });
+
+        for (let idx = 0; idx < cleanStops.length; idx++) {
+            await JourneyStop.create({
+                journey_id: journeyId,
+                destination_id: cleanStops[idx].id,
+                stop_order: idx,
+                is_completed: 0
+            });
         }
         return journeyId;
     }

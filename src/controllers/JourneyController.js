@@ -94,14 +94,21 @@ class JourneyController {
 
             // Fetch all active destinations
             const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
-            const destMap = {};
-            dests.forEach(d => { destMap[d.id] = d; });
 
             let mappedSuggestions = templates.map(t => {
                 let stopIds = [];
-                try { stopIds = JSON.parse(t.stops); } catch (e) { }
-                const stops = stopIds.map(id => destMap[id]).filter(Boolean);
-                if (stops.length === 0) return null;
+                try {
+                    stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops;
+                } catch (e) { }
+
+                let stops = (stopIds || []).map(st => {
+                    const stId = (typeof st === 'object') ? (st.id || st.slug) : st;
+                    return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
+                }).filter(Boolean);
+
+                if (stops.length === 0 && dests.length > 0) {
+                    stops = dests.slice(0, 3);
+                }
 
                 const seasonLabels = {
                     spring: '🌸 Xuân',
@@ -119,7 +126,7 @@ class JourneyController {
                 return {
                     id: t.id,
                     name: t.name,
-                    desc: t.description,
+                    desc: t.description || 'Hành trình trải nghiệm độc đáo tại Bình Lợi',
                     tags: [
                         seasonLabels[t.season] || '🌸 Mùa lễ hội',
                         interestLabels[t.interest] || '🧘 Trải nghiệm'
@@ -135,7 +142,7 @@ class JourneyController {
                 mappedSuggestions = [
                     {
                         id: 'opt1',
-                        name: 'Hành trình "Khám phá bản địa"',
+                        name: 'Hành trình Khám phá bản địa',
                         desc: 'Tập trung vào các làng nghề truyền thống và văn hóa đặc trưng.',
                         tags: ['Văn hóa', 'Làng nghề'],
                         duration: '4-5 tiếng',
@@ -144,7 +151,7 @@ class JourneyController {
                     },
                     {
                         id: 'opt2',
-                        name: 'Hành trình "Chữa lành & Xanh"',
+                        name: 'Hành trình Chữa lành & Xanh',
                         desc: 'Sự kết hợp hoàn hảo giữa không gian xanh và sự tĩnh lặng của thiên nhiên.',
                         tags: ['Sinh thái', 'Thiên nhiên'],
                         duration: '6 tiếng',
@@ -153,7 +160,7 @@ class JourneyController {
                     },
                     {
                         id: 'opt3',
-                        name: 'Hành trình "Tâm linh & Nguồn cội"',
+                        name: 'Hành trình Tâm linh & Nguồn cội',
                         desc: 'Dành cho những ai tìm kiếm sự bình an tại các ngôi chùa cổ kính.',
                         tags: ['Tâm linh', 'Lịch sử'],
                         duration: '5 tiếng',
@@ -182,12 +189,13 @@ class JourneyController {
                 return res.redirect('/auth/login?error=auth_required');
             }
 
-            const { templateId, journeyData } = req.body;
             const uuid = req.cookies.session_uuid;
             const session = await UserSession.findByUuid(uuid);
             if (!session) return res.redirect('/onboarding');
 
-            // Handle confirm by templateId from database if available
+            const { templateId, journeyData } = req.body;
+
+            // 1. Try templateId from DB first
             if (templateId) {
                 const [templates] = await UserSession.db.query(
                     "SELECT * FROM seasonal_journey_templates WHERE id = ?",
@@ -196,12 +204,22 @@ class JourneyController {
                 if (templates.length > 0) {
                     const t = templates[0];
                     let stopIds = [];
-                    try { stopIds = JSON.parse(t.stops); } catch (e) { }
+                    try {
+                        stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops;
+                    } catch (e) { }
 
                     const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
-                    const destMap = {};
-                    dests.forEach(d => { destMap[d.id] = d; });
-                    const stops = stopIds.map(id => destMap[id]).filter(Boolean);
+                    let stops = [];
+                    if (Array.isArray(stopIds)) {
+                        stops = stopIds.map(st => {
+                            const stId = (typeof st === 'object') ? (st.id || st.slug) : st;
+                            return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
+                        }).filter(Boolean);
+                    }
+
+                    if (stops.length === 0 && dests.length > 0) {
+                        stops = dests.slice(0, 3);
+                    }
 
                     if (stops.length > 0) {
                         await UserSession.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [session.id]);
@@ -226,30 +244,48 @@ class JourneyController {
                             });
                         }
 
+                        await Journey.recalculateMetrics(journeyId);
                         return res.redirect('/hanh-trinh-cua-toi');
                     }
                 }
             }
 
-            // Fallback for journeyData JSON
+            // 2. Try journeyData object/string
             if (journeyData) {
                 let data = null;
                 try {
-                    data = typeof journeyData === 'string' ? JSON.parse(journeyData) : journeyData;
+                    if (typeof journeyData === 'string') {
+                        try {
+                            const decoded = Buffer.from(journeyData, 'base64').toString('utf-8');
+                            data = JSON.parse(decoded);
+                        } catch (e) {
+                            data = JSON.parse(journeyData);
+                        }
+                    } else {
+                        data = journeyData;
+                    }
                 } catch (e) {
                     console.error("Parse journeyData error:", e);
                 }
 
-                if (data) {
+                if (data && data.stops && data.stops.length > 0) {
                     await Journey.createFromSuggestion(session.id, data);
                     return res.redirect('/hanh-trinh-cua-toi');
                 }
             }
 
-            res.redirect('/onboarding');
+            // 3. Fallback: create personalized journey automatically
+            await Journey.createPersonalized(
+                session.id,
+                session.mood || 'chill',
+                session.duration || '1d',
+                session.interests ? JSON.parse(session.interests) : []
+            );
+
+            return res.redirect('/hanh-trinh-cua-toi');
         } catch (error) {
-            console.error("Confirm error:", error);
-            res.redirect('/onboarding');
+            console.error("Confirm journey error:", error);
+            return res.redirect('/hanh-trinh-cua-toi');
         }
     }
 
@@ -276,13 +312,23 @@ class JourneyController {
 
             const t = templates[0];
             let stopIds = [];
-            try { stopIds = JSON.parse(t.stops); } catch (e) { }
+            try {
+                stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops;
+            } catch (e) { }
 
             // Load active destinations
             const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
-            const destMap = {};
-            dests.forEach(d => { destMap[d.id] = d; });
-            const stops = stopIds.map(id => destMap[id]).filter(Boolean);
+            let stops = [];
+            if (Array.isArray(stopIds)) {
+                stops = stopIds.map(st => {
+                    const stId = (typeof st === 'object') ? (st.id || st.slug) : st;
+                    return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
+                }).filter(Boolean);
+            }
+
+            if (stops.length === 0 && dests.length > 0) {
+                stops = dests.slice(0, 3);
+            }
 
             if (stops.length > 0) {
                 // Replaced previous active journey
@@ -308,6 +354,8 @@ class JourneyController {
                         is_completed: 0
                     });
                 }
+
+                await Journey.recalculateMetrics(journeyId);
             }
 
             res.redirect('/hanh-trinh-cua-toi');

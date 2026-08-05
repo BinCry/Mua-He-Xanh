@@ -143,10 +143,6 @@
     <div class="sug-hero-ambient-2"></div>
 
     <div class="container position-relative z-index-10">
-        <div class="hero-glass-pill mb-3">
-            <i class="bi bi-sparkles text-warning"></i> AI ĐỀ XUẤT LỘ TRÌNH TỐI ƯU
-        </div>
-
         <h1 class="font-heading fw-black display-5 mb-3 text-white" style="letter-spacing: -0.5px;">
             Hành Trình Gợi Ý Cho Bạn
         </h1>
@@ -231,7 +227,7 @@
                         <div class="mt-auto">
                             <form action="/journey/confirm" method="POST">
                                 <input type="hidden" name="templateId" value="<%= sug.id %>">
-                                <input type="hidden" name="journeyData" value='<%= JSON.stringify(sug).replace(/'/g, "&#39;") %>'>
+                                <input type="hidden" name="journeyData" value="<%= Buffer.from(JSON.stringify(sug)).toString('base64') %>">
                                 <button type="submit" class="btn-sug-outline">
                                     Khám phá lộ trình này <i class="bi bi-arrow-right ms-1"></i>
                                 </button>

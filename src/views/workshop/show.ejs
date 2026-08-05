@@ -138,7 +138,7 @@
                                 <div><span class="text-muted small">Trạng thái:</span> <span class="badge bg-success"><%= activeBooking.status === 'confirmed' ? 'Đã xác nhận' : activeBooking.status %></span></div>
                             </div>
                             
-                            <button onclick="cancelBooking('<%= activeBooking.id %>')" class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold" id="cancelSubmitBtn">
+                            <button onclick="confirmCancelBooking('<%= activeBooking.id %>')" class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold" id="cancelSubmitBtn">
                                 <i class="bi bi-x-circle-fill me-2"></i>HỦY ĐĂNG KÝ
                             </button>
                         </div>
@@ -186,11 +186,32 @@
     </div>
 </section>
 
+<!-- Cancel Confirmation Modal Popup (Centered) -->
+<div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-center p-3" style="background: #ffffff;">
+            <div class="modal-body p-2">
+                <div class="mb-3 d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle" style="width: 56px; height: 56px;">
+                    <i class="bi bi-exclamation-triangle-fill fs-3"></i>
+                </div>
+                <h5 class="fw-bold mb-2" style="font-family: 'Inter', sans-serif; color: #1a202c; font-size: 1.1rem;">Xác nhận hủy vé</h5>
+                <p class="text-muted small mb-4" style="font-size: 0.85rem; line-height: 1.4;">Bạn có chắc chắn muốn hủy đăng ký tham gia workshop này không?</p>
+                
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-light rounded-pill flex-fill py-2 small fw-semibold border" data-bs-dismiss="modal">Giữ vé lại</button>
+                    <button type="button" class="btn btn-danger rounded-pill flex-fill py-2 small fw-bold" id="confirmCancelBtn" onclick="executeCancelBooking()">Hủy vé ngay</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const maxParticipants = <%= workshop.max_participants || 20 %>;
     const workshopId = '<%= workshop.id %>';
     const bookingDate = '<%= bookingDate %>';
     const bookingTime = '<%= bookingTime %>';
+    let pendingBookingIdToCancel = null;
 
     async function checkSlots() {
         const badge = document.getElementById('slots-badge');
@@ -271,8 +292,24 @@
         }
     }
 
-    async function cancelBooking(bookingId) {
-        if (!confirm('Bạn có chắc chắn muốn hủy đăng ký tham gia workshop này không?')) return;
+    function confirmCancelBooking(bookingId) {
+        pendingBookingIdToCancel = bookingId;
+        const modalEl = document.getElementById('cancelConfirmModal');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        }
+    }
+
+    async function executeCancelBooking() {
+        if (!pendingBookingIdToCancel) return;
+        
+        const modalEl = document.getElementById('cancelConfirmModal');
+        if (modalEl) {
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+        }
+
         const cancelBtn = document.getElementById('cancelSubmitBtn');
         if (!cancelBtn) return;
         const oldHtml = cancelBtn.innerHTML;
@@ -280,7 +317,7 @@
         cancelBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
 
         try {
-            const res = await axios.post('/api/workshop/cancel', { bookingId });
+            const res = await axios.post('/api/workshop/cancel', { bookingId: pendingBookingIdToCancel });
             if (res.data && res.data.success) {
                 window.location.reload();
             } else {

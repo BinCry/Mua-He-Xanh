@@ -1,0 +1,149 @@
+<section class="auth-section min-vh-100 d-flex align-items-center position-relative overflow-hidden py-5">
+    <!-- Cinematic Background -->
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg(settings.login_bg, '/images/hero-1.png') %>') center/cover; z-index: 0; filter: brightness(0.35);"></div>
+
+    <div class="container position-relative z-index-10">
+        <div class="row justify-content-center">
+            <div class="col-lg-5 col-md-7 col-sm-10">
+                
+                <div class="text-center mb-4 reveal-up">
+                    <a href="/" class="text-decoration-none">
+                        <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" height="65" class="mb-3" onerror="this.src='/images/logo.png'">
+                        <h2 class="text-white fw-black tracking-widest text-uppercase mb-1"><%= settings.brand_name || 'BÌNH LỢI' %></h2>
+                        <p class="text-white-50 small mb-0">Cổng Đăng Nhập Quản Trị & BQL</p>
+                    </a>
+                </div>
+
+                <div class="auth-card border-0 shadow-premium rounded-5 overflow-hidden reveal-up" style="transition-delay: 0.1s">
+                    <div class="p-4 p-md-5">
+                        
+                        <div class="text-center mb-4">
+                            <div class="badge bg-warning bg-opacity-25 text-warning rounded-pill px-3 py-2 mb-2 border border-warning border-opacity-50">
+                                <i class="bi bi-shield-lock-fill me-1"></i> ADMIN & MANAGER PORTAL
+                            </div>
+                            <h4 class="text-white fw-bold mb-1">Đăng Nhập Quản Trị</h4>
+                            <p class="text-white-50 small mb-0">Vui lòng nhập tài khoản được cấp quyền để tiếp tục</p>
+                        </div>
+
+                        <% if (typeof error !== 'undefined' && error) { %>
+                            <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-4 small text-center mb-4 animate__animated animate__shakeX">
+                                <i class="bi bi-exclamation-triangle-fill me-1"></i> <%= error %>
+                            </div>
+                        <% } %>
+
+                        <form action="/auth/login" method="POST" id="adminLoginForm">
+                            <div class="mb-3">
+                                <label class="form-label text-white-50 small fw-bold">Email hoặc Số điện thoại</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white bg-opacity-10 border-white border-opacity-25 text-white">
+                                        <i class="bi bi-person-badge-fill"></i>
+                                    </span>
+                                    <input type="text" name="email" class="form-control auth-input bg-white bg-opacity-10 border-white border-opacity-25 text-white" placeholder="binhloi.travel@gmail.com hoặc SĐT" required autocomplete="username">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <label class="form-label text-white-50 small fw-bold mb-0">Mật khẩu</label>
+                                </div>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white bg-opacity-10 border-white border-opacity-25 text-white">
+                                        <i class="bi bi-key-fill"></i>
+                                    </span>
+                                    <input type="password" name="password" id="adminPasswordInput" class="form-control auth-input bg-white bg-opacity-10 border-white border-opacity-25 text-white" placeholder="••••••••" required autocomplete="current-password">
+                                    <button class="btn btn-outline-light border-white border-opacity-25" type="button" onclick="togglePasswordVisibility()">
+                                        <i class="bi bi-eye-fill" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-gradient-maroon w-100 rounded-pill py-3 fw-bold shadow-lg text-uppercase tracking-wider">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Đăng Nhập Hệ Thống
+                            </button>
+                        </form>
+
+                        <div class="mt-4 pt-3 border-top border-white border-opacity-10 text-center">
+                            <a href="/auth/login" class="text-white-50 text-decoration-none small hover-white transition-all">
+                                <i class="bi bi-arrow-left me-1"></i>Quay lại trang Đăng nhập Du khách
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+    function togglePasswordVisibility() {
+        const input = document.getElementById('adminPasswordInput');
+        const icon = document.getElementById('togglePasswordIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye-fill');
+            icon.classList.add('bi-eye-slash-fill');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash-fill');
+            icon.classList.add('bi-eye-fill');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
+
+        if (window.location.search.includes('error=')) {
+            const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
+            window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+        }
+    });
+</script>
+
+<style>
+    .auth-card { 
+        background: rgba(15, 15, 15, 0.75); 
+        backdrop-filter: blur(25px); 
+        -webkit-backdrop-filter: blur(25px); 
+        border: 1px solid rgba(255, 255, 255, 0.18); 
+    }
+    .tracking-widest { letter-spacing: 2px; }
+    .tracking-wider { letter-spacing: 1px; }
+    .z-index-10 { z-index: 10; }
+    
+    .auth-input {
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        padding: 12px 16px;
+    }
+    .auth-input:focus {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.5) !important;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        color: #fff !important;
+    }
+    .auth-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+    
+    .btn-gradient-maroon {
+        background: linear-gradient(135deg, #8B0000 0%, #B22222 50%, #D2691E 100%);
+        color: #fff;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-gradient-maroon:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(178, 34, 34, 0.4) !important;
+        color: #fff;
+    }
+    .hover-white:hover {
+        color: #ffffff !important;
+        text-decoration: underline !important;
+    }
+    .transition-all {
+        transition: all 0.2s ease;
+    }
+</style>

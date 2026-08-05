@@ -235,6 +235,8 @@ router.post('/api/manager/update-booking-status', ensureManager, ManagerControll
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);
+router.post('/auth/login', AuthController.handlePasswordLogin);
+router.get('/admin/login', AuthController.adminLoginPage);
 router.get('/auth/logout', AuthController.logout);
 
 // Google OAuth
@@ -246,10 +248,16 @@ router.get('/auth/google', (req, res, next) => {
     const host = req.get('host');
     const dynamicCallbackUrl = `${protocol}://${host}/auth/google/callback`;
 
-    passport.authenticate('google', { 
+    const loginHint = req.query.email || req.query.login_hint;
+    const authOptions = { 
         scope: ['profile', 'email'],
         callbackURL: dynamicCallbackUrl
-    })(req, res, next);
+    };
+    if (loginHint) {
+        authOptions.loginHint = loginHint;
+    }
+
+    passport.authenticate('google', authOptions)(req, res, next);
 });
 router.get('/auth/google/callback', (req, res, next) => {
     const protocol = req.headers['x-forwarded-proto'] || req.protocol;

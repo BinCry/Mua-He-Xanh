@@ -29,7 +29,22 @@ const AuthController = {
         res.render('auth/login', {
             title: 'Đăng nhập - Bình Lợi Healing',
             error: errorMessage,
-            facebookConfigured: !!(config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID')
+            facebookConfigured: true
+        });
+    },
+
+    adminLoginPage: (req, res) => {
+        const rawError = req.query.error || null;
+        const ERROR_MAP = {
+            'invalid_credentials': 'Sai email, số điện thoại hoặc mật khẩu',
+            'auth_required': 'Vui lòng đăng nhập để truy cập trang Quản trị',
+            'fill_fields': 'Vui lòng điền đầy đủ thông tin'
+        };
+        const errorMessage = rawError ? (ERROR_MAP[rawError] || decodeURIComponent(rawError)) : null;
+
+        res.render('auth/admin_login', {
+            title: 'Đăng nhập Quản trị - Bình Lợi Healing',
+            error: errorMessage
         });
     },
 
@@ -255,6 +270,50 @@ const AuthController = {
         req.session.destroy();
         res.clearCookie('session_uuid');
         res.redirect('/');
+    },
+
+    handlePasswordLogin: (req, res, next) => {
+        const { email, password } = req.body;
+
+        // If user enters an email without password, redirect directly to Google OAuth prefilled
+        if (email && (!password || password.trim() === '')) {
+            return res.redirect('/auth/google?email=' + encodeURIComponent(email));
+        }
+
+        const passport = require('../config/passport');
+        passport.authenticate('local', (err, user, info) => {
+            if (err) {
+                console.error("Local login error:", err);
+                return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi hệ thống khi đăng nhập'));
+            }
+            if (!user) {
+                const msg = info?.message || 'Email hoặc mật khẩu không chính xác';
+
+                // 1. If it's a Gmail, student email (@st.ueh.edu.vn, .edu.vn) or account not registered locally with password, auto-redirect to Google OAuth
+                if (email && (email.includes('@') || msg.includes('không tồn tại') || msg.includes('Google/Facebook'))) {
+                    return res.redirect('/auth/google?email=' + encodeURIComponent(email));
+                }
+
+                return res.redirect('/auth/login?error=' + encodeURIComponent(msg));
+            }
+            req.logIn(user, async (loginErr) => {
+                if (loginErr) {
+                    console.error("Session login error:", loginErr);
+                    return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi khởi tạo phiên đăng nhập'));
+                }
+                await AuthController.establishSession(req, res, user);
+
+                if (user.role === 'admin') return res.redirect('/admin');
+                if (user.role === 'manager') return res.redirect('/manager');
+
+                if (req.session && req.session.redirectUrl) {
+                    const target = req.session.redirectUrl;
+                    delete req.session.redirectUrl;
+                    return res.redirect(target);
+                }
+                return res.redirect('/');
+            });
+        })(req, res, next);
     }
 };
 

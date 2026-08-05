@@ -7,16 +7,20 @@
             <div class="col-lg-5 col-md-7 col-sm-10">
                 
                 <div class="text-center mb-4 reveal-up">
-                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" height="65" class="mb-3" onerror="this.src='/images/logo.png'">
-                    <h2 class="text-white fw-black tracking-widest text-uppercase mb-1"><%= settings.brand_name || 'BÌNH LỢI' %></h2>
-                    <p class="text-white-50 small mb-0"><%= settings.brand_subtext || 'Chạm vào bình yên' %></p>
+                    <a href="/" class="text-decoration-none">
+                        <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" height="65" class="mb-3" onerror="this.src='/images/logo.png'">
+                        <h2 class="text-white fw-black tracking-widest text-uppercase mb-1"><%= settings.brand_name || 'BÌNH LỢI' %></h2>
+                        <p class="text-white-50 small mb-0"><%= settings.brand_subtext || 'Chạm vào bình yên' %></p>
+                    </a>
                 </div>
 
                 <div class="auth-card border-0 shadow-premium rounded-5 overflow-hidden reveal-up" style="transition-delay: 0.1s">
-                    <div class="p-4 p-md-5 text-center">
+                    <div class="p-4 p-md-5">
                         
-                        <h4 class="text-white fw-bold mb-2">Đăng Nhập Nhanh</h4>
-                        <p class="text-white-50 small mb-4">Vui lòng chọn phương thức đăng nhập để tiếp tục trải nghiệm tuyệt vời cùng Bình Lợi Healing</p>
+                        <div class="text-center mb-4">
+                            <h4 class="text-white fw-bold mb-2">Đăng Nhập</h4>
+                            <p class="text-white-50 small mb-0">Chào mừng bạn quay trở lại với Bình Lợi Healing</p>
+                        </div>
 
                         <% if (typeof error !== 'undefined' && error) { %>
                             <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-4 small text-center mb-4 animate__animated animate__shakeX">
@@ -24,8 +28,8 @@
                             </div>
                         <% } %>
 
-                        <!-- Social Logins (Primary) -->
-                        <div class="d-flex flex-column gap-3 mb-3">
+                        <!-- 1. Social Logins (Google & Facebook) -->
+                        <div class="d-flex flex-column gap-3 mb-4">
                             <a href="/auth/google" class="btn btn-light w-100 rounded-pill shadow-sm social-login-btn py-3">
                                 <img class="social-login-icon me-2" src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" alt="Google" style="width: 22px; height: 22px;">
                                 <span class="fw-bold text-dark fs-6">Đăng nhập với Google</span>
@@ -36,7 +40,44 @@
                             </a>
                         </div>
 
-                        <div class="mt-4 pt-2 border-top border-white border-opacity-10">
+                        <!-- Divider -->
+                        <div class="d-flex align-items-center my-4">
+                            <hr class="flex-grow-1 border-white border-opacity-25 my-0">
+                            <span class="px-3 text-white-50 small">Hoặc bằng Email</span>
+                            <hr class="flex-grow-1 border-white border-opacity-25 my-0">
+                        </div>
+
+                        <!-- 2. Email & Password Login Form (Works for both Users & Admin) -->
+                        <form action="/auth/login" method="POST" id="unifiedLoginForm">
+                            <div class="mb-3">
+                                <label class="form-label text-white-50 small fw-bold">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white bg-opacity-10 border-white border-opacity-25 text-white">
+                                        <i class="bi bi-envelope-fill"></i>
+                                    </span>
+                                    <input type="text" name="email" class="form-control auth-input bg-white bg-opacity-10 border-white border-opacity-25 text-white" placeholder="nhapemail@gmail.com" required autocomplete="username">
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <label class="form-label text-white-50 small fw-bold">Mật khẩu <span class="fw-normal text-white-50 opacity-75">(Nếu là tài khoản Admin/BQL)</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-white bg-opacity-10 border-white border-opacity-25 text-white">
+                                        <i class="bi bi-key-fill"></i>
+                                    </span>
+                                    <input type="password" name="password" id="passwordInput" class="form-control auth-input bg-white bg-opacity-10 border-white border-opacity-25 text-white" placeholder="••••••••" autocomplete="current-password">
+                                    <button class="btn btn-outline-light border-white border-opacity-25" type="button" onclick="togglePasswordVisibility()">
+                                        <i class="bi bi-eye-fill" id="togglePasswordIcon"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-lg text-uppercase tracking-wider">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Đăng Nhập
+                            </button>
+                        </form>
+
+                        <div class="mt-4 pt-3 border-top border-white border-opacity-10 text-center">
                             <p class="x-small text-white-50 mb-0">
                                 Bằng cách đăng nhập, bạn đồng ý với <a href="#" class="text-white text-decoration-underline">Điều khoản dịch vụ</a> và <a href="#" class="text-white text-decoration-underline">Chính sách bảo mật</a> của chúng tôi.
                             </p>
@@ -52,6 +93,20 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 <script>
+    function togglePasswordVisibility() {
+        const input = document.getElementById('passwordInput');
+        const icon = document.getElementById('togglePasswordIcon');
+        if (input.type === 'password') {
+            input.type = 'text';
+            icon.classList.remove('bi-eye-fill');
+            icon.classList.add('bi-eye-slash-fill');
+        } else {
+            input.type = 'password';
+            icon.classList.remove('bi-eye-slash-fill');
+            icon.classList.add('bi-eye-fill');
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         gsap.from('.reveal-up', { opacity: 0, y: 30, stagger: 0.1, duration: 0.8, ease: 'power2.out' });
 
@@ -64,13 +119,30 @@
 
 <style>
     .auth-card { 
-        background: rgba(0, 0, 0, 0.55); 
+        background: rgba(15, 15, 15, 0.75); 
         backdrop-filter: blur(25px); 
         -webkit-backdrop-filter: blur(25px); 
-        border: 1px solid rgba(255, 255, 255, 0.15); 
+        border: 1px solid rgba(255, 255, 255, 0.18); 
     }
     .tracking-widest { letter-spacing: 2px; }
+    .tracking-wider { letter-spacing: 1px; }
     .z-index-10 { z-index: 10; }
+    
+    .auth-input {
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+        padding: 12px 16px;
+    }
+    .auth-input:focus {
+        background: rgba(255, 255, 255, 0.2) !important;
+        border-color: rgba(255, 255, 255, 0.5) !important;
+        box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+        color: #fff !important;
+    }
+    .auth-input::placeholder {
+        color: rgba(255, 255, 255, 0.4);
+    }
+
     .social-login-btn {
         display: flex;
         align-items: center;
@@ -80,5 +152,17 @@
     .social-login-btn:hover {
         transform: translateY(-2px);
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) !important;
+    }
+    .btn-primary-bl {
+        background: linear-gradient(135deg, #922724 0%, #b8322e 100%);
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+    }
+    .btn-primary-bl:hover {
+        background: linear-gradient(135deg, #a62c29 0%, #d13935 100%);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(146, 39, 36, 0.4) !important;
     }
 </style>

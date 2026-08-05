@@ -242,23 +242,40 @@
 </style>
 
 <!-- HERO SECTION -->
+<% 
+    let realMeters = 0;
+    if (journey && journey.stops && journey.stops.length > 1) {
+        for (let i = 1; i < journey.stops.length; i++) {
+            const s1 = journey.stops[i-1];
+            const s2 = journey.stops[i];
+            if (s1 && s2 && s1.lat && s2.lat) {
+                const R = 6371000;
+                const dLat = (parseFloat(s2.lat) - parseFloat(s1.lat)) * Math.PI / 180;
+                const dLon = (parseFloat(s2.lng) - parseFloat(s1.lng)) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                          Math.cos(parseFloat(s1.lat) * Math.PI / 180) * Math.cos(parseFloat(s2.lat) * Math.PI / 180) *
+                          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                realMeters += R * c;
+            }
+        }
+    }
+    const calcStopsCount = (journey && journey.stops) ? journey.stops.length : 0;
+    const calcKmVal = calcStopsCount > 1 ? (Math.round((realMeters / 1000) * 100) / 100) : parseFloat(journey.total_km || 0);
+    const calcTimeVal = calcStopsCount > 0 ? (calcStopsCount * 60 + Math.round(calcKmVal * 15)) : 60;
+    const calcPtsVal = (journey && journey.stops) ? journey.stops.reduce((s, x) => s + (parseInt(x.points) || 100), 0) : 0;
+%>
 <div class="journey-hero-brand">
     <div class="container position-relative z-index-10">
         <div class="row align-items-center">
-            <div class="col-lg-8">
-                <div class="hero-tag-badge">
-                    <i class="bi bi-compass-fill"></i> LỘ TRÌNH TỐI ƯU HÓA
-                </div>
-                <h1><%= journey.mood.replace(/_/g, ' ') %></h1>
-                <p style="color: rgba(255,255,255,0.85); font-size: 0.95rem; margin-top: 8px;" class="mb-0">
-                    Hành trình được tùy chỉnh theo sở thích & mùa trong năm tại Bình Lợi.
-                </p>
+            <div class="col-lg-7">
+                <h1 class="mb-0"><%= journey.mood.replace(/_/g, ' ') %></h1>
             </div>
-            <div class="col-lg-4 mt-4 mt-lg-0 text-lg-end">
-                <div style="display:inline-flex; align-items:center; gap:10px; background:rgba(255,255,255,0.15); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.3); border-radius:50px; padding:8px 18px;">
-                    <span class="badge rounded-circle p-1" id="lock-status-dot" style="width:10px;height:10px;background:#4ade80;box-shadow:0 0 8px #4ade80;"></span>
-                    <span style="color:#fff;font-size:0.82rem;font-weight:700;" id="lock-status-text">Đã chốt hành trình</span>
-                    <button onclick="toggleTimelineLock()" id="btn-lock-toggle" style="background:rgba(255,255,255,0.25);border:1px solid rgba(255,255,255,0.4);color:#fff;border-radius:50px;padding:5px 14px;font-size:0.75rem;font-weight:700;cursor:pointer;">
+            <div class="col-lg-5 mt-3 mt-lg-0 text-lg-end">
+                <div style="display:inline-flex; align-items:center; gap:12px; background:rgba(255,255,255,0.22); backdrop-filter:blur(14px); border:1.5px solid rgba(255,255,255,0.4); border-radius:50px; padding:10px 22px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+                    <span class="badge rounded-circle p-1" id="lock-status-dot" style="width:12px;height:12px;background:#4ade80;box-shadow:0 0 10px #4ade80;"></span>
+                    <span style="color:#fff;font-size:0.95rem;font-weight:800;" id="lock-status-text">Đã chốt hành trình</span>
+                    <button onclick="toggleTimelineLock()" id="btn-lock-toggle" style="background:#ffffff;border:none;color:var(--brand-maroon);border-radius:50px;padding:6px 18px;font-size:0.85rem;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);transition:all 0.2s;">
                         <i class="bi bi-pencil-square me-1"></i>Đổi
                     </button>
                 </div>
@@ -269,25 +286,25 @@
         <div class="row g-3 mt-3">
             <div class="col-6 col-md-3">
                 <div class="metric-card-glass">
-                    <div class="metric-val"><%= journey.total_minutes %></div>
+                    <div class="metric-val" id="metric-duration"><%= calcTimeVal %></div>
                     <div class="metric-label"><i class="bi bi-clock-fill me-1"></i>Thời lượng (Phút)</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="metric-card-glass">
-                    <div class="metric-val" id="metric-stops"><%= journey.stops.length %></div>
+                    <div class="metric-val" id="metric-stops"><%= calcStopsCount %></div>
                     <div class="metric-label"><i class="bi bi-geo-alt-fill me-1"></i>Điểm dừng</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="metric-card-glass">
-                    <div class="metric-val"><%= journey.total_km %></div>
+                    <div class="metric-val" id="metric-km"><%= calcKmVal %></div>
                     <div class="metric-label"><i class="bi bi-signpost-split-fill me-1"></i>Quãng đường (Km)</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="metric-card-glass" style="background:rgba(217, 119, 6, 0.25); border-color:rgba(217, 119, 6, 0.4);">
-                    <div class="metric-val" style="color:#fef08a;">+<%= journey.stops.reduce((s,x)=>s+(x.points||0),0) %></div>
+                    <div class="metric-val" id="metric-points" style="color:#fef08a;">+<%= calcPtsVal %></div>
                     <div class="metric-label"><i class="bi bi-stars me-1"></i>Điểm thưởng</div>
                 </div>
             </div>
@@ -300,7 +317,7 @@
     <div class="container">
         <div style="display:flex; align-items:center; gap:10px; overflow-x:auto; padding-bottom:2px;">
             <span style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--brand-maroon);white-space:nowrap;">
-                <i class="bi bi-journal-bookmark-fill me-1"></i> Tour mẫu từ Admin:
+                <i class="bi bi-journal-bookmark-fill me-1"></i> Tour hiện có:
             </span>
             <% 
                 const seasonEmoji = { spring:'🌸', summer:'☀️', autumn:'🍂', winter:'❄️' };
@@ -326,9 +343,6 @@
                     <span>🛕</span> Tâm linh & Nguồn cội
                 </a>
             <% } %>
-            <a href="/onboarding" class="template-pill" style="margin-left:auto; border-color: var(--brand-maroon); color: var(--brand-maroon);">
-                <i class="bi bi-sliders"></i> Tìm lại tour khác
-            </a>
         </div>
     </div>
 </div>
@@ -540,7 +554,7 @@ function renderRouteOnMap() {
         markers.push(m);
     });
 
-    // OSRM Routing for real road navigation lines
+    // OSRM Routing for real road navigation lines & real-time metrics
     if (coords.length >= 2) {
         const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${osrmWaypoints.join(';')}?overview=full&geometries=geojson`;
         fetch(osrmUrl)
@@ -549,6 +563,13 @@ function renderRouteOnMap() {
                 if (data.routes && data.routes.length > 0) {
                     const routeGeoJSON = data.routes[0].geometry;
                     const roadCoords = routeGeoJSON.coordinates.map(c => [c[1], c[0]]);
+
+                    const realKm = Math.round((data.routes[0].distance / 1000) * 100) / 100;
+                    const realMins = stopsData.length * 60 + Math.round(realKm * 15);
+                    const kmEl = document.getElementById('metric-km');
+                    const durEl = document.getElementById('metric-duration');
+                    if (kmEl && realKm > 0) kmEl.innerText = realKm;
+                    if (durEl && realMins > 0) durEl.innerText = realMins;
 
                     // Outer dark border polyline
                     routeLineBorder = L.polyline(roadCoords, {
