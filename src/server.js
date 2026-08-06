@@ -158,7 +158,9 @@ app.use(async (req, res, next) => {
     const db = require('./core/database');
     db.query('SELECT * FROM settings').then(([rows]) => {
         const settings = {};
-        rows.forEach(s => { settings[s.key_name] = s.key_value; });
+        if (Array.isArray(rows)) {
+            rows.forEach(s => { if (s && s.key_name) settings[s.key_name] = s.key_value; });
+        }
         res.locals.settings = settings;
         next();
     }).catch(err => {
