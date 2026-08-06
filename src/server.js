@@ -13,6 +13,9 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const PORT = config.port;
 
+// Root directory - works on both local and Vercel serverless
+const ROOT_DIR = path.join(__dirname, '..');
+
 
 
 // Trust proxy for Render (required for secure cookies behind proxy)
@@ -20,7 +23,7 @@ app.set('trust proxy', 1);
 
 // View engine setup
 app.set('view engine', 'ejs');
-app.set('views', path.join(process.cwd(), 'src', 'views'));
+app.set('views', path.join(ROOT_DIR, 'src', 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
 
@@ -86,7 +89,7 @@ const analyticsMiddleware = require('./middleware/analytics');
 app.use(analyticsMiddleware);
 
 // Static files
-app.use(express.static(path.join(process.cwd(), 'public')));
+app.use(express.static(path.join(ROOT_DIR, 'public')));
 
 // Keep old image URLs working after assets were moved into /uploads/destinations.
 app.use((req, res, next) => {
@@ -95,7 +98,7 @@ app.use((req, res, next) => {
     const target = LEGACY_IMAGE_ALIASES[req.path];
     if (!target) return next();
 
-    res.sendFile(path.join(process.cwd(), 'public', target.replace(/^\//, '')), (err) => {
+    res.sendFile(path.join(ROOT_DIR, 'public', target.replace(/^\//, '')), (err) => {
         if (err) next();
     });
 });
@@ -205,7 +208,5 @@ if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
         console.log(`Server is running at http://localhost:${PORT}`);
     });
 }
-
-module.exports = app;
 
 module.exports = app;
