@@ -6,6 +6,15 @@ const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 
 class JourneyController {
+    constructor() {
+        this.index = this.index.bind(this);
+        this.suggestions = this.suggestions.bind(this);
+        this.confirm = this.confirm.bind(this);
+        this.lockJourney = this.lockJourney.bind(this);
+        this.loadTemplate = this.loadTemplate.bind(this);
+        this.getOrCreateSession = this.getOrCreateSession.bind(this);
+    }
+
     // Helper to ALWAYS guarantee a valid session row in database
     async getOrCreateSession(req, res) {
         const user = req.user || req.session?.user;

@@ -169,6 +169,7 @@ router.get('/brand-logo.png', async (req, res) => {
 
 // ===== EXPLORE =====
 router.get('/explore', ExploreController.list);
+router.get('/explore/audio/:slug', ExploreController.audio);
 router.get('/explore/:slug', ExploreController.show);
 
 // ===== WORKSHOP =====
@@ -236,6 +237,7 @@ router.post('/api/manager/update-booking-status', ensureManager, ManagerControll
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);
+router.get('/auth/register', (req, res) => res.redirect('/auth/login'));
 router.post('/auth/login', AuthController.handlePasswordLogin);
 router.get('/admin/login', AuthController.adminLoginPage);
 router.get('/auth/logout', AuthController.logout);
