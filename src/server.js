@@ -13,6 +13,16 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const PORT = config.port;
 
+// Health check route - bypasses DB/session to verify Vercel serverless boot
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        env: process.env.NODE_ENV,
+        db_url_set: !!process.env.DATABASE_URL
+    });
+});
+
 // Root directory - works on both local and Vercel serverless
 const ROOT_DIR = path.join(__dirname, '..');
 
@@ -202,7 +212,12 @@ app.use((req, res) => {
 // Error handler
 app.use((err, req, res, next) => {
     console.error('Server Error:', err);
-    res.status(500).send('Internal Server Error: ' + err.message);
+    res.status(500).json({
+        success: false,
+        error: 'Internal Server Error',
+        message: err.message || String(err),
+        stack: err.stack
+    });
 });
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
