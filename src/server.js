@@ -52,12 +52,12 @@ app.use(async (req, res, next) => {
         if (!req.session?.user && req.cookies?.session_uuid) {
             const db = require('./core/database');
             const [sessions] = await db.query(
-                "SELECT user_id FROM user_sessions WHERE uuid = ? ORDER BY updated_at DESC LIMIT 1",
+                "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
                 [req.cookies.session_uuid]
             );
             if (sessions.length > 0 && sessions[0].user_id) {
                 const [users] = await db.query(
-                    "SELECT * FROM users WHERE id = ? AND is_active = 1",
+                    "SELECT * FROM users WHERE id = $1 AND is_active = 1",
                     [sessions[0].user_id]
                 );
                 if (users.length > 0) {

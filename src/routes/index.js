@@ -135,7 +135,7 @@ router.get('/test-qr', async (req, res) => {
 router.get('/brand-logo.png', async (req, res) => {
     try {
         const db = require('../core/database');
-        const [rows] = await db.query('SELECT key_value FROM settings WHERE key_name = ?', ['brand_logo']);
+        const [rows] = await db.query('SELECT key_value FROM settings WHERE key_name = $1', ['brand_logo']);
         const logoData = rows[0]?.key_value;
 
         const normalizedLogo = normalizeImagePath(logoData, '/images/logo.png');
