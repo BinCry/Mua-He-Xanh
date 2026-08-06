@@ -1,6 +1,5 @@
 /**
- * Admin Controller - Cấp Xã (Quản trị viên hệ thống)
- * Dashboard với biểu đồ thực tế, quản lý users, destinations, settings, reviews, events
+ * Admin Controller - Pure PostgreSQL Implementation
  */
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
@@ -9,17 +8,16 @@ const { uploadToCloudinary } = require('../config/cloudinary');
 
 const AdminController = {
 
-
     // ==================== DASHBOARD ====================
     dashboard: async (req, res) => {
         try {
             const [userCount] = await db.query('SELECT COUNT(*) as total FROM users');
-            const [destCount] = await db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = TRUE');
+            const [destCount] = await db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = 1');
             const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins');
             const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews');
-            const [workshopCount] = await db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = TRUE');
+            const [workshopCount] = await db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1');
             const [pointsSum] = await db.query('SELECT SUM(total_points) as total FROM users');
-            const [eventCount] = await db.query('SELECT COUNT(*) as total FROM events WHERE is_active = TRUE');
+            const [eventCount] = await db.query('SELECT COUNT(*) as total FROM events WHERE is_active = 1');
 
             // Average session duration (from analytics duration_ms)
             const [avgDurationRow] = await db.query(
@@ -36,17 +34,17 @@ const AdminController = {
                 ORDER BY rating ASC
             `);
             const ratingsMap = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-            ratingDistRows.forEach(r => { ratingsMap[r.rating] = r.count; });
+            ratingDistRows.forEach(r => { ratingsMap[r.rating] = parseInt(r.count, 10); });
             const ratingsDistribution = [ratingsMap[1], ratingsMap[2], ratingsMap[3], ratingsMap[4], ratingsMap[5]];
 
-            // Monthly check-in trend (last 6 months)
+            // Monthly check-in trend (last 6 months - PostgreSQL TO_CHAR & INTERVAL)
             const [checkinRows] = await db.query(`
-                SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
-                FROM check_ins WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-                GROUP BY month ORDER BY month ASC
+                SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count
+                FROM check_ins WHERE created_at >= NOW() - INTERVAL '6 month'
+                GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY month ASC
             `);
             const checkinMap = {};
-            checkinRows.forEach(r => { checkinMap[r.month] = r.count; });
+            checkinRows.forEach(r => { checkinMap[r.month] = parseInt(r.count, 10); });
 
             const monthlyCheckins = [];
             for (let i = 5; i >= 0; i--) {
@@ -61,13 +59,13 @@ const AdminController = {
 
             // Monthly Workshop Bookings trend (last 6 months)
             const [workshopBookingRows] = await db.query(`
-                SELECT DATE_FORMAT(booking_date, '%Y-%m') as month, COUNT(*) as count
+                SELECT TO_CHAR(booking_date, 'YYYY-MM') as month, COUNT(*) as count
                 FROM workshop_bookings
-                WHERE booking_date >= DATE_SUB(NOW(), INTERVAL 6 MONTH) AND status != 'cancelled'
-                GROUP BY month ORDER BY month ASC
+                WHERE booking_date >= NOW() - INTERVAL '6 month' AND status != 'cancelled'
+                GROUP BY TO_CHAR(booking_date, 'YYYY-MM') ORDER BY month ASC
             `);
             const wsBookingMap = {};
-            workshopBookingRows.forEach(r => { wsBookingMap[r.month] = r.count; });
+            workshopBookingRows.forEach(r => { wsBookingMap[r.month] = parseInt(r.count, 10); });
 
             const monthlyWSBookings = [];
             for (let i = 5; i >= 0; i--) {
@@ -83,14 +81,14 @@ const AdminController = {
             // Daily Check-ins (last 14 days)
             const [dailyCheckinRows] = await db.query(`
                 SELECT DATE(created_at) as day, COUNT(*) as count
-                FROM check_ins WHERE created_at >= DATE_SUB(NOW(), INTERVAL 14 DAY)
-                GROUP BY day ORDER BY day ASC
+                FROM check_ins WHERE created_at >= NOW() - INTERVAL '14 day'
+                GROUP BY DATE(created_at) ORDER BY day ASC
             `);
             const checkinsMap = {};
             dailyCheckinRows.forEach(r => {
                 try {
                     const dateStr = new Date(r.day).toISOString().split('T')[0];
-                    checkinsMap[dateStr] = r.count;
+                    checkinsMap[dateStr] = parseInt(r.count, 10);
                 } catch (e) {}
             });
 
@@ -107,16 +105,16 @@ const AdminController = {
 
             // New users per month
             const [monthlyUsers] = await db.query(`
-                SELECT DATE_FORMAT(created_at, '%Y-%m') as month, COUNT(*) as count
-                FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
-                GROUP BY month ORDER BY month ASC
+                SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count
+                FROM users WHERE created_at >= NOW() - INTERVAL '6 month'
+                GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY month ASC
             `);
 
             // Top destinations by check-ins
             const [topDests] = await db.query(`
                 SELECT d.name, d.slug, COUNT(ci.id) as checkin_count
                 FROM destinations d LEFT JOIN check_ins ci ON d.id = ci.destination_id
-                WHERE d.is_active = TRUE GROUP BY d.id
+                WHERE d.is_active = 1 GROUP BY d.id
                 ORDER BY checkin_count DESC LIMIT 5
             `);
 
@@ -131,13 +129,13 @@ const AdminController = {
                 layout: 'layouts/admin',
                 adminPage: 'dashboard',
                 stats: {
-                    users: userCount[0].total,
-                    destinations: destCount[0].total,
-                    checkins: checkinCount[0].total,
-                    reviews: reviewCount[0].total,
-                    workshops: workshopCount[0].total,
-                    totalPoints: pointsSum[0].total || 0,
-                    events: eventCount[0].total,
+                    users: parseInt(userCount[0]?.total || 0, 10),
+                    destinations: parseInt(destCount[0]?.total || 0, 10),
+                    checkins: parseInt(checkinCount[0]?.total || 0, 10),
+                    reviews: parseInt(reviewCount[0]?.total || 0, 10),
+                    workshops: parseInt(workshopCount[0]?.total || 0, 10),
+                    totalPoints: parseInt(pointsSum[0]?.total || 0, 10),
+                    events: parseInt(eventCount[0]?.total || 0, 10),
                     avgDuration: avgDurationSec
                 },
                 chartData: { monthlyCheckins, dailyCheckins, monthlyUsers, ratingsDistribution, monthlyWSBookings },
@@ -150,7 +148,6 @@ const AdminController = {
         }
     },
 
-
     // ==================== USERS ====================
     users: async (req, res) => {
         try {
@@ -161,19 +158,19 @@ const AdminController = {
 
             let query, countQuery, params;
             if (search) {
-                query = `SELECT * FROM users WHERE full_name LIKE ? OR email LIKE ? OR phone LIKE ? ORDER BY created_at DESC LIMIT ? OFFSET ?`;
-                countQuery = `SELECT COUNT(*) as total FROM users WHERE full_name LIKE ? OR email LIKE ? OR phone LIKE ?`;
+                query = `SELECT * FROM users WHERE full_name LIKE $1 OR email LIKE $2 OR phone LIKE $3 ORDER BY created_at DESC LIMIT $4 OFFSET $5`;
+                countQuery = `SELECT COUNT(*) as total FROM users WHERE full_name LIKE $1 OR email LIKE $2 OR phone LIKE $3`;
                 params = [`%${search}%`, `%${search}%`, `%${search}%`, limit, offset];
             } else {
-                query = `SELECT * FROM users ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+                query = `SELECT * FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2`;
                 countQuery = `SELECT COUNT(*) as total FROM users`;
                 params = [limit, offset];
             }
 
             const [users] = await db.query(query, params);
             const [countResult] = await db.query(countQuery, search ? [`%${search}%`, `%${search}%`, `%${search}%`] : []);
-            const totalPages = Math.ceil(countResult[0].total / limit);
-            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = TRUE ORDER BY sort_order');
+            const totalPages = Math.ceil(parseInt(countResult[0]?.total || 0, 10) / limit);
+            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY sort_order');
 
             res.render('admin/users', {
                 title: 'Quản lý Người dùng',
@@ -195,7 +192,7 @@ const AdminController = {
             const [dests] = await db.query(`
                 SELECT d.*, 
                     (SELECT COUNT(*) FROM check_ins ci WHERE ci.destination_id = d.id) as checkin_count,
-                    (SELECT COUNT(*) FROM analytics a WHERE a.page_url COLLATE utf8mb4_unicode_ci LIKE CONCAT('/explore/', d.slug)) as page_views
+                    (SELECT COUNT(*) FROM analytics a WHERE a.page_url LIKE CONCAT('/explore/', d.slug)) as page_views
                 FROM destinations d ORDER BY d.sort_order ASC
             `);
 
@@ -238,7 +235,7 @@ const AdminController = {
                 FROM workshops w LEFT JOIN destinations d ON w.destination_id = d.id
                 ORDER BY w.created_at DESC
             `);
-            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = TRUE');
+            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = 1');
             res.render('admin/workshops', {
                 title: 'Quản lý Workshop',
                 layout: 'layouts/admin',
@@ -259,7 +256,7 @@ const AdminController = {
             let whereClause = '';
             let params = [];
             if (destFilter) {
-                whereClause = 'AND r.destination_id = ?';
+                whereClause = 'AND r.destination_id = $1';
                 params = [destFilter];
             }
 
@@ -279,7 +276,7 @@ const AdminController = {
                 ORDER BY r.created_at DESC
             `, params);
             
-            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = TRUE ORDER BY name');
+            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY name');
             const [soundscapes] = await db.query('SELECT * FROM soundscapes ORDER BY created_at DESC');
             
             res.render('admin/reviews', {
@@ -296,7 +293,6 @@ const AdminController = {
             res.status(500).send('Lỗi hệ thống');
         }
     },
-
 
     // ==================== EVENTS ====================
     events: async (req, res) => {
@@ -320,9 +316,8 @@ const AdminController = {
             const { full_name, phone, email, password, role } = req.body;
             if (!full_name || !password) return res.status(400).json({ success: false, message: 'Thiếu thông tin' });
 
-            // Check duplicate phone
             if (phone) {
-                const [existing] = await db.query('SELECT id FROM users WHERE phone = ?', [phone]);
+                const [existing] = await db.query('SELECT id FROM users WHERE phone = $1', [phone]);
                 if (existing.length > 0) return res.json({ success: false, message: 'Số điện thoại đã tồn tại' });
             }
 
@@ -331,7 +326,7 @@ const AdminController = {
             const id = uuidv4();
 
             await db.query(
-                'INSERT INTO users (id, full_name, email, phone, password, role, is_active, total_points) VALUES (?, ?, ?, ?, ?, ?, 1, 0)',
+                'INSERT INTO users (id, full_name, email, phone, password, role, is_active, total_points) VALUES ($1, $2, $3, $4, $5, $6, 1, 0)',
                 [id, full_name, email || (phone + '@phone.local'), phone, hashedPassword, role || 'user']
             );
 
@@ -348,21 +343,22 @@ const AdminController = {
             const { id, role, is_active, managed_destination_id, full_name, phone, email, password } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID' });
 
-            let query = 'UPDATE users SET role = ?, is_active = ?, managed_destination_id = ?';
+            let sets = ['role = $1', 'is_active = $2', 'managed_destination_id = $3'];
             let params = [role || 'user', is_active !== undefined ? is_active : 1, managed_destination_id || null];
+            let index = 4;
 
-            if (full_name) { query += ', full_name = ?'; params.push(full_name); }
-            if (phone) { query += ', phone = ?'; params.push(phone); }
-            if (email) { query += ', email = ?'; params.push(email); }
+            if (full_name) { sets.push(`full_name = $${index++}`); params.push(full_name); }
+            if (phone) { sets.push(`phone = $${index++}`); params.push(phone); }
+            if (email) { sets.push(`email = $${index++}`); params.push(email); }
             if (password && password.trim() !== '') {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
-                query += ', password = ?';
+                sets.push(`password = $${index++}`);
                 params.push(hashedPassword);
             }
 
-            query += ' WHERE id = ?';
             params.push(id);
+            const query = `UPDATE users SET ${sets.join(', ')} WHERE id = $${index}`;
 
             await db.query(query, params);
             res.json({ success: true, message: 'Cập nhật thành công!' });
@@ -380,7 +376,7 @@ const AdminController = {
             if (id === currentUser.id) {
                 return res.json({ success: false, message: 'Không thể tự xóa chính mình!' });
             }
-            await db.query('DELETE FROM users WHERE id = ?', [id]);
+            await db.query('DELETE FROM users WHERE id = $1', [id]);
             res.json({ success: true, message: 'Đã xóa người dùng' });
         } catch (error) {
             console.error('Delete user error:', error);
@@ -392,7 +388,7 @@ const AdminController = {
     toggleDestination: async (req, res) => {
         try {
             const { id, is_active } = req.body;
-            await db.query('UPDATE destinations SET is_active = ? WHERE id = ?', [is_active ? 1 : 0, id]);
+            await db.query('UPDATE destinations SET is_active = $1 WHERE id = $2', [is_active ? 1 : 0, id]);
             res.json({ success: true, message: is_active ? 'Đã kích hoạt' : 'Đã ẩn địa điểm' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
@@ -405,8 +401,8 @@ const AdminController = {
             const entries = Object.entries(req.body);
             for (const [key, value] of entries) {
                 await db.query(
-                    `INSERT INTO settings (key_name, key_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE key_value = ?`,
-                    [key, value, value]
+                    `INSERT INTO settings (key_name, key_value) VALUES ($1, $2) ON CONFLICT (key_name) DO UPDATE SET key_value = EXCLUDED.key_value`,
+                    [key, value]
                 );
             }
             res.json({ success: true, message: 'Đã cập nhật cài đặt!' });
@@ -446,8 +442,7 @@ const AdminController = {
                 return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đầy đủ thông tin tài khoản quản lý địa điểm' });
             }
 
-            // Check duplicate email
-            const [existingEmail] = await db.query('SELECT id FROM users WHERE email = ?', [manager_email]);
+            const [existingEmail] = await db.query('SELECT id FROM users WHERE email = $1', [manager_email]);
             if (existingEmail.length > 0) {
                 return res.status(400).json({ success: false, message: 'Email quản lý đã tồn tại trên hệ thống' });
             }
@@ -457,14 +452,13 @@ const AdminController = {
             const parsedLat = (lat && String(lat).trim() !== '') ? parseFloat(lat) : 10.75;
             const parsedLng = (lng && String(lng).trim() !== '') ? parseFloat(lng) : 106.54;
 
-            // Insert Destination - all NOT NULL columns explicitly provided
             await db.query(
                 `INSERT INTO destinations 
                  (id, name, slug, type, short_desc, description, open_hours, cost, lat, lng, points,
                   is_active, cover_image, sort_order, moods, seasons, story, highlight,
                   checkin_tip, qr_secret, best_time, map_x, map_y, radius_meter) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, '/images/placeholder.jpg', 99,
-                         ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, '/images/placeholder.jpg', 99,
+                         $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`,
                 [destinationId, name, slug, type || 'nature',
                  short_desc || '', description || '', open_hours || '08:00 - 17:00', cost || 'Miễn phí',
                  parsedLat, parsedLng, parsedPoints,
@@ -473,14 +467,13 @@ const AdminController = {
                  'Quanh năm', 50, 50, 100]
             );
 
-            // Create Manager User
             const managerId = uuidv4();
             const salt = await bcrypt.genSalt(10);
             const hashedManagerPassword = await bcrypt.hash(manager_password, salt);
 
             await db.query(
                 `INSERT INTO users (id, full_name, email, password, role, role_id, managed_destination_id, avatar, total_points, is_active) 
-                 VALUES (?, ?, ?, ?, 'manager', 2, ?, '/images/placeholder.jpg', 0, 1)`,
+                 VALUES ($1, $2, $3, $4, 'manager', 2, $5, '/images/placeholder.jpg', 0, 1)`,
                 [managerId, manager_name || `QL ${name}`, manager_email, hashedManagerPassword, destinationId]
             );
             
@@ -500,22 +493,23 @@ const AdminController = {
             const parsedLat = (lat && String(lat).trim() !== '') ? parseFloat(lat) : null;
             const parsedLng = (lng && String(lng).trim() !== '') ? parseFloat(lng) : null;
 
-            let query = 'UPDATE destinations SET name = ?, slug = ?, short_desc = ?, description = ?, type = ?, open_hours = ?, cost = ?, points = ?, lat = ?, lng = ?';
+            let query = 'UPDATE destinations SET name = $1, slug = $2, short_desc = $3, description = $4, type = $5, open_hours = $6, cost = $7, points = $8, lat = $9, lng = $10';
             let params = [name, slug, short_desc || '', description || '', type || 'nature', open_hours || '', cost || '', parsedPoints, parsedLat, parsedLng];
+            let index = 11;
 
             if (cover_image && cover_image.trim() !== '') {
-                query += ', cover_image = ?';
+                query += `, cover_image = $${index++}`;
                 params.push(cover_image);
             }
 
-            query += ' WHERE id = ?';
+            query += ` WHERE id = $${index}`;
             params.push(id);
 
             await db.query(query, params);
 
             if (cover_image && cover_image.trim() !== '') {
                 await db.query(
-                    "UPDATE users SET avatar = ? WHERE role = 'manager' AND managed_destination_id = ?",
+                    "UPDATE users SET avatar = $1 WHERE role = 'manager' AND managed_destination_id = $2",
                     [cover_image, id]
                 );
             }
@@ -533,23 +527,12 @@ const AdminController = {
             const { id } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID địa điểm' });
 
-            // 1. Delete associated manager users
-            await db.query('DELETE FROM users WHERE managed_destination_id = ?', [id]);
-
-            // 2. Delete associated workshops
-            await db.query('DELETE FROM workshops WHERE destination_id = ?', [id]);
-
-            // 3. Delete associated reviews
-            await db.query('DELETE FROM reviews WHERE destination_id = ?', [id]);
-
-            // 4. Delete associated destination likes
-            await db.query('DELETE FROM destination_likes WHERE destination_id = ?', [id]);
-
-            // 5. Delete associated user favorites
-            await db.query('DELETE FROM user_favorites WHERE destination_id = ?', [id]);
-
-            // 6. Delete the destination itself
-            await db.query('DELETE FROM destinations WHERE id = ?', [id]);
+            await db.query('DELETE FROM users WHERE managed_destination_id = $1', [id]);
+            await db.query('DELETE FROM workshops WHERE destination_id = $1', [id]);
+            await db.query('DELETE FROM reviews WHERE destination_id = $1', [id]);
+            await db.query('DELETE FROM destination_likes WHERE destination_id = $1', [id]);
+            await db.query('DELETE FROM user_favorites WHERE destination_id = $1', [id]);
+            await db.query('DELETE FROM destinations WHERE id = $1', [id]);
 
             res.json({ success: true, message: 'Đã xóa địa điểm và tất cả các tài khoản/dữ liệu liên quan thành công!' });
         } catch (error) {
@@ -568,7 +551,7 @@ const AdminController = {
             const { title, description, type, price, duration, max_participants, destination_id, image, start_date, end_date } = req.body;
             await db.query(
                 `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, NOW())`,
                 [uuidv4(), destination_id || null, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
             );
             res.json({ success: true, message: 'Đã tạo workshop!' });
@@ -582,7 +565,7 @@ const AdminController = {
         try {
             const { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active, destination_id } = req.body;
             await db.query(
-                `UPDATE workshops SET title = ?, description = ?, type = ?, price = ?, duration = ?, max_participants = ?, image = ?, start_date = ?, end_date = ?, is_active = ?, destination_id = ? WHERE id = ?`,
+                `UPDATE workshops SET title = $1, description = $2, type = $3, price = $4, duration = $5, max_participants = $6, image = $7, start_date = $8, end_date = $9, is_active = $10, destination_id = $11 WHERE id = $12`,
                 [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined ? is_active : 1, destination_id || null, id]
             );
             res.json({ success: true, message: 'Đã cập nhật workshop!' });
@@ -594,17 +577,16 @@ const AdminController = {
 
     deleteWorkshop: async (req, res) => {
         try {
-            await db.query('DELETE FROM workshops WHERE id = ?', [req.body.id]);
+            await db.query('DELETE FROM workshops WHERE id = $1', [req.body.id]);
             res.json({ success: true, message: 'Đã xóa workshop' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
         }
     },
 
-    // ==================== API: Delete Review ====================
     deleteReview: async (req, res) => {
         try {
-            await db.query('DELETE FROM reviews WHERE id = ?', [req.body.id]);
+            await db.query('DELETE FROM reviews WHERE id = $1', [req.body.id]);
             res.json({ success: true, message: 'Đã xóa bài đăng' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
@@ -619,7 +601,7 @@ const AdminController = {
             }
             await db.query(
                 `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, is_featured, is_countdown, is_active) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1)`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1)`,
                 [uuidv4(), title, description, season || 'all', event_date, end_date || null, location, image, is_featured ? 1 : 0, is_countdown ? 1 : 0]
             );
             res.json({ success: true, message: 'Đã tạo sự kiện!' });
@@ -635,7 +617,7 @@ const AdminController = {
                 await db.query('UPDATE events SET is_countdown = 0');
             }
             await db.query(
-                `UPDATE events SET title = ?, description = ?, season = ?, event_date = ?, end_date = ?, location = ?, image = ?, is_featured = ?, is_countdown = ?, is_active = ? WHERE id = ?`,
+                `UPDATE events SET title = $1, description = $2, season = $3, event_date = $4, end_date = $5, location = $6, image = $7, is_featured = $8, is_countdown = $9, is_active = $10 WHERE id = $11`,
                 [title, description, season, event_date, end_date, location, image, is_featured ? 1 : 0, is_countdown ? 1 : 0, is_active ? 1 : 0, id]
             );
             res.json({ success: true, message: 'Đã cập nhật sự kiện!' });
@@ -646,7 +628,7 @@ const AdminController = {
 
     deleteEvent: async (req, res) => {
         try {
-            await db.query('DELETE FROM events WHERE id = ?', [req.body.id]);
+            await db.query('DELETE FROM events WHERE id = $1', [req.body.id]);
             res.json({ success: true, message: 'Đã xóa sự kiện' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
@@ -656,7 +638,7 @@ const AdminController = {
     journeyTemplates: async (req, res) => {
         try {
             const [templates] = await db.query('SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC');
-            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = TRUE ORDER BY name ASC');
+            const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY name ASC');
             res.render('admin/journey_templates', {
                 title: 'Quản lý Hành trình Mẫu - Admin Panel',
                 layout: 'layouts/admin',
@@ -681,7 +663,7 @@ const AdminController = {
 
             await db.query(
                 `INSERT INTO seasonal_journey_templates (id, name, description, season, interest, stops, duration, km, valid_from, valid_until)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
                 [uuidv4(), name, description, season, interest, stopsJson, duration || 'full_day', km || 5.0, vFrom, vUntil]
             );
             res.json({ success: true, message: 'Đã tạo hành trình mẫu!' });
@@ -702,8 +684,8 @@ const AdminController = {
 
             await db.query(
                 `UPDATE seasonal_journey_templates 
-                 SET name = ?, description = ?, season = ?, interest = ?, stops = ?, duration = ?, km = ?, valid_from = ?, valid_until = ? 
-                 WHERE id = ?`,
+                 SET name = $1, description = $2, season = $3, interest = $4, stops = $5, duration = $6, km = $7, valid_from = $8, valid_until = $9 
+                 WHERE id = $10`,
                 [name, description, season, interest, stopsJson, duration, km, vFrom, vUntil, id]
             );
             res.json({ success: true, message: 'Đã cập nhật hành trình mẫu!' });
@@ -718,15 +700,15 @@ const AdminController = {
             if (!id) {
                 return res.status(400).json({ success: false, message: 'Thiếu ID hành trình' });
             }
-            await db.query('DELETE FROM seasonal_journey_templates WHERE id = ?', [id]);
+            await db.query('DELETE FROM seasonal_journey_templates WHERE id = $1', [id]);
             res.json({ success: true, message: 'Đã xóa hành trình mẫu!' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
         }
     },
+
     createSoundscape: async (req, res) => {
         try {
-
             const { name, mood, duration_seconds } = req.body;
             if (!name || !mood) {
                 return res.status(400).json({ success: false, message: 'Thiếu tên hoặc mood.' });
@@ -735,13 +717,12 @@ const AdminController = {
                 return res.status(400).json({ success: false, message: 'Thiếu file âm thanh.' });
             }
 
-            // Upload to Cloudinary
             const result = await uploadToCloudinary(req.file.path, 'binh-loi/soundscapes');
             const audioUrl = result.url;
 
             await db.query(
                 `INSERT INTO soundscapes (id, name, mood, audio_url, duration_seconds, is_active, created_at) 
-                 VALUES (?, ?, ?, ?, ?, 1, NOW())`,
+                 VALUES ($1, $2, $3, $4, $5, 1, NOW())`,
                 [uuidv4(), name, mood, audioUrl, parseInt(duration_seconds) || 0]
             );
 
@@ -757,7 +738,7 @@ const AdminController = {
             const { id } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID.' });
 
-            await db.query('DELETE FROM soundscapes WHERE id = ?', [id]);
+            await db.query('DELETE FROM soundscapes WHERE id = $1', [id]);
             res.json({ success: true, message: 'Đã xóa âm thanh!' });
         } catch (error) {
             console.error('Delete soundscape error:', error);
@@ -766,9 +747,7 @@ const AdminController = {
     },
 
     chat: async (req, res) => {
-
         try {
-            // Conversation List for Admin (destination_id IS NULL)
             const [conversations] = await db.query(
                 `SELECT 
                      s.id AS session_id,
@@ -819,21 +798,19 @@ const AdminController = {
                 return res.status(400).json({ success: false, message: 'Thiếu Session ID' });
             }
 
-            // Fetch chat history for this session with Admin (destination_id IS NULL)
             const [messages] = await db.query(
                 `SELECT * FROM messages 
                  WHERE destination_id IS NULL 
-                   AND (sender_uuid = ? OR receiver_uuid = ? OR sender_id = ? OR receiver_id = ?)
+                   AND (sender_uuid = $1 OR receiver_uuid = $2 OR sender_id = $3 OR receiver_id = $4)
                  ORDER BY created_at ASC`,
                 [sessionId, sessionId, sessionId, sessionId]
             );
 
-            // Fetch visitor details
             const [visitorDetails] = await db.query(
                 `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id = ?`,
+                 WHERE s.id = $1`,
                 [sessionId]
             );
 

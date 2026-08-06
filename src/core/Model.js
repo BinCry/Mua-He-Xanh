@@ -2,7 +2,7 @@ const db = require('./database');
 const { v4: uuidv4 } = require('uuid');
 
 /**
- * Base Model - Abstract equivalent for Node.js
+ * Base Model - Pure PostgreSQL Implementation
  */
 class Model {
     constructor(table) {
@@ -13,13 +13,13 @@ class Model {
 
     /** Find all records */
     async findAll(orderBy = 'created_at DESC', limit = 100) {
-        const [rows] = await this.db.query(`SELECT * FROM ${this.table} ORDER BY ${orderBy} LIMIT ?`, [limit]);
+        const [rows] = await this.db.query(`SELECT * FROM ${this.table} ORDER BY ${orderBy} LIMIT $1`, [limit]);
         return rows;
     }
 
     /** Find by ID */
     async findById(id) {
-        const [rows] = await this.db.query(`SELECT * FROM ${this.table} WHERE ${this.primaryKey} = ? LIMIT 1`, [id]);
+        const [rows] = await this.db.query(`SELECT * FROM ${this.table} WHERE ${this.primaryKey} = $1 LIMIT 1`, [id]);
         return rows[0] || null;
     }
 
@@ -27,11 +27,12 @@ class Model {
     async findOne(conditions) {
         const where = [];
         const params = [];
+        let index = 1;
         for (const [col, val] of Object.entries(conditions)) {
-            where.push(`${col} = ?`);
+            where.push(`${col} = $${index++}`);
             params.push(val);
         }
-        const whereStr = where.join(' AND ');
+        const whereStr = where.length > 0 ? where.join(' AND ') : '1=1';
         const [rows] = await this.db.query(`SELECT * FROM ${this.table} WHERE ${whereStr} LIMIT 1`, params);
         return rows[0] || null;
     }
@@ -40,11 +41,12 @@ class Model {
     async findWhere(conditions, orderBy = 'created_at DESC') {
         const where = [];
         const params = [];
+        let index = 1;
         for (const [col, val] of Object.entries(conditions)) {
-            where.push(`${col} = ?`);
+            where.push(`${col} = $${index++}`);
             params.push(val);
         }
-        const whereStr = where.join(' AND ');
+        const whereStr = where.length > 0 ? where.join(' AND ') : '1=1';
         const [rows] = await this.db.query(`SELECT * FROM ${this.table} WHERE ${whereStr} ORDER BY ${orderBy}`, params);
         return rows;
     }
@@ -56,7 +58,7 @@ class Model {
         }
 
         const cols = Object.keys(data).join(', ');
-        const placeholders = Object.keys(data).map(() => '?').join(', ');
+        const placeholders = Object.keys(data).map((_, i) => `$${i + 1}`).join(', ');
         const params = Object.values(data);
 
         await this.db.query(`INSERT INTO ${this.table} (${cols}) VALUES (${placeholders})`, params);
@@ -67,20 +69,21 @@ class Model {
     async update(id, data) {
         const sets = [];
         const params = [];
+        let index = 1;
         for (const [col, val] of Object.entries(data)) {
-            sets.push(`${col} = ?`);
+            sets.push(`${col} = $${index++}`);
             params.push(val);
         }
         params.push(id);
         const setStr = sets.join(', ');
-        const [result] = await this.db.query(`UPDATE ${this.table} SET ${setStr} WHERE ${this.primaryKey} = ?`, params);
-        return result.affectedRows > 0;
+        const [result] = await this.db.query(`UPDATE ${this.table} SET ${setStr} WHERE ${this.primaryKey} = $${index}`, params);
+        return (result.affectedRows || result.rowCount || 0) > 0;
     }
 
     /** Delete by ID */
     async delete(id) {
-        const [result] = await this.db.query(`DELETE FROM ${this.table} WHERE ${this.primaryKey} = ?`, [id]);
-        return result.affectedRows > 0;
+        const [result] = await this.db.query(`DELETE FROM ${this.table} WHERE ${this.primaryKey} = $1`, [id]);
+        return (result.affectedRows || result.rowCount || 0) > 0;
     }
 
     /** Pagination */
@@ -89,12 +92,21 @@ class Model {
         limit = Math.min(50, Math.max(1, limit));
         const offset = (page - 1) * limit;
 
+        // Convert any '?' in custom where string to PostgreSQL '$1, $2...'
+        let index = 1;
+        const pgWhere = where.replace(/\?/g, () => `$${index++}`);
+
         // Count total
-        const [countRows] = await this.db.query(`SELECT COUNT(*) as total FROM ${this.table} WHERE ${where}`, params);
-        const total = countRows[0].total;
+        const [countRows] = await this.db.query(`SELECT COUNT(*) as total FROM ${this.table} WHERE ${pgWhere}`, params);
+        const total = parseInt(countRows[0]?.total || 0, 10);
 
         // Get data
-        const [rows] = await this.db.query(`SELECT * FROM ${this.table} WHERE ${where} ORDER BY ${orderBy} LIMIT ? OFFSET ?`, [...params, limit, offset]);
+        const limitParamIndex = params.length + 1;
+        const offsetParamIndex = params.length + 2;
+        const [rows] = await this.db.query(
+            `SELECT * FROM ${this.table} WHERE ${pgWhere} ORDER BY ${orderBy} LIMIT $${limitParamIndex} OFFSET $${offsetParamIndex}`,
+            [...params, limit, offset]
+        );
 
         const totalPages = Math.ceil(total / limit);
 

@@ -12,13 +12,13 @@ class PassportController {
 
             // Find session by UUID or user.id
             let session = null;
-            const uuid = req.cookies.session_uuid;
+            const uuid = req.cookies?.session_uuid;
             if (uuid) {
                 session = await UserSession.findByUuid(uuid);
             }
             if (!session) {
                 const [rows] = await UserSession.db.query(
-                    "SELECT * FROM user_sessions WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1",
+                    "SELECT * FROM user_sessions WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1",
                     [user.id]
                 );
                 if (rows.length > 0) {
@@ -32,7 +32,7 @@ class PassportController {
                 const newUuid = uuidv4();
                 res.cookie('session_uuid', newUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
                 session = await UserSession.findOrCreate(newUuid, req);
-                await UserSession.db.query("UPDATE user_sessions SET user_id = ? WHERE id = ?", [user.id, session.id]);
+                await UserSession.db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
             }
 
             // Run check and unlock badges dynamically before displaying

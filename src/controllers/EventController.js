@@ -3,7 +3,7 @@ const db = require('../core/database');
 class EventController {
     async show(req, res) {
         try {
-            const [events] = await db.query('SELECT * FROM events WHERE id = ? LIMIT 1', [req.params.id]);
+            const [events] = await db.query('SELECT * FROM events WHERE id = $1 LIMIT 1', [req.params.id]);
             if (events.length === 0) {
                 return res.status(404).send('Sự kiện không tồn tại');
             }

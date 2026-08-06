@@ -12,7 +12,6 @@ const UploadController = {
                 return res.status(400).json({ success: false, message: 'Không có tệp nào được tải lên.' });
             }
             
-            // Upload to Cloudinary
             const result = await uploadToCloudinary(req.file.path, 'binh-loi/media');
             
             res.json({
@@ -36,15 +35,13 @@ const UploadController = {
                 return res.status(400).json({ success: false, message: 'Không có tệp nào được tải lên.' });
             }
 
-            // Upload logo to Cloudinary brand folder
             const result = await uploadToCloudinary(req.file.path, 'binh-loi/brand');
             const publicUrl = result.url;
 
-            // Automatically save to database settings table to ensure synchronization instantly
             const db = require('../core/database');
             await db.query(
-                `INSERT INTO settings (key_name, key_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE key_value = ?`,
-                ['brand_logo', publicUrl, publicUrl]
+                `INSERT INTO settings (key_name, key_value) VALUES ($1, $2) ON CONFLICT (key_name) DO UPDATE SET key_value = EXCLUDED.key_value`,
+                ['brand_logo', publicUrl]
             );
 
             res.json({

@@ -56,29 +56,29 @@ const AuthController = {
             }
 
             // Check if phone is already registered and active
-            const [existingUser] = await db.query('SELECT id FROM users WHERE phone = ?', [phone]);
+            const [existingUser] = await db.query('SELECT id FROM users WHERE phone = $1', [phone]);
             if (existingUser.length > 0) {
                 return res.json({ success: false, message: 'Số điện thoại này đã được đăng ký tài khoản' });
             }
 
-            // Ensure verification table exists
+            // Ensure verification table exists (PostgreSQL syntax)
             await db.query(`
                 CREATE TABLE IF NOT EXISTS otp_verifications (
                     phone VARCHAR(20) PRIMARY KEY,
                     otp VARCHAR(10) NOT NULL,
                     expires_at TIMESTAMP NOT NULL,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             `);
 
             // Generate 6-digit OTP
             const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-            // Save to verification table
+            // Save to verification table (PostgreSQL native UPSERT)
             await db.query(`
                 INSERT INTO otp_verifications (phone, otp, expires_at)
-                VALUES (?, ?, DATE_ADD(NOW(), INTERVAL 5 MINUTE))
-                ON DUPLICATE KEY UPDATE otp = VALUES(otp), expires_at = VALUES(expires_at)
+                VALUES ($1, $2, NOW() + INTERVAL '5 minute')
+                ON CONFLICT (phone) DO UPDATE SET otp = EXCLUDED.otp, expires_at = EXCLUDED.expires_at
             `, [phone, otp]);
 
             // Send real SMS OTP
@@ -117,7 +117,7 @@ const AuthController = {
             }
 
             const [rows] = await db.query(
-                "SELECT * FROM otp_verifications WHERE phone = ? AND otp = ? AND expires_at > NOW()",
+                "SELECT * FROM otp_verifications WHERE phone = $1 AND otp = $2 AND expires_at > NOW()",
                 [phone, otp]
             );
 
@@ -126,7 +126,7 @@ const AuthController = {
             }
 
             // Delete OTP record once successfully verified
-            await db.query("DELETE FROM otp_verifications WHERE phone = ?", [phone]);
+            await db.query("DELETE FROM otp_verifications WHERE phone = $1", [phone]);
 
             res.json({ success: true, verified: true });
         } catch (err) {
@@ -148,7 +148,7 @@ const AuthController = {
             }
 
             // Check if phone already exists
-            const [existingPhone] = await db.query('SELECT id FROM users WHERE phone = ?', [phone]);
+            const [existingPhone] = await db.query('SELECT id FROM users WHERE phone = $1', [phone]);
             if (existingPhone.length > 0) {
                 return res.redirect('/auth/login?error=Số điện thoại này đã được sử dụng');
             }
@@ -160,7 +160,7 @@ const AuthController = {
             const newUser = {
                 id: uuidv4(),
                 full_name: fullName,
-                email: phone + '@phone.local', // Internal email placeholder
+                email: phone + '@phone.local',
                 phone: phone,
                 password: hashedPassword,
                 role: 'user',
@@ -168,7 +168,7 @@ const AuthController = {
             };
 
             await db.query(
-                'INSERT INTO users (id, full_name, email, phone, password, role, total_points, is_active) VALUES (?, ?, ?, ?, ?, ?, ?, 1)',
+                'INSERT INTO users (id, full_name, email, phone, password, role, total_points, is_active) VALUES ($1, $2, $3, $4, $5, $6, $7, 1)',
                 [newUser.id, newUser.full_name, newUser.email, newUser.phone, newUser.password, newUser.role, newUser.points]
             );
 
@@ -208,19 +208,16 @@ const AuthController = {
     },
 
     oauthCallback: async (req, res) => {
-        // Passport already put user in req.user
         if (req.user) {
             await AuthController.establishSession(req, res, req.user);
         }
         
-        // Priority 1: Redirect to stored intended URL if present
         if (req.session && req.session.redirectUrl) {
             const target = req.session.redirectUrl;
             delete req.session.redirectUrl;
             return res.redirect(target);
         }
 
-        // Priority 2: Default redirect based on role
         if (req.user && req.user.role === 'admin') {
             return res.redirect('/admin');
         }
@@ -232,11 +229,10 @@ const AuthController = {
     },
 
     establishSession: async (req, res, user) => {
-        let sessionUuid = req.cookies.session_uuid;
+        let sessionUuid = req.cookies?.session_uuid;
 
-        // Try to reuse user's existing session from database
         const [existingSessions] = await db.query(
-            "SELECT uuid FROM user_sessions WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1",
+            "SELECT uuid FROM user_sessions WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1",
             [user.id]
         );
 
@@ -250,11 +246,10 @@ const AuthController = {
 
         const session = await UserSession.findOrCreate(sessionUuid, req);
         await db.query(
-            "UPDATE user_sessions SET user_id = ? WHERE id = ?",
+            "UPDATE user_sessions SET user_id = $1 WHERE id = $2",
             [user.id, session.id]
         );
 
-        // Store user in express session
         req.session.user = {
             id: user.id,
             email: user.email,
@@ -275,7 +270,6 @@ const AuthController = {
     handlePasswordLogin: (req, res, next) => {
         const { email, password } = req.body;
 
-        // If user enters an email without password, redirect directly to Google OAuth prefilled
         if (email && (!password || password.trim() === '')) {
             return res.redirect('/auth/google?email=' + encodeURIComponent(email));
         }
@@ -289,7 +283,6 @@ const AuthController = {
             if (!user) {
                 const msg = info?.message || 'Email hoặc mật khẩu không chính xác';
 
-                // 1. If it's a Gmail, student email (@st.ueh.edu.vn, .edu.vn) or account not registered locally with password, auto-redirect to Google OAuth
                 if (email && (email.includes('@') || msg.includes('không tồn tại') || msg.includes('Google/Facebook'))) {
                     return res.redirect('/auth/google?email=' + encodeURIComponent(email));
                 }

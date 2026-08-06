@@ -36,7 +36,7 @@ class JourneyController {
 
             // If no active journey exists yet, create default journey with 3 active destinations
             if (!journey) {
-                const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE LIMIT 3");
+                const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
                 const journeyId = await Journey.create({
                     session_id: session.id,
                     mood: 'Hành Trình Tối Ưu',
@@ -61,7 +61,7 @@ class JourneyController {
 
             let journeyWithStops = await Journey.getWithStops(journey.id);
             if (!journeyWithStops || !journeyWithStops.stops || journeyWithStops.stops.length === 0) {
-                const [defaultDests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE LIMIT 3");
+                const [defaultDests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
                 const JourneyStop = require('../models/JourneyStop');
                 for (let idx = 0; idx < defaultDests.length; idx++) {
                     await JourneyStop.create({
@@ -74,7 +74,6 @@ class JourneyController {
                 journeyWithStops = await Journey.getWithStops(journey.id);
             }
 
-            // Determine journey source & confirmed state
             let journeySource = 'ai';
             let isConfirmed = false;
             try {
@@ -107,13 +106,12 @@ class JourneyController {
     async suggestions(req, res) {
         try {
             const session = await this.getOrCreateSession(req, res);
-            const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE");
+            const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = 1");
 
             const moodMap = { chill: '🌿 Sống Chậm', peace: '🛕 Tâm Linh', culture: '🎨 Văn Hóa', family: '👨‍👩‍👧‍👦 Gắn Kết' };
             const userMoodKeys = (session.mood || 'chill').split(',').map(s => s.trim());
             const userMoodLabel = userMoodKeys.map(k => moodMap[k] || k).join(', ');
 
-            // AI suggestions
             let aiSuggestions = [];
             try {
                 let candidates = dests;
@@ -137,7 +135,6 @@ class JourneyController {
                 });
             } catch (e) { }
 
-            // Admin templates
             const [templates] = await db.query("SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC");
             const seasonLabels = { spring: '🌸 Xuân', summer: '☀️ Hạ', autumn: '🍂 Thu', winter: '❄️ Đông' };
             const interestLabels = { chill: '🕊️ Bình yên', peace: '🛕 Thư giãn', culture: '🎨 Văn hóa', family: '👨‍👩‍👧‍👦 Gắn kết' };
@@ -178,21 +175,19 @@ class JourneyController {
         }
     }
 
-    // Confirm choice -> Guarantee redirect to /hanh-trinh-cua-toi (Step 3)
     async confirm(req, res) {
         try {
             const session = await this.getOrCreateSession(req, res);
             const { templateId, journeyData, source } = req.body;
 
-            // Option A: Admin Template Selected
             if (templateId) {
-                const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE id = ?", [templateId]);
+                const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE id = $1", [templateId]);
                 if (templates.length > 0) {
                     const t = templates[0];
                     let stopIds = [];
                     try { stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops; } catch (e) { }
 
-                    const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE");
+                    const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = 1");
                     let stops = (stopIds || []).map(st => {
                         const stId = (typeof st === 'object') ? (st.id || st.slug) : st;
                         return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
@@ -200,7 +195,7 @@ class JourneyController {
 
                     if (stops.length === 0 && dests.length > 0) stops = dests.slice(0, 3);
 
-                    await db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [session.id]);
+                    await db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [session.id]);
                     const journeyId = await Journey.create({
                         session_id: session.id,
                         mood: t.name,
@@ -225,7 +220,6 @@ class JourneyController {
                 }
             }
 
-            // Option B: AI Journey Selected
             if (journeyData) {
                 let data = null;
                 try {
@@ -242,8 +236,7 @@ class JourneyController {
                 }
             }
 
-            // Fallback: If no templateId/journeyData passed, auto-create AI journey and go to Step 3 anyway
-            const [fallbackDests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE LIMIT 3");
+            const [fallbackDests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
             const journeyId = await Journey.create({
                 session_id: session.id,
                 mood: 'Lộ Trình AI Tối Ưu',
@@ -286,7 +279,7 @@ class JourneyController {
             parsed.isConfirmed = true;
 
             await db.query(
-                "UPDATE journeys SET interests = ? WHERE id = ?",
+                "UPDATE journeys SET interests = $1 WHERE id = $2",
                 [JSON.stringify(parsed), journey.id]
             );
 

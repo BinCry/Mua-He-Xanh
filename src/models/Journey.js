@@ -10,7 +10,7 @@ class Journey extends Model {
     /** Get active journey by session */
     async getActiveBySession(sessionId) {
         const [rows] = await this.db.query(
-            "SELECT * FROM journeys WHERE session_id = ? AND status = 'active' ORDER BY created_at DESC LIMIT 1",
+            "SELECT * FROM journeys WHERE session_id = $1 AND status = 'active' ORDER BY created_at DESC LIMIT 1",
             [sessionId]
         );
         return rows[0] || null;
@@ -26,7 +26,7 @@ class Journey extends Model {
                     d.points, d.radius_meter, d.highlight, d.story, d.open_hours
              FROM journey_stops js
              JOIN destinations d ON js.destination_id = d.id
-             WHERE js.journey_id = ?
+             WHERE js.journey_id = $1
              ORDER BY js.stop_order ASC`,
             [journeyId]
         );
@@ -44,7 +44,6 @@ class Journey extends Model {
 
         const now = new Date();
         const month = now.getMonth() + 1;
-        const hour = now.getHours();
 
         let filteredCandidates = candidates.filter(d => {
             if (d.slug === 'lang-mai-vang' && !(month === 12 || month === 1 || month === 2)) return false;
@@ -75,7 +74,7 @@ class Journey extends Model {
         const totalMinutes = selected.length * 60 + Math.round(totalKm * 15);
 
         await this.db.query(
-            "UPDATE journeys SET status = 'abandoned' WHERE session_id = ? AND status = 'active'",
+            "UPDATE journeys SET status = 'abandoned' WHERE session_id = $1 AND status = 'active'",
             [sessionId]
         );
 
@@ -117,7 +116,7 @@ class Journey extends Model {
             if (d) selected.push(d);
         }
 
-        await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [sessionId]);
+        await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [sessionId]);
 
         const journeyId = await this.create({
             session_id: sessionId, mood: moodName, duration: 'full_day', status: 'active',
@@ -144,18 +143,20 @@ class Journey extends Model {
 
     async getRandomStops(mood, count) {
         let results = [];
-        const moodFilter = (mood === 'all') ? '1=1' : "moods LIKE ?";
-        const params = (mood === 'all') ? [count] : [`%${mood}%`, count];
+        if (mood === 'all') {
+            [results] = await this.db.query(`SELECT * FROM destinations WHERE is_active = 1 ORDER BY RANDOM() LIMIT $1`, [count]);
+        } else {
+            [results] = await this.db.query(`SELECT * FROM destinations WHERE is_active = 1 AND moods LIKE $1 ORDER BY RANDOM() LIMIT $2`, [`%${mood}%`, count]);
+        }
 
-        [results] = await this.db.query(`SELECT * FROM destinations WHERE is_active = 1 AND ${moodFilter} ORDER BY RAND() LIMIT ?`, params);
         if (results.length === 0) {
-            [results] = await this.db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT ?", [count]);
+            [results] = await this.db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT $1", [count]);
         }
         return results;
     }
 
     async createFromSuggestion(sessionId, data) {
-        await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [sessionId]);
+        await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [sessionId]);
 
         let stopsArray = data.stops || [];
         const cleanStops = [];
@@ -168,7 +169,7 @@ class Journey extends Model {
         }
 
         if (cleanStops.length === 0) {
-            const [fallbackDests] = await this.db.query("SELECT * FROM destinations WHERE is_active = TRUE LIMIT 3");
+            const [fallbackDests] = await this.db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
             cleanStops.push(...fallbackDests);
         }
 
@@ -203,11 +204,11 @@ class Journey extends Model {
     }
 
     async removeStop(journeyId, destinationId) {
-        await this.db.query("DELETE FROM journey_stops WHERE journey_id = ? AND destination_id = ?", [journeyId, destinationId]);
+        await this.db.query("DELETE FROM journey_stops WHERE journey_id = $1 AND destination_id = $2", [journeyId, destinationId]);
         const journey = await this.getWithStops(journeyId);
         if (journey && journey.stops) {
             for (let i = 0; i < journey.stops.length; i++) {
-                await this.db.query("UPDATE journey_stops SET stop_order = ? WHERE id = ?", [i, journey.stops[i].id]);
+                await this.db.query("UPDATE journey_stops SET stop_order = $1 WHERE id = $2", [i, journey.stops[i].id]);
             }
         }
     }

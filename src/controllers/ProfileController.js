@@ -1,11 +1,11 @@
 /**
- * Profile Controller - Chương 5.2: Hồ sơ Du khách
- * Tham khảo ProfileController.php từ Relioo (updateProfile, getById)
+ * Profile Controller - Pure PostgreSQL
  */
 const db = require('../core/database');
 const Workshop = require('../models/Workshop');
 const CheckIn = require('../models/CheckIn');
 const UserBadge = require('../models/UserBadge');
+const { v4: uuidv4 } = require('uuid');
 
 const ProfileController = {
 
@@ -16,17 +16,17 @@ const ProfileController = {
             if (!user) return res.redirect('/auth/login');
 
             // Lấy thông tin user đầy đủ từ DB
-            const [users] = await db.query('SELECT * FROM users WHERE id = ?', [user.id]);
+            const [users] = await db.query('SELECT * FROM users WHERE id = $1', [user.id]);
             const fullUser = users[0];
 
             // Thống kê
-            const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins WHERE user_id = ?', [user.id]);
+            const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins WHERE user_id = $1', [user.id]);
             const [journeyCount] = await db.query(`
                 SELECT COUNT(*) as total FROM journeys j 
                 JOIN user_sessions us ON j.session_id = us.session_uuid 
-                WHERE us.user_id = ?
+                WHERE us.user_id = $1
             `, [user.id]).catch(() => [[{total: 0}]]);
-            const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews WHERE user_id = ?', [user.id]);
+            const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews WHERE user_id = $1', [user.id]);
             let badges = [];
             try { badges = await UserBadge.getUserBadges(user.id); } catch(e) {}
             let workshopBookings = [];
@@ -37,7 +37,7 @@ const ProfileController = {
                 SELECT ur.*, r.title, r.description, r.type, r.points_required
                 FROM user_rewards ur
                 JOIN rewards r ON ur.reward_id = r.id
-                WHERE ur.user_id = ?
+                WHERE ur.user_id = $1
                 ORDER BY ur.redeemed_at DESC
             `, [user.id]);
 
@@ -48,7 +48,7 @@ const ProfileController = {
                     SELECT d.id, d.name, d.slug, d.cover_image, d.short_desc, d.type, dl.created_at as liked_at
                     FROM destination_likes dl
                     JOIN destinations d ON dl.destination_id = d.id
-                    WHERE dl.user_id = ? AND d.is_active = TRUE
+                    WHERE dl.user_id = $1 AND d.is_active = 1
                     ORDER BY dl.created_at DESC
                 `, [user.id]);
                 likedDestinations = liked;
@@ -61,7 +61,7 @@ const ProfileController = {
                     SELECT d.id, d.name, d.slug, d.cover_image, d.short_desc, d.type, uf.created_at as saved_at
                     FROM user_favorites uf
                     JOIN destinations d ON uf.destination_id = d.id
-                    WHERE uf.user_id = ? AND d.is_active = TRUE
+                    WHERE uf.user_id = $1 AND d.is_active = 1
                     ORDER BY uf.created_at DESC
                 `, [user.id]);
                 savedDestinations = saved;
@@ -71,9 +71,9 @@ const ProfileController = {
                 title: 'Hồ sơ Du Khách',
                 profileUser: fullUser,
                 stats: {
-                    checkins: checkinCount[0]?.total || 0,
-                    journeys: journeyCount[0]?.total || 0,
-                    reviews: reviewCount[0]?.total || 0,
+                    checkins: parseInt(checkinCount[0]?.total || 0, 10),
+                    journeys: parseInt(journeyCount[0]?.total || 0, 10),
+                    reviews: parseInt(reviewCount[0]?.total || 0, 10),
                     badges: badges.length,
                     points: fullUser.total_points || 0,
                     workshopsDone: workshopBookings.filter(b => b.status === 'completed').length
@@ -90,13 +90,13 @@ const ProfileController = {
         }
     },
 
-    // GET /profile/edit - Form chỉnh sửa (pattern Relioo updateProfile)
+    // GET /profile/edit
     editPage: async (req, res) => {
         try {
             const user = req.user || req.session.user;
             if (!user) return res.redirect('/auth/login');
 
-            const [users] = await db.query('SELECT * FROM users WHERE id = ?', [user.id]);
+            const [users] = await db.query('SELECT * FROM users WHERE id = $1', [user.id]);
             res.render('profile/edit', {
                 title: 'Chỉnh sửa hồ sơ',
                 profileUser: users[0]
@@ -107,7 +107,7 @@ const ProfileController = {
         }
     },
 
-    // POST /profile/update - Cập nhật hồ sơ (API JSON pattern Relioo)
+    // POST /profile/update
     update: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -116,18 +116,16 @@ const ProfileController = {
             const { full_name, phone, city, preferences, travel_style, avatar } = req.body;
 
             await db.query(`
-                UPDATE users SET full_name = ?, phone = ?, city = ?, preferences = ?, travel_style = ?, avatar = ?
-                WHERE id = ?
+                UPDATE users SET full_name = $1, phone = $2, city = $3, preferences = $4, travel_style = $5, avatar = $6
+                WHERE id = $7
             `, [full_name, phone, city, preferences, travel_style, avatar, user.id]);
 
-            // Sync to destination cover image if the user is a manager
             if (user.role === 'manager' && user.managed_destination_id) {
                 await db.query(`
-                    UPDATE destinations SET cover_image = ? WHERE id = ?
+                    UPDATE destinations SET cover_image = $1 WHERE id = $2
                 `, [avatar, user.managed_destination_id]);
             }
 
-            // Update session
             if (req.session.user) {
                 req.session.user.full_name = full_name;
                 req.session.user.avatar = avatar;
@@ -140,18 +138,18 @@ const ProfileController = {
         }
     },
 
-    // GET /profile/rewards - Điểm thưởng & đổi quà (Chương 5.15)
+    // GET /profile/rewards
     rewards: async (req, res) => {
         try {
             const user = req.user || req.session.user;
             if (!user) return res.redirect('/auth/login');
 
-            const [users] = await db.query('SELECT total_points FROM users WHERE id = ?', [user.id]);
-            const [allRewards] = await db.query('SELECT * FROM rewards WHERE is_active = TRUE ORDER BY points_required ASC');
+            const [users] = await db.query('SELECT total_points FROM users WHERE id = $1', [user.id]);
+            const [allRewards] = await db.query('SELECT * FROM rewards WHERE is_active = 1 ORDER BY points_required ASC');
             const [userRewards] = await db.query(`
                 SELECT ur.*, r.title, r.type
                 FROM user_rewards ur JOIN rewards r ON ur.reward_id = r.id
-                WHERE ur.user_id = ? ORDER BY ur.redeemed_at DESC
+                WHERE ur.user_id = $1 ORDER BY ur.redeemed_at DESC
             `, [user.id]);
 
             res.render('profile/rewards', {
@@ -166,28 +164,27 @@ const ProfileController = {
         }
     },
 
-    // POST /api/redeem-reward - Đổi điểm lấy quà
+    // POST /api/redeem-reward
     redeemReward: async (req, res) => {
         try {
             const user = req.user || req.session.user;
             if (!user) return res.status(401).json({ success: false });
 
             const { reward_id } = req.body;
-            const [rewards] = await db.query('SELECT * FROM rewards WHERE id = ? AND is_active = TRUE', [reward_id]);
+            const [rewards] = await db.query('SELECT * FROM rewards WHERE id = $1 AND is_active = 1', [reward_id]);
             if (rewards.length === 0) return res.status(404).json({ success: false, message: 'Phần thưởng không tồn tại' });
 
             const reward = rewards[0];
-            const [users] = await db.query('SELECT total_points FROM users WHERE id = ?', [user.id]);
+            const [users] = await db.query('SELECT total_points FROM users WHERE id = $1', [user.id]);
             const currentPoints = users[0]?.total_points || 0;
 
             if (currentPoints < reward.points_required) {
                 return res.json({ success: false, message: `Bạn cần ${reward.points_required} điểm, hiện có ${currentPoints} điểm` });
             }
 
-            const { v4: uuidv4 } = require('uuid');
-            await db.query('INSERT INTO user_rewards (id, user_id, reward_id) VALUES (?, ?, ?)', [uuidv4(), user.id, reward_id]);
-            await db.query('UPDATE users SET total_points = total_points - ? WHERE id = ?', [reward.points_required, user.id]);
-            await db.query('UPDATE rewards SET quantity = quantity - 1 WHERE id = ?', [reward_id]);
+            await db.query('INSERT INTO user_rewards (id, user_id, reward_id) VALUES ($1, $2, $3)', [uuidv4(), user.id, reward_id]);
+            await db.query('UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - $1) WHERE id = $2', [reward.points_required, user.id]);
+            await db.query('UPDATE rewards SET quantity = GREATEST(0, quantity - 1) WHERE id = $1', [reward_id]);
 
             res.json({ success: true, message: `Đổi thành công "${reward.title}"! 🎁` });
         } catch (error) {

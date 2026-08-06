@@ -39,22 +39,20 @@ class ExploreController {
 
             const related = await Destination.getRelated(dest.type, dest.id);
 
-            // Get chat history for current session
             let messages = [];
-            const sessionUuid = req.cookies.session_uuid;
+            const sessionUuid = req.cookies?.session_uuid;
             if (sessionUuid) {
                 const session = await UserSession.findByUuid(sessionUuid);
                 if (session) {
                     [messages] = await UserSession.db.query(
-                        "SELECT * FROM messages WHERE destination_id = ? AND (sender_uuid = ? OR receiver_uuid = ?) ORDER BY created_at ASC",
+                        "SELECT * FROM messages WHERE destination_id = $1 AND (sender_uuid = $2 OR receiver_uuid = $3) ORDER BY created_at ASC",
                         [dest.id, session.id, session.id]
                     );
                 }
             }
 
-            // Fetch real community check-in photos for this destination's artistic gallery
             const [communityReviews] = await Destination.db.query(
-                "SELECT images FROM reviews WHERE destination_id = ? AND images IS NOT NULL",
+                "SELECT images FROM reviews WHERE destination_id = $1 AND images IS NOT NULL",
                 [dest.id]
             );
             
@@ -68,35 +66,32 @@ class ExploreController {
                 } catch(e) {}
             });
 
-            // If empty, keep it empty to let the UI show a custom placeholder
             if (galleryImages.length === 0) {
                 galleryImages = [];
             }
 
-            // Check if logged-in user has liked or favorited
             const user = req.user || req.session?.user || null;
             let hasLiked = false;
             let hasSaved = false;
             if (user) {
                 const [likeRows] = await Destination.db.query(
-                    "SELECT id FROM destination_likes WHERE user_id = ? AND destination_id = ?",
+                    "SELECT id FROM destination_likes WHERE user_id = $1 AND destination_id = $2",
                     [user.id, dest.id]
                 );
                 hasLiked = likeRows.length > 0;
 
                 const [favRows] = await Destination.db.query(
-                    "SELECT id FROM user_favorites WHERE user_id = ? AND destination_id = ?",
+                    "SELECT id FROM user_favorites WHERE user_id = $1 AND destination_id = $2",
                     [user.id, dest.id]
                 );
                 hasSaved = favRows.length > 0;
             }
 
-            // Get total likes count
             const [likesCountRows] = await Destination.db.query(
-                "SELECT COUNT(*) as count FROM destination_likes WHERE destination_id = ?",
+                "SELECT COUNT(*) as count FROM destination_likes WHERE destination_id = $1",
                 [dest.id]
             );
-            const totalLikes = likesCountRows[0]?.count || 0;
+            const totalLikes = parseInt(likesCountRows[0]?.count || 0, 10);
 
             res.render('explore/show', {
                 title: dest.name,

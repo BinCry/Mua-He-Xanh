@@ -14,7 +14,7 @@ class Badge extends Model {
             `SELECT b.*, ub.created_at as unlocked_at
              FROM user_badges ub
              JOIN badges b ON ub.badge_id = b.id
-             WHERE ub.session_id = ?
+             WHERE ub.session_id = $1
              ORDER BY ub.created_at DESC`,
             [sessionId]
         );

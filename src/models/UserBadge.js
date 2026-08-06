@@ -21,7 +21,7 @@ class UserBadge extends Model {
         const [rows] = await this.db.query(
             `SELECT b.* FROM badges b 
              JOIN user_badges ub ON b.id = ub.badge_id 
-             WHERE ub.session_id = ?`,
+             WHERE ub.session_id = $1`,
             [sessionId]
         );
         return rows;
@@ -47,10 +47,10 @@ class UserBadge extends Model {
             switch (condition.type) {
                 case 'first_journey_complete':
                     const [rows] = await this.db.query(
-                        "SELECT COUNT(*) as cnt FROM journeys WHERE session_id = ? AND status = 'completed'",
+                        "SELECT COUNT(*) as cnt FROM journeys WHERE session_id = $1 AND status = 'completed'",
                         [sessionId]
                     );
-                    unlocked = rows[0].cnt >= 1;
+                    unlocked = parseInt(rows[0]?.cnt || 0, 10) >= 1;
                     break;
 
                 case 'checkins_same_day':
@@ -58,7 +58,7 @@ class UserBadge extends Model {
                     break;
 
                 case 'total_points':
-                    unlocked = (session.total_points || 0) >= (condition.min_points || 100);
+                    unlocked = (session?.total_points || 0) >= (condition.min_points || 100);
                     break;
 
                 case 'total_checkins':

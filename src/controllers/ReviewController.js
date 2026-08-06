@@ -1,11 +1,10 @@
 /**
- * Review Controller - Community Social Feed
+ * Review Controller - Pure PostgreSQL
  */
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
-
 const fs = require('fs');
 
 const upload = multer({
@@ -68,19 +67,17 @@ const ReviewController = {
                 images = JSON.stringify([result.url]);
             }
 
-            // Auto-detect location name via reverse geocoding if coordinates provided
             let locationName = null;
             let locationLat = lat ? parseFloat(lat) : null;
             let locationLng = lng ? parseFloat(lng) : null;
 
-            // Try to match with nearest destination
             let destinationId = null;
             if (locationLat && locationLng) {
                 const [nearDest] = await db.query(`
                     SELECT id, name FROM destinations 
                     WHERE lat IS NOT NULL AND lng IS NOT NULL 
-                    AND ABS(lat - ?) < 0.005 AND ABS(lng - ?) < 0.005
-                    ORDER BY ABS(lat - ?) + ABS(lng - ?) ASC LIMIT 1
+                    AND ABS(lat - $1) < 0.005 AND ABS(lng - $2) < 0.005
+                    ORDER BY ABS(lat - $3) + ABS(lng - $4) ASC LIMIT 1
                 `, [locationLat, locationLng, locationLat, locationLng]);
                 if (nearDest.length > 0) {
                     destinationId = nearDest[0].id;
@@ -90,7 +87,7 @@ const ReviewController = {
 
             await db.query(
                 `INSERT INTO reviews (id, user_id, destination_id, content, rating, images, location_lat, location_lng, location_name, created_at)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
                 [id, user.id, destinationId, content, rating || 5, images, locationLat, locationLng, locationName]
             );
 
@@ -108,20 +105,20 @@ const ReviewController = {
 
             const { review_id } = req.body;
             const [existing] = await db.query(
-                'SELECT id FROM review_likes WHERE review_id = ? AND user_id = ?',
+                'SELECT id FROM review_likes WHERE review_id = $1 AND user_id = $2',
                 [review_id, user.id]
             );
 
             if (existing.length > 0) {
-                await db.query('DELETE FROM review_likes WHERE review_id = ? AND user_id = ?', [review_id, user.id]);
-                await db.query('UPDATE reviews SET likes_count = GREATEST(0, likes_count - 1) WHERE id = ?', [review_id]);
+                await db.query('DELETE FROM review_likes WHERE review_id = $1 AND user_id = $2', [review_id, user.id]);
+                await db.query('UPDATE reviews SET likes_count = GREATEST(0, likes_count - 1) WHERE id = $1', [review_id]);
             } else {
-                await db.query('INSERT INTO review_likes (id, review_id, user_id) VALUES (?, ?, ?)', [uuidv4(), review_id, user.id]);
-                await db.query('UPDATE reviews SET likes_count = likes_count + 1 WHERE id = ?', [review_id]);
+                await db.query('INSERT INTO review_likes (id, review_id, user_id) VALUES ($1, $2, $3)', [uuidv4(), review_id, user.id]);
+                await db.query('UPDATE reviews SET likes_count = likes_count + 1 WHERE id = $1', [review_id]);
             }
 
-            const [result] = await db.query('SELECT likes_count FROM reviews WHERE id = ?', [review_id]);
-            res.json({ success: true, likes: result[0]?.likes_count || 0 });
+            const [result] = await db.query('SELECT likes_count FROM reviews WHERE id = $1', [review_id]);
+            res.json({ success: true, likes: parseInt(result[0]?.likes_count || 0, 10) });
         } catch (error) {
             console.error('Like error:', error);
             res.status(500).json({ success: false });
@@ -135,10 +132,10 @@ const ReviewController = {
 
             const { review_id, comment } = req.body;
             await db.query(
-                'INSERT INTO review_comments (id, review_id, user_id, content) VALUES (?, ?, ?, ?)',
+                'INSERT INTO review_comments (id, review_id, user_id, content) VALUES ($1, $2, $3, $4)',
                 [uuidv4(), review_id, user.id, comment]
             );
-            await db.query('UPDATE reviews SET comments_count = comments_count + 1 WHERE id = ?', [review_id]);
+            await db.query('UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1', [review_id]);
             res.json({ success: true });
         } catch (error) {
             res.status(500).json({ success: false });

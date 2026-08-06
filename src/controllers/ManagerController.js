@@ -9,7 +9,6 @@ class ManagerController {
             const user = req.session.user || req.user;
             let destId = user.managed_destination_id;
             
-            // Admin can override destId via query
             if (user.role === 'admin' && req.query.dest_id) {
                 destId = req.query.dest_id;
             }
@@ -30,56 +29,54 @@ class ManagerController {
             const dest = await Destination.findById(destId);
             if (!dest) return res.status(404).send("Địa điểm không tồn tại");
 
-            // --- Stats queries ---
             // 1. Total Check-ins
             const [checkinStats] = await UserSession.db.query(
-                "SELECT COUNT(*) as total FROM check_ins WHERE destination_id = ?",
+                "SELECT COUNT(*) as total FROM check_ins WHERE destination_id = $1",
                 [dest.id]
             );
 
             // 2. Total conversations (unique session ids)
             const [convoStats] = await UserSession.db.query(
-                "SELECT COUNT(DISTINCT sender_uuid) as total FROM messages WHERE destination_id = ? AND sender_uuid IS NOT NULL",
+                "SELECT COUNT(DISTINCT sender_uuid) as total FROM messages WHERE destination_id = $1 AND sender_uuid IS NOT NULL",
                 [dest.id]
             );
 
             // 3. Review ratings stats
             const [reviewStats] = await UserSession.db.query(
-                "SELECT COUNT(*) as count, COALESCE(AVG(rating), 5.0) as avg_rating FROM reviews WHERE destination_id = ?",
+                "SELECT COUNT(*) as count, COALESCE(AVG(rating), 5.0) as avg_rating FROM reviews WHERE destination_id = $1",
                 [dest.id]
             );
 
-            // 4. Workshop Bookings Count (thay cho page views)
+            // 4. Workshop Bookings Count
             const [workshopBookingsCount] = await UserSession.db.query(
                 `SELECT COUNT(*) as total FROM workshop_bookings wb 
                  JOIN workshops w ON wb.workshop_id = w.id 
-                 WHERE w.destination_id = ? AND wb.status != 'cancelled'`,
+                 WHERE w.destination_id = $1 AND wb.status != 'cancelled'`,
                 [dest.id]
             );
 
-            // 5. Doanh thu (Revenue)
+            // 5. Revenue
             const [revenueStats] = await UserSession.db.query(
                 `SELECT COALESCE(SUM(wb.total_price), 0) as total
                  FROM workshop_bookings wb
                  JOIN workshops w ON wb.workshop_id = w.id
-                 WHERE w.destination_id = ? AND wb.status != 'cancelled'`,
+                 WHERE w.destination_id = $1 AND wb.status != 'cancelled'`,
                 [dest.id]
             );
 
-            // --- Charts Data Queries ---
-            // 1. Daily Check-ins (last 7 days)
+            // 1. Daily Check-ins (last 7 days - PostgreSQL INTERVAL)
             const [dailyCheckinRows] = await UserSession.db.query(`
                 SELECT DATE(created_at) as day, COUNT(*) as count
                 FROM check_ins 
-                WHERE destination_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                GROUP BY day ORDER BY day ASC
+                WHERE destination_id = $1 AND created_at >= NOW() - INTERVAL '7 day'
+                GROUP BY DATE(created_at) ORDER BY day ASC
             `, [dest.id]);
             
             const checkinsMap = {};
             dailyCheckinRows.forEach(r => {
                 try {
                     const dateStr = new Date(r.day).toISOString().split('T')[0];
-                    checkinsMap[dateStr] = r.count;
+                    checkinsMap[dateStr] = parseInt(r.count, 10);
                 } catch(e) {}
             });
 
@@ -94,12 +91,12 @@ class ManagerController {
                 });
             }
 
-            // 2. Rating trend (last 7 days)
+            // 2. Rating trend (last 7 days - PostgreSQL INTERVAL)
             const [dailyRatingRows] = await UserSession.db.query(`
                 SELECT DATE(created_at) as day, AVG(rating) as avg_rating
                 FROM reviews
-                WHERE destination_id = ? AND created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)
-                GROUP BY day ORDER BY day ASC
+                WHERE destination_id = $1 AND created_at >= NOW() - INTERVAL '7 day'
+                GROUP BY DATE(created_at) ORDER BY day ASC
             `, [dest.id]);
             
             const ratingsMap = {};
@@ -111,7 +108,7 @@ class ManagerController {
             });
 
             const dailyRatings = [];
-            let lastRating = 5.0; // fallback rating
+            let lastRating = 5.0;
             for (let i = 6; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
@@ -125,14 +122,13 @@ class ManagerController {
                 });
             }
 
-            // --- Dashboard Data Lists ---
             // 1. Recent Check-ins
             const [recentCheckins] = await UserSession.db.query(
                 `SELECT c.*, s.uuid as session_uuid, u.full_name, u.avatar 
                  FROM check_ins c
                  LEFT JOIN user_sessions s ON c.session_id = s.id
                  LEFT JOIN users u ON s.user_id = u.id
-                 WHERE c.destination_id = ?
+                 WHERE c.destination_id = $1
                  ORDER BY c.created_at DESC LIMIT 5`,
                 [dest.id]
             );
@@ -143,7 +139,7 @@ class ManagerController {
                  FROM (
                      SELECT id
                      FROM reviews
-                     WHERE destination_id = ?
+                     WHERE destination_id = $1
                      ORDER BY created_at DESC LIMIT 3
                  ) sub
                  JOIN reviews r ON sub.id = r.id
@@ -156,12 +152,12 @@ class ManagerController {
                 title: 'Bảng điều khiển: ' + dest.name,
                 dest,
                 stats: {
-                    checkins: checkinStats[0].total,
-                    chats: convoStats[0].total,
-                    reviewsCount: reviewStats[0].count,
-                    avgRating: parseFloat(reviewStats[0].avg_rating).toFixed(1),
-                    workshopBookings: workshopBookingsCount[0].total,
-                    revenue: revenueStats[0].total
+                    checkins: parseInt(checkinStats[0]?.total || 0, 10),
+                    chats: parseInt(convoStats[0]?.total || 0, 10),
+                    reviewsCount: parseInt(reviewStats[0]?.count || 0, 10),
+                    avgRating: parseFloat(reviewStats[0]?.avg_rating || 5.0).toFixed(1),
+                    workshopBookings: parseInt(workshopBookingsCount[0]?.total || 0, 10),
+                    revenue: parseInt(revenueStats[0]?.total || 0, 10)
                 },
                 chartData: { dailyCheckins, dailyRatings },
                 recentCheckins,
@@ -195,7 +191,6 @@ class ManagerController {
             const dest = await Destination.findById(destId);
             if (!dest) return res.status(404).send("Địa điểm không tồn tại");
 
-            // Conversation List (Facebook Fanpage style)
             const [conversations] = await UserSession.db.query(
                 `SELECT 
                      s.id AS session_id,
@@ -208,21 +203,21 @@ class ManagerController {
                      (
                          SELECT message 
                          FROM messages 
-                         WHERE destination_id = ? 
+                         WHERE destination_id = $1 
                            AND (sender_uuid = s.id OR receiver_uuid = s.id)
                          ORDER BY created_at DESC LIMIT 1
                      ) AS last_message,
                      (
                          SELECT created_at 
                          FROM messages 
-                         WHERE destination_id = ? 
+                         WHERE destination_id = $2 
                            AND (sender_uuid = s.id OR receiver_uuid = s.id)
                          ORDER BY created_at DESC LIMIT 1
                      ) AS last_message_time
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
                  WHERE s.id IN (
-                     SELECT DISTINCT sender_uuid FROM messages WHERE destination_id = ? AND sender_uuid IS NOT NULL
+                     SELECT DISTINCT sender_uuid FROM messages WHERE destination_id = $3 AND sender_uuid IS NOT NULL
                  )
                  ORDER BY last_message_time DESC`,
                 [dest.id, dest.id, dest.id]
@@ -273,7 +268,6 @@ class ManagerController {
         }
     }
 
-    /** AJAX Endpoint to fetch chat history for a session */
     async getChatHistory(req, res) {
         try {
             const { sessionId } = req.query;
@@ -288,7 +282,6 @@ class ManagerController {
                 return res.status(400).json({ success: false, message: 'Thiếu thông tin session hoặc địa điểm.' });
             }
 
-            // Fetch chat history
             const [messages] = await UserSession.db.query(
                 `SELECT m.*, s.uuid as sender_uuid, 
                         u.full_name as sender_name, u.avatar as sender_avatar,
@@ -297,20 +290,19 @@ class ManagerController {
                  LEFT JOIN user_sessions s ON m.sender_uuid = s.id
                  LEFT JOIN users u ON s.user_id = u.id
                  LEFT JOIN users mgr ON m.sender_id = mgr.id
-                 WHERE m.destination_id = ? 
-                   AND (m.sender_uuid = ? OR m.receiver_uuid = ?)
+                 WHERE m.destination_id = $1 
+                   AND (m.sender_uuid = $2 OR m.receiver_uuid = $3)
                  ORDER BY m.created_at ASC`,
                 [destId, sessionId, sessionId]
             );
 
-            // Fetch visitor details
             const [visitorDetails] = await UserSession.db.query(
                 `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone,
-                        (SELECT COUNT(*) FROM check_ins WHERE session_id = s.id AND destination_id = ?) as is_checked_in,
-                        (SELECT created_at FROM check_ins WHERE session_id = s.id AND destination_id = ? ORDER BY created_at DESC LIMIT 1) as checked_in_at
+                        (SELECT COUNT(*) FROM check_ins WHERE session_id = s.id AND destination_id = $1) as is_checked_in,
+                        (SELECT created_at FROM check_ins WHERE session_id = s.id AND destination_id = $2 ORDER BY created_at DESC LIMIT 1) as checked_in_at
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id = ?`,
+                 WHERE s.id = $3`,
                 [destId, destId, sessionId]
             );
 
@@ -359,7 +351,7 @@ class ManagerController {
 
             if (typeof cover_image !== 'undefined' && cover_image && cover_image.trim() !== '') {
                 const db = require('../core/database');
-                await db.query("UPDATE users SET avatar = ? WHERE role = 'manager' AND managed_destination_id = ?", [cover_image, targetDestId]);
+                await db.query("UPDATE users SET avatar = $1 WHERE role = 'manager' AND managed_destination_id = $2", [cover_image, targetDestId]);
                 if (user.role === 'manager' && req.session.user) {
                     req.session.user.avatar = cover_image;
                 }
@@ -397,7 +389,7 @@ class ManagerController {
                        (SELECT COUNT(*) FROM workshop_bookings wb WHERE wb.workshop_id = w.id AND wb.status != 'cancelled') as booking_count
                 FROM workshops w 
                 LEFT JOIN destinations d ON w.destination_id = d.id
-                WHERE w.destination_id = ?
+                WHERE w.destination_id = $1
                 ORDER BY w.created_at DESC
             `, [dest.id]);
 
@@ -433,7 +425,7 @@ class ManagerController {
 
             await UserSession.db.query(
                 `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, NOW())`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, NOW())`,
                 [uuidv4(), destId, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
             );
 
@@ -454,9 +446,8 @@ class ManagerController {
                 return res.status(400).json({ success: false, message: 'Thiếu mã workshop.' });
             }
 
-            // Verify manager owns this workshop
             const [check] = await UserSession.db.query(
-                "SELECT destination_id FROM workshops WHERE id = ?",
+                "SELECT destination_id FROM workshops WHERE id = $1",
                 [id]
             );
 
@@ -470,8 +461,8 @@ class ManagerController {
 
             await UserSession.db.query(
                 `UPDATE workshops 
-                 SET title = ?, description = ?, type = ?, price = ?, duration = ?, max_participants = ?, image = ?, start_date = ?, end_date = ?, is_active = ? 
-                 WHERE id = ?`,
+                 SET title = $1, description = $2, type = $3, price = $4, duration = $5, max_participants = $6, image = $7, start_date = $8, end_date = $9, is_active = $10 
+                 WHERE id = $11`,
                 [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined ? is_active : 1, id]
             );
 
@@ -492,9 +483,8 @@ class ManagerController {
                 return res.status(400).json({ success: false, message: 'Thiếu mã workshop.' });
             }
 
-            // Verify ownership
             const [check] = await UserSession.db.query(
-                "SELECT destination_id FROM workshops WHERE id = ?",
+                "SELECT destination_id FROM workshops WHERE id = $1",
                 [id]
             );
 
@@ -506,7 +496,7 @@ class ManagerController {
                 return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa workshop này.' });
             }
 
-            await UserSession.db.query("DELETE FROM workshops WHERE id = ?", [id]);
+            await UserSession.db.query("DELETE FROM workshops WHERE id = $1", [id]);
             res.json({ success: true, message: 'Đã xóa workshop.' });
         } catch (error) {
             console.error("Manager delete workshop error:", error);
@@ -524,7 +514,7 @@ class ManagerController {
                 SELECT wb.*, u.full_name, u.email, u.phone, u.avatar
                 FROM workshop_bookings wb
                 LEFT JOIN users u ON wb.user_id = u.id
-                WHERE wb.workshop_id = ?
+                WHERE wb.workshop_id = $1
                 ORDER BY wb.created_at DESC
             `, [workshop_id]);
             res.json({ success: true, bookings });
@@ -541,7 +531,7 @@ class ManagerController {
                 return res.status(400).json({ success: false, message: 'Thiếu thông tin' });
             }
             await UserSession.db.query(
-                "UPDATE workshop_bookings SET status = ? WHERE id = ?",
+                "UPDATE workshop_bookings SET status = $1 WHERE id = $2",
                 [status, booking_id]
             );
             res.json({ success: true, message: 'Cập nhật trạng thái thành công!' });

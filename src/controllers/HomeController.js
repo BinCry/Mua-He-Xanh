@@ -50,16 +50,16 @@ class HomeController {
             const activeDestinations = (await Destination.getActive(100)).length;
             
             // Real page views count
-            const [pageViewResult] = await db.query('SELECT COUNT(*) as total FROM analytics WHERE event = ?', ['page_view']);
-            const totalPageViews = pageViewResult[0]?.total || 0;
+            const [pageViewResult] = await db.query('SELECT COUNT(*) as total FROM analytics WHERE event = $1', ['page_view']);
+            const totalPageViews = parseInt(pageViewResult[0]?.total || 0, 10);
 
             // Real unique visitors (by session_id)
-            const [uniqueVisitors] = await db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics WHERE event = ?', ['page_view']);
-            const totalVisitors = uniqueVisitors[0]?.total || 0;
+            const [uniqueVisitors] = await db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics WHERE event = $1', ['page_view']);
+            const totalVisitors = parseInt(uniqueVisitors[0]?.total || 0, 10);
 
             // Real workshops count
             const [workshopCountResult] = await db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1');
-            const workshopCount = workshopCountResult[0]?.total || 50;
+            const workshopCount = parseInt(workshopCountResult[0]?.total || 50, 10);
 
             // Real average rating from reviews
             const [avgRatingResult] = await db.query('SELECT AVG(rating) as avg FROM reviews');
@@ -68,7 +68,7 @@ class HomeController {
                 avgRating = Math.round(parseFloat(avgRating) * 10) / 10;
             }
 
-            // Festival/Events from DB (admin managed) - query is_featured = 1 first, fallback to is_countdown = 1, then nearest upcoming active event
+            // Festival/Events from DB (admin managed)
             let [events] = await db.query(`
                 SELECT * FROM events 
                 WHERE is_active = 1 AND is_featured = 1 
@@ -101,7 +101,7 @@ class HomeController {
             if (nextEvent) {
                 [otherEvents] = await db.query(`
                     SELECT * FROM events 
-                    WHERE is_active = 1 AND id != ?
+                    WHERE is_active = 1 AND id != $1
                     ORDER BY event_date ASC
                 `, [nextEvent.id]);
             } else {

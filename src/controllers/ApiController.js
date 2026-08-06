@@ -4,6 +4,7 @@ const Journey = require('../models/Journey');
 const CheckIn = require('../models/CheckIn');
 const UserBadge = require('../models/UserBadge');
 const Model = require('../core/Model');
+const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 
 class ApiController {
@@ -14,7 +15,7 @@ class ApiController {
         
         if (req.method === 'POST') {
             const body = req.body;
-            let currentUuid = req.cookies.session_uuid || uuid;
+            let currentUuid = req.cookies?.session_uuid || uuid;
             
             if (!currentUuid) {
                 currentUuid = uuidv4();
@@ -40,7 +41,6 @@ class ApiController {
             const session = await UserSession.findByUuid(uuid);
             if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
             
-            // Get badges
             session.badges = await UserBadge.getUnlockedBySession(session.id);
             
             res.json({ success: true, data: session });
@@ -61,7 +61,7 @@ class ApiController {
     // --- JOURNEY API ---
     async journey(req, res) {
         const body = req.body;
-        const sessionUuid = body.sessionUuid || req.cookies.session_uuid;
+        const sessionUuid = body.sessionUuid || req.cookies?.session_uuid;
         const mood = body.mood || 'an_nhien';
         
         if (!sessionUuid) return res.status(400).json({ success: false, message: 'Missing sessionUuid' });
@@ -75,9 +75,8 @@ class ApiController {
             
             const journey = await Journey.createPersonalized(session.id, mood, duration, interests);
             
-            // KPI Tracking
-            await UserSession.db.query(
-                "INSERT INTO analytics (id, session_id, event, metadata) VALUES (?, ?, ?, ?)",
+            await db.query(
+                "INSERT INTO analytics (id, session_id, event, metadata) VALUES ($1, $2, $3, $4)",
                 [uuidv4(), session.id, 'journey_created', JSON.stringify({ mood, duration, stop_count: journey.stops.length })]
             );
 
@@ -100,14 +99,13 @@ class ApiController {
             } else if (action === 'remove' && destinationId) {
                 await Journey.removeStop(journeyId, destinationId);
             } else if (action === 'add' && destinationId) {
-                // Check if already in journey stops
-                const [existing] = await UserSession.db.query(
-                    "SELECT id FROM journey_stops WHERE journey_id = ? AND destination_id = ?",
+                const [existing] = await db.query(
+                    "SELECT id FROM journey_stops WHERE journey_id = $1 AND destination_id = $2",
                     [journeyId, destinationId]
                 );
                 if (existing.length === 0) {
-                    const [rows] = await UserSession.db.query(
-                        "SELECT MAX(stop_order) as max_order FROM journey_stops WHERE journey_id = ?",
+                    const [rows] = await db.query(
+                        "SELECT MAX(stop_order) as max_order FROM journey_stops WHERE journey_id = $1",
                         [journeyId]
                     );
                     const nextOrder = (rows[0] && rows[0].max_order !== null) ? rows[0].max_order + 1 : 0;
@@ -133,7 +131,7 @@ class ApiController {
         if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed' });
         
         const body = req.body;
-        const sessionUuid = body.sessionUuid || req.cookies.session_uuid;
+        const sessionUuid = body.sessionUuid || req.cookies?.session_uuid;
         const slug = body.slug || null;
         const lat = parseFloat(body.lat) || null;
         const lng = parseFloat(body.lng) || null;
@@ -147,15 +145,12 @@ class ApiController {
         if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
 
         const dest = await Destination.findBySlug(slug);
-        console.log(`[CHECKIN DEBUG] Received slug: "${slug}", Found: ${dest ? dest.name : 'NULL'}`);
         if (!dest) {
-            console.log('[CHECKIN DEBUG] Slug not found:', slug);
             return res.status(404).json({ success: false, message: 'Địa điểm không hợp lệ' });
         }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
-        const maxRadius = dest.radius_meter || 100; // Bán kính 100m
-        console.log(`[CHECKIN] Distance: ${Math.round(distance)}m, MaxRadius: ${maxRadius}m, DestCoords: (${dest.lat}, ${dest.lng}), UserCoords: (${lat}, ${lng})`);
+        const maxRadius = dest.radius_meter || 100;
         
         if (distance > maxRadius) {
             return res.status(400).json({ success: false, message: 'Nằm ngoài bán kính địa điểm', error_type: 'OUT_OF_RADIUS' });
@@ -180,8 +175,8 @@ class ApiController {
 
             const journey = await Journey.getActiveBySession(session.id);
             if (journey) {
-                await UserSession.db.query(
-                    "UPDATE journey_stops SET is_completed = 1, completed_at = NOW() WHERE journey_id = ? AND destination_id = ?",
+                await db.query(
+                    "UPDATE journey_stops SET is_completed = 1, completed_at = NOW() WHERE journey_id = $1 AND destination_id = $2",
                     [journey.id, dest.id]
                 );
             }
@@ -210,7 +205,7 @@ class ApiController {
     // --- CHAT API ---
     async sendMessage(req, res) {
         const { destinationId, message } = req.body;
-        const sessionUuid = req.cookies.session_uuid;
+        const sessionUuid = req.cookies?.session_uuid;
         
         if (!sessionUuid || !message) {
             return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ' });
@@ -221,34 +216,30 @@ class ApiController {
 
         let receiverId = null;
         if (destinationId) {
-            // Route to Manager
-            const [managers] = await UserSession.db.query(
-                "SELECT id FROM users WHERE managed_destination_id = ? AND role = 'manager' LIMIT 1",
+            const [managers] = await db.query(
+                "SELECT id FROM users WHERE managed_destination_id = $1 AND role = 'manager' LIMIT 1",
                 [destinationId]
             );
             receiverId = managers.length > 0 ? managers[0].id : null;
         } else {
-            // Route to Admin
-            const [admins] = await UserSession.db.query(
+            const [admins] = await db.query(
                 "SELECT id FROM users WHERE role = 'admin' LIMIT 1"
             );
             receiverId = admins.length > 0 ? admins[0].id : null;
         }
 
-        // Save user message (use session_uuid for guest identification in sender_uuid field if needed)
-        await UserSession.db.query(
-            "INSERT INTO messages (id, sender_id, sender_uuid, receiver_id, destination_id, message) VALUES (?, ?, ?, ?, ?, ?)",
+        await db.query(
+            "INSERT INTO messages (id, sender_id, sender_uuid, receiver_id, destination_id, message) VALUES ($1, $2, $3, $4, $5, $6)",
             [uuidv4(), session.user_id || null, session.id, receiverId, destinationId || null, message]
         );
 
-        // Optional AI Brain response (only for destination-specific chat)
         let aiReply = null;
         if (destinationId) {
             const AIBrain = require('../core/AIBrain');
             aiReply = await AIBrain.generateResponse(message, destinationId);
             
-            await UserSession.db.query(
-                "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message, is_ai) VALUES (?, ?, ?, ?, ?, ?)",
+            await db.query(
+                "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message, is_ai) VALUES ($1, $2, $3, $4, $5, $6)",
                 [uuidv4(), null, session.id, destinationId, aiReply, 1]
             );
         }
@@ -274,12 +265,12 @@ class ApiController {
 
         if (sessionId) {
             receiverUuid = sessionId;
-            const [sessions] = await UserSession.db.query("SELECT user_id FROM user_sessions WHERE id = ?", [sessionId]);
+            const [sessions] = await db.query("SELECT user_id FROM user_sessions WHERE id = $1", [sessionId]);
             if (sessions.length > 0) {
                 receiverId = sessions[0].user_id;
             }
         } else if (messageId) {
-            const [rows] = await UserSession.db.query("SELECT * FROM messages WHERE id = ?", [messageId]);
+            const [rows] = await db.query("SELECT * FROM messages WHERE id = $1", [messageId]);
             if (rows.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
             const originalMsg = rows[0];
             receiverUuid = originalMsg.sender_uuid;
@@ -289,8 +280,8 @@ class ApiController {
             return res.status(400).json({ success: false, message: 'Thiếu thông tin người nhận (sessionId hoặc messageId)' });
         }
 
-        await UserSession.db.query(
-            "INSERT INTO messages (id, sender_id, receiver_id, receiver_uuid, destination_id, message) VALUES (?, ?, ?, ?, ?, ?)",
+        await db.query(
+            "INSERT INTO messages (id, sender_id, receiver_id, receiver_uuid, destination_id, message) VALUES ($1, $2, $3, $4, $5, $6)",
             [uuidv4(), manager.id, receiverId, receiverUuid, finalDestId, replyText]
         );
 
@@ -299,7 +290,7 @@ class ApiController {
 
     async getMessages(req, res) {
         const { destinationId } = req.query;
-        const sessionUuid = req.cookies.session_uuid;
+        const sessionUuid = req.cookies?.session_uuid;
 
         if (!sessionUuid) return res.json({ success: true, data: [] });
 
@@ -313,24 +304,28 @@ class ApiController {
         ];
         
         let userCondition = '';
+        let destParamIndex = 7;
         if (session.user_id) {
-            userCondition = 'OR sender_id = ? OR receiver_id = ?';
+            userCondition = 'OR sender_id = $7 OR receiver_id = $8';
             queryParams.push(session.user_id, session.user_id);
+            destParamIndex = 9;
         }
 
+        let destCondition = `AND destination_id IS NULL`;
         if (destinationId) {
+            destCondition = `AND destination_id = $${destParamIndex}`;
             queryParams.push(destinationId);
         }
 
-        const [messages] = await UserSession.db.query(
+        const [messages] = await db.query(
             `SELECT * FROM messages 
               WHERE (
-                sender_uuid = ? OR receiver_uuid = ? 
-                OR sender_uuid = ? OR receiver_uuid = ?
-                OR receiver_id = ? OR sender_id = ?
+                sender_uuid = $1 OR receiver_uuid = $2 
+                OR sender_uuid = $3 OR receiver_uuid = $4
+                OR receiver_id = $5 OR sender_id = $6
                 ${userCondition}
               )
-              AND (destination_id ${destinationId ? '= ?' : 'IS NULL'})
+              ${destCondition}
               ORDER BY created_at ASC`,
             queryParams
         );
@@ -340,7 +335,6 @@ class ApiController {
 
     async getSoundscapes(req, res) {
         try {
-            const db = require('../core/database');
             const [soundscapes] = await db.query(
                 "SELECT * FROM soundscapes WHERE is_active = 1 ORDER BY created_at DESC"
             );
@@ -364,31 +358,31 @@ class ApiController {
         }
 
         try {
-            const [rows] = await UserSession.db.query(
-                "SELECT id FROM destination_likes WHERE user_id = ? AND destination_id = ?",
+            const [rows] = await db.query(
+                "SELECT id FROM destination_likes WHERE user_id = $1 AND destination_id = $2",
                 [user.id, destinationId]
             );
 
             let liked = false;
             if (rows.length > 0) {
-                await UserSession.db.query(
-                    "DELETE FROM destination_likes WHERE user_id = ? AND destination_id = ?",
+                await db.query(
+                    "DELETE FROM destination_likes WHERE user_id = $1 AND destination_id = $2",
                     [user.id, destinationId]
                 );
                 liked = false;
             } else {
-                await UserSession.db.query(
-                    "INSERT INTO destination_likes (id, user_id, destination_id) VALUES (?, ?, ?)",
+                await db.query(
+                    "INSERT INTO destination_likes (id, user_id, destination_id) VALUES ($1, $2, $3)",
                     [uuidv4(), user.id, destinationId]
                 );
                 liked = true;
             }
 
-            const [countRows] = await UserSession.db.query(
-                "SELECT COUNT(*) as count FROM destination_likes WHERE destination_id = ?",
+            const [countRows] = await db.query(
+                "SELECT COUNT(*) as count FROM destination_likes WHERE destination_id = $1",
                 [destinationId]
             );
-            const likesCount = countRows[0]?.count || 0;
+            const likesCount = parseInt(countRows[0]?.count || 0, 10);
 
             res.json({ success: true, liked, likesCount });
         } catch (error) {
@@ -409,21 +403,21 @@ class ApiController {
         }
 
         try {
-            const [rows] = await UserSession.db.query(
-                "SELECT id FROM user_favorites WHERE user_id = ? AND destination_id = ?",
+            const [rows] = await db.query(
+                "SELECT id FROM user_favorites WHERE user_id = $1 AND destination_id = $2",
                 [user.id, destinationId]
             );
 
             let saved = false;
             if (rows.length > 0) {
-                await UserSession.db.query(
-                    "DELETE FROM user_favorites WHERE user_id = ? AND destination_id = ?",
+                await db.query(
+                    "DELETE FROM user_favorites WHERE user_id = $1 AND destination_id = $2",
                     [user.id, destinationId]
                 );
                 saved = false;
             } else {
-                await UserSession.db.query(
-                    "INSERT INTO user_favorites (id, user_id, destination_id) VALUES (?, ?, ?)",
+                await db.query(
+                    "INSERT INTO user_favorites (id, user_id, destination_id) VALUES ($1, $2, $3)",
                     [uuidv4(), user.id, destinationId]
                 );
                 saved = true;
@@ -447,19 +441,18 @@ class ApiController {
             return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ.' });
         }
 
-        const sessionUuid = req.cookies.session_uuid;
+        const sessionUuid = req.cookies?.session_uuid;
 
         try {
             let session = sessionUuid ? await UserSession.findByUuid(sessionUuid) : null;
             if (!session) {
-                // Find or create session for logged in user
-                const [userSessions] = await UserSession.db.query("SELECT * FROM user_sessions WHERE user_id = ? ORDER BY updated_at DESC LIMIT 1", [user.id]);
+                const [userSessions] = await db.query("SELECT * FROM user_sessions WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1", [user.id]);
                 if (userSessions.length > 0) {
                     session = userSessions[0];
                 } else {
                     const newUuid = uuidv4();
                     session = await UserSession.findOrCreate(newUuid, req);
-                    await UserSession.db.query("UPDATE user_sessions SET user_id = ? WHERE id = ?", [user.id, session.id]);
+                    await db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
                 }
             }
 
@@ -477,14 +470,14 @@ class ApiController {
                 journey = { id: journeyId };
             }
 
-            const [existing] = await UserSession.db.query(
-                "SELECT id FROM journey_stops WHERE journey_id = ? AND destination_id = ?",
+            const [existing] = await db.query(
+                "SELECT id FROM journey_stops WHERE journey_id = $1 AND destination_id = $2",
                 [journey.id, destinationId]
             );
 
             if (existing.length === 0) {
-                const [rows] = await UserSession.db.query(
-                    "SELECT MAX(stop_order) as max_order FROM journey_stops WHERE journey_id = ?",
+                const [rows] = await db.query(
+                    "SELECT MAX(stop_order) as max_order FROM journey_stops WHERE journey_id = $1",
                     [journey.id]
                 );
                 const nextOrder = (rows[0] && rows[0].max_order !== null) ? rows[0].max_order + 1 : 0;
@@ -510,4 +503,3 @@ class ApiController {
 }
 
 module.exports = new ApiController();
-

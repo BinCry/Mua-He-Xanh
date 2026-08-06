@@ -1,7 +1,3 @@
-/**
- * Workshop Controller - Chương 5.11: Workshop & Trải nghiệm
- * Tham khảo pattern từ Relioo AdminController (CRUD + API JSON responses)
- */
 const Workshop = require('../models/Workshop');
 const db = require('../core/database');
 const NotificationController = require('./NotificationController');
@@ -19,12 +15,13 @@ const WorkshopController = {
                 SELECT w.*, d.name as destination_name, d.slug as destination_slug
                 FROM workshops w
                 LEFT JOIN destinations d ON w.destination_id = d.id
-                WHERE w.is_active = TRUE
+                WHERE w.is_active = 1
             `;
             const params = [];
+            let index = 1;
 
             if (typeFilter) {
-                query += ' AND w.type = ?';
+                query += ` AND w.type = $${index++}`;
                 params.push(typeFilter);
             }
 
@@ -39,10 +36,12 @@ const WorkshopController = {
                 else if (searchLower.includes('văn hóa') || searchLower.includes('van hoa') || searchLower.includes('culture')) typeMatch = 'culture';
 
                 if (typeMatch) {
-                    query += ' AND (w.title LIKE ? OR w.description LIKE ? OR w.type = ?)';
+                    const p1 = index++, p2 = index++, p3 = index++;
+                    query += ` AND (w.title LIKE $${p1} OR w.description LIKE $${p2} OR w.type = $${p3})`;
                     params.push(`%${searchQuery}%`, `%${searchQuery}%`, typeMatch);
                 } else {
-                    query += ' AND (w.title LIKE ? OR w.description LIKE ?)';
+                    const p1 = index++, p2 = index++;
+                    query += ` AND (w.title LIKE $${p1} OR w.description LIKE $${p2})`;
                     params.push(`%${searchQuery}%`, `%${searchQuery}%`);
                 }
             }
@@ -75,7 +74,6 @@ const WorkshopController = {
         }
     },
 
-
     // GET /workshops/:id - Chi tiết workshop + form đăng ký
     show: async (req, res) => {
         try {
@@ -107,6 +105,7 @@ const WorkshopController = {
             res.status(500).send('Lỗi hệ thống');
         }
     },
+
     // GET /api/workshop/slots - Kiểm tra số chỗ trống
     getSlots: async (req, res) => {
         try {
@@ -133,7 +132,7 @@ const WorkshopController = {
         }
     },
 
-    // POST /api/workshop/book - Đặt chỗ workshop (JSON API, pattern Relioo)
+    // POST /api/workshop/book - Đặt chỗ workshop
     book: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -178,7 +177,7 @@ const WorkshopController = {
 
             // Award points for booking
             await db.query(
-                'UPDATE users SET total_points = COALESCE(total_points, 0) + 50 WHERE id = ?',
+                'UPDATE users SET total_points = COALESCE(total_points, 0) + 50 WHERE id = $1',
                 [user.id]
             );
 
@@ -193,7 +192,7 @@ const WorkshopController = {
             // Send notification to Destination Manager
             try {
                 const [managers] = await db.query(
-                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = ?",
+                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = $1",
                     [workshop.destination_id]
                 );
                 for (let mgr of managers) {
@@ -228,7 +227,7 @@ const WorkshopController = {
 
             // Fetch booking
             const [bookings] = await db.query(
-                "SELECT wb.*, w.title as workshop_title, w.destination_id FROM workshop_bookings wb LEFT JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = ? AND wb.user_id = ?",
+                "SELECT wb.*, w.title as workshop_title, w.destination_id FROM workshop_bookings wb LEFT JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = $1 AND wb.user_id = $2",
                 [bookingId, user.id]
             );
 
@@ -243,13 +242,13 @@ const WorkshopController = {
 
             // Update status to cancelled
             await db.query(
-                "UPDATE workshop_bookings SET status = 'cancelled' WHERE id = ?",
+                "UPDATE workshop_bookings SET status = 'cancelled' WHERE id = $1",
                 [bookingId]
             );
 
             // Deduct points
             await db.query(
-                "UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - 50) WHERE id = ?",
+                "UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - 50) WHERE id = $1",
                 [user.id]
             );
 
@@ -264,7 +263,7 @@ const WorkshopController = {
             // Send notification to Destination Manager
             try {
                 const [managers] = await db.query(
-                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = ?",
+                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = $1",
                     [booking.destination_id]
                 );
                 for (let mgr of managers) {
@@ -295,7 +294,7 @@ const WorkshopController = {
 
             // Award points for review
             await db.query(
-                'UPDATE users SET total_points = COALESCE(total_points, 0) + 30 WHERE id = ?',
+                'UPDATE users SET total_points = COALESCE(total_points, 0) + 30 WHERE id = $1',
                 [user.id]
             );
 

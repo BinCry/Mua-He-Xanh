@@ -8,7 +8,7 @@ class Destination extends Model {
     /** Get all active destinations */
     async getActive(limit = 100) {
         const [rows] = await this.db.query(
-            `SELECT * FROM ${this.table} WHERE is_active = 1 ORDER BY sort_order ASC LIMIT ?`,
+            `SELECT * FROM ${this.table} WHERE is_active = 1 ORDER BY sort_order ASC LIMIT $1`,
             [limit]
         );
         return rows;
@@ -23,15 +23,15 @@ class Destination extends Model {
         let dest = await this.findOne({ slug });
         if (dest) return dest;
 
-        // 2. qr_secret exact match (case-insensitive via SQL)
+        // 2. qr_secret exact match
         const [qrRows] = await this.db.query(
-            `SELECT * FROM ${this.table} WHERE LOWER(qr_secret) = LOWER(?) LIMIT 1`, [slug]
+            `SELECT * FROM ${this.table} WHERE LOWER(qr_secret) = LOWER($1) LIMIT 1`, [slug]
         );
         if (qrRows.length > 0) return qrRows[0];
 
-        // 3. If starts with SECURE_, derive slug from it
+        // 3. Derived SECURE_ slug
         if (slug.toUpperCase().startsWith('SECURE_')) {
-            const derivedSlug = slug.substring(7).toLowerCase(); // remove "SECURE_"
+            const derivedSlug = slug.substring(7).toLowerCase();
             dest = await this.findOne({ slug: derivedSlug });
             if (dest) return dest;
         }
@@ -47,9 +47,9 @@ class Destination extends Model {
             if (dest) return dest;
         }
 
-        // 6. Partial/fuzzy slug match (contains)
+        // 6. Partial/fuzzy slug match
         const [fuzzyRows] = await this.db.query(
-            `SELECT * FROM ${this.table} WHERE slug LIKE ? OR qr_secret LIKE ? LIMIT 1`,
+            `SELECT * FROM ${this.table} WHERE slug LIKE $1 OR qr_secret LIKE $2 LIMIT 1`,
             [`%${slug}%`, `%${slug}%`]
         );
         if (fuzzyRows.length > 0) return fuzzyRows[0];
@@ -66,21 +66,22 @@ class Destination extends Model {
     async getForJourney(mood, interests = [], excludeIds = []) {
         let where = "is_active = 1";
         const params = [];
+        let index = 1;
 
         // Mood
-        where += " AND moods LIKE ?";
+        where += ` AND moods LIKE $${index++}`;
         params.push(`%${mood}%`);
 
         // Interests
         if (interests.length > 0) {
-            const intParts = interests.map(() => "type = ?").join(" OR ");
+            const intParts = interests.map(() => `type = $${index++}`).join(" OR ");
             where += ` AND (${intParts})`;
             params.push(...interests);
         }
 
         // Exclude
         if (excludeIds.length > 0) {
-            const placeholders = excludeIds.map(() => "?").join(",");
+            const placeholders = excludeIds.map(() => `$${index++}`).join(",");
             where += ` AND id NOT IN (${placeholders})`;
             params.push(...excludeIds);
         }
@@ -101,21 +102,22 @@ class Destination extends Model {
     async paginateActive(page = 1, limit = 6, type = null, mood = null, search = null, season = null) {
         let where = "is_active = 1";
         const params = [];
+        let index = 1;
 
         if (type) {
             if (type === 'park') {
                 where += " AND (type = 'park' OR type = 'nature')";
             } else {
-                where += " AND type = ?";
+                where += ` AND type = $${index++}`;
                 params.push(type);
             }
         }
         if (mood) {
-            where += " AND moods LIKE ?";
+            where += ` AND moods LIKE $${index++}`;
             params.push(`%${mood}%`);
         }
         if (season) {
-            where += " AND seasons LIKE ?";
+            where += ` AND seasons LIKE $${index++}`;
             params.push(`%${season}%`);
         }
         if (search) {
@@ -131,15 +133,19 @@ class Destination extends Model {
 
             if (typeMatch) {
                 if (typeMatch === 'park_or_nature') {
-                    where += " AND (name LIKE ? OR short_desc LIKE ? OR story LIKE ? OR type = 'park' OR type = 'nature')";
+                    const p1 = index++, p2 = index++, p3 = index++;
+                    where += ` AND (name LIKE $${p1} OR short_desc LIKE $${p2} OR story LIKE $${p3} OR type = 'park' OR type = 'nature')`;
+                    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
                 } else {
-                    where += " AND (name LIKE ? OR short_desc LIKE ? OR story LIKE ? OR type = ?)";
-                    params.push(typeMatch);
+                    const p1 = index++, p2 = index++, p3 = index++, p4 = index++;
+                    where += ` AND (name LIKE $${p1} OR short_desc LIKE $${p2} OR story LIKE $${p3} OR type = $${p4})`;
+                    params.push(`%${search}%`, `%${search}%`, `%${search}%`, typeMatch);
                 }
             } else {
-                where += " AND (name LIKE ? OR short_desc LIKE ? OR story LIKE ?)";
+                const p1 = index++, p2 = index++, p3 = index++;
+                where += ` AND (name LIKE $${p1} OR short_desc LIKE $${p2} OR story LIKE $${p3})`;
+                params.push(`%${search}%`, `%${search}%`, `%${search}%`);
             }
-            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
         }
 
         return this.paginate(page, limit, where, params, 'sort_order ASC');
@@ -149,7 +155,7 @@ class Destination extends Model {
     async getBySeason(season) {
         try {
             const [rows] = await this.db.query(
-                `SELECT * FROM ${this.table} WHERE is_active = 1 AND seasons LIKE ? ORDER BY sort_order ASC`,
+                `SELECT * FROM ${this.table} WHERE is_active = 1 AND seasons LIKE $1 ORDER BY sort_order ASC`,
                 [`%${season}%`]
             );
             return rows || [];
@@ -162,7 +168,7 @@ class Destination extends Model {
     /** Get related destinations */
     async getRelated(type, excludeId, limit = 3) {
         const [rows] = await this.db.query(
-            `SELECT * FROM ${this.table} WHERE type = ? AND id != ? AND is_active = 1 LIMIT ?`,
+            `SELECT * FROM ${this.table} WHERE type = $1 AND id != $2 AND is_active = 1 LIMIT $3`,
             [type, excludeId, limit]
         );
         return rows;
@@ -177,7 +183,7 @@ class Destination extends Model {
              WHERE d.is_active = 1
              GROUP BY d.id
              ORDER BY checkin_count DESC, d.sort_order ASC
-             LIMIT ?`,
+             LIMIT $1`,
             [limit]
         );
         return rows;

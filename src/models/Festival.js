@@ -15,9 +15,6 @@ class Festival extends Model {
     }
 
     async createBooking(data) {
-        // Assume there is a table festival_bookings (created in migrate_v2.js as festivals booking logic)
-        // Wait, I created 'festivals' table but not 'festival_bookings'.
-        // I'll create it now.
         await this.db.query(`
             CREATE TABLE IF NOT EXISTS festival_bookings (
                 id VARCHAR(36) PRIMARY KEY,
@@ -27,13 +24,13 @@ class Festival extends Model {
                 phone VARCHAR(20),
                 tickets INT,
                 status VARCHAR(50),
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
         `);
 
         const { id, user_id, festival_id, full_name, phone, tickets, status } = data;
         await this.db.query(
-            "INSERT INTO festival_bookings (id, user_id, festival_id, full_name, phone, tickets, status) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO festival_bookings (id, user_id, festival_id, full_name, phone, tickets, status) VALUES ($1, $2, $3, $4, $5, $6, $7)",
             [id, user_id, festival_id, full_name, phone, tickets, status]
         );
     }

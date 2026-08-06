@@ -25,10 +25,10 @@ class UserSession extends Model {
 
     async addPoints(id, points) {
         const [result] = await this.db.query(
-            `UPDATE ${this.table} SET total_points = total_points + ? WHERE id = ?`,
+            `UPDATE ${this.table} SET total_points = total_points + $1 WHERE id = $2`,
             [points, id]
         );
-        return result.affectedRows > 0;
+        return (result.affectedRows || result.rowCount || 0) > 0;
     }
 }
 

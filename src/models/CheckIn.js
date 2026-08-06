@@ -15,7 +15,7 @@ class CheckIn extends Model {
             `SELECT ci.*, d.name, d.slug, d.type, d.cover_image, d.points as dest_points
              FROM ${this.table} ci
              JOIN destinations d ON ci.destination_id = d.id
-             WHERE ci.session_id = ?
+             WHERE ci.session_id = $1
              ORDER BY ci.created_at DESC`,
             [sessionId]
         );
@@ -24,15 +24,15 @@ class CheckIn extends Model {
 
     async countTodayBySession(sessionId) {
         const [rows] = await this.db.query(
-            `SELECT COUNT(*) as cnt FROM ${this.table} WHERE session_id = ? AND DATE(created_at) = CURDATE()`,
+            `SELECT COUNT(*) as cnt FROM ${this.table} WHERE session_id = $1 AND DATE(created_at) = CURRENT_DATE`,
             [sessionId]
         );
-        return rows[0].cnt;
+        return parseInt(rows[0]?.cnt || 0, 10);
     }
 
     async getTotalCount() {
         const [rows] = await this.db.query(`SELECT COUNT(*) as cnt FROM ${this.table}`);
-        return rows[0].cnt;
+        return parseInt(rows[0]?.cnt || 0, 10);
     }
 }
 
