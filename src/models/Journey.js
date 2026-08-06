@@ -167,6 +167,11 @@ class Journey extends Model {
             }
         }
 
+        if (cleanStops.length === 0) {
+            const [fallbackDests] = await this.db.query("SELECT * FROM destinations WHERE is_active = TRUE LIMIT 3");
+            cleanStops.push(...fallbackDests);
+        }
+
         let totalMeters = 0;
         for (let i = 1; i < cleanStops.length; i++) {
             totalMeters += Model.haversine(cleanStops[i - 1].lat, cleanStops[i - 1].lng, cleanStops[i].lat, cleanStops[i].lng);
@@ -175,12 +180,15 @@ class Journey extends Model {
 
         const journeyId = await this.create({
             session_id: sessionId,
-            mood: data.name || 'Hành trình gợi ý',
+            mood: data.name || 'Hành Trình AI Tối Ưu',
             duration: data.duration || 'Nửa ngày',
             total_km: totalKm,
             total_minutes: cleanStops.length * 60 + Math.round(totalKm * 15),
             status: 'active',
-            interests: JSON.stringify(data.tags || [])
+            interests: JSON.stringify({
+                source: data.source || 'ai',
+                tags: data.tags || []
+            })
         });
 
         for (let idx = 0; idx < cleanStops.length; idx++) {

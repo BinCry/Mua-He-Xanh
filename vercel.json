@@ -1,24 +1,9 @@
 {
   "version": 2,
-  "regions": [
-    "sin1"
-  ],
-  "builds": [
+  "rewrites": [
     {
-      "src": "src/server.js",
-      "use": "@vercel/node",
-      "config": {
-        "includeFiles": [
-          "src/views/**",
-          "public/**"
-        ]
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "src/server.js"
+      "source": "/(.*)",
+      "destination": "/api/index.js"
     }
   ]
 }

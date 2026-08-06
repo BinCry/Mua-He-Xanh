@@ -200,79 +200,12 @@ app.use((err, req, res, next) => {
     res.status(500).send('Internal Server Error: ' + err.message);
 });
 
-// Auto-migrate: fix column sizes and defaults on startup
-async function runMigrations() {
-    try {
-        const db = require('./core/database');
-        const migrations = [
-            // Fix text column sizes
-            "ALTER TABLE destinations MODIFY COLUMN short_desc TEXT",
-            "ALTER TABLE destinations MODIFY COLUMN description LONGTEXT",
-            "ALTER TABLE destinations MODIFY COLUMN story LONGTEXT",
-            "ALTER TABLE destinations MODIFY COLUMN highlight LONGTEXT",
-            // Fix NOT NULL columns without defaults
-            "ALTER TABLE destinations MODIFY COLUMN moods VARCHAR(255) NOT NULL DEFAULT '[]'",
-            "ALTER TABLE destinations MODIFY COLUMN seasons VARCHAR(255) NOT NULL DEFAULT '[]'",
-            "ALTER TABLE destinations MODIFY COLUMN stay_capacity ENUM('overnight','noon_rest','none') NOT NULL DEFAULT 'none'",
-            "ALTER TABLE destinations MODIFY COLUMN open_hours VARCHAR(200) NOT NULL DEFAULT '08:00 - 17:00'",
-            "ALTER TABLE destinations MODIFY COLUMN cost VARCHAR(300) NOT NULL DEFAULT 'Miễn phí'",
-            "ALTER TABLE destinations MODIFY COLUMN lat DECIMAL(10,7) NOT NULL DEFAULT 10.825",
-            "ALTER TABLE destinations MODIFY COLUMN lng DECIMAL(10,7) NOT NULL DEFAULT 106.72",
-            "ALTER TABLE destinations MODIFY COLUMN best_time VARCHAR(255) NOT NULL DEFAULT 'Quanh năm'",
-            "ALTER TABLE destinations MODIFY COLUMN checkin_tip VARCHAR(500) NOT NULL DEFAULT 'Hãy chụp ảnh tại điểm này!'",
-            "ALTER TABLE destinations MODIFY COLUMN qr_secret VARCHAR(255) NOT NULL DEFAULT ''",
-            "ALTER TABLE destinations MODIFY COLUMN map_x INT NOT NULL DEFAULT 50",
-            "ALTER TABLE destinations MODIFY COLUMN map_y INT NOT NULL DEFAULT 50",
-            "ALTER TABLE destinations MODIFY COLUMN radius_meter INT NOT NULL DEFAULT 100",
-            "ALTER TABLE workshops ADD COLUMN duration VARCHAR(100) DEFAULT '2 giờ'",
-            "UPDATE workshops SET duration = CONCAT(duration_minutes, ' phút') WHERE duration_minutes IS NOT NULL AND (duration IS NULL OR duration = '2 giờ')",
-            // Image columns → LONGTEXT for base64 storage
-            "ALTER TABLE destinations MODIFY COLUMN cover_image LONGTEXT",
-            "ALTER TABLE workshops MODIFY COLUMN image LONGTEXT",
-            "ALTER TABLE rewards MODIFY COLUMN image LONGTEXT",
-            "ALTER TABLE events MODIFY COLUMN image LONGTEXT",
-            "ALTER TABLE products MODIFY COLUMN image LONGTEXT",
-            "ALTER TABLE festivals MODIFY COLUMN image LONGTEXT",
-            "ALTER TABLE users MODIFY COLUMN avatar LONGTEXT",
-            "ALTER TABLE settings MODIFY COLUMN key_value LONGTEXT",
-            // ENUM → VARCHAR to prevent truncation errors
-            "ALTER TABLE workshops MODIFY COLUMN type VARCHAR(100) DEFAULT 'other'",
-            "ALTER TABLE destinations MODIFY COLUMN type VARCHAR(100) DEFAULT 'nature'",
-            "ALTER TABLE rewards MODIFY COLUMN type VARCHAR(100) DEFAULT 'voucher'",
-            "ALTER TABLE notifications MODIFY COLUMN type VARCHAR(100) DEFAULT 'system'",
-            // Create missing interaction tables
-            `CREATE TABLE IF NOT EXISTS destination_likes (
-                id VARCHAR(36) PRIMARY KEY,
-                user_id VARCHAR(36) NOT NULL,
-                destination_id VARCHAR(36) NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY user_like_dest (user_id, destination_id)
-            )`,
-            `CREATE TABLE IF NOT EXISTS user_favorites (
-                id VARCHAR(36) PRIMARY KEY,
-                user_id VARCHAR(36) NOT NULL,
-                destination_id VARCHAR(36) NOT NULL,
-                created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-                UNIQUE KEY user_fav_dest (user_id, destination_id)
-            )`,
-        ];
-        for (const sql of migrations) {
-            try { await db.query(sql); } catch(e) { /* skip if already correct */ }
-        }
-        console.log('✅ Database migrations checked');
-    } catch(e) {
-        console.error('⚠️ Migration check failed:', e.message);
-    }
+if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    app.listen(PORT, () => {
+        console.log(`Server is running at http://localhost:${PORT}`);
+    });
 }
 
-if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
-    app.listen(PORT, async () => {
-        console.log(`Server is running at http://localhost:${PORT}`);
-        await runMigrations();
-    });
-} else {
-    // Chạy migration trực tiếp khi khởi tạo trên Vercel Serverless
-    runMigrations().catch(err => console.error("Vercel startup migration failed:", err));
-}
+module.exports = app;
 
 module.exports = app;

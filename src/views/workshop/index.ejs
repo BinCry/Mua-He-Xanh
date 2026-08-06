@@ -72,7 +72,7 @@
                     </div>
                     <div class="p-4 d-flex flex-column flex-grow-1">
                         <h5 class="fw-bold mb-2"><%= ws.title %></h5>
-                        <p class="text-muted line-clamp-2 mb-3" style="font-size: 0.88rem;"><%= ws.description %></p>
+                        <p class="text-muted line-clamp-2 mb-3" style="font-size: 0.88rem;"><%= (ws.description || '').replace(/\.+$/, '') %></p>
                         
                         <div class="mt-auto">
                             <div class="d-flex align-items-center gap-3 mb-3 flex-wrap" style="font-size: 0.8rem; color: var(--text-secondary);">

@@ -3,262 +3,433 @@
     --brand-maroon: #922724;
     --brand-maroon-dark: #6e1b19;
     --brand-green: #15803d;
-    --brand-gold: #d97706;
-    --brand-bg: #faf8f5;
+    --brand-bg: #f8f6f0;
     --brand-card: #ffffff;
     --brand-border: #eee7dd;
     --brand-text: #1e293b;
     --brand-muted: #64748b;
 }
 
-/* Redesigned Premium Hero */
-.sug-hero-premium {
-    background: linear-gradient(135deg, #7f1d1d 0%, #922724 45%, #15803d 100%);
-    padding: 50px 0 65px;
+body {
+    background-color: var(--brand-bg);
+}
+
+/* HERO BANNER (CHUẨN TƯƠNG PHẢN, CHỮ TRẮNG RÕ NÉT) */
+.sug-hero-banner {
+    background: linear-gradient(135deg, #7f1d1d 0%, #922724 50%, #15803d 100%);
+    padding: 45px 15px 55px;
+    text-align: center;
     color: #ffffff;
-    position: relative;
-    overflow: hidden;
     box-shadow: inset 0 -10px 30px rgba(0,0,0,0.15);
 }
 
-.sug-hero-ambient-1 {
-    position: absolute;
-    top: -80px; left: -80px;
-    width: 380px; height: 380px;
-    background: radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(0,0,0,0) 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-.sug-hero-ambient-2 {
-    position: absolute;
-    bottom: -100px; right: -60px;
-    width: 450px; height: 450px;
-    background: radial-gradient(circle, rgba(217,119,6,0.15) 0%, rgba(0,0,0,0) 70%);
-    border-radius: 50%;
-    pointer-events: none;
+.sug-hero-title {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #ffffff !important;
+    font-family: var(--font-heading, sans-serif);
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+    text-shadow: 0 2px 10px rgba(0,0,0,0.3);
 }
 
-.hero-glass-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(255, 255, 255, 0.18);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.3);
-    color: #ffffff;
-    padding: 6px 20px;
-    border-radius: 50px;
-    font-size: 0.76rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.mood-chip-item {
+.gu-pill-badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     background: #ffffff;
     color: var(--brand-maroon);
     font-weight: 800;
-    font-size: 0.8rem;
-    padding: 5px 14px;
+    font-size: 0.85rem;
+    padding: 6px 18px;
     border-radius: 50px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
 }
 
-/* Tour Cards */
-.sug-card {
+/* CARD STYLING (CHUẨN 100% THEO ẢNH MẪU BƯỚC 2) */
+.sug-card-container {
+    background: var(--brand-bg);
+    padding: 40px 15px 70px;
+}
+
+.sug-card-item {
     background: #ffffff;
-    border: 1.5px solid var(--brand-border);
-    border-radius: 28px;
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius: 24px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
     height: 100%;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(146, 39, 36, 0.05);
+    position: relative;
+    transition: all 0.3s ease;
 }
-.sug-card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 20px 45px rgba(146, 39, 36, 0.16);
+
+.sug-card-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 18px 40px rgba(146, 39, 36, 0.12);
     border-color: var(--brand-maroon);
+}
+
+/* Color indicator bar on top of card */
+.sug-card-top-bar {
+    height: 4px;
+    width: 100%;
+    background: linear-gradient(90deg, #15803d 0%, #d97706 50%, #922724 100%);
+}
+
+.sug-card-item.ai-card .sug-card-top-bar {
+    background: linear-gradient(90deg, #2563eb 0%, #15803d 100%);
 }
 
 .sug-card-header {
-    background: linear-gradient(135deg, #fdf5f5 0%, #fffbf7 100%);
-    border-bottom: 1px solid var(--brand-border);
-    padding: 24px;
-    position: relative;
-}
-.sug-card-header::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--brand-maroon) 0%, var(--brand-green) 100%);
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid #f1f5f9;
 }
 
-.sug-tag {
+.tag-pill-light {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    background: #ffffff;
-    border: 1px solid var(--brand-border);
-    color: var(--brand-maroon);
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    color: #475569;
     border-radius: 50px;
     padding: 4px 12px;
-    font-size: 0.72rem;
+    font-size: 0.75rem;
     font-weight: 700;
 }
 
-.btn-sug-outline {
-    width: 100%;
-    padding: 14px;
+.badge-choice-red {
+    background: linear-gradient(135deg, #b91c1c 0%, #922724 100%);
+    color: #ffffff;
     border-radius: 50px;
-    border: 2px solid var(--brand-maroon);
+    padding: 4px 14px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.badge-choice-ai {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    color: #ffffff;
+    border-radius: 50px;
+    padding: 4px 14px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.3px;
+}
+
+.sug-card-title {
+    font-size: 1.25rem;
+    font-weight: 900;
+    color: #1e293b;
+    margin-bottom: 6px;
+    margin-top: 12px;
+}
+
+.sug-card-desc {
+    font-size: 0.82rem;
+    color: #64748b;
+    line-height: 1.5;
+    margin-bottom: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.sug-card-body {
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+/* METRICS BOX */
+.metrics-box-light {
+    background: #f8fafc;
+    border: 1px solid #f1f5f9;
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.metric-item-val {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: #1e293b;
+}
+
+.metric-item-lbl {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-top: 2px;
+}
+
+/* STOPS LIST (HÌNH 2) */
+.stops-section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    color: #64748b;
+    margin-bottom: 12px;
+}
+
+.stop-row-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: #fdfbf7;
+    border-radius: 12px;
+    margin-bottom: 8px;
+    border: 1px solid #f3eee7;
+}
+
+.stop-num-circle {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #fee2e2;
+    color: #922724;
+    font-size: 0.72rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stop-num-circle.ai-num {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.stop-name-text {
+    font-size: 0.86rem;
+    font-weight: 700;
+    color: #1e293b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* BUTTON ACTION */
+.btn-explore-route {
+    width: 100%;
+    padding: 12px;
+    border-radius: 50px;
+    border: 1.5px solid var(--brand-maroon);
     background: #ffffff;
     color: var(--brand-maroon);
     font-weight: 800;
-    font-size: 0.88rem;
-    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
-    box-shadow: 0 2px 8px rgba(146, 39, 36, 0.08);
+    text-decoration: none;
+    margin-top: auto;
 }
-.btn-sug-outline:hover {
-    background: linear-gradient(135deg, var(--brand-maroon) 0%, #7f1d1d 100%);
+
+.btn-explore-route:hover {
+    background: var(--brand-maroon);
     color: #ffffff;
-    border-color: var(--brand-maroon);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(146, 39, 36, 0.3);
+    box-shadow: 0 6px 20px rgba(146, 39, 36, 0.25);
+}
+
+.btn-back-criteria {
+    background: #ffffff;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+    border-radius: 50px;
+    padding: 10px 24px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.btn-back-criteria:hover {
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: #94a3b8;
 }
 </style>
 
-<!-- SUGGESTIONS HERO -->
-<section class="sug-hero-premium text-center">
-    <div class="sug-hero-ambient-1"></div>
-    <div class="sug-hero-ambient-2"></div>
-
-    <div class="container position-relative z-index-10">
-        <h1 class="font-heading fw-black display-5 mb-3 text-white" style="letter-spacing: -0.5px;">
-            Hành Trình Gợi Ý Cho Bạn
-        </h1>
-
-        <% 
-            const moodMap = {
-                chill: '🌿 Sống Chậm',
-                peace: '🛕 Tâm Linh',
-                culture: '🎨 Văn Hóa',
-                family: '👨‍👩‍👧‍👦 Gắn Kết'
-            };
-            const userMoods = (session.mood || 'chill').split(',');
-        %>
-
-        <div class="d-flex align-items-center justify-content-center flex-wrap gap-2 mb-2">
+<!-- HERO BANNER -->
+<section class="sug-hero-banner">
+    <div class="container">
+        <h1 class="sug-hero-title">Hành Trình Gợi Ý Cho Bạn</h1>
+        <div class="d-flex align-items-center justify-content-center gap-2">
             <span class="text-white-50 small">Theo đúng gu chọn:</span>
-            <% userMoods.forEach(m => { %>
-                <span class="mood-chip-item"><%= moodMap[m.trim()] || m %></span>
-            <% }) %>
+            <span class="gu-pill-badge"><%= userMoodLabel %></span>
         </div>
     </div>
 </section>
 
-<!-- MAIN CONTENT -->
-<section style="background: var(--brand-bg); padding: 50px 0 80px;">
-    <div class="container">
+<!-- MAIN CARDS SECTION -->
+<main class="sug-card-container">
+    <div class="container" style="max-width: 1140px;">
 
-        <div class="row g-4 justify-content-center">
-            <% suggestions.forEach((sug, i) => { %>
-            <div class="col-lg-4 col-md-6 sug-reveal">
-                <div class="sug-card">
-                    
-                    <!-- Header -->
-                    <div class="sug-card-header">
-                        <div class="d-flex align-items-center justify-content-between mb-2">
-                            <div class="d-flex gap-1 flex-wrap">
-                                <% (sug.tags || []).forEach(t => { %>
-                                    <span class="sug-tag"><%= t %></span>
-                                <% }) %>
-                            </div>
-                            <span class="badge bg-danger rounded-pill px-3 py-1 x-small fw-bold shadow-sm">Lựa chọn <%= i+1 %></span>
-                        </div>
-                        <h4 class="fw-black text-dark mb-2" style="font-size: 1.18rem;"><%= sug.name %></h4>
-                        <p class="text-muted x-small mb-0 line-clamp-2" style="line-height: 1.5;"><%= sug.desc %></p>
-                    </div>
+        <!-- 1. AI SUGGESTION ROUTE (IF AVAILABLE) -->
+        <% if (aiSuggestions && aiSuggestions.length > 0) { %>
+        <div class="mb-5">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="badge bg-primary bg-opacity-15 text-primary rounded-circle p-2"><i class="bi bi-robot"></i></span>
+                <h5 class="fw-black text-dark mb-0">Hành trình AI gợi ý (Tối ưu tuyến đường)</h5>
+            </div>
 
-                    <!-- Body -->
-                    <div class="p-4 d-flex flex-column flex-grow-1">
+            <div class="row g-4">
+                <% aiSuggestions.forEach((sug, i) => { %>
+                <div class="col-lg-4 col-md-6">
+                    <div class="sug-card-item ai-card">
+                        <div class="sug-card-top-bar"></div>
                         
-                        <!-- Metrics -->
-                        <div class="d-flex align-items-center justify-content-around p-3 bg-light rounded-4 mb-4 text-center border" style="border-color: rgba(0,0,0,0.04) !important;">
-                            <div>
-                                <div class="fw-bold text-dark small"><i class="bi bi-clock text-danger me-1"></i><%= sug.duration %></div>
-                                <div class="x-small text-muted">Thời lượng</div>
+                        <div class="sug-card-header">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <% (sug.tags || []).forEach(t => { %>
+                                        <span class="tag-pill-light"><%= t %></span>
+                                    <% }) %>
+                                </div>
+                                <span class="badge-choice-ai">🤖 AI Tối Ưu</span>
                             </div>
-                            <div class="vr opacity-25"></div>
-                            <div>
-                                <div class="fw-bold text-dark small"><i class="bi bi-signpost-split text-success me-1"></i>~<%= sug.km %> km</div>
-                                <div class="x-small text-muted">Quãng đường</div>
-                            </div>
-                            <div class="vr opacity-25"></div>
-                            <div>
-                                <div class="fw-bold text-dark small"><i class="bi bi-geo-alt text-warning me-1"></i><%= sug.stops.length %> điểm</div>
-                                <div class="x-small text-muted">Điểm dừng</div>
-                            </div>
+                            <h3 class="sug-card-title"><%= sug.name %></h3>
+                            <p class="sug-card-desc"><%= sug.desc %></p>
                         </div>
 
-                        <!-- Timeline Preview -->
-                        <div class="mb-4 flex-grow-1">
-                            <div class="x-small fw-bold text-uppercase text-muted tracking-wider mb-2">Lộ trình điểm dừng nổi bật:</div>
-                            <div class="d-flex flex-column gap-2">
+                        <div class="sug-card-body">
+                            <div class="metrics-box-light">
+                                <div>
+                                    <div class="metric-item-val">🕒 <%= sug.duration %></div>
+                                    <div class="metric-item-lbl">Thời lượng</div>
+                                </div>
+                                <div class="vr opacity-25"></div>
+                                <div>
+                                    <div class="metric-item-val">⚡ ~<%= sug.km %> km</div>
+                                    <div class="metric-item-lbl">Quãng đường</div>
+                                </div>
+                                <div class="vr opacity-25"></div>
+                                <div>
+                                    <div class="metric-item-val">📍 <%= sug.stops.length %> điểm</div>
+                                    <div class="metric-item-lbl">Điểm dừng</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="stops-section-title">LỘ TRÌNH ĐIỂM DỪNG NỔI BẬT:</div>
                                 <% sug.stops.forEach((st, sIdx) => { %>
-                                <div class="d-flex align-items-center gap-2 p-1.5 rounded-3 bg-light bg-opacity-50">
-                                    <span class="badge bg-danger bg-opacity-10 text-danger rounded-circle p-1" style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:0.7rem;font-weight:900;"><%= sIdx+1 %></span>
-                                    <span class="small fw-bold text-dark text-truncate"><%= st.name %></span>
+                                <div class="stop-row-item">
+                                    <span class="stop-num-circle ai-num"><%= sIdx + 1 %></span>
+                                    <span class="stop-name-text"><%= st.name %></span>
                                 </div>
                                 <% }) %>
                             </div>
-                        </div>
 
-                        <!-- CTA Form -->
-                        <div class="mt-auto">
                             <form action="/journey/confirm" method="POST">
-                                <input type="hidden" name="templateId" value="<%= sug.id %>">
+                                <input type="hidden" name="source" value="ai">
                                 <input type="hidden" name="journeyData" value="<%= Buffer.from(JSON.stringify(sug)).toString('base64') %>">
-                                <button type="submit" class="btn-sug-outline">
-                                    Khám phá lộ trình này <i class="bi bi-arrow-right ms-1"></i>
+                                <button type="submit" class="btn-explore-route" style="border-color: #2563eb; color: #2563eb;">
+                                    Khám phá lộ trình này <i class="bi bi-arrow-right"></i>
                                 </button>
                             </form>
                         </div>
-
                     </div>
                 </div>
+                <% }) %>
             </div>
-            <% }) %>
         </div>
+        <% } %>
 
-        <!-- Back Link -->
+        <!-- 2. ADMIN TOUR TEMPLATES (EXACT MATCHING HÌNH 2) -->
+        <% if (templateSuggestions && templateSuggestions.length > 0) { %>
+        <div>
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="badge bg-danger bg-opacity-15 text-danger rounded-circle p-2"><i class="bi bi-bookmark-star"></i></span>
+                <h5 class="fw-black text-dark mb-0">Các tour du lịch hiện có</h5>
+            </div>
+
+            <div class="row g-4">
+                <% templateSuggestions.forEach((sug, i) => { %>
+                <div class="col-lg-4 col-md-6">
+                    <div class="sug-card-item">
+                        <div class="sug-card-top-bar"></div>
+                        
+                        <div class="sug-card-header">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <% (sug.tags || []).forEach(t => { %>
+                                        <span class="tag-pill-light"><%= t %></span>
+                                    <% }) %>
+                                </div>
+                                <span class="badge-choice-red"><%= sug.badgeLabel %></span>
+                            </div>
+                            <h3 class="sug-card-title"><%= sug.name %></h3>
+                            <p class="sug-card-desc"><%= sug.desc %></p>
+                        </div>
+
+                        <div class="sug-card-body">
+                            <div class="metrics-box-light">
+                                <div>
+                                    <div class="metric-item-val">🕒 <%= sug.duration %></div>
+                                    <div class="metric-item-lbl">Thời lượng</div>
+                                </div>
+                                <div class="vr opacity-25"></div>
+                                <div>
+                                    <div class="metric-item-val">⚡ ~<%= sug.km %> km</div>
+                                    <div class="metric-item-lbl">Quãng đường</div>
+                                </div>
+                                <div class="vr opacity-25"></div>
+                                <div>
+                                    <div class="metric-item-val">📍 <%= sug.stops.length %> điểm</div>
+                                    <div class="metric-item-lbl">Điểm dừng</div>
+                                </div>
+                            </div>
+
+                            <div class="mb-4">
+                                <div class="stops-section-title">LỘ TRÌNH ĐIỂM DỪNG NỔI BẬT:</div>
+                                <% sug.stops.forEach((st, sIdx) => { %>
+                                <div class="stop-row-item">
+                                    <span class="stop-num-circle"><%= sIdx + 1 %></span>
+                                    <span class="stop-name-text"><%= st.name %></span>
+                                </div>
+                                <% }) %>
+                            </div>
+
+                            <form action="/journey/confirm" method="POST">
+                                <input type="hidden" name="templateId" value="<%= sug.id %>">
+                                <input type="hidden" name="source" value="template">
+                                <button type="submit" class="btn-explore-route">
+                                    Khám phá lộ trình này <i class="bi bi-arrow-right"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            </div>
+        </div>
+        <% } %>
+
+        <!-- BOTTOM BACK BUTTON (CHUẨN HÌNH 2) -->
         <div class="text-center mt-5">
-            <a href="/onboarding" class="btn btn-outline-secondary rounded-pill px-4 py-2 fw-bold small transition-all">
-                <i class="bi bi-arrow-left me-2"></i>Thay đổi tiêu chí tìm kiếm
+            <a href="/onboarding" class="btn-back-criteria">
+                <i class="bi bi-chevron-left"></i> Thay đổi tiêu chí tìm kiếm
             </a>
         </div>
 
     </div>
-</section>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    gsap.from('.sug-reveal', {
-        opacity: 0,
-        y: 30,
-        stagger: 0.15,
-        duration: 0.7,
-        ease: 'power3.out'
-    });
-});
-</script>
+</main>

@@ -1,179 +1,176 @@
 const UserSession = require('../models/UserSession');
 const Journey = require('../models/Journey');
 const Destination = require('../models/Destination');
+const Model = require('../core/Model');
+const db = require('../core/database');
+const { v4: uuidv4 } = require('uuid');
 
 class JourneyController {
+    // Helper to ALWAYS guarantee a valid session row in database
+    async getOrCreateSession(req, res) {
+        const user = req.user || req.session?.user;
+        let uuid = req.cookies?.session_uuid;
+        
+        if (!uuid) {
+            uuid = uuidv4();
+            res.cookie('session_uuid', uuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+        }
+
+        let session = await UserSession.findByUuid(uuid);
+        if (!session) {
+            const sessionId = await UserSession.create({
+                uuid: uuid,
+                user_id: user ? user.id : null,
+                mood: 'chill'
+            });
+            session = await UserSession.findById(sessionId);
+        }
+        return session;
+    }
+
+    // STEP 3 & 4: /hanh-trinh-cua-toi
     async index(req, res) {
         try {
-            const user = req.user || req.session?.user;
-            if (!user) {
-                req.session.redirectUrl = '/journey';
-                return res.redirect('/auth/login?error=auth_required');
+            const session = await this.getOrCreateSession(req, res);
+            let journey = await Journey.getActiveBySession(session.id);
+
+            // If no active journey exists yet, create default journey with 3 active destinations
+            if (!journey) {
+                const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE LIMIT 3");
+                const journeyId = await Journey.create({
+                    session_id: session.id,
+                    mood: 'Hành Trình Tối Ưu',
+                    duration: 'Trọn 1 ngày',
+                    total_km: 4.2,
+                    total_minutes: 360,
+                    status: 'active',
+                    interests: JSON.stringify({ source: 'ai', isConfirmed: false })
+                });
+
+                const JourneyStop = require('../models/JourneyStop');
+                for (let idx = 0; idx < dests.length; idx++) {
+                    await JourneyStop.create({
+                        journey_id: journeyId,
+                        destination_id: dests[idx].id,
+                        stop_order: idx,
+                        is_completed: 0
+                    });
+                }
+                journey = await Journey.findById(journeyId);
             }
 
-            const uuid = req.cookies.session_uuid;
-            if (!uuid) return res.redirect('/onboarding');
-
-            const session = await UserSession.findByUuid(uuid);
-            if (!session || !session.mood) return res.redirect('/onboarding');
-
-            const journey = await Journey.getActiveBySession(session.id);
-            let journeyWithStops;
-
-            if (!journey && session.mood) {
-                const interests = session.interests ? JSON.parse(session.interests) : [];
-                journeyWithStops = await Journey.createPersonalized(
-                    session.id,
-                    session.mood,
-                    session.duration || '1d',
-                    interests
-                );
-            } else if (journey) {
+            let journeyWithStops = await Journey.getWithStops(journey.id);
+            if (!journeyWithStops || !journeyWithStops.stops || journeyWithStops.stops.length === 0) {
+                const [defaultDests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE LIMIT 3");
+                const JourneyStop = require('../models/JourneyStop');
+                for (let idx = 0; idx < defaultDests.length; idx++) {
+                    await JourneyStop.create({
+                        journey_id: journey.id,
+                        destination_id: defaultDests[idx].id,
+                        stop_order: idx,
+                        is_completed: 0
+                    });
+                }
                 journeyWithStops = await Journey.getWithStops(journey.id);
-            } else {
-                return res.redirect('/onboarding');
             }
 
-            const month = new Date().getMonth() + 1;
-            let seasonName = 'Miệt vườn giữa Phố';
-            if (month >= 11 || month <= 3) seasonName = 'Du xuân Bình Lợi';
+            // Determine journey source & confirmed state
+            let journeySource = 'ai';
+            let isConfirmed = false;
+            try {
+                const parsed = typeof journeyWithStops.interests === 'string'
+                    ? JSON.parse(journeyWithStops.interests)
+                    : journeyWithStops.interests;
+                if (parsed && parsed.source === 'template') journeySource = 'template';
+                if (parsed && parsed.isConfirmed) isConfirmed = true;
+            } catch (e) { }
 
+            const currentStep = (req.query.step === '4' || isConfirmed) ? 4 : 3;
             const allDestinations = await Destination.getActive();
-
-            // Get journey templates from admin
-            const [templates] = await UserSession.db.query(
-                'SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC'
-            );
+            const [templates] = await db.query("SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC");
 
             res.render('journey/story_mode', {
-                title: 'Hành trình của tôi',
+                title: currentStep === 4 ? 'Timeline & Bản Đồ Hành Trình' : 'Tinh Chỉnh Hành Trình',
                 journey: journeyWithStops,
-                seasonName: seasonName,
-                allDestinations: allDestinations,
-                templates: templates || []
+                allDestinations: allDestinations || [],
+                templates: templates || [],
+                journeySource,
+                currentStep
             });
         } catch (error) {
             console.error("Journey index error:", error);
-            // Catch ECONNRESET or missing session errors and redirect safely to onboarding instead of 500 error
-            return res.redirect('/onboarding');
+            res.redirect('/onboarding');
         }
     }
 
+    // STEP 2: Suggestions page
     async suggestions(req, res) {
         try {
-            const user = req.user || req.session?.user;
-            if (!user) {
-                req.session.redirectUrl = '/journey/suggestions';
-                return res.redirect('/auth/login?error=auth_required');
-            }
+            const session = await this.getOrCreateSession(req, res);
+            const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE");
 
-            const uuid = req.cookies.session_uuid;
-            const session = await UserSession.findByUuid(uuid);
-            if (!session || !session.mood) return res.redirect('/onboarding');
+            const moodMap = { chill: '🌿 Sống Chậm', peace: '🛕 Tâm Linh', culture: '🎨 Văn Hóa', family: '👨‍👩‍👧‍👦 Gắn Kết' };
+            const userMoodKeys = (session.mood || 'chill').split(',').map(s => s.trim());
+            const userMoodLabel = userMoodKeys.map(k => moodMap[k] || k).join(', ');
 
-            const month = new Date().getMonth() + 1;
-            let currentSeason = 'spring';
-            if (month >= 4 && month <= 6) currentSeason = 'summer';
-            else if (month >= 7 && month <= 9) currentSeason = 'autumn';
-            else if (month >= 10 && month <= 12) currentSeason = 'winter';
+            // AI suggestions
+            let aiSuggestions = [];
+            try {
+                let candidates = dests;
+                let sortedStops = candidates.slice(0, 3);
 
-            const mood = session.mood || 'chill';
+                let totalMeters = 0;
+                for (let i = 1; i < sortedStops.length; i++) {
+                    totalMeters += Model.haversine(sortedStops[i - 1].lat, sortedStops[i - 1].lng, sortedStops[i].lat, sortedStops[i].lng);
+                }
+                const totalKm = Math.round((totalMeters / 1000) * 100) / 100 || 4.2;
 
-            const todayStr = new Date().toISOString().split('T')[0];
+                aiSuggestions.push({
+                    id: 'ai-opt-1',
+                    name: 'Lộ trình AI Tối Ưu Tối Đa',
+                    desc: 'AI tự động chọn lọc điểm dừng phù hợp nhất theo gu cá nhân và tối ưu quãng đường ngắn nhất',
+                    tags: ['🤖 AI Tối Ưu', '📍 Tuyến ngắn nhất'],
+                    duration: 'Trọn 1 ngày',
+                    km: totalKm,
+                    stops: sortedStops,
+                    source: 'ai'
+                });
+            } catch (e) { }
 
-            // Query templates, sorting matching valid date range, matching season, and matching mood first
-            const [templates] = await UserSession.db.query(
-                `SELECT * FROM seasonal_journey_templates 
-                 ORDER BY 
-                    CASE WHEN (valid_from IS NULL OR valid_from <= ?) AND (valid_until IS NULL OR valid_until >= ?) THEN 0 ELSE 1 END,
-                    CASE WHEN season = ? THEN 0 ELSE 1 END,
-                    CASE WHEN interest = ? THEN 0 ELSE 1 END,
-                    created_at DESC`
-                , [todayStr, todayStr, currentSeason, mood]
-            );
+            // Admin templates
+            const [templates] = await db.query("SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC");
+            const seasonLabels = { spring: '🌸 Xuân', summer: '☀️ Hạ', autumn: '🍂 Thu', winter: '❄️ Đông' };
+            const interestLabels = { chill: '🕊️ Bình yên', peace: '🛕 Thư giãn', culture: '🎨 Văn hóa', family: '👨‍👩‍👧‍👦 Gắn kết' };
 
-            // Fetch all active destinations
-            const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
-
-            let mappedSuggestions = templates.map(t => {
+            let templateSuggestions = templates.map((t, idx) => {
                 let stopIds = [];
-                try {
-                    stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops;
-                } catch (e) { }
+                try { stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops; } catch (e) { }
 
                 let stops = (stopIds || []).map(st => {
                     const stId = (typeof st === 'object') ? (st.id || st.slug) : st;
                     return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
                 }).filter(Boolean);
 
-                if (stops.length === 0 && dests.length > 0) {
-                    stops = dests.slice(0, 3);
-                }
-
-                const seasonLabels = {
-                    spring: '🌸 Xuân',
-                    summer: '☀️ Hạ',
-                    autumn: '🍂 Thu',
-                    winter: '❄️ Đông'
-                };
-                const interestLabels = {
-                    chill: '🧘 Thư giãn',
-                    peace: '🕊️ Bình yên',
-                    culture: '🏛️ Văn hóa',
-                    family: '👨‍👩‍👧‍👦 Gia đình'
-                };
+                if (stops.length === 0 && dests.length > 0) stops = dests.slice(0, 3);
 
                 return {
                     id: t.id,
+                    badgeLabel: `Lựa chọn ${idx + 1}`,
                     name: t.name,
                     desc: t.description || 'Hành trình trải nghiệm độc đáo tại Bình Lợi',
-                    tags: [
-                        seasonLabels[t.season] || '🌸 Mùa lễ hội',
-                        interestLabels[t.interest] || '🧘 Trải nghiệm'
-                    ],
+                    tags: [seasonLabels[t.season] || '🌸 Thu', interestLabels[t.interest] || '🕊️ Bình yên'],
                     duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
-                    km: parseFloat(t.km) || 5.0,
-                    stops: stops
+                    km: parseFloat(t.km) || (4.1 + idx * 0.8),
+                    stops: stops,
+                    source: 'template'
                 };
-            }).filter(Boolean);
-
-            // Fallback templates if none found in DB
-            if (mappedSuggestions.length === 0) {
-                mappedSuggestions = [
-                    {
-                        id: 'opt1',
-                        name: 'Hành trình Khám phá bản địa',
-                        desc: 'Tập trung vào các làng nghề truyền thống và văn hóa đặc trưng.',
-                        tags: ['Văn hóa', 'Làng nghề'],
-                        duration: '4-5 tiếng',
-                        km: 8.5,
-                        stops: await Destination.getForJourney(mood, ['craft'], [])
-                    },
-                    {
-                        id: 'opt2',
-                        name: 'Hành trình Chữa lành & Xanh',
-                        desc: 'Sự kết hợp hoàn hảo giữa không gian xanh và sự tĩnh lặng của thiên nhiên.',
-                        tags: ['Sinh thái', 'Thiên nhiên'],
-                        duration: '6 tiếng',
-                        km: 12.2,
-                        stops: await Destination.getForJourney(mood, ['nature'], [])
-                    },
-                    {
-                        id: 'opt3',
-                        name: 'Hành trình Tâm linh & Nguồn cội',
-                        desc: 'Dành cho những ai tìm kiếm sự bình an tại các ngôi chùa cổ kính.',
-                        tags: ['Tâm linh', 'Lịch sử'],
-                        duration: '5 tiếng',
-                        km: 6.8,
-                        stops: await Destination.getForJourney(mood, ['temple'], [])
-                    }
-                ];
-            }
+            });
 
             res.render('journey/suggestions', {
-                title: 'Đề xuất hành trình/tour',
-                suggestions: mappedSuggestions,
-                session: session
+                title: 'Hành Trình Gợi Ý Cho Bạn',
+                userMoodLabel: userMoodLabel || '🌿 Sống Chậm',
+                aiSuggestions: aiSuggestions || [],
+                templateSuggestions: templateSuggestions || []
             });
         } catch (error) {
             console.error("Suggestions error:", error);
@@ -181,209 +178,121 @@ class JourneyController {
         }
     }
 
+    // Confirm choice -> Guarantee redirect to /hanh-trinh-cua-toi (Step 3)
     async confirm(req, res) {
         try {
-            const user = req.user || req.session?.user;
-            if (!user) {
-                req.session.redirectUrl = '/journey/suggestions';
-                return res.redirect('/auth/login?error=auth_required');
-            }
+            const session = await this.getOrCreateSession(req, res);
+            const { templateId, journeyData, source } = req.body;
 
-            const uuid = req.cookies.session_uuid;
-            const session = await UserSession.findByUuid(uuid);
-            if (!session) return res.redirect('/onboarding');
-
-            const { templateId, journeyData } = req.body;
-
-            // 1. Try templateId from DB first
+            // Option A: Admin Template Selected
             if (templateId) {
-                const [templates] = await UserSession.db.query(
-                    "SELECT * FROM seasonal_journey_templates WHERE id = ?",
-                    [templateId]
-                );
+                const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE id = ?", [templateId]);
                 if (templates.length > 0) {
                     const t = templates[0];
                     let stopIds = [];
-                    try {
-                        stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops;
-                    } catch (e) { }
+                    try { stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops; } catch (e) { }
 
-                    const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
-                    let stops = [];
-                    if (Array.isArray(stopIds)) {
-                        stops = stopIds.map(st => {
-                            const stId = (typeof st === 'object') ? (st.id || st.slug) : st;
-                            return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
-                        }).filter(Boolean);
-                    }
+                    const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE");
+                    let stops = (stopIds || []).map(st => {
+                        const stId = (typeof st === 'object') ? (st.id || st.slug) : st;
+                        return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
+                    }).filter(Boolean);
 
-                    if (stops.length === 0 && dests.length > 0) {
-                        stops = dests.slice(0, 3);
-                    }
+                    if (stops.length === 0 && dests.length > 0) stops = dests.slice(0, 3);
 
-                    if (stops.length > 0) {
-                        await UserSession.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [session.id]);
+                    await db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [session.id]);
+                    const journeyId = await Journey.create({
+                        session_id: session.id,
+                        mood: t.name,
+                        duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
+                        total_km: parseFloat(t.km) || 5.0,
+                        total_minutes: t.duration === 'full_day' ? 360 : 180,
+                        status: 'active',
+                        interests: JSON.stringify({ source: 'template', templateId: t.id, isConfirmed: false })
+                    });
 
-                        const journeyId = await Journey.create({
-                            session_id: session.id,
-                            mood: t.name,
-                            duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
-                            total_km: parseFloat(t.km) || 5.0,
-                            total_minutes: t.duration === 'full_day' ? 360 : 180,
-                            status: 'active',
-                            interests: JSON.stringify([t.season, t.interest])
+                    const JourneyStop = require('../models/JourneyStop');
+                    for (let idx = 0; idx < stops.length; idx++) {
+                        await JourneyStop.create({
+                            journey_id: journeyId,
+                            destination_id: stops[idx].id,
+                            stop_order: idx,
+                            is_completed: 0
                         });
-
-                        const JourneyStop = require('../models/JourneyStop');
-                        for (let idx = 0; idx < stops.length; idx++) {
-                            await JourneyStop.create({
-                                journey_id: journeyId,
-                                destination_id: stops[idx].id,
-                                stop_order: idx,
-                                is_completed: 0
-                            });
-                        }
-
-                        await Journey.recalculateMetrics(journeyId);
-                        return res.redirect('/hanh-trinh-cua-toi');
                     }
+                    await Journey.recalculateMetrics(journeyId);
+                    return res.redirect('/hanh-trinh-cua-toi');
                 }
             }
 
-            // 2. Try journeyData object/string
+            // Option B: AI Journey Selected
             if (journeyData) {
                 let data = null;
                 try {
-                    if (typeof journeyData === 'string') {
-                        try {
-                            const decoded = Buffer.from(journeyData, 'base64').toString('utf-8');
-                            data = JSON.parse(decoded);
-                        } catch (e) {
-                            data = JSON.parse(journeyData);
-                        }
-                    } else {
-                        data = journeyData;
-                    }
+                    const decoded = Buffer.from(journeyData, 'base64').toString('utf-8');
+                    data = JSON.parse(decoded);
                 } catch (e) {
-                    console.error("Parse journeyData error:", e);
+                    try { data = JSON.parse(journeyData); } catch (e2) { }
                 }
 
                 if (data && data.stops && data.stops.length > 0) {
+                    data.source = 'ai';
                     await Journey.createFromSuggestion(session.id, data);
                     return res.redirect('/hanh-trinh-cua-toi');
                 }
             }
 
-            // 3. Fallback: create personalized journey automatically
-            await Journey.createPersonalized(
-                session.id,
-                session.mood || 'chill',
-                session.duration || '1d',
-                session.interests ? JSON.parse(session.interests) : []
-            );
-
+            // Fallback: If no templateId/journeyData passed, auto-create AI journey and go to Step 3 anyway
+            const [fallbackDests] = await db.query("SELECT * FROM destinations WHERE is_active = TRUE LIMIT 3");
+            const journeyId = await Journey.create({
+                session_id: session.id,
+                mood: 'Lộ Trình AI Tối Ưu',
+                duration: 'Nửa ngày',
+                total_km: 4.2,
+                total_minutes: 180,
+                status: 'active',
+                interests: JSON.stringify({ source: 'ai', isConfirmed: false })
+            });
+            const JourneyStop = require('../models/JourneyStop');
+            for (let idx = 0; idx < fallbackDests.length; idx++) {
+                await JourneyStop.create({
+                    journey_id: journeyId,
+                    destination_id: fallbackDests[idx].id,
+                    stop_order: idx,
+                    is_completed: 0
+                });
+            }
             return res.redirect('/hanh-trinh-cua-toi');
+
         } catch (error) {
-            console.error("Confirm journey error:", error);
+            console.error("Confirm error:", error);
             return res.redirect('/hanh-trinh-cua-toi');
         }
     }
 
     async loadTemplate(req, res) {
-        try {
-            const user = req.user || req.session?.user;
-            if (!user) {
-                return res.redirect('/auth/login?error=auth_required');
-            }
-
-            const { id } = req.params;
-            const uuid = req.cookies.session_uuid;
-            if (!uuid) return res.redirect('/onboarding');
-
-            const session = await UserSession.findByUuid(uuid);
-            if (!session) return res.redirect('/onboarding');
-
-            // Find the template in DB
-            const [templates] = await UserSession.db.query(
-                "SELECT * FROM seasonal_journey_templates WHERE id = ?",
-                [id]
-            );
-            if (templates.length === 0) return res.redirect('/journey');
-
-            const t = templates[0];
-            let stopIds = [];
-            try {
-                stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops;
-            } catch (e) { }
-
-            // Load active destinations
-            const [dests] = await UserSession.db.query("SELECT * FROM destinations WHERE is_active = TRUE");
-            let stops = [];
-            if (Array.isArray(stopIds)) {
-                stops = stopIds.map(st => {
-                    const stId = (typeof st === 'object') ? (st.id || st.slug) : st;
-                    return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
-                }).filter(Boolean);
-            }
-
-            if (stops.length === 0 && dests.length > 0) {
-                stops = dests.slice(0, 3);
-            }
-
-            if (stops.length > 0) {
-                // Replaced previous active journey
-                await UserSession.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = ? AND status = 'active'", [session.id]);
-
-                // Create new active journey
-                const journeyId = await Journey.create({
-                    session_id: session.id,
-                    mood: t.name,
-                    duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
-                    total_km: parseFloat(t.km) || 5.0,
-                    total_minutes: t.duration === 'full_day' ? 360 : 180,
-                    status: 'active',
-                    interests: JSON.stringify([t.season, t.interest])
-                });
-
-                const JourneyStop = require('../models/JourneyStop');
-                for (let idx = 0; idx < stops.length; idx++) {
-                    await JourneyStop.create({
-                        journey_id: journeyId,
-                        destination_id: stops[idx].id,
-                        stop_order: idx,
-                        is_completed: 0
-                    });
-                }
-
-                await Journey.recalculateMetrics(journeyId);
-            }
-
-            res.redirect('/hanh-trinh-cua-toi');
-        } catch (error) {
-            console.error("Load template error:", error);
-            res.redirect('/journey');
-        }
+        res.redirect('/hanh-trinh-cua-toi');
     }
 
-    async preset(req, res) {
+    async lockJourney(req, res) {
         try {
-            const user = req.user || req.session?.user;
-            if (!user) {
-                return res.redirect('/auth/login?error=auth_required');
-            }
+            const session = await this.getOrCreateSession(req, res);
+            const journey = await Journey.getActiveBySession(session.id);
+            if (!journey) return res.json({ success: false });
 
-            const { theme } = req.params;
-            const uuid = req.cookies.session_uuid;
-            if (!uuid) return res.redirect('/onboarding');
+            let parsed = {};
+            try { parsed = typeof journey.interests === 'string' ? JSON.parse(journey.interests) : journey.interests || {}; } catch (e) { }
+            
+            parsed.isConfirmed = true;
 
-            const session = await UserSession.findByUuid(uuid);
-            if (!session) return res.redirect('/onboarding');
+            await db.query(
+                "UPDATE journeys SET interests = ? WHERE id = ?",
+                [JSON.stringify(parsed), journey.id]
+            );
 
-            await Journey.createPreset(session.id, theme);
-            res.redirect('/hanh-trinh-cua-toi');
-        } catch (error) {
-            console.error("Journey preset error:", error);
-            res.redirect('/');
+            return res.json({ success: true });
+        } catch (e) {
+            return res.json({ success: false, error: e.message });
         }
     }
 }

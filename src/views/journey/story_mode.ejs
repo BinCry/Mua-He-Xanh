@@ -1,248 +1,290 @@
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-
 <style>
 :root {
     --brand-maroon: #922724;
     --brand-maroon-dark: #6e1b19;
     --brand-green: #15803d;
-    --brand-gold: #d97706;
-    --brand-bg: #faf9f6;
+    --brand-bg: #faf8f5;
     --brand-card: #ffffff;
-    --brand-border: #f0eae1;
+    --brand-border: #eee7dd;
     --brand-text: #1e293b;
     --brand-muted: #64748b;
 }
 
-/* Premium Hero Section */
-.journey-hero-brand {
-    background: linear-gradient(135deg, var(--brand-maroon) 0%, #7f1d1d 50%, #15803d 100%);
-    position: relative;
-    overflow: hidden;
-    padding: 35px 0 45px;
+body {
+    background-color: var(--brand-bg);
 }
-.journey-hero-brand::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 30px;
-    background: linear-gradient(to top, var(--brand-bg), transparent);
+
+/* HERO BANNER (CHUẨN 100% THEO HÌNH 1) */
+.b3-hero-banner {
+    background: linear-gradient(135deg, #6e1b19 0%, #922724 50%, #7f1d1d 100%);
+    padding: 40px 0 35px;
+    color: #ffffff;
+    box-shadow: inset 0 -10px 30px rgba(0,0,0,0.15);
 }
-.hero-tag-badge {
+
+.b3-hero-title {
+    font-size: 2.5rem;
+    font-weight: 900;
+    font-family: 'Times New Roman', serif; /* Font cổ điển giống ảnh mẫu */
+    color: #ffffff;
+    margin-bottom: 25px;
+    letter-spacing: -0.5px;
+}
+
+.metric-glass-box {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    padding: 16px 12px;
+    text-align: center;
+    color: #ffffff;
+    transition: all 0.25s ease;
+}
+
+.metric-glass-box.gold-highlight {
+    background: rgba(217, 119, 6, 0.22);
+    border-color: rgba(217, 119, 6, 0.45);
+}
+
+.metric-val-num {
+    font-size: 1.65rem;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 4px;
+}
+
+.metric-lbl-text {
+    font-size: 0.72rem;
+    font-weight: 800;
+    opacity: 0.85;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* STRIP TOUR HIỆN CÓ (CHUẨN 100% THEO HÌNH 1) */
+.tour-strip-container {
+    background: #ffffff;
+    border-bottom: 1px solid #eee7dd;
+    padding: 14px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+}
+
+.tour-pill-btn {
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 50px;
+    padding: 7px 18px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #334155;
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(255,255,255,0.18);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: #fff;
-    border-radius: 50px;
-    padding: 6px 18px;
-    font-size: 0.75rem;
-    font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-}
-.journey-hero-brand h1 {
-    color: #fff;
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2rem, 4vw, 3rem);
-    font-weight: 800;
-    line-height: 1.2;
-    text-shadow: 0 2px 10px rgba(0,0,0,0.2);
-}
-.metric-card-glass {
-    background: rgba(255,255,255,0.15);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 20px;
-    padding: 16px;
-    text-align: center;
-    color: #fff;
-    transition: transform 0.3s ease, background 0.3s ease;
-}
-.metric-card-glass:hover {
-    background: rgba(255,255,255,0.25);
-    transform: translateY(-3px);
-}
-.metric-card-glass .metric-val {
-    font-size: 1.6rem;
-    font-weight: 900;
-    font-family: 'Montserrat', sans-serif;
-    line-height: 1.1;
-    margin-bottom: 4px;
-}
-.metric-card-glass .metric-label {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    opacity: 0.85;
-}
-
-/* Template Selector Strip */
-.template-strip-brand {
-    background: #ffffff;
-    border-bottom: 1px solid var(--brand-border);
-    padding: 14px 0;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-}
-.template-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 18px;
-    border-radius: 50px;
-    border: 1.5px solid var(--brand-border);
-    background: #fff;
-    color: var(--brand-text);
-    font-weight: 600;
-    font-size: 0.8rem;
     cursor: pointer;
-    transition: all 0.25s ease;
     text-decoration: none;
     white-space: nowrap;
 }
-.template-pill:hover, .template-pill.active {
+
+.tour-pill-btn:hover {
     border-color: var(--brand-maroon);
-    background: #fdf2f2;
     color: var(--brand-maroon);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 14px rgba(146, 39, 36, 0.15);
 }
 
-/* Timeline Components */
-.timeline-line-brand {
-    position: absolute;
-    left: 22px;
-    top: 0;
-    bottom: 0;
-    width: 3px;
-    background: linear-gradient(to bottom, var(--brand-maroon), var(--brand-green));
-    border-radius: 3px;
-    opacity: 0.25;
+.tour-pill-btn.active {
+    border-color: var(--brand-maroon) !important;
+    color: var(--brand-maroon) !important;
+    background: #fdf2f2 !important;
+    box-shadow: 0 4px 12px rgba(146, 39, 36, 0.15) !important;
 }
-.timeline-stop-item {
+
+/* TIMELINE (CHUẨN 100% THEO HÌNH 2) */
+.b3-timeline-section {
+    padding: 40px 15px 70px;
+}
+
+.timeline-wrapper-relative {
+    position: relative;
+    max-width: 680px;
+    margin: 0 auto;
+}
+
+/* Line kết nối vertical */
+.timeline-spine-line {
+    position: absolute;
+    top: 25px;
+    bottom: 40px;
+    left: 20px;
+    width: 3px;
+    background: #cbd5e1;
+    z-index: 1;
+}
+
+.timeline-stop-row {
     display: flex;
-    gap: 18px;
-    margin-bottom: 18px;
+    gap: 20px;
+    margin-bottom: 28px;
     position: relative;
     z-index: 2;
 }
-.stop-badge-number {
-    flex-shrink: 0;
-    width: 44px;
-    height: 44px;
+
+.stop-num-badge-circle {
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
-    background: linear-gradient(135deg, var(--brand-maroon) 0%, var(--brand-green) 100%);
-    color: #fff;
+    background: #15803d;
+    color: #ffffff;
     font-weight: 900;
-    font-size: 0.95rem;
+    font-size: 1.1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(146, 39, 36, 0.25);
-    border: 3px solid #fff;
-    transition: transform 0.3s ease;
-    margin-top: 4px;
-}
-.stop-card-main {
-    flex: 1;
-    background: #fff;
-    border: 1px solid var(--brand-border);
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 3px 12px rgba(0,0,0,0.04);
-    transition: all 0.3s ease;
-    cursor: pointer;
-}
-.stop-card-main:hover {
-    box-shadow: 0 8px 25px rgba(146, 39, 36, 0.12);
-    border-color: var(--brand-maroon);
-    transform: translateY(-2px);
-}
-.stop-card-main.highlighted {
-    border-color: var(--brand-maroon);
-    box-shadow: 0 0 0 3px rgba(146, 39, 36, 0.2), 0 8px 24px rgba(0,0,0,0.1);
-}
-.stop-thumb-img {
-    width: 125px;
-    min-width: 125px;
-    height: 115px;
-    object-fit: cover;
+    box-shadow: 0 4px 12px rgba(21, 128, 61, 0.3);
+    flex-shrink: 0;
 }
 
-/* Action Buttons */
-.btn-brand-primary {
-    padding: 14px 28px;
+.stop-card-item {
+    background: #ffffff;
+    border: 1.5px solid #eee7dd;
+    border-radius: 24px;
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    gap: 16px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.03);
+    transition: all 0.25s ease;
+    align-items: center;
+}
+
+.stop-card-item:hover {
+    border-color: var(--brand-maroon);
+    box-shadow: 0 10px 25px rgba(146, 39, 36, 0.08);
+}
+
+.stop-img-thumb {
+    width: 100px;
+    height: 100px;
+    border-radius: 16px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.stop-tag-time {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #f1f5f9;
+    border-radius: 50px;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.stop-tag-type {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #dcfce7;
+    color: #15803d;
+    border-radius: 50px;
+    padding: 3px 12px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.stop-card-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 4px;
+}
+
+.stop-card-sub {
+    font-size: 0.78rem;
+    color: #64748b;
+    margin-bottom: 8px;
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.btn-action-save {
+    background: linear-gradient(135deg, #922724 0%, #7f1d1d 100%);
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 900;
+    padding: 14px 32px;
     border-radius: 50px;
     border: none;
-    background: linear-gradient(135deg, var(--brand-maroon) 0%, #7f1d1d 100%);
-    color: #fff;
-    font-weight: 800;
-    font-size: 0.88rem;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    box-shadow: 0 8px 24px rgba(146, 39, 36, 0.35);
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 6px 20px rgba(146, 39, 36, 0.3);
-}
-.btn-brand-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(146, 39, 36, 0.4);
-    color: #fff;
-}
-.btn-brand-outline {
-    padding: 14px 22px;
-    border-radius: 50px;
-    border: 2px solid var(--brand-maroon);
-    background: transparent;
-    color: var(--brand-maroon);
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-.btn-brand-outline:hover {
-    background: var(--brand-maroon);
-    color: #fff;
 }
 
-/* Map Styling */
-.map-container-sticky {
-    position: sticky;
-    top: 90px;
-    height: calc(100vh - 130px);
-    max-height: 750px;
-    min-height: 480px;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 12px 35px rgba(0,0,0,0.1);
-    border: 1px solid var(--brand-border);
+.btn-action-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(146, 39, 36, 0.45);
+    color: #ffffff;
 }
-.map-bottom-banner {
-    position: absolute;
-    bottom: 16px;
-    left: 16px;
-    right: 16px;
-    z-index: 500;
-    background: rgba(255,255,255,0.94);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(146, 39, 36, 0.15);
-    border-radius: 16px;
-    padding: 12px 18px;
-    box-shadow: 0 4px 18px rgba(0,0,0,0.08);
+
+.btn-action-edit {
+    background: #ffffff;
+    color: var(--brand-maroon);
+    border: 2px solid var(--brand-maroon);
+    font-size: 0.95rem;
+    font-weight: 800;
+    padding: 12px 24px;
+    border-radius: 50px;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+}
+
+.btn-action-edit:hover {
+    background: var(--brand-maroon);
+    color: #ffffff;
+}
+
+.btn-action-reset {
+    background: #ffffff;
+    color: #475569;
+    border: 1.5px solid #cbd5e1;
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 12px 22px;
+    border-radius: 50px;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-action-reset:hover {
+    background: #f8fafc;
+    color: #1e293b;
+    border-color: #94a3b8;
 }
 </style>
 
-<!-- HERO SECTION -->
 <% 
+    const isTemplate = (journeySource === 'template');
+    const isAI = !isTemplate;
+    const isStep4 = (typeof currentStep !== 'undefined' && currentStep === 4);
+
+    let calcStopsCount = (journey && journey.stops) ? journey.stops.length : 0;
+    
+    // Calculate total meters via Haversine distance between consecutive stops
     let realMeters = 0;
     if (journey && journey.stops && journey.stops.length > 1) {
         for (let i = 1; i < journey.stops.length; i++) {
@@ -260,161 +302,190 @@
             }
         }
     }
-    const calcStopsCount = (journey && journey.stops) ? journey.stops.length : 0;
-    const calcKmVal = calcStopsCount > 1 ? (Math.round((realMeters / 1000) * 100) / 100) : parseFloat(journey.total_km || 0);
-    const calcTimeVal = calcStopsCount > 0 ? (calcStopsCount * 60 + Math.round(calcKmVal * 15)) : 60;
-    const calcPtsVal = (journey && journey.stops) ? journey.stops.reduce((s, x) => s + (parseInt(x.points) || 100), 0) : 0;
-%>
-<div class="journey-hero-brand">
-    <div class="container position-relative z-index-10">
-        <div class="row align-items-center">
-            <div class="col-lg-7">
-                <h1 class="mb-0"><%= journey.mood.replace(/_/g, ' ') %></h1>
-            </div>
-            <div class="col-lg-5 mt-3 mt-lg-0 text-lg-end">
-                <div style="display:inline-flex; align-items:center; gap:12px; background:rgba(255,255,255,0.22); backdrop-filter:blur(14px); border:1.5px solid rgba(255,255,255,0.4); border-radius:50px; padding:10px 22px; box-shadow:0 4px 20px rgba(0,0,0,0.15);">
-                    <span class="badge rounded-circle p-1" id="lock-status-dot" style="width:12px;height:12px;background:#4ade80;box-shadow:0 0 10px #4ade80;"></span>
-                    <span style="color:#fff;font-size:0.95rem;font-weight:800;" id="lock-status-text">Đã chốt hành trình</span>
-                    <button onclick="toggleTimelineLock()" id="btn-lock-toggle" style="background:#ffffff;border:none;color:var(--brand-maroon);border-radius:50px;padding:6px 18px;font-size:0.85rem;font-weight:800;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.2);transition:all 0.2s;">
-                        <i class="bi bi-pencil-square me-1"></i>Đổi
-                    </button>
-                </div>
-            </div>
-        </div>
+    const calcKmVal = calcStopsCount > 1 ? (Math.round((realMeters / 1000) * 100) / 100) : parseFloat(journey.total_km || 4.1);
+    const calcTimeVal = calcStopsCount > 0 ? (calcStopsCount * 60 + Math.round(calcKmVal * 15)) : 360;
+    const calcPtsVal = (journey && journey.stops) ? journey.stops.reduce((s, x) => s + (parseInt(x.points) || 100), 0) : 570;
 
-        <!-- Metrics Glass -->
-        <div class="row g-3 mt-3">
+    function fixImg(url) {
+        if (!url) return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop';
+        if (url.startsWith('http')) return url;
+        return url.startsWith('/') ? url : '/' + url;
+    }
+%>
+
+<!-- HERO HEADER (CHUẨN 100% HÌNH 1) -->
+<header class="b3-hero-banner text-center">
+    <div class="container" style="max-width: 1000px;">
+        <h1 class="b3-hero-title"><%= journey.mood.replace(/_/g, ' ') %></h1>
+
+        <!-- 4 METRIC GLASS BOXES -->
+        <div class="row g-3 justify-content-center">
             <div class="col-6 col-md-3">
-                <div class="metric-card-glass">
-                    <div class="metric-val" id="metric-duration"><%= calcTimeVal %></div>
-                    <div class="metric-label"><i class="bi bi-clock-fill me-1"></i>Thời lượng (Phút)</div>
+                <div class="metric-glass-box">
+                    <div class="metric-val-num" id="val-time"><%= calcTimeVal %></div>
+                    <div class="metric-lbl-text"><i class="bi bi-clock me-1"></i>THỜI LƯỢNG (PHÚT)</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="metric-card-glass">
-                    <div class="metric-val" id="metric-stops"><%= calcStopsCount %></div>
-                    <div class="metric-label"><i class="bi bi-geo-alt-fill me-1"></i>Điểm dừng</div>
+                <div class="metric-glass-box">
+                    <div class="metric-val-num" id="val-stops"><%= calcStopsCount %></div>
+                    <div class="metric-lbl-text"><i class="bi bi-geo-alt me-1"></i>ĐIỂM DỪNG</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="metric-card-glass">
-                    <div class="metric-val" id="metric-km"><%= calcKmVal %></div>
-                    <div class="metric-label"><i class="bi bi-signpost-split-fill me-1"></i>Quãng đường (Km)</div>
+                <div class="metric-glass-box">
+                    <div class="metric-val-num" id="val-km"><%= calcKmVal %></div>
+                    <div class="metric-lbl-text"><i class="bi bi-signpost-split me-1"></i>QUÃNG ĐƯỜNG (KM)</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
-                <div class="metric-card-glass" style="background:rgba(217, 119, 6, 0.25); border-color:rgba(217, 119, 6, 0.4);">
-                    <div class="metric-val" id="metric-points" style="color:#fef08a;">+<%= calcPtsVal %></div>
-                    <div class="metric-label"><i class="bi bi-stars me-1"></i>Điểm thưởng</div>
+                <div class="metric-glass-box gold-highlight">
+                    <div class="metric-val-num" id="val-pts" style="color:#fef08a;">+<%= calcPtsVal %></div>
+                    <div class="metric-lbl-text" style="color:#fef08a;"><i class="bi bi-stars me-1"></i>ĐIỂM THƯỞNG</div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</header>
 
-<!-- TEMPLATE SELECTOR STRIP -->
-<div class="template-strip-brand">
-    <div class="container">
-        <div style="display:flex; align-items:center; gap:10px; overflow-x:auto; padding-bottom:2px;">
-            <span style="font-size:0.75rem;font-weight:800;text-transform:uppercase;letter-spacing:1.5px;color:var(--brand-maroon);white-space:nowrap;">
-                <i class="bi bi-journal-bookmark-fill me-1"></i> Tour hiện có:
+<!-- STRIP TOUR HIỆN CÓ (CHUẨN 100% HÌNH 1) -->
+<section class="tour-strip-container">
+    <div class="container" style="max-width: 1000px;">
+        <div class="d-flex align-items-center gap-3 overflow-auto py-1">
+            <span class="x-small fw-bold text-uppercase text-muted tracking-wider flex-shrink-0" style="color:var(--brand-maroon)!important;">
+                <i class="bi bi-bookmark-fill me-1"></i> TOUR HIỆN CÓ:
             </span>
-            <% 
-                const seasonEmoji = { spring:'🌸', summer:'☀️', autumn:'🍂', winter:'❄️' };
-                const tplList = (typeof templates !== 'undefined' && templates.length > 0) ? templates : [];
-            %>
-            <% if (tplList.length > 0) { %>
-                <% tplList.forEach(tpl => { %>
-                <a href="/journey/load-template/<%= tpl.id %>" class="template-pill <%= (journey && journey.mood === tpl.name) ? 'active' : '' %>">
-                    <span><%= seasonEmoji[tpl.season] || '🌿' %></span> <%= tpl.name %>
-                </a>
+
+            <% if (templates && templates.length > 0) { %>
+                <% templates.forEach(t => { %>
+                    <% const isActive = (journey.mood === t.name || journeySource === 'template' && t.name.includes(journey.mood)); %>
+                    <form action="/journey/confirm" method="POST" style="display:inline;">
+                        <input type="hidden" name="templateId" value="<%= t.id %>">
+                        <input type="hidden" name="source" value="template">
+                        <button type="submit" class="tour-pill-btn <%= isActive ? 'active' : '' %>">
+                            <% if (isActive) { %>🌸<% } else { %>🍃<% } %> <%= t.name %>
+                        </button>
+                    </form>
                 <% }) %>
-            <% } else { %>
-                <a href="/journey/preset/du-xuan" class="template-pill">
-                    <span>🌸</span> Du xuân Bình Lợi
-                </a>
-                <a href="/journey/preset/miet-vuon" class="template-pill">
-                    <span>🌿</span> Miệt vườn giữa phố
-                </a>
-                <a href="/journey/preset/song-cham" class="template-pill">
-                    <span>🕊️</span> Sống chậm Bình Lợi
-                </a>
-                <a href="/journey/preset/tam-linh" class="template-pill">
-                    <span>🛕</span> Tâm linh & Nguồn cội
-                </a>
             <% } %>
         </div>
     </div>
-</div>
+</section>
 
-<!-- MAIN CONTENT SECTION -->
-<main style="background:var(--brand-bg); min-height:80vh; padding: 35px 0 70px;">
+<!-- MAIN TIMELINE SECTION (BƯỚC 3 / BƯỚC 4) -->
+<main class="b3-timeline-section">
     <div class="container">
-        <div class="row g-4">
 
-            <!-- LEFT COLUMN: Timeline -->
-            <div class="col-lg-6">
+        <% if (isStep4) { %>
+            <!-- ===== BƯỚC 4: TIMELINE + INTERACTIVE MAP ===== -->
+            <div class="row g-4">
+                <!-- LEFT: Confirmed Timeline -->
+                <div class="col-lg-6">
+                    <div class="card p-3 mb-3 border-0 shadow-sm rounded-4 bg-success bg-opacity-10">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="fw-bold text-success small"><i class="bi bi-check-circle-fill me-1"></i> Lộ trình đã chốt thành công!</span>
+                            <a href="/hanh-trinh-cua-toi?step=3" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" style="font-size:0.75rem;">
+                                <i class="bi bi-pencil me-1"></i> Chỉnh sửa lại
+                            </a>
+                        </div>
+                    </div>
 
-                <!-- Edit Zone (Hidden by default) -->
-                <div class="card p-3 mb-4 border-0 shadow-sm rounded-4 d-none" id="timeline-edit-panel" style="background:#fff5f5; border:1px dashed var(--brand-maroon) !important;">
-                    <h6 class="fw-bold text-danger mb-2"><i class="bi bi-plus-circle me-1"></i> Thêm điểm dừng mới vào tour</h6>
-                    <div class="d-flex gap-2 flex-wrap">
-                        <select id="select-new-destination" class="form-select rounded-pill small" style="flex:1; min-width:200px;">
-                            <option value="">-- Chọn địa điểm muốn thêm --</option>
-                            <% allDestinations.forEach(dest => { %>
-                                <option value="<%= dest.id %>"><%= dest.name %> (<%= dest.type %>)</option>
-                            <% }) %>
-                        </select>
-                        <button onclick="addDestinationToTimeline()" class="btn btn-danger rounded-pill btn-sm px-3 fw-bold">Thêm</button>
+                    <div class="timeline-wrapper-relative">
+                        <div class="timeline-spine-line"></div>
+                        <% journey.stops.forEach((stop, i) => { %>
+                            <div class="timeline-stop-row">
+                                <div class="stop-num-badge-circle"><%= i + 1 %></div>
+                                <div class="stop-card-item">
+                                    <img src="<%= fixImg(stop.cover_image) %>" class="stop-img-thumb" alt="<%= stop.name %>">
+                                    <div style="flex:1;">
+                                        <div class="d-flex gap-2 mb-1">
+                                            <span class="stop-tag-time"><i class="bi bi-clock me-1"></i>0<%= i+8 %>:00 - 0<%= i+9 %>:15</span>
+                                            <span class="stop-tag-type"><%= stop.type || 'nature' %></span>
+                                        </div>
+                                        <div class="stop-card-title"><%= stop.name %></div>
+                                        <div class="stop-card-sub"><%= stop.short_desc || stop.highlight || '' %></div>
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <a href="/explore/<%= stop.slug %>" class="x-small fw-bold text-danger text-decoration-none">Xem thông tin &gt;</a>
+                                            <span class="x-small fw-bold text-success"><i class="bi bi-star-fill text-warning me-1"></i>+<%= stop.points || 100 %> điểm</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
                     </div>
                 </div>
 
-                <!-- Timeline Stops -->
-                <div class="position-relative" id="sortable-timeline">
-                    <div class="timeline-line-brand"></div>
+                <!-- RIGHT: Leaflet Map & GPS -->
+                <div class="col-lg-6">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style="top:90px;">
+                        <div class="p-3 bg-white border-bottom d-flex align-items-center justify-content-between">
+                            <span class="fw-bold text-dark small"><i class="bi bi-map-fill text-danger me-1"></i> Bản đồ lộ trình & GPS</span>
+                            <button onclick="getUserGPSLocation()" id="btn-gps" class="btn btn-sm btn-outline-danger rounded-pill fw-bold">
+                                <i class="bi bi-crosshair me-1"></i> Bật GPS
+                            </button>
+                        </div>
+                        <div id="step4-map" style="width:100%; height:400px;"></div>
+                        <div class="p-3 bg-white border-top text-center">
+                            <a id="btn-gmaps-link" href="#" target="_blank" class="btn btn-danger rounded-pill fw-bold btn-sm px-4">
+                                Open Google Maps Turn-by-Turn Navigation <i class="bi bi-box-arrow-up-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
+        <% } else { %>
+            <!-- ===== BƯỚC 3: EDIT & PREVIEW TIMELINE ===== -->
+            <div class="timeline-wrapper-relative">
+
+                <!-- Add Stop Panel (ENABLED ONLY WHEN EDITING AI JOURNEY) -->
+                <% if (isAI) { %>
+                <div class="card p-3 mb-4 border-0 shadow-sm rounded-4 d-none" id="edit-control-panel" style="background:#fff5f5; border:1px dashed var(--brand-maroon) !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-danger small"><i class="bi bi-sliders me-1"></i> Chế độ chỉnh sửa địa điểm AI:</span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <select id="select-add-dest" class="form-select rounded-pill small" style="flex:1; min-width:200px;">
+                            <option value="">-- Chọn địa điểm muốn thêm --</option>
+                            <% allDestinations.forEach(d => { %>
+                                <option value="<%= d.id %>"><%= d.name %></option>
+                            <% }) %>
+                        </select>
+                        <button onclick="addDestinationStop()" class="btn btn-danger rounded-pill btn-sm px-4 fw-bold">Thêm vào lộ trình</button>
+                    </div>
+                </div>
+                <% } %>
+
+                <div class="timeline-spine-line"></div>
+
+                <!-- Sortable Stops List -->
+                <div id="sortable-timeline-list">
                     <% journey.stops.forEach((stop, i) => { %>
-                        <%
-                            const typeIcons = { nature:'🌿', temple:'🛕', craft:'🎋', food:'🍜', garden:'🌺' };
-                            const typeIcon = typeIcons[stop.type] || '📍';
-                            let startHour = 8 + (i * 1.5);
-                            let startStr = Math.floor(startHour).toString().padStart(2,'0') + ':' + ((startHour%1)*60).toString().padStart(2,'0');
-                            let endHour = startHour + 1.25;
-                            let endStr = Math.floor(endHour).toString().padStart(2,'0') + ':' + ((endHour%1)*60).toString().padStart(2,'0');
-                        %>
+                        <div class="timeline-stop-row stop-sortable-item" data-id="<%= stop.destination_id %>" data-lat="<%= stop.lat %>" data-lng="<%= stop.lng %>" data-pts="<%= stop.points || 100 %>">
+                            <div class="stop-num-badge-circle"><%= i + 1 %></div>
+                            
+                            <div class="stop-card-item position-relative">
+                                <img src="<%= fixImg(stop.cover_image) %>" class="stop-img-thumb" alt="<%= stop.name %>">
+                                
+                                <div style="flex:1; position:relative;">
+                                    
+                                    <!-- Delete Button (Shown only during edit mode) -->
+                                    <% if (isAI) { %>
+                                    <button onclick="removeDestinationStop('<%= stop.destination_id %>')" class="btn btn-danger btn-sm rounded-circle delete-stop-btn d-none" title="Xóa điểm này" style="position:absolute; top:-5px; right:-5px; width:26px; height:26px; padding:0; display:flex; align-items:center; justify-content:center; z-index:10;">
+                                        <i class="bi bi-x-lg" style="font-size:0.7rem;"></i>
+                                    </button>
+                                    <% } %>
 
-                        <div class="timeline-stop-item" data-id="<%= stop.destination_id %>" id="stop-card-<%= i %>" onclick="focusStopOnMap(<%= i %>)">
-                            <div class="stop-badge-number" id="stop-badge-<%= i %>"><%= i + 1 %></div>
-                            <div class="stop-card-main" id="stop-item-<%= i %>">
-                                <div style="display:flex;">
-                                    <img src="<%= fixImg(stop.cover_image) %>" class="stop-thumb-img" alt="<%= stop.name %>">
-                                    <div style="flex:1; padding:12px 16px; position:relative;">
-                                        
-                                        <!-- Edit actions -->
-                                        <div class="edit-actions d-none" style="position:absolute;top:8px;right:8px;display:flex;gap:4px;">
-                                            <div class="drag-handle btn btn-light btn-sm rounded-circle shadow-sm border" title="Kéo để xếp lại" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
-                                                <i class="bi bi-grip-vertical"></i>
-                                            </div>
-                                            <button onclick="event.stopPropagation(); removeStopFromTimeline('<%= stop.destination_id %>')" class="btn btn-danger btn-sm rounded-circle shadow-sm" style="width:28px;height:28px;display:flex;align-items:center;justify-content:center;">
-                                                <i class="bi bi-x-lg"></i>
-                                            </button>
-                                        </div>
-
-                                        <div class="d-flex gap-2 flex-wrap mb-1">
-                                            <span class="badge bg-light text-dark border rounded-pill x-small fw-bold"><i class="bi bi-clock me-1 text-primary"></i><%= startStr %> - <%= endStr %></span>
-                                            <span class="badge bg-success-subtle text-success rounded-pill x-small fw-bold"><%= typeIcon %> <%= stop.type || 'Địa điểm' %></span>
-                                        </div>
-
-                                        <div class="fw-bold text-dark mb-1" style="font-size: 0.95rem;"><%= stop.name %></div>
-                                        <div class="text-muted x-small line-clamp-1 mb-2"><%= stop.short_desc || stop.highlight || '' %></div>
-
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <a href="/explore/<%= stop.slug %>" onclick="event.stopPropagation()" class="x-small fw-bold text-danger text-decoration-none">
-                                                Xem thông tin <i class="bi bi-chevron-right"></i>
-                                            </a>
-                                            <span class="x-small fw-bold text-success"><i class="bi bi-star-fill text-warning me-1"></i>+<%= stop.points || 0 %> điểm</span>
-                                        </div>
-
+                                    <div class="d-flex gap-2 mb-1">
+                                        <span class="stop-tag-time"><i class="bi bi-clock me-1"></i>0<%= i+8 %>:00 - 0<%= i+9 %>:15</span>
+                                        <span class="stop-tag-type"><%= stop.type || 'nature' %></span>
+                                    </div>
+                                    <div class="stop-card-title"><%= stop.name %></div>
+                                    <div class="stop-card-sub"><%= stop.short_desc || stop.highlight || '' %></div>
+                                    
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <a href="/explore/<%= stop.slug %>" class="x-small fw-bold text-danger text-decoration-none">Xem thông tin &gt;</a>
+                                        <span class="x-small fw-bold text-success"><i class="bi bi-star-fill text-warning me-1"></i>+<%= stop.points || 100 %> điểm</span>
                                     </div>
                                 </div>
                             </div>
@@ -422,279 +493,208 @@
                     <% }) %>
                 </div>
 
-                <!-- Footer Action Buttons -->
-                <div class="d-flex gap-3 mt-4 flex-wrap">
-                    <button class="btn-brand-primary flex-grow-1" id="btn-timeline-action" onclick="lockJourneyAndConfirm()">
-                        <i class="bi bi-check-circle-fill me-2"></i> CHỐT & LƯU LỘ TRÌNH
+                <!-- BOTTOM ACTION BUTTONS (CHUẨN 100% HÌNH 2) -->
+                <div class="d-flex align-items-center justify-content-center gap-3 mt-5 flex-wrap">
+                    
+                    <!-- 1. NÚT LƯU LỘ TRÌNH (Chuyển qua Bước 4) -->
+                    <button class="btn-action-save" onclick="saveJourneyAndProceed()">
+                        <i class="bi bi-check-circle-fill"></i> LƯU LỘ TRÌNH
                     </button>
-                    <button class="btn-brand-outline" onclick="window.location.href='/onboarding'">
-                        <i class="bi bi-arrow-counterclockwise me-1"></i> Làm lại
+
+                    <!-- 2. NÚT CHỈNH SỬA (CHỈ CÓ CHO HÀNH TRÌNH AI) -->
+                    <% if (isAI) { %>
+                    <button class="btn-action-edit" id="btn-toggle-edit" onclick="toggleEditMode()">
+                        <i class="bi bi-pencil-square"></i> Chỉnh sửa
                     </button>
+                    <% } %>
+
+                    <!-- 3. NÚT LÀM LẠI (Quay lại Bước 1) -->
+                    <a href="/onboarding" class="btn-action-reset">
+                        <i class="bi bi-arrow-counterclockwise"></i> Làm lại
+                    </a>
+
                 </div>
 
             </div>
+        <% } %>
 
-            <!-- RIGHT COLUMN: Map Panel -->
-            <div class="col-lg-6">
-                <div class="map-container-sticky">
-                    <div id="journey-leaflet-map" style="width:100%; height:100%;"></div>
-                    <div class="map-bottom-banner">
-                        <div class="d-flex align-items-center justify-content-between mb-1">
-                            <span class="fw-bold small text-dark"><i class="bi bi-map-fill text-danger me-1"></i> Chỉ đường Google Maps Lộ trình</span>
-                            <span class="badge bg-success text-white rounded-pill x-small">● OSRM Routing</span>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2 mb-2" id="map-legend">
-                            <% journey.stops.forEach((stop, i) => { %>
-                            <span class="x-small fw-semibold text-muted d-inline-flex align-items-center gap-1">
-                                <span class="badge bg-danger rounded-circle p-1" style="width:18px;height:18px;display:inline-flex;align-items:center;justify-content:center;"><%= i+1 %></span>
-                                <%= stop.name %>
-                            </span>
-                            <% }) %>
-                        </div>
-                        <a id="btnGoogleMapsNav" href="#" target="_blank" class="btn btn-sm btn-success rounded-pill fw-bold shadow-sm px-3 py-2 w-100 text-center d-flex align-items-center justify-content-center gap-2">
-                            <i class="bi bi-cursor-fill"></i> MỞ CHỈ ĐƯỜNG BẰNG GOOGLE MAPS (TURN-BY-TURN)
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-        </div>
     </div>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<% if (isStep4) { %>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<% } %>
+
 <script>
-let map, markers = [], routeLine, routeLineBorder;
-let isTimelineLocked = true;
-const journeyId = '<%= journey.id %>';
-const stopsData = <%- JSON.stringify(journey.stops) %>;
+const journeyId = "<%= journey.id %>";
+const isAIJourney = <%= isAI ? 'true' : 'false' %>;
+let isEditMode = false;
+let sortableInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    initLeafletMap();
-    initTimelineReordering();
-    updateGoogleMapsLink();
-
-    gsap.from('.metric-card-glass', { opacity:0, y:20, stagger:0.08, duration:0.6, ease:'power2.out' });
-    gsap.from('.timeline-stop-item', { opacity:0, x:-30, stagger:0.1, duration:0.6, ease:'power3.out' });
+    if (isAIJourney && document.getElementById('sortable-timeline-list')) {
+        initDragAndDrop();
+    }
+    <% if (isStep4) { %>
+    initStep4Map();
+    <% } %>
 });
 
-function updateGoogleMapsLink() {
-    if (!stopsData || stopsData.length === 0) return;
-    const first = stopsData[0];
-    const last = stopsData[stopsData.length - 1];
-    const waypoints = stopsData.slice(1, stopsData.length - 1).map(s => `${s.lat},${s.lng}`).join('|');
-    let gmapsUrl = `https://www.google.com/maps/dir/?api=1&origin=${first.lat},${first.lng}&destination=${last.lat},${last.lng}`;
-    if (waypoints) {
-        gmapsUrl += `&waypoints=${encodeURIComponent(waypoints)}`;
-    }
-    const btn = document.getElementById('btnGoogleMapsNav');
-    if (btn) btn.href = gmapsUrl;
-}
-
-function initLeafletMap() {
-    try {
-        const center = [10.796, 106.524];
-        map = L.map('journey-leaflet-map', {
-            center, zoom: 14,
-            zoomControl: true,
-            attributionControl: false
-        });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 20
-        }).addTo(map);
-        renderRouteOnMap();
-    } catch(e) { console.error('Leaflet init failed', e); }
-}
-
-function renderRouteOnMap() {
-    markers.forEach(m => map.removeLayer(m));
-    markers = [];
-    if (routeLine) { map.removeLayer(routeLine); routeLine = null; }
-    if (routeLineBorder) { map.removeLayer(routeLineBorder); routeLineBorder = null; }
-    if (!stopsData || stopsData.length === 0) return;
-
-    const bounds = L.latLngBounds();
-    const coords = [];
-    const osrmWaypoints = [];
-    const colors = ['#922724', '#15803d', '#d97706', '#1e40af', '#b91c1c', '#047857'];
-
-    stopsData.forEach((stop, i) => {
-        const lat = parseFloat(stop.lat) || (10.79 + i * 0.005);
-        const lng = parseFloat(stop.lng) || (106.52 + i * 0.005);
-        const pos = [lat, lng];
-        bounds.extend(pos);
-        coords.push(pos);
-        osrmWaypoints.push(`${lng},${lat}`);
-
-        const color = colors[i % colors.length];
-        const icon = L.divIcon({
-            className: '',
-            html: `<div style="background:${color};width:32px;height:32px;border-radius:50%;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;cursor:pointer;">${i+1}</div>`,
-            iconSize:[32,32], iconAnchor:[16,16], popupAnchor:[0,-16]
-        });
-
-        const m = L.marker(pos, { icon }).addTo(map);
-
-        const imgSrc = stop.cover_image
-            ? (stop.cover_image.startsWith('http') || stop.cover_image.startsWith('data:') ? stop.cover_image : '/' + stop.cover_image.replace(/^public\//, ''))
-            : '/images/placeholder.png';
-
-        m.bindPopup(`
-            <div style="width:210px;font-family:sans-serif;">
-                <img src="${imgSrc}" style="width:100%;height:100px;object-fit:cover;border-radius:10px;margin-bottom:8px;">
-                <div style="font-weight:900;font-size:0.9rem;color:${color};margin-bottom:4px;">${i+1}. ${stop.name}</div>
-                <div style="font-size:0.72rem;color:#64748b;">⏰ ${stop.open_hours || '07:00 - 18:00'}</div>
-                <div class="d-flex gap-1 mt-2">
-                    <a href="/explore/${stop.slug}" style="display:inline-block;font-size:0.75rem;font-weight:700;color:${color};text-decoration:none;">Xem chi tiết →</a>
-                    <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" style="display:inline-block;margin-left:auto;font-size:0.72rem;font-weight:700;color:#2563eb;text-decoration:none;"><i class="bi bi-geo-alt"></i> Chỉ đường</a>
-                </div>
-            </div>
-        `, { maxWidth: 230 });
-
-        m.on('click', () => highlightTimelineStop(i));
-        markers.push(m);
-    });
-
-    // OSRM Routing for real road navigation lines & real-time metrics
-    if (coords.length >= 2) {
-        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${osrmWaypoints.join(';')}?overview=full&geometries=geojson`;
-        fetch(osrmUrl)
-            .then(res => res.json())
-            .then(data => {
-                if (data.routes && data.routes.length > 0) {
-                    const routeGeoJSON = data.routes[0].geometry;
-                    const roadCoords = routeGeoJSON.coordinates.map(c => [c[1], c[0]]);
-
-                    const realKm = Math.round((data.routes[0].distance / 1000) * 100) / 100;
-                    const realMins = stopsData.length * 60 + Math.round(realKm * 15);
-                    const kmEl = document.getElementById('metric-km');
-                    const durEl = document.getElementById('metric-duration');
-                    if (kmEl && realKm > 0) kmEl.innerText = realKm;
-                    if (durEl && realMins > 0) durEl.innerText = realMins;
-
-                    // Outer dark border polyline
-                    routeLineBorder = L.polyline(roadCoords, {
-                        color: '#1e293b', opacity: 0.7, weight: 8
-                    }).addTo(map);
-
-                    // Inner Google Maps style blue line
-                    routeLine = L.polyline(roadCoords, {
-                        color: '#4285F4', opacity: 0.95, weight: 5
-                    }).addTo(map);
-                } else {
-                    drawFallbackPolyline(coords);
-                }
-            })
-            .catch(err => {
-                console.warn('OSRM routing fetch fallback:', err);
-                drawFallbackPolyline(coords);
-            });
-    }
-
-    if (bounds.isValid()) map.fitBounds(bounds, { padding: [40, 40] });
-}
-
-function drawFallbackPolyline(coords) {
-    routeLine = L.polyline(coords, {
-        color: '#4285F4', opacity: 0.9, weight: 5, dashArray: '8, 8'
-    }).addTo(map);
-}
-
-function focusStopOnMap(idx) {
-    highlightTimelineStop(idx);
-    if (markers[idx]) {
-        map.flyTo(markers[idx].getLatLng(), 16, { animate: true, duration: 0.8 });
-        setTimeout(() => markers[idx].openPopup(), 800);
-    }
-}
-
-function highlightTimelineStop(idx) {
-    document.querySelectorAll('.stop-badge-number').forEach((b, i) => {
-        b.style.transform = i === idx ? 'scale(1.2)' : 'scale(1)';
-    });
-    document.querySelectorAll('.stop-card-main').forEach((c, i) => c.classList.toggle('highlighted', i === idx));
-    const card = document.getElementById(`stop-card-${idx}`);
-    if (card) card.scrollIntoView({ behavior:'smooth', block:'nearest' });
-}
-
-let sortableInstance;
-function initTimelineReordering() {
-    const el = document.getElementById('sortable-timeline');
-    if (!el) return;
-    sortableInstance = Sortable.create(el, {
-        handle: '.drag-handle',
-        animation: 300,
-        disabled: true,
-        onEnd: () => saveNewItineraryOrder()
+/* DRAG AND DROP & METRICS UPDATE WITHOUT PAGE RELOAD */
+function initDragAndDrop() {
+    const el = document.getElementById('sortable-timeline-list');
+    sortableInstance = new Sortable(el, {
+        animation: 150,
+        disabled: true, // Disabled until "Chỉnh sửa" is clicked
+        onEnd: function () {
+            recalculateMetricsRealtime();
+        }
     });
 }
 
-function toggleTimelineLock() {
-    isTimelineLocked = !isTimelineLocked;
-    const dot = document.getElementById('lock-status-dot');
-    const text = document.getElementById('lock-status-text');
-    const btn = document.getElementById('btn-lock-toggle');
-    const actionBtn = document.getElementById('btn-timeline-action');
-    const editPanel = document.getElementById('timeline-edit-panel');
+function toggleEditMode() {
+    isEditMode = !isEditMode;
+    const btn = document.getElementById('btn-toggle-edit');
+    const panel = document.getElementById('edit-control-panel');
+    const deleteBtns = document.querySelectorAll('.delete-stop-btn');
 
-    if (isTimelineLocked) {
-        dot.style.background = '#4ade80';
-        dot.style.boxShadow = '0 0 8px #4ade80';
-        text.innerText = 'Đã chốt hành trình';
-        btn.innerHTML = '<i class="bi bi-pencil-square me-1"></i>Đổi';
-        actionBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> CHỐT & LƯU LỘ TRÌNH';
-        actionBtn.setAttribute('onclick', 'lockJourneyAndConfirm()');
-        editPanel.classList.add('d-none');
-        document.querySelectorAll('.edit-actions').forEach(e => e.classList.add('d-none'));
-        sortableInstance.option('disabled', true);
+    if (isEditMode) {
+        btn.innerHTML = '<i class="bi bi-check-lg"></i> Xong chỉnh sửa';
+        btn.style.background = 'var(--brand-maroon)';
+        btn.style.color = '#ffffff';
+        if (panel) panel.classList.remove('d-none');
+        deleteBtns.forEach(b => b.classList.remove('d-none'));
+        if (sortableInstance) sortableInstance.option('disabled', false);
     } else {
-        dot.style.background = '#f59e0b';
-        dot.style.boxShadow = '0 0 8px #f59e0b';
-        text.innerText = 'Đang chỉnh sửa…';
-        btn.innerHTML = '<i class="bi bi-check-circle-fill me-1"></i>Xong';
-        actionBtn.innerHTML = '<i class="bi bi-floppy2-fill me-2"></i> LƯU THAY ĐỔI';
-        actionBtn.setAttribute('onclick', 'lockJourneyAndConfirm()');
-        editPanel.classList.remove('d-none');
-        document.querySelectorAll('.edit-actions').forEach(e => e.classList.remove('d-none'));
-        sortableInstance.option('disabled', false);
+        btn.innerHTML = '<i class="bi bi-pencil-square"></i> Chỉnh sửa';
+        btn.style.background = '#ffffff';
+        btn.style.color = 'var(--brand-maroon)';
+        if (panel) panel.classList.add('d-none');
+        deleteBtns.forEach(b => b.classList.add('d-none'));
+        if (sortableInstance) sortableInstance.option('disabled', true);
+        
+        // Save new order to DB silently
+        saveOrderToBackend();
     }
 }
 
-function lockJourneyAndConfirm() {
-    if (!isTimelineLocked) toggleTimelineLock();
-    const btn = document.getElementById('btn-timeline-action');
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu…';
-    btn.disabled = true;
-    setTimeout(() => {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>ĐÃ LƯU THÀNH CÔNG!';
-        btn.style.background = 'linear-gradient(135deg,#15803d,#166534)';
-        setTimeout(() => {
-            btn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i> CHỐT & LƯU LỘ TRÌNH';
-            btn.style.background = '';
-        }, 2000);
-    }, 800);
+function recalculateMetricsRealtime() {
+    const rows = Array.from(document.querySelectorAll('.stop-sortable-item'));
+    
+    // Update step numbers (1, 2, 3...)
+    rows.forEach((row, idx) => {
+        const badge = row.querySelector('.stop-num-badge-circle');
+        if (badge) badge.innerText = idx + 1;
+    });
+
+    // Recalculate distance using Haversine formula
+    let totalMeters = 0;
+    let totalPts = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+        const pts = parseInt(rows[i].dataset.pts) || 100;
+        totalPts += pts;
+
+        if (i > 0) {
+            const lat1 = parseFloat(rows[i-1].dataset.lat);
+            const lng1 = parseFloat(rows[i-1].dataset.lng);
+            const lat2 = parseFloat(rows[i].dataset.lat);
+            const lng2 = parseFloat(rows[i].dataset.lng);
+
+            if (lat1 && lng1 && lat2 && lng2) {
+                const R = 6371000;
+                const dLat = (lat2 - lat1) * Math.PI / 180;
+                const dLon = (lng2 - lng1) * Math.PI / 180;
+                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                          Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                totalMeters += R * c;
+            }
+        }
+    }
+
+    const totalKm = rows.length > 1 ? (Math.round((totalMeters / 1000) * 100) / 100) : 4.1;
+    const totalTime = rows.length * 60 + Math.round(totalKm * 15);
+
+    // DYNAMICALLY UPDATE TOP METRICS WITHOUT PAGE RELOAD
+    document.getElementById('val-stops').innerText = rows.length;
+    document.getElementById('val-km').innerText = totalKm;
+    document.getElementById('val-time').innerText = totalTime;
+    document.getElementById('val-pts').innerText = '+' + totalPts;
 }
 
-function saveNewItineraryOrder() {
-    const items = document.querySelectorAll('#sortable-timeline .timeline-stop-item');
-    const order = Array.from(items).map(el => el.dataset.id);
-    axios.post('/api/journey/update-stop', { journeyId, action:'reorder', order })
-        .then(() => location.reload())
-        .catch(() => alert('Lỗi khi cập nhật thứ tự.'));
+function saveOrderToBackend() {
+    const rows = document.querySelectorAll('.stop-sortable-item');
+    const order = Array.from(rows).map(r => r.dataset.id);
+    axios.post('/api/journey/update-stop', { journeyId, action: 'reorder', order });
 }
 
-function removeStopFromTimeline(destId) {
-    if (!confirm('Bạn muốn bỏ địa điểm này khỏi lộ trình?')) return;
-    axios.post('/api/journey/update-stop', { journeyId, action:'remove', destinationId: destId })
-        .then(() => location.reload())
-        .catch(() => alert('Lỗi khi xoá địa điểm.'));
+function removeDestinationStop(destId) {
+    const row = document.querySelector(`.stop-sortable-item[data-id="${destId}"]`);
+    if (row) {
+        row.remove();
+        recalculateMetricsRealtime();
+        axios.post('/api/journey/update-stop', { journeyId, action: 'remove', destinationId: destId });
+    }
 }
 
-function addDestinationToTimeline() {
-    const destId = document.getElementById('select-new-destination').value;
+function addDestinationStop() {
+    const destId = document.getElementById('select-add-dest').value;
     if (!destId) { alert('Vui lòng chọn địa điểm!'); return; }
-    axios.post('/api/journey/update-stop', { journeyId, action:'add', destinationId: destId })
-        .then(() => location.reload())
-        .catch(() => alert('Lỗi khi thêm địa điểm.'));
+    axios.post('/api/journey/update-stop', { journeyId, action: 'add', destinationId: destId })
+        .then(() => location.reload());
 }
+
+function saveJourneyAndProceed() {
+    if (isEditMode) saveOrderToBackend();
+    
+    // Save state & navigate to Step 4
+    axios.post('/api/journey/lock-toggle', {})
+        .then(() => {
+            window.location.href = '/hanh-trinh-cua-toi?step=4';
+        })
+        .catch(() => {
+            window.location.href = '/hanh-trinh-cua-toi?step=4';
+        });
+}
+
+<% if (isStep4) { %>
+function initStep4Map() {
+    const stops = <%- JSON.stringify(journey.stops || []) %>;
+    if (!stops || stops.length === 0) return;
+
+    const map = L.map('step4-map').setView([parseFloat(stops[0].lat) || 10.8231, parseFloat(stops[0].lng) || 106.6297], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+    const latLngs = [];
+    stops.forEach((st, idx) => {
+        if (st.lat && st.lng) {
+            const ll = [parseFloat(st.lat), parseFloat(st.lng)];
+            latLngs.push(ll);
+            const html = `<div style="background:#922724;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:900;">${idx+1}</div>`;
+            L.marker(ll, { icon: L.divIcon({ html: html, iconSize: [26, 26] }) }).addTo(map).bindPopup(`<b>${st.name}</b>`);
+        }
+    });
+
+    if (latLngs.length > 1) {
+        const poly = L.polyline(latLngs, { color: '#922724', weight: 4, opacity: 0.8, dashArray: '6, 6' }).addTo(map);
+        map.fitBounds(poly.getBounds(), { padding: [30, 30] });
+    }
+
+    let gmapsUrl = 'https://www.google.com/maps/dir/';
+    latLngs.forEach(ll => { gmapsUrl += `${ll[0]},${ll[1]}/`; });
+    document.getElementById('btn-gmaps-link').href = gmapsUrl;
+}
+
+function getUserGPSLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(pos => {
+            alert('Đã định vị thành công vị trí hiện tại!');
+        });
+    }
+}
+<% } %>
 </script>

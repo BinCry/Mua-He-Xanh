@@ -22,7 +22,7 @@
                 <h1 class="display-1 fw-black mb-3 letter-spacing-sm text-shadow-lg" style="color: var(--accent);"><%= dest.name %></h1>
                 <div class="lead opacity-90 d-flex align-items-start gap-2 mb-4 dest-hero-desc text-start">
                     <i class="bi bi-geo-alt-fill text-danger mt-1 flex-shrink-0"></i> 
-                    <span class="dest-short-desc-text"><%= dest.short_desc %></span>
+                    <span class="dest-short-desc-text"><%= (dest.short_desc || '').replace(/\.+$/, '') %></span>
                 </div>
                 
 
@@ -70,7 +70,7 @@
                 <div class="highlight-quote p-5 rounded-4 mt-5 position-relative overflow-hidden bg-light border-start border-5 border-secondary">
                     <i class="bi bi-quote display-1 position-absolute top-0 end-0 opacity-10 m-3 text-secondary"></i>
                     <h4 class="mb-3 fw-black text-dark"><i class="bi bi-stars text-warning me-2"></i> Trải nghiệm tinh hoa</h4>
-                    <p class="mb-0 fst-italic lead text-muted" style="line-height: 1.8;"><%= dest.highlight %></p>
+                    <p class="mb-0 fst-italic lead text-muted" style="line-height: 1.8;"><%= (dest.highlight || '').replace(/\.+$/, '') %></p>
                 </div>
             </div>
 

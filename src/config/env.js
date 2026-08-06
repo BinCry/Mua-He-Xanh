@@ -1,5 +1,5 @@
 const path = require('path');
-const dotenvResult = require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
+require('dotenv').config({ path: path.resolve(__dirname, '../../.env') });
 
 const calculatedBaseUrl = process.env.NODE_ENV === 'production' 
     ? (process.env.BASE_URL || 'https://binh-loi-healing.vercel.app') 
@@ -11,12 +11,8 @@ const config = {
     baseUrl: calculatedBaseUrl,
     
     db: {
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        pass: process.env.DB_PASS,
-        name: process.env.DB_NAME,
-        port: process.env.DB_PORT || 3306,
-        ssl: process.env.DB_SSL === 'true'
+        type: 'postgres',
+        url: process.env.DATABASE_URL
     },
 
     auth: {
@@ -39,14 +35,5 @@ const config = {
         apiSecret: process.env.CLOUDINARY_API_SECRET
     }
 };
-
-// Check for critical missing keys
-const missingKeys = [];
-if (!config.db.host) missingKeys.push('DB_HOST');
-if (!config.auth.google.clientId || config.auth.google.clientId.includes('ID_Cua_Ban')) missingKeys.push('GOOGLE_CLIENT_ID');
-
-if (missingKeys.length > 0 && config.nodeEnv === 'production') {
-    console.error(`\x1b[31m[CRITICAL] Missing environment variables: ${missingKeys.join(', ')}\x1b[0m`);
-}
 
 module.exports = config;

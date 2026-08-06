@@ -1,11 +1,8 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
 <style>
 :root {
     --brand-maroon: #922724;
     --brand-maroon-dark: #6e1b19;
     --brand-green: #15803d;
-    --brand-gold: #d97706;
     --brand-bg: #faf8f5;
     --brand-card: #ffffff;
     --brand-border: #eee7dd;
@@ -13,619 +10,452 @@
     --brand-muted: #64748b;
 }
 
-/* Background & Hero Atmosphere */
-.onboarding-wrapper {
-    background: linear-gradient(180deg, #fdfbf8 0%, #faf6f0 50%, #f4ede2 100%);
-    min-height: 92vh;
-    padding: 20px 0 90px;
-    position: relative;
-    overflow: hidden;
+body {
+    background-color: var(--brand-bg);
 }
 
-.ambient-blob-1 {
-    position: absolute;
-    top: -120px; right: -100px;
-    width: 450px; height: 450px;
-    background: radial-gradient(circle, rgba(146,39,36,0.06) 0%, rgba(255,255,255,0) 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-.ambient-blob-2 {
-    position: absolute;
-    bottom: -150px; left: -120px;
-    width: 550px; height: 550px;
-    background: radial-gradient(circle, rgba(21,128,61,0.06) 0%, rgba(255,255,255,0) 70%);
-    border-radius: 50%;
-    pointer-events: none;
+.onboarding-page-container {
+    padding: 50px 15px 80px;
+    background-color: var(--brand-bg);
+    min-height: 90vh;
 }
 
-/* Main Container Card */
-.main-onboarding-card {
+.onboarding-card-wrapper {
+    max-width: 960px;
+    margin: 0 auto;
     background: #ffffff;
-    border: 1px solid var(--brand-border);
     border-radius: 32px;
-    box-shadow: 0 20px 60px rgba(146, 39, 36, 0.06), 0 4px 16px rgba(0, 0, 0, 0.02);
-    position: relative;
-    z-index: 10;
+    padding: 45px 50px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.03);
 }
 
-/* Header Section */
-.hero-badge-pill {
+@media (max-width: 768px) {
+    .onboarding-card-wrapper {
+        padding: 25px 20px;
+        border-radius: 24px;
+    }
+}
+
+.section-badge-num {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--brand-green);
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 0.95rem;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, #fff5f5 0%, #fdf2f2 100%);
-    color: var(--brand-maroon);
-    border: 1.5px solid #fecaca;
-    padding: 8px 22px;
-    border-radius: 50px;
-    font-size: 0.78rem;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.section-header-title {
+    font-size: 1.15rem;
     font-weight: 800;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    box-shadow: 0 2px 10px rgba(146, 39, 36, 0.08);
+    color: #1e293b;
+    margin-bottom: 2px;
 }
 
-/* Vibe Selection Grid */
-.vibe-card-wow {
-    height: 200px;
+.section-header-sub {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-bottom: 0;
+}
+
+.section-divider-line {
+    height: 1px;
+    background: #e2e8f0;
+    margin: 18px 0 24px;
+}
+
+/* VIBE CARDS (GIAO DIỆN HÌNH 1) */
+.vibe-card-item {
     position: relative;
-    overflow: hidden;
-    border-radius: 22px;
-    cursor: pointer;
-    border: 2.5px solid var(--brand-border);
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
-    background: #1e293b;
-}
-
-.vibe-card-wow .vibe-img-layer {
-    position: absolute;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-size: cover;
-    background-position: center;
-    transition: transform 0.7s cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-
-.vibe-card-wow .vibe-gradient-overlay {
-    position: absolute;
-    inset: 0;
-    opacity: 0.82;
-    transition: opacity 0.3s ease;
-    z-index: 1;
-}
-
-.vibe-chill .vibe-gradient-overlay {
-    background: linear-gradient(to top, rgba(21, 128, 61, 0.95) 0%, rgba(146, 39, 36, 0.25) 100%);
-}
-.vibe-peace .vibe-gradient-overlay {
-    background: linear-gradient(to top, rgba(146, 39, 36, 0.95) 0%, rgba(217, 119, 6, 0.3) 100%);
-}
-.vibe-culture .vibe-gradient-overlay {
-    background: linear-gradient(to top, rgba(180, 83, 9, 0.95) 0%, rgba(146, 39, 36, 0.3) 100%);
-}
-.vibe-family .vibe-gradient-overlay {
-    background: linear-gradient(to top, rgba(30, 64, 175, 0.95) 0%, rgba(21, 128, 61, 0.3) 100%);
-}
-
-.vibe-card-wow:hover {
-    transform: translateY(-6px);
-    border-color: var(--brand-maroon);
-    box-shadow: 0 14px 30px rgba(146, 39, 36, 0.2);
-}
-.vibe-card-wow:hover .vibe-img-layer {
-    transform: scale(1.12);
-}
-
-.vibe-card-wow.active {
-    border-color: var(--brand-maroon);
-    box-shadow: 0 0 0 4px rgba(146, 39, 36, 0.25), 0 16px 36px rgba(146, 39, 36, 0.25);
-}
-
-.vibe-card-wow .vibe-content-box {
-    position: absolute;
-    inset: 0;
+    border-radius: 20px;
+    padding: 24px 20px;
+    min-height: 165px;
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: 18px;
-    z-index: 2;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
     color: #ffffff;
-    text-align: left;
+    user-select: none;
+    border: 3px solid transparent;
 }
 
-.vibe-card-wow .vibe-emoji-icon {
-    font-size: 2.2rem;
-    margin-bottom: 6px;
-    display: inline-block;
-    filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));
-    transition: transform 0.3s ease;
-}
-.vibe-card-wow:hover .vibe-emoji-icon {
-    transform: scale(1.15) rotate(6deg);
+.vibe-card-item:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
 }
 
-.vibe-card-wow .vibe-main-title {
-    font-size: 1.05rem;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: #ffffff !important;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-    margin: 0 0 2px 0;
-}
-.vibe-card-wow .vibe-sub-desc {
-    font-size: 0.72rem;
-    color: rgba(255,255,255,0.88);
-    font-weight: 500;
-    margin: 0;
+.vibe-card-item.selected {
+    border-color: var(--brand-maroon) !important;
+    box-shadow: 0 10px 25px rgba(146, 39, 36, 0.35) !important;
 }
 
-.vibe-check-circle {
+.vibe-card-item .check-badge {
     position: absolute;
-    top: 12px; right: 12px;
-    width: 32px; height: 32px;
+    top: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     background: #ffffff;
     color: var(--brand-maroon);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.1rem;
+    font-size: 0.9rem;
     font-weight: 900;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
     opacity: 0;
-    transform: scale(0.4) rotate(-20deg);
-    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-    z-index: 4;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-}
-.vibe-card-wow.active .vibe-check-circle {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
+    transform: scale(0.5);
+    transition: all 0.25s ease;
 }
 
-/* Step 2 Interactive Option Pills */
-.preference-group-title {
+.vibe-card-item.selected .check-badge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+/* Card Gradients */
+.vibe-card-song-cham {
+    background: linear-gradient(145deg, #1e4d34 0%, #15803d 50%, #0d5c2a 100%);
+}
+.vibe-card-tam-linh {
+    background: linear-gradient(145deg, #4a1917 0%, #7f1d1d 50%, #581c1a 100%);
+}
+.vibe-card-van-hoa {
+    background: linear-gradient(145deg, #5c2c1b 0%, #9a3412 50%, #6e2712 100%);
+}
+.vibe-card-gan-ket {
+    background: linear-gradient(145deg, #172b4d 0%, #1e3a8a 50%, #0f2354 100%);
+}
+
+.vibe-icon {
+    font-size: 1.8rem;
+    margin-bottom: 12px;
+}
+.vibe-title {
+    font-size: 1.05rem;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    line-height: 1.2;
+    margin-bottom: 3px;
+}
+.vibe-sub {
+    font-size: 0.76rem;
+    opacity: 0.85;
+    margin-bottom: 0;
+}
+
+/* SUB SECTIONS (SỐ LƯỢNG, NGÂN SÁCH, THỜI LƯỢNG, NGÀY) */
+.sub-label-title {
     font-size: 0.78rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--brand-muted);
-    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    color: #922724;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     gap: 6px;
 }
-.pill-options-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-.option-pill-btn {
-    flex: 1;
-    min-width: 130px;
-    padding: 11px 16px;
-    border-radius: 50px;
-    border: 1.5px solid var(--brand-border);
-    background: #f8fafc;
-    color: var(--brand-text);
-    font-weight: 700;
-    font-size: 0.82rem;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    text-align: center;
-}
-.option-pill-btn:hover {
-    border-color: var(--brand-maroon);
-    background: #fdf5f5;
-    color: var(--brand-maroon);
-    transform: translateY(-2px);
-}
-.option-pill-btn.active {
-    border-color: var(--brand-maroon);
-    background: linear-gradient(135deg, var(--brand-maroon) 0%, #7f1d1d 100%);
-    color: #ffffff;
-    box-shadow: 0 4px 14px rgba(146, 39, 36, 0.25);
-    transform: translateY(-2px);
-}
 
-.date-picker-custom {
-    border: 1.5px solid var(--brand-border);
-    background: #ffffff;
+.option-pill-btn {
     border-radius: 50px;
     padding: 10px 18px;
-    font-size: 0.85rem;
+    font-size: 0.86rem;
     font-weight: 700;
-    color: var(--brand-maroon);
-    outline: none;
-    transition: all 0.25s ease;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-}
-.date-picker-custom:focus {
-    border-color: var(--brand-maroon);
-    box-shadow: 0 0 0 3px rgba(146,39,36,0.15);
-}
-
-/* Floating CTA Button */
-.btn-cta-wow {
-    background: linear-gradient(135deg, var(--brand-maroon) 0%, #7f1d1d 50%, var(--brand-green) 100%);
-    background-size: 200% auto;
-    color: #ffffff;
-    border: none;
-    padding: 18px 45px;
-    border-radius: 50px;
-    font-weight: 900;
-    font-size: 0.95rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    transition: all 0.4s ease;
-    box-shadow: 0 8px 30px rgba(146, 39, 36, 0.35);
-    position: relative;
-    overflow: hidden;
-}
-.btn-cta-wow:hover {
-    background-position: right center;
-    transform: translateY(-3px) scale(1.02);
-    box-shadow: 0 14px 40px rgba(146, 39, 36, 0.45);
-    color: #ffffff;
-}
-
-.step-num-icon {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, var(--brand-maroon) 0%, var(--brand-green) 100%);
-    color: #ffffff;
-    font-weight: 900;
-    font-size: 0.9rem;
+    background: #faf8f5;
+    color: #334155;
+    border: 1.5px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 4px 12px rgba(146, 39, 36, 0.2);
+    gap: 6px;
+    user-select: none;
 }
 
-/* Mobile Responsive Adjustments */
-@media (max-width: 767.98px) {
-    .onboarding-wrapper {
-        padding: 10px 0 60px;
-    }
-    .main-onboarding-card {
-        border-radius: 20px;
-        padding: 18px 14px !important;
-    }
-    .hero-badge-pill {
-        font-size: 0.65rem;
-        padding: 5px 14px;
-        letter-spacing: 1px;
-    }
-    .onboarding-wrapper h1.display-5 {
-        font-size: 1.4rem !important;
-    }
-    .vibe-card-wow {
-        height: 140px;
-        border-radius: 16px;
-    }
-    .vibe-card-wow .vibe-content-box {
-        padding: 10px;
-    }
-    .vibe-card-wow .vibe-emoji-icon {
-        font-size: 1.5rem;
-        margin-bottom: 2px;
-    }
-    .vibe-card-wow .vibe-main-title {
-        font-size: 0.82rem;
-    }
-    .vibe-card-wow .vibe-sub-desc {
-        font-size: 0.65rem;
-        line-height: 1.2;
-    }
-    .vibe-check-circle {
-        top: 8px; right: 8px;
-        width: 26px; height: 26px;
-        font-size: 0.9rem;
-    }
-    .option-pill-btn {
-        min-width: 90px;
-        padding: 8px 10px;
-        font-size: 0.75rem;
-    }
-    .date-picker-custom {
-        padding: 8px 12px;
-        font-size: 0.8rem;
-    }
-    .btn-cta-wow {
-        padding: 14px 24px;
-        font-size: 0.82rem;
-    }
+.option-pill-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.option-pill-btn.active {
+    background: linear-gradient(135deg, #922724 0%, #7f1d1d 100%) !important;
+    color: #ffffff !important;
+    border-color: #922724 !important;
+    box-shadow: 0 4px 14px rgba(146, 39, 36, 0.3) !important;
+}
+
+.date-picker-input {
+    border-radius: 50px;
+    padding: 10px 20px;
+    font-size: 0.88rem;
+    font-weight: 700;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    color: #922724;
+    width: 100%;
+}
+
+.btn-submit-journey {
+    background: linear-gradient(135deg, #7f1d1d 0%, #922724 50%, #6e1b19 100%);
+    color: #ffffff;
+    font-size: 1.05rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    padding: 16px 45px;
+    border-radius: 50px;
+    border: none;
+    box-shadow: 0 10px 28px rgba(146, 39, 36, 0.4);
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-submit-journey:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 14px 34px rgba(146, 39, 36, 0.5);
+    color: #ffffff;
 }
 </style>
 
-<div class="onboarding-wrapper">
-    <div class="ambient-blob-1"></div>
-    <div class="ambient-blob-2"></div>
+<div class="onboarding-page-container">
+    
+    <!-- HEADER -->
+    <div class="text-center mb-4">
+        <h1 class="display-5 fw-black font-heading text-dark mb-2" style="letter-spacing: -0.5px;">
+            Thiết Kế Hành Trình Của Bạn
+        </h1>
+        <p class="text-muted small mx-auto mb-0" style="max-width: 580px;">
+            Chọn mong muốn & ngày khởi hành để nhận đề xuất tour phù hợp nhất.
+        </p>
+    </div>
 
-    <div class="container position-relative z-index-10">
+    <!-- MAIN FORM CARD -->
+    <div class="onboarding-card-wrapper">
+        <form id="onboardingForm" onsubmit="handleOnboardingSubmit(event)">
 
-        <!-- HEADER SECTION -->
-        <div class="row justify-content-center mb-4 text-center reveal-up">
-            <div class="col-lg-8">
-                <h1 class="display-5 fw-black text-dark font-heading mb-2" style="letter-spacing: -0.5px;">
-                    Thiết Kế Hành Trình Của Bạn
-                </h1>
-                <p class="text-muted mx-auto" style="max-width: 580px; font-size: 0.95rem; line-height: 1.6;">
-                    Chọn mong muốn & ngày khởi hành để nhận đề xuất tour phù hợp nhất.
-                </p>
-            </div>
-        </div>
-
-        <!-- MAIN FORM CARD -->
-        <form id="smartJourneyForm" class="row justify-content-center">
-            <div class="col-xl-9">
-                <div class="main-onboarding-card p-4 p-md-5">
-
-                    <!-- ================= STEP 1 ================= -->
-                    <div class="mb-5">
-                        <div class="d-flex align-items-center gap-3 border-bottom pb-3 mb-4">
-                            <span class="step-num-icon">1</span>
-                            <div>
-                                <h5 class="fw-black text-dark mb-0" style="font-size: 1.15rem;">Bạn đang tìm kiếm cảm giác gì?</h5>
-                                <span class="x-small text-muted">Có thể chọn một hoặc nhiều trải nghiệm bạn yêu thích</span>
-                            </div>
-                        </div>
-
-                        <div class="row g-3">
-
-                            <!-- Vibe 1: Sống chậm -->
-                            <div class="col-6 col-md-3">
-                                <div class="vibe-card-wow vibe-chill active" onclick="selectVibe('chill', this)">
-                                    <div class="vibe-img-layer" style="background-image: url('https://res.cloudinary.com/dpp1x37e2/image/upload/v1721550000/binh-loi/vuon-mai-binh-loi.jpg');"></div>
-                                    <div class="vibe-gradient-overlay"></div>
-                                    <div class="vibe-check-circle"><i class="bi bi-check-lg"></i></div>
-                                    <div class="vibe-content-box">
-                                        <span class="vibe-emoji-icon">🌿</span>
-                                        <h6 class="vibe-main-title">Sống chậm</h6>
-                                        <p class="vibe-sub-desc">Miệt vườn & hoa mai</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Vibe 2: Tâm linh -->
-                            <div class="col-6 col-md-3">
-                                <div class="vibe-card-wow vibe-peace" onclick="selectVibe('peace', this)">
-                                    <div class="vibe-img-layer" style="background-image: url('https://res.cloudinary.com/dpp1x37e2/image/upload/v1721550000/binh-loi/chua-bat-buu-phat-da.jpg');"></div>
-                                    <div class="vibe-gradient-overlay"></div>
-                                    <div class="vibe-check-circle"><i class="bi bi-check-lg"></i></div>
-                                    <div class="vibe-content-box">
-                                        <span class="vibe-emoji-icon">🛕</span>
-                                        <h6 class="vibe-main-title">Tâm linh</h6>
-                                        <p class="vibe-sub-desc">Chùa cổ Bát Bửu</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Vibe 3: Văn hóa -->
-                            <div class="col-6 col-md-3">
-                                <div class="vibe-card-wow vibe-culture" onclick="selectVibe('culture', this)">
-                                    <div class="vibe-img-layer" style="background-image: url('https://res.cloudinary.com/dpp1x37e2/image/upload/v1721550000/binh-loi/lang-nghe-nhang.jpg');"></div>
-                                    <div class="vibe-gradient-overlay"></div>
-                                    <div class="vibe-check-circle"><i class="bi bi-check-lg"></i></div>
-                                    <div class="vibe-content-box">
-                                        <span class="vibe-emoji-icon">🎨</span>
-                                        <h6 class="vibe-main-title">Văn hóa</h6>
-                                        <p class="vibe-sub-desc">Làng nghề truyền thống</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Vibe 4: Gắn kết -->
-                            <div class="col-6 col-md-3">
-                                <div class="vibe-card-wow vibe-family" onclick="selectVibe('family', this)">
-                                    <div class="vibe-img-layer" style="background-image: url('https://res.cloudinary.com/dpp1x37e2/image/upload/v1721550000/binh-loi/nong-trai-ca-koi.jpg');"></div>
-                                    <div class="vibe-gradient-overlay"></div>
-                                    <div class="vibe-check-circle"><i class="bi bi-check-lg"></i></div>
-                                    <div class="vibe-content-box">
-                                        <span class="vibe-emoji-icon">👨‍👩‍👧‍👦</span>
-                                        <h6 class="vibe-main-title">Gắn kết</h6>
-                                        <p class="vibe-sub-desc">Nông trại cá Koi</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <!-- ================= STEP 2 ================= -->
+            <!-- SECTION 1: BẠN ĐANG TÌM KIẾM CẢM GIÁC GÌ? -->
+            <div class="mb-5">
+                <div class="d-flex align-items-center gap-3">
+                    <span class="section-badge-num">1</span>
                     <div>
-                        <div class="d-flex align-items-center gap-3 border-bottom pb-3 mb-4">
-                            <span class="step-num-icon">2</span>
-                            <div>
-                                <h5 class="fw-black text-dark mb-0" style="font-size: 1.15rem;">Thông tin chuyến đi của bạn</h5>
-                                <span class="x-small text-muted">Chọn các tiêu chí phù hợp với kế hoạch cá nhân</span>
-                            </div>
-                        </div>
+                        <div class="section-header-title">Bạn đang tìm kiếm cảm giác gì?</div>
+                        <div class="section-header-sub">Có thể chọn một hoặc nhiều trải nghiệm bạn yêu thích</div>
+                    </div>
+                </div>
 
-                        <div class="row g-4">
-                            
-                            <!-- PAX -->
-                            <div class="col-md-6">
-                                <div class="preference-group-title">
-                                    <i class="bi bi-people-fill text-danger"></i> Số lượng người
-                                </div>
-                                <div class="pill-options-grid" id="pax-pill-group">
-                                    <button type="button" class="option-pill-btn" onclick="selectPill('pax', '1', this)"><i class="bi bi-person-fill"></i> 1 Người</button>
-                                    <button type="button" class="option-pill-btn active" onclick="selectPill('pax', '2', this)"><i class="bi bi-heart-fill"></i> Cặp đôi (2)</button>
-                                    <button type="button" class="option-pill-btn" onclick="selectPill('pax', '4', this)"><i class="bi bi-people-fill"></i> Nhóm (3-5)</button>
-                                    <button type="button" class="option-pill-btn" onclick="selectPill('pax', '10', this)"><i class="bi bi-building"></i> Đoàn (5+)</button>
-                                </div>
-                                <select name="pax" id="pax-select" class="d-none">
-                                    <option value="1">1</option>
-                                    <option value="2" selected>2</option>
-                                    <option value="4">4</option>
-                                    <option value="10">10</option>
-                                </select>
-                            </div>
+                <div class="section-divider-line"></div>
 
-                            <!-- BUDGET (3 explicit price tiers) -->
-                            <div class="col-md-6">
-                                <div class="preference-group-title">
-                                    <i class="bi bi-wallet2 text-danger"></i> Ngân sách dự kiến / người
-                                </div>
-                                <div class="pill-options-grid" id="budget-pill-group">
-                                    <button type="button" class="option-pill-btn" onclick="selectPill('budget', 'low', this)"><i class="bi bi-coin"></i> &lt; 500k</button>
-                                    <button type="button" class="option-pill-btn active" onclick="selectPill('budget', 'medium', this)"><i class="bi bi-cash-stack"></i> 500k - 2 Tr</button>
-                                    <button type="button" class="option-pill-btn" onclick="selectPill('budget', 'high', this)"><i class="bi bi-gem"></i> &gt; 2 Tr</button>
-                                </div>
-                                <select name="budget" id="budget-select" class="d-none">
-                                    <option value="low">low</option>
-                                    <option value="medium" selected>medium</option>
-                                    <option value="high">high</option>
-                                </select>
-                            </div>
-
-                            <!-- DURATION -->
-                            <div class="col-md-6">
-                                <div class="preference-group-title">
-                                    <i class="bi bi-hourglass-split text-danger"></i> Thời lượng hành trình
-                                </div>
-                                <div class="pill-options-grid" id="duration-pill-group">
-                                    <button type="button" class="option-pill-btn" onclick="selectPill('duration', '3h', this)"><i class="bi bi-stopwatch"></i> Nửa ngày</button>
-                                    <button type="button" class="option-pill-btn active" onclick="selectPill('duration', '1d', this)"><i class="bi bi-sun-fill"></i> Trọn 1 ngày</button>
-                                    <button type="button" class="option-pill-btn" onclick="selectPill('duration', '2d', this)"><i class="bi bi-moon-stars-fill"></i> 2 Ngày 1 đêm</button>
-                                </div>
-                                <select name="duration" id="duration-select" class="d-none">
-                                    <option value="3h">3h</option>
-                                    <option value="1d" selected>1d</option>
-                                    <option value="2d">2d</option>
-                                </select>
-                            </div>
-
-                            <!-- DEPARTURE DATE & SEASON -->
-                            <div class="col-md-6">
-                                <div class="preference-group-title">
-                                    <i class="bi bi-calendar-check-fill text-danger"></i> Ngày khởi hành mong muốn
-                                </div>
-                                <div class="d-flex align-items-center gap-2">
-                                    <input type="date" name="departure_date" id="departure_date" class="date-picker-custom flex-grow-1" required>
-                                </div>
-                                <div class="pill-options-grid mt-2" id="season-pill-group">
-                                    <button type="button" class="option-pill-btn active" onclick="setQuickDate('today', this)"><i class="bi bi-lightning-charge-fill"></i> Hôm nay</button>
-                                    <button type="button" class="option-pill-btn" onclick="setQuickDate('weekend', this)"><i class="bi bi-calendar-event"></i> Cuối tuần</button>
-                                </div>
-                                <select name="season" id="season-select" class="d-none">
-                                    <option value="now" selected>now</option>
-                                    <option value="spring">spring</option>
-                                    <option value="summer">summer</option>
-                                    <option value="autumn">autumn</option>
-                                    <option value="winter">winter</option>
-                                </select>
-                            </div>
-
+                <div class="row g-3">
+                    <!-- Card 1: Sống Chậm (Selected by default) -->
+                    <div class="col-6 col-md-3">
+                        <div class="vibe-card-item vibe-card-song-cham selected" onclick="toggleVibeCard(this, 'chill')">
+                            <div class="check-badge"><i class="bi bi-check-lg"></i></div>
+                            <div class="vibe-icon">🌿</div>
+                            <div class="vibe-title">SỐNG CHẬM</div>
+                            <div class="vibe-sub">Miệt vườn & hoa mai</div>
                         </div>
                     </div>
 
-                    <input type="hidden" name="moods" id="moods-input" value="chill" required>
+                    <!-- Card 2: Tâm Linh -->
+                    <div class="col-6 col-md-3">
+                        <div class="vibe-card-item vibe-card-tam-linh" onclick="toggleVibeCard(this, 'peace')">
+                            <div class="check-badge"><i class="bi bi-check-lg"></i></div>
+                            <div class="vibe-icon">🛕</div>
+                            <div class="vibe-title">TÂM LINH</div>
+                            <div class="vibe-sub">Chùa cổ Bát Bửu</div>
+                        </div>
+                    </div>
 
-                    <!-- CTA BUTTON -->
-                    <div class="text-center mt-5">
-                        <button type="submit" class="btn-cta-wow w-100 d-md-inline-block" style="max-width: 440px;" id="submit-btn">
-                            PHÂN TÍCH LỘ TRÌNH TỐI ƯU <i class="bi bi-arrow-right-short fs-4 align-middle ms-1"></i>
-                        </button>
+                    <!-- Card 3: Văn Hóa -->
+                    <div class="col-6 col-md-3">
+                        <div class="vibe-card-item vibe-card-van-hoa" onclick="toggleVibeCard(this, 'culture')">
+                            <div class="check-badge"><i class="bi bi-check-lg"></i></div>
+                            <div class="vibe-icon">🎨</div>
+                            <div class="vibe-title">VĂN HÓA</div>
+                            <div class="vibe-sub">Làng nghề truyền thống</div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Gắn Kết -->
+                    <div class="col-6 col-md-3">
+                        <div class="vibe-card-item vibe-card-gan-ket" onclick="toggleVibeCard(this, 'family')">
+                            <div class="check-badge"><i class="bi bi-check-lg"></i></div>
+                            <div class="vibe-icon">👨‍👩‍👧‍👦</div>
+                            <div class="vibe-title">GẮN KẾT</div>
+                            <div class="vibe-sub">Nông trại cá Koi</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: THÔNG TIN CHUYẾN ĐỊ CA NÂN -->
+            <div>
+                <div class="d-flex align-items-center gap-3">
+                    <span class="section-badge-num">2</span>
+                    <div>
+                        <div class="section-header-title">Thông tin chuyến đi của bạn</div>
+                        <div class="section-header-sub">Chọn các tiêu chí phù hợp với kế hoạch cá nhân</div>
+                    </div>
+                </div>
+
+                <div class="section-divider-line"></div>
+
+                <div class="row g-4">
+
+                    <!-- 1. SỐ LƯỢNG NGƯỜI -->
+                    <div class="col-md-6">
+                        <div class="sub-label-title"><i class="bi bi-people-fill"></i> SỐ LƯỢNG NGƯỜI</div>
+                        <div class="d-flex gap-2 flex-wrap mb-2">
+                            <div class="option-pill-btn" onclick="selectSingleOption('pax', '1', this)">👤 1 Người</div>
+                            <div class="option-pill-btn active" onclick="selectSingleOption('pax', '2', this)">♥ Cặp đôi (2)</div>
+                            <div class="option-pill-btn" onclick="selectSingleOption('pax', '3-5', this)">👥 Nhóm (3-5)</div>
+                        </div>
+                        <div class="w-100">
+                            <div class="option-pill-btn w-100 justify-content-center" onclick="selectSingleOption('pax', '5+', this)">🚌 Đoàn (5+)</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. NGÂN SÁCH DỰ KIẾN / NGƯỜI -->
+                    <div class="col-md-6">
+                        <div class="sub-label-title"><i class="bi bi-wallet2"></i> NGÂN SÁCH DỰ KIẾN / NGƯỜI</div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <div class="option-pill-btn" onclick="selectSingleOption('budget', 'low', this)">🪙 &lt; 500k</div>
+                            <div class="option-pill-btn active" onclick="selectSingleOption('budget', 'mid', this)">💵 500k - 2 Tr</div>
+                            <div class="option-pill-btn" onclick="selectSingleOption('budget', 'high', this)">💎 &gt; 2 Tr</div>
+                        </div>
+                    </div>
+
+                    <!-- 3. THỜI LƯỢNG HÀNH TRÌNH -->
+                    <div class="col-md-6">
+                        <div class="sub-label-title"><i class="bi bi-hourglass-split"></i> THỜI LƯỢNG HÀNH TRÌNH</div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <div class="option-pill-btn" onclick="selectSingleOption('duration', 'half_day', this)">⏱️ Nửa ngày</div>
+                            <div class="option-pill-btn active" onclick="selectSingleOption('duration', 'full_day', this)">☀️ Trọn 1 ngày</div>
+                            <div class="option-pill-btn" onclick="selectSingleOption('duration', '2d1n', this)">🌙 2 Ngày 1 đêm</div>
+                        </div>
+                    </div>
+
+                    <!-- 4. NGÀY KHỞI HÀNH MONG MUỐN -->
+                    <div class="col-md-6">
+                        <div class="sub-label-title"><i class="bi bi-calendar-event"></i> NGÀY KHỞI HÀNH MONG MUỐN</div>
+                        <div class="mb-2">
+                            <input type="date" id="journeyDateInput" class="date-picker-input" value="2026-08-05">
+                        </div>
+                        <div class="d-flex gap-2 flex-wrap">
+                            <div class="option-pill-btn active" onclick="setQuickDate('today', this)">⚡ Hôm nay</div>
+                            <div class="option-pill-btn" onclick="setQuickDate('weekend', this)">📅 Cuối tuần</div>
+                        </div>
                     </div>
 
                 </div>
             </div>
-        </form>
 
+            <!-- SUBMIT BUTTON -->
+            <div class="text-center mt-5">
+                <button type="submit" class="btn-submit-journey" id="btnSubmitForm">
+                    PHÂN TÍCH LỘ TRÌNH TỐI ƯU <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+
+        </form>
     </div>
+
 </div>
 
 <script>
-let selectedVibes = ['chill'];
+let selectedMoods = ['chill'];
+let selectedPax = '2';
+let selectedBudget = 'mid';
+let selectedDuration = 'full_day';
 
 document.addEventListener('DOMContentLoaded', () => {
-    gsap.from('.reveal-up', { opacity: 0, y: 30, duration: 0.8, ease: 'power2.out' });
-    gsap.from('.main-onboarding-card', { opacity: 0, y: 40, duration: 1, delay: 0.2, ease: 'power3.out' });
-    
-    // Set default departure date to today
-    const today = new Date().toISOString().split('T')[0];
-    const dateInput = document.getElementById('departure_date');
+    const dateInput = document.getElementById('journeyDateInput');
     if (dateInput) {
+        const today = new Date().toISOString().split('T')[0];
         dateInput.value = today;
         dateInput.min = today;
     }
 });
 
-function selectVibe(vibe, el) {
-    if (selectedVibes.includes(vibe)) {
-        if (selectedVibes.length > 1) {
-            selectedVibes = selectedVibes.filter(v => v !== vibe);
-            el.classList.remove('active');
+function toggleVibeCard(element, moodKey) {
+    if (selectedMoods.includes(moodKey)) {
+        if (selectedMoods.length > 1) {
+            selectedMoods = selectedMoods.filter(m => m !== moodKey);
+            element.classList.remove('selected');
         }
     } else {
-        selectedVibes.push(vibe);
-        el.classList.add('active');
+        selectedMoods.push(moodKey);
+        element.classList.add('selected');
     }
-    document.getElementById('moods-input').value = selectedVibes.join(',');
 }
 
-function selectPill(field, val, el) {
-    const parent = el.closest('.pill-options-grid');
+function selectSingleOption(group, val, element) {
+    const parent = element.closest('.col-md-6');
     parent.querySelectorAll('.option-pill-btn').forEach(btn => btn.classList.remove('active'));
-    el.classList.add('active');
-    const select = document.getElementById(`${field}-select`);
-    if (select) select.value = val;
+    element.classList.add('active');
+
+    if (group === 'pax') selectedPax = val;
+    if (group === 'budget') selectedBudget = val;
+    if (group === 'duration') selectedDuration = val;
 }
 
-function setQuickDate(type, el) {
-    const parent = el.closest('.pill-options-grid');
+function setQuickDate(type, element) {
+    const parent = element.parentElement;
     parent.querySelectorAll('.option-pill-btn').forEach(btn => btn.classList.remove('active'));
-    el.classList.add('active');
+    element.classList.add('active');
 
-    const dateInput = document.getElementById('departure_date');
-    const now = new Date();
+    const dateInput = document.getElementById('journeyDateInput');
+    const today = new Date();
     if (type === 'today') {
-        dateInput.value = now.toISOString().split('T')[0];
+        dateInput.value = today.toISOString().split('T')[0];
     } else if (type === 'weekend') {
-        const day = now.getDay();
-        const diff = now.getDate() + (6 - day);
-        const nextSat = new Date(now.setDate(diff));
+        const day = today.getDay();
+        const diff = today.getDate() + (6 - day);
+        const nextSat = new Date(today.setDate(diff));
         dateInput.value = nextSat.toISOString().split('T')[0];
     }
 }
 
-window.addEventListener('pageshow', () => {
-    const btn = document.getElementById('submit-btn');
-    if (btn) {
-        btn.disabled = false;
-        btn.innerHTML = 'PHÂN TÍCH LỘ TRÌNH TỐI ƯU <i class="bi bi-arrow-right-short fs-4 align-middle ms-1"></i>';
-    }
-});
-
-document.getElementById('smartJourneyForm').addEventListener('submit', function(e) {
+function handleOnboardingSubmit(e) {
     e.preventDefault();
-    const moods = document.getElementById('moods-input').value;
-    if (!moods) {
-        alert('Vui lòng chọn ít nhất một trải nghiệm/cảm giác!');
-        return;
-    }
-
-    const btn = document.getElementById('submit-btn');
+    const btn = document.getElementById('btnSubmitForm');
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>ĐANG TẠO TOUR TỐI ƯU...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG PHÂN TÍCH...';
 
-    const formData = new FormData(this);
-    const data = Object.fromEntries(formData.entries());
+    const payload = {
+        mood: selectedMoods,
+        pax: selectedPax,
+        budget: selectedBudget,
+        duration: selectedDuration,
+        date: document.getElementById('journeyDateInput').value
+    };
 
-    axios.post('/api/session', data)
-        .then(() => {
+    axios.post('/onboarding', payload)
+        .then(res => {
+            if (typeof res.data === 'string' && res.data.includes('login')) {
+                window.location.href = '/auth/login?error=auth_required';
+                return;
+            }
+            if (res.data && res.data.redirect) {
+                window.location.href = res.data.redirect;
+                return;
+            }
             window.location.href = '/journey/suggestions';
         })
         .catch(err => {
-            console.error(err);
-            btn.disabled = false;
-            btn.innerHTML = 'PHÂN TÍCH LỘ TRÌNH TỐI ƯU <i class="bi bi-arrow-right-short fs-4 align-middle ms-1"></i>';
+            window.location.href = '/journey/suggestions';
         });
-});
+}
 </script>

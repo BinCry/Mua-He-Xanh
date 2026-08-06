@@ -5,7 +5,21 @@
     <img src="<%= fixImg(workshop.image) %>" class="w-100 h-100" style="object-fit: cover; filter: brightness(0.6);" alt="<%= workshop.title %>">
     <div class="position-absolute bottom-0 start-0 w-100 p-5" style="background: linear-gradient(transparent, rgba(0,0,0,0.8));">
         <div class="container">
-            <span class="badge bg-primary rounded-pill px-3 py-2 mb-3"><%= workshop.type %></span>
+            <% 
+                const typeNames = { 
+                    ecology: 'Sinh Thái', 
+                    culture: 'Văn Hóa', 
+                    banh: 'Bánh Dân Gian', 
+                    nhang: 'Làng Nghề',
+                    craft: 'Làng Nghề',
+                    cuisine: 'Ẩm Thực',
+                    temple: 'Tâm Linh',
+                    nature: 'Thiên Nhiên',
+                    other: 'Khác'
+                }; 
+                const displayWsType = typeNames[(workshop.type || '').toLowerCase()] || (workshop.type || 'Sinh Thái');
+            %>
+            <span class="badge bg-primary rounded-pill px-3 py-2 mb-3"><%= displayWsType %></span>
             <h1 class="text-white fw-black display-5" style="font-family: var(--font-display);"><%= workshop.title %></h1>
             <p class="text-white-50"><i class="bi bi-geo-alt me-2"></i><%= workshop.destination_name || 'Bình Lợi' %></p>
         </div>
@@ -19,7 +33,7 @@
             <div class="col-lg-7">
                 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
                     <h3 class="fw-bold mb-3"><i class="bi bi-info-circle text-primary me-2"></i>Giới thiệu</h3>
-                    <p class="text-muted lh-lg"><%= workshop.description %></p>
+                    <p class="text-muted lh-lg"><%= (workshop.description || '').replace(/\.+$/, '') %></p>
                 </div>
 
                 <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
