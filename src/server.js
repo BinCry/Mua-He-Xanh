@@ -228,7 +228,7 @@ app.use((req, res, next) => {
     if (user && req.method === 'GET') {
         const path = req.path;
         const isAsset = path.startsWith('/css') || path.startsWith('/js') || path.startsWith('/images') || path.includes('.');
-        const isExcluded = path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/auth/logout') || path.startsWith('/api') || isAsset;
+        const isExcluded = path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/auth') || path.startsWith('/api') || isAsset;
         
         if (!isExcluded) {
             if (user.role === 'admin') {
