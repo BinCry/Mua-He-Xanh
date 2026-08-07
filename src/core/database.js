@@ -3,9 +3,9 @@ require('dotenv').config();
 
 let connectionString = process.env.DATABASE_URL;
 
-// Force PostgreSQL connection string (override if old MySQL URL is present in environment)
+// Force PostgreSQL pooler connection string
 if (!connectionString || !connectionString.startsWith('postgres')) {
-    connectionString = 'postgresql://postgres:Tuandat2204%40@db.dipwbbwedjjmkrmejkjc.supabase.co:5432/postgres';
+    connectionString = 'postgresql://postgres.dipwbbwedjjmkrmejkjc:Tuandat2204%40@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
 }
 
 const pgPool = new Pool({
@@ -22,7 +22,7 @@ pgPool.on('error', (err) => {
 
 const pool = {
     async query(sql, params = []) {
-        const MAX_RETRIES = 3;
+        const MAX_RETRIES = 2;
         let lastError = null;
 
         for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
@@ -35,21 +35,12 @@ const pool = {
                 return [rows, res.fields];
             } catch (err) {
                 lastError = err;
-                const isRetryable = (
-                    err.code === 'ECONNREFUSED' ||
-                    err.code === 'ENOTFOUND' ||
-                    err.code === 'ETIMEDOUT' ||
-                    err.code === 'ECONNRESET' ||
-                    err.code === 'EAI_AGAIN' ||
-                    err.message?.includes('Connection terminated') ||
-                    err.message?.includes('timeout') ||
-                    err.message?.includes('connection')
-                );
-
-                if (isRetryable && attempt < MAX_RETRIES) {
-                    const delay = attempt * 1000;
-                    console.warn(`DB query attempt ${attempt} failed (${err.code || err.message}), retrying in ${delay}ms...`);
-                    await new Promise(r => setTimeout(r, delay));
+                if (attempt < MAX_RETRIES && (
+                    err.code === 'ECONNREFUSED' || err.code === 'ENOTFOUND' ||
+                    err.code === 'ETIMEDOUT' || err.code === 'ECONNRESET'
+                )) {
+                    console.warn(`DB retry ${attempt}/${MAX_RETRIES}: ${err.code}`);
+                    await new Promise(r => setTimeout(r, 1000));
                 } else {
                     console.error('Database query error:', err.message, 'SQL:', sql);
                     throw err;
