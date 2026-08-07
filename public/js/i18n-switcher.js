@@ -1,7 +1,6 @@
 /**
  * BINH LOI HEALING - Full-Site Automatic Translation Engine (Google Translate Engine Bridge)
- * Translates 100% of all page content, HTML tags, dynamic cards, modals & admin panels automatically.
- * Strictly preserves comments in original language and suppresses Google Translate top bar.
+ * Ensures clean switching between Vietnamese (Native) and English.
  */
 (function () {
     function setCookie(name, value, days) {
@@ -13,15 +12,28 @@
         }
         document.cookie = name + "=" + (value || "") + expires + "; path=/";
         try {
-            document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + window.location.hostname;
+            var host = window.location.hostname;
+            document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + host;
+            if (host.includes('.')) {
+                var domainPart = '.' + host.split('.').slice(-2).join('.');
+                document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + domainPart;
+            }
         } catch (e) {}
     }
 
     function eraseCookie(name) {
-        document.cookie = name + '=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        try {
-            document.cookie = name + '=; Path=/; Domain=' + window.location.hostname + '; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        } catch(e) {}
+        var host = window.location.hostname;
+        var domains = ['', host, '.' + host];
+        if (host.includes('.')) {
+            domains.push('.' + host.split('.').slice(-2).join('.'));
+        }
+        var paths = ['/', '/auth', '/journey', '/onboarding', '/explore', '/admin', '/manager', '/profile'];
+        
+        domains.forEach(function(d) {
+            paths.forEach(function(p) {
+                document.cookie = name + '=; Path=' + p + (d ? '; Domain=' + d : '') + '; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+            });
+        });
     }
 
     function getCookie(name) {
@@ -38,8 +50,13 @@
     function updateToggleButtons(lang) {
         var buttons = document.querySelectorAll('.lang-toggle-btn, #langToggleBtn, #langToggleBtnDesktop, #adminLangToggleBtn');
         buttons.forEach(function (btn) {
-            btn.textContent = lang === 'en' ? 'VI' : 'EN';
-            btn.setAttribute('title', lang === 'en' ? 'Chuyển sang Tiếng Việt' : 'Switch to English');
+            if (lang === 'en') {
+                btn.innerHTML = '🇬🇧 EN';
+                btn.setAttribute('title', 'Đang ở Tiếng Anh - Bấm để về Tiếng Việt');
+            } else {
+                btn.innerHTML = '🇻🇳 VI';
+                btn.setAttribute('title', 'Đang ở Tiếng Việt - Bấm để chuyển Tiếng Anh');
+            }
         });
     }
 
@@ -78,7 +95,8 @@
 
     // Official Google Translate Element Init Callback
     window.googleTranslateElementInit = function () {
-        if (window.google && window.google.translate) {
+        const currentLang = localStorage.getItem('app_lang') || 'vi';
+        if (currentLang === 'en' && window.google && window.google.translate) {
             new window.google.translate.TranslateElement({
                 pageLanguage: 'vi',
                 includedLanguages: 'en,vi',
@@ -97,12 +115,13 @@
             setCookie('googtrans', '/vi/en', 30);
         } else {
             eraseCookie('googtrans');
-            setCookie('googtrans', '/vi/vi', 30);
+            eraseCookie('googtrans');
+            setCookie('googtrans', '/vi/vi', -1);
         }
 
         updateToggleButtons(next);
 
-        // Instant reload to apply native full-page auto translation engine
+        // Instant reload to apply clean state
         location.reload();
     };
 
@@ -114,10 +133,7 @@
                 setCookie('googtrans', '/vi/en', 30);
             }
         } else {
-            if (getCookie('googtrans') === '/vi/en') {
-                eraseCookie('googtrans');
-                setCookie('googtrans', '/vi/vi', 30);
-            }
+            eraseCookie('googtrans');
         }
 
         updateToggleButtons(lang);
@@ -125,18 +141,6 @@
         setInterval(suppressGoogleTranslateBar, 100);
         window.addEventListener('scroll', suppressGoogleTranslateBar, { passive: true });
         window.addEventListener('resize', suppressGoogleTranslateBar, { passive: true });
-
-        try {
-            var observer = new MutationObserver(function () {
-                suppressGoogleTranslateBar();
-            });
-            if (document.body) {
-                observer.observe(document.body, { attributes: true, attributeFilter: ['style', 'class'] });
-            }
-            if (document.documentElement) {
-                observer.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'class'] });
-            }
-        } catch(e) {}
     }
 
     init();

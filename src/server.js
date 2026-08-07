@@ -55,6 +55,18 @@ app.set('layout', 'layouts/main');
 
 // Middleware
 app.use(cors());
+
+const compression = require('compression');
+app.use(compression());
+
+// High-speed Edge CDN Caching & Stale-While-Revalidate
+app.use((req, res, next) => {
+    if (req.method === 'GET' && !req.path.startsWith('/api/') && !req.path.startsWith('/admin') && !req.path.startsWith('/manager')) {
+        res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=20, stale-while-revalidate=59');
+    }
+    next();
+});
+
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
