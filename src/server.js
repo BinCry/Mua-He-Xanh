@@ -59,11 +59,14 @@ app.use(cors());
 const compression = require('compression');
 app.use(compression());
 
-// High-speed response with NO caching (real-time data)
+// High-speed Edge CDN: serves instantly from Edge, refreshes in background (user always sees fresh data)
 app.use((req, res, next) => {
-    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+    if (req.method === 'GET' && !req.path.startsWith('/api/') && !req.path.startsWith('/admin') && !req.path.startsWith('/manager') && !req.path.startsWith('/auth') && !req.path.startsWith('/profile')) {
+        res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    } else {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+    }
     next();
 });
 
@@ -85,6 +88,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Session auto-restoration: recovers session from DB if express-session is lost but session_uuid cookie exists
+// Critical for Vercel serverless where MemoryStore sessions are lost between instances
 app.use(async (req, res, next) => {
     try {
         if (!req.session?.user && req.cookies?.session_uuid) {
@@ -109,9 +113,12 @@ app.use(async (req, res, next) => {
                         phone: user.phone,
                         managed_destination_id: user.managed_destination_id
                     };
-                    // Also login into passport to restore req.user & req.isAuthenticated()
-                    req.login(user, (err) => {
-                        if (err) console.error("Passport session restore error:", err);
+                    // MUST await req.login to ensure req.user is set BEFORE next() runs
+                    await new Promise((resolve) => {
+                        req.login(user, (err) => {
+                            if (err) console.error("Passport session restore error:", err);
+                            resolve();
+                        });
                     });
                 }
             }

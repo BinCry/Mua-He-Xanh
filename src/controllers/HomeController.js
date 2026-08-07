@@ -5,11 +5,7 @@ const db = require('../core/database');
 class HomeController {
     async index(req, res) {
         try {
-            const user = req.user || req.session?.user;
-            if (user) {
-                if (user.role === 'admin' || user.email === 'binhloi.travel@gmail.com') return res.redirect('/admin');
-                if (user.role === 'manager') return res.redirect('/manager');
-            }
+            // Homepage always renders for everyone (no redirects to prevent loops on Vercel serverless)
 
             // Execute all DB queries in PARALLEL without cache for real-time speed
             const [

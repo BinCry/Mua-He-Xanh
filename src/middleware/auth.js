@@ -42,13 +42,51 @@ exports.ensureAuthenticated = (req, res, next) => {
 /**
  * Kiểm tra quyền Admin (Tương tự checkSuperAdminAccess() trong Relioo)
  * Admin có toàn quyền quản lý hệ thống
+ * On Vercel serverless: includes DB fallback if session was lost between instances
  */
-exports.ensureAdmin = (req, res, next) => {
-    const user = req.user || req.session?.user;
+exports.ensureAdmin = async (req, res, next) => {
+    let user = req.user || req.session?.user;
+    
+    // Vercel serverless fallback: if session lost, try to restore from session_uuid cookie
+    if (!user && req.cookies?.session_uuid) {
+        try {
+            const db = require('../core/database');
+            const [sessions] = await db.query(
+                "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
+                [req.cookies.session_uuid]
+            );
+            if (sessions.length > 0 && sessions[0].user_id) {
+                const [users] = await db.query(
+                    "SELECT * FROM users WHERE id = $1 AND is_active = 1",
+                    [sessions[0].user_id]
+                );
+                if (users.length > 0) {
+                    user = users[0];
+                    req.session.user = {
+                        id: user.id, email: user.email, full_name: user.full_name,
+                        role: user.role, avatar: user.avatar, phone: user.phone,
+                        managed_destination_id: user.managed_destination_id
+                    };
+                }
+            }
+        } catch (e) {
+            console.error("ensureAdmin DB fallback error:", e.message);
+        }
+    }
+
     const email = (user?.email || '').toLowerCase();
     if (user && (user.role === 'admin' || user.role_id === ROLES.ADMIN || email === 'binhloi.travel@gmail.com' || email.includes('binhloi'))) {
         return next();
     }
+
+    // If still no user, redirect to login instead of showing 403
+    if (!user) {
+        if (req.originalUrl && req.originalUrl.startsWith('/api')) {
+            return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập.' });
+        }
+        return res.redirect('/admin/login?error=auth_required');
+    }
+
     if (req.originalUrl && req.originalUrl.startsWith('/api')) {
         return res.status(403).json({ success: false, message: 'Quyền truy cập bị từ chối: Chỉ Quản trị viên mới được phép thực hiện thao tác này.' });
     }
@@ -61,15 +99,52 @@ exports.ensureAdmin = (req, res, next) => {
 /**
  * Kiểm tra quyền Manager hoặc Admin (Tương tự checkAdminAccess() trong Relioo)
  * Manager quản lý địa điểm được gán, Admin có quyền truy cập tất cả
+ * On Vercel serverless: includes DB fallback if session was lost between instances
  */
-exports.ensureManager = (req, res, next) => {
-    const user = req.user || req.session.user;
+exports.ensureManager = async (req, res, next) => {
+    let user = req.user || req.session?.user;
+    
+    // Vercel serverless fallback
+    if (!user && req.cookies?.session_uuid) {
+        try {
+            const db = require('../core/database');
+            const [sessions] = await db.query(
+                "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
+                [req.cookies.session_uuid]
+            );
+            if (sessions.length > 0 && sessions[0].user_id) {
+                const [users] = await db.query(
+                    "SELECT * FROM users WHERE id = $1 AND is_active = 1",
+                    [sessions[0].user_id]
+                );
+                if (users.length > 0) {
+                    user = users[0];
+                    req.session.user = {
+                        id: user.id, email: user.email, full_name: user.full_name,
+                        role: user.role, avatar: user.avatar, phone: user.phone,
+                        managed_destination_id: user.managed_destination_id
+                    };
+                }
+            }
+        } catch (e) {
+            console.error("ensureManager DB fallback error:", e.message);
+        }
+    }
+
     if (user && (
         user.role === 'manager' || user.role === 'admin' ||
         user.role_id === ROLES.MANAGER || user.role_id === ROLES.ADMIN
     )) {
         return next();
     }
+
+    if (!user) {
+        if (req.originalUrl && req.originalUrl.startsWith('/api')) {
+            return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập.' });
+        }
+        return res.redirect('/auth/login?error=auth_required');
+    }
+
     if (req.originalUrl && req.originalUrl.startsWith('/api')) {
         return res.status(403).json({ success: false, message: 'Quyền truy cập bị từ chối: Bạn không có quyền thực hiện hành động quản lý này.' });
     }
