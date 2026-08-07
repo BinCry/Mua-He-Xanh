@@ -59,12 +59,19 @@ app.use(cors());
 const compression = require('compression');
 app.use(compression());
 
-// High-speed Edge CDN: serves instantly from Edge, refreshes in background (user always sees fresh data)
+// Aggressive Edge CDN caching to minimize server load
 app.use((req, res, next) => {
-    if (req.method === 'GET' && !req.path.startsWith('/api/') && !req.path.startsWith('/admin') && !req.path.startsWith('/manager') && !req.path.startsWith('/auth') && !req.path.startsWith('/profile')) {
-        res.setHeader('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    if (req.method !== 'GET') return next();
+    const p = req.path;
+    // Static assets: cache 1 year on Edge + browser
+    if (p.match(/\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/)) {
+        res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+    // Public pages: cache 5 min on Edge, serve stale up to 24h while refreshing in background
+    } else if (!p.startsWith('/admin') && !p.startsWith('/manager') && !p.startsWith('/auth') && !p.startsWith('/profile') && !p.startsWith('/api/')) {
+        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400');
+    // Admin/auth/API: never cache
     } else {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+        res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
     }
     next();

@@ -2,12 +2,21 @@ const Destination = require('../models/Destination');
 const CheckIn = require('../models/CheckIn');
 const db = require('../core/database');
 
+// In-memory cache: eliminates DB queries for 5 minutes per serverless instance
+let _cache = null;
+let _cacheTs = 0;
+const CACHE_TTL = 300000; // 5 minutes
+
 class HomeController {
     async index(req, res) {
         try {
             // Homepage always renders for everyone (no redirects to prevent loops on Vercel serverless)
 
-            // Execute all DB queries in PARALLEL without cache for real-time speed
+            // Serve from RAM cache if fresh
+            const now = Date.now();
+            if (_cache && (now - _cacheTs) < CACHE_TTL) {
+                return res.render('home/index', _cache);
+            }
             const [
                 [dbSettings],
                 featured,
@@ -103,7 +112,7 @@ class HomeController {
                 };
             });
 
-            res.render('home/index', {
+            const renderData = {
                 title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
                 featured,
                 season: { type: season, title: seasonTitle, slogan: seasonSlogan },
@@ -120,7 +129,13 @@ class HomeController {
                 seasonalExperiences,
                 nextEvent: featuredEvent,
                 otherEvents
-            });
+            };
+
+            // Store in RAM cache
+            _cache = renderData;
+            _cacheTs = Date.now();
+
+            res.render('home/index', renderData);
         } catch (error) {
             console.error("Home index error:", error);
             res.status(500).send("Internal Server Error");
