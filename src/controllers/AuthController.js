@@ -277,46 +277,58 @@ const AuthController = {
     },
 
     handlePasswordLogin: (req, res, next) => {
+        const isJson = req.xhr || req.headers.accept?.includes('application/json') || req.headers['content-type']?.includes('json');
         const { email, password } = req.body;
         const referer = req.headers.referer || '';
         const isAdminForm = referer.includes('/admin/login') || referer.includes('/admin');
         const loginRedirect = isAdminForm ? '/admin/login' : '/auth/login';
 
+        const sendError = (msg) => {
+            if (isJson) {
+                return res.status(400).json({ success: false, message: msg });
+            }
+            return res.redirect(`${loginRedirect}?error=` + encodeURIComponent(msg));
+        };
+
         if (!email || !password || password.trim() === '') {
-            return res.redirect(`${loginRedirect}?error=fill_fields`);
+            return sendError('Vui lòng điền đầy đủ thông tin');
         }
 
         const passport = require('../config/passport');
         passport.authenticate('local', (err, user, info) => {
             if (err) {
                 console.error("Local login error:", err);
-                return res.redirect(`${loginRedirect}?error=` + encodeURIComponent('Lỗi hệ thống khi đăng nhập'));
+                return sendError('Lỗi hệ thống khi đăng nhập');
             }
             if (!user) {
-                const msg = info?.message || 'invalid_credentials';
-                return res.redirect(`${loginRedirect}?error=` + encodeURIComponent(msg));
+                const msg = info?.message || 'Email hoặc mật khẩu không chính xác.';
+                return sendError(msg);
             }
             req.logIn(user, async (loginErr) => {
                 if (loginErr) {
                     console.error("Session login error:", loginErr);
-                    return res.redirect(`${loginRedirect}?error=` + encodeURIComponent('Lỗi khởi tạo phiên đăng nhập'));
+                    return sendError('Lỗi khởi tạo phiên đăng nhập');
                 }
                 await AuthController.establishSession(req, res, user);
 
                 const userEmail = (user.email || '').toLowerCase();
                 const isBinhLoiAdmin = user.role === 'admin' || userEmail === 'binhloi.travel@gmail.com' || userEmail.includes('binhloi');
 
-                if (isBinhLoiAdmin) return res.redirect('/admin');
-                if (user.role === 'manager') return res.redirect('/manager');
-
-                if (req.session && req.session.redirectUrl) {
+                let targetUrl = '/';
+                if (isBinhLoiAdmin) targetUrl = '/admin';
+                else if (user.role === 'manager') targetUrl = '/manager';
+                else if (req.session && req.session.redirectUrl) {
                     const target = req.session.redirectUrl;
                     delete req.session.redirectUrl;
                     if (target && !target.startsWith('/auth') && !target.startsWith('/admin/login')) {
-                        return res.redirect(target);
+                        targetUrl = target;
                     }
                 }
-                return res.redirect('/');
+
+                if (isJson) {
+                    return res.json({ success: true, redirect: targetUrl });
+                }
+                return res.redirect(targetUrl);
             });
         })(req, res, next);
     }

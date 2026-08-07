@@ -25,11 +25,9 @@
                             <p class="text-white-50 small mb-0">Vui lòng nhập tài khoản được cấp quyền để tiếp tục</p>
                         </div>
 
-                        <% if (typeof error !== 'undefined' && error) { %>
-                            <div class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-4 small text-center mb-4 animate__animated animate__shakeX">
-                                <i class="bi bi-exclamation-triangle-fill me-1"></i> <%= error %>
-                            </div>
-                        <% } %>
+                        <div id="ajaxErrorBox" class="alert alert-danger bg-danger bg-opacity-25 text-white border-0 rounded-4 small text-center mb-4 <%= (typeof error !== 'undefined' && error) ? '' : 'd-none' %> animate__animated animate__shakeX">
+                            <i class="bi bi-exclamation-triangle-fill me-1"></i> <span id="ajaxErrorMsg"><%= (typeof error !== 'undefined' && error) ? error : '' %></span>
+                        </div>
 
                         <form action="/auth/login" method="POST" id="adminLoginForm">
                             <div class="mb-3">
@@ -57,7 +55,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-gradient-maroon w-100 rounded-pill py-3 fw-bold shadow-lg text-uppercase tracking-wider">
+                            <button type="submit" id="adminSubmitBtn" class="btn btn-gradient-maroon w-100 rounded-pill py-3 fw-bold shadow-lg text-uppercase tracking-wider">
                                 <i class="bi bi-box-arrow-in-right me-2"></i>Đăng Nhập Hệ Thống
                             </button>
                         </form>
@@ -98,6 +96,49 @@
         if (window.location.search.includes('error=')) {
             const cleanUrl = window.location.protocol + "//" + window.location.host + window.location.pathname;
             window.history.replaceState({ path: cleanUrl }, '', cleanUrl);
+        }
+
+        const adminForm = document.getElementById('adminLoginForm');
+        if (adminForm) {
+            adminForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('adminSubmitBtn');
+                const origHtml = btn.innerHTML;
+                const errBox = document.getElementById('ajaxErrorBox');
+                const errText = document.getElementById('ajaxErrorMsg');
+
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang kiểm tra...';
+                if (errBox) errBox.classList.add('d-none');
+
+                try {
+                    const res = await fetch('/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: adminForm.email.value,
+                            password: adminForm.password.value
+                        })
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        window.location.href = data.redirect || '/admin';
+                    } else {
+                        if (errText) errText.textContent = data.message || 'Mật khẩu hoặc tài khoản không chính xác.';
+                        if (errBox) errBox.classList.remove('d-none');
+                        btn.disabled = false;
+                        btn.innerHTML = origHtml;
+                    }
+                } catch (err) {
+                    if (errText) errText.textContent = 'Lỗi kết nối máy chủ. Vui lòng thử lại.';
+                    if (errBox) errBox.classList.remove('d-none');
+                    btn.disabled = false;
+                    btn.innerHTML = origHtml;
+                }
+            });
         }
     });
 </script>
