@@ -14,13 +14,29 @@ const app = express();
 const PORT = config.port;
 
 // Health check route - bypasses DB/session to verify Vercel serverless boot
-app.get('/api/health', (req, res) => {
-    res.json({
+app.get('/api/health', async (req, res) => {
+    const info = {
         status: 'ok',
         timestamp: new Date().toISOString(),
         env: process.env.NODE_ENV,
-        db_url_set: !!process.env.DATABASE_URL
-    });
+        db_url_set: !!process.env.DATABASE_URL,
+        db_url_prefix: (process.env.DATABASE_URL || '').substring(0, 30) + '...',
+        vercel: !!process.env.VERCEL
+    };
+    
+    // Test actual DB connection
+    try {
+        const db = require('./core/database');
+        const [rows] = await db.query('SELECT NOW() as time');
+        info.db_connected = true;
+        info.db_time = rows[0]?.time;
+    } catch (dbErr) {
+        info.db_connected = false;
+        info.db_error = dbErr.message;
+        info.db_code = dbErr.code;
+    }
+    
+    res.json(info);
 });
 
 // Root directory - works on both local and Vercel serverless
