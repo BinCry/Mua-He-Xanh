@@ -269,30 +269,28 @@ const AuthController = {
 
     handlePasswordLogin: (req, res, next) => {
         const { email, password } = req.body;
+        const referer = req.headers.referer || '';
+        const isAdminForm = referer.includes('/admin/login') || referer.includes('/admin');
+        const loginRedirect = isAdminForm ? '/admin/login' : '/auth/login';
 
-        if (email && (!password || password.trim() === '')) {
-            return res.redirect('/auth/google?email=' + encodeURIComponent(email));
+        if (!email || !password || password.trim() === '') {
+            return res.redirect(`${loginRedirect}?error=fill_fields`);
         }
 
         const passport = require('../config/passport');
         passport.authenticate('local', (err, user, info) => {
             if (err) {
                 console.error("Local login error:", err);
-                return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi hệ thống khi đăng nhập'));
+                return res.redirect(`${loginRedirect}?error=` + encodeURIComponent('Lỗi hệ thống khi đăng nhập'));
             }
             if (!user) {
-                const msg = info?.message || 'Email hoặc mật khẩu không chính xác';
-
-                if (email && (email.includes('@') || msg.includes('không tồn tại') || msg.includes('Google/Facebook'))) {
-                    return res.redirect('/auth/google?email=' + encodeURIComponent(email));
-                }
-
-                return res.redirect('/auth/login?error=' + encodeURIComponent(msg));
+                const msg = info?.message || 'invalid_credentials';
+                return res.redirect(`${loginRedirect}?error=` + encodeURIComponent(msg));
             }
             req.logIn(user, async (loginErr) => {
                 if (loginErr) {
                     console.error("Session login error:", loginErr);
-                    return res.redirect('/auth/login?error=' + encodeURIComponent('Lỗi khởi tạo phiên đăng nhập'));
+                    return res.redirect(`${loginRedirect}?error=` + encodeURIComponent('Lỗi khởi tạo phiên đăng nhập'));
                 }
                 await AuthController.establishSession(req, res, user);
 
