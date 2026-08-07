@@ -1,10 +1,10 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-let connectionString = process.env.DATABASE_URL;
+let connectionString = process.env.DATABASE_URL || 'postgresql://postgres.dipwbbwedjjmkrmejkjc:Tuandat2204%40@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
 
-// Force PostgreSQL pooler connection string
-if (!connectionString || !connectionString.startsWith('postgres')) {
+// Auto-fix direct connection strings (which are IPv6 only) to use Supabase IPv4 Pooler
+if (!connectionString || connectionString.includes('db.dipwbbwedjjmkrmejkjc.supabase.co') || !connectionString.includes('pooler.supabase.com')) {
     connectionString = 'postgresql://postgres.dipwbbwedjjmkrmejkjc:Tuandat2204%40@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
 }
 
