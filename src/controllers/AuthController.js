@@ -312,7 +312,9 @@ const AuthController = {
                 if (req.session && req.session.redirectUrl) {
                     const target = req.session.redirectUrl;
                     delete req.session.redirectUrl;
-                    return res.redirect(target);
+                    if (target && !target.startsWith('/auth') && !target.startsWith('/admin/login')) {
+                        return res.redirect(target);
+                    }
                 }
                 return res.redirect('/');
             });

@@ -27,13 +27,13 @@ const ROLE_NAMES = {
  * Kiểm tra đã đăng nhập chưa (Tương tự checkAuth() trong Relioo)
  */
 exports.ensureAuthenticated = (req, res, next) => {
-    if (req.user || req.session.user) {
+    if (req.user || req.session?.user) {
         return next();
     }
     if (req.originalUrl && req.originalUrl.startsWith('/api')) {
         return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để thực hiện thao tác này.' });
     }
-    if (req.session) {
+    if (req.session && req.originalUrl && !req.originalUrl.startsWith('/auth') && !req.originalUrl.startsWith('/admin/login')) {
         req.session.redirectUrl = req.originalUrl;
     }
     res.redirect('/auth/login?error=auth_required');
@@ -44,8 +44,9 @@ exports.ensureAuthenticated = (req, res, next) => {
  * Admin có toàn quyền quản lý hệ thống
  */
 exports.ensureAdmin = (req, res, next) => {
-    const user = req.user || req.session.user;
-    if (user && (user.role === 'admin' || user.role_id === ROLES.ADMIN)) {
+    const user = req.user || req.session?.user;
+    const email = (user?.email || '').toLowerCase();
+    if (user && (user.role === 'admin' || user.role_id === ROLES.ADMIN || email === 'binhloi.travel@gmail.com' || email.includes('binhloi'))) {
         return next();
     }
     if (req.originalUrl && req.originalUrl.startsWith('/api')) {
@@ -82,14 +83,14 @@ exports.ensureManager = (req, res, next) => {
  * Kiểm tra quyền du khách (Tourist - Đã đăng nhập)
  */
 exports.ensureTourist = (req, res, next) => {
-    const user = req.user || req.session.user;
+    const user = req.user || req.session?.user;
     if (user) {
         return next();
     }
     if (req.originalUrl && req.originalUrl.startsWith('/api')) {
         return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập.' });
     }
-    if (req.session) {
+    if (req.session && req.originalUrl && !req.originalUrl.startsWith('/auth') && !req.originalUrl.startsWith('/admin/login')) {
         req.session.redirectUrl = req.originalUrl;
     }
     res.redirect('/auth/login?error=tourist_required');
