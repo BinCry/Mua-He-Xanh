@@ -2,26 +2,16 @@ const Destination = require('../models/Destination');
 const CheckIn = require('../models/CheckIn');
 const db = require('../core/database');
 
-// Simple 15-second in-memory cache for high-traffic homepage
-let homeCache = null;
-let cacheTime = 0;
-const CACHE_TTL_MS = 120000; // 2 minutes RAM cache for 3x speedup
-
 class HomeController {
     async index(req, res) {
         try {
             const user = req.user || req.session?.user;
             if (user) {
-                if (user.role === 'admin') return res.redirect('/admin');
+                if (user.role === 'admin' || user.email === 'binhloi.travel@gmail.com') return res.redirect('/admin');
                 if (user.role === 'manager') return res.redirect('/manager');
             }
 
-            const now = Date.now();
-            if (homeCache && (now - cacheTime < CACHE_TTL_MS)) {
-                return res.render('home/index', homeCache);
-            }
-
-            // Execute all DB queries in PARALLEL for maximum speed
+            // Execute all DB queries in PARALLEL without cache for real-time speed
             const [
                 [dbSettings],
                 featured,
@@ -117,7 +107,7 @@ class HomeController {
                 };
             });
 
-            const renderData = {
+            res.render('home/index', {
                 title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
                 featured,
                 season: { type: season, title: seasonTitle, slogan: seasonSlogan },
@@ -134,12 +124,7 @@ class HomeController {
                 seasonalExperiences,
                 nextEvent: featuredEvent,
                 otherEvents
-            };
-
-            homeCache = renderData;
-            cacheTime = Date.now();
-
-            res.render('home/index', renderData);
+            });
         } catch (error) {
             console.error("Home index error:", error);
             res.status(500).send("Internal Server Error");

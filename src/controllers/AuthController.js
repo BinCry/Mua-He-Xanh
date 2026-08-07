@@ -200,7 +200,16 @@ const AuthController = {
             const user = await User.createFromSocial(data);
             await AuthController.establishSession(req, res, user);
             
-            res.json({ success: true, redirect: '/' });
+            const userEmail = (user.email || '').toLowerCase();
+            const isBinhLoiAdmin = user.role === 'admin' || userEmail === 'binhloi.travel@gmail.com' || userEmail.includes('binhloi');
+            
+            let redirectUrl = '/';
+            if (isBinhLoiAdmin) {
+                redirectUrl = '/admin';
+            } else if (user.role === 'manager') {
+                redirectUrl = '/manager';
+            }
+            res.json({ success: true, redirect: redirectUrl });
         } catch (error) {
             console.error("Social login error:", error);
             res.status(500).json({ success: false, message: error.message });
@@ -210,19 +219,19 @@ const AuthController = {
     oauthCallback: async (req, res) => {
         if (req.user) {
             await AuthController.establishSession(req, res, req.user);
+            const userEmail = (req.user.email || '').toLowerCase();
+            if (req.user.role === 'admin' || userEmail === 'binhloi.travel@gmail.com' || userEmail.includes('binhloi')) {
+                return res.redirect('/admin');
+            }
+            if (req.user.role === 'manager') {
+                return res.redirect('/manager');
+            }
         }
         
         if (req.session && req.session.redirectUrl) {
             const target = req.session.redirectUrl;
             delete req.session.redirectUrl;
             return res.redirect(target);
-        }
-
-        if (req.user && req.user.role === 'admin') {
-            return res.redirect('/admin');
-        }
-        if (req.user && req.user.role === 'manager') {
-            return res.redirect('/manager');
         }
 
         res.redirect('/');
@@ -294,7 +303,10 @@ const AuthController = {
                 }
                 await AuthController.establishSession(req, res, user);
 
-                if (user.role === 'admin') return res.redirect('/admin');
+                const userEmail = (user.email || '').toLowerCase();
+                const isBinhLoiAdmin = user.role === 'admin' || userEmail === 'binhloi.travel@gmail.com' || userEmail.includes('binhloi');
+
+                if (isBinhLoiAdmin) return res.redirect('/admin');
                 if (user.role === 'manager') return res.redirect('/manager');
 
                 if (req.session && req.session.redirectUrl) {
