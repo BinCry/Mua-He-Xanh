@@ -2,27 +2,66 @@ const Destination = require('../models/Destination');
 const CheckIn = require('../models/CheckIn');
 const db = require('../core/database');
 
+// Simple 15-second in-memory cache for high-traffic homepage
+let homeCache = null;
+let cacheTime = 0;
+const CACHE_TTL_MS = 15000; // 15 seconds
+
 class HomeController {
     async index(req, res) {
         try {
-            const user = req.user || req.session.user;
+            const user = req.user || req.session?.user;
             if (user) {
-                if (user.role === 'admin') {
-                    return res.redirect('/admin');
-                }
-                if (user.role === 'manager') {
-                    return res.redirect('/manager');
-                }
+                if (user.role === 'admin') return res.redirect('/admin');
+                if (user.role === 'manager') return res.redirect('/manager');
             }
 
-            // Get all settings from DB
-            const [dbSettings] = await db.query('SELECT * FROM settings');
+            const now = Date.now();
+            if (homeCache && (now - cacheTime < CACHE_TTL_MS)) {
+                return res.render('home/index', homeCache);
+            }
+
+            // Execute all DB queries in PARALLEL for maximum speed
+            const [
+                [dbSettings],
+                featured,
+                totalCheckins,
+                [pageViewResult],
+                [uniqueVisitors],
+                [workshopCountResult],
+                [avgRatingResult],
+                [events],
+                [seasonalExperiences],
+                [realReviews]
+            ] = await Promise.all([
+                db.query('SELECT * FROM settings'),
+                Destination.getActive(6),
+                CheckIn.getTotalCount(),
+                db.query('SELECT COUNT(*) as total FROM analytics WHERE event = $1', ['page_view']),
+                db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics WHERE event = $1', ['page_view']),
+                db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1'),
+                db.query('SELECT AVG(rating) as avg FROM reviews'),
+                db.query('SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC'),
+                db.query('SELECT * FROM seasonal_experiences WHERE is_active = 1 ORDER BY sort_order ASC'),
+                db.query(`
+                    SELECT r.id, r.content, r.images, r.created_at, r.likes_count,
+                           u.full_name, u.avatar,
+                           d.name as destination_name
+                    FROM (
+                        SELECT id FROM reviews ORDER BY created_at DESC LIMIT 6
+                    ) sub
+                    JOIN reviews r ON sub.id = r.id
+                    JOIN users u ON r.user_id = u.id
+                    LEFT JOIN destinations d ON r.destination_id = d.id
+                    ORDER BY r.created_at DESC
+                `)
+            ]);
+
             const settingsMap = {};
             dbSettings.forEach(s => { settingsMap[s.key_name] = s.key_value; });
 
-            // Determine current season
-            const now = new Date();
-            const month = now.getMonth() + 1;
+            const currentDate = new Date();
+            const month = currentDate.getMonth() + 1;
             
             let season = 'summer';
             let seasonTitle = settingsMap.hero_title || 'Bình Lợi - Miền Tây giữa lòng Sài Gòn';
@@ -42,99 +81,24 @@ class HomeController {
                 }
             }
 
-            // Get featured destinations
-            const featured = await Destination.getActive(6);
-
-            // REAL stats from database
-            const totalCheckins = await CheckIn.getTotalCount();
-            const activeDestinations = (await Destination.getActive(100)).length;
-            
-            // Real page views count
-            const [pageViewResult] = await db.query('SELECT COUNT(*) as total FROM analytics WHERE event = $1', ['page_view']);
             const totalPageViews = parseInt(pageViewResult[0]?.total || 0, 10);
-
-            // Real unique visitors (by session_id)
-            const [uniqueVisitors] = await db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics WHERE event = $1', ['page_view']);
             const totalVisitors = parseInt(uniqueVisitors[0]?.total || 0, 10);
-
-            // Real workshops count
-            const [workshopCountResult] = await db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1');
+            const activeDestinations = featured.length;
             const workshopCount = parseInt(workshopCountResult[0]?.total || 50, 10);
 
-            // Real average rating from reviews
-            const [avgRatingResult] = await db.query('SELECT AVG(rating) as avg FROM reviews');
             let avgRating = avgRatingResult[0]?.avg || 4.9;
             if (avgRating) {
                 avgRating = Math.round(parseFloat(avgRating) * 10) / 10;
             }
 
-            // Festival/Events from DB (admin managed)
-            let [events] = await db.query(`
-                SELECT * FROM events 
-                WHERE is_active = 1 AND is_featured = 1 
-                ORDER BY event_date DESC
-                LIMIT 1
-            `);
-            if (events.length === 0) {
-                [events] = await db.query(`
-                    SELECT * FROM events 
-                    WHERE is_active = 1 AND is_countdown = 1 
-                    LIMIT 1
-                `);
-            }
-            if (events.length === 0) {
-                [events] = await db.query(`
-                    SELECT * FROM events 
-                    WHERE is_active = 1 AND event_date > NOW() 
-                    ORDER BY event_date ASC LIMIT 1
-                `);
-            }
-            const nextEvent = events[0] || null;
+            const featuredEvent = events.find(e => e.is_featured === 1) || events.find(e => e.is_countdown === 1) || events[0] || null;
             const nextFestival = {
-                name: nextEvent?.title || "Chưa có sự kiện",
-                date: nextEvent?.event_date || new Date(Date.now() + 86400000 * 30).toISOString(),
-                location: nextEvent?.location || "Bình Lợi"
+                name: featuredEvent?.title || "Chưa có sự kiện",
+                date: featuredEvent?.event_date || new Date(Date.now() + 86400000 * 30).toISOString(),
+                location: featuredEvent?.location || "Bình Lợi"
             };
 
-            // Get other active events
-            let otherEvents = [];
-            if (nextEvent) {
-                [otherEvents] = await db.query(`
-                    SELECT * FROM events 
-                    WHERE is_active = 1 AND id != $1
-                    ORDER BY event_date ASC
-                `, [nextEvent.id]);
-            } else {
-                [otherEvents] = await db.query(`
-                    SELECT * FROM events 
-                    WHERE is_active = 1
-                    ORDER BY event_date ASC
-                `);
-            }
-
-            // Seasonal experiences from DB (admin managed)
-            const [seasonalExperiences] = await db.query(`
-                SELECT * FROM seasonal_experiences 
-                WHERE is_active = 1 
-                ORDER BY sort_order ASC
-            `);
-
-            // Real Social Feed - actual reviews from community
-            const [realReviews] = await db.query(`
-                SELECT r.id, r.content, r.images, r.created_at, r.likes_count,
-                       u.full_name, u.avatar,
-                       d.name as destination_name
-                FROM (
-                    SELECT id
-                    FROM reviews
-                    ORDER BY created_at DESC
-                    LIMIT 6
-                ) sub
-                JOIN reviews r ON sub.id = r.id
-                JOIN users u ON r.user_id = u.id
-                LEFT JOIN destinations d ON r.destination_id = d.id
-                ORDER BY r.created_at DESC
-            `);
+            const otherEvents = featuredEvent ? events.filter(e => e.id !== featuredEvent.id) : events;
 
             const socialFeed = realReviews.map(r => {
                 let firstImage = null;
@@ -153,7 +117,7 @@ class HomeController {
                 };
             });
 
-            res.render('home/index', {
+            const renderData = {
                 title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
                 featured,
                 season: { type: season, title: seasonTitle, slogan: seasonSlogan },
@@ -168,9 +132,14 @@ class HomeController {
                 },
                 socialFeed,
                 seasonalExperiences,
-                nextEvent,
+                nextEvent: featuredEvent,
                 otherEvents
-            });
+            };
+
+            homeCache = renderData;
+            cacheTime = Date.now();
+
+            res.render('home/index', renderData);
         } catch (error) {
             console.error("Home index error:", error);
             res.status(500).send("Internal Server Error");

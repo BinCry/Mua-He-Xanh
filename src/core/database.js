@@ -11,9 +11,9 @@ if (!connectionString || connectionString.includes('db.dipwbbwedjjmkrmejkjc.supa
 const pgPool = new Pool({
     connectionString,
     ssl: { rejectUnauthorized: false },
-    max: 5,
-    idleTimeoutMillis: 20000,
-    connectionTimeoutMillis: 15000
+    max: 10,
+    idleTimeoutMillis: 30000,
+    connectionTimeoutMillis: 10000
 });
 
 pgPool.on('error', (err) => {
@@ -40,7 +40,7 @@ const pool = {
                     err.code === 'ETIMEDOUT' || err.code === 'ECONNRESET'
                 )) {
                     console.warn(`DB retry ${attempt}/${MAX_RETRIES}: ${err.code}`);
-                    await new Promise(r => setTimeout(r, 1000));
+                    await new Promise(r => setTimeout(r, 500));
                 } else {
                     console.error('Database query error:', err.message, 'SQL:', sql);
                     throw err;
