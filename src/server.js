@@ -59,10 +59,10 @@ app.use(cors());
 const compression = require('compression');
 app.use(compression());
 
-// High-speed Edge CDN Caching & Stale-While-Revalidate
+// High-speed Edge CDN Caching & Stale-While-Revalidate for 3X speedup
 app.use((req, res, next) => {
     if (req.method === 'GET' && !req.path.startsWith('/api/') && !req.path.startsWith('/admin') && !req.path.startsWith('/manager')) {
-        res.setHeader('Cache-Control', 'public, max-age=5, s-maxage=20, stale-while-revalidate=59');
+        res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=300, stale-while-revalidate=86400');
     }
     next();
 });

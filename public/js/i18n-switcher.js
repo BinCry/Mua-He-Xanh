@@ -1,6 +1,5 @@
 /**
- * BINH LOI HEALING - Full-Site Automatic Translation Engine (Google Translate Engine Bridge)
- * Ensures clean switching between Vietnamese (Native) and English.
+ * BINH LOI HEALING - Explicit Dual-Button Language Switcher Engine (VN / EN)
  */
 (function () {
     function setCookie(name, value, days) {
@@ -47,20 +46,62 @@
         return null;
     }
 
-    function updateToggleButtons(lang) {
-        var buttons = document.querySelectorAll('.lang-toggle-btn, #langToggleBtn, #langToggleBtnDesktop, #adminLangToggleBtn');
-        buttons.forEach(function (btn) {
-            if (lang === 'en') {
-                btn.innerHTML = '🇬🇧 EN';
-                btn.setAttribute('title', 'Đang ở Tiếng Anh - Bấm để về Tiếng Việt');
-            } else {
-                btn.innerHTML = '🇻🇳 VI';
-                btn.setAttribute('title', 'Đang ở Tiếng Việt - Bấm để chuyển Tiếng Anh');
-            }
-        });
+    function updateLanguageUI(lang) {
+        var vnButtons = document.querySelectorAll('.lang-btn-vn');
+        var enButtons = document.querySelectorAll('.lang-btn-en');
+
+        if (lang === 'en') {
+            vnButtons.forEach(function(b) {
+                b.style.background = 'transparent';
+                b.style.color = '#64748b';
+                b.style.fontWeight = '600';
+            });
+            enButtons.forEach(function(b) {
+                b.style.background = '#922724';
+                b.style.color = '#ffffff';
+                b.style.fontWeight = '900';
+                b.style.boxShadow = '0 2px 6px rgba(146, 39, 36, 0.4)';
+            });
+        } else {
+            vnButtons.forEach(function(b) {
+                b.style.background = '#922724';
+                b.style.color = '#ffffff';
+                b.style.fontWeight = '900';
+                b.style.boxShadow = '0 2px 6px rgba(146, 39, 36, 0.4)';
+            });
+            enButtons.forEach(function(b) {
+                b.style.background = 'transparent';
+                b.style.color = '#64748b';
+                b.style.fontWeight = '600';
+            });
+        }
     }
 
-    // Continuously suppress Google Translate top bar & frame shifts
+    window.setAppLanguage = function (targetLang) {
+        var current = localStorage.getItem('app_lang') || 'vi';
+        if (current === targetLang && getCookie('googtrans') === (targetLang === 'en' ? '/vi/en' : null)) {
+            return;
+        }
+
+        localStorage.setItem('app_lang', targetLang);
+
+        if (targetLang === 'en') {
+            setCookie('googtrans', '/vi/en', 30);
+        } else {
+            eraseCookie('googtrans');
+            eraseCookie('googtrans');
+            setCookie('googtrans', '/vi/vi', -1);
+        }
+
+        updateLanguageUI(targetLang);
+        location.reload();
+    };
+
+    window.toggleLanguage = function() {
+        var current = localStorage.getItem('app_lang') || 'vi';
+        window.setAppLanguage(current === 'vi' ? 'en' : 'vi');
+    };
+
     function suppressGoogleTranslateBar() {
         if (document.body) {
             document.body.style.setProperty('top', '0px', 'important');
@@ -93,9 +134,8 @@
         });
     }
 
-    // Official Google Translate Element Init Callback
     window.googleTranslateElementInit = function () {
-        const currentLang = localStorage.getItem('app_lang') || 'vi';
+        var currentLang = localStorage.getItem('app_lang') || 'vi';
         if (currentLang === 'en' && window.google && window.google.translate) {
             new window.google.translate.TranslateElement({
                 pageLanguage: 'vi',
@@ -103,26 +143,6 @@
                 autoDisplay: false
             }, 'google_translate_element');
         }
-    };
-
-    window.toggleLanguage = function () {
-        var current = localStorage.getItem('app_lang') || 'vi';
-        var next = current === 'vi' ? 'en' : 'vi';
-
-        localStorage.setItem('app_lang', next);
-
-        if (next === 'en') {
-            setCookie('googtrans', '/vi/en', 30);
-        } else {
-            eraseCookie('googtrans');
-            eraseCookie('googtrans');
-            setCookie('googtrans', '/vi/vi', -1);
-        }
-
-        updateToggleButtons(next);
-
-        // Instant reload to apply clean state
-        location.reload();
     };
 
     function init() {
@@ -136,7 +156,7 @@
             eraseCookie('googtrans');
         }
 
-        updateToggleButtons(lang);
+        updateLanguageUI(lang);
         suppressGoogleTranslateBar();
         setInterval(suppressGoogleTranslateBar, 100);
         window.addEventListener('scroll', suppressGoogleTranslateBar, { passive: true });

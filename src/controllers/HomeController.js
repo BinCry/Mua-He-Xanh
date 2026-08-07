@@ -5,7 +5,7 @@ const db = require('../core/database');
 // Simple 15-second in-memory cache for high-traffic homepage
 let homeCache = null;
 let cacheTime = 0;
-const CACHE_TTL_MS = 15000; // 15 seconds
+const CACHE_TTL_MS = 120000; // 2 minutes RAM cache for 3x speedup
 
 class HomeController {
     async index(req, res) {

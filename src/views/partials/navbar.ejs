@@ -97,9 +97,11 @@
 
         <!-- Desktop Auth & Language Switcher (hidden on mobile) -->
         <div class="d-none d-lg-flex align-items-center gap-3" style="z-index: 10;">
-            <button id="langToggleBtnDesktop" onclick="toggleLanguage()"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 py-1 x-small me-1 lang-toggle-btn"
-                style="font-size: 0.78rem; border-color: rgba(0,0,0,0.3);">EN</button>
+            <!-- Dual Language Switcher: VN / EN -->
+            <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm me-1" style="border-color: rgba(0,0,0,0.15) !important;">
+                <button class="btn btn-sm rounded-pill lang-btn-vn border-0 px-2.5 py-0.5" onclick="setAppLanguage('vi')" style="font-size: 0.75rem;">VN</button>
+                <button class="btn btn-sm rounded-pill lang-btn-en border-0 px-2.5 py-0.5" onclick="setAppLanguage('en')" style="font-size: 0.75rem;">EN</button>
+            </div>
 
             <% if (user) { %>
                 <div class="dropdown">
@@ -152,9 +154,11 @@
 
         <!-- Mobile EN Language Switcher & User Auth (Right side - shifted slightly left) -->
         <div class="d-lg-none position-absolute end-0 me-4 d-flex align-items-center gap-2" style="z-index: 10;">
-            <button id="langToggleBtn" onclick="toggleLanguage()"
-                class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-2 py-1 x-small"
-                style="font-size: 0.65rem; border-color: rgba(0,0,0,0.3);">EN</button>
+            <!-- Dual Language Switcher: VN / EN (Mobile) -->
+            <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-0.5 shadow-sm" style="border-color: rgba(0,0,0,0.15) !important;">
+                <button class="btn btn-sm rounded-pill lang-btn-vn border-0 px-2 py-0.5" onclick="setAppLanguage('vi')" style="font-size: 0.65rem;">VN</button>
+                <button class="btn btn-sm rounded-pill lang-btn-en border-0 px-2 py-0.5" onclick="setAppLanguage('en')" style="font-size: 0.65rem;">EN</button>
+            </div>
 
             <% if (user) { %>
                 <div class="dropdown">
