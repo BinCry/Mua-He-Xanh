@@ -1,3 +1,4 @@
+const Model = require('../core/Model');
 const sessionCache = new Map();
 const SESSION_TTL = 300000; // 5 minutes RAM cache
 
