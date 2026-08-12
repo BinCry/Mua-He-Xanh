@@ -247,8 +247,11 @@ router.get('/auth/google', (req, res, next) => {
     if (!config.auth.google.clientId || config.auth.google.clientId === 'MISSING_CLIENT_ID') {
         return res.redirect('/auth/login?error=Lỗi cấu hình Google: Thiếu Client ID trên Server.');
     }
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    let protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const host = req.get('host');
+    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+        protocol = 'https';
+    }
     const dynamicCallbackUrl = `${protocol}://${host}/auth/google/callback`;
 
     const loginHint = req.query.email || req.query.login_hint;
@@ -263,8 +266,11 @@ router.get('/auth/google', (req, res, next) => {
     passport.authenticate('google', authOptions)(req, res, next);
 });
 router.get('/auth/google/callback', (req, res, next) => {
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    let protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const host = req.get('host');
+    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+        protocol = 'https';
+    }
     const dynamicCallbackUrl = `${protocol}://${host}/auth/google/callback`;
 
     passport.authenticate('google', { 
@@ -278,8 +284,11 @@ router.get('/auth/facebook', (req, res, next) => {
     if (!config.auth.facebook.appId || config.auth.facebook.appId === 'MISSING_APP_ID') {
         return res.redirect('/auth/login?error=Lỗi cấu hình Facebook: Thiếu App ID trên Server.');
     }
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    let protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const host = req.get('host');
+    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+        protocol = 'https';
+    }
     const dynamicCallbackUrl = `${protocol}://${host}/auth/facebook/callback`;
 
     passport.authenticate('facebook', { 
@@ -288,8 +297,11 @@ router.get('/auth/facebook', (req, res, next) => {
     })(req, res, next);
 });
 router.get('/auth/facebook/callback', (req, res, next) => {
-    const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+    let protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const host = req.get('host');
+    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
+        protocol = 'https';
+    }
     const dynamicCallbackUrl = `${protocol}://${host}/auth/facebook/callback`;
 
     passport.authenticate('facebook', { 
