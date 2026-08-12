@@ -60,7 +60,7 @@
             <div class="col-6 col-md-6 col-lg-4 reveal-up px-2 mb-3">
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 d-flex flex-column bg-white" style="transition: transform 0.3s, box-shadow 0.3s;" onmouseover="this.style.transform='translateY(-8px)'; this.style.boxShadow='0 20px 40px rgba(0,0,0,0.12)'" onmouseout="this.style.transform=''; this.style.boxShadow=''">
                     <div class="position-relative" style="height: 220px; overflow: hidden;">
-                        <img src="<%= fixImg(ws.image) %>" alt="<%= ws.title %>" class="w-100 h-100" style="object-fit: cover;">
+                        <img src="<%= fixImg(ws.image) %>" alt="<%= ws.title %>" class="w-100 h-100" style="object-fit: cover !important; object-position: center center !important;">
                         <div class="position-absolute top-0 start-0 m-3" style="z-index: 5;">
                             <span class="badge-nature"><%= typeLabels[ws.type] || ws.type %></span>
                         </div>

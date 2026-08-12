@@ -12,9 +12,9 @@ class HomeController {
         try {
             // Homepage always renders for everyone (no redirects to prevent loops on Vercel serverless)
 
-            // Serve from RAM cache if fresh
+            // Serve from RAM cache if fresh (bypassed in dev for instant template updates)
             const now = Date.now();
-            if (_cache && (now - _cacheTs) < CACHE_TTL) {
+            if (process.env.NODE_ENV === 'production' && _cache && (now - _cacheTs) < CACHE_TTL) {
                 return res.render('home/index', _cache);
             }
             const [

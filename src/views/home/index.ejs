@@ -1,58 +1,251 @@
-<!-- HERO: 2-Column Layout with Quick Info Card -->
-<section class="hero-new" style="<% if (settings.hero_image && settings.hero_image !== '/images/hero-1.png' && settings.hero_image !== 'undefined') { %>background: linear-gradient(rgba(213, 210, 201, 0.85), rgba(213, 210, 201, 0.9)), url('<%= fixImg(settings.hero_image) %>') center/cover no-repeat;<% } else { %>background: #d5d2c9;<% } %>">
-    <div class="container">
-        <div class="row align-items-start g-5">
-            <div class="col-lg-7 reveal-up">
-                <h1 class="hero-brand-title"><%= season.title || 'BÌNH LỢI' %></h1>
-                <div class="hero-title-line"></div>
-                <p class="hero-tagline">KHÁM PHÁ MIỀN TÂY GIỮA LÒNG SÀI GÒN</p>
-                <p class="text-secondary mb-4 hero-description-text" style="max-width: 520px; line-height: 1.8; font-size: 0.95rem; text-align: justify;">
-                    Bình Lợi là vùng đất yên bình, nổi bật với làng mai, làng nhang và 
-                    những không gian văn hóa truyền thống, mang đến một trải 
-                    nghiệm gần gũi và đậm chất địa phương.
-                </p>
-                <div class="d-flex gap-3 flex-wrap">
-                    <a href="/explore" class="btn-explore-new">
-                        <i class="bi bi-geo-alt"></i> EXPLORE LOCATIONS
-                    </a>
-                    <a href="/map" class="btn-map-new">
-                        VIEW MAP <i class="bi bi-arrow-right"></i>
-                    </a>
+<style>
+    /* Reset main padding-top to remove layout top gap on homepage */
+    main {
+        padding-top: 0 !important;
+        margin-top: 0 !important;
+    }
+
+    /* Hero Poster: Desktop = full viewport minus navbar, Mobile = natural aspect ratio */
+    .hero-poster-section {
+        width: 100% !important;
+        position: relative;
+        background-color: #044b5e !important;
+        overflow: hidden;
+        margin-top: 107px !important;
+        padding: 0 !important;
+        height: calc(100vh - 107px) !important;
+        min-height: 400px !important;
+        box-sizing: border-box !important;
+    }
+
+    .hero-poster-section .carousel-inner,
+    .hero-poster-section .carousel-item,
+    .hero-poster-section .hero-poster-slide {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    .hero-poster-img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: top center !important;
+        display: block !important;
+    }
+
+    /* Mobile/Tablet: poster auto-height, image keeps aspect ratio */
+    @media (max-width: 1199.98px) {
+        .hero-poster-section {
+            margin-top: clamp(56px, 6.5vw, 84px) !important;
+            height: auto !important;
+            min-height: unset !important;
+            max-height: unset !important;
+        }
+
+        .hero-poster-section .carousel-inner,
+        .hero-poster-section .carousel-item,
+        .hero-poster-section .hero-poster-slide {
+            height: auto !important;
+        }
+
+        .hero-poster-img {
+            width: 100% !important;
+            height: auto !important;
+            object-fit: contain !important;
+            object-position: center center !important;
+        }
+    }
+
+    /* Solid Circular Dots for Hero Poster Carousel Indicators */
+    #heroPosterCarousel .carousel-indicators {
+        bottom: 18px !important;
+        margin-bottom: 0 !important;
+        gap: 4px !important;
+        z-index: 10 !important;
+    }
+
+    #heroPosterCarousel .carousel-indicators [data-bs-target],
+    #heroPosterCarousel .carousel-indicators button {
+        box-sizing: border-box !important;
+        width: 9px !important;
+        height: 9px !important;
+        min-width: 9px !important;
+        min-height: 9px !important;
+        max-width: 9px !important;
+        max-height: 9px !important;
+        border-radius: 50% !important;
+        background-color: rgba(255, 255, 255, 0.45) !important;
+        border: none !important;
+        border-top: 0 !important;
+        border-bottom: 0 !important;
+        opacity: 0.8 !important;
+        margin: 0 2px !important;
+        padding: 0 !important;
+        transition: all 0.3s ease !important;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    #heroPosterCarousel .carousel-indicators [data-bs-target].active,
+    #heroPosterCarousel .carousel-indicators button.active {
+        width: 11px !important;
+        height: 11px !important;
+        min-width: 11px !important;
+        min-height: 11px !important;
+        border-radius: 50% !important;
+        background-color: #00b4d8 !important;
+        opacity: 1 !important;
+        transform: scale(1.15) !important;
+        box-shadow: 0 0 8px rgba(0, 180, 216, 0.9) !important;
+    }
+</style>
+
+<!-- HERO: Poster Carousel Banner (Fly To Sky Style) -->
+<section class="hero-poster-section position-relative overflow-hidden" style="background-color: #044b5e !important;">
+    <!-- Carousel Poster Slider (Continuous rotation, no pause on hover) -->
+    <div id="heroPosterCarousel" class="carousel slide carousel-fade position-relative" data-bs-ride="carousel"
+        data-bs-interval="5000" data-bs-pause="false" style="background-color: #044b5e !important;">
+        <!-- Indicators (Dots at bottom center) -->
+        <div class="carousel-indicators mb-2">
+            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="0" class="active"
+                aria-current="true" aria-label="Poster 1"></button>
+            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="1"
+                aria-label="Poster 2"></button>
+            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="2"
+                aria-label="Poster 3"></button>
+            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="3"
+                aria-label="Poster 4"></button>
+        </div>
+
+        <!-- Carousel Slides -->
+        <div class="carousel-inner" style="background-color: #044b5e !important;">
+            <!-- Slide 1: Poster 1 HD -->
+            <div class="carousel-item active" data-bs-interval="5000">
+                <div class="hero-poster-slide position-relative w-100 h-100">
+                    <img src="/images/Poster 1.png?v=<%= Date.now() %>" class="hero-poster-img w-100 h-100 d-block"
+                        alt="Poster 1">
                 </div>
             </div>
-            <div class="col-lg-5 reveal-up">
-                <div class="quick-info-card">
-                    <h5 class="qi-title">THÔNG TIN NHANH</h5>
-                    <table class="quick-info-table">
-                        <tr>
-                            <td class="qi-label">VỊ TRÍ:</td>
-                            <td class="qi-value"><%= settings.quick_info_location || 'Xã Bình Lợi, TP.HCM' %></td>
-                        </tr>
-                        <tr>
-                            <td class="qi-label">ĐẶC SẢN:</td>
-                            <td class="qi-value accent"><%= settings.quick_info_specialty || 'Mai Vàng, Nhang Thơm, Cá Koi' %></td>
-                        </tr>
-                        <tr>
-                            <td class="qi-label">KHÔNG GIAN:</td>
-                            <td class="qi-value"><%= settings.quick_info_space || 'Miệt vườn sinh thái, tâm linh' %></td>
-                        </tr>
-                        <tr>
-                            <td class="qi-label">CÁCH TRUNG TÂM:</td>
-                            <td class="qi-value"><%= settings.quick_info_distance || 'Khoảng 20km (45-60 phút)' %></td>
-                        </tr>
-                    </table>
+
+            <!-- Slide 2: Poster 2 HD -->
+            <div class="carousel-item" data-bs-interval="5000">
+                <div class="hero-poster-slide position-relative w-100 h-100">
+                    <img src="/images/Poster 2.png?v=<%= Date.now() %>" class="hero-poster-img w-100 h-100 d-block"
+                        alt="Poster 2">
+                </div>
+            </div>
+
+            <!-- Slide 3: Poster 3 HD -->
+            <div class="carousel-item" data-bs-interval="5000">
+                <div class="hero-poster-slide position-relative w-100 h-100">
+                    <img src="/images/Poster 3.png?v=<%= Date.now() %>" class="hero-poster-img w-100 h-100 d-block"
+                        alt="Poster 3">
+                </div>
+            </div>
+
+            <!-- Slide 4: Poster 4 HD -->
+            <div class="carousel-item" data-bs-interval="5000">
+                <div class="hero-poster-slide position-relative w-100 h-100">
+                    <img src="/images/Poster 4.png?v=<%= Date.now() %>" class="hero-poster-img w-100 h-100 d-block"
+                        alt="Poster 4">
                 </div>
             </div>
         </div>
+
+        <!-- Left / Right Navigation Buttons -->
+        <button class="carousel-control-prev" type="button" data-bs-target="#heroPosterCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Trước</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#heroPosterCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Sau</span>
+        </button>
+    </div>
+</section>
+
+<script>
+    (function () {
+        // Only sync margin-top to match actual navbar height — no forced height on mobile
+        function syncHeroMargin() {
+            const hero = document.querySelector('.hero-poster-section');
+            const nav = document.querySelector('.navbar-premium');
+            if (hero && nav) {
+                const navH = Math.round(nav.getBoundingClientRect().height);
+                if (navH > 0) {
+                    hero.style.setProperty('margin-top', navH + 'px', 'important');
+                    // On desktop (>=1200px), also sync height for full-viewport poster
+                    if (window.innerWidth >= 1200) {
+                        const h = window.innerHeight - navH;
+                        hero.style.setProperty('height', Math.max(400, h) + 'px', 'important');
+                    } else {
+                        // On mobile, let CSS handle auto height
+                        hero.style.removeProperty('height');
+                    }
+                }
+            }
+        }
+
+        // Use ResizeObserver for instant, lag-free updates
+        document.addEventListener('DOMContentLoaded', function () {
+            syncHeroMargin();
+            const nav = document.querySelector('.navbar-premium');
+            if (nav && window.ResizeObserver) {
+                new ResizeObserver(syncHeroMargin).observe(nav);
+            }
+            window.addEventListener('resize', syncHeroMargin);
+        });
+        window.addEventListener('load', syncHeroMargin);
+
+        // Force Continuous Auto-play Carousel (Never pause on hover)
+        document.addEventListener('DOMContentLoaded', function () {
+            const heroCarousel = document.getElementById('heroPosterCarousel');
+            if (heroCarousel && typeof bootstrap !== 'undefined') {
+                const bsCarousel = bootstrap.Carousel.getOrCreateInstance(heroCarousel, {
+                    interval: 5000,
+                    pause: false,
+                    touch: true
+                });
+                bsCarousel.cycle();
+
+                const forceCycle = function () {
+                    try { bsCarousel.cycle(); } catch (e) { }
+                };
+                heroCarousel.addEventListener('mouseenter', forceCycle);
+                heroCarousel.addEventListener('mouseleave', forceCycle);
+                heroCarousel.addEventListener('pointerenter', forceCycle);
+                heroCarousel.addEventListener('touchstart', forceCycle);
+            }
+        });
+    })();
+</script>
+
+<!-- CAMPAIGN SECTION: 05 KHÔNG Campaign Info Bar (Separate Section below Hero) -->
+<section class="campaign-info-section py-4 px-3 text-white text-center"
+    style="background-color: #044b5e !important; color: #ffffff !important; border-top: 1px solid rgba(255,255,255,0.1);">
+    <div class="container" style="max-width: 960px;">
+        <p class="hero-info-title mb-2 fs-5"
+            style="letter-spacing: 0.3px; color: #ffffff !important; font-weight: 700;">
+            Hãy đồng hành cùng <strong class="fw-black text-warning" style="color: #f59e0b !important;">Bình Lợi
+                Healing</strong> hành động vì một không gian du lịch xanh <strong class="fw-black text-warning"
+                style="color: #f59e0b !important;">05 KHÔNG</strong>
+        </p>
+        <p class="hero-info-sub mb-0 text-center"
+            style="color: #e2e8f0 !important; line-height: 1.6; font-size: 0.95rem; font-weight: 400;">
+            không rác thải môi trường - không mất bản sắc văn hóa - không thiếu chăm sóc du khách,<br
+                class="d-none d-md-inline">
+            không thiếu trải nghiệm thực tế - không ngừng lan tỏa tình yêu thiên nhiên
+        </p>
     </div>
 </section>
 
 <!-- STATS: Dark Section with Impressive Numbers and Wave Separators -->
 <section class="stats-dark position-relative">
     <!-- Top Wave divider (hero color wave curving into the dark section) -->
-    <div class="position-absolute top-0 start-0 w-100 overflow-hidden" style="height: 60px; pointer-events: none; z-index: 2;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
-            <path d="M0,0 C480,50 960,50 1440,0 L1440,60 L0,60 Z" fill="#d5d2c9"></path>
+    <div class="position-absolute top-0 start-0 w-100 overflow-hidden"
+        style="height: 60px; pointer-events: none; z-index: 2;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none"
+            style="width: 100%; height: 100%; display: block;">
+            <path d="M0,0 C480,50 960,50 1440,0 L1440,60 L0,60 Z" fill="#083344"></path>
         </svg>
     </div>
 
@@ -61,25 +254,33 @@
         <div class="row g-4 text-center">
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
-                    <div class="stat-number"><%= stats.checkins.toLocaleString() %>+</div>
+                    <div class="stat-number">
+                        <%= stats.checkins.toLocaleString() %>+
+                    </div>
                     <div class="stat-text">LƯỢT CHECK-IN</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
-                    <div class="stat-number"><%= stats.destinations %>+</div>
+                    <div class="stat-number">
+                        <%= stats.destinations %>+
+                    </div>
                     <div class="stat-text">ĐỊA ĐIỂM TRỌNG TÂM</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
-                    <div class="stat-number"><%= stats.workshopCount || '50' %>+</div>
+                    <div class="stat-number">
+                        <%= stats.workshopCount || '50' %>+
+                    </div>
                     <div class="stat-text">WORKSHOP ĐÃ TỔ CHỨC</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
-                    <div class="stat-number"><%= stats.avgRating || '4.9' %>/5</div>
+                    <div class="stat-number">
+                        <%= stats.avgRating || '4.9' %>/5
+                    </div>
                     <div class="stat-text">ĐÁNH GIÁ TRUNG BÌNH</div>
                 </div>
             </div>
@@ -87,160 +288,215 @@
     </div>
 
     <!-- Bottom Wave divider (light blue wave curving out of the dark section to merge with destinations) -->
-    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden" style="height: 60px; pointer-events: none; z-index: 2;">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none" style="width: 100%; height: 100%; display: block;">
+    <div class="position-absolute bottom-0 start-0 w-100 overflow-hidden"
+        style="height: 60px; pointer-events: none; z-index: 2;">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 60" preserveAspectRatio="none"
+            style="width: 100%; height: 100%; display: block;">
             <path d="M0,60 C480,10 960,10 1440,60 L1440,0 L0,0 Z" fill="#eef6fc"></path>
         </svg>
     </div>
 </section>
 
 <!-- DESTINATIONS: Equal Bento Grid -->
-<section class="py-section" style="background-color: #eef6fc; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03);">
+<section class="py-section"
+    style="background-color: #eef6fc; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03);">
     <div class="container py-5">
         <div class="row align-items-end mb-5">
             <div class="col-md-8 reveal-up">
-                
+
                 <h2 class="fw-black text-dark mb-1 letter-spacing-sm">Điểm dừng chân trọng tâm</h2>
-                <p class="text-muted">Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên chữa lành.</p>
+                <p class="text-muted">Mỗi địa điểm đều được chọn lọc kỹ lưỡng, đảm bảo tính thẩm mỹ, văn hóa và bình yên
+                    chữa lành.</p>
             </div>
             <div class="col-md-4 text-md-end reveal-up">
-                <a href="/explore" class="btn btn-view-all-dest rounded-pill px-4 py-2 fw-bold">XEM TẤT CẢ ĐỊA ĐIỂM <i class="bi bi-arrow-right ms-1"></i></a>
+                <a href="/explore" class="btn btn-view-all-dest rounded-pill px-4 py-2 fw-bold">XEM TẤT CẢ ĐỊA ĐIỂM <i
+                        class="bi bi-arrow-right ms-1"></i></a>
             </div>
         </div>
-        
-        <div class="row g-4">
-            <% featured.forEach((dest, i) => { %>
-            <div class="col-6 col-md-6 col-lg-4 reveal-up px-1 px-sm-2 mb-3">
-                <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift" style="height: 340px; transition: all 0.3s ease;">
-                        <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100" style="object-fit: cover; transition: transform 0.5s ease;">
-                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); z-index: 2;"></div>
-                        
-                        <!-- Top-Right Category Tag (Căn góc phải trên - Tiếng Việt) -->
-                        <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
-                            <span class="badge rounded-3 px-2.5 py-1.5 fw-black text-uppercase shadow-sm" style="font-size: 0.68rem; letter-spacing: 1px; background: rgba(21, 128, 61, 0.92) !important; color: #ffffff !important; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3);">
-                                <%= (dest.type === 'temple' ? 'TÂM LINH' : (dest.type === 'nature' ? 'SINH THÁI' : (dest.type === 'craft' ? 'LÀNG NGHỀ' : (dest.type === 'food' ? 'ẨM THỰC' : (dest.type || '').toUpperCase())))) %>
-                            </span>
-                        </div>
 
-                        <div class="position-absolute bottom-0 start-0 w-100 p-3 p-md-4" style="z-index: 5;">
-                            <h5 class="text-white font-black mb-1 font-display" style="font-size: 1.2rem;"><%= dest.name %></h5>
-                            <p class="text-white-50 mb-0 line-clamp-2" style="font-size: 0.8rem; line-height: 1.5;"><%= dest.short_desc || dest.short_description %></p>
+        <div class="row g-4">
+            <% featured.forEach((dest, i)=> { %>
+                <div class="col-6 col-md-6 col-lg-4 reveal-up px-1 px-sm-2 mb-3">
+                    <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift"
+                            style="height: 340px; transition: all 0.3s ease;">
+                            <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100"
+                                style="object-fit: cover !important; object-position: center center !important; transition: transform 0.5s ease;">
+                            <div class="position-absolute top-0 start-0 w-100 h-100"
+                                style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%); z-index: 2;">
+                            </div>
+
+                            <!-- Top-Right Category Tag (Căn góc phải trên - Tiếng Việt) -->
+                            <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
+                                <span class="badge rounded-3 px-2.5 py-1.5 fw-black text-uppercase shadow-sm"
+                                    style="font-size: 0.68rem; letter-spacing: 1px; background: rgba(21, 128, 61, 0.92) !important; color: #ffffff !important; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.3);">
+                                    <%= (dest.type==='temple' ? 'TÂM LINH' : (dest.type==='nature' ? 'SINH THÁI' :
+                                        (dest.type==='craft' ? 'LÀNG NGHỀ' : (dest.type==='food' ? 'ẨM THỰC' :
+                                        (dest.type || '' ).toUpperCase())))) %>
+                                </span>
+                            </div>
+
+                            <div class="position-absolute bottom-0 start-0 w-100 p-3 p-md-4" style="z-index: 5;">
+                                <h5 class="text-white font-black mb-1 font-display" style="font-size: 1.2rem;">
+                                    <%= dest.name %>
+                                </h5>
+                                <p class="text-white-50 mb-0 line-clamp-2" style="font-size: 0.8rem; line-height: 1.5;">
+                                    <%= dest.short_desc || dest.short_description %>
+                                </p>
+                            </div>
                         </div>
-                    </div>
-                </a>
-            </div>
-            <% }) %>
+                    </a>
+                </div>
+                <% }) %>
         </div>
     </div>
 </section>
 
 <!-- EVENTS & SEASONAL (Bright and modern styling) -->
-<section class="py-section position-relative" style="background-color: #f1f9f6; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03); overflow: hidden;">
+<section class="py-section position-relative"
+    style="background-color: #f1f9f6; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03); overflow: hidden;">
     <div class="container py-5 position-relative" style="z-index: 2;">
         <div class="row align-items-stretch g-5">
             <div class="col-lg-6 reveal-up d-flex">
                 <% if (nextEvent) { %>
-                <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift w-100 d-flex flex-column" 
-                     style="min-height: 480px; transition: all 0.4s var(--ease-out); background: linear-gradient(135deg, #922724 0%, #581816 100%); border: 1px solid rgba(146, 39, 36, 0.3);">
-                    
-                    <!-- Gradient overlay for text readability -->
-                    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(146,39,36,0.8) 100%); z-index: 1;"></div>
-                    
-                    <a href="/events/<%= nextEvent.id %>" class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100 flex-grow-1 text-decoration-none text-start" style="z-index: 5;">
-                        <div>
-                            <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" 
-                                  style="background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); letter-spacing: 1px;">
-                                <i class="bi bi-star-fill me-1" style="color: #ffc847;"></i> Sự kiện nổi bật
-                            </span>
-                            
-                            <h2 class="text-white font-black mb-3 font-display text-start" style="font-size: 2.2rem; line-height: 1.2;">
-                                <%= nextEvent.title %>
-                            </h2>
-                            
-                            <p class="mb-4 home-event-featured-desc" style="color: rgba(255, 255, 255, 0.85); font-size: 0.95rem; line-height: 1.65; text-align: justify !important; text-justify: inter-word !important; -webkit-text-justify: inter-word !important;">
-                                <%= nextEvent.description %>
-                            </p>
+                    <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift w-100 d-flex flex-column"
+                        style="min-height: 480px; transition: all 0.4s var(--ease-out); background: linear-gradient(135deg, #922724 0%, #581816 100%); border: 1px solid rgba(146, 39, 36, 0.3);">
+
+                        <!-- Gradient overlay for text readability -->
+                        <div class="position-absolute top-0 start-0 w-100 h-100"
+                            style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(146,39,36,0.8) 100%); z-index: 1;">
                         </div>
-                        
-                        <div>
-                            <!-- Countdown timer -->
-                            <div class="mb-4" id="countdown">
-                                <div class="d-flex gap-3 text-white text-center justify-content-start">
-                                    <div class="p-2 px-3 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
-                                        <span class="fs-4 fw-black d-block" id="days">00</span>
-                                        <span class="x-small opacity-60" style="font-size: 0.65rem;">NGÀY</span>
+
+                        <a href="/events/<%= nextEvent.id %>"
+                            class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100 flex-grow-1 text-decoration-none text-start"
+                            style="z-index: 5;">
+                            <div>
+                                <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small"
+                                    style="background: rgba(255, 255, 255, 0.08); color: rgba(255, 255, 255, 0.9); border: 1px solid rgba(255, 255, 255, 0.15); letter-spacing: 1px;">
+                                    <i class="bi bi-star-fill me-1" style="color: #ffc847;"></i> Sự kiện nổi bật
+                                </span>
+
+                                <h2 class="text-white font-black mb-3 font-display text-start"
+                                    style="font-size: 2.2rem; line-height: 1.2;">
+                                    <%= nextEvent.title %>
+                                </h2>
+
+                                <p class="mb-4 home-event-featured-desc"
+                                    style="color: rgba(255, 255, 255, 0.85); font-size: 0.95rem; line-height: 1.65; text-align: justify !important; text-justify: inter-word !important; -webkit-text-justify: inter-word !important;">
+                                    <%= nextEvent.description %>
+                                </p>
+                            </div>
+
+                            <div>
+                                <!-- Countdown timer -->
+                                <div class="mb-4" id="countdown">
+                                    <div class="d-flex gap-3 text-white text-center justify-content-start">
+                                        <div class="p-2 px-3 rounded-3"
+                                            style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
+                                            <span class="fs-4 fw-black d-block" id="days">00</span>
+                                            <span class="x-small opacity-60" style="font-size: 0.65rem;">NGÀY</span>
+                                        </div>
+                                        <div class="p-2 px-3 rounded-3"
+                                            style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
+                                            <span class="fs-4 fw-black d-block" id="hours">00</span>
+                                            <span class="x-small opacity-60" style="font-size: 0.65rem;">GIỜ</span>
+                                        </div>
+                                        <div class="p-2 px-3 rounded-3"
+                                            style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
+                                            <span class="fs-4 fw-black d-block" id="mins">00</span>
+                                            <span class="x-small opacity-60" style="font-size: 0.65rem;">PHÚT</span>
+                                        </div>
                                     </div>
-                                    <div class="p-2 px-3 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
-                                        <span class="fs-4 fw-black d-block" id="hours">00</span>
-                                        <span class="x-small opacity-60" style="font-size: 0.65rem;">GIỜ</span>
+                                </div>
+
+                                <div class="d-flex flex-column gap-2 text-start" style="font-size: 0.9rem;">
+                                    <div class="d-flex align-items-center gap-2"
+                                        style="color: rgba(255, 255, 255, 0.95);">
+                                        <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                                        <span class="fw-bold">
+                                            <%= nextEvent.location %>
+                                        </span>
                                     </div>
-                                    <div class="p-2 px-3 rounded-3" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); min-width: 60px;">
-                                        <span class="fs-4 fw-black d-block" id="mins">00</span>
-                                        <span class="x-small opacity-60" style="font-size: 0.65rem;">PHÚT</span>
+                                    <div class="d-flex align-items-center gap-2 mt-1"
+                                        style="color: rgba(255, 255, 255, 0.95);">
+                                        <i class="bi bi-calendar-event text-warning fs-5"
+                                            style="color: #ffc847 !important;"></i>
+                                        <span class="text-capitalize">
+                                            <%= new Date(nextEvent.event_date).toLocaleDateString('vi-VN', {
+                                                weekday: 'long' , year: 'numeric' , month: 'long' , day: 'numeric' ,
+                                                hour: '2-digit' , minute: '2-digit' }) %>
+                                        </span>
                                     </div>
                                 </div>
                             </div>
-                            
-                            <div class="d-flex flex-column gap-2 text-start" style="font-size: 0.9rem;">
-                                <div class="d-flex align-items-center gap-2" style="color: rgba(255, 255, 255, 0.95);">
-                                    <i class="bi bi-geo-alt-fill text-danger fs-5"></i> 
-                                    <span class="fw-bold"><%= nextEvent.location %></span>
-                                </div>
-                                <div class="d-flex align-items-center gap-2 mt-1" style="color: rgba(255, 255, 255, 0.95);">
-                                    <i class="bi bi-calendar-event text-warning fs-5" style="color: #ffc847 !important;"></i> 
-                                    <span class="text-capitalize"><%= new Date(nextEvent.event_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
-                                </div>
-                            </div>
+                        </a>
+                    </div>
+                    <% } else { %>
+                        <div class="p-5 rounded-4 text-center border shadow-sm w-100 d-flex flex-column align-items-center justify-content-center"
+                            style="background: #ffffff; border-color: var(--border) !important; min-height: 480px;">
+                            <i class="bi bi-calendar-event display-4 text-success opacity-25 mb-3 d-block"></i>
+                            <h4 class="text-dark fw-bold">Chưa có sự kiện nổi bật sắp diễn ra</h4>
+                            <p class="small mb-0 text-muted">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị
+                                viên.</p>
                         </div>
-                    </a>
-                </div>
-                <% } else { %>
-                <div class="p-5 rounded-4 text-center border shadow-sm w-100 d-flex flex-column align-items-center justify-content-center" style="background: #ffffff; border-color: var(--border) !important; min-height: 480px;">
-                    <i class="bi bi-calendar-event display-4 text-success opacity-25 mb-3 d-block"></i>
-                    <h4 class="text-dark fw-bold">Chưa có sự kiện nổi bật sắp diễn ra</h4>
-                    <p class="small mb-0 text-muted">Hệ thống sẽ cập nhật tự động khi có sự kiện từ quản trị viên.</p>
-                </div>
-                <% } %>
+                        <% } %>
             </div>
-            
+
             <div class="col-lg-6 reveal-up d-flex flex-column">
                 <div>
-                    <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small" style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
+                    <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small"
+                        style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
                         <i class="bi bi-calendar3 me-1"></i> Sự kiện khác
                     </span>
-                    <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Lịch sự kiện sắp diễn ra</h2>
+                    <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2.2rem; line-height: 1.2;">Lịch
+                        sự kiện sắp diễn ra</h2>
                 </div>
-                
-                <div class="scrollable-events-container flex-grow-1" style="max-height: 380px; overflow-y: auto; padding-right: 8px;">
-                    <% if (typeof otherEvents !== 'undefined' && otherEvents.length > 0) { %>
+
+                <div class="scrollable-events-container flex-grow-1"
+                    style="max-height: 380px; overflow-y: auto; padding-right: 8px;">
+                    <% if (typeof otherEvents !=='undefined' && otherEvents.length> 0) { %>
                         <div class="d-flex flex-column gap-3">
-                            <% otherEvents.forEach((evt, index) => { %>
-                            <a href="/events/<%= evt.id %>" class="home-event-card d-flex gap-3 align-items-center p-3 rounded-4 border bg-white text-decoration-none shadow-sm"
-                                 style="border-color: rgba(0,0,0,0.08) !important; transition: all 0.3s;"
-                                 onmouseover="this.classList.replace('bg-white', 'bg-light');" 
-                                 onmouseout="this.classList.replace('bg-light', 'bg-white');" >
-                                <div class="home-event-icon rounded-3 d-flex align-items-center justify-content-center bg-light flex-shrink-0" style="width: 48px; height: 48px; border: 1px solid rgba(0,0,0,0.05);">
-                                    <i class="bi bi-calendar-event fs-5 text-primary"></i>
-                                </div>
-                                <div class="home-event-content flex-grow-1 min-w-0 text-start">
-                                    <h6 class="home-event-title text-dark font-extrabold mb-1 text-start text-truncate" style="font-size: 0.95rem;" title="<%= evt.title %>"><%= evt.title %></h6>
-                                    <div class="home-event-meta d-flex align-items-center gap-2 x-small text-muted mb-1 text-start">
-                                        <span class="home-event-location text-truncate"><i class="bi bi-geo-alt me-1"></i><%= evt.location || 'Bình Lợi' %></span>
-                                        <span>•</span>
-                                        <span class="flex-shrink-0"><i class="bi bi-calendar me-1"></i><%= new Date(evt.event_date).toLocaleDateString('vi-VN') %></span>
+                            <% otherEvents.forEach((evt, index)=> { %>
+                                <a href="/events/<%= evt.id %>"
+                                    class="home-event-card d-flex gap-3 align-items-center p-3 rounded-4 border bg-white text-decoration-none shadow-sm"
+                                    style="border-color: rgba(0,0,0,0.08) !important; transition: all 0.3s;"
+                                    onmouseover="this.classList.replace('bg-white', 'bg-light');"
+                                    onmouseout="this.classList.replace('bg-light', 'bg-white');">
+                                    <div class="home-event-icon rounded-3 d-flex align-items-center justify-content-center bg-light flex-shrink-0"
+                                        style="width: 48px; height: 48px; border: 1px solid rgba(0,0,0,0.05);">
+                                        <i class="bi bi-calendar-event fs-5 text-primary"></i>
                                     </div>
-                                    <p class="mb-0 x-small text-secondary line-clamp-1 text-start" style="line-height: 1.5;"><%= evt.description %></p>
-                                </div>
-                            </a>
-                            <% }) %>
+                                    <div class="home-event-content flex-grow-1 min-w-0 text-start">
+                                        <h6 class="home-event-title text-dark font-extrabold mb-1 text-start text-truncate"
+                                            style="font-size: 0.95rem;" title="<%= evt.title %>">
+                                            <%= evt.title %>
+                                        </h6>
+                                        <div
+                                            class="home-event-meta d-flex align-items-center gap-2 x-small text-muted mb-1 text-start">
+                                            <span class="home-event-location text-truncate"><i
+                                                    class="bi bi-geo-alt me-1"></i>
+                                                <%= evt.location || 'Bình Lợi' %>
+                                            </span>
+                                            <span>•</span>
+                                            <span class="flex-shrink-0"><i class="bi bi-calendar me-1"></i>
+                                                <%= new Date(evt.event_date).toLocaleDateString('vi-VN') %>
+                                            </span>
+                                        </div>
+                                        <p class="mb-0 x-small text-secondary line-clamp-1 text-start"
+                                            style="line-height: 1.5;">
+                                            <%= evt.description %>
+                                        </p>
+                                    </div>
+                                </a>
+                                <% }) %>
                         </div>
-                    <% } else { %>
-                        <div class="text-center py-5 text-muted border rounded-4 bg-white border-dashed h-100 d-flex flex-column align-items-center justify-content-center" style="min-height: 250px;">
-                            <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary opacity-50"></i>
-                            <span class="small">Chưa có sự kiện nào khác sắp diễn ra</span>
-                        </div>
-                    <% } %>
+                        <% } else { %>
+                            <div class="text-center py-5 text-muted border rounded-4 bg-white border-dashed h-100 d-flex flex-column align-items-center justify-content-center"
+                                style="min-height: 250px;">
+                                <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary opacity-50"></i>
+                                <span class="small">Chưa có sự kiện nào khác sắp diễn ra</span>
+                            </div>
+                            <% } %>
                 </div>
             </div>
         </div>
@@ -248,117 +504,159 @@
 </section>
 
 <!-- SOCIAL FEED: Real Reviews from Community -->
-<% if (socialFeed.length > 0) { %>
-<section class="py-section" style="background-color: #eef6fc; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03);">
-    <div class="container py-5">
-        <div class="text-center mb-5 reveal-up">
-            <span class="section-label">LIVE FROM BÌNH LỢI</span>
-            <h2 class="section-title mx-auto">Khoảnh khắc Chữa lành</h2>
-            <p class="section-desc mx-auto">Câu chuyện thật, hình ảnh thật từ cộng đồng du khách.</p>
-        </div>
-        
-        <div class="row g-4 mb-5">
-            <% socialFeed.forEach((item, index) => { %>
-            <div class="col-md-4 reveal-up">
-                <div class="card-heal h-100">
-                    <% if (item.image) { %>
-                    <div class="card-img position-relative" style="height: 420px;">
-                        <img src="<%= fixImg(item.image) %>" alt="Moment">
-                        <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.8) 100%); z-index: 2;"></div>
-                        <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
-                            <span class="glass-dark text-white px-3 py-1 rounded-pill d-flex align-items-center gap-1" style="font-size: 0.78rem; backdrop-filter: blur(10px);">
-                                <i class="bi bi-heart-fill text-danger"></i> <%= item.likes %>
-                            </span>
+<% if (socialFeed.length> 0) { %>
+    <section class="py-section"
+        style="background-color: #eef6fc; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03);">
+        <div class="container py-5">
+            <div class="text-center mb-5 reveal-up">
+                <span class="section-label">LIVE FROM BÌNH LỢI</span>
+                <h2 class="section-title mx-auto">Khoảnh khắc Chữa lành</h2>
+                <p class="section-desc mx-auto">Câu chuyện thật, hình ảnh thật từ cộng đồng du khách.</p>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <% socialFeed.forEach((item, index)=> { %>
+                    <div class="col-md-4 reveal-up">
+                        <div class="card-heal h-100">
+                            <% if (item.image) { %>
+                                <div class="card-img position-relative" style="height: 420px;">
+                                    <img src="<%= fixImg(item.image) %>" alt="Moment">
+                                    <div class="position-absolute top-0 start-0 w-100 h-100"
+                                        style="background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.8) 100%); z-index: 2;">
+                                    </div>
+                                    <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
+                                        <span
+                                            class="glass-dark text-white px-3 py-1 rounded-pill d-flex align-items-center gap-1"
+                                            style="font-size: 0.78rem; backdrop-filter: blur(10px);">
+                                            <i class="bi bi-heart-fill text-danger"></i>
+                                            <%= item.likes %>
+                                        </span>
+                                    </div>
+                                    <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white"
+                                        style="z-index: 5;">
+                                        <div class="d-flex align-items-center gap-2 mb-2">
+                                            <img src="<%= item.avatar %>" class="rounded-circle"
+                                                style="width: 36px; height: 36px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4);">
+                                            <div>
+                                                <span class="fw-bold d-block" style="font-size: 0.85rem;">
+                                                    <%= item.user %>
+                                                </span>
+                                                <span class="opacity-60 d-block" style="font-size: 0.7rem;">
+                                                    <%= item.time %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p class="mb-2 line-clamp-2 notranslate" translate="no"
+                                            style="font-size: 0.85rem; opacity: 0.9;">
+                                            <%= item.text %>
+                                        </p>
+                                        <span class="opacity-50" style="font-size: 0.75rem;"><i
+                                                class="bi bi-geo-alt-fill me-1"></i>
+                                            <%= item.location %>
+                                        </span>
+                                    </div>
+                                </div>
+                                <% } else { %>
+                                    <div class="card-social-new">
+                                        <div class="d-flex align-items-center gap-2 mb-3">
+                                            <img src="<%= item.avatar %>" class="rounded-circle"
+                                                style="width: 48px; height: 48px; object-fit: cover; border: 2px solid var(--primary-50);">
+                                            <div>
+                                                <span class="fw-bold d-block text-dark">
+                                                    <%= item.user %>
+                                                </span>
+                                                <span class="opacity-60 d-block small">
+                                                    <%= item.time %>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <p class="mb-3 line-clamp-4 text-dark notranslate" translate="no"
+                                            style="font-style: italic;">"<%= item.text %>"</p>
+                                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                                            <span class="small text-muted"><i class="bi bi-geo-alt-fill me-1"></i>
+                                                <%= item.location %>
+                                            </span>
+                                            <span class="badge bg-light text-danger"><i
+                                                    class="bi bi-heart-fill me-1"></i>
+                                                <%= item.likes %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <% } %>
                         </div>
-                        <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white" style="z-index: 5;">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <img src="<%= item.avatar %>" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4);">
+                    </div>
+                    <% }) %>
+            </div>
+
+            <div class="text-center reveal-up">
+                <a href="/reviews" class="btn btn-share-moment rounded-pill px-4 py-3 fw-bold">CHIA SẺ KHOẢNH KHẮC CỦA
+                    BẠN <i class="bi bi-arrow-right ms-2"></i></a>
+            </div>
+        </div>
+    </section>
+    <% } %>
+
+        <!-- Floating buttons removed - QR in bottom center, Chat via menu -->
+
+        <!-- Global Chat Modal -->
+        <% if (locals.user) { %>
+            <div class="modal fade" id="globalChatModal" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-sm modal-dialog-scrollable"
+                    style="max-width: 400px;">
+                    <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
+                        <div class="modal-header bg-dark text-white border-0 p-3">
+                            <div class="d-flex align-items-center gap-2">
+                                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" height="30"
+                                    onerror="this.src='/images/logo.png'">
                                 <div>
-                                    <span class="fw-bold d-block" style="font-size: 0.85rem;"><%= item.user %></span>
-                                    <span class="opacity-60 d-block" style="font-size: 0.7rem;"><%= item.time %></span>
+                                    <h6 class="modal-title fw-bold mb-0">Hỗ trợ <%= settings.brand_name || 'Bình Lợi' %>
+                                    </h6>
+                                    <small class="opacity-50 x-small text-uppercase">Phản hồi bởi Ban Quản Trị</small>
                                 </div>
                             </div>
-                            <p class="mb-2 line-clamp-2 notranslate" translate="no" style="font-size: 0.85rem; opacity: 0.9;"><%= item.text %></p>
-                            <span class="opacity-50" style="font-size: 0.75rem;"><i class="bi bi-geo-alt-fill me-1"></i><%= item.location %></span>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                         </div>
-                    </div>
-                    <% } else { %>
-                    <div class="card-social-new">
-                        <div class="d-flex align-items-center gap-2 mb-3">
-                            <img src="<%= item.avatar %>" class="rounded-circle" style="width: 48px; height: 48px; object-fit: cover; border: 2px solid var(--primary-50);">
-                            <div>
-                                <span class="fw-bold d-block text-dark"><%= item.user %></span>
-                                <span class="opacity-60 d-block small"><%= item.time %></span>
+                        <div class="modal-body p-3 bg-light" style="height: 400px;">
+                            <div id="global-chat-history" class="overflow-auto h-100">
+                                <div class="text-center mb-4"><span
+                                        class="badge bg-white text-muted rounded-pill shadow-sm py-1 px-3 x-small">Hôm
+                                        nay</span></div>
+                                <div class="d-flex justify-content-start mb-3">
+                                    <div class="p-3 rounded-4 small shadow-sm bg-white text-dark"
+                                        style="max-width: 85%; line-height: 1.5;">
+                                        Chào mừng bạn đến với <strong>Bình Lợi Healing</strong>! 🌿<br><br>
+                                        Ban quản trị xã luôn sẵn sàng giải đáp mọi thắc mắc của bạn về hành trình khám
+                                        phá.
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <p class="mb-3 line-clamp-4 text-dark notranslate" translate="no" style="font-style: italic;">"<%= item.text %>"</p>
-                        <div class="d-flex justify-content-between align-items-center mt-auto">
-                            <span class="small text-muted"><i class="bi bi-geo-alt-fill me-1"></i><%= item.location %></span>
-                            <span class="badge bg-light text-danger"><i class="bi bi-heart-fill me-1"></i><%= item.likes %></span>
-                        </div>
-                    </div>
-                    <% } %>
-                </div>
-            </div>
-            <% }) %>
-        </div>
-        
-        <div class="text-center reveal-up">
-            <a href="/reviews" class="btn btn-share-moment rounded-pill px-4 py-3 fw-bold">CHIA SẺ KHOẢNH KHẮC CỦA BẠN <i class="bi bi-arrow-right ms-2"></i></a>
-        </div>
-    </div>
-</section>
-<% } %>
-
-<!-- Floating buttons removed - QR in bottom center, Chat via menu -->
-
-<!-- Global Chat Modal -->
-<% if (locals.user) { %>
-<div class="modal fade" id="globalChatModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-sm modal-dialog-scrollable" style="max-width: 400px;">
-        <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
-            <div class="modal-header bg-dark text-white border-0 p-3">
-                <div class="d-flex align-items-center gap-2">
-                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" height="30" onerror="this.src='/images/logo.png'">
-                    <div>
-                        <h6 class="modal-title fw-bold mb-0">Hỗ trợ <%= settings.brand_name || 'Bình Lợi' %></h6>
-                        <small class="opacity-50 x-small text-uppercase">Phản hồi bởi Ban Quản Trị</small>
-                    </div>
-                </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-3 bg-light" style="height: 400px;">
-                <div id="global-chat-history" class="overflow-auto h-100">
-                    <div class="text-center mb-4"><span class="badge bg-white text-muted rounded-pill shadow-sm py-1 px-3 x-small">Hôm nay</span></div>
-                    <div class="d-flex justify-content-start mb-3">
-                        <div class="p-3 rounded-4 small shadow-sm bg-white text-dark" style="max-width: 85%; line-height: 1.5;">
-                            Chào mừng bạn đến với <strong>Bình Lợi Healing</strong>! 🌿<br><br>
-                            Ban quản trị xã luôn sẵn sàng giải đáp mọi thắc mắc của bạn về hành trình khám phá.
+                        <div class="modal-footer border-0 bg-white p-2">
+                            <div class="input-group">
+                                <input type="text" id="global-chat-input"
+                                    class="form-control border-0 bg-light rounded-pill ps-4 py-2 small"
+                                    placeholder="Nhập câu hỏi..."
+                                    onkeypress="if(event.key === 'Enter') sendGlobalChat()">
+                                <button
+                                    class="btn btn-primary-bl rounded-circle ms-2 p-0 d-flex align-items-center justify-content-center"
+                                    style="width: 40px; height: 40px;" onclick="sendGlobalChat()">
+                                    <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer border-0 bg-white p-2">
-                <div class="input-group">
-                    <input type="text" id="global-chat-input" class="form-control border-0 bg-light rounded-pill ps-4 py-2 small" placeholder="Nhập câu hỏi..." onkeypress="if(event.key === 'Enter') sendGlobalChat()">
-                    <button class="btn btn-primary-bl rounded-circle ms-2 p-0 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="sendGlobalChat()">
-                        <i class="bi bi-send-fill" style="font-size: 0.8rem;"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
-<script>
-document.getElementById('globalChatModal').addEventListener('show.bs.modal', fetchGlobalMessages);
+            <script>
+                document.getElementById('globalChatModal').addEventListener('show.bs.modal', fetchGlobalMessages);
 
-async function fetchGlobalMessages() {
-    try {
-        const res = await axios.get('/api/get-messages');
-        if (res.data.success) {
-            const history = document.getElementById('global-chat-history');
-            let html = `
+                async function fetchGlobalMessages() {
+                    try {
+                        const res = await axios.get('/api/get-messages');
+                        if (res.data.success) {
+                            const history = document.getElementById('global-chat-history');
+                            let html = `
                 <div class="text-center mb-4"><span class="badge bg-white text-muted rounded-pill shadow-sm py-1 px-3 x-small">Hôm nay</span></div>
                 <div class="d-flex justify-content-start mb-3">
                     <div class="p-3 rounded-4 small shadow-sm bg-white text-dark" style="max-width: 85%; line-height: 1.5;">
@@ -367,53 +665,55 @@ async function fetchGlobalMessages() {
                     </div>
                 </div>
             `;
-            res.data.data.forEach(msg => {
-                const isMe = msg.sender_uuid && String(msg.sender_uuid) === String(window.CURRENT_SESSION_ID);
-                html += `
+                            res.data.data.forEach(msg => {
+                                const isMe = msg.sender_uuid && String(msg.sender_uuid) === String(window.CURRENT_SESSION_ID);
+                                html += `
                     <div class="d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'} mb-3">
                         <div class="p-3 rounded-4 small shadow-sm ${isMe ? 'bg-primary text-white' : 'bg-white text-dark'}" style="max-width: 85%;">
                             ${msg.message}
                         </div>
                     </div>
                 `;
-            });
-            history.innerHTML = html;
-            history.scrollTop = history.scrollHeight;
-        }
-    } catch (err) { console.error('Fetch error:', err); }
-}
+                            });
+                            history.innerHTML = html;
+                            history.scrollTop = history.scrollHeight;
+                        }
+                    } catch (err) { console.error('Fetch error:', err); }
+                }
 
-async function sendGlobalChat() {
-    const input = document.getElementById('global-chat-input');
-    const message = input.value.trim();
-    if (!message) return;
-    input.value = '';
-    const history = document.getElementById('global-chat-history');
-    history.insertAdjacentHTML('beforeend', `
+                async function sendGlobalChat() {
+                    const input = document.getElementById('global-chat-input');
+                    const message = input.value.trim();
+                    if (!message) return;
+                    input.value = '';
+                    const history = document.getElementById('global-chat-history');
+                    history.insertAdjacentHTML('beforeend', `
         <div class="d-flex justify-content-end mb-3">
             <div class="p-3 rounded-4 small shadow-sm bg-primary text-white" style="max-width: 85%;">${message}</div>
         </div>
     `);
-    history.scrollTop = history.scrollHeight;
-    try { await axios.post('/api/send-message', { message }); } catch (err) { alert('Lỗi: ' + (err.response?.data?.message || err.message)); }
-}
-</script>
-<% } %>
+                    history.scrollTop = history.scrollHeight;
+                    try { await axios.post('/api/send-message', { message }); } catch (err) { alert('Lỗi: ' + (err.response?.data?.message || err.message)); }
+                }
+            </script>
+            <% } %>
 
-<% if (nextEvent) { %>
-<script>
-    const festivalDate = new Date("<%= festival.date instanceof Date ? festival.date.toISOString() : festival.date %>").getTime();
-    const timer = setInterval(function() {
-        const now = new Date().getTime();
-        const distance = festivalDate - now;
-        if (distance < 0) {
-            clearInterval(timer);
-            document.getElementById("countdown").innerHTML = '<span class="fw-bold fs-5" style="color: #ffc847 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">SỰ KIỆN ĐANG DIỄN RA!</span>';
-            return;
-        }
-        document.getElementById("days").innerHTML = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
-        document.getElementById("hours").innerHTML = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-        document.getElementById("mins").innerHTML = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-    }, 1000);
-</script>
-<% } %>
+                <% if (nextEvent) { %>
+                    <script>
+                        const festivalDate = new Date("<%= festival.date instanceof Date ? festival.date.toISOString() : festival.date %>").getTime();
+                        const timer = setInterval(function () {
+                            const now = new Date().getTime();
+                            const distance = festivalDate - now;
+                            if (distance < 0) {
+                                clearInterval(timer);
+                                document.getElementById("countdown").innerHTML = '<span class="fw-bold fs-5" style="color: #ffc847 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">SỰ KIỆN ĐANG DIỄN RA!</span>';
+                                return;
+                            }
+                            document.getElementById("days").innerHTML = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+                            document.getElementById("hours").innerHTML = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                            document.getElementById("mins").innerHTML = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                        }, 1000);
+                    </script>
+                    <% } %>
+
+                        <!-- carousel init already handled in unified script above -->

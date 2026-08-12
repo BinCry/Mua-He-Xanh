@@ -1,64 +1,154 @@
 <style>
-.brand-logo-img { height: 42px; transition: all 0.2s ease; }
-.brand-title-text { font-size: 1.35rem; }
-.brand-sub-text { font-size: 1.15rem; }
-
-@media (max-width: 991.98px) {
-    .brand-logo-img { height: 28px !important; }
-    .brand-title-text { font-size: 0.92rem !important; }
-    .brand-sub-text { font-size: 0.72rem !important; }
-
-    html, body {
-        top: 0px !important;
-        margin-top: 0px !important;
-        position: static !important;
-        transform: none !important;
-        -webkit-transform: none !important;
-    }
-
     .navbar-premium {
-        position: fixed !important;
-        top: 0px !important;
-        left: 0px !important;
-        right: 0px !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding-top: 4px !important;
-        padding-bottom: 2px !important;
-        transform: none !important;
-        -webkit-transform: none !important;
-        z-index: 1050 !important;
+        padding-top: 23px !important;
+        padding-bottom: 23px !important;
+        height: 107px !important;
+        min-height: 107px !important;
+        max-height: 107px !important;
+        display: flex !important;
+        align-items: center !important;
         background: #ffffff !important;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.08) !important;
-    }
-
-    .navbar-premium .container {
-        padding-top: 2px !important;
-        padding-bottom: 2px !important;
-        padding-left: 4px !important;
-        padding-right: 16px !important;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
     }
 
     .navbar-premium .navbar-brand {
-        margin-left: 0 !important;
-        padding-left: 0 !important;
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        transform: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center !important;
     }
 
-    main {
-        padding-top: 110px !important;
+    .navbar-premium .navbar-toggler {
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        transform: none !important;
+        display: none !important;
     }
-}
+
+    .brand-logo-img {
+        height: 42px !important;
+        max-height: 42px !important;
+        width: auto !important;
+        transition: all 0.2s ease;
+        flex-shrink: 0 !important;
+    }
+
+    .brand-title-text {
+        font-size: 1.35rem;
+        white-space: nowrap !important;
+    }
+
+    .brand-sub-text {
+        font-size: 1.15rem;
+        white-space: nowrap !important;
+    }
+
+    .navbar-premium .nav-link {
+        white-space: nowrap !important;
+        font-size: clamp(0.78rem, 0.95vw, 0.95rem) !important;
+        padding: 6px 10px !important;
+    }
+
+    .nav-hamburger {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 24px !important;
+        height: 20px !important;
+        cursor: pointer !important;
+    }
+
+    .nav-hamburger span {
+        display: block !important;
+        width: 100% !important;
+        height: 2.5px !important;
+        background-color: #922724 !important;
+        margin: 2.5px 0 !important;
+        border-radius: 2px !important;
+        transition: all 0.3s ease !important;
+    }
+
+    @media (max-width: 1199.98px) {
+        .navbar-premium {
+            padding-top: clamp(4px, 1.2vw, 12px) !important;
+            padding-bottom: clamp(4px, 1.2vw, 12px) !important;
+            height: clamp(56px, 6.5vw, 84px) !important;
+            min-height: clamp(56px, 6.5vw, 84px) !important;
+            max-height: clamp(56px, 6.5vw, 84px) !important;
+        }
+
+        .navbar-premium .navbar-toggler {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            flex-shrink: 0 !important;
+            width: clamp(32px, 4vw, 38px) !important;
+            height: clamp(32px, 4vw, 38px) !important;
+            margin-right: clamp(8px, 1.5vw, 14px) !important;
+            padding: 0 !important;
+            background: #f8fafc !important;
+            border: 1px solid rgba(0, 0, 0, 0.12) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+        }
+
+        .brand-logo-img {
+            height: clamp(22px, 3vw, 32px) !important;
+        }
+
+        .brand-title-text {
+            font-size: clamp(0.78rem, 1.1vw, 1.05rem) !important;
+        }
+
+        .brand-sub-text {
+            font-size: clamp(0.62rem, 0.8vw, 0.82rem) !important;
+        }
+
+        .nav-hamburger {
+            width: clamp(16px, 2vw, 20px) !important;
+            height: clamp(13px, 1.8vw, 16px) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+            align-items: center !important;
+        }
+
+        .nav-hamburger span {
+            display: block !important;
+            width: 100% !important;
+            height: 2.2px !important;
+            background-color: #922724 !important;
+            margin: 1.5px 0 !important;
+            border-radius: 2px !important;
+        }
+
+        .lang-switch-group button {
+            font-size: clamp(0.58rem, 0.75vw, 0.75rem) !important;
+            padding: clamp(2px, 0.3vw, 4px) clamp(4px, 0.7vw, 8px) !important;
+        }
+
+        .btn-premium {
+            font-size: clamp(0.68rem, 0.85vw, 0.85rem) !important;
+            padding: clamp(4px, 0.6vw, 8px) clamp(8px, 1.2vw, 16px) !important;
+        }
+
+        .navbar-premium .container {
+            padding-left: clamp(8px, 1.5vw, 16px) !important;
+            padding-right: clamp(8px, 1.5vw, 16px) !important;
+        }
+    }
 </style>
 
-<nav class="navbar navbar-expand-lg navbar-premium fixed-top">
-    <div class="container position-relative">
-        <!-- Mobile: Hamburger LEFT (Hidden to match Đình Bình Trường layout) -->
-        <button class="navbar-toggler border-0 shadow-none p-0 d-none" type="button" data-bs-toggle="offcanvas"
-            data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="Menu" style="z-index: 10;">
-            <div class="nav-hamburger">
-                <span></span><span></span><span></span>
-            </div>
-        </button>
+<nav class="navbar navbar-expand-xl navbar-premium fixed-top">
+    <div class="container position-relative d-flex align-items-center justify-content-between">
 
         <!-- PWA Standalone Back Button (only shown on PWA when not on homepage) -->
         <button id="pwaBackButton" class="btn border-0 p-0 d-none" onclick="window.history.back()"
@@ -66,41 +156,62 @@
             <i class="bi bi-chevron-left fs-3 fw-bold"></i>
         </button>
 
-        <!-- Brand (Left-aligned on mobile) -->
-        <a class="navbar-brand d-flex align-items-center gap-2 me-auto ms-0 ps-0" href="/" style="max-width: 65%;">
-            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" class="brand-logo-img"
-                onerror="this.src='/images/logo.png'">
-            <div class="d-flex flex-column justify-content-center">
-                <span class="d-block fw-black lh-1 brand-title-text"
-                    style="font-family: 'Inter', sans-serif; font-weight: 900; color: var(--primary); letter-spacing: 0.5px;">
-                    <%= settings.brand_name || 'BÌNH LỢI' %>
-                </span>
-                <span class="d-block brand-sub-text"
-                    style="font-family: 'Dancing Script', cursive; color: var(--primary-green); font-weight: 700; margin-top: 2px; line-height: 1;">
-                    <%= settings.brand_subtext || 'Chạm vào bình yên' %>
-                </span>
-            </div>
-        </a>
+        <!-- Brand & Hamburger Button (Hamburger ALWAYS locked on left of logo, logo text flexes right) -->
+        <div class="d-flex align-items-center me-auto ms-0 ps-0 flex-nowrap min-w-0" style="gap: 8px;">
+            <!-- Hamburger 3-Bar Button: Hidden on Desktop (>=1200px), ALWAYS VISIBLE & LOCKED ON FAR LEFT on <1200px -->
+            <button class="navbar-toggler border-0 shadow-none p-0 d-xl-none" type="button"
+                data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" aria-controls="mobileMenu" aria-label="Menu"
+                style="z-index: 10; position: relative !important; left: auto !important;">
+                <div class="nav-hamburger">
+                    <span></span><span></span><span></span>
+                </div>
+            </button>
 
-        <!-- Desktop Nav Links (hidden on mobile) -->
-        <div class="d-none d-lg-flex align-items-center flex-grow-1 justify-content-center">
-            <% const path = (locals.currentPath || '').toLowerCase(); %>
-            <ul class="navbar-nav gap-1">
-                <li class="nav-item"><a class="nav-link <%= path === '/' ? 'active' : '' %>" href="/">Trang chủ</a></li>
-                <li class="nav-item"><a class="nav-link <%= path.startsWith('/explore') ? 'active' : '' %>" href="/explore">Khám phá</a></li>
-                <li class="nav-item"><a class="nav-link <%= path.startsWith('/workshops') ? 'active' : '' %>" href="/workshops">Workshop</a></li>
-                <li class="nav-item"><a class="nav-link <%= path.startsWith('/reviews') ? 'active' : '' %>" href="/reviews">Cộng đồng</a></li>
-                <li class="nav-item"><a class="nav-link <%= (path.startsWith('/journey') || path.startsWith('/onboarding')) ? 'active' : '' %>" href="/journey">Hành Trình</a></li>
-                <li class="nav-item"><a class="nav-link <%= path.startsWith('/map') ? 'active' : '' %>" href="/map">Bản đồ</a></li>
-            </ul>
+            <a class="navbar-brand d-flex align-items-center m-0 p-0 min-w-0 flex-shrink-1" href="/" style="position: relative !important; left: auto !important; margin: 0 !important; padding: 0 !important; gap: 10px;">
+                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" class="brand-logo-img flex-shrink-0"
+                    onerror="this.src='/images/logo.png'">
+                <div class="d-flex flex-column justify-content-center min-w-0 flex-shrink-1 overflow-hidden">
+                    <span class="d-block fw-black lh-1 brand-title-text text-truncate"
+                        style="font-family: 'Inter', sans-serif; font-weight: 900; color: var(--primary); letter-spacing: 0.5px;">
+                        <%= settings.brand_name || 'BÌNH LỢI' %>
+                    </span>
+                    <span class="d-block brand-sub-text text-truncate"
+                        style="font-family: 'Dancing Script', cursive; color: var(--primary-green); font-weight: 700; margin-top: 2px; line-height: 1;">
+                        <%= settings.brand_subtext || 'Chạm vào bình yên' %>
+                    </span>
+                </div>
+            </a>
         </div>
 
-        <!-- Desktop Auth & Language Switcher (hidden on mobile) -->
-        <div class="d-none d-lg-flex align-items-center gap-3" style="z-index: 10;">
-            <!-- Dual Language Switcher: VN / EN -->
-            <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm me-1" style="border-color: rgba(0,0,0,0.15) !important;">
-                <button class="btn btn-sm rounded-pill lang-btn-vn border-0 px-2.5 py-0.5" onclick="setAppLanguage('vi')" style="font-size: 0.75rem;">VN</button>
-                <button class="btn btn-sm rounded-pill lang-btn-en border-0 px-2.5 py-0.5" onclick="setAppLanguage('en')" style="font-size: 0.75rem;">EN</button>
+        <!-- Desktop Nav Links (Visible on >= 1200px) -->
+        <div class="d-none d-xl-flex align-items-center flex-grow-1 justify-content-center">
+            <% const path=(locals.currentPath || '' ).toLowerCase(); %>
+                <ul class="navbar-nav gap-1">
+                    <li class="nav-item"><a class="nav-link <%= path === '/' ? 'active' : '' %>" href="/">Trang chủ</a>
+                    </li>
+                    <li class="nav-item"><a class="nav-link <%= path.startsWith('/explore') ? 'active' : '' %>"
+                            href="/explore">Khám phá</a></li>
+                    <li class="nav-item"><a class="nav-link <%= path.startsWith('/workshops') ? 'active' : '' %>"
+                            href="/workshops">Workshop</a></li>
+                    <li class="nav-item"><a class="nav-link <%= path.startsWith('/reviews') ? 'active' : '' %>"
+                            href="/reviews">Cộng đồng</a></li>
+                    <li class="nav-item"><a
+                            class="nav-link <%= (path.startsWith('/journey') || path.startsWith('/onboarding')) ? 'active' : '' %>"
+                            href="/journey">Hành Trình</a></li>
+                    <li class="nav-item"><a class="nav-link <%= path.startsWith('/map') ? 'active' : '' %>"
+                            href="/map">Bản đồ</a></li>
+                </ul>
+        </div>
+
+        <!-- Auth & Language Switcher (ALWAYS VISIBLE on both Desktop and Mobile/Tablet) -->
+        <div class="d-flex align-items-center gap-2 gap-md-3 ms-auto me-1 me-md-2" style="z-index: 10;">
+            <!-- Dual Language Switcher: VN / EN — Fixed width, notranslate -->
+            <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm me-1 notranslate"
+                translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
+                <button class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate"
+                    translate="no" onclick="setAppLanguage('vi')" style="font-size: 0.75rem; width: 36px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
+                <button class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate"
+                    translate="no" onclick="setAppLanguage('en')" style="font-size: 0.75rem; width: 36px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
             </div>
 
             <% if (user) { %>
@@ -110,7 +221,8 @@
                         style="background: var(--primary-50); padding-right: 14px !important;">
                         <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
                             style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
-                        <span class="fw-bold notranslate" translate="no" style="font-size: 0.82rem; color: var(--primary);">
+                        <span class="fw-bold notranslate" translate="no"
+                            style="font-size: 0.82rem; color: var(--primary);">
                             <%= user.full_name.split(' ').pop() %></span>
                     <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
                 </a>
@@ -120,7 +232,7 @@
                         <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
                     </li>
                     <li><hr class="dropdown-divider my-1"></li>
-                    <% if (user.role === 'admin') { %>
+                    <% if (user.role === ' admin') { %>
                                 <li><a class="dropdown-item py-2 rounded-2" href="/admin"
                                         style="color: var(--primary); font-weight: 600;"><i
                                             class="bi bi-shield-check me-2"></i>Trang quản trị</a></li>
@@ -152,190 +264,117 @@
                     <% } %>
         </div>
 
-        <!-- Mobile EN Language Switcher & User Auth (Right side - shifted slightly left) -->
-        <div class="d-lg-none position-absolute end-0 me-4 d-flex align-items-center gap-2" style="z-index: 10;">
-            <!-- Dual Language Switcher: VN / EN (Mobile) -->
-            <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-0.5 shadow-sm" style="border-color: rgba(0,0,0,0.15) !important;">
-                <button class="btn btn-sm rounded-pill lang-btn-vn border-0 px-2 py-0.5" onclick="setAppLanguage('vi')" style="font-size: 0.65rem;">VN</button>
-                <button class="btn btn-sm rounded-pill lang-btn-en border-0 px-2 py-0.5" onclick="setAppLanguage('en')" style="font-size: 0.65rem;">EN</button>
-            </div>
-
-            <% if (user) { %>
-                <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="dropdown">
-                        <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
-                            style="width: 28px; height: 28px; object-fit: cover; border: 2px solid var(--primary);" alt="Avatar">
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 200px; z-index: 1050;">
-                        <li class="px-3 py-1">
-                            <div class="fw-bold small text-dark"><%= user.full_name %></div>
-                            <div class="x-small text-muted"><%= user.email %></div>
-                        </li>
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <% if (user.role === 'admin') { %>
-                            <li><a class="dropdown-item py-1.5 small text-primary fw-bold" href="/admin"><i class="bi bi-shield-check me-2"></i>Trang quản trị</a></li>
-                        <% } else if (user.role === 'manager') { %>
-                            <li><a class="dropdown-item py-1.5 small text-primary fw-bold" href="/manager"><i class="bi bi-shield-check me-2"></i>Trang quản lý</a></li>
-                        <% } else { %>
-                            <li><a class="dropdown-item py-1.5 small" href="/profile"><i class="bi bi-person me-2"></i>Hồ sơ du khách</a></li>
-                            <li><a class="dropdown-item py-1.5 small" href="/profile/rewards"><i class="bi bi-gift me-2"></i>Điểm thưởng</a></li>
-                        <% } %>
-                        <li><hr class="dropdown-divider my-1"></li>
-                        <li><a class="dropdown-item py-1.5 small text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
-                    </ul>
-                </div>
-            <% } else { %>
-                <a href="/auth/login" class="btn btn-sm btn-primary-bl rounded-pill fw-bold px-2 py-1 shadow-sm" style="font-size: 0.7rem;">
-                    <i class="bi bi-person-fill me-1"></i>Đăng nhập
-                </a>
-            <% } %>
-        </div>
-    </div>
-
-    <!-- Mobile Top Fixed Horizontal Nav (No scroll, 100% fit) -->
-    <div class="d-lg-none w-100 border-top border-bottom py-1 mobile-top-nav-bar"
-        style="background: #ffffff; border-color: rgba(0,0,0,0.08) !important; overflow: hidden;">
-        <% const pathM = (locals.currentPath || '').toLowerCase(); %>
-        <%
-            const isHome = pathM === '/';
-            const isExp = pathM.startsWith('/explore');
-            const isWs = pathM.startsWith('/workshops');
-            const isRev = pathM.startsWith('/reviews');
-            const isJou = pathM.startsWith('/journey') || pathM.startsWith('/onboarding');
-            const isMap = pathM.startsWith('/map');
-            const activeStyle = 'color: #ffffff !important; background: linear-gradient(135deg, #922724 0%, #7f1d1d 100%) !important; background-color: #922724 !important; font-weight: 800 !important; border-radius: 50px !important; box-shadow: 0 2px 6px rgba(146, 39, 36, 0.25) !important; padding: 4px 7px !important;';
-        %>
-        <div class="d-flex align-items-center justify-content-between px-1 w-100">
-            <a href="/" class="mobile-subnav-link text-decoration-none <%= isHome ? 'active' : '' %>" <%= isHome ? `style="${activeStyle}"` : '' %>>Trang Chủ</a>
-            <a href="/explore" class="mobile-subnav-link text-decoration-none <%= isExp ? 'active' : '' %>" <%= isExp ? `style="${activeStyle}"` : '' %>>Khám Phá</a>
-            <a href="/workshops" class="mobile-subnav-link text-decoration-none <%= isWs ? 'active' : '' %>" <%= isWs ? `style="${activeStyle}"` : '' %>>Workshop</a>
-            <a href="/reviews" class="mobile-subnav-link text-decoration-none <%= isRev ? 'active' : '' %>" <%= isRev ? `style="${activeStyle}"` : '' %>>Cộng Đồng</a>
-            <a href="/journey" class="mobile-subnav-link text-decoration-none <%= isJou ? 'active' : '' %>" <%= isJou ? `style="${activeStyle}"` : '' %>>Hành Trình</a>
-            <a href="/map" class="mobile-subnav-link text-decoration-none <%= isMap ? 'active' : '' %>" <%= isMap ? `style="${activeStyle}"` : '' %>>Bản Đồ</a>
-        </div>
     </div>
 </nav>
 
-<style>
-.mobile-top-nav-bar {
-    overflow: hidden !important;
-}
 
-.mobile-top-nav-bar .mobile-subnav-link {
-    font-family: var(--font-accent, sans-serif);
-    font-size: 0.65rem !important;
-    font-weight: 700 !important;
-    color: #475569 !important;
-    padding: 4px 2px !important;
-    border-radius: 50px !important;
-    transition: all 0.25s ease !important;
-    white-space: nowrap !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    line-height: 1.2 !important;
-    letter-spacing: -0.02em !important;
-    text-decoration: none !important;
-    flex: 1 1 0 !important;
-    text-align: center !important;
-}
 
-.mobile-top-nav-bar .mobile-subnav-link:hover {
-    color: #922724 !important;
-    background: #fdf2f2 !important;
-}
-
-.mobile-top-nav-bar .mobile-subnav-link.active,
-a.mobile-subnav-link.active {
-    background: linear-gradient(135deg, #922724 0%, #7f1d1d 100%) !important;
-    background-color: #922724 !important;
-    color: #ffffff !important;
-    font-weight: 800 !important;
-    box-shadow: 0 2px 6px rgba(146, 39, 36, 0.25) !important;
-    border-radius: 50px !important;
-    padding: 4px 4px !important;
-}
-</style>
-
-<!-- MOBILE OFFCANVAS MENU (Modern App Sidebar Style) -->
+<!-- MOBILE OFFCANVAS MENU (Premium Dark Sidebar Style) -->
 <div class="offcanvas offcanvas-start border-0 shadow-lg" tabindex="-1" id="mobileMenu"
-    style="width: 285px; z-index: 1060; border-radius: 0 24px 24px 0;">
-    <div class="offcanvas-header p-4"
-        style="background: linear-gradient(135deg, var(--primary-50) 0%, #ffffff 100%); border-bottom: 1px solid var(--border-light);">
-        <div class="d-flex align-items-center gap-2">
-            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 34px;"
+    style="width: 300px; z-index: 1060; border-radius: 0 20px 20px 0; overflow: hidden;">
+
+    <!-- Dark Header with Brand -->
+    <div class="offcanvas-header px-4 py-3 align-items-center"
+        style="background: #3c3c3c; border-bottom: 1px solid rgba(255,255,255,0.08);">
+        <div class="d-flex align-items-center gap-2 flex-grow-1">
+            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 28px; filter: brightness(10);"
                 onerror="this.src='/images/logo.png'">
-            <div class="d-flex flex-column justify-content-center">
-                <span class="fw-black d-block lh-1"
-                    style="font-family: 'Inter', sans-serif; color: var(--primary); font-size: 1.05rem; font-weight: 900;">
-                    <%= settings.brand_name || 'BÌNH LỢI' %>
-                </span>
-                <span class="d-block text-truncate"
-                    style="font-family: 'Dancing Script', cursive; font-size: 0.95rem; color: var(--primary-green); font-weight: 700; margin-top: 1px;">
-                    <%= settings.brand_subtext || 'Chạm vào bình yên' %>
-                </span>
-            </div>
+            <span class="fw-bold text-white" style="font-size: 0.95rem; letter-spacing: 0.5px;">
+                <%= settings.brand_name || 'Bình Lợi' %>
+            </span>
         </div>
-        <button type="button" class="btn-close shadow-none p-2" data-bs-dismiss="offcanvas" aria-label="Đóng"></button>
+        <button type="button" class="btn-close btn-close-white shadow-none p-2" data-bs-dismiss="offcanvas" aria-label="Đóng"
+            style="font-size: 0.7rem; opacity: 0.7;"></button>
     </div>
-    <div class="offcanvas-body d-flex flex-column p-0">
+
+    <!-- Search Bar -->
+    <div class="px-4 py-3" style="background: #3c3c3c;">
+        <div class="input-group" style="border-radius: 10px; overflow: hidden;">
+            <input type="text" class="form-control border-0 py-2 ps-3" placeholder="Tìm kiếm..."
+                style="background: rgba(255,255,255,0.12); color: #ffffff; font-size: 0.82rem;"
+                onfocus="this.style.background='rgba(255,255,255,0.18)'"
+                onblur="this.style.background='rgba(255,255,255,0.12)'">
+            <button class="btn border-0 px-3" style="background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);">
+                <i class="bi bi-search" style="font-size: 0.85rem;"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Menu Body -->
+    <div class="offcanvas-body d-flex flex-column p-0" style="background: #4a4a4a;">
         <!-- Navigation Links -->
-        <div class="p-3">
-            <div class="text-uppercase x-small text-muted fw-bold px-3 mb-2"
-                style="letter-spacing: 1px; font-size: 0.65rem;">DANH MỤC MENU</div>
-            <a class="mobile-menu-link" href="/"><i class="bi bi-house-door-fill text-primary"></i> Trang chủ</a>
-            <a class="mobile-menu-link" href="/explore"><i class="bi bi-compass-fill text-success"></i> Khám phá</a>
-            <a class="mobile-menu-link" href="/workshops"><i class="bi bi-palette-fill text-warning"></i> Workshop</a>
-            <a class="mobile-menu-link" href="/reviews"><i class="bi bi-chat-heart-fill text-danger"></i> Cộng đồng</a>
-            <a class="mobile-menu-link" href="/journey"><i class="bi bi-signpost-split-fill text-info"></i> Đề xuất hành
-                trình</a>
-            <a class="mobile-menu-link" href="/map"><i class="bi bi-map-fill text-primary"></i> Bản đồ</a>
-            <a class="mobile-menu-link" href="/festivals"><i class="bi bi-calendar-event-fill text-success"></i> Lễ
-                hội</a>
+        <div class="py-2">
+            <% const mPath = (locals.currentPath || '').toLowerCase(); %>
+            <a class="mobile-dark-link <%= mPath === '/' ? 'active' : '' %>" href="/">
+                <i class="bi bi-house-door-fill"></i> TRANG CHỦ
+            </a>
+            <a class="mobile-dark-link <%= mPath.startsWith('/explore') ? 'active' : '' %>" href="/explore">
+                <i class="bi bi-compass-fill"></i> KHÁM PHÁ
+                <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
+            </a>
+            <a class="mobile-dark-link <%= mPath.startsWith('/workshops') ? 'active' : '' %>" href="/workshops">
+                <i class="bi bi-palette-fill"></i> WORKSHOP
+                <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
+            </a>
+            <a class="mobile-dark-link <%= mPath.startsWith('/reviews') ? 'active' : '' %>" href="/reviews">
+                <i class="bi bi-chat-heart-fill"></i> CỘNG ĐỒNG
+                <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
+            </a>
+            <a class="mobile-dark-link <%= (mPath.startsWith('/journey') || mPath.startsWith('/onboarding')) ? 'active' : '' %>" href="/journey">
+                <i class="bi bi-signpost-split-fill"></i> HÀNH TRÌNH
+                <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
+            </a>
+            <a class="mobile-dark-link <%= mPath.startsWith('/map') ? 'active' : '' %>" href="/map">
+                <i class="bi bi-map-fill"></i> BẢN ĐỒ
+            </a>
+            <a class="mobile-dark-link <%= mPath.startsWith('/festivals') ? 'active' : '' %>" href="/festivals">
+                <i class="bi bi-calendar-event-fill"></i> LỄ HỘI
+            </a>
             <% if (locals.user) { %>
-                <a class="mobile-menu-link" href="/chat" style="color: var(--primary); font-weight: 600;"><i
-                        class="bi bi-envelope-heart-fill text-danger"></i> Hộp thư hỗ trợ</a>
-                <% } %>
+            <a class="mobile-dark-link" href="/chat">
+                <i class="bi bi-envelope-heart-fill"></i> HỘP THƯ HỖ TRỢ
+            </a>
+            <% } %>
         </div>
 
-        <!-- User Section at Bottom -->
-        <div class="mt-auto border-top p-3 bg-light bg-opacity-50">
+        <!-- User Section / Login at Bottom -->
+        <div class="mt-auto" style="border-top: 1px solid rgba(255,255,255,0.08); background: #3c3c3c;">
             <% if (user) { %>
-                <div class="d-flex align-items-center gap-2 mb-3 pb-3 border-bottom">
-                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle shadow-sm"
-                        style="width: 38px; height: 38px; object-fit: cover; border: 2px solid var(--primary-100);">
+                <div class="d-flex align-items-center gap-3 px-4 py-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
+                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
+                        style="width: 36px; height: 36px; object-fit: cover; border: 2px solid rgba(255,255,255,0.15);">
                     <div class="overflow-hidden">
-                        <div class="fw-bold text-dark text-truncate notranslate" translate="no" style="font-size: 0.85rem;">
+                        <div class="fw-bold text-white text-truncate notranslate" translate="no" style="font-size: 0.82rem;">
                             <%= user.full_name %>
                         </div>
-                        <div class="x-small text-muted text-truncate">
+                        <div class="text-truncate" style="font-size: 0.68rem; color: rgba(255,255,255,0.45);">
                             <%= user.phone || user.email %>
                         </div>
                     </div>
                 </div>
-                <% if (user.role==='user' ) { %>
-                    <a class="mobile-menu-link" href="/profile"><i class="bi bi-person-circle text-primary"></i> Hồ sơ
-                        du khách</a>
-                    <a class="mobile-menu-link" href="/profile/rewards"><i class="bi bi-gift-fill text-warning"></i>
-                        Điểm thưởng</a>
+                <div class="py-2">
+                    <% if (user.role === 'user') { %>
+                    <a class="mobile-dark-link" href="/profile"><i class="bi bi-person-circle"></i> HỒ SƠ DU KHÁCH</a>
+                    <a class="mobile-dark-link" href="/profile/rewards"><i class="bi bi-gift-fill"></i> ĐIỂM THƯỞNG</a>
                     <% } %>
-                        <% if (user.role==='admin' ) { %>
-                            <a class="mobile-menu-link text-primary fw-bold" href="/admin"><i
-                                    class="bi bi-shield-check"></i> Admin Panel</a>
-                            <% } %>
-                                <% if (user.role==='manager' ) { %>
-                                    <a class="mobile-menu-link text-primary fw-bold" href="/manager"><i
-                                            class="bi bi-shield-check"></i> Quản lý Panel</a>
-                                    <% } %>
-                                        <a class="mobile-menu-link text-danger mt-1" href="/auth/logout"><i
-                                                class="bi bi-box-arrow-right"></i> Đăng xuất</a>
-                                        <% } else { %>
-                                            <a href="/auth/login"
-                                                class="btn btn-premium rounded-pill w-100 py-2 fw-bold shadow-sm"
-                                                style="font-size: 0.82rem;">
-                                                <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập / Đăng ký
-                                            </a>
-                                            <% } %>
+                    <% if (user.role === 'admin') { %>
+                    <a class="mobile-dark-link" href="/admin"><i class="bi bi-shield-check"></i> ADMIN PANEL</a>
+                    <% } %>
+                    <% if (user.role === 'manager') { %>
+                    <a class="mobile-dark-link" href="/manager"><i class="bi bi-shield-check"></i> QUẢN LÝ PANEL</a>
+                    <% } %>
+                    <a class="mobile-dark-link" href="/auth/logout" style="color: #ef4444 !important;">
+                        <i class="bi bi-box-arrow-right"></i> ĐĂNG XUẤT
+                    </a>
+                </div>
+            <% } else { %>
+                <div class="px-4 py-3">
+                    <a href="/auth/login" class="btn w-100 rounded-pill py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
+                        style="background: #922724; color: #fff; font-size: 0.82rem; letter-spacing: 0.5px;">
+                        <i class="bi bi-box-arrow-in-right"></i> ĐĂNG NHẬP / ĐĂNG KÝ
+                    </a>
+                </div>
+            <% } %>
         </div>
     </div>
 </div>
@@ -394,10 +433,42 @@ a.mobile-subnav-link.active {
         }
     }
 
-    /* Mobile Offcanvas Menu Sidebar */
+    /* Mobile Offcanvas Menu Sidebar (Dark Theme) */
     #mobileMenu {
-        background: #ffffff !important;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15) !important;
+        background: #4a4a4a !important;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    .mobile-dark-link {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 12px 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.75);
+        text-decoration: none;
+        letter-spacing: 0.8px;
+        transition: all 0.2s ease;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .mobile-dark-link:hover,
+    .mobile-dark-link:active {
+        background: rgba(255, 255, 255, 0.08);
+        color: #ffffff;
+    }
+
+    .mobile-dark-link.active {
+        background: rgba(255, 255, 255, 0.12);
+        color: #ffffff;
+    }
+
+    .mobile-dark-link i:first-child {
+        width: 20px;
+        text-align: center;
+        font-size: 0.95rem;
+        opacity: 0.7;
     }
 
     .mobile-menu-link {
@@ -446,4 +517,5 @@ a.mobile-subnav-link.active {
 <!-- Hidden Google Translate container for auto-translation fallback -->
 <div id="google_translate_element" style="display:none !important;"></div>
 <script src="/js/i18n-switcher.js"></script>
-<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+<script type="text/javascript"
+    src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
