@@ -173,15 +173,14 @@ app.use(async (req, res, next) => {
     res.locals.user = req.user || req.session.user || null;
     res.locals.currentPath = req.path;
     
-    // Cache Buster for assets
-    res.locals.assetV = '1.5.0_' + Date.now(); 
+    // Cache Buster for assets (Fixed version string allows browser caching)
+    res.locals.assetV = '1.5.2'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
         if (clean.startsWith('http') || clean.startsWith('data:')) return clean;
 
-        // Add cache buster for fresh updates
-        const v = res.locals.assetV || Date.now();
+        const v = res.locals.assetV;
         return clean + (clean.includes('?') ? '&' : '?') + 'v=' + v;
     };
 
@@ -206,18 +205,26 @@ app.use(async (req, res, next) => {
         console.error("Session initialize middleware error:", e);
     }
 
-    // Load Site Settings for all templates
+    // Load Site Settings with RAM caching (2 minutes TTL) to prevent DB queries on every request
+    const now = Date.now();
+    if (global._settingsCache && (now - global._settingsCacheTime < 120000)) {
+        res.locals.settings = global._settingsCache;
+        return next();
+    }
+
     const db = require('./core/database');
     db.query('SELECT * FROM settings').then(([rows]) => {
         const settings = {};
         if (Array.isArray(rows)) {
             rows.forEach(s => { if (s && s.key_name) settings[s.key_name] = s.key_value; });
         }
+        global._settingsCache = settings;
+        global._settingsCacheTime = Date.now();
         res.locals.settings = settings;
         next();
     }).catch(err => {
         console.error("Settings load error:", err);
-        res.locals.settings = {};
+        res.locals.settings = global._settingsCache || {};
         next();
     });
 });

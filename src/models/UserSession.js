@@ -1,4 +1,5 @@
-const Model = require('../core/Model');
+const sessionCache = new Map();
+const SESSION_TTL = 300000; // 5 minutes RAM cache
 
 class UserSession extends Model {
     constructor() {
@@ -6,21 +7,32 @@ class UserSession extends Model {
     }
 
     async findOrCreate(uuid, req = {}) {
-        const session = await this.findOne({ uuid });
-        if (session) return session;
+        if (!uuid) return null;
+        
+        const cached = sessionCache.get(uuid);
+        if (cached && (Date.now() - cached.time < SESSION_TTL)) {
+            return cached.data;
+        }
 
-        const id = await this.create({
-            uuid: uuid,
-            total_points: 0,
-            ip_address: req.ip || '',
-            user_agent: req.headers ? req.headers['user-agent'] : '',
-        });
+        let session = await this.findOne({ uuid });
+        if (!session) {
+            const id = await this.create({
+                uuid: uuid,
+                total_points: 0,
+                ip_address: req.ip || '',
+                user_agent: req.headers ? req.headers['user-agent'] : '',
+            });
+            session = await this.findById(id);
+        }
 
-        return this.findById(id);
+        if (session) {
+            sessionCache.set(uuid, { time: Date.now(), data: session });
+        }
+        return session;
     }
 
     async findByUuid(uuid) {
-        return this.findOne({ uuid });
+        return this.findOrCreate(uuid);
     }
 
     async addPoints(id, points) {
