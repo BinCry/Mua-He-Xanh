@@ -242,17 +242,22 @@ router.post('/auth/login', AuthController.handlePasswordLogin);
 router.get('/admin/login', AuthController.adminLoginPage);
 router.get('/auth/logout', AuthController.logout);
 
+// Helper for canonical OAuth callback URLs
+function getOAuthCallbackUrl(req, routePath) {
+    const host = req.get('host') || '';
+    if (host.includes('localhost') || host.includes('127.0.0.1')) {
+        return `http://${host}${routePath}`;
+    }
+    const base = (process.env.BASE_URL || 'https://dulichbinhloi.com').replace(/\/$/, '');
+    return `${base}${routePath}`;
+}
+
 // Google OAuth
 router.get('/auth/google', (req, res, next) => {
     if (!config.auth.google.clientId || config.auth.google.clientId === 'MISSING_CLIENT_ID') {
         return res.redirect('/auth/login?error=Lỗi cấu hình Google: Thiếu Client ID trên Server.');
     }
-    let protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.get('host');
-    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
-        protocol = 'https';
-    }
-    const dynamicCallbackUrl = `${protocol}://${host}/auth/google/callback`;
+    const dynamicCallbackUrl = getOAuthCallbackUrl(req, '/auth/google/callback');
 
     const loginHint = req.query.email || req.query.login_hint;
     const authOptions = { 
@@ -266,12 +271,7 @@ router.get('/auth/google', (req, res, next) => {
     passport.authenticate('google', authOptions)(req, res, next);
 });
 router.get('/auth/google/callback', (req, res, next) => {
-    let protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.get('host');
-    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
-        protocol = 'https';
-    }
-    const dynamicCallbackUrl = `${protocol}://${host}/auth/google/callback`;
+    const dynamicCallbackUrl = getOAuthCallbackUrl(req, '/auth/google/callback');
 
     passport.authenticate('google', { 
         failureRedirect: '/auth/login',
@@ -284,25 +284,15 @@ router.get('/auth/facebook', (req, res, next) => {
     if (!config.auth.facebook.appId || config.auth.facebook.appId === 'MISSING_APP_ID') {
         return res.redirect('/auth/login?error=Lỗi cấu hình Facebook: Thiếu App ID trên Server.');
     }
-    let protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.get('host');
-    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
-        protocol = 'https';
-    }
-    const dynamicCallbackUrl = `${protocol}://${host}/auth/facebook/callback`;
+    const dynamicCallbackUrl = getOAuthCallbackUrl(req, '/auth/facebook/callback');
 
     passport.authenticate('facebook', { 
-        scope: ['public_profile'],
+        scope: ['public_profile', 'email'],
         callbackURL: dynamicCallbackUrl
     })(req, res, next);
 });
 router.get('/auth/facebook/callback', (req, res, next) => {
-    let protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.get('host');
-    if (host && !host.includes('localhost') && !host.includes('127.0.0.1')) {
-        protocol = 'https';
-    }
-    const dynamicCallbackUrl = `${protocol}://${host}/auth/facebook/callback`;
+    const dynamicCallbackUrl = getOAuthCallbackUrl(req, '/auth/facebook/callback');
 
     passport.authenticate('facebook', { 
         callbackURL: dynamicCallbackUrl
