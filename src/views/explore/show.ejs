@@ -124,49 +124,6 @@
                 </div>
             </div>
 
-            <!-- Community Reviews & Feedback for Destination -->
-            <% const destRevs = (typeof destinationReviews !== 'undefined' && destinationReviews) ? destinationReviews : []; %>
-            <div class="card-bl p-4 shadow-sm border-0 rounded-4 bg-white mb-4">
-                <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-3">
-                    <h5 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2" style="font-size: 1.15rem;">
-                        <i class="bi bi-chat-heart-fill text-danger"></i> Đánh giá & Cảm nhận Du khách (<%= destRevs.length %>)
-                    </h5>
-                    <a href="/reviews" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" style="font-size: 0.75rem;">
-                        <i class="bi bi-plus-lg me-1"></i> Viết đánh giá
-                    </a>
-                </div>
-
-                <% if (destRevs.length > 0) { %>
-                    <div class="d-flex flex-column gap-3">
-                        <% destRevs.forEach(r => { %>
-                        <div class="p-3 bg-light rounded-4 border border-1 border-white shadow-2xs">
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div class="d-flex align-items-center gap-2">
-                                    <img src="<%= r.avatar %>" class="rounded-circle border" style="width: 34px; height: 34px; object-fit: cover;" alt="<%= r.full_name %>">
-                                    <div>
-                                        <div class="fw-bold text-dark small line-clamp-1"><%= r.full_name %></div>
-                                        <div class="x-small text-muted"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></div>
-                                    </div>
-                                </div>
-                                <div class="text-warning small">
-                                    <% for(let s = 0; s < (r.rating || 5); s++) { %><i class="bi bi-star-fill"></i><% } %>
-                                </div>
-                            </div>
-                            <p class="small text-dark mb-1" style="line-height: 1.5;"><%= r.content %></p>
-                        </div>
-                        <% }) %>
-                    </div>
-                <% } else { %>
-                    <div class="text-center py-4 rounded-4 bg-light border border-dashed text-muted">
-                        <i class="bi bi-chat-square-quote display-6 opacity-30 mb-2 d-block text-danger"></i>
-                        <div class="fw-bold small mb-1">Chưa có đánh giá nào cho điểm đến này</div>
-                        <p class="x-small text-muted mb-3">Hãy ghé thăm địa điểm và chia sẻ cảm nhận tuyệt vời của bạn tới mọi người!</p>
-                        <a href="/reviews" class="btn btn-sm btn-danger rounded-pill px-4 fw-bold">
-                            <i class="bi bi-pencil-fill me-1"></i> Chia sẻ góc nhìn ngay
-                        </a>
-                    </div>
-                <% } %>
-            </div>
         </div>
 
         <!-- Sidebar: Actions & Information -->
