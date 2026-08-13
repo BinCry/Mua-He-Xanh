@@ -398,16 +398,15 @@ function startStorytelling() {
 }
 
 // Live Chat History Polling & Rendering
-let lastMessagesCount = 0;
+// Live Chat History Polling & Rendering (Facebook Messenger Style)
+let localChatMessages = [];
+
 function pollMessages(destinationId) {
     axios.get(window.APP_CONFIG.apiUrl + '/get-messages?destinationId=' + destinationId)
         .then(res => {
             if (res.data.success && res.data.data) {
-                const messages = res.data.data;
-                if (messages.length !== lastMessagesCount) {
-                    lastMessagesCount = messages.length;
-                    renderChatHistory(messages);
-                }
+                localChatMessages = res.data.data;
+                renderChatHistory(localChatMessages);
             }
         })
         .catch(err => console.error("Polling messages error:", err));
@@ -417,28 +416,51 @@ function renderChatHistory(messages) {
     const chatHistory = document.getElementById('chat-history');
     if (!chatHistory) return;
 
-    let html = '';
+    let html = `
+        <div class="text-center mb-3">
+            <span class="badge bg-white text-muted border shadow-2xs px-3 py-1.5 rounded-pill x-small">
+                <i class="bi bi-shield-check text-success me-1"></i> Trò chuyện hỗ trợ trực tuyến với Ban Quản Lý
+            </span>
+        </div>
+    `;
+
     if (messages && messages.length > 0) {
         messages.forEach(msg => {
             const isMe = msg.is_mine || false;
             const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
             
-            html += `
-                <div class="mb-3 d-flex ${isMe ? 'justify-content-end' : 'justify-content-start'}">
-                    <div class="p-3 rounded-4 small shadow-2xs ${isMe ? 'text-white' : 'bg-white text-dark border'}" style="max-width: 80%; ${isMe ? 'background-color: var(--primary) !important;' : ''}">
-                        ${escapeHtml(msg.message)}
-                        <div class="x-small opacity-50 mt-1 text-end">${timeStr}</div>
+            if (isMe) {
+                // MY MESSAGE: Right-aligned, Facebook Messenger / Zalo Maroon pill bubble
+                html += `
+                    <div class="mb-2.5 d-flex justify-content-end">
+                        <div class="p-2.5 px-3.5 text-white shadow-2xs" style="max-width: 78%; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px; font-size: 0.9rem; line-height: 1.45;">
+                            ${escapeHtml(msg.message)}
+                            <div class="x-small opacity-75 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+            } else {
+                // MANAGER / AI MESSAGE: Left-aligned with headset avatar icon
+                html += `
+                    <div class="mb-2.5 d-flex justify-content-start align-items-end gap-2">
+                        <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                            <i class="bi bi-headset"></i>
+                        </div>
+                        <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
+                            ${escapeHtml(msg.message)}
+                            <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
+                        </div>
+                    </div>
+                `;
+            }
         });
     } else {
-        html = `
-            <div class="text-center mb-4">
-                <span class="badge bg-secondary-subtle text-muted rounded-pill px-3 py-1.5 x-small">Bắt đầu trò chuyện hỗ trợ</span>
-            </div>
-            <div class="d-flex justify-content-start mb-3">
-                <div class="p-3 rounded-4 small shadow-2xs bg-white text-dark border" style="max-width: 85%;">
+        html += `
+            <div class="d-flex justify-content-start align-items-end gap-2 mb-3">
+                <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                    <i class="bi bi-headset"></i>
+                </div>
+                <div class="p-3 bg-white text-dark shadow-2xs border" style="max-width: 82%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
                     <strong>👋 Chào bạn!</strong><br>
                     Tôi là quản lý địa điểm <%= dest.name %>. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
                 </div>
@@ -461,7 +483,16 @@ function sendChatMessage(destinationId) {
     const message = input.value.trim();
     if (!message) return;
 
-    input.value = ''; // Clear input for snappy UI
+    input.value = ''; // Clear input immediately
+
+    // Optimistic UI Update: Render right-aligned message instantly
+    const newMsgObj = {
+        message: message,
+        is_mine: true,
+        created_at: new Date().toISOString()
+    };
+    localChatMessages.push(newMsgObj);
+    renderChatHistory(localChatMessages);
 
     axios.post(window.APP_CONFIG.apiUrl + '/send-message', {
         destinationId,
@@ -471,7 +502,7 @@ function sendChatMessage(destinationId) {
             pollMessages(destinationId);
         }
     }).catch(err => {
-        showToast('Lỗi gửi tin nhắn: ' + (err.response?.data?.message || err.message), 'warning');
+        console.error("Send message error:", err);
     });
 }
 

@@ -37,62 +37,70 @@
 <script>
     let chatInterval = null;
 
+    let currentGlobalMessages = [];
+
     async function loadChatMessages() {
         try {
             const res = await axios.get('/api/get-messages');
             if (res.data.success) {
-                const messages = res.data.data;
-                const container = document.getElementById('chat-messages');
-                
-                let html = `
-                    <div class="text-center mb-3">
-                        <span class="badge bg-white text-muted shadow-sm px-3 py-2 rounded-pill small" style="font-size: 11px;">
-                            Bắt đầu cuộc trò chuyện hỗ trợ trực tuyến
-                        </span>
-                    </div>
-                    <div class="message-received mb-3 d-flex gap-2 align-items-end">
-                        <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
-                        <div class="p-2 px-3 rounded-4 bg-white text-dark shadow-sm" style="max-width: 75%; font-size: 0.88rem; line-height: 1.5; border-bottom-left-radius: 4px !important;">
-                            Xin chào! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
-                        </div>
-                    </div>
-                `;
-                
-                messages.forEach(msg => {
-                    const isMe = msg.is_mine || false;
-                    const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
-                    
-                    if (isMe) {
-                        html += `
-                            <div class="message-sent mb-3 d-flex justify-content-end">
-                                <div class="p-2.5 px-3 rounded-4 text-white shadow-2xs" style="max-width: 78%; font-size: 0.9rem; line-height: 1.5; background-color: var(--primary) !important; border-bottom-right-radius: 4px !important;">
-                                    ${escapeHtml(msg.message)}
-                                    <div class="x-small opacity-60 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
-                                </div>
-                            </div>
-                        `;
-                    } else {
-                        html += `
-                            <div class="message-received mb-3 d-flex gap-2 align-items-end">
-                                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
-                                <div class="p-2.5 px-3 rounded-4 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.5; border-bottom-left-radius: 4px !important;">
-                                    ${escapeHtml(msg.message)}
-                                    <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-                
-                const isAtBottom = (container.scrollHeight - container.clientHeight - container.scrollTop) < 80;
-                container.innerHTML = html;
-                if (isAtBottom || messages.length <= 2) {
-                    container.scrollTop = container.scrollHeight;
-                }
+                currentGlobalMessages = res.data.data;
+                renderGlobalChat(currentGlobalMessages);
             }
         } catch (e) {
             console.error('Error loading chat messages:', e);
         }
+    }
+
+    function renderGlobalChat(messages) {
+        const container = document.getElementById('chat-messages');
+        if (!container) return;
+
+        let html = `
+            <div class="text-center mb-3">
+                <span class="badge bg-white text-muted shadow-2xs px-3 py-1.5 rounded-pill border x-small" style="font-size: 11px;">
+                    <i class="bi bi-shield-check text-success me-1"></i> Cuộc trò chuyện hỗ trợ bảo mật trực tuyến 24/7
+                </span>
+            </div>
+            <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
+                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
+                <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
+                    Xin chào! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
+                </div>
+            </div>
+        `;
+        
+        if (messages && messages.length > 0) {
+            messages.forEach(msg => {
+                const isMe = msg.is_mine || false;
+                const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
+                
+                if (isMe) {
+                    // SENT BY TOURIST: Aligned RIGHT, Facebook Messenger Maroon Pill
+                    html += `
+                        <div class="message-sent mb-2.5 d-flex justify-content-end">
+                            <div class="p-2.5 px-3.5 text-white shadow-2xs" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important;">
+                                ${escapeHtml(msg.message)}
+                                <div class="x-small opacity-75 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    // RECEIVED FROM ADMIN / MANAGER: Aligned LEFT with Logo Avatar
+                    html += `
+                        <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
+                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
+                            <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
+                                ${escapeHtml(msg.message)}
+                                <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        container.innerHTML = html;
+        container.scrollTop = container.scrollHeight;
     }
 
     async function sendMessage(e) {
@@ -102,6 +110,15 @@
         if (!msg) return;
 
         input.value = '';
+
+        // Optimistic UI Update: Render right-aligned message instantly
+        const newMsgObj = {
+            message: msg,
+            is_mine: true,
+            created_at: new Date().toISOString()
+        };
+        currentGlobalMessages.push(newMsgObj);
+        renderGlobalChat(currentGlobalMessages);
         
         try {
             const res = await axios.post('/api/send-message', { message: msg });
