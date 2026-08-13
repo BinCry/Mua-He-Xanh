@@ -419,12 +419,20 @@ class ManagerController {
     async createWorkshop(req, res) {
         try {
             const user = req.session.user || req.user;
-            let destId = user.managed_destination_id;
-            if (user.role === 'admin' && req.body.destination_id) {
-                destId = req.body.destination_id;
+            let destId = user?.managed_destination_id || null;
+
+            if (user && user.role === 'admin') {
+                destId = req.body.destination_id || destId;
+                if (!destId) {
+                    const [firstDest] = await UserSession.db.query(
+                        "SELECT id FROM destinations WHERE is_active = 1 ORDER BY sort_order ASC LIMIT 1"
+                    );
+                    destId = firstDest[0]?.id || null;
+                }
             }
+
             if (!destId) {
-                return res.status(400).json({ success: false, message: 'Bạn không có quyền quản lý địa điểm nào.' });
+                return res.status(400).json({ success: false, message: 'Chưa có địa điểm nào trong hệ thống.' });
             }
 
             const { title, description, type, price, duration, max_participants, image, start_date, end_date } = req.body;
