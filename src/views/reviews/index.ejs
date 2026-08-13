@@ -47,19 +47,20 @@
                 <!-- Actions Bar: Camera (Device Camera), Photo (Device Gallery), Rating (1-5 stars) -->
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 pt-3 border-top border-light">
                     <div class="d-flex flex-wrap align-items-center gap-3 w-100 w-sm-auto">
+                        <!-- Single Hidden File Input -->
+                        <input type="file" name="image" accept="image/*" class="d-none" id="reviewFileInput" onchange="previewImage(this)">
+
                         <!-- Button 1: Camera (opens device camera) -->
-                        <label class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0 me-2" title="Chụp ảnh trực tiếp từ máy ảnh">
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0 me-2" onclick="triggerPhotoUpload(true)" title="Chụp ảnh trực tiếp từ máy ảnh">
                             <i class="bi bi-camera-fill text-danger fs-6 me-2"></i>
                             <span class="small text-dark">Máy ảnh</span>
-                            <input type="file" name="image" accept="image/*" capture="environment" class="d-none" id="cameraInput" onchange="previewImage(this)">
-                        </label>
+                        </button>
 
                         <!-- Button 2: Photo (opens device gallery) -->
-                        <label class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0 me-2" title="Chọn ảnh từ thư viện thiết bị">
+                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0 me-2" onclick="triggerPhotoUpload(false)" title="Chọn ảnh từ thư viện thiết bị">
                             <i class="bi bi-image-fill text-primary fs-6 me-2"></i>
                             <span class="small text-dark">Thư viện</span>
-                            <input type="file" name="image" accept="image/*" class="d-none" id="galleryInput" onchange="previewImage(this)">
-                        </label>
+                        </button>
                         
                         <!-- Rating Selector: 1 to 5 Stars (Strictly No Arrow / Icon) -->
                         <select class="form-select form-select-sm rounded-pill border bg-light px-3 py-1.5 text-center ms-auto ms-sm-0 shadow-none" name="rating" style="width: 110px; font-size: 0.78rem; font-weight: 700; background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; padding-right: 12px !important; cursor: pointer;">
@@ -284,6 +285,17 @@
         } catch(e) { console.error(e); }
     }
 
+    function triggerPhotoUpload(isCamera) {
+        const input = document.getElementById('reviewFileInput');
+        if (!input) return;
+        if (isCamera) {
+            input.setAttribute('capture', 'environment');
+        } else {
+            input.removeAttribute('capture');
+        }
+        input.click();
+    }
+
     // Submit form action
     document.getElementById('reviewForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -296,10 +308,13 @@
             const formData = new FormData();
             formData.append('content', form.content.value);
             formData.append('rating', form.rating.value);
+            if (form.destination_id && form.destination_id.value) {
+                formData.append('destination_id', form.destination_id.value);
+            }
             
-            const imageInput = document.getElementById('imageInput');
-            if (imageInput && imageInput.files.length > 0) {
-                formData.append('image', imageInput.files[0]);
+            const fileInput = document.getElementById('reviewFileInput');
+            if (fileInput && fileInput.files && fileInput.files.length > 0) {
+                formData.append('image', fileInput.files[0]);
             }
 
             // Retrieve Location

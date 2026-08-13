@@ -14,27 +14,23 @@
             </p>
         </div>
 
-        <!-- Filter & Search Capsules Bar -->
-        <div class="card border-0 shadow-sm rounded-4 p-3.5 mb-5 bg-white reveal-up">
+        <!-- Filter & Search Capsules Bar (Single line search input + right button) -->
+        <div class="card border-0 shadow-sm rounded-4 p-2.5 mb-5 bg-white reveal-up">
             <form action="/shops" method="GET" id="workshopSearchForm">
-                <div class="row g-3 align-items-center">
-                    <div class="col-md-7 col-lg-8">
-                        <div class="position-relative">
-                            <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 18px;"></i>
-                            <input type="text" name="q" class="form-control border-0 bg-light rounded-pill py-2.5 ps-5 pe-4 shadow-none" 
-                                placeholder="Tìm kiếm sản phẩm, yến sào, quà tặng..." 
-                                value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" style="font-size: 0.92rem; height: 48px;">
-                        </div>
-                    </div>
-                    <div class="col-md-5 col-lg-4 text-end">
-                        <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold text-white w-100" style="background: var(--primary); font-size: 0.88rem; height: 48px;">
-                            <i class="bi bi-search me-1"></i>Tìm kiếm
-                        </button>
-                    </div>
+                <div class="input-group rounded-pill overflow-hidden bg-light border p-1" style="max-width: 680px; margin: 0 auto;">
+                    <span class="input-group-text bg-transparent border-0 ps-3 pe-1 text-muted">
+                        <i class="bi bi-search fs-5"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control border-0 bg-transparent shadow-none px-2" 
+                        placeholder="Tìm kiếm sản phẩm, yến sào, quà tặng..." 
+                        value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" style="font-size: 0.9rem; height: 42px;">
+                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold text-white flex-shrink-0" style="background: var(--primary); font-size: 0.88rem; height: 42px;">
+                        <i class="bi bi-search me-1"></i>Tìm kiếm
+                    </button>
                 </div>
 
                 <% if (typeof searchQuery !== 'undefined' && searchQuery) { %>
-                    <div class="text-center mt-3 mb-0">
+                    <div class="text-center mt-2 mb-0">
                         <a href="/shops" class="text-danger small fw-bold text-decoration-none"><i class="bi bi-x-circle me-1"></i>Xóa tìm kiếm</a>
                     </div>
                 <% } %>

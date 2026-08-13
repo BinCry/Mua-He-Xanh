@@ -789,13 +789,19 @@ const AdminController = {
                 return res.status(400).json({ success: false, message: 'Thiếu Session ID' });
             }
 
-            const [messages] = await db.query(
-                `SELECT * FROM messages 
-                 WHERE destination_id IS NULL 
-                   AND (sender_uuid = $1 OR receiver_uuid = $2 OR sender_id = $3 OR receiver_id = $4)
-                 ORDER BY created_at ASC`,
-                [sessionId, sessionId, sessionId, sessionId]
-            );
+            let messages = [];
+            try {
+                const [rows] = await db.query(
+                    `SELECT * FROM messages 
+                     WHERE destination_id IS NULL 
+                       AND (sender_uuid = $1 OR receiver_uuid = $2)
+                     ORDER BY created_at ASC`,
+                    [sessionId, sessionId]
+                );
+                messages = rows;
+            } catch(e) {
+                console.log("Admin chat query fallback:", e.message);
+            }
 
             const [visitorDetails] = await db.query(
                 `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone

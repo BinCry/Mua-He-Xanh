@@ -18,9 +18,11 @@
                     
                     <div class="p-4 p-md-5">
                         <div class="mb-4 pb-3 border-bottom">
+                            <% if (event.is_featured === 1 || event.is_featured === true || event.is_countdown === 1) { %>
                             <span class="badge bg-warning text-dark mb-2 px-3 py-1.5 rounded-pill fw-bold text-uppercase" style="font-size: 0.75rem;">
                                 <i class="bi bi-star-fill me-1"></i> Sự kiện nổi bật
                             </span>
+                            <% } %>
                             <h1 class="display-6 fw-black text-dark mb-3 font-display"><%= event.title %></h1>
                             <div class="d-flex flex-wrap align-items-center gap-3 text-muted" style="font-size: 0.9rem;">
                                 <div class="d-flex align-items-center gap-2">

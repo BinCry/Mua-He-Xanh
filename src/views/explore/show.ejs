@@ -346,33 +346,35 @@ function handleSaveToggle(btn, destinationId) {
         });
 }
 
-function shareDestination(name, url) {
+function shareDestination(name, rawUrl) {
+    const canonicalUrl = 'https://dulichbinhloi.com/explore/<%= dest.slug %>';
+    
     // Native share (mobile - like TikTok share)
     if (navigator.share) {
         navigator.share({
             title: name + ' - Bình Lợi Healing',
             text: 'Khám phá ' + name + ' tại Bình Lợi Healing!',
-            url: url
+            url: canonicalUrl
         }).catch(() => {});
     } else {
         // Desktop fallback: copy link
         if (navigator.clipboard) {
-            navigator.clipboard.writeText(url)
+            navigator.clipboard.writeText(canonicalUrl)
                 .then(() => {
-                    showToast('Đã sao chép liên kết', 'success');
+                    showToast('Đã sao chép liên kết dulichbinhloi.com', 'success');
                 })
                 .catch(() => {
-                    showToast('Đã sao chép liên kết', 'success');
+                    showToast('Đã sao chép liên kết dulichbinhloi.com', 'success');
                 });
         } else {
             // Final fallback for older browsers
             const textarea = document.createElement('textarea');
-            textarea.value = url;
+            textarea.value = canonicalUrl;
             document.body.appendChild(textarea);
             textarea.select();
             document.execCommand('copy');
             textarea.remove();
-            showToast('Đã sao chép liên kết', 'success');
+            showToast('Đã sao chép liên kết dulichbinhloi.com', 'success');
         }
     }
 }
