@@ -206,14 +206,19 @@ class ApiController {
     async sendMessage(req, res) {
         try {
             const { destinationId, message } = req.body;
-            const sessionUuid = req.cookies?.session_uuid;
+            let sessionUuid = req.cookies?.session_uuid;
             
-            if (!sessionUuid || !message) {
-                return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ' });
+            if (!sessionUuid) {
+                sessionUuid = uuidv4();
+                res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
             }
 
-            const session = await UserSession.findByUuid(sessionUuid);
-            if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
+            if (!message || !message.trim()) {
+                return res.status(400).json({ success: false, message: 'Nội dung tin nhắn không được để trống.' });
+            }
+
+            const session = await UserSession.findOrCreate(sessionUuid, req);
+            if (!session) return res.status(404).json({ success: false, message: 'Không thể tạo phiên truy cập.' });
 
             let receiverUuid = null;
             if (destinationId) {
@@ -225,8 +230,8 @@ class ApiController {
             }
 
             await db.query(
-                "INSERT INTO messages (id, sender_id, sender_uuid, receiver_uuid, destination_id, message) VALUES ($1, $2, $3, $4, $5, $6)",
-                [uuidv4(), session.user_id || null, session.id, receiverUuid, destinationId || null, message]
+                "INSERT INTO messages (id, sender_id, sender_uuid, receiver_uuid, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, $6, NOW())",
+                [uuidv4(), session.user_id || null, session.id, receiverUuid, destinationId || null, message.trim()]
             );
 
             let aiReply = null;
@@ -237,7 +242,7 @@ class ApiController {
                     
                     if (aiReply) {
                         await db.query(
-                            "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, is_ai) VALUES ($1, $2, $3, $4, $5, $6)",
+                            "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, content, is_ai, created_at) VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())",
                             [uuidv4(), null, session.id, destinationId, aiReply, 1]
                         );
                     }
@@ -256,18 +261,18 @@ class ApiController {
     async replyMessage(req, res) {
         try {
             const { messageId, sessionId, replyText, destinationId } = req.body;
-            const manager = req.session.user || req.user;
+            const manager = req.session?.user || req.user;
 
             if (!manager || (manager.role !== 'manager' && manager.role !== 'admin')) {
                 return res.status(403).json({ success: false, message: 'Unauthorized' });
             }
 
-            if (!replyText) {
+            if (!replyText || !replyText.trim()) {
                 return res.status(400).json({ success: false, message: 'Nội dung phản hồi không được để trống.' });
             }
 
             let receiverUuid = null;
-            let finalDestId = destinationId || null;
+            let finalDestId = destinationId || manager.managed_destination_id || null;
 
             if (sessionId) {
                 receiverUuid = sessionId;
@@ -276,14 +281,14 @@ class ApiController {
                 if (rows.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
                 const originalMsg = rows[0];
                 receiverUuid = originalMsg.sender_uuid;
-                finalDestId = originalMsg.destination_id;
+                finalDestId = originalMsg.destination_id || finalDestId;
             } else {
-                return res.status(400).json({ success: false, message: 'Thiếu thông tin người nhận (sessionId hoặc messageId)' });
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin người nhận' });
             }
 
             await db.query(
-                "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message) VALUES ($1, $2, $3, $4, $5)",
-                [uuidv4(), manager.id, receiverUuid, finalDestId, replyText]
+                "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $5, NOW())",
+                [uuidv4(), manager.id, receiverUuid, finalDestId, replyText.trim()]
             );
 
             res.json({ success: true, message: 'Đã gửi phản hồi.' });
@@ -294,14 +299,16 @@ class ApiController {
     }
 
     async getMessages(req, res) {
-        const { destinationId } = req.query;
-        const sessionUuid = req.cookies?.session_uuid;
+        let sessionUuid = req.cookies?.session_uuid;
+        if (!sessionUuid) {
+            sessionUuid = uuidv4();
+            res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+        }
 
-        if (!sessionUuid) return res.json({ success: true, data: [] });
-
-        const session = await UserSession.findByUuid(sessionUuid);
+        const session = await UserSession.findOrCreate(sessionUuid, req);
         if (!session) return res.json({ success: true, data: [] });
 
+        const { destinationId } = req.query;
         const queryParams = [session.id, session.id];
         
         let userCondition = '';
@@ -317,7 +324,8 @@ class ApiController {
         }
 
         const [messages] = await db.query(
-            `SELECT * FROM messages 
+            `SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at 
+              FROM messages 
               WHERE (
                 sender_uuid = $1 OR receiver_uuid = $2 
                 ${userCondition}
@@ -327,7 +335,15 @@ class ApiController {
             queryParams
         );
 
-        res.json({ success: true, data: messages });
+        const formatted = messages.map(m => {
+            const isMine = (m.sender_uuid === session.id) || (session.user_id && String(m.sender_id) === String(session.user_id));
+            return {
+                ...m,
+                is_mine: !!isMine
+            };
+        });
+
+        res.json({ success: true, data: formatted });
     }
 
     async getSoundscapes(req, res) {

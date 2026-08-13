@@ -205,7 +205,7 @@ router.get('/journey/load-template/:id', JourneyController.loadTemplate);
 
 // ===== AUTH PAGES =====
 router.get('/passport', ensureTourist, PassportController.index);
-router.get('/chat', ensureAuthenticated, ChatController.index);
+router.get('/chat', ChatController.index);
 router.get('/summary', SummaryController.index);
 router.get('/festivals', FestivalController.index);
 router.get('/events/:id', EventController.show);
@@ -347,8 +347,8 @@ router.get('/api/destinations', ApiController.destinations);
 router.post('/api/journey', ApiController.journey);
 router.post('/api/journey/update-stop', ApiController.updateJourneyStop);
 router.post('/api/checkin', ApiController.checkin);
-router.post('/api/send-message', ensureAuthenticated, ApiController.sendMessage);
-router.get('/api/get-messages', ensureAuthenticated, ApiController.getMessages);
+router.post('/api/send-message', ApiController.sendMessage);
+router.get('/api/get-messages', ApiController.getMessages);
 router.post('/api/festival/book', FestivalController.book);
 router.get('/api/soundscapes', ApiController.getSoundscapes);
 

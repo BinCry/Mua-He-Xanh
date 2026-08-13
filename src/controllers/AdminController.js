@@ -760,14 +760,32 @@ const AdminController = {
                          u.full_name AS user_name,
                          u.avatar AS user_avatar,
                          u.phone AS user_phone,
-                         u.email AS user_email
+                         u.email AS user_email,
+                         (
+                             SELECT message 
+                             FROM messages 
+                             WHERE (sender_uuid = s.id OR receiver_uuid = s.id)
+                             ORDER BY created_at DESC LIMIT 1
+                         ) AS last_message,
+                         (
+                             SELECT created_at 
+                             FROM messages 
+                             WHERE (sender_uuid = s.id OR receiver_uuid = s.id)
+                             ORDER BY created_at DESC LIMIT 1
+                         ) AS last_message_time
                      FROM user_sessions s
                      LEFT JOIN users u ON s.user_id = u.id
-                     ORDER BY s.updated_at DESC LIMIT 50`
+                     WHERE s.id IN (
+                         SELECT DISTINCT sender_uuid FROM messages WHERE sender_uuid IS NOT NULL
+                         UNION
+                         SELECT DISTINCT receiver_uuid FROM messages WHERE receiver_uuid IS NOT NULL
+                     )
+                     ORDER BY last_message_time DESC NULLS LAST
+                     LIMIT 50`
                 );
                 conversations = rows;
             } catch (e) {
-                console.error("Admin chat query fallback:", e.message);
+                console.error("Admin chat query error:", e.message);
             }
 
             res.render('admin/chat', {
@@ -793,8 +811,7 @@ const AdminController = {
             try {
                 const [rows] = await db.query(
                     `SELECT * FROM messages 
-                     WHERE destination_id IS NULL 
-                       AND (sender_uuid = $1 OR receiver_uuid = $2)
+                     WHERE (sender_uuid = $1 OR receiver_uuid = $2)
                      ORDER BY created_at ASC`,
                     [sessionId, sessionId]
                 );

@@ -56,10 +56,8 @@
                     </div>
                 `;
                 
-                const currentUserId = "<%= (user ? user.id : '') %>";
-                
                 messages.forEach(msg => {
-                    const isMe = (currentUserId && String(msg.sender_id) === String(currentUserId)) || (msg.sender_uuid && msg.sender_uuid.length > 5 && msg.is_ai != 1 && msg.sender_id != null);
+                    const isMe = msg.is_mine || false;
                     if (isMe) {
                         html += `
                             <div class="message-sent mb-3 d-flex justify-content-end">

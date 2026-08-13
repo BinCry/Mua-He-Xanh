@@ -46,6 +46,8 @@ app.get('/api/health', async (req, res) => {
         await db.query(`ALTER TABLE review_comments ADD COLUMN IF NOT EXISTS guest_uuid VARCHAR(255)`);
         await db.query(`ALTER TABLE review_comments ADD COLUMN IF NOT EXISTS parent_id VARCHAR(255)`);
         await db.query(`ALTER TABLE review_likes ADD COLUMN IF NOT EXISTS guest_uuid VARCHAR(255)`);
+        await db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS message TEXT`);
+        await db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_ai INTEGER DEFAULT 0`);
     } catch(e) {
         console.warn('Auto DB schema patch error:', e.message);
     }
@@ -198,7 +200,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '3.6.0'; 
+    res.locals.assetV = '3.7.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
