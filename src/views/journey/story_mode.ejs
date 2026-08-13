@@ -384,7 +384,7 @@ body {
                     <div class="card p-3 mb-3 border-0 shadow-sm rounded-4 bg-success bg-opacity-10">
                         <div class="d-flex align-items-center justify-content-between">
                             <span class="fw-bold text-success small"><i class="bi bi-check-circle-fill me-1"></i> Lộ trình đã chốt thành công!</span>
-                            <a href="/hanh-trinh-cua-toi?step=3" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" style="font-size:0.75rem;">
+                            <a href="/onboarding" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" style="font-size:0.75rem;">
                                 <i class="bi bi-pencil me-1"></i> Chỉnh sửa lại
                             </a>
                         </div>
@@ -666,27 +666,88 @@ function initStep4Map() {
     const stops = <%- JSON.stringify(journey.stops || []) %>;
     if (!stops || stops.length === 0) return;
 
-    const map = L.map('step4-map').setView([parseFloat(stops[0].lat) || 10.8231, parseFloat(stops[0].lng) || 106.6297], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    // Use Google Maps Vector Tile Layer for 100% Google Maps visual look
+    const firstLat = parseFloat(stops[0].lat) || 10.8231;
+    const firstLng = parseFloat(stops[0].lng) || 106.6297;
+    const map = L.map('step4-map').setView([firstLat, firstLng], 13);
+    
+    L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
+        maxZoom: 20,
+        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+        attribution: '&copy; <a href="https://maps.google.com" target="_blank">Google Maps</a>'
+    }).addTo(map);
 
+    const waypointsArr = [];
     const latLngs = [];
+
     stops.forEach((st, idx) => {
         if (st.lat && st.lng) {
-            const ll = [parseFloat(st.lat), parseFloat(st.lng)];
-            latLngs.push(ll);
-            const html = `<div style="background:#922724;color:#fff;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-weight:900;">${idx+1}</div>`;
-            L.marker(ll, { icon: L.divIcon({ html: html, iconSize: [26, 26] }) }).addTo(map).bindPopup(`<b>${st.name}</b>`);
+            const lat = parseFloat(st.lat);
+            const lng = parseFloat(st.lng);
+            latLngs.push([lat, lng]);
+            waypointsArr.push(`${lng},${lat}`);
+
+            const html = `
+                <div style="background: linear-gradient(135deg, #922724 0%, #15803d 100%); color: #ffffff; border: 2px solid #ffffff; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.9rem; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">
+                    ${idx + 1}
+                </div>
+            `;
+            L.marker([lat, lng], {
+                icon: L.divIcon({
+                    html: html,
+                    className: 'custom-map-stop-icon',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 16]
+                })
+            }).addTo(map).bindPopup(`<div style="font-size:0.9rem;font-weight:700;color:#922724;">${idx + 1}. ${st.name}</div><div style="font-size:0.78rem;color:#475569;">${st.short_desc || st.highlight || ''}</div>`);
         }
     });
 
-    if (latLngs.length > 1) {
-        const poly = L.polyline(latLngs, { color: '#922724', weight: 4, opacity: 0.8, dashArray: '6, 6' }).addTo(map);
-        map.fitBounds(poly.getBounds(), { padding: [30, 30] });
+    // Fetch Turn-by-Turn OSRM Road Route (100% Google Maps Real Road Driving Path)
+    if (waypointsArr.length > 1) {
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${waypointsArr.join(';')}?overview=full&geometries=geojson`;
+        
+        fetch(osrmUrl)
+            .then(res => res.json())
+            .then(data => {
+                if (data.code === 'Ok' && data.routes && data.routes.length > 0) {
+                    const routeGeoJSON = data.routes[0].geometry;
+                    const routeLayer = L.geoJSON(routeGeoJSON, {
+                        style: {
+                            color: '#2563eb', // Google Maps Route Blue
+                            weight: 6,
+                            opacity: 0.88,
+                            lineJoin: 'round'
+                        }
+                    }).addTo(map);
+
+                    map.fitBounds(routeLayer.getBounds(), { padding: [40, 40] });
+                } else {
+                    drawFallbackPolyline();
+                }
+            })
+            .catch(err => {
+                console.warn('OSRM routing fallback:', err);
+                drawFallbackPolyline();
+            });
+    } else if (latLngs.length === 1) {
+        map.setView(latLngs[0], 15);
     }
 
+    function drawFallbackPolyline() {
+        if (latLngs.length > 1) {
+            const poly = L.polyline(latLngs, { color: '#2563eb', weight: 5, opacity: 0.8, dashArray: '8, 8' }).addTo(map);
+            map.fitBounds(poly.getBounds(), { padding: [30, 30] });
+        }
+    }
+
+    // Google Maps Navigation URL for Turn-by-Turn GPS App
     let gmapsUrl = 'https://www.google.com/maps/dir/';
     latLngs.forEach(ll => { gmapsUrl += `${ll[0]},${ll[1]}/`; });
-    document.getElementById('btn-gmaps-link').href = gmapsUrl;
+    const gmapsBtn = document.getElementById('btn-gmaps-link');
+    if (gmapsBtn) {
+        gmapsBtn.href = gmapsUrl;
+    }
 }
 
 function getUserGPSLocation() {
