@@ -1,55 +1,68 @@
-<section class="explore-hero-premium position-relative overflow-hidden" style="height: 80vh;">
-    <!-- Cinematic Background -->
-    <div class="hero-bg" style="background: url('<%= fixImg(dest.cover_image, '/images/hero-3.png') %>') center/cover no-repeat fixed;">
-    </div>
-    <div class="hero-overlay-dark" style="background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.8) 100%);"></div>
-    
-    <div class="hero-content container-site text-white d-flex flex-column justify-content-end h-100 pb-5">
-        <div class="row align-items-end">
-            <div class="col-lg-8 animate__animated animate__fadeInUp">
-                <% 
-                    const typeNames = { 
-                        nature: 'THIÊN NHIÊN', 
-                        temple: 'TÂM LINH', 
-                        culture: 'VĂN HÓA', 
-                        craft: 'LÀNG NGHỀ', 
-                        cuisine: 'ẨM THỰC', 
-                        eco: 'SINH THÁI' 
-                    }; 
-                    const displayType = typeNames[(dest.type || '').toLowerCase()] || (dest.type || '').toUpperCase();
-                %>
-                <span class="badge bg-white text-dark mb-3 px-3 py-2 rounded-pill fw-bold tracking-widest text-uppercase shadow-sm"><i class="bi bi-tag-fill text-primary me-1"></i> <%= displayType %></span>
-                <h1 class="display-1 fw-black mb-3 letter-spacing-sm text-shadow-lg" style="color: var(--accent);"><%= dest.name %></h1>
-                <div class="lead opacity-90 d-flex align-items-start gap-2 mb-4 dest-hero-desc text-start">
-                    <i class="bi bi-geo-alt-fill text-danger mt-1 flex-shrink-0"></i> 
-                    <span class="dest-short-desc-text"><%= (dest.short_desc || '').replace(/\.+$/, '') %></span>
-                </div>
-                
+<section class="py-4 py-md-5" style="background: #f8faf9;">
+    <div class="container py-3">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="/explore" class="text-decoration-none text-muted">Khám phá</a></li>
+                        <li class="breadcrumb-item active text-truncate" aria-current="page" style="max-width: 250px;"><%= dest.name %></li>
+                    </ol>
+                </nav>
 
-                <!-- Interactive Actions -->
-                <div class="d-flex flex-wrap gap-3 mb-4 dest-hero-actions">
-                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasLiked ? 'text-danger' : '' %>" onclick="handleLikeToggle(this, '<%= dest.id %>')">
-                        <i class="bi <%= hasLiked ? 'bi-heart-fill' : 'bi-heart' %> <%= hasLiked ? 'text-danger' : '' %>"></i> Thích (<span id="likes-count"><%= totalLikes %></span>)
-                    </button>
-                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasSaved ? 'text-primary' : '' %>" onclick="handleSaveToggle(this, '<%= dest.id %>')">
-                        <i class="bi <%= hasSaved ? 'bi-bookmark-fill' : 'bi-bookmark' %> <%= hasSaved ? 'text-primary' : '' %>"></i> <%= hasSaved ? 'Đã lưu' : 'Lưu điểm đến' %>
-                    </button>
-                    <button class="btn btn-light rounded-pill px-4 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="shareDestination('<%= dest.name %>', '<%= baseUrl %>/explore/<%= dest.slug %>')">
-                        <i class="bi bi-share-fill text-success"></i> Chia sẻ
-                    </button>
-                    <button class="btn btn-primary-bl rounded-pill px-4 fw-bold shadow-lg d-flex align-items-center gap-2" onclick="addToJourney('<%= dest.id %>')">
-                        <i class="bi bi-signpost-split-fill"></i> Thêm vào hành trình
-                    </button>
-                </div>
+                <div class="card border-0 shadow-premium rounded-4 overflow-hidden mb-5 bg-white reveal-up">
+                    <!-- Top Full Poster Image Display (No Cropping / Contain Mode - Exactly like Events) -->
+                    <div class="w-100 bg-dark p-2 text-center position-relative">
+                        <img src="<%= fixImg(dest.cover_image, '/images/hero-3.png') %>" class="img-fluid rounded-3 shadow" style="max-height: 540px; width: 100%; object-fit: contain; background: #0f172a;" alt="<%= dest.name %>">
+                    </div>
+                    
+                    <div class="p-4 p-md-5">
+                        <div class="mb-4 pb-3 border-bottom">
+                            <% 
+                                const typeNames = { 
+                                    nature: 'THIÊN NHIÊN', 
+                                    temple: 'TÂM LINH', 
+                                    culture: 'VĂN HÓA', 
+                                    craft: 'LÀNG NGHỀ', 
+                                    cuisine: 'ẨM THỰC', 
+                                    eco: 'SINH THÁI' 
+                                }; 
+                                const displayType = typeNames[(dest.type || '').toLowerCase()] || (dest.type || '').toUpperCase();
+                            %>
+                            <span class="badge bg-primary text-white mb-2 px-3 py-1.5 rounded-pill fw-bold text-uppercase" style="font-size: 0.75rem; background: var(--primary) !important;">
+                                <i class="bi bi-tag-fill me-1"></i> <%= displayType %>
+                            </span>
+                            <h1 class="display-5 fw-black text-dark mb-3 font-display"><%= dest.name %></h1>
+                            <div class="lead opacity-90 d-flex align-items-start gap-2 mb-4 text-muted" style="font-size: 1.05rem;">
+                                <i class="bi bi-geo-alt-fill text-danger mt-1 flex-shrink-0"></i> 
+                                <span class="dest-short-desc-text"><%= (dest.short_desc || '').replace(/\.+$/, '') %></span>
+                            </div>
 
-                <% if (user && (user.role === 'manager' || user.role === 'admin') && user.managed_destination_id === dest.id) { %>
-                    <a href="/manager" class="btn btn-outline-light btn-sm rounded-pill px-3 fw-bold backdrop-blur-md">
-                        <i class="bi bi-pencil-square me-1"></i> Quản lý điểm đến
-                    </a>
-                <% } %>
+                            <!-- Interactive Actions (Synchronized Buttons) -->
+                            <div class="d-flex flex-wrap align-items-center gap-2.5 mb-2 dest-hero-actions">
+                                <button class="btn btn-outline-danger rounded-pill px-4.5 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasLiked ? 'active bg-danger text-white' : '' %>" onclick="handleLikeToggle(this, '<%= dest.id %>')">
+                                    <i class="bi <%= hasLiked ? 'bi-heart-fill' : 'bi-heart' %>"></i> Thích (<span id="likes-count"><%= totalLikes %></span>)
+                                </button>
+                                <button class="btn btn-outline-primary rounded-pill px-4.5 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasSaved ? 'active bg-primary text-white' : '' %>" onclick="handleSaveToggle(this, '<%= dest.id %>')">
+                                    <i class="bi <%= hasSaved ? 'bi-bookmark-fill' : 'bi-bookmark' %>"></i> <%= hasSaved ? 'Đã lưu' : 'Lưu điểm đến' %>
+                                </button>
+                                <button class="btn btn-outline-success rounded-pill px-4.5 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="shareDestination('<%= dest.name %>', '<%= baseUrl %>/explore/<%= dest.slug %>')">
+                                    <i class="bi bi-share-fill"></i> Chia sẻ
+                                </button>
+                                <button class="btn btn-primary rounded-pill px-4.5 py-2.5 fw-bold shadow-lg d-flex align-items-center gap-2" style="background: var(--primary); border: none;" onclick="addToJourney('<%= dest.id %>')">
+                                    <i class="bi bi-signpost-split-fill"></i> Thêm vào hành trình
+                                </button>
+                                <% if (user && (user.role === 'manager' || user.role === 'admin') && user.managed_destination_id === dest.id) { %>
+                                    <a href="/manager" class="btn btn-outline-secondary rounded-pill px-3 py-2 fw-bold">
+                                        <i class="bi bi-pencil-square me-1"></i> Quản lý
+                                    </a>
+                                <% } %>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-
         </div>
     </div>
 </section>
