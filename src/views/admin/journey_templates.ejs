@@ -245,19 +245,20 @@
         modal.show();
     }
 
-    async function deleteTemplate(id) {
-        if (!confirm('Bạn có chắc chắn muốn xóa hành trình mẫu này không?')) return;
-        try {
-            const res = await axios.post('/api/admin/delete-journey-template', { id });
-            if (res.data.success) {
-                alert('Đã xóa thành công!');
-                location.reload();
-            } else {
-                alert(res.data.message);
+    function deleteTemplate(id) {
+        showAdminConfirm('Bạn có chắc chắn muốn xóa hành trình mẫu này không?', async () => {
+            try {
+                const res = await axios.post('/api/admin/delete-journey-template', { id });
+                if (res.data.success) {
+                    showAdminToast('Đã xóa thành công!', 'success');
+                    setTimeout(() => { location.reload(); }, 800);
+                } else {
+                    showAdminToast(res.data.message, 'error');
+                }
+            } catch (error) {
+                showAdminToast('Lỗi xóa: ' + (error.response?.data?.message || error.message), 'error');
             }
-        } catch (error) {
-            alert('Lỗi: ' + (error.response?.data?.message || error.message));
-        }
+        });
     }
 
     document.getElementById('templateForm').addEventListener('submit', async (e) => {

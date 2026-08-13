@@ -257,18 +257,19 @@ async function saveWs() {
     }
 }
 
-async function deleteWs(id) {
-    if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi Shop?')) return;
-    try {
-        const res = await axios.post('/api/admin/delete-shop', { id });
-        if (res.data.success) {
-            showAdminToast('Đã xóa sản phẩm!', 'success');
-            setTimeout(() => { location.reload(); }, 800);
-        } else {
-            showAdminToast(res.data.message || 'Không thể xóa.', 'error');
+function deleteWs(id) {
+    showAdminConfirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi Shop?', async () => {
+        try {
+            const res = await axios.post('/api/admin/delete-shop', { id });
+            if (res.data.success) {
+                showAdminToast('Đã xóa sản phẩm!', 'success');
+                setTimeout(() => { location.reload(); }, 800);
+            } else {
+                showAdminToast(res.data.message || 'Không thể xóa.', 'error');
+            }
+        } catch (e) {
+            showAdminToast('Lỗi xóa sản phẩm: ' + (e.response?.data?.message || e.message), 'error');
         }
-    } catch (e) {
-        showAdminToast('Lỗi xóa sản phẩm: ' + (e.response?.data?.message || e.message), 'error');
-    }
+    });
 }
 </script>

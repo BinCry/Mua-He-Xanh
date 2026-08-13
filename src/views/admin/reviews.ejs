@@ -197,14 +197,14 @@
 }
 </style>
 
-<script>
-async function deleteReview(id) {
-    if (!confirm('Xóa bài đánh giá này?')) return;
-    try {
-        const res = await axios.post('/api/admin/delete-review', { id });
-        if (res.data.success) location.reload();
-        else alert(res.data.message);
-    } catch (e) { alert('Lỗi'); }
+function deleteReview(id) {
+    showAdminConfirm('Bạn có chắc chắn muốn xóa bài đánh giá này?', async () => {
+        try {
+            const res = await axios.post('/api/admin/delete-review', { id });
+            if (res.data.success) location.reload();
+            else showAdminToast(res.data.message, 'error');
+        } catch (e) { showAdminToast('Lỗi xóa bài đánh giá', 'error'); }
+    });
 }
 
 async function saveSoundscape(e) {
@@ -226,32 +226,33 @@ async function saveSoundscape(e) {
         });
 
         if (res.data.success) {
-            alert(res.data.message);
-            location.reload();
+            showAdminToast(res.data.message, 'success');
+            setTimeout(() => location.reload(), 600);
         } else {
-            alert('Lỗi: ' + res.data.message);
+            showAdminToast('Lỗi: ' + res.data.message, 'error');
             btn.disabled = false;
             btn.innerHTML = oldHtml;
         }
     } catch (err) {
-        alert('Lỗi khi tải âm thanh: ' + (err.response?.data?.message || err.message));
+        showAdminToast('Lỗi khi tải âm thanh: ' + (err.response?.data?.message || err.message), 'error');
         btn.disabled = false;
         btn.innerHTML = oldHtml;
     }
 }
 
-async function deleteSoundscape(id) {
-    if (!confirm('Bạn có chắc chắn muốn xóa âm thanh soundscape này?')) return;
-    try {
-        const res = await axios.post('/api/admin/delete-soundscape', { id });
-        if (res.data.success) {
-            location.reload();
-        } else {
-            alert('Lỗi: ' + res.data.message);
+function deleteSoundscape(id) {
+    showAdminConfirm('Bạn có chắc chắn muốn xóa âm thanh soundscape này?', async () => {
+        try {
+            const res = await axios.post('/api/admin/delete-soundscape', { id });
+            if (res.data.success) {
+                location.reload();
+            } else {
+                showAdminToast('Lỗi: ' + res.data.message, 'error');
+            }
+        } catch (err) {
+            showAdminToast('Lỗi xóa âm thanh', 'error');
         }
-    } catch (err) {
-        alert('Lỗi xóa âm thanh');
-    }
+    });
 }
 </script>
 

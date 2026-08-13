@@ -269,6 +269,38 @@
         }, 3200);
     };
 
+    // Global Modern Popup Confirmation Modal Function
+    let adminConfirmCallback = null;
+    window.showAdminConfirm = function(message, title = 'Xác nhận xóa', onConfirm = null) {
+        if (typeof title === 'function') {
+            onConfirm = title;
+            title = 'Xác nhận xóa';
+        }
+        document.getElementById('adminConfirmTitle').innerText = title || 'Xác nhận xóa';
+        document.getElementById('adminConfirmMessage').innerText = message || 'Bạn có chắc chắn muốn thực hiện thao tác này?';
+        adminConfirmCallback = onConfirm;
+        
+        const modalEl = document.getElementById('adminConfirmModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnConfirm = document.getElementById('btnAdminConfirmSubmit');
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', function() {
+                const modalEl = document.getElementById('adminConfirmModal');
+                const modal = bootstrap.Modal.getInstance(modalEl);
+                if (modal) modal.hide();
+                if (typeof adminConfirmCallback === 'function') {
+                    const cb = adminConfirmCallback;
+                    adminConfirmCallback = null;
+                    cb();
+                }
+            });
+        }
+    });
+
     // Override browser window.alert in Admin layout for modern toast notifications
     window.alert = function(msg) {
         if (!msg) return;
@@ -277,6 +309,26 @@
         window.showAdminToast(msgStr, isError ? 'error' : 'success');
     };
     </script>
+
+    <!-- Global Modern Confirm Modal Popup -->
+    <div class="modal fade" id="adminConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 100000;">
+        <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 400px;">
+            <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 text-danger" style="width: 60px; height: 60px;">
+                        <i class="bi bi-exclamation-triangle-fill fs-2"></i>
+                    </div>
+                    <h5 id="adminConfirmTitle" class="fw-bold mb-2 text-dark">Xác nhận thao tác</h5>
+                    <p id="adminConfirmMessage" class="text-muted small mb-4 px-2" style="line-height: 1.5;">Bạn có chắc chắn muốn thực hiện thao tác này?</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold flex-grow-1" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" id="btnAdminConfirmSubmit" class="btn btn-danger rounded-pill px-4 fw-bold flex-grow-1">Xác nhận</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <%- typeof scripts !=='undefined' ? scripts : '' %>
 </body>
 </html>

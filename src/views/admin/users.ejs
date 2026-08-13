@@ -224,13 +224,14 @@ async function saveUser() {
     } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
 }
 
-async function deleteUser(id, name) {
-    if (!confirm(`Xóa người dùng "${name}"?`)) return;
-    try {
-        const res = await axios.post('/api/admin/delete-user', { id });
-        if (res.data.success) location.reload();
-        else alert(res.data.message);
-    } catch (e) { alert('Lỗi'); }
+function deleteUser(id, name) {
+    showAdminConfirm(`Bạn có chắc chắn muốn xóa người dùng "${name}"?`, async () => {
+        try {
+            const res = await axios.post('/api/admin/delete-user', { id });
+            if (res.data.success) location.reload();
+            else showAdminToast(res.data.message, 'error');
+        } catch (e) { showAdminToast('Lỗi xóa người dùng', 'error'); }
+    });
 }
 
 async function approveUserDirectly(id) {

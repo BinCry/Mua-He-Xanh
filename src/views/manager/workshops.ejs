@@ -265,13 +265,14 @@ async function saveWs() {
     } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
 }
 
-async function deleteWs(id) {
-    if (!confirm('Xóa workshop này?')) return;
-    try {
-        const res = await axios.post('/api/manager/delete-workshop', { id });
-        if (res.data.success) location.reload();
-        else alert(res.data.message);
-    } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
+function deleteWs(id) {
+    showAdminConfirm('Bạn có chắc chắn muốn xóa sản phẩm này?', async () => {
+        try {
+            const res = await axios.post('/api/manager/delete-workshop', { id });
+            if (res.data.success) location.reload();
+            else showAdminToast(res.data.message, 'error');
+        } catch (e) { showAdminToast('Lỗi: ' + (e.response?.data?.message || e.message), 'error'); }
+    });
 }
 
 async function viewBookings(wsId, title) {

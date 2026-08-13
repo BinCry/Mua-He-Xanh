@@ -366,13 +366,14 @@ async function toggleDest(id, checked) {
     } catch (e) { alert('Lỗi'); location.reload(); }
 }
 
-async function deleteDest(id, name) {
-    if (!confirm(`Xóa địa điểm "${name}"? Hành động này không thể hoàn tác!`)) return;
-    try {
-        const res = await axios.post('/api/admin/delete-destination', { id });
-        if (res.data.success) location.reload();
-        else alert(res.data.message);
-    } catch (e) { alert('Lỗi'); }
+function deleteDest(id, name) {
+    showAdminConfirm(`Bạn có chắc chắn muốn xóa địa điểm "${name}"? Hành động này không thể hoàn tác!`, async () => {
+        try {
+            const res = await axios.post('/api/admin/delete-destination', { id });
+            if (res.data.success) location.reload();
+            else showAdminToast(res.data.message, 'error');
+        } catch (e) { showAdminToast('Lỗi xóa địa điểm', 'error'); }
+    });
 }
 
 let resolveTimeout = null;

@@ -691,6 +691,64 @@
             });
         });
     </script>
+
+    <!-- Global Modern Confirm Modal Popup for Main App -->
+    <script>
+    let mainConfirmCallback = null;
+    window.showAppConfirm = function(message, title = 'Xác nhận', onConfirm = null) {
+        if (typeof title === 'function') {
+            onConfirm = title;
+            title = 'Xác nhận';
+        }
+        const titleEl = document.getElementById('appConfirmTitle');
+        const msgEl = document.getElementById('appConfirmMessage');
+        if (titleEl) titleEl.innerText = title || 'Xác nhận';
+        if (msgEl) msgEl.innerText = message || 'Bạn có chắc chắn muốn thực hiện thao tác này?';
+        mainConfirmCallback = onConfirm;
+        
+        const modalEl = document.getElementById('appConfirmModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const btnConfirm = document.getElementById('btnAppConfirmSubmit');
+        if (btnConfirm) {
+            btnConfirm.addEventListener('click', function() {
+                const modalEl = document.getElementById('appConfirmModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+                if (typeof mainConfirmCallback === 'function') {
+                    const cb = mainConfirmCallback;
+                    mainConfirmCallback = null;
+                    cb();
+                }
+            });
+        }
+    });
+    </script>
+
+    <div class="modal fade" id="appConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 100000;">
+        <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
+            <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 text-danger" style="width: 56px; height: 56px;">
+                        <i class="bi bi-exclamation-circle-fill fs-3"></i>
+                    </div>
+                    <h5 id="appConfirmTitle" class="fw-bold mb-2 text-dark" style="font-size: 1.05rem;">Xác nhận</h5>
+                    <p id="appConfirmMessage" class="text-muted small mb-4 px-1" style="line-height: 1.5; font-size: 0.88rem;">Bạn có chắc chắn muốn thực hiện thao tác này?</p>
+                    <div class="d-flex gap-2 justify-content-center">
+                        <button type="button" class="btn btn-light rounded-pill px-4 fw-bold flex-grow-1" data-bs-dismiss="modal">Hủy</button>
+                        <button type="button" id="btnAppConfirmSubmit" class="btn btn-primary-bl rounded-pill px-4 fw-bold flex-grow-1">Đồng ý</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 
 </html>

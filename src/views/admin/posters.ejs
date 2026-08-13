@@ -248,27 +248,28 @@ async function savePoster(e) {
     }
 }
 
-async function deletePosterAjax(id, btn) {
-    if (!confirm('Bạn có chắc muốn xóa Poster này?')) return;
-    try {
-        const res = await axios.post('/admin/posters/delete', { id }, {
-            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
-        });
-        if (res.data.success || res.status === 200) {
-            const cardItem = btn.closest('.poster-card-item');
-            if (cardItem) {
-                cardItem.style.transition = 'all 0.3s ease';
-                cardItem.style.opacity = '0';
-                cardItem.style.transform = 'scale(0.8)';
-                setTimeout(() => {
-                    cardItem.remove();
-                    updatePosterBadges();
-                }, 300);
+function deletePosterAjax(id, btn) {
+    showAdminConfirm('Bạn có chắc chắn muốn xóa Poster này?', async () => {
+        try {
+            const res = await axios.post('/admin/posters/delete', { id }, {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+            });
+            if (res.data.success || res.status === 200) {
+                const cardItem = btn.closest('.poster-card-item');
+                if (cardItem) {
+                    cardItem.style.transition = 'all 0.3s ease';
+                    cardItem.style.opacity = '0';
+                    cardItem.style.transform = 'scale(0.8)';
+                    setTimeout(() => {
+                        cardItem.remove();
+                        updatePosterBadges();
+                    }, 300);
+                }
+                showAdminToast('Đã xóa Poster!', 'success');
             }
-            showAdminToast('Đã xóa Poster!', 'success');
+        } catch (err) {
+            showAdminToast('Lỗi xóa Poster: ' + (err.response?.data?.message || err.message), 'error');
         }
-    } catch (err) {
-        showAdminToast('Lỗi xóa Poster: ' + (err.response?.data?.message || err.message), 'error');
-    }
+    });
 }
 </script>

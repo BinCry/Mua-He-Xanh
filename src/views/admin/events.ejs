@@ -295,12 +295,13 @@ async function saveEvent() {
     } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
 }
 
-async function deleteEvent(id) {
-    if (!confirm('Xóa sự kiện này?')) return;
-    try {
-        const res = await axios.post('/api/admin/delete-event', { id });
-        if (res.data.success) location.reload();
-        else alert(res.data.message);
-    } catch (e) { alert('Lỗi'); }
+function deleteEvent(id) {
+    showAdminConfirm('Bạn có chắc chắn muốn xóa sự kiện này?', async () => {
+        try {
+            const res = await axios.post('/api/admin/delete-event', { id });
+            if (res.data.success) location.reload();
+            else showAdminToast(res.data.message, 'error');
+        } catch (e) { showAdminToast('Lỗi xóa sự kiện', 'error'); }
+    });
 }
 </script>
