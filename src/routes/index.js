@@ -197,10 +197,11 @@ router.get('/map', MapController.index);
 
 // ===== JOURNEY =====
 router.get(['/journey', '/hanh-trinh'], (req, res) => res.redirect('/onboarding'));
-router.get(['/hanh-trinh-cua-toi', '/journey/story', '/journey/view', '/journey/my-journey', '/journey/create'], JourneyController.index);
-router.get(['/journey/suggestions', '/journey/de-xuat'], JourneyController.suggestions);
-router.post(['/journey/confirm', '/journey/xac-nhan'], JourneyController.confirm);
-router.post('/api/journey/lock-toggle', JourneyController.lockJourney);
+router.get(['/hanh-trinh-cua-toi', '/journey/story', '/journey/view', '/journey/my-journey', '/journey/create', '/journey/show', '/journey/detail'], JourneyController.index);
+router.all(['/journey/suggestions', '/journey/de-xuat'], JourneyController.suggestions);
+router.all(['/journey/confirm', '/journey/xac-nhan'], JourneyController.confirm);
+router.all(['/api/journey/lock-toggle', '/journey/lock-toggle'], JourneyController.lockJourney);
+router.all(['/api/journey/delete', '/journey/delete'], JourneyController.deleteSavedJourney);
 router.get('/journey/load-template/:id', JourneyController.loadTemplate);
 
 // ===== AUTH PAGES =====

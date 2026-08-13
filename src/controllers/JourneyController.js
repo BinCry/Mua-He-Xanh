@@ -12,6 +12,7 @@ class JourneyController {
         this.confirm = this.confirm.bind(this);
         this.lockJourney = this.lockJourney.bind(this);
         this.loadTemplate = this.loadTemplate.bind(this);
+        this.deleteSavedJourney = this.deleteSavedJourney.bind(this);
         this.getOrCreateSession = this.getOrCreateSession.bind(this);
     }
 
@@ -292,9 +293,30 @@ class JourneyController {
                 [JSON.stringify(parsed), journey.id]
             );
 
-            return res.json({ success: true });
+    async deleteSavedJourney(req, res) {
+        try {
+            const session = await this.getOrCreateSession(req, res);
+            const user = req.user || req.session?.user;
+            const journeyId = req.body.journeyId || req.body.id || req.query.journeyId || req.query.id;
+
+            if (!journeyId) {
+                return res.status(400).json({ success: false, message: 'Thiếu ID hành trình' });
+            }
+
+            await db.query("DELETE FROM journey_stops WHERE journey_id = $1", [journeyId]);
+            await db.query(
+                `DELETE FROM journeys 
+                 WHERE id = $1 AND (
+                    session_id = $2 
+                    OR session_id IN (SELECT id FROM user_sessions WHERE user_id = $3)
+                 )`,
+                [journeyId, session.id, user ? user.id : 'guest']
+            );
+
+            return res.json({ success: true, message: 'Đã xóa hành trình khỏi tài khoản!' });
         } catch (e) {
-            return res.json({ success: false, error: e.message });
+            console.error("Delete journey error:", e);
+            return res.status(500).json({ success: false, message: e.message });
         }
     }
 }
