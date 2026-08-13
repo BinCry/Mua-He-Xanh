@@ -139,22 +139,11 @@
                             <input type="hidden" id="ws_image" name="image" value="/images/hero-2.png">
                         </div>
 
-                        <!-- Optional Destination -->
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-dark">Thuộc địa điểm (Tùy chọn)</label>
-                            <select class="form-select rounded-3 py-2" id="ws_dest" name="destination_id">
-                                <option value="">-- Không chọn --</option>
-                                <% destinations.forEach(d => { %>
-                                    <option value="<%= d.id %>"><%= d.name %></option>
-                                <% }) %>
-                            </select>
-                        </div>
-
                         <!-- Status -->
-                        <div class="col-md-6 d-flex align-items-center">
-                            <div class="form-check form-switch mt-3">
-                                <input class="form-check-input" type="checkbox" id="ws_is_active" name="is_active" checked style="width: 45px; height: 22px;">
-                                <label class="form-check-label small fw-bold text-dark ms-2 mt-1" for="ws_is_active">Hiển thị bán tại Shop</label>
+                        <div class="col-12 mt-3">
+                            <div class="form-check form-switch p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between">
+                                <label class="form-check-label small fw-bold text-dark mb-0" for="ws_is_active">Hiển thị bán tại Shop</label>
+                                <input class="form-check-input ms-auto" type="checkbox" id="ws_is_active" name="is_active" checked style="width: 45px; height: 22px;">
                             </div>
                         </div>
 
@@ -183,7 +172,7 @@ async function uploadWsFile(input) {
     const btn = input.previousElementSibling.querySelector('button');
     const oldHtml = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang tải ảnh...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang nén & tải...';
     
     try {
         const res = await axios.post('/api/upload', formData, {
@@ -193,10 +182,10 @@ async function uploadWsFile(input) {
         if (res.data.success) {
             document.getElementById('ws_image').value = res.data.url;
             document.getElementById('ws_preview').src = res.data.url;
-            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã tải ảnh';
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã chọn ảnh';
         }
     } catch (err) {
-        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        showAdminToast('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message), 'error');
         btn.innerHTML = oldHtml;
     } finally {
         btn.disabled = false;
@@ -230,7 +219,6 @@ function editWs(target) {
     document.getElementById('ws_max').value = ws.max_participants || 100;
     document.getElementById('ws_image').value = ws.image || '/images/hero-2.png';
     document.getElementById('ws_preview').src = ws.image || '/images/hero-2.png';
-    document.getElementById('ws_dest').value = ws.destination_id || '';
     document.getElementById('ws_is_active').checked = ws.is_active;
     new bootstrap.Modal(document.getElementById('wsModal')).show();
 }
@@ -238,7 +226,7 @@ function editWs(target) {
 async function saveWs() {
     const titleVal = document.getElementById('ws_title').value.trim();
     if (!titleVal) {
-        alert('Vui lòng nhập tên sản phẩm.');
+        showAdminToast('Vui lòng nhập tên sản phẩm.', 'error');
         return;
     }
 
@@ -251,7 +239,7 @@ async function saveWs() {
         duration: document.getElementById('ws_duration').value || 'Hộp / Chiếc',
         max_participants: parseInt(document.getElementById('ws_max').value) || 100,
         image: document.getElementById('ws_image').value,
-        destination_id: document.getElementById('ws_dest').value || null,
+        destination_id: null,
         is_active: document.getElementById('ws_is_active').checked
     };
     
@@ -259,13 +247,13 @@ async function saveWs() {
     try {
         const res = await axios.post(url, data);
         if (res.data.success) {
-            alert(res.data.message || 'Đã lưu sản phẩm thành công!');
-            location.reload();
+            showAdminToast(res.data.message || 'Đã lưu sản phẩm thành công!', 'success');
+            setTimeout(() => { location.reload(); }, 800);
         } else {
-            alert(res.data.message || 'Không thể lưu sản phẩm.');
+            showAdminToast(res.data.message || 'Không thể lưu sản phẩm.', 'error');
         }
     } catch (e) {
-        alert('Lỗi lưu sản phẩm: ' + (e.response?.data?.message || e.message));
+        showAdminToast('Lỗi lưu sản phẩm: ' + (e.response?.data?.message || e.message), 'error');
     }
 }
 
@@ -274,12 +262,13 @@ async function deleteWs(id) {
     try {
         const res = await axios.post('/api/admin/delete-shop', { id });
         if (res.data.success) {
-            location.reload();
+            showAdminToast('Đã xóa sản phẩm!', 'success');
+            setTimeout(() => { location.reload(); }, 800);
         } else {
-            alert(res.data.message || 'Không thể xóa.');
+            showAdminToast(res.data.message || 'Không thể xóa.', 'error');
         }
     } catch (e) {
-        alert('Lỗi xóa sản phẩm: ' + (e.response?.data?.message || e.message));
+        showAdminToast('Lỗi xóa sản phẩm: ' + (e.response?.data?.message || e.message), 'error');
     }
 }
 </script>
