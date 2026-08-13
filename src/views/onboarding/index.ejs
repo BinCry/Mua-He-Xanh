@@ -15,172 +15,47 @@ body {
 }
 
 .onboarding-page-container {
-    padding: 50px 15px 80px;
+    padding: 30px 12px 140px;
     background-color: var(--brand-bg);
     min-height: 90vh;
 }
 
-.onboarding-card-wrapper {
-    max-width: 960px;
-    margin: 0 auto;
-    background: #ffffff;
-    border-radius: 32px;
-    padding: 45px 50px;
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(0, 0, 0, 0.03);
-}
-
-@media (max-width: 768px) {
-    .onboarding-card-wrapper {
-        padding: 25px 20px;
-        border-radius: 24px;
-    }
-}
-
-.section-badge-num {
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: var(--brand-green);
-    color: #ffffff;
-    font-weight: 900;
-    font-size: 0.95rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-}
-
-.section-header-title {
-    font-size: 1.15rem;
-    font-weight: 800;
-    color: #1e293b;
-    margin-bottom: 2px;
-}
-
-.section-header-sub {
-    font-size: 0.82rem;
-    color: #64748b;
-    margin-bottom: 0;
-}
-
-.section-divider-line {
-    height: 1px;
-    background: #e2e8f0;
-    margin: 18px 0 24px;
-}
-
-/* VIBE CARDS (GIAO DIỆN HÌNH 1) */
-.vibe-card-item {
-    position: relative;
-    border-radius: 20px;
-    padding: 24px 20px;
-    min-height: 165px;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    color: #ffffff;
-    user-select: none;
-    border: 3px solid transparent;
-}
-
-.vibe-card-item:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
-}
-
-.vibe-card-item.selected {
-    border-color: var(--brand-maroon) !important;
-    box-shadow: 0 10px 25px rgba(146, 39, 36, 0.35) !important;
-}
-
-.vibe-card-item .check-badge {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: #ffffff;
-    color: var(--brand-maroon);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.9rem;
-    font-weight: 900;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    opacity: 0;
-    transform: scale(0.5);
-    transition: all 0.25s ease;
-}
-
-.vibe-card-item.selected .check-badge {
-    opacity: 1;
-    transform: scale(1);
-}
-
-/* Card Gradients */
-.vibe-card-song-cham {
-    background: linear-gradient(145deg, #1e4d34 0%, #15803d 50%, #0d5c2a 100%);
-}
-.vibe-card-tam-linh {
-    background: linear-gradient(145deg, #4a1917 0%, #7f1d1d 50%, #581c1a 100%);
-}
-.vibe-card-van-hoa {
-    background: linear-gradient(145deg, #5c2c1b 0%, #9a3412 50%, #6e2712 100%);
-}
-.vibe-card-gan-ket {
-    background: linear-gradient(145deg, #172b4d 0%, #1e3a8a 50%, #0f2354 100%);
-}
-
-.vibe-icon {
-    font-size: 1.8rem;
-    margin-bottom: 12px;
-}
-.vibe-title {
-    font-size: 1.05rem;
-    font-weight: 900;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    line-height: 1.2;
-    margin-bottom: 3px;
-}
-.vibe-sub {
-    font-size: 0.76rem;
-    opacity: 0.85;
-    margin-bottom: 0;
-}
-
-/* SUB SECTIONS (SỐ LƯỢNG, NGÂN SÁCH, THỜI LƯỢNG, NGÀY) */
-.sub-label-title {
-    font-size: 0.78rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: #922724;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
+.option-pill-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
 }
 
 .option-pill-btn {
     border-radius: 50px;
-    padding: 10px 18px;
-    font-size: 0.86rem;
+    padding: 9px 6px;
+    font-size: 0.78rem;
     font-weight: 700;
     background: #faf8f5;
     color: #334155;
     border: 1.5px solid #e2e8f0;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: inline-flex;
+    display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
+    gap: 4px;
     user-select: none;
+    white-space: nowrap;
+    text-align: center;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .option-pill-btn {
+        padding: 8px 2px !important;
+        font-size: 0.72rem !important;
+    }
+    .btn-submit-journey {
+        width: 100% !important;
+        padding: 14px 20px !important;
+        font-size: 0.95rem !important;
+    }
 }
 
 .option-pill-btn:hover {
@@ -219,6 +94,7 @@ body {
     transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
+    justify-content: center;
     gap: 10px;
 }
 
@@ -233,7 +109,7 @@ body {
     
     <!-- HEADER -->
     <div class="text-center mb-4">
-        <h1 class="display-5 fw-black font-heading text-dark mb-2" style="letter-spacing: -0.5px;">
+        <h1 class="display-6 fw-black font-heading text-dark mb-2" style="letter-spacing: -0.5px;">
             Thiết Kế Hành Trình Của Bạn
         </h1>
         <p class="text-muted small mx-auto mb-0" style="max-width: 580px;">
@@ -317,22 +193,20 @@ body {
                     <!-- 1. SỐ LƯỢNG NGƯỜI -->
                     <div class="col-md-6">
                         <div class="sub-label-title"><i class="bi bi-people-fill"></i> SỐ LƯỢNG NGƯỜI</div>
-                        <div class="d-flex gap-2 flex-wrap mb-2">
+                        <div class="option-pill-grid">
                             <div class="option-pill-btn" onclick="selectSingleOption('pax', '1', this)">👤 1 Người</div>
-                            <div class="option-pill-btn active" onclick="selectSingleOption('pax', '2', this)">♥ Cặp đôi (2)</div>
-                            <div class="option-pill-btn" onclick="selectSingleOption('pax', '3-5', this)">👥 Nhóm (3-5)</div>
-                        </div>
-                        <div class="w-100">
-                            <div class="option-pill-btn w-100 justify-content-center" onclick="selectSingleOption('pax', '5+', this)">🚌 Đoàn (5+)</div>
+                            <div class="option-pill-btn active" onclick="selectSingleOption('pax', '2', this)">♥ Cặp đôi</div>
+                            <div class="option-pill-btn" onclick="selectSingleOption('pax', '3-5', this)">👥 Nhóm 3-5</div>
+                            <div class="option-pill-btn" onclick="selectSingleOption('pax', '5+', this)">🚌 Đoàn 5+</div>
                         </div>
                     </div>
 
                     <!-- 2. NGÂN SÁCH DỰ KIẾN / NGƯỜI -->
                     <div class="col-md-6">
                         <div class="sub-label-title"><i class="bi bi-wallet2"></i> NGÂN SÁCH DỰ KIẾN / NGƯỜI</div>
-                        <div class="d-flex gap-2 flex-wrap">
+                        <div class="option-pill-grid">
                             <div class="option-pill-btn" onclick="selectSingleOption('budget', 'low', this)">🪙 &lt; 500k</div>
-                            <div class="option-pill-btn active" onclick="selectSingleOption('budget', 'mid', this)">💵 500k - 2 Tr</div>
+                            <div class="option-pill-btn active" onclick="selectSingleOption('budget', 'mid', this)">💵 500k-2Tr</div>
                             <div class="option-pill-btn" onclick="selectSingleOption('budget', 'high', this)">💎 &gt; 2 Tr</div>
                         </div>
                     </div>
@@ -340,10 +214,10 @@ body {
                     <!-- 3. THỜI LƯỢNG HÀNH TRÌNH -->
                     <div class="col-md-6">
                         <div class="sub-label-title"><i class="bi bi-hourglass-split"></i> THỜI LƯỢNG HÀNH TRÌNH</div>
-                        <div class="d-flex gap-2 flex-wrap">
+                        <div class="option-pill-grid">
                             <div class="option-pill-btn" onclick="selectSingleOption('duration', 'half_day', this)">⏱️ Nửa ngày</div>
                             <div class="option-pill-btn active" onclick="selectSingleOption('duration', 'full_day', this)">☀️ Trọn 1 ngày</div>
-                            <div class="option-pill-btn" onclick="selectSingleOption('duration', '2d1n', this)">🌙 2 Ngày 1 đêm</div>
+                            <div class="option-pill-btn" onclick="selectSingleOption('duration', '2d1n', this)">🌙 2N1Đ</div>
                         </div>
                     </div>
 
@@ -353,7 +227,7 @@ body {
                         <div class="mb-2">
                             <input type="date" id="journeyDateInput" class="date-picker-input" value="2026-08-05">
                         </div>
-                        <div class="d-flex gap-2 flex-wrap">
+                        <div class="option-pill-grid">
                             <div class="option-pill-btn active" onclick="setQuickDate('today', this)">⚡ Hôm nay</div>
                             <div class="option-pill-btn" onclick="setQuickDate('weekend', this)">📅 Cuối tuần</div>
                         </div>
@@ -363,7 +237,7 @@ body {
             </div>
 
             <!-- SUBMIT BUTTON -->
-            <div class="text-center mt-5">
+            <div class="text-center mt-5 pb-4">
                 <button type="submit" class="btn-submit-journey" id="btnSubmitForm">
                     PHÂN TÍCH LỘ TRÌNH TỐI ƯU <i class="bi bi-arrow-right"></i>
                 </button>

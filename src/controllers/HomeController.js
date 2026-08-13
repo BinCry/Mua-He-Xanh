@@ -110,7 +110,16 @@ class HomeController {
             const socialFeed = realReviews.map(r => {
                 let firstImage = null;
                 if (r.images) {
-                    try { firstImage = JSON.parse(r.images)[0] || null; } catch(e) {}
+                    try {
+                        if (typeof r.images === 'string') {
+                            const parsed = r.images.trim().startsWith('[') ? JSON.parse(r.images) : [r.images];
+                            firstImage = parsed[0] || null;
+                        } else if (Array.isArray(r.images)) {
+                            firstImage = r.images[0] || null;
+                        }
+                    } catch(e) {
+                        firstImage = r.images;
+                    }
                 }
                 return {
                     id: r.id,

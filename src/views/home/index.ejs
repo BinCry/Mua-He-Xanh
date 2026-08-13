@@ -356,43 +356,45 @@
     }
     @media (max-width: 767.98px) {
         .home-dest-card {
-            height: 185px !important;
+            height: 190px !important;
             border-radius: 12px !important;
-            display: flex !important;
-            flex-direction: column !important;
-            background: #ffffff !important;
-            border: 1px solid rgba(0,0,0,0.06) !important;
+            position: relative !important;
+            overflow: hidden !important;
         }
         .home-dest-img-wrap {
-            position: relative !important;
-            height: 125px !important;
-            flex-shrink: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
         }
         .home-dest-overlay {
-            display: none !important;
+            display: block !important;
+            background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.35) 65%, transparent 100%) !important;
+            z-index: 2 !important;
         }
         .home-dest-body {
-            position: relative !important;
-            height: 60px !important;
-            padding: 4px 6px !important;
-            background: #ffffff !important;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            text-align: center !important;
+            position: absolute !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            padding: 6px 8px !important;
+            z-index: 5 !important;
         }
         .home-dest-title {
-            color: #1e293b !important;
-            font-size: 0.72rem !important;
-            font-weight: 700 !important;
+            color: #ffffff !important;
+            font-size: 0.78rem !important;
+            font-weight: 800 !important;
             line-height: 1.25 !important;
-            margin-bottom: 0 !important;
+            margin-bottom: 2px !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;
             display: -webkit-box !important;
             -webkit-line-clamp: 2 !important;
-            -webkit-box-orient: vertical !overflow;
+            -webkit-box-orient: vertical !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
             white-space: normal !important;
+            word-break: break-word !important;
         }
         .home-dest-desc {
             display: none !important;

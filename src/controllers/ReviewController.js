@@ -67,9 +67,28 @@ const ReviewController = {
             const id = uuidv4();
             let images = null;
             if (req.file) {
-                const { uploadToCloudinary } = require('../config/cloudinary');
-                const result = await uploadToCloudinary(req.file.path, 'binh-loi/reviews');
-                images = JSON.stringify([result.url]);
+                let savedPath = null;
+                if (req.file.filename) {
+                    savedPath = '/uploads/' + req.file.filename;
+                } else if (req.file.path) {
+                    const rel = req.file.path.replace(/\\/g, '/');
+                    const match = rel.match(/\/uploads\/.+/i);
+                    savedPath = match ? match[0] : ('/' + rel);
+                }
+
+                try {
+                    const { uploadToCloudinary } = require('../config/cloudinary');
+                    const result = await uploadToCloudinary(req.file.path || req.file.buffer, 'binh-loi/reviews');
+                    if (result && (result.secure_url || result.url)) {
+                        savedPath = result.secure_url || result.url;
+                    }
+                } catch(e) {
+                    console.log('Cloudinary fallback to local upload path:', savedPath);
+                }
+
+                if (savedPath) {
+                    images = JSON.stringify([savedPath]);
+                }
             }
 
             let locationName = null;
