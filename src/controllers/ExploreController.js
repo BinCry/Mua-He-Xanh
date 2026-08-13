@@ -146,19 +146,6 @@ class ExploreController {
             );
             const totalLikes = parseInt(likesCountRows[0]?.count || 0, 10);
 
-            const [destinationReviews] = await Destination.db.query(
-                `SELECT r.id, r.content, r.rating, r.images, r.created_at,
-                        (SELECT COUNT(*) FROM review_likes WHERE review_id = r.id) as likes_count,
-                        COALESCE(u.full_name, 'Du khách Bình Lợi') as full_name,
-                        COALESCE(u.avatar, '/images/default-avatar.png') as avatar
-                 FROM reviews r
-                 LEFT JOIN users u ON r.user_id = u.id
-                 WHERE r.destination_id = $1 OR r.location_name ILIKE $2
-                 ORDER BY r.created_at DESC
-                 LIMIT 20`,
-                [dest.id, `%${dest.name}%`]
-            );
-
             res.render('explore/show', {
                 title: dest.name,
                 dest: dest,
@@ -167,8 +154,7 @@ class ExploreController {
                 galleryImages: galleryImages,
                 hasLiked: hasLiked,
                 hasSaved: hasSaved,
-                totalLikes: totalLikes,
-                destinationReviews: destinationReviews
+                totalLikes: totalLikes
             });
         } catch (error) {
             console.error("Explore show error:", error);
