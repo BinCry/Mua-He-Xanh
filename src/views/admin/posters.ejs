@@ -144,10 +144,10 @@ async function savePoster(e) {
         };
         const res = await axios.post('/admin/posters', data);
         if (res.data.success) {
-            alert('Đã lưu Poster thành công!');
-            location.reload();
+            showAdminToast('Đã lưu Poster thành công!', 'success');
+            setTimeout(() => { location.reload(); }, 800);
         } else {
-            alert(res.data.message || 'Lưu thất bại.');
+            showAdminToast(res.data.message || 'Lưu thất bại.', 'error');
         }
     } catch (err) {
         alert('Lỗi lưu Poster: ' + (err.response?.data?.message || err.message));
