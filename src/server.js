@@ -39,6 +39,17 @@ app.get('/api/health', async (req, res) => {
     res.json(info);
 });
 
+// Auto-patch DB schema for guest comments & likes
+(async () => {
+    try {
+        const db = require('./core/database');
+        await db.query(`ALTER TABLE review_comments ADD COLUMN IF NOT EXISTS guest_uuid VARCHAR(255)`);
+        await db.query(`ALTER TABLE review_likes ADD COLUMN IF NOT EXISTS guest_uuid VARCHAR(255)`);
+    } catch(e) {
+        console.warn('Auto DB schema patch error:', e.message);
+    }
+})();
+
 // Root directory - works on both local and Vercel serverless
 const ROOT_DIR = path.join(__dirname, '..');
 
@@ -186,7 +197,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '3.0.0'; 
+    res.locals.assetV = '3.1.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
