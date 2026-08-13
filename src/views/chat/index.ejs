@@ -77,21 +77,21 @@
                 if (isMe) {
                     // SENT BY TOURIST: Aligned RIGHT, Facebook Messenger Maroon Pill
                     html += `
-                        <div class="message-sent mb-2.5 d-flex justify-content-end">
-                            <div class="p-2.5 px-3.5 text-white shadow-2xs" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important;">
-                                ${escapeHtml(msg.message)}
-                                <div class="x-small opacity-75 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
+                        <div class="message-sent mb-3 d-flex justify-content-end">
+                            <div class="p-3 px-3.5 text-white shadow-sm" style="min-width: 90px; max-width: 78%; font-size: 0.92rem; line-height: 1.5; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 20px 20px 4px 20px !important; word-break: break-word; box-shadow: 0 4px 12px rgba(146, 39, 36, 0.2) !important;">
+                                <div style="font-weight: 500;">${escapeHtml(msg.message)}</div>
+                                <div class="x-small opacity-75 text-end mt-1" style="font-size: 10px; font-weight: 600;">${timeStr}</div>
                             </div>
                         </div>
                     `;
                 } else {
                     // RECEIVED FROM ADMIN / MANAGER: Aligned LEFT with Logo Avatar
                     html += `
-                        <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
-                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
-                            <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
-                                ${escapeHtml(msg.message)}
-                                <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
+                        <div class="message-received mb-3 d-flex gap-2 align-items-end">
+                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-sm" style="width: 34px; height: 34px; object-fit: cover;" onerror="this.src='/images/logo.png'">
+                            <div class="p-3 px-3.5 bg-white text-dark shadow-sm border" style="min-width: 90px; max-width: 78%; font-size: 0.92rem; line-height: 1.5; border-radius: 20px 20px 20px 4px !important; word-break: break-word;">
+                                <div style="font-weight: 500;">${escapeHtml(msg.message)}</div>
+                                <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px; font-weight: 600;">${timeStr}</div>
                             </div>
                         </div>
                     `;
