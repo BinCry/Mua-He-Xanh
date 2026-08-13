@@ -48,10 +48,21 @@ class OnboardingController {
                 await UserSession.create(sessionData);
             }
 
-            return res.json({ success: true, redirect: '/journey/suggestions' });
+            const isJson = req.xhr || 
+                           (req.headers.accept && req.headers.accept.includes('application/json')) || 
+                           (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
+
+            if (isJson) {
+                return res.json({ success: true, redirect: '/journey/suggestions' });
+            }
+            return res.redirect('/journey/suggestions');
         } catch (e) {
             console.error("Onboarding submit error:", e);
-            return res.json({ success: false, message: e.message });
+            const isJson = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'));
+            if (isJson) {
+                return res.json({ success: false, redirect: '/journey/suggestions', message: e.message });
+            }
+            return res.redirect('/journey/suggestions');
         }
     }
 }

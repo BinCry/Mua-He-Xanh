@@ -258,7 +258,7 @@ body {
 
     <!-- MAIN FORM CARD -->
     <div class="onboarding-card-wrapper">
-        <form id="onboardingForm" onsubmit="handleOnboardingSubmit(event)">
+        <form id="onboardingForm" action="/onboarding" method="POST" onsubmit="handleOnboardingSubmit(event)">
 
             <!-- SECTION 1: BẠN ĐANG TÌM KIẾM CẢM GIÁC GÌ? -->
             <div class="mb-5">
@@ -444,31 +444,32 @@ function setQuickDate(type, element) {
 function handleOnboardingSubmit(e) {
     e.preventDefault();
     const btn = document.getElementById('btnSubmitForm');
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG PHÂN TÍCH...';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> ĐANG PHÂN TÍCH LỘ TRÌNH...';
+    }
 
     const payload = {
         mood: selectedMoods,
         pax: selectedPax,
         budget: selectedBudget,
         duration: selectedDuration,
-        date: document.getElementById('journeyDateInput').value
+        date: document.getElementById('journeyDateInput') ? document.getElementById('journeyDateInput').value : ''
     };
 
-    axios.post('/onboarding', payload)
-        .then(res => {
-            if (typeof res.data === 'string' && res.data.includes('login')) {
-                window.location.href = '/auth/login?error=auth_required';
-                return;
-            }
-            if (res.data && res.data.redirect) {
-                window.location.href = res.data.redirect;
-                return;
-            }
-            window.location.href = '/journey/suggestions';
-        })
-        .catch(err => {
-            window.location.href = '/journey/suggestions';
-        });
+    axios.post('/onboarding', payload, {
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+    })
+    .then(res => {
+        if (res.data && res.data.redirect) {
+            window.location.href = res.data.redirect;
+            return;
+        }
+        window.location.href = '/journey/suggestions';
+    })
+    .catch(err => {
+        console.error("Onboarding submit error:", err);
+        window.location.href = '/journey/suggestions';
+    });
 }
 </script>
