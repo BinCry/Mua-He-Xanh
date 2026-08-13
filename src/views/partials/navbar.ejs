@@ -314,10 +314,25 @@
                 <i class="bi bi-envelope-heart-fill"></i> HỘP THƯ HỖ TRỢ
             </a>
             <% const currentUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
-            <% if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager')) { %>
-            <a class="mobile-light-link" href="<%= currentUser.role === 'admin' ? '/admin' : '/manager' %>">
-                <i class="bi bi-shield-check"></i> TRANG QUẢN TRỊ
-            </a>
+            <% if (currentUser) { %>
+                <% if (currentUser.role === 'admin' || currentUser.role === 'manager') { %>
+                <a class="mobile-light-link" href="<%= currentUser.role === 'admin' ? '/admin' : '/manager' %>">
+                    <i class="bi bi-shield-check"></i> TRANG QUẢN TRỊ
+                </a>
+                <% } else { %>
+                <a class="mobile-light-link <%= mPath.startsWith('/profile') ? 'active' : '' %>" href="/profile">
+                    <i class="bi bi-person-circle"></i> TRANG CÁ NHÂN
+                </a>
+                <% } %>
+                <a class="mobile-light-link text-danger mt-2" href="/auth/logout">
+                    <i class="bi bi-box-arrow-right"></i> ĐĂNG XUẤT
+                </a>
+            <% } else { %>
+                <div class="pt-3 border-top mt-3">
+                    <a class="btn btn-danger w-100 rounded-pill py-2.5 fw-bold text-white shadow-sm" href="/auth/login" style="background: var(--primary); font-size: 0.9rem;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> ĐĂNG NHẬP TÀI KHOẢN
+                    </a>
+                </div>
             <% } %>
         </div>
     </div>
