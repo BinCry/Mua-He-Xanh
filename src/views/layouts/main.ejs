@@ -28,9 +28,12 @@
     <link rel="stylesheet" href="/css/style-v5.css?v=<%= assetV %>">
     
     
-    <!-- PWA Meta Tags & iOS Compatibility -->
+    <!-- Favicon & Brand Icons -->
+    <link rel="icon" type="image/svg+xml" href="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>">
+    <link rel="icon" type="image/png" href="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>">
+    <link rel="shortcut icon" href="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>">
+    <link rel="apple-touch-icon" href="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>">
     <meta name="theme-color" content="#922724">
-    <link rel="apple-touch-icon" href="<%= fixImg(settings.brand_logo, '/images/logo.png') %>">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Bình Lợi">
@@ -81,7 +84,7 @@
     <div id="pwaInstallBanner" class="pwa-install-banner d-none animate__animated animate__slideInUp">
         <div class="d-flex align-items-center justify-content-between w-100 p-3">
             <div class="d-flex align-items-center gap-2">
-                <img src="/images/logo.png" alt="Logo" class="rounded-3" style="width: 40px; height: 40px; border: 1px solid rgba(0,0,0,0.1);" onerror="this.src='/images/logo.png'">
+                <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" alt="Logo" style="width: 36px; height: 36px; object-fit: contain;" onerror="this.src='/images/logo.svg'">
                 <div>
                     <div class="fw-bold text-dark" style="font-size: 0.85rem; line-height: 1.2;">Ứng dụng Bình Lợi</div>
                     <div class="text-muted" style="font-size: 0.72rem;">Thêm vào màn hình chính để sử dụng mượt mà hơn</div>

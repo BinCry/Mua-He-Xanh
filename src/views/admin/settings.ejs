@@ -114,18 +114,14 @@
 // Helper function to compress images client-side while preserving PNG/WebP alpha transparency
 function compressImage(file, maxWidth = 1200, quality = 0.8) {
     return new Promise((resolve) => {
-        if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
-            resolve(file);
+        const isTransparent = file.type === 'image/png' || file.type === 'image/svg+xml' || file.type === 'image/webp' || 
+                              /\.(png|svg|webp)$/i.test(file.name);
+        if (!file.type.startsWith('image/') || isTransparent) {
+            resolve(file); // Preserve transparent files 100% untouched
             return;
         }
 
         let outputType = 'image/jpeg';
-        if (file.type === 'image/png' || file.name.toLowerCase().endsWith('.png')) {
-            outputType = 'image/png';
-        } else if (file.type === 'image/webp' || file.name.toLowerCase().endsWith('.webp')) {
-            outputType = 'image/webp';
-        }
-
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (e) => {
@@ -142,7 +138,9 @@ function compressImage(file, maxWidth = 1200, quality = 0.8) {
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
-                ctx.clearRect(0, 0, width, height); // Preserve transparent alpha background
+                // Fill background white for JPEGs so transparent areas never turn black
+                ctx.fillStyle = '#ffffff';
+                ctx.fillRect(0, 0, width, height);
                 ctx.drawImage(img, 0, 0, width, height);
                 canvas.toBlob((blob) => {
                     if (blob && blob.size < file.size) {
@@ -173,8 +171,10 @@ async function uploadLogo(input) {
     
     try {
         const file = input.files[0];
-        // Bỏ qua nén JPEG với PNG/SVG logo để giữ nguyên 100% nền trong suốt
-        const fileToUpload = (file.type === 'image/png' || file.type === 'image/svg+xml') ? file : await compressImage(file, 800, 0.85);
+        // Send raw file directly for transparent logos (PNG, SVG, WEBP) to preserve 100% alpha transparency
+        const isTransparentFormat = file.type === 'image/png' || file.type === 'image/svg+xml' || file.type === 'image/webp' || 
+                                     /\.(png|svg|webp)$/i.test(file.name);
+        const fileToUpload = isTransparentFormat ? file : await compressImage(file, 800, 0.85);
         const formData = new FormData();
         formData.append('image', fileToUpload);
 
