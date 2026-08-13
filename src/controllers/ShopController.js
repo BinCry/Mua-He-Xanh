@@ -2,7 +2,7 @@ const Workshop = require('../models/Workshop');
 const db = require('../core/database');
 const NotificationController = require('./NotificationController');
 
-const WorkshopController = {
+const ShopController = {
 
     // GET /shops - Danh sách sản phẩm Shop
     index: async (req, res) => {
@@ -61,7 +61,7 @@ const WorkshopController = {
                 banh: '🍰 Bánh Dân Gian', ecology: '🌿 Sinh Thái', culture: '🎭 Văn Hóa', other: '✨ Khác'
             };
 
-            res.render('workshop/index', {
+            res.render('shop/index', {
                 title: 'Shop & Sản Phẩm',
                 workshops,
                 typeFilter,
@@ -93,7 +93,7 @@ const WorkshopController = {
                 userBookings = allBookings.filter(b => b.workshop_id === workshop.id);
             }
 
-            res.render('workshop/show', {
+            res.render('shop/show', {
                 title: workshop.title,
                 workshop,
                 stats,
@@ -313,7 +313,7 @@ const WorkshopController = {
 
             const bookings = await Workshop.getBookingsByUser(user.id);
 
-            res.render('workshop/my-bookings', {
+            res.render('shop/my-bookings', {
                 title: 'Đơn hàng Shop của tôi',
                 bookings
             });
@@ -324,4 +324,4 @@ const WorkshopController = {
     }
 };
 
-module.exports = WorkshopController;
+module.exports = ShopController;

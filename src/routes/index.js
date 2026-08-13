@@ -16,7 +16,7 @@ const MapController = require('../controllers/MapController');
 const PassportController = require('../controllers/PassportController');
 const ChatController = require('../controllers/ChatController');
 const AuthController = require('../controllers/AuthController');
-const WorkshopController = require('../controllers/WorkshopController');
+const ShopController = require('../controllers/ShopController');
 const ProfileController = require('../controllers/ProfileController');
 const AdminController = require('../controllers/AdminController');
 const ReviewController = require('../controllers/ReviewController');
@@ -173,13 +173,13 @@ router.get('/explore/audio/:slug', ExploreController.audio);
 router.get('/explore/:slug', ExploreController.show);
 
 // ===== SHOP =====
-router.get('/shops', WorkshopController.index);
-router.get('/shops/:id', WorkshopController.show);
-router.get('/my-shops', ensureAuthenticated, WorkshopController.myBookings);
-router.get('/api/shop/slots', WorkshopController.getSlots);
-router.post('/api/shop/book', ensureAuthenticated, WorkshopController.book);
-router.post('/api/shop/cancel', ensureAuthenticated, WorkshopController.cancel);
-router.post('/api/shop/review', ensureAuthenticated, WorkshopController.review);
+router.get('/shops', ShopController.index);
+router.get('/shops/:id', ShopController.show);
+router.get('/my-shops', ensureAuthenticated, ShopController.myBookings);
+router.get('/api/shop/slots', ShopController.getSlots);
+router.post('/api/shop/book', ensureAuthenticated, ShopController.book);
+router.post('/api/shop/cancel', ensureAuthenticated, ShopController.cancel);
+router.post('/api/shop/review', ensureAuthenticated, ShopController.review);
 // Legacy workshop redirects
 router.get('/workshops', (req, res) => res.redirect(301, '/shops'));
 router.get('/workshops/:id', (req, res) => res.redirect(301, '/shops/' + req.params.id));
