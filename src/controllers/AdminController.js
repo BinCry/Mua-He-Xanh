@@ -235,7 +235,7 @@ const AdminController = {
                 title: 'Quản lý Shop & Sản Phẩm',
                 workshops,
                 destinations,
-                activeMenu: 'workshops'
+                activeMenu: 'shops'
             });
         } catch (error) {
             console.error('Admin workshops error:', error);

@@ -191,7 +191,7 @@
                     </li>
                     <li class="nav-item"><a class="nav-link <%= path.startsWith('/explore') ? 'active' : '' %>"
                             href="/explore">Khám phá</a></li>
-                    <li class="nav-item"><a class="nav-link <%= (path.startsWith('/workshops') || path.startsWith('/shops')) ? 'active' : '' %>"
+                    <li class="nav-item"><a class="nav-link <%= path.startsWith('/shops') ? 'active' : '' %>"
                             href="/shops">Shop</a></li>
                     <li class="nav-item"><a class="nav-link <%= path.startsWith('/reviews') ? 'active' : '' %>"
                             href="/reviews">Cộng đồng</a></li>
@@ -298,7 +298,7 @@
             <a class="mobile-light-link <%= mPath.startsWith('/explore') ? 'active' : '' %>" href="/explore">
                 <i class="bi bi-compass-fill"></i> KHÁM PHÁ
             </a>
-            <a class="mobile-light-link <%= (mPath.startsWith('/workshops') || mPath.startsWith('/shops')) ? 'active' : '' %>" href="/shops">
+            <a class="mobile-light-link <%= mPath.startsWith('/shops') ? 'active' : '' %>" href="/shops">
                 <i class="bi bi-shop"></i> SHOP
             </a>
             <a class="mobile-light-link <%= mPath.startsWith('/reviews') ? 'active' : '' %>" href="/reviews">

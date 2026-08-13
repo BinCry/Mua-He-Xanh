@@ -4,7 +4,7 @@ const NotificationController = require('./NotificationController');
 
 const WorkshopController = {
 
-    // GET /workshops - Danh sách workshop
+    // GET /shops - Danh sách sản phẩm Shop
     index: async (req, res) => {
         try {
             const typeFilter = req.query.type || null;
@@ -69,12 +69,12 @@ const WorkshopController = {
                 searchQuery
             });
         } catch (error) {
-            console.error('Workshop index error:', error);
+            console.error('Shop index error:', error);
             res.status(500).send('Lỗi hệ thống');
         }
     },
 
-    // GET /workshops/:id - Chi tiết workshop + form đăng ký
+    // GET /shops/:id - Chi tiết sản phẩm + form đặt mua
     show: async (req, res) => {
         try {
             const workshop = await Workshop.getById(req.params.id);
@@ -101,21 +101,21 @@ const WorkshopController = {
                 userBookings
             });
         } catch (error) {
-            console.error('Workshop show error:', error);
+            console.error('Shop show error:', error);
             res.status(500).send('Lỗi hệ thống');
         }
     },
 
-    // GET /api/workshop/slots - Kiểm tra số chỗ trống
+    // GET /api/shop/slots - Kiểm tra số lượng tồn kho
     getSlots: async (req, res) => {
         try {
             const { workshopId, date } = req.query;
             if (!workshopId || !date) {
-                return res.status(400).json({ success: false, message: 'Thiếu thông tin workshop hoặc ngày.' });
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin sản phẩm hoặc ngày.' });
             }
             const workshop = await Workshop.getById(workshopId);
             if (!workshop) {
-                return res.status(404).json({ success: false, message: 'Workshop không tồn tại.' });
+                return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại.' });
             }
             const bookedSeats = await Workshop.getBookedParticipants(workshopId, date);
             const remaining = Math.max(0, workshop.max_participants - bookedSeats);
@@ -127,17 +127,17 @@ const WorkshopController = {
                 remaining: remaining
             });
         } catch (error) {
-            console.error('Workshop slots error:', error);
+            console.error('Shop slots error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống khi kiểm tra số chỗ trống.' });
         }
     },
 
-    // POST /api/workshop/book - Đặt chỗ workshop
+    // POST /api/shop/book - Đặt mua sản phẩm
     book: async (req, res) => {
         try {
             const user = req.user || req.session.user;
             if (!user) {
-                return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để đặt workshop' });
+                return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để đặt mua sản phẩm' });
             }
 
             const { workshop_id, booking_date, booking_time, num_people, note } = req.body;
@@ -148,7 +148,7 @@ const WorkshopController = {
 
             const workshop = await Workshop.getById(workshop_id);
             if (!workshop) {
-                return res.status(404).json({ success: false, message: 'Workshop không tồn tại' });
+                return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại' });
             }
 
             // Check capacity
@@ -159,7 +159,7 @@ const WorkshopController = {
             if (bookedSeats + requestedSeats > workshop.max_participants) {
                 return res.status(400).json({ 
                     success: false, 
-                    message: `Xin lỗi, lớp học đã đạt giới hạn người tham gia vào ngày này (chỉ còn ${remainingSeats > 0 ? remainingSeats : 0} chỗ trống)` 
+                    message: `Xin lỗi, sản phẩm đã hết hàng vào ngày này (chỉ còn ${remainingSeats > 0 ? remainingSeats : 0} sản phẩm)` 
                 });
             }
 
@@ -183,10 +183,10 @@ const WorkshopController = {
 
             // Send notification to visitor
             await NotificationController.create(
-                user.id, 'workshop',
-                `Đặt workshop thành công!`,
-                `Bạn đã đăng ký "${workshop.title}". Mã vé: ${booking.qr_ticket}. +50 điểm`,
-                '/my-workshops'
+                user.id, 'shop',
+                `Đặt mua sản phẩm thành công!`,
+                `Bạn đã đặt mua "${workshop.title}". Mã đơn: ${booking.qr_ticket}. +50 điểm`,
+                '/my-shops'
             );
 
             // Send notification to Destination Manager
@@ -197,10 +197,10 @@ const WorkshopController = {
                 );
                 for (let mgr of managers) {
                     await NotificationController.create(
-                        mgr.id, 'workshop',
-                        `Khách mới đăng ký Workshop!`,
-                        `${user.full_name || 'Khách hàng'} vừa đăng ký "${workshop.title}" (${requestedSeats} người). Mã vé: ${booking.qr_ticket}`,
-                        '/manager/workshops'
+                        mgr.id, 'shop',
+                        `Khách mới đặt mua sản phẩm!`,
+                        `${user.full_name || 'Khách hàng'} vừa đặt mua "${workshop.title}" (${requestedSeats} sản phẩm). Mã đơn: ${booking.qr_ticket}`,
+                        '/manager/shops'
                     );
                 }
             } catch (e) { console.error('Notify manager book error:', e); }
@@ -211,12 +211,12 @@ const WorkshopController = {
                 booking: booking
             });
         } catch (error) {
-            console.error('Workshop book error:', error);
+            console.error('Shop book error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đặt chỗ' });
         }
     },
 
-    // POST /api/workshop/cancel - Hủy đặt chỗ workshop
+    // POST /api/shop/cancel - Hủy đơn đặt mua sản phẩm
     cancel: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -254,10 +254,10 @@ const WorkshopController = {
 
             // Send notification to visitor
             await NotificationController.create(
-                user.id, 'workshop',
-                `Đã hủy đặt workshop`,
-                `Bạn đã hủy đăng ký "${booking.workshop_title || 'workshop'}". Điểm thưởng trừ 50đ.`,
-                '/my-workshops'
+                user.id, 'shop',
+                `Đã hủy đơn đặt mua`,
+                `Bạn đã hủy đơn "${booking.workshop_title || 'sản phẩm'}". Điểm thưởng trừ 50đ.`,
+                '/my-shops'
             );
 
             // Send notification to Destination Manager
@@ -268,22 +268,22 @@ const WorkshopController = {
                 );
                 for (let mgr of managers) {
                     await NotificationController.create(
-                        mgr.id, 'workshop',
-                        `Khách hàng hủy đăng ký Workshop`,
-                        `${user.full_name || 'Khách hàng'} đã hủy vé đăng ký "${booking.workshop_title || 'workshop'}".`,
-                        '/manager/workshops'
+                        mgr.id, 'shop',
+                        `Khách hàng hủy đơn đặt mua`,
+                        `${user.full_name || 'Khách hàng'} đã hủy đơn "${booking.workshop_title || 'sản phẩm'}".`,
+                        '/manager/shops'
                     );
                 }
             } catch (e) { console.error('Notify manager cancel error:', e); }
 
             res.json({ success: true, message: 'Đã hủy đặt chỗ thành công.' });
         } catch (error) {
-            console.error('Workshop cancel error:', error);
+            console.error('Shop cancel error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống khi hủy đặt chỗ' });
         }
     },
 
-    // POST /api/workshop/review - Đánh giá sau workshop
+    // POST /api/shop/review - Đánh giá sản phẩm
     review: async (req, res) => {
         try {
             const user = req.user || req.session.user;
@@ -300,12 +300,12 @@ const WorkshopController = {
 
             res.json({ success: true, message: 'Cảm ơn đánh giá của bạn! +30 điểm' });
         } catch (error) {
-            console.error('Workshop review error:', error);
+            console.error('Shop review error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
         }
     },
 
-    // GET /my-workshops - Lịch sử đặt chỗ của du khách
+    // GET /my-shops - Lịch sử đơn hàng của du khách
     myBookings: async (req, res) => {
         try {
             const user = req.user || req.session.user;

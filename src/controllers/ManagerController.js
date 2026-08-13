@@ -437,7 +437,7 @@ class ManagerController {
 
             const { title, description, type, price, duration, max_participants, image, start_date, end_date } = req.body;
             if (!title) {
-                return res.status(400).json({ success: false, message: 'Tên workshop là bắt buộc.' });
+                return res.status(400).json({ success: false, message: 'Tên sản phẩm là bắt buộc.' });
             }
 
             await UserSession.db.query(
@@ -446,9 +446,9 @@ class ManagerController {
                 [uuidv4(), destId, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
             );
 
-            res.json({ success: true, message: 'Đã tạo workshop thành công!' });
+            res.json({ success: true, message: 'Đã tạo sản phẩm thành công!' });
         } catch (error) {
-            console.error("Manager create workshop error:", error);
+            console.error("Manager create shop product error:", error);
             res.status(500).json({ success: false, message: error.message });
         }
     }
@@ -460,7 +460,7 @@ class ManagerController {
             
             const { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active } = req.body;
             if (!id) {
-                return res.status(400).json({ success: false, message: 'Thiếu mã workshop.' });
+                return res.status(400).json({ success: false, message: 'Thiếu mã sản phẩm.' });
             }
 
             const [check] = await UserSession.db.query(
@@ -469,11 +469,11 @@ class ManagerController {
             );
 
             if (check.length === 0) {
-                return res.status(404).json({ success: false, message: 'Không tìm thấy workshop.' });
+                return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
             }
 
             if (user.role !== 'admin' && check[0].destination_id !== destId) {
-                return res.status(403).json({ success: false, message: 'Bạn không có quyền chỉnh sửa workshop này.' });
+                return res.status(403).json({ success: false, message: 'Bạn không có quyền chỉnh sửa sản phẩm này.' });
             }
 
             await UserSession.db.query(
@@ -483,9 +483,9 @@ class ManagerController {
                 [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined ? is_active : 1, id]
             );
 
-            res.json({ success: true, message: 'Cập nhật workshop thành công!' });
+            res.json({ success: true, message: 'Cập nhật sản phẩm thành công!' });
         } catch (error) {
-            console.error("Manager update workshop error:", error);
+            console.error("Manager update shop product error:", error);
             res.status(500).json({ success: false, message: error.message });
         }
     }
@@ -497,7 +497,7 @@ class ManagerController {
             const { id } = req.body;
 
             if (!id) {
-                return res.status(400).json({ success: false, message: 'Thiếu mã workshop.' });
+                return res.status(400).json({ success: false, message: 'Thiếu mã sản phẩm.' });
             }
 
             const [check] = await UserSession.db.query(
@@ -506,17 +506,17 @@ class ManagerController {
             );
 
             if (check.length === 0) {
-                return res.status(404).json({ success: false, message: 'Không tìm thấy workshop.' });
+                return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
             }
 
             if (user.role !== 'admin' && check[0].destination_id !== destId) {
-                return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa workshop này.' });
+                return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa sản phẩm này.' });
             }
 
             await UserSession.db.query("DELETE FROM workshops WHERE id = $1", [id]);
-            res.json({ success: true, message: 'Đã xóa workshop.' });
+            res.json({ success: true, message: 'Đã xóa sản phẩm.' });
         } catch (error) {
-            console.error("Manager delete workshop error:", error);
+            console.error("Manager delete shop product error:", error);
             res.status(500).json({ success: false, message: error.message });
         }
     }
@@ -525,7 +525,7 @@ class ManagerController {
         try {
             const { workshop_id } = req.query;
             if (!workshop_id) {
-                return res.status(400).json({ success: false, message: 'Thiếu workshop_id' });
+                return res.status(400).json({ success: false, message: 'Thiếu mã sản phẩm' });
             }
             const [bookings] = await UserSession.db.query(`
                 SELECT wb.*, u.full_name, u.email, u.phone, u.avatar
