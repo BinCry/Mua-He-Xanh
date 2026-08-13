@@ -57,17 +57,11 @@
                             <img src="<%= fixImg(ws.image, '/images/hero-2.png') %>" alt="<%= ws.title %>" class="w-100 h-100 shop-img" style="object-fit: cover; object-position: center;">
                         </a>
                         
-                        <!-- Top Left Badge (OCOP / Tag matching screenshot) -->
+                        <!-- Top Left Badge (Bình Lợi Tag) -->
                         <div class="position-absolute top-0 start-0 m-3" style="z-index: 5;">
-                            <% if (ws.title.includes('OCOP') || ws.type === 'ecology') { %>
-                                <span class="badge bg-success rounded-pill px-3 py-1.5 fw-bold shadow-sm" style="font-size: 0.72rem; letter-spacing: 0.5px; background: #15803d !important;">
-                                    OCOP ★★★★
-                                </span>
-                            <% } else { %>
-                                <span class="badge bg-dark bg-opacity-75 rounded-pill px-3 py-1.5 fw-bold shadow-sm text-capitalize" style="font-size: 0.72rem;">
-                                    <%= typeLabels[ws.type] || ws.type %>
-                                </span>
-                            <% } %>
+                            <span class="badge bg-dark bg-opacity-75 rounded-pill px-3 py-1.5 fw-bold shadow-sm" style="font-size: 0.72rem; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.85) !important; color: #ffffff !important;">
+                                ✨ Bình Lợi
+                            </span>
                         </div>
                     </div>
 
