@@ -196,10 +196,10 @@ router.get('/reviews/video-editor', ensureAuthenticated, ReviewController.videoE
 router.get('/map', MapController.index);
 
 // ===== JOURNEY =====
-router.get(['/journey', '/hanh-trinh'], (req, res) => res.redirect('/onboarding'));
-router.get(['/hanh-trinh-cua-toi', '/journey/story', '/journey/view', '/journey/my-journey', '/journey/create', '/journey/show', '/journey/detail'], JourneyController.index);
-router.all(['/journey/suggestions', '/journey/de-xuat'], JourneyController.suggestions);
-router.all(['/journey/confirm', '/journey/xac-nhan'], JourneyController.confirm);
+router.all(['/journey', '/journey/', '/hanh-trinh', '/hanh-trinh/'], (req, res) => res.redirect('/onboarding'));
+router.all(['/hanh-trinh-cua-toi', '/hanh-trinh-cua-toi/', '/journey/story', '/journey/story/', '/journey/view', '/journey/my-journey', '/journey/create', '/journey/show', '/journey/detail'], JourneyController.index);
+router.all(['/journey/suggestions', '/journey/suggestions/', '/journey/de-xuat', '/journey/de-xuat/'], JourneyController.suggestions);
+router.all(['/journey/confirm', '/journey/confirm/', '/journey/xac-nhan', '/journey/xac-nhan/'], JourneyController.confirm);
 router.all(['/api/journey/lock-toggle', '/journey/lock-toggle'], JourneyController.lockJourney);
 router.all(['/api/journey/delete', '/journey/delete'], JourneyController.deleteSavedJourney);
 router.get('/journey/load-template/:id', JourneyController.loadTemplate);

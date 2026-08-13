@@ -73,20 +73,21 @@ app.use(cors());
 const compression = require('compression');
 app.use(compression());
 
-// Aggressive Edge CDN caching to minimize server load
+// Aggressive Edge CDN caching for static assets only; NEVER cache dynamic user pages on Edge CDN
 app.use((req, res, next) => {
     if (req.method !== 'GET') return next();
-    const p = req.path;
+    const p = req.path.toLowerCase();
     // Static assets: cache 1 year on Edge + browser
     if (p.match(/\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-    // Public pages: cache 5 min on Edge, serve stale up to 24h while refreshing in background
-    } else if (!p.startsWith('/admin') && !p.startsWith('/manager') && !p.startsWith('/auth') && !p.startsWith('/profile') && !p.startsWith('/api/')) {
-        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=300, stale-while-revalidate=86400');
-    // Admin/auth/API: never cache
+    // Public landing pages: cache 1 minute on Edge
+    } else if (p === '/') {
+        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
+    // Dynamic user/session pages (journey, profile, auth, admin, api, passport, chat, onboarding, etc.): NEVER cache on Edge CDN
     } else {
         res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
     }
     next();
 });
@@ -200,7 +201,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '11.0.0'; 
+    res.locals.assetV = '12.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
