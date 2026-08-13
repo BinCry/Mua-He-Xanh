@@ -173,15 +173,15 @@ const ReviewController = {
             const userId = user?.id || null;
             const guestUuid = !userId ? sessionUuid : null;
 
-            const { review_id, comment } = req.body;
+            const { review_id, comment, parent_id } = req.body;
             if (!comment || !comment.trim()) {
                 return res.status(400).json({ success: false, message: 'Nội dung bình luận không được để trống.' });
             }
 
             const commentId = uuidv4();
             await db.query(
-                'INSERT INTO review_comments (id, review_id, user_id, guest_uuid, content, created_at) VALUES ($1, $2, $3, $4, $5, NOW())',
-                [commentId, review_id, userId, guestUuid, comment.trim()]
+                'INSERT INTO review_comments (id, review_id, user_id, guest_uuid, parent_id, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
+                [commentId, review_id, userId, guestUuid, parent_id || null, comment.trim()]
             );
             await db.query('UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1', [review_id]);
 
@@ -192,6 +192,7 @@ const ReviewController = {
                 count: parseInt(revResult[0]?.comments_count || 0, 10),
                 comment: {
                     id: commentId,
+                    parent_id: parent_id || null,
                     content: comment.trim(),
                     created_at: new Date().toISOString(),
                     full_name: user ? user.full_name : 'Du khách Bình Lợi',
@@ -210,7 +211,7 @@ const ReviewController = {
             if (!review_id) return res.json({ success: true, data: [] });
 
             const [comments] = await db.query(`
-                SELECT c.id, c.content, c.created_at,
+                SELECT c.id, c.review_id, c.parent_id, c.content, c.created_at,
                        COALESCE(u.full_name, 'Du khách Bình Lợi') as full_name,
                        COALESCE(u.avatar, '/images/default-avatar.png') as avatar
                 FROM review_comments c

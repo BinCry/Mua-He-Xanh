@@ -202,6 +202,7 @@
                     <div class="comments-list mb-3 d-flex flex-column gap-2" id="comments-list-<%= r.id %>">
                         <div class="text-center py-2 text-muted small">Đang tải bình luận...</div>
                     </div>
+                    <div id="reply-target-<%= r.id %>" class="d-none alert alert-warning py-1 px-3 mb-2 small d-flex align-items-center justify-content-between rounded-pill"></div>
                     <form onsubmit="submitComment(event, '<%= r.id %>')" class="d-flex gap-2">
                         <input type="text" class="form-control form-control-sm rounded-pill border px-3" id="comment-input-<%= r.id %>" placeholder="Viết bình luận của bạn..." required>
                         <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold text-white flex-shrink-0" style="background: var(--primary);">Gửi</button>
@@ -221,6 +222,8 @@
 </section>
 
 <script>
+    const activeParentId = {};
+
     // Preview selected image instantly
     function previewImage(input) {
         if (input.files && input.files[0]) {
@@ -315,15 +318,44 @@
         try {
             const res = await axios.get(`/api/reviews/comments?review_id=${reviewId}`);
             if (res.data.success && res.data.data.length > 0) {
-                list.innerHTML = res.data.data.map(c => `
-                    <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs border-start border-3 border-primary">
-                        <img src="${c.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 28px; height: 28px; object-fit: cover;">
-                        <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
-                            <span class="fw-bold d-block text-dark" style="font-size: 0.8rem;">${c.full_name}</span>
-                            <span class="text-secondary">${c.content}</span>
+                const allComments = res.data.data;
+                const topComments = allComments.filter(c => !c.parent_id);
+                const replyMap = {};
+                allComments.filter(c => c.parent_id).forEach(r => {
+                    if (!replyMap[r.parent_id]) replyMap[r.parent_id] = [];
+                    replyMap[r.parent_id].push(r);
+                });
+
+                list.innerHTML = topComments.map(c => {
+                    const replies = replyMap[c.id] || [];
+                    const repliesHtml = replies.map(r => `
+                        <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs mt-1 ms-4 border-start border-3 border-danger">
+                            <img src="${r.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;">
+                            <div class="min-w-0 flex-grow-1" style="font-size: 0.8rem;">
+                                <span class="fw-bold d-block text-dark" style="font-size: 0.78rem;">${r.full_name}</span>
+                                <span class="text-secondary">${r.content}</span>
+                            </div>
                         </div>
-                    </div>
-                `).join('');
+                    `).join('');
+
+                    return `
+                        <div class="d-flex flex-column gap-1">
+                            <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs border-start border-3 border-primary">
+                                <img src="${c.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 30px; height: 30px; object-fit: cover;">
+                                <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="fw-bold text-dark" style="font-size: 0.82rem;">${c.full_name}</span>
+                                        <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none fw-bold" style="font-size: 0.72rem;" onclick="setReplyTarget('${reviewId}', '${c.id}', '${c.full_name}')">
+                                            <i class="bi bi-reply-fill me-1"></i>Trả lời
+                                        </button>
+                                    </div>
+                                    <span class="text-secondary d-block mt-0.5">${c.content}</span>
+                                </div>
+                            </div>
+                            ${repliesHtml}
+                        </div>
+                    `;
+                }).join('');
             } else {
                 list.innerHTML = `<div class="text-muted small text-center py-1">Chưa có bình luận nào. Hãy là người đầu tiên!</div>`;
             }
@@ -332,18 +364,47 @@
         }
     }
 
+    function setReplyTarget(reviewId, parentId, authorName) {
+        activeParentId[reviewId] = parentId;
+        const targetBadge = document.getElementById(`reply-target-${reviewId}`);
+        const input = document.getElementById(`comment-input-${reviewId}`);
+        if (targetBadge) {
+            targetBadge.innerHTML = `<span>Đang trả lời <b>@${authorName}</b></span> <button type="button" class="btn-close ms-2" style="font-size:0.65rem;" onclick="cancelReply('${reviewId}')"></button>`;
+            targetBadge.classList.remove('d-none');
+            targetBadge.classList.add('d-flex');
+        }
+        if (input) {
+            input.placeholder = `Trả lời @${authorName}...`;
+            input.focus();
+        }
+    }
+
+    function cancelReply(reviewId) {
+        activeParentId[reviewId] = null;
+        const targetBadge = document.getElementById(`reply-target-${reviewId}`);
+        const input = document.getElementById(`comment-input-${reviewId}`);
+        if (targetBadge) {
+            targetBadge.classList.add('d-none');
+            targetBadge.classList.remove('d-flex');
+        }
+        if (input) input.placeholder = "Viết bình luận của bạn...";
+    }
+
     async function submitComment(event, reviewId) {
         event.preventDefault();
         const input = document.getElementById(`comment-input-${reviewId}`);
         if (!input || !input.value.trim()) return;
 
         const commentText = input.value.trim();
+        const parentId = activeParentId[reviewId] || null;
         input.value = '';
+        cancelReply(reviewId);
 
         try {
             const res = await axios.post('/api/reviews/comment', {
                 review_id: reviewId,
-                comment: commentText
+                comment: commentText,
+                parent_id: parentId
             });
 
             if (res.data.success) {
