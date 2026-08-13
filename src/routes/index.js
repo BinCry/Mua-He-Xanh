@@ -229,6 +229,7 @@ router.get('/admin/events', ensureAdmin, AdminController.events);
 router.get('/admin/posters', ensureAdmin, AdminController.posters);
 router.post('/admin/posters', ensureAdmin, upload.single('image'), AdminController.createPoster);
 router.post('/admin/posters/delete', ensureAdmin, AdminController.deletePoster);
+router.post('/api/admin/reorder-posters', ensureAdmin, AdminController.reorderPosters);
 router.get('/admin/journey-templates', ensureAdmin, AdminController.journeyTemplates);
 router.get('/admin/chat', ensureAdmin, AdminController.chat);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);

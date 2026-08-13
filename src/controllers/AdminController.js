@@ -915,6 +915,21 @@ const AdminController = {
             console.error("Admin deletePoster error:", e);
             res.status(500).send("Server Error");
         }
+    },
+
+    reorderPosters: async (req, res) => {
+        try {
+            const { orderedIds } = req.body;
+            if (Array.isArray(orderedIds)) {
+                for (let i = 0; i < orderedIds.length; i++) {
+                    await db.query(`UPDATE hero_posters SET sort_order = $1 WHERE id = $2`, [i + 1, orderedIds[i]]);
+                }
+            }
+            res.json({ success: true, message: 'Đã cập nhật thứ tự Poster!' });
+        } catch (e) {
+            console.error("Admin reorderPosters error:", e);
+            res.status(500).json({ success: false, message: e.message });
+        }
     }
 };
 

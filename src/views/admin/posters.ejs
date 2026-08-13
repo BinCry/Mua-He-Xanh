@@ -1,8 +1,10 @@
 <!-- Admin: Quản lý & Upload Poster Hero Trang chủ -->
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Poster Hero Trang Chủ</h4>
-        <p class="mb-0 text-muted small">Upload poster mới, thay đổi thứ tự hiển thị slider banner ở đầu trang chủ.</p>
+        <p class="mb-0 text-muted small"><i class="bi bi-info-circle me-1"></i>Kéo thả các thẻ Poster bên dưới để sắp xếp thứ tự hiển thị (Ví dụ: Thẻ đầu tiên sẽ là #1).</p>
     </div>
     <div>
         <button class="btn btn-primary rounded-pill px-4 py-2.5 fw-bold d-inline-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#posterModal" onclick="openPosterForm()">
@@ -11,15 +13,17 @@
     </div>
 </div>
 
-<!-- Posters Grid -->
-<div class="row g-4 mb-4">
+<!-- Posters Grid with Drag & Drop -->
+<div class="row g-4 mb-4" id="postersGrid">
     <% posters.forEach((p, idx) => { %>
-    <div class="col-md-6 col-lg-4">
-        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-white">
+    <div class="col-md-6 col-lg-4 poster-card-item" data-id="<%= p.id %>" style="cursor: grab;">
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-white poster-card-inner">
             <div class="position-relative" style="height: 220px;">
-                <img src="<%= fixImg(p.image_url) %>" class="w-100 h-100 object-fit-cover">
+                <img src="<%= fixImg(p.image_url) %>" class="w-100 h-100 object-fit-cover" pointer-events="none" draggable="false">
                 <div class="position-absolute top-0 start-0 m-3">
-                    <span class="badge bg-dark bg-opacity-75 text-white rounded-pill px-3 py-1.5 fw-bold">#<%= idx + 1 %> (Thứ tự: <%= p.sort_order || 0 %>)</span>
+                    <span class="badge bg-dark bg-opacity-75 text-white rounded-pill px-3 py-1.5 fw-bold poster-badge">
+                        <i class="bi bi-arrows-move me-1 text-warning"></i>#<%= idx + 1 %>
+                    </span>
                 </div>
                 <div class="position-absolute top-0 end-0 m-3">
                     <span class="badge <%= p.is_active ? 'bg-success' : 'bg-secondary' %> rounded-pill px-3 py-1.5 fw-bold">
@@ -29,13 +33,13 @@
             </div>
             <div class="card-body p-3.5 d-flex justify-content-between align-items-center">
                 <div>
-                    <h6 class="fw-bold text-dark mb-1"><%= p.title || ('Poster Slide ' + (idx + 1)) %></h6>
+                    <h6 class="fw-bold text-dark mb-1 text-truncate" style="max-width: 200px;"><%= p.title || ('Poster Slide ' + (idx + 1)) %></h6>
                     <small class="text-muted"><%= new Date(p.created_at || Date.now()).toLocaleDateString('vi-VN') %></small>
                 </div>
                 <form action="/admin/posters/delete" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa Poster này?');">
                     <input type="hidden" name="id" value="<%= p.id %>">
-                    <button type="submit" class="btn btn-outline-danger btn-sm rounded-circle p-2" title="Xóa Poster">
-                        <i class="bi bi-trash-fill"></i>
+                    <button type="submit" class="btn btn-outline-danger shadow-sm" title="Xóa Poster" style="width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 50% !important; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; border-width: 1.5px;">
+                        <i class="bi bi-trash3-fill fs-6" style="line-height: 1;"></i>
                     </button>
                 </form>
             </div>
@@ -80,10 +84,6 @@
                         </div>
                         <input type="hidden" id="p_image_url" name="image_url" value="/images/placeholder.jpg">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Thứ tự sắp xếp (Số nhỏ xếp trước)</label>
-                        <input type="number" id="p_sort_order" name="sort_order" class="form-control rounded-3" value="1">
-                    </div>
                 </div>
                 <div class="modal-footer bg-light p-3 border-0">
                     <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
@@ -95,6 +95,44 @@
 </div>
 
 <script>
+document.addEventListener('DOMContentLoaded', function() {
+    const grid = document.getElementById('postersGrid');
+    if (grid && typeof Sortable !== 'undefined') {
+        new Sortable(grid, {
+            animation: 200,
+            ghostClass: 'opacity-50',
+            onEnd: async function() {
+                updatePosterBadges();
+                await savePosterOrder();
+            }
+        });
+    }
+});
+
+function updatePosterBadges() {
+    const items = document.querySelectorAll('.poster-card-item');
+    items.forEach((item, idx) => {
+        const badge = item.querySelector('.poster-badge');
+        if (badge) {
+            badge.innerHTML = `<i class="bi bi-arrows-move me-1 text-warning"></i>#${idx + 1}`;
+        }
+    });
+}
+
+async function savePosterOrder() {
+    const items = document.querySelectorAll('.poster-card-item');
+    const orderedIds = Array.from(items).map(item => item.getAttribute('data-id'));
+    
+    try {
+        const res = await axios.post('/api/admin/reorder-posters', { orderedIds });
+        if (res.data.success) {
+            showAdminToast('Đã lưu vị trí sắp xếp Poster mới!', 'success');
+        }
+    } catch (err) {
+        showAdminToast('Lỗi lưu vị trí: ' + (err.response?.data?.message || err.message), 'error');
+    }
+}
+
 function openPosterForm() {
     document.getElementById('posterForm').reset();
     document.getElementById('p_image_url').value = '/images/placeholder.jpg';
@@ -122,7 +160,7 @@ async function uploadPosterFile(input) {
             btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã chọn ảnh';
         }
     } catch (err) {
-        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        showAdminToast('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message), 'error');
         btn.innerHTML = oldHtml;
     } finally {
         btn.disabled = false;
@@ -139,8 +177,7 @@ async function savePoster(e) {
     try {
         const data = {
             title: document.getElementById('p_title').value,
-            image_url: document.getElementById('p_image_url').value,
-            sort_order: document.getElementById('p_sort_order').value
+            image_url: document.getElementById('p_image_url').value
         };
         const res = await axios.post('/admin/posters', data);
         if (res.data.success) {
@@ -150,7 +187,7 @@ async function savePoster(e) {
             showAdminToast(res.data.message || 'Lưu thất bại.', 'error');
         }
     } catch (err) {
-        alert('Lỗi lưu Poster: ' + (err.response?.data?.message || err.message));
+        showAdminToast('Lỗi lưu Poster: ' + (err.response?.data?.message || err.message), 'error');
     } finally {
         btn.disabled = false;
         btn.innerHTML = 'UPLOAD VÀ LƯU';
