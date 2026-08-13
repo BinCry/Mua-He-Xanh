@@ -71,6 +71,22 @@ const ProfileController = {
                 savedDestinations = saved;
             } catch(e) {}
 
+            // Saved Journeys
+            let savedJourneys = [];
+            try {
+                const [journeys] = await db.query(`
+                    SELECT DISTINCT j.id, j.mood, j.duration, j.total_km, j.total_minutes, j.status, j.created_at,
+                           (SELECT COUNT(*) FROM journey_stops js WHERE js.journey_id = j.id) as total_stops
+                    FROM journeys j
+                    JOIN user_sessions us ON (j.session_id = us.id OR j.session_id = us.session_uuid)
+                    WHERE us.user_id = $1
+                    ORDER BY j.created_at DESC
+                `, [user.id]);
+                savedJourneys = journeys;
+            } catch(e) {
+                console.error("Fetch savedJourneys error:", e);
+            }
+
             res.render('profile/index', {
                 title: 'Hồ sơ Du Khách',
                 profileUser: fullUser,
@@ -86,11 +102,31 @@ const ProfileController = {
                 workshopBookings: workshopBookings.slice(0, 5),
                 rewards,
                 likedDestinations,
-                savedDestinations
+                savedDestinations,
+                savedJourneys
             });
         } catch (error) {
             console.error('Profile index error:', error);
             res.status(500).send('Lỗi hệ thống');
+        }
+    },
+
+    // POST /api/journey/delete - Xóa hành trình đã lưu
+    deleteJourney: async (req, res) => {
+        try {
+            const user = req.user || req.session?.user;
+            if (!user) return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập' });
+
+            const { journeyId } = req.body;
+            if (!journeyId) return res.status(400).json({ success: false, message: 'Thiếu ID hành trình' });
+
+            await db.query("DELETE FROM journey_stops WHERE journey_id = $1", [journeyId]);
+            await db.query("DELETE FROM journeys WHERE id = $1", [journeyId]);
+
+            res.json({ success: true, message: 'Đã xóa hành trình thành công' });
+        } catch(err) {
+            console.error("Delete journey error:", err);
+            res.status(500).json({ success: false, message: err.message });
         }
     },
 

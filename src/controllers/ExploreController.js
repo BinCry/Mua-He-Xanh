@@ -44,10 +44,18 @@ class ExploreController {
             if (sessionUuid) {
                 const session = await UserSession.findByUuid(sessionUuid);
                 if (session) {
-                    [messages] = await UserSession.db.query(
-                        "SELECT * FROM messages WHERE destination_id = $1 AND (sender_uuid = $2 OR receiver_uuid = $3) ORDER BY created_at ASC",
+                    const [rawMsgs] = await UserSession.db.query(
+                        "SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at FROM messages WHERE destination_id = $1 AND (sender_uuid = $2 OR receiver_uuid = $3) ORDER BY created_at ASC",
                         [dest.id, session.id, session.id]
                     );
+                    const user = req.user || req.session?.user || null;
+                    messages = rawMsgs.map(m => {
+                        const isMine = (m.sender_uuid === session.id) || (user && String(m.sender_id) === String(user.id));
+                        return {
+                            ...m,
+                            is_mine: !!isMine
+                        };
+                    });
                 }
             }
 
