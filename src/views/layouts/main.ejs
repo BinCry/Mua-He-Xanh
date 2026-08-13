@@ -536,7 +536,31 @@
                     localStorage.setItem('pwa_ios_dismissed', 'true');
                 });
             }
-        });
+    <!-- Global Image Lightbox Modal (Click to Zoom Any Image) -->
+    <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content bg-transparent border-0 shadow-none">
+                <div class="modal-header border-0 pb-0 justify-content-end p-2">
+                    <button type="button" class="btn-close btn-close-white fs-4 shadow" data-bs-dismiss="modal" aria-label="Close" style="background-color: rgba(0,0,0,0.6); padding: 10px; border-radius: 50%; opacity: 1;"></button>
+                </div>
+                <div class="modal-body p-2 text-center" onclick="bootstrap.Modal.getInstance(document.getElementById('imageLightboxModal'))?.hide()">
+                    <img id="lightboxTargetImg" src="" class="img-fluid rounded-4 shadow-lg" style="max-height: 85vh; object-fit: contain; cursor: pointer;" alt="Xem ảnh phóng to">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openImageLightbox(imgSrc) {
+            if (!imgSrc) return;
+            const target = document.getElementById('lightboxTargetImg');
+            const modalEl = document.getElementById('imageLightboxModal');
+            if (target && modalEl) {
+                target.src = imgSrc;
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        }
     </script>
 </body>
 
