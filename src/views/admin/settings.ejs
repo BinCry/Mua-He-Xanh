@@ -111,13 +111,21 @@
 </form>
 
 <script>
-// Helper function to compress images client-side to prevent HTTP 413 Payload Too Large
+// Helper function to compress images client-side while preserving PNG/WebP alpha transparency
 function compressImage(file, maxWidth = 1200, quality = 0.8) {
     return new Promise((resolve) => {
-        if (!file.type.startsWith('image/')) {
+        if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
             resolve(file);
             return;
         }
+
+        let outputType = 'image/jpeg';
+        if (file.type === 'image/png' || file.name.toLowerCase().endsWith('.png')) {
+            outputType = 'image/png';
+        } else if (file.type === 'image/webp' || file.name.toLowerCase().endsWith('.webp')) {
+            outputType = 'image/webp';
+        }
+
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = (e) => {
@@ -134,18 +142,19 @@ function compressImage(file, maxWidth = 1200, quality = 0.8) {
                 canvas.width = width;
                 canvas.height = height;
                 const ctx = canvas.getContext('2d');
+                ctx.clearRect(0, 0, width, height); // Preserve transparent alpha background
                 ctx.drawImage(img, 0, 0, width, height);
                 canvas.toBlob((blob) => {
                     if (blob && blob.size < file.size) {
                         const compressedFile = new File([blob], file.name, {
-                            type: 'image/jpeg',
+                            type: outputType,
                             lastModified: Date.now()
                         });
                         resolve(compressedFile);
                     } else {
                         resolve(file);
                     }
-                }, 'image/jpeg', quality);
+                }, outputType, quality);
             };
             img.onerror = () => resolve(file);
         };
@@ -160,12 +169,14 @@ async function uploadLogo(input) {
     const btn = input.previousElementSibling;
     const oldHtml = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang nén & tải...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang tải...';
     
     try {
-        const compressed = await compressImage(input.files[0], 800, 0.85);
+        const file = input.files[0];
+        // Bỏ qua nén JPEG với PNG/SVG logo để giữ nguyên 100% nền trong suốt
+        const fileToUpload = (file.type === 'image/png' || file.type === 'image/svg+xml') ? file : await compressImage(file, 800, 0.85);
         const formData = new FormData();
-        formData.append('image', compressed);
+        formData.append('image', fileToUpload);
 
         const res = await axios.post('/api/admin/upload-logo', formData, {
             headers: { 'Content-Type': 'multipart/form-data' }
@@ -176,17 +187,19 @@ async function uploadLogo(input) {
             document.getElementById('brand_logo').value = res.data.url;
             btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã tải!';
             
+            showAdminToast('Đã cập nhật Logo thương hiệu!', 'success');
+            
             // Automatically save settings and reload page to apply logo everywhere
             const form = document.getElementById('settingsForm');
             const formData = new FormData(form);
             const data = Object.fromEntries(formData);
             const saveRes = await axios.post('/api/admin/update-settings', data);
             if (saveRes.data.success) {
-                window.location.reload();
+                setTimeout(() => { window.location.reload(); }, 800);
             }
         }
     } catch (err) {
-        alert('Lỗi tải logo: ' + (err.response?.data?.message || err.message));
+        showAdminToast('Lỗi tải logo: ' + (err.response?.data?.message || err.message), 'error');
         btn.innerHTML = oldHtml;
     } finally {
         btn.disabled = false;
