@@ -36,12 +36,9 @@
                     <h6 class="fw-bold text-dark mb-1 text-truncate" style="max-width: 200px;"><%= p.title || ('Poster Slide ' + (idx + 1)) %></h6>
                     <small class="text-muted"><%= new Date(p.created_at || Date.now()).toLocaleDateString('vi-VN') %></small>
                 </div>
-                <form action="/admin/posters/delete" method="POST" onsubmit="return confirm('Bạn có chắc muốn xóa Poster này?');">
-                    <input type="hidden" name="id" value="<%= p.id %>">
-                    <button type="submit" class="btn btn-outline-danger shadow-sm" title="Xóa Poster" style="width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 50% !important; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; border-width: 1.5px;">
-                        <i class="bi bi-trash3-fill fs-6" style="line-height: 1;"></i>
-                    </button>
-                </form>
+                <button type="button" class="btn btn-outline-danger shadow-sm" onclick="deletePosterAjax('<%= p.id %>', this)" title="Xóa Poster" style="width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 50% !important; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; border-width: 1.5px;">
+                    <i class="bi bi-trash3-fill fs-6" style="line-height: 1;"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -49,7 +46,7 @@
 </div>
 
 <% if (posters.length === 0) { %>
-<div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white mb-4">
+<div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white mb-4" id="emptyPosterNotice">
     <i class="bi bi-images display-3 text-muted opacity-35 mb-3"></i>
     <h5 class="fw-bold text-dark">Chưa có Poster Hero nào do Admin Upload</h5>
     <p class="text-muted small mb-0">Hệ thống đang tự động dùng 5 Poster mặc định. Bạn có thể Upload Poster riêng để thay thế.</p>
@@ -96,6 +93,10 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    initSortable();
+});
+
+function initSortable() {
     const grid = document.getElementById('postersGrid');
     if (grid && typeof Sortable !== 'undefined') {
         new Sortable(grid, {
@@ -107,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-});
+}
 
 function updatePosterBadges() {
     const items = document.querySelectorAll('.poster-card-item');
@@ -179,10 +180,63 @@ async function savePoster(e) {
             title: document.getElementById('p_title').value,
             image_url: document.getElementById('p_image_url').value
         };
-        const res = await axios.post('/admin/posters', data);
+        const res = await axios.post('/admin/posters', data, {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        
         if (res.data.success) {
             showAdminToast('Đã lưu Poster thành công!', 'success');
-            setTimeout(() => { location.reload(); }, 800);
+            
+            // Hide modal
+            const modalEl = document.getElementById('posterModal');
+            const modalInstance = bootstrap.Modal.getInstance(modalEl);
+            if (modalInstance) modalInstance.hide();
+            
+            // Remove empty notice if present
+            const emptyNotice = document.getElementById('emptyPosterNotice');
+            if (emptyNotice) emptyNotice.remove();
+            
+            // Dynamically insert new Poster card into DOM without page reload!
+            const p = res.data.poster || {
+                id: Date.now().toString(),
+                title: data.title || 'Poster Hero',
+                image_url: data.image_url,
+                created_at: new Date().toISOString()
+            };
+            
+            const cardHtml = `
+            <div class="col-md-6 col-lg-4 poster-card-item" data-id="${p.id}" style="cursor: grab;">
+                <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 bg-white poster-card-inner">
+                    <div class="position-relative" style="height: 220px;">
+                        <img src="${p.image_url}" class="w-100 h-100 object-fit-cover" pointer-events="none" draggable="false">
+                        <div class="position-absolute top-0 start-0 m-3">
+                            <span class="badge bg-dark bg-opacity-75 text-white rounded-pill px-3 py-1.5 fw-bold poster-badge">
+                                <i class="bi bi-arrows-move me-1 text-warning"></i>#1
+                            </span>
+                        </div>
+                        <div class="position-absolute top-0 end-0 m-3">
+                            <span class="badge bg-success rounded-pill px-3 py-1.5 fw-bold">
+                                Đang hiển thị
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body p-3.5 d-flex justify-content-between align-items-center">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-1 text-truncate" style="max-width: 200px;">${p.title || 'Poster Slide'}</h6>
+                            <small class="text-muted">${new Date(p.created_at || Date.now()).toLocaleDateString('vi-VN')}</small>
+                        </div>
+                        <button type="button" class="btn btn-outline-danger shadow-sm" onclick="deletePosterAjax('${p.id}', this)" title="Xóa Poster" style="width: 38px; height: 38px; min-width: 38px; min-height: 38px; border-radius: 50% !important; display: inline-flex; align-items: center; justify-content: center; padding: 0; flex-shrink: 0; border-width: 1.5px;">
+                            <i class="bi bi-trash3-fill fs-6" style="line-height: 1;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            `;
+            
+            const grid = document.getElementById('postersGrid');
+            grid.insertAdjacentHTML('afterbegin', cardHtml);
+            updatePosterBadges();
+            await savePosterOrder();
         } else {
             showAdminToast(res.data.message || 'Lưu thất bại.', 'error');
         }
@@ -191,6 +245,30 @@ async function savePoster(e) {
     } finally {
         btn.disabled = false;
         btn.innerHTML = 'UPLOAD VÀ LƯU';
+    }
+}
+
+async function deletePosterAjax(id, btn) {
+    if (!confirm('Bạn có chắc muốn xóa Poster này?')) return;
+    try {
+        const res = await axios.post('/admin/posters/delete', { id }, {
+            headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+        });
+        if (res.data.success || res.status === 200) {
+            const cardItem = btn.closest('.poster-card-item');
+            if (cardItem) {
+                cardItem.style.transition = 'all 0.3s ease';
+                cardItem.style.opacity = '0';
+                cardItem.style.transform = 'scale(0.8)';
+                setTimeout(() => {
+                    cardItem.remove();
+                    updatePosterBadges();
+                }, 300);
+            }
+            showAdminToast('Đã xóa Poster!', 'success');
+        }
+    } catch (err) {
+        showAdminToast('Lỗi xóa Poster: ' + (err.response?.data?.message || err.message), 'error');
     }
 }
 </script>

@@ -892,7 +892,11 @@ const AdminController = {
             );
 
             if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
-                return res.json({ success: true, message: 'Đã thêm Poster thành công!' });
+                return res.json({
+                    success: true,
+                    message: 'Đã thêm Poster thành công!',
+                    poster: { id: posterId, title, image_url: imageUrl, sort_order: sortOrder, is_active: 1, created_at: new Date().toISOString() }
+                });
             }
             res.redirect('/admin/posters');
         } catch (e) {
@@ -910,10 +914,16 @@ const AdminController = {
             if (posterId) {
                 await db.query(`DELETE FROM hero_posters WHERE id = $1`, [posterId]);
             }
+            if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+                return res.json({ success: true, message: 'Đã xóa Poster thành công!' });
+            }
             res.redirect('/admin/posters');
         } catch (e) {
             console.error("Admin deletePoster error:", e);
-            res.status(500).send("Server Error");
+            if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+                return res.status(500).json({ success: false, message: 'Lỗi: ' + e.message });
+            }
+            res.status(500).send("Server Error: " + e.message);
         }
     },
 
