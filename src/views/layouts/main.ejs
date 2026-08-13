@@ -533,36 +533,37 @@
                     if (iosBanner) {
                         iosBanner.classList.add('d-none');
                     }
-                    localStorage.setItem('pwa_ios_dismissed', 'true');
-                });
             }
-    <!-- Global Interactive Image Lightbox Modal with Zoom Controls -->
-    <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1080;">
+        });
+    </script>
+
+    <!-- Global Interactive Facebook-Style Image Lightbox Modal with Pan & Pinch Zoom Controls -->
+    <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1095;">
         <div class="modal-dialog modal-dialog-centered modal-fullscreen p-0 m-0">
-            <div class="modal-content bg-dark bg-opacity-95 border-0 rounded-0" style="backdrop-filter: blur(12px);">
-                <!-- Lightbox Toolbar Header -->
-                <div class="modal-header border-0 p-3 d-flex justify-content-between align-items-center position-absolute top-0 start-0 w-100" style="z-index: 1090; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);">
-                    <span class="text-white-50 x-small fw-semibold ms-2 d-none d-md-inline">
+            <div class="modal-content bg-black bg-opacity-95 border-0 rounded-0" style="backdrop-filter: blur(16px); user-select: none;">
+                <!-- Lightbox Header Toolbar -->
+                <div class="modal-header border-0 p-3 d-flex justify-content-between align-items-center position-absolute top-0 start-0 w-100" style="z-index: 1100; background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);">
+                    <span class="text-white-50 small fw-semibold ms-2 d-none d-md-inline">
                         <i class="bi bi-info-circle me-1"></i> Cuộn chuột hoặc nhấp đúp để Phóng to / Thu nhỏ
                     </span>
                     
                     <div class="d-flex align-items-center gap-2 ms-auto me-2">
-                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" onclick="zoomLightboxImage(0.25)" title="Phóng to">
-                            <i class="bi bi-zoom-in fs-6"></i>
+                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="zoomLightboxImage(0.3)" title="Phóng to">
+                            <i class="bi bi-zoom-in fs-5"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" onclick="zoomLightboxImage(-0.25)" title="Thu nhỏ">
-                            <i class="bi bi-zoom-out fs-6"></i>
+                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="zoomLightboxImage(-0.3)" title="Thu nhỏ">
+                            <i class="bi bi-zoom-out fs-5"></i>
                         </button>
-                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" onclick="resetLightboxZoom()" title="Kích thước ban đầu">
-                            <i class="bi bi-arrow-counterclockwise fs-6"></i>
+                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="resetLightboxZoom()" title="Kích thước ban đầu">
+                            <i class="bi bi-arrow-counterclockwise fs-5"></i>
                         </button>
-                        <button type="button" class="btn-close btn-close-white fs-5 ms-3 shadow" data-bs-dismiss="modal" aria-label="Close" style="background-color: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%; opacity: 1;"></button>
+                        <button type="button" class="btn-close btn-close-white fs-5 ms-3 shadow" data-bs-dismiss="modal" aria-label="Đóng" style="background-color: rgba(255,255,255,0.25); padding: 12px; border-radius: 50%; opacity: 1;"></button>
                     </div>
                 </div>
 
-                <!-- Lightbox Image Stage -->
-                <div class="modal-body p-0 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="height: 100vh; cursor: grab;" id="lightboxStage" onwheel="handleLightboxWheel(event)">
-                    <img id="lightboxTargetImg" src="" class="img-fluid rounded-3 shadow-2xl" style="max-height: 92vh; max-width: 95vw; object-fit: contain; transform: scale(1); transition: transform 0.2s ease; user-select: none;" alt="Xem ảnh phóng to" ondblclick="toggleLightboxZoom()">
+                <!-- Lightbox Image Container -->
+                <div class="modal-body p-0 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="height: 100vh; cursor: grab;" id="lightboxStage">
+                    <img id="lightboxTargetImg" src="" class="img-fluid rounded-3 shadow-2xl" style="max-height: 92vh; max-width: 96vw; object-fit: contain; transform: scale(1) translate(0px, 0px); transition: transform 0.2s cubic-bezier(0.1, 0.5, 0.1, 1); user-select: none; pointer-events: auto;" alt="Xem ảnh phóng to" ondblclick="toggleLightboxZoom()">
                 </div>
             </div>
         </div>
@@ -570,6 +571,11 @@
 
     <script>
         let currentZoomScale = 1;
+        let panX = 0;
+        let panY = 0;
+        let isDragging = false;
+        let startX = 0;
+        let startY = 0;
 
         function openImageLightbox(imgSrc) {
             if (!imgSrc) return;
@@ -578,18 +584,24 @@
             if (target && modalEl) {
                 target.src = imgSrc;
                 resetLightboxZoom();
-                const modal = new bootstrap.Modal(modalEl);
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.show();
             }
         }
 
         function zoomLightboxImage(delta) {
-            currentZoomScale = Math.max(0.5, Math.min(4, currentZoomScale + delta));
+            currentZoomScale = Math.max(0.6, Math.min(5, currentZoomScale + delta));
+            if (currentZoomScale <= 1) {
+                panX = 0;
+                panY = 0;
+            }
             updateLightboxTransform();
         }
 
         function resetLightboxZoom() {
             currentZoomScale = 1;
+            panX = 0;
+            panY = 0;
             updateLightboxTransform();
         }
 
@@ -597,23 +609,72 @@
             if (currentZoomScale > 1) {
                 resetLightboxZoom();
             } else {
-                currentZoomScale = 2;
+                currentZoomScale = 2.5;
                 updateLightboxTransform();
             }
-        }
-
-        function handleLightboxWheel(e) {
-            e.preventDefault();
-            const delta = e.deltaY < 0 ? 0.25 : -0.25;
-            zoomLightboxImage(delta);
         }
 
         function updateLightboxTransform() {
             const target = document.getElementById('lightboxTargetImg');
             if (target) {
-                target.style.transform = `scale(${currentZoomScale})`;
+                target.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoomScale})`;
             }
         }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const stage = document.getElementById('lightboxStage');
+            if (!stage) return;
+
+            stage.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                const delta = e.deltaY < 0 ? 0.3 : -0.3;
+                zoomLightboxImage(delta);
+            }, { passive: false });
+
+            // Mouse Drag Panning when Zoomed
+            stage.addEventListener('mousedown', (e) => {
+                if (currentZoomScale > 1) {
+                    isDragging = true;
+                    startX = e.clientX - panX;
+                    startY = e.clientY - panY;
+                    stage.style.cursor = 'grabbing';
+                }
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                if (isDragging && currentZoomScale > 1) {
+                    panX = e.clientX - startX;
+                    panY = e.clientY - startY;
+                    updateLightboxTransform();
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                if (stage) stage.style.cursor = 'grab';
+            });
+
+            // Touch Panning for Mobile Devices
+            stage.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1 && currentZoomScale > 1) {
+                    isDragging = true;
+                    startX = e.touches[0].clientX - panX;
+                    startY = e.touches[0].clientY - panY;
+                }
+            }, { passive: true });
+
+            stage.addEventListener('touchmove', (e) => {
+                if (isDragging && e.touches.length === 1 && currentZoomScale > 1) {
+                    panX = e.touches[0].clientX - startX;
+                    panY = e.touches[0].clientY - startY;
+                    updateLightboxTransform();
+                }
+            }, { passive: true });
+
+            stage.addEventListener('touchend', () => {
+                isDragging = false;
+            });
+        });
     </script>
 </body>
 
