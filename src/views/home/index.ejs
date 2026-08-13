@@ -224,9 +224,9 @@
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
                     <div class="stat-number">
-                        <%= stats.workshopCount || '50' %>+
+                        <%= (stats.pageViews || stats.visitors || 1250).toLocaleString() %>+
                     </div>
-                    <div class="stat-text">SẢN PHẨM SHOP</div>
+                    <div class="stat-text">LƯỢT TRUY CẬP</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
