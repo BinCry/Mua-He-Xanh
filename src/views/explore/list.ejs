@@ -148,12 +148,32 @@
         box-shadow: 0 4px 12px rgba(146, 39, 36, 0.15);
     }
     @media (max-width: 767.98px) {
+        .destination-card-custom {
+            height: 185px !important;
+            border-radius: 12px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            background: #ffffff !important;
+            border: 1px solid rgba(0,0,0,0.06) !important;
+        }
         .explore-img-wrap {
-            height: 140px !important;
+            position: relative !important;
+            height: 125px !important;
+            flex-shrink: 0 !important;
         }
         .explore-card-title {
-            font-size: 0.75rem !important;
-            line-height: 1.2 !important;
+            color: #1e293b !important;
+            font-size: 0.72rem !important;
+            font-weight: 700 !important;
+            line-height: 1.25 !important;
+            margin-bottom: 0 !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+            white-space: normal !important;
+            text-align: center !important;
         }
     }
 </style>

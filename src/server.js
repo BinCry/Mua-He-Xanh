@@ -155,6 +155,15 @@ app.use((req, res, next) => {
     });
 });
 
+// Force 301 redirect from *.vercel.app to custom domain dulichbinhloi.com
+app.use((req, res, next) => {
+    const host = req.get('host') || '';
+    if (host.includes('vercel.app')) {
+        return res.redirect(301, 'https://dulichbinhloi.com' + req.originalUrl);
+    }
+    next();
+});
+
 // Global variables for templates
 app.use(async (req, res, next) => {
     // Dynamic Base URL detection (Prioritize dulichbinhloi.com for canonical share links)
