@@ -41,6 +41,16 @@ class OnboardingController {
             };
 
             if (session) {
+                // If re-submitting onboarding (Làm lại), delete any unconfirmed draft/replaced journeys for this session
+                await db.query(`
+                    DELETE FROM journey_stops WHERE journey_id IN (
+                        SELECT id FROM journeys WHERE session_id = $1 AND (status IN ('replaced', 'abandoned') OR (interests IS NULL OR interests NOT LIKE '%"isConfirmed":true%'))
+                    )
+                `, [session.id]).catch(() => {});
+                await db.query(`
+                    DELETE FROM journeys WHERE session_id = $1 AND (status IN ('replaced', 'abandoned') OR (interests IS NULL OR interests NOT LIKE '%"isConfirmed":true%'))
+                `, [session.id]).catch(() => {});
+
                 await UserSession.update(session.id, sessionData);
             } else {
                 sessionData.uuid = uuid;

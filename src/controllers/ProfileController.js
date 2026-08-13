@@ -71,15 +71,17 @@ const ProfileController = {
                 savedDestinations = saved;
             } catch(e) {}
 
-            // Saved Journeys
+            // Saved Journeys (Only confirmed & explicitly saved journeys)
             let savedJourneys = [];
             try {
                 const [journeys] = await db.query(`
-                    SELECT DISTINCT j.id, j.mood, j.duration, j.total_km, j.total_minutes, j.status, j.created_at,
+                    SELECT DISTINCT j.id, j.mood, j.duration, j.total_km, j.total_minutes, j.status, j.created_at, j.interests,
                            (SELECT COUNT(*) FROM journey_stops js WHERE js.journey_id = j.id) as total_stops
                     FROM journeys j
                     JOIN user_sessions us ON (j.session_id = us.id OR j.session_id = us.session_uuid)
-                    WHERE us.user_id = $1
+                    WHERE us.user_id = $1 
+                      AND j.status NOT IN ('replaced', 'abandoned')
+                      AND (j.status = 'confirmed' OR j.interests LIKE '%"isConfirmed":true%')
                     ORDER BY j.created_at DESC
                 `, [user.id]);
                 savedJourneys = journeys;

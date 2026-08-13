@@ -205,7 +205,15 @@ class JourneyController {
 
                     if (stops.length === 0 && dests.length > 0) stops = dests.slice(0, 3);
 
-                    await db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [session.id]);
+                    await db.query(`
+                        DELETE FROM journey_stops WHERE journey_id IN (
+                            SELECT id FROM journeys WHERE session_id = $1 AND (status IN ('replaced', 'abandoned') OR (interests IS NULL OR interests NOT LIKE '%"isConfirmed":true%'))
+                        )
+                    `, [session.id]).catch(() => {});
+                    await db.query(`
+                        DELETE FROM journeys WHERE session_id = $1 AND (status IN ('replaced', 'abandoned') OR (interests IS NULL OR interests NOT LIKE '%"isConfirmed":true%'))
+                    `, [session.id]).catch(() => {});
+
                     const journeyId = await Journey.create({
                         session_id: session.id,
                         mood: t.name,
@@ -289,7 +297,7 @@ class JourneyController {
             parsed.isConfirmed = true;
 
             await db.query(
-                "UPDATE journeys SET interests = $1 WHERE id = $2",
+                "UPDATE journeys SET status = 'confirmed', interests = $1 WHERE id = $2",
                 [JSON.stringify(parsed), journey.id]
             );
 
