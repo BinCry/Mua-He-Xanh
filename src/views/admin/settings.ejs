@@ -55,7 +55,7 @@
 
         <!-- Hero Section -->
         <div class="col-lg-6">
-            <div class="chart-card">
+            <div class="chart-card h-100">
                 <h6 class="fw-bold mb-3"><i class="bi bi-image me-2" style="color: var(--admin-accent);"></i>Hero Section (Trang chủ)</h6>
                 
                 <div class="mb-3">
@@ -65,17 +65,6 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Slogan</label>
                     <input type="text" name="hero_slogan" class="form-control admin-input" value="<%= settings.hero_slogan || 'Miệt vườn giữa phố, trải nghiệm bản sắc' %>" placeholder="Slogan...">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Ảnh Hero (Trang chủ)</label>
-                    <div class="d-flex align-items-center gap-3 mb-2">
-                        <img id="hero_preview" src="<%= fixImg(settings.hero_image, '/images/hero-1.png') %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
-                        <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('hero_file').click()">
-                            <i class="bi bi-upload me-1"></i>Chọn ảnh
-                        </button>
-                        <input type="file" id="hero_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'hero_image', 'hero_preview')">
-                    </div>
-                    <input type="hidden" name="hero_image" id="hero_image" value="<%= settings.hero_image || '/images/hero-1.png' %>">
                 </div>
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Background Giới thiệu</label>
@@ -99,34 +88,12 @@
                     </div>
                     <input type="hidden" name="login_bg" id="login_bg" value="<%= settings.login_bg || '/images/hero-1.png' %>">
                 </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Hình nền trang Khám phá (banner_explore)</label>
-                    <div class="d-flex align-items-center gap-3 mb-2">
-                        <img id="banner_explore_preview" src="<%= fixImg(settings.banner_explore, '/images/hero-1.png') %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
-                        <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('banner_explore_file').click()">
-                            <i class="bi bi-upload me-1"></i>Chọn ảnh
-                        </button>
-                        <input type="file" id="banner_explore_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'banner_explore', 'banner_explore_preview')">
-                    </div>
-                    <input type="hidden" name="banner_explore" id="banner_explore" value="<%= settings.banner_explore || '/images/hero-1.png' %>">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Hình nền trang Workshop (banner_workshop)</label>
-                    <div class="d-flex align-items-center gap-3 mb-2">
-                        <img id="banner_workshop_preview" src="<%= fixImg(settings.banner_workshop, '/images/hero-2.png') %>" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
-                        <button type="button" class="btn btn-sm btn-admin-outline rounded-pill" onclick="document.getElementById('banner_workshop_file').click()">
-                            <i class="bi bi-upload me-1"></i>Chọn ảnh
-                        </button>
-                        <input type="file" id="banner_workshop_file" class="d-none" accept="image/*" onchange="uploadFile(this, 'banner_workshop', 'banner_workshop_preview')">
-                    </div>
-                    <input type="hidden" name="banner_workshop" id="banner_workshop" value="<%= settings.banner_workshop || '/images/hero-2.png' %>">
-                </div>
             </div>
         </div>
 
         <!-- About Section -->
         <div class="col-lg-6">
-            <div class="chart-card mb-4">
+            <div class="chart-card h-100">
                 <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-2" style="color: var(--admin-primary);"></i>Giới thiệu Chung</h6>
                 
                 <div class="mb-3">
@@ -144,26 +111,6 @@
                 <div class="mb-3">
                     <label class="form-label small fw-bold" style="color: var(--admin-muted);">Email</label>
                     <input type="email" name="contact_email" class="form-control admin-input" value="<%= settings.contact_email || '' %>" placeholder="email@example.com">
-                </div>
-            </div>
-            
-            <div class="chart-card mt-4">
-                <h6 class="fw-bold mb-3"><i class="bi bi-list-stars me-2" style="color: var(--admin-primary);"></i>Thông tin nhanh (Trang chủ)</h6>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Vị trí</label>
-                    <input type="text" name="quick_info_location" class="form-control admin-input" value="<%= settings.quick_info_location || 'Xã Bình Lợi, TP.HCM' %>" placeholder="Vị trí...">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Đặc sản</label>
-                    <input type="text" name="quick_info_specialty" class="form-control admin-input" value="<%= settings.quick_info_specialty || 'Mai Vàng, Nhang Thơm, Cá Koi' %>" placeholder="Đặc sản...">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Không gian</label>
-                    <input type="text" name="quick_info_space" class="form-control admin-input" value="<%= settings.quick_info_space || 'Miệt vườn sinh thái, tâm linh' %>" placeholder="Không gian...">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold" style="color: var(--admin-muted);">Cách trung tâm</label>
-                    <input type="text" name="quick_info_distance" class="form-control admin-input" value="<%= settings.quick_info_distance || 'Khoảng 20km (45-60 phút)' %>" placeholder="Cách trung tâm...">
                 </div>
             </div>
         </div>

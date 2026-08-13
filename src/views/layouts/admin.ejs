@@ -133,9 +133,6 @@
                     <a href="/admin/shops" class="sb-link <%= typeof adminPage !== 'undefined' && (adminPage === 'workshops' || adminPage === 'shops') ? 'active' : '' %>">
                         <i class="bi bi-shop"></i> Quản lý Shop
                     </a>
-                    <a href="/admin/posters" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'posters' ? 'active' : '' %>">
-                        <i class="bi bi-images"></i> Poster Hero Trang Chủ
-                    </a>
                     <a href="/admin/reviews" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'reviews' ? 'active' : '' %>">
                         <i class="bi bi-chat-heart-fill"></i> Cộng đồng
                     </a>
@@ -146,12 +143,15 @@
                         <i class="bi bi-calendar-event-fill"></i> Sự kiện
                     </a>
                     <a href="/admin/journey-templates" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'journey-templates' ? 'active' : '' %>">
-                        <i class="bi bi-signpost-2-fill"></i> Hành trình mẫu
+                        <i class="bi bi-signpost-2-fill"></i> Tour
                     </a>
                     
                     <div class="sb-label">Cài đặt</div>
                     <a href="/admin/settings" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'settings' ? 'active' : '' %>">
                         <i class="bi bi-gear-fill"></i> Cài đặt Web
+                    </a>
+                    <a href="/admin/posters" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'posters' ? 'active' : '' %>">
+                        <i class="bi bi-images"></i> Poster Hero Trang Chủ
                     </a>
                 <% } else if (user.role === 'manager') { %>
                     <div class="sb-label">QUẢN LÝ ĐỊA ĐIỂM</div>

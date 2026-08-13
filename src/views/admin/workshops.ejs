@@ -17,7 +17,6 @@
         <thead>
             <tr>
                 <th>Tên sản phẩm</th>
-                <th>Loại sản phẩm</th>
                 <th>Giá bán</th>
                 <th>Quy cách / Đơn vị</th>
                 <th>Tồn kho</th>
@@ -36,17 +35,6 @@
                             <div class="text-muted text-truncate" style="font-size: 0.76rem; max-width: 250px;"><%= ws.description || '-' %></div>
                         </div>
                     </div>
-                </td>
-                <td>
-                    <% 
-                    const typeLabels = {
-                        nhang: 'Nhang Thảo Mộc', mai: 'Mai Vàng Bình Lợi', thien: 'Thiền Healing',
-                        banh: 'Thực Phẩm & Bánh', ecology: 'Tổ Yến & OCOP ★★★★', culture: 'Văn Hóa & Lưu Niệm', other: 'Sản Phẩm Khác'
-                    };
-                    %>
-                    <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill small fw-semibold">
-                        <%= typeLabels[ws.type] || ws.type %>
-                    </span>
                 </td>
                 <td>
                     <div class="fw-bold text-success" style="font-size: 0.9rem;">
@@ -114,18 +102,8 @@
                             <textarea class="form-control rounded-3" id="ws_description" name="description" rows="3" placeholder="VD: 12g tổ yến tươi/hũ — OCOP 4 Sao TP.HCM..."></textarea>
                         </div>
 
-                        <!-- Category -->
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold text-dark">Loại sản phẩm / Danh mục</label>
-                            <select class="form-select rounded-3 py-2" id="ws_type" name="type">
-                                <option value="ecology">Tổ Yến & OCOP ★★★★</option>
-                                <option value="banh">Thực Phẩm & Bánh Dân Gian</option>
-                                <option value="nhang">Nhang Thảo Mộc Bình Lợi</option>
-                                <option value="mai">Mai Vàng Bình Lợi</option>
-                                <option value="culture">Văn Hóa & Quà Lưu Niệm</option>
-                                <option value="other">Sản Phẩm Khác</option>
-                            </select>
-                        </div>
+                        <!-- Hidden Type Default -->
+                        <input type="hidden" id="ws_type" name="type" value="other">
 
                         <!-- Selling Price -->
                         <div class="col-md-6">
