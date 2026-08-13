@@ -1,6 +1,5 @@
 const Destination = require('../models/Destination');
 const UserSession = require('../models/UserSession');
-const Message = require('../models/Message');
 
 class ExploreController {
     /** List all destinations */

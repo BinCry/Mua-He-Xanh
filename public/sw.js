@@ -1,4 +1,4 @@
-const CACHE_NAME = 'binh-loi-healing-v4';
+const CACHE_NAME = 'binh-loi-healing-v5';
 const STATIC_ASSETS = [
     '/offline.html',
     '/css/style-v5.css',
@@ -94,8 +94,9 @@ async function networkFirst(req) {
     const cache = await caches.open(CACHE_NAME);
     try {
         const networkResponse = await fetch(req);
-        // Do not cache API requests or chrome-extensions
-        if (networkResponse.ok && !req.url.includes('/api/') && req.url.startsWith('http')) {
+        // Only cache static asset resources (images, css, js, fonts) to prevent storage bloat
+        const isStaticAsset = req.url.match(/\.(css|js|png|jpg|jpeg|webp|svg|woff2?|ico)(\?.*)?$/i);
+        if (networkResponse.ok && isStaticAsset && !req.url.includes('/api/') && req.url.startsWith('http')) {
             cache.put(req, networkResponse.clone());
         }
         return networkResponse;

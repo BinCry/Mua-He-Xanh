@@ -11,117 +11,113 @@ const AdminController = {
     // ==================== DASHBOARD ====================
     dashboard: async (req, res) => {
         try {
-            const [userCount] = await db.query('SELECT COUNT(*) as total FROM users');
-            const [destCount] = await db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = 1');
-            const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins');
-            const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews');
-            const [pageViewsRow] = await db.query('SELECT COUNT(*) as total FROM analytics');
-            const [eventCount] = await db.query('SELECT COUNT(*) as total FROM events WHERE is_active = 1');
+            const [
+                [userCount],
+                [destCount],
+                [checkinCount],
+                [reviewCount],
+                [pageViewsRow],
+                [eventCount],
+                [avgDurationRow],
+                [ratingDistRows],
+                [checkinRows],
+                [workshopBookingRows],
+                [dailyCheckinRows],
+                [monthlyUsers],
+                [topDests],
+                [recentUsers]
+            ] = await Promise.all([
+                db.query('SELECT COUNT(*) as total FROM users'),
+                db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = 1'),
+                db.query('SELECT COUNT(*) as total FROM check_ins'),
+                db.query('SELECT COUNT(*) as total FROM reviews'),
+                db.query('SELECT COUNT(*) as total FROM analytics'),
+                db.query('SELECT COUNT(*) as total FROM events WHERE is_active = 1'),
+                db.query("SELECT COALESCE(AVG(duration_ms), 0) as avg_duration FROM analytics WHERE duration_ms > 0"),
+                db.query(`
+                    SELECT rating, COUNT(*) as count 
+                    FROM reviews 
+                    WHERE rating IS NOT NULL AND rating >= 1 AND rating <= 5 
+                    GROUP BY rating 
+                    ORDER BY rating ASC
+                `),
+                db.query(`
+                    SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count
+                    FROM check_ins WHERE created_at >= NOW() - INTERVAL '6 month'
+                    GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY month ASC
+                `),
+                db.query(`
+                    SELECT TO_CHAR(booking_date, 'YYYY-MM') as month, COUNT(*) as count
+                    FROM workshop_bookings
+                    WHERE booking_date >= NOW() - INTERVAL '6 month' AND status != 'cancelled'
+                    GROUP BY TO_CHAR(booking_date, 'YYYY-MM') ORDER BY month ASC
+                `),
+                db.query(`
+                    SELECT DATE(created_at) as day, COUNT(*) as count
+                    FROM check_ins WHERE created_at >= NOW() - INTERVAL '14 day'
+                    GROUP BY DATE(created_at) ORDER BY day ASC
+                `),
+                db.query(`
+                    SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count
+                    FROM users WHERE created_at >= NOW() - INTERVAL '6 month'
+                    GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY month ASC
+                `),
+                db.query(`
+                    SELECT d.name, d.slug, COUNT(ci.id) as checkin_count
+                    FROM destinations d LEFT JOIN check_ins ci ON d.id = ci.destination_id
+                    WHERE d.is_active = 1 GROUP BY d.id
+                    ORDER BY checkin_count DESC LIMIT 5
+                `),
+                db.query(`
+                    SELECT id, full_name, email, phone, avatar, role, total_points, created_at
+                    FROM users ORDER BY created_at DESC LIMIT 4
+                `)
+            ]);
 
-            // Average session duration (from analytics duration_ms)
-            const [avgDurationRow] = await db.query(
-                "SELECT COALESCE(AVG(duration_ms), 0) as avg_duration FROM analytics WHERE duration_ms > 0"
-            );
             const avgDurationSec = Math.round((avgDurationRow[0]?.avg_duration || 0) / 1000);
 
             // Ratings distribution (1-5 stars)
-            const [ratingDistRows] = await db.query(`
-                SELECT rating, COUNT(*) as count 
-                FROM reviews 
-                WHERE rating IS NOT NULL AND rating >= 1 AND rating <= 5 
-                GROUP BY rating 
-                ORDER BY rating ASC
-            `);
             const ratingsMap = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
-            ratingDistRows.forEach(r => { ratingsMap[r.rating] = parseInt(r.count, 10); });
+            (ratingDistRows || []).forEach(r => { ratingsMap[r.rating] = parseInt(r.count, 10); });
             const ratingsDistribution = [ratingsMap[1], ratingsMap[2], ratingsMap[3], ratingsMap[4], ratingsMap[5]];
 
-            // Monthly check-in trend (last 6 months - PostgreSQL TO_CHAR & INTERVAL)
-            const [checkinRows] = await db.query(`
-                SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count
-                FROM check_ins WHERE created_at >= NOW() - INTERVAL '6 month'
-                GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY month ASC
-            `);
+            // Monthly check-in trend (last 6 months)
             const checkinMap = {};
-            checkinRows.forEach(r => { checkinMap[r.month] = parseInt(r.count, 10); });
-
+            (checkinRows || []).forEach(r => { checkinMap[r.month] = parseInt(r.count, 10); });
             const monthlyCheckins = [];
             for (let i = 5; i >= 0; i--) {
                 const d = new Date();
                 d.setMonth(d.getMonth() - i);
                 const monthStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-                monthlyCheckins.push({
-                    month: monthStr,
-                    count: checkinMap[monthStr] || 0
-                });
+                monthlyCheckins.push({ month: monthStr, count: checkinMap[monthStr] || 0 });
             }
 
             // Monthly Workshop Bookings trend (last 6 months)
-            const [workshopBookingRows] = await db.query(`
-                SELECT TO_CHAR(booking_date, 'YYYY-MM') as month, COUNT(*) as count
-                FROM workshop_bookings
-                WHERE booking_date >= NOW() - INTERVAL '6 month' AND status != 'cancelled'
-                GROUP BY TO_CHAR(booking_date, 'YYYY-MM') ORDER BY month ASC
-            `);
             const wsBookingMap = {};
-            workshopBookingRows.forEach(r => { wsBookingMap[r.month] = parseInt(r.count, 10); });
-
+            (workshopBookingRows || []).forEach(r => { wsBookingMap[r.month] = parseInt(r.count, 10); });
             const monthlyWSBookings = [];
             for (let i = 5; i >= 0; i--) {
                 const d = new Date();
                 d.setMonth(d.getMonth() - i);
                 const monthStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
-                monthlyWSBookings.push({
-                    month: monthStr,
-                    count: wsBookingMap[monthStr] || 0
-                });
+                monthlyWSBookings.push({ month: monthStr, count: wsBookingMap[monthStr] || 0 });
             }
 
             // Daily Check-ins (last 14 days)
-            const [dailyCheckinRows] = await db.query(`
-                SELECT DATE(created_at) as day, COUNT(*) as count
-                FROM check_ins WHERE created_at >= NOW() - INTERVAL '14 day'
-                GROUP BY DATE(created_at) ORDER BY day ASC
-            `);
             const checkinsMap = {};
-            dailyCheckinRows.forEach(r => {
+            (dailyCheckinRows || []).forEach(r => {
                 try {
                     const dateStr = new Date(r.day).toISOString().split('T')[0];
                     checkinsMap[dateStr] = parseInt(r.count, 10);
                 } catch (e) {}
             });
-
             const dailyCheckins = [];
             for (let i = 13; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
                 const dayStr = d.toISOString().split('T')[0];
-                dailyCheckins.push({
-                    day: dayStr,
-                    count: checkinsMap[dayStr] || 0
-                });
+                dailyCheckins.push({ day: dayStr, count: checkinsMap[dayStr] || 0 });
             }
-
-            // New users per month
-            const [monthlyUsers] = await db.query(`
-                SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(*) as count
-                FROM users WHERE created_at >= NOW() - INTERVAL '6 month'
-                GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY month ASC
-            `);
-
-            // Top destinations by check-ins
-            const [topDests] = await db.query(`
-                SELECT d.name, d.slug, COUNT(ci.id) as checkin_count
-                FROM destinations d LEFT JOIN check_ins ci ON d.id = ci.destination_id
-                WHERE d.is_active = 1 GROUP BY d.id
-                ORDER BY checkin_count DESC LIMIT 5
-            `);
-
-            // Recent users
-            const [recentUsers] = await db.query(`
-                SELECT id, full_name, email, phone, avatar, role, total_points, created_at
-                FROM users ORDER BY created_at DESC LIMIT 4
-            `);
 
             res.render('admin/dashboard', {
                 title: 'Bảng Điều Khiển Admin',

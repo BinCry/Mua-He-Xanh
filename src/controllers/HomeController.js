@@ -11,6 +11,11 @@ const CACHE_TTL = 300000; // 5 minutes
 class HomeController {
     async index(req, res) {
         try {
+            // Check in-memory RAM cache first
+            if (_cache && (Date.now() - _cacheTs < CACHE_TTL)) {
+                return res.render('home/index', _cache);
+            }
+
             const heroPostersData = await HeroPoster.getActive();
             const defaultHeroPosters = [
                 { id: 'p1', title: 'Poster 1', image_url: '/images/Poster 1.png' },
@@ -22,7 +27,6 @@ class HomeController {
             const heroPosters = (heroPostersData && heroPostersData.length > 0) ? heroPostersData : defaultHeroPosters;
 
             const [
-                [dbSettings],
                 featured,
                 totalCheckins,
                 [pageViewResult],
@@ -33,7 +37,6 @@ class HomeController {
                 [seasonalExperiences],
                 [realReviews]
             ] = await Promise.all([
-                db.query('SELECT * FROM settings'),
                 Destination.getActive(9),
                 CheckIn.getTotalCount(),
                 db.query('SELECT COUNT(*) as total FROM analytics WHERE event = $1', ['page_view']),
@@ -58,8 +61,7 @@ class HomeController {
                 `)
             ]);
 
-            const settingsMap = {};
-            dbSettings.forEach(s => { settingsMap[s.key_name] = s.key_value; });
+            const settingsMap = res.locals.settings || {};
 
             const currentDate = new Date();
             const month = currentDate.getMonth() + 1;
