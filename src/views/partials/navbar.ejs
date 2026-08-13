@@ -287,88 +287,43 @@
             style="font-size: 0.75rem; opacity: 0.7;"></button>
     </div>
 
-    <!-- Search Bar -->
-    <div class="px-4 py-3 bg-white" style="border-bottom: 1px solid #f1f5f9;">
-        <div class="input-group" style="border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
-            <input type="text" class="form-control border-0 py-2 ps-3" placeholder="Tìm kiếm..."
-                style="background: #f8fafc; color: #1e293b; font-size: 0.82rem;"
-                onfocus="this.style.background='#ffffff'"
-                onblur="this.style.background='#f8fafc'">
-            <button class="btn border-0 px-3" style="background: #f8fafc; color: #64748b;">
-                <i class="bi bi-search" style="font-size: 0.85rem;"></i>
-            </button>
-        </div>
-    </div>
-
     <!-- Menu Body -->
     <div class="offcanvas-body d-flex flex-column p-0 bg-white">
         <!-- Navigation Links -->
-        <div class="py-2 px-2">
+        <div class="py-3 px-3">
             <% const mPath = (locals.currentPath || '').toLowerCase(); %>
             <a class="mobile-light-link <%= mPath === '/' ? 'active' : '' %>" href="/">
                 <i class="bi bi-house-door-fill"></i> TRANG CHỦ
             </a>
             <a class="mobile-light-link <%= mPath.startsWith('/explore') ? 'active' : '' %>" href="/explore">
                 <i class="bi bi-compass-fill"></i> KHÁM PHÁ
-                <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
             </a>
             <a class="mobile-light-link <%= (mPath.startsWith('/workshops') || mPath.startsWith('/shops')) ? 'active' : '' %>" href="/shops">
                 <i class="bi bi-shop"></i> SHOP
-                <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
             </a>
             <a class="mobile-light-link <%= mPath.startsWith('/reviews') ? 'active' : '' %>" href="/reviews">
                 <i class="bi bi-chat-heart-fill"></i> CỘNG ĐỒNG
-                <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
             </a>
             <a class="mobile-light-link <%= (mPath.startsWith('/journey') || mPath.startsWith('/onboarding')) ? 'active' : '' %>" href="/journey">
                 <i class="bi bi-signpost-split-fill"></i> HÀNH TRÌNH
-                <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
             </a>
             <a class="mobile-light-link <%= mPath.startsWith('/map') ? 'active' : '' %>" href="/map">
                 <i class="bi bi-map-fill"></i> BẢN ĐỒ
             </a>
-            <a class="mobile-light-link <%= mPath.startsWith('/festivals') ? 'active' : '' %>" href="/festivals">
-                <i class="bi bi-calendar-event-fill"></i> LỄ HỘI
-            </a>
-            <% if (locals.user) { %>
-            <a class="mobile-light-link" href="/chat">
+            <a class="mobile-light-link <%= mPath.startsWith('/chat') ? 'active' : '' %>" href="/chat">
                 <i class="bi bi-envelope-heart-fill"></i> HỘP THƯ HỖ TRỢ
+            </a>
+            <% if (locals.user && (user.role === 'admin' || user.role === 'manager')) { %>
+            <a class="mobile-light-link" href="<%= user.role === 'admin' ? '/admin' : '/manager' %>">
+                <i class="bi bi-shield-check"></i> TRANG QUẢN TRỊ
+            </a>
+            <% } %>
+            <% if (locals.user) { %>
+            <a class="mobile-light-link mt-2" href="/auth/logout" style="color: #ef4444 !important;">
+                <i class="bi bi-box-arrow-right"></i> ĐĂNG XUẤT
             </a>
             <% } %>
         </div>
-
-        <!-- User Section at Bottom (Only logged in user actions) -->
-        <% if (user) { %>
-        <div class="mt-auto bg-light border-top" style="border-color: #f1f5f9 !important;">
-            <div class="d-flex align-items-center gap-3 px-4 py-3" style="border-bottom: 1px solid #e2e8f0;">
-                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
-                    style="width: 36px; height: 36px; object-fit: cover; border: 2px solid #cbd5e1;">
-                <div class="overflow-hidden">
-                    <div class="fw-bold text-dark text-truncate notranslate" translate="no" style="font-size: 0.82rem;">
-                        <%= user.full_name %>
-                    </div>
-                    <div class="text-truncate" style="font-size: 0.68rem; color: #64748b;">
-                        <%= user.phone || user.email %>
-                    </div>
-                </div>
-            </div>
-            <div class="py-2 px-2">
-                <% if (user.role === 'user') { %>
-                <a class="mobile-light-link" href="/profile"><i class="bi bi-person-circle"></i> HỒ SƠ DU KHÁCH</a>
-                <a class="mobile-light-link" href="/profile/rewards"><i class="bi bi-gift-fill"></i> ĐIỂM THƯỞNG</a>
-                <% } %>
-                <% if (user.role === 'admin') { %>
-                <a class="mobile-light-link" href="/admin"><i class="bi bi-shield-check"></i> ADMIN PANEL</a>
-                <% } %>
-                <% if (user.role === 'manager') { %>
-                <a class="mobile-light-link" href="/manager"><i class="bi bi-shield-check"></i> QUẢN LÝ PANEL</a>
-                <% } %>
-                <a class="mobile-light-link" href="/auth/logout" style="color: #ef4444 !important;">
-                    <i class="bi bi-box-arrow-right"></i> ĐĂNG XUẤT
-                </a>
-            </div>
-        </div>
-        <% } %>
     </div>
 </div>
 

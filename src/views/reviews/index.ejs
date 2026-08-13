@@ -24,11 +24,14 @@
                     </div>
                 </div>
 
-                <!-- Geolocation Tag Indicator -->
-                <div id="locationBadge" class="mb-3 d-none">
-                    <span class="badge bg-light text-primary border rounded-pill px-3 py-2">
-                        <i class="bi bi-geo-alt-fill text-danger me-1"></i> <span id="locationText">Đang xác định vị trí...</span>
-                    </span>
+                <!-- Destination Select Dropdown from Admin List -->
+                <div class="mb-3">
+                    <select name="destination_id" class="form-select border-0 bg-light rounded-3 py-2 px-3 shadow-none" style="font-size: 0.85rem; color: #334155; font-weight: 500;">
+                        <option value="">📍 Chọn địa điểm check-in (Tùy chọn từ Admin)...</option>
+                        <% (typeof destinations !== 'undefined' && destinations ? destinations : []).forEach(d => { %>
+                            <option value="<%= d.id %>"><%= d.name %></option>
+                        <% }) %>
+                    </select>
                 </div>
 
                 <!-- Image Preview -->
@@ -41,25 +44,30 @@
                     </div>
                 </div>
 
-                <!-- Actions Bar (Responsive Mobile & Locket Style Shutter Button) -->
+                <!-- Actions Bar: Camera (Device Camera), Photo (Device Gallery), Rating (1-5 stars) -->
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 pt-3 border-top border-light">
-                    <div class="d-flex gap-3 align-items-center w-100 w-sm-auto">
-                        <!-- Locket Shutter Button -->
-                        <label class="locket-shutter-wrapper d-flex align-items-center gap-2 mb-0" style="cursor: pointer;" title="Chụp / Chọn ảnh kiểu Locket">
-                            <div class="locket-btn-outer d-flex align-items-center justify-content-center">
-                                <div class="locket-btn-inner d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-camera-fill text-white fs-6"></i>
-                                </div>
-                            </div>
-                            <span class="fw-bold text-dark small">Chụp / Đăng ảnh</span>
-                            <input type="file" name="image" accept="image/*" class="d-none" id="imageInput" onchange="previewImage(this)">
+                    <div class="d-flex flex-wrap gap-2 align-items-center w-100 w-sm-auto">
+                        <!-- Button 1: Camera (opens device camera) -->
+                        <label class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 cursor-pointer mb-0" title="Chụp ảnh trực tiếp từ máy ảnh">
+                            <i class="bi bi-camera-fill text-danger fs-6"></i>
+                            <span class="small text-dark">Máy ảnh</span>
+                            <input type="file" name="image" accept="image/*" capture="environment" class="d-none" id="cameraInput" onchange="previewImage(this)">
+                        </label>
+
+                        <!-- Button 2: Photo (opens device gallery) -->
+                        <label class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 cursor-pointer mb-0" title="Chọn ảnh từ thư viện thiết bị">
+                            <i class="bi bi-image-fill text-primary fs-6"></i>
+                            <span class="small text-dark">Thư viện</span>
+                            <input type="file" name="image" accept="image/*" class="d-none" id="galleryInput" onchange="previewImage(this)">
                         </label>
                         
-                        <!-- Rating Selector -->
-                        <select class="form-select form-select-sm rounded-pill border bg-light px-2 py-2 text-center ms-auto ms-sm-0" name="rating" style="width: 110px; font-size: 0.8rem; font-weight: 600;">
-                            <option value="5">⭐⭐⭐⭐⭐</option>
-                            <option value="4">⭐⭐⭐⭐</option>
-                            <option value="3">⭐⭐⭐</option>
+                        <!-- Rating Selector: 1 to 5 Stars -->
+                        <select class="form-select form-select-sm rounded-pill border bg-light px-2 py-1.5 text-center ms-auto ms-sm-0" name="rating" style="width: 125px; font-size: 0.8rem; font-weight: 600;">
+                            <option value="5" selected>⭐⭐⭐⭐⭐ (5 sao)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 sao)</option>
+                            <option value="3">⭐⭐⭐ (3 sao)</option>
+                            <option value="2">⭐⭐ (2 sao)</option>
+                            <option value="1">⭐ (1 sao)</option>
                         </select>
                     </div>
 

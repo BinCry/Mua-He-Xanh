@@ -297,23 +297,17 @@ class ApiController {
         const session = await UserSession.findByUuid(sessionUuid);
         if (!session) return res.json({ success: true, data: [] });
 
-        const queryParams = [
-            session.id, session.id, 
-            session.uuid, session.uuid, 
-            session.id, session.id
-        ];
+        const queryParams = [session.id, session.id];
         
         let userCondition = '';
-        let destParamIndex = 7;
         if (session.user_id) {
-            userCondition = 'OR sender_id = $7 OR receiver_id = $8';
-            queryParams.push(session.user_id, session.user_id);
-            destParamIndex = 9;
+            userCondition = 'OR sender_id = $3';
+            queryParams.push(session.user_id);
         }
 
         let destCondition = `AND destination_id IS NULL`;
         if (destinationId) {
-            destCondition = `AND destination_id = $${destParamIndex}`;
+            destCondition = `AND destination_id = $${queryParams.length + 1}`;
             queryParams.push(destinationId);
         }
 
@@ -321,8 +315,6 @@ class ApiController {
             `SELECT * FROM messages 
               WHERE (
                 sender_uuid = $1 OR receiver_uuid = $2 
-                OR sender_uuid = $3 OR receiver_uuid = $4
-                OR receiver_id = $5 OR sender_id = $6
                 ${userCondition}
               )
               ${destCondition}

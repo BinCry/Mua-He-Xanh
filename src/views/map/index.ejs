@@ -47,16 +47,12 @@
         <div class="col-lg-9 col-12 position-relative">
             <div id="map" style="width: 100%; height: calc(100vh - 107px); z-index: 1;"></div>
             
-            <!-- Mobile 3-Bar Button -->
-            <div class="position-absolute top-0 start-0 m-3 d-lg-none" style="z-index: 1000;">
-                <button class="btn btn-primary-bl rounded-pill shadow-lg px-3 py-2 fw-bold d-flex align-items-center gap-2 border-0" data-bs-toggle="offcanvas" data-bs-target="#mobileDestDrawer" style="font-size: 0.82rem;">
+            <!-- Map Controls Overlay (Top Right: Mobile List Button & Location Control) -->
+            <div class="position-absolute top-0 end-0 m-3 m-md-4 d-flex align-items-center gap-2" style="z-index: 1000;">
+                <button class="btn btn-primary-bl rounded-pill shadow-lg px-3 py-2 fw-bold d-flex align-items-center gap-2 border-0 d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileDestDrawer" style="font-size: 0.82rem;">
                     <i class="bi bi-list fs-5"></i> <span>Danh sách địa điểm</span>
                 </button>
-            </div>
-
-            <!-- Map Controls Overlay -->
-            <div class="position-absolute top-0 end-0 m-3 m-md-4 d-flex flex-column gap-2" style="z-index: 1000;">
-                <button class="btn btn-white rounded-circle shadow-lg p-0 map-control-btn" style="width: 45px; height: 45px;" onclick="locateMe()" title="Vị trí của tôi">
+                <button class="btn btn-white rounded-circle shadow-lg p-0 map-control-btn" style="width: 45px; height: 45px; background: #ffffff;" onclick="locateMe()" title="Vị trí của tôi">
                     <i class="bi bi-geo-fill text-primary fs-5"></i>
                 </button>
             </div>

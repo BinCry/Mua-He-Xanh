@@ -1,5 +1,6 @@
 const Destination = require('../models/Destination');
 const CheckIn = require('../models/CheckIn');
+const HeroPoster = require('../models/HeroPoster');
 const db = require('../core/database');
 
 // In-memory cache: eliminates DB queries for 5 minutes per serverless instance
@@ -17,6 +18,17 @@ class HomeController {
             if (process.env.NODE_ENV === 'production' && _cache && (now - _cacheTs) < CACHE_TTL) {
                 return res.render('home/index', _cache);
             }
+
+            const heroPostersData = await HeroPoster.getActive();
+            const defaultHeroPosters = [
+                { id: 'p1', title: 'Poster 1', image_url: '/images/Poster 1.png' },
+                { id: 'p2', title: 'Poster 2', image_url: '/images/Poster 2.png' },
+                { id: 'p3', title: 'Poster 3', image_url: '/images/Poster 3.png' },
+                { id: 'p4', title: 'Poster 4', image_url: '/images/Poster 4.png' },
+                { id: 'p5', title: 'Poster 5', image_url: '/images/Poster 5.png' }
+            ];
+            const heroPosters = (heroPostersData && heroPostersData.length > 0) ? heroPostersData : defaultHeroPosters;
+
             const [
                 [dbSettings],
                 featured,
@@ -114,6 +126,7 @@ class HomeController {
 
             const renderData = {
                 title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
+                heroPosters,
                 featured,
                 season: { type: season, title: seasonTitle, slogan: seasonSlogan },
                 festival: nextFestival,

@@ -825,6 +825,64 @@ const AdminController = {
             console.error("Fetch admin chat history error:", error);
             res.status(500).json({ success: false, message: error.message });
         }
+    },
+
+    // ==================== HERO POSTERS ====================
+    posters: async (req, res) => {
+        try {
+            const HeroPoster = require('../models/HeroPoster');
+            const posters = await HeroPoster.getAll();
+            res.render('admin/posters', {
+                title: 'Quản lý Poster Hero Trang Chủ',
+                layout: 'layouts/admin',
+                posters
+            });
+        } catch (e) {
+            console.error("Admin posters error:", e);
+            res.status(500).send("Server Error");
+        }
+    },
+
+    createPoster: async (req, res) => {
+        try {
+            const HeroPoster = require('../models/HeroPoster');
+            await HeroPoster.ensureTableExists();
+
+            let imageUrl = '/images/Poster 1.png';
+            if (req.file) {
+                const cloudResult = await uploadToCloudinary(req.file.buffer, 'hero-posters');
+                imageUrl = cloudResult.secure_url;
+            } else if (req.body.image_url) {
+                imageUrl = req.body.image_url;
+            }
+
+            const posterId = uuidv4();
+            const title = req.body.title || 'Poster Hero';
+            const sortOrder = parseInt(req.body.sort_order || '1', 10);
+
+            await db.query(
+                `INSERT INTO hero_posters (id, title, image_url, sort_order, is_active) VALUES ($1, $2, $3, $4, 1)`,
+                [posterId, title, imageUrl, sortOrder]
+            );
+
+            res.redirect('/admin/posters');
+        } catch (e) {
+            console.error("Admin createPoster error:", e);
+            res.status(500).send("Server Error");
+        }
+    },
+
+    deletePoster: async (req, res) => {
+        try {
+            const posterId = req.body.id;
+            if (posterId) {
+                await db.query(`DELETE FROM hero_posters WHERE id = $1`, [posterId]);
+            }
+            res.redirect('/admin/posters');
+        } catch (e) {
+            console.error("Admin deletePoster error:", e);
+            res.status(500).send("Server Error");
+        }
     }
 };
 

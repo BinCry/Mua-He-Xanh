@@ -41,9 +41,11 @@ const ReviewController = {
                 LEFT JOIN destinations d ON r.destination_id = d.id
                 ORDER BY r.created_at DESC
             `);
+            const [destinations] = await db.query("SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY name ASC");
             res.render('reviews/index', {
                 title: 'Cộng đồng Bình Lợi',
-                reviews
+                reviews,
+                destinations
             });
         } catch (error) {
             console.error('Reviews error:', error);
@@ -56,7 +58,7 @@ const ReviewController = {
             const user = req.user || req.session?.user;
             if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
 
-            const { content, rating, lat, lng } = req.body;
+            const { content, rating, destination_id } = req.body;
             if (!content) return res.status(400).json({ success: false, message: 'Nội dung không được trống' });
 
             const id = uuidv4();
@@ -68,27 +70,18 @@ const ReviewController = {
             }
 
             let locationName = null;
-            let locationLat = lat ? parseFloat(lat) : null;
-            let locationLng = lng ? parseFloat(lng) : null;
-
-            let destinationId = null;
-            if (locationLat && locationLng) {
-                const [nearDest] = await db.query(`
-                    SELECT id, name FROM destinations 
-                    WHERE lat IS NOT NULL AND lng IS NOT NULL 
-                    AND ABS(lat - $1) < 0.005 AND ABS(lng - $2) < 0.005
-                    ORDER BY ABS(lat - $3) + ABS(lng - $4) ASC LIMIT 1
-                `, [locationLat, locationLng, locationLat, locationLng]);
-                if (nearDest.length > 0) {
-                    destinationId = nearDest[0].id;
-                    locationName = nearDest[0].name;
+            let destId = destination_id || null;
+            if (destId) {
+                const [destRow] = await db.query('SELECT name FROM destinations WHERE id = $1', [destId]);
+                if (destRow.length > 0) {
+                    locationName = destRow[0].name;
                 }
             }
 
             await db.query(
-                `INSERT INTO reviews (id, user_id, destination_id, content, rating, images, location_lat, location_lng, location_name, created_at)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())`,
-                [id, user.id, destinationId, content, rating || 5, images, locationLat, locationLng, locationName]
+                `INSERT INTO reviews (id, user_id, destination_id, content, rating, images, location_name, created_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
+                [id, user.id, destId, content, parseInt(rating || '5', 10), images, locationName]
             );
 
             res.json({ success: true, message: 'Đã đăng bài!' });

@@ -106,59 +106,21 @@
         data-bs-interval="5000" data-bs-pause="false" style="background-color: #044b5e !important;">
         <!-- Indicators (Dots at bottom center) -->
         <div class="carousel-indicators mb-2">
-            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="0" class="active"
-                aria-current="true" aria-label="Poster 1"></button>
-            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="1"
-                aria-label="Poster 2"></button>
-            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="2"
-                aria-label="Poster 3"></button>
-            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="3"
-                aria-label="Poster 4"></button>
-            <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="4"
-                aria-label="Poster 5"></button>
+            <% (typeof heroPosters !== 'undefined' && heroPosters ? heroPosters : []).forEach((p, idx) => { %>
+                <button type="button" data-bs-target="#heroPosterCarousel" data-bs-slide-to="<%= idx %>" class="<%= idx === 0 ? 'active' : '' %>"
+                    aria-current="<%= idx === 0 ? 'true' : 'false' %>" aria-label="Poster <%= idx + 1 %>"></button>
+            <% }) %>
         </div>
 
         <!-- Carousel Slides -->
         <div class="carousel-inner" style="background-color: #044b5e !important;">
-            <!-- Slide 1: Poster 1 HD -->
-            <div class="carousel-item active" data-bs-interval="5000">
+            <% (typeof heroPosters !== 'undefined' && heroPosters ? heroPosters : []).forEach((p, idx) => { %>
+            <div class="carousel-item <%= idx === 0 ? 'active' : '' %>" data-bs-interval="5000">
                 <div class="hero-poster-slide position-relative w-100 h-100">
-                    <img src="/images/Poster 1.png?v=<%= assetV %>" class="hero-poster-img w-100 h-100 d-block"
-                        alt="Poster 1">
+                    <img src="<%= fixImg(p.image_url) %>" class="hero-poster-img w-100 h-100 d-block" alt="<%= p.title || ('Poster ' + (idx + 1)) %>">
                 </div>
             </div>
-
-            <!-- Slide 2: Poster 2 HD -->
-            <div class="carousel-item" data-bs-interval="5000">
-                <div class="hero-poster-slide position-relative w-100 h-100">
-                    <img src="/images/Poster 2.png?v=<%= assetV %>" class="hero-poster-img w-100 h-100 d-block"
-                        alt="Poster 2">
-                </div>
-            </div>
-
-            <!-- Slide 3: Poster 3 HD -->
-            <div class="carousel-item" data-bs-interval="5000">
-                <div class="hero-poster-slide position-relative w-100 h-100">
-                    <img src="/images/Poster 3.png?v=<%= assetV %>" class="hero-poster-img w-100 h-100 d-block"
-                        alt="Poster 3">
-                </div>
-            </div>
-
-            <!-- Slide 4: Poster 4 HD -->
-            <div class="carousel-item" data-bs-interval="5000">
-                <div class="hero-poster-slide position-relative w-100 h-100">
-                    <img src="/images/Poster 4.png?v=<%= assetV %>" class="hero-poster-img w-100 h-100 d-block"
-                        alt="Poster 4">
-                </div>
-            </div>
-
-            <!-- Slide 5: Poster 5 HD -->
-            <div class="carousel-item" data-bs-interval="5000">
-                <div class="hero-poster-slide position-relative w-100 h-100">
-                    <img src="/images/Poster 5.png?v=<%= assetV %>" class="hero-poster-img w-100 h-100 d-block"
-                        alt="Poster 5">
-                </div>
-            </div>
+            <% }) %>
         </div>
 
         <!-- Left / Right Navigation Buttons -->
@@ -362,10 +324,12 @@
     </div>
 </section>
 
-<!-- Mobile 50/50 Card Responsive Styles -->
+<!-- Mobile Vertical Card Responsive Styles -->
 <style>
     .home-dest-card {
         height: 340px;
+        background: #ffffff;
+        border-radius: 16px;
     }
     .home-dest-img-wrap {
         width: 100%;
@@ -375,7 +339,7 @@
         left: 0;
     }
     .home-dest-overlay {
-        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 60%, transparent 100%);
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
         z-index: 2;
     }
     .home-dest-body {
@@ -388,91 +352,47 @@
         color: #ffffff;
     }
     .home-dest-desc {
-        color: rgba(255,255,255,0.75);
-    }
-
-    /* Mobile (max-width: 767.98px): 50/50 Split Layout */
-    @media (max-width: 767.98px) {
-        .home-dest-card {
-            height: 140px !important;
-            display: flex !important;
-            flex-direction: row !important;
-            background: #ffffff !important;
-            border: 1px solid rgba(0,0,0,0.06) !important;
-        }
-        .home-dest-img-wrap {
-            position: relative !important;
-            width: 50% !important;
-            height: 100% !important;
-            flex-shrink: 0;
-        }
-        .home-dest-overlay {
-            display: none !important;
-        }
-        .home-dest-body {
-            position: relative !important;
-            width: 50% !important;
-            height: 100% !important;
-            justify-content: center !important;
-            background: #ffffff !important;
-        }
-        .home-dest-title {
-            color: #1e293b !important;
-            font-size: 0.95rem !important;
-        }
-        .home-dest-desc {
-            color: #64748b !important;
-            font-size: 0.76rem !important;
-        }
+        color: rgba(255,255,255,0.85);
     }
 </style>
 
-<!-- EVENTS & SEASONAL (Bright and modern styling + YouTube Video Card) -->
+<!-- EVENTS & SEASONAL -->
 <section class="py-section position-relative"
     style="background-color: #f1f9f6; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03); overflow: hidden;">
     <div class="container py-4 py-md-5 position-relative" style="z-index: 2;">
         <div class="row align-items-stretch g-4 g-md-5">
             <div class="col-lg-6 reveal-up d-flex flex-column gap-4">
                 <% if (nextEvent) { %>
-                    <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-premium hover-lift w-100 d-flex flex-column"
-                        style="min-height: 440px; transition: all 0.4s var(--ease-out); background: linear-gradient(135deg, #922724 0%, #581816 100%); border: 1px solid rgba(146, 39, 36, 0.3);">
-
-                        <!-- Event Banner Image Overlay -->
-                        <div class="position-absolute top-0 start-0 w-100 h-100" style="z-index: 0;">
-                            <img src="<%= fixImg(nextEvent.image, '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover" style="opacity: 0.35; filter: brightness(0.7);">
-                        </div>
-                        <div class="position-absolute top-0 start-0 w-100 h-100"
-                            style="background: linear-gradient(to bottom, rgba(0,0,0,0.2) 0%, rgba(146,39,36,0.88) 100%); z-index: 1;">
-                        </div>
-
-                        <a href="/events/<%= nextEvent.id %>"
-                            class="card-body p-4 p-md-5 d-flex flex-column justify-content-between position-relative h-100 flex-grow-1 text-decoration-none text-start"
-                            style="z-index: 5;">
-                            <div>
-                                <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small"
-                                    style="background: rgba(255, 255, 255, 0.15); color: #ffffff; border: 1px solid rgba(255, 255, 255, 0.25); letter-spacing: 1px; backdrop-filter: blur(8px);">
+                    <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-sm hover-lift w-100 d-flex flex-column bg-white border">
+                        <!-- Top 50% Real Image Poster (No Background Gradient Overlay) -->
+                        <div class="w-100 position-relative" style="height: 240px; flex-shrink: 0;">
+                            <img src="<%= fixImg(nextEvent.image, '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover">
+                            <div class="position-absolute top-0 start-0 m-3">
+                                <span class="badge bg-success bg-opacity-90 text-white rounded-pill px-3 py-1.5 fw-bold x-small text-uppercase">
                                     <i class="bi bi-star-fill me-1" style="color: #ffc847;"></i> Sự kiện nổi bật
                                 </span>
+                            </div>
+                        </div>
 
-                                <h2 class="text-white font-black mb-3 font-display text-start"
-                                    style="font-size: 2rem; line-height: 1.2;">
+                        <!-- Bottom 50% Information Body -->
+                        <a href="/events/<%= nextEvent.id %>" class="card-body p-4 d-flex flex-column justify-content-between text-decoration-none text-start bg-white">
+                            <div>
+                                <h3 class="text-dark font-black mb-2 font-display text-start" style="font-size: 1.35rem; line-height: 1.3;">
                                     <%= nextEvent.title %>
-                                </h2>
-
-                                <p class="mb-4 home-event-featured-desc"
-                                    style="color: rgba(255, 255, 255, 0.9); font-size: 0.92rem; line-height: 1.6;">
+                                </h3>
+                                <p class="text-muted mb-3 line-clamp-3" style="font-size: 0.88rem; line-height: 1.6;">
                                     <%= nextEvent.description %>
                                 </p>
                             </div>
 
-                            <div>
-                                <div class="d-flex flex-column gap-2 text-start" style="font-size: 0.9rem;">
-                                    <div class="d-flex align-items-center gap-2" style="color: #ffffff;">
-                                        <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
+                            <div class="pt-3 border-top border-light">
+                                <div class="d-flex flex-column gap-1.5 text-start" style="font-size: 0.85rem;">
+                                    <div class="d-flex align-items-center gap-2 text-dark">
+                                        <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
                                         <span class="fw-bold"><%= nextEvent.location %></span>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 mt-1" style="color: #ffffff;">
-                                        <img src="<%= fixImg(nextEvent.image, '/images/hero-2.png') %>" class="rounded-2 object-fit-cover me-1" style="width: 24px; height: 24px;">
+                                    <div class="d-flex align-items-center gap-2 text-muted">
+                                        <i class="bi bi-calendar-event text-primary fs-6"></i>
                                         <span class="text-capitalize">
                                             <%= new Date(nextEvent.event_date).toLocaleDateString('vi-VN', {
                                                 weekday: 'long' , year: 'numeric' , month: 'long' , day: 'numeric' ,
@@ -484,17 +404,6 @@
                         </a>
                     </div>
                 <% } %>
-
-                <!-- YouTube Video Showcase Card -->
-                <div class="card border-0 rounded-4 overflow-hidden shadow-sm bg-white p-3">
-                    <div class="d-flex align-items-center gap-2 mb-2 px-1">
-                        <i class="bi bi-youtube text-danger fs-4"></i>
-                        <span class="fw-bold text-dark small">Video Trải Nghiệm Du Lịch Bình Lợi</span>
-                    </div>
-                    <div class="ratio ratio-16x9 rounded-3 overflow-hidden border">
-                        <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Bình Lợi Healing Video" allowfullscreen style="border: none;"></iframe>
-                    </div>
-                </div>
             </div>
 
             <div class="col-lg-6 reveal-up d-flex flex-column">
