@@ -113,7 +113,8 @@ app.use(passport.session());
 // Critical for Vercel serverless where MemoryStore sessions are lost between instances
 app.use(async (req, res, next) => {
     try {
-        if (!req.session?.user && req.cookies?.session_uuid) {
+        if (!req.session?.user && req.cookies?.session_uuid && !req.session?.sessionChecked) {
+            if (req.session) req.session.sessionChecked = true;
             const db = require('./core/database');
             const [sessions] = await db.query(
                 "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
@@ -201,7 +202,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '14.0.0'; 
+    res.locals.assetV = '15.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
