@@ -39,18 +39,18 @@
                                 <span class="dest-short-desc-text"><%= (dest.short_desc || '').replace(/\.+$/, '') %></span>
                             </div>
 
-                            <!-- Interactive Actions (Synchronized Buttons) -->
-                            <div class="d-flex flex-wrap align-items-center gap-2.5 mb-2 dest-hero-actions">
-                                <button class="btn btn-outline-danger rounded-pill px-4.5 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasLiked ? 'active bg-danger text-white' : '' %>" onclick="handleLikeToggle(this, '<%= dest.id %>')">
+                            <!-- Interactive Actions (Spacious 4 Buttons) -->
+                            <div class="d-flex flex-wrap align-items-center gap-3 gap-md-4 my-3 dest-hero-actions">
+                                <button class="btn btn-outline-danger rounded-pill px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasLiked ? 'active bg-danger text-white' : '' %>" onclick="handleLikeToggle(this, '<%= dest.id %>')">
                                     <i class="bi <%= hasLiked ? 'bi-heart-fill' : 'bi-heart' %>"></i> Thích (<span id="likes-count"><%= totalLikes %></span>)
                                 </button>
-                                <button class="btn btn-outline-primary rounded-pill px-4.5 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasSaved ? 'active bg-primary text-white' : '' %>" onclick="handleSaveToggle(this, '<%= dest.id %>')">
+                                <button class="btn btn-outline-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2 <%= hasSaved ? 'active bg-primary text-white' : '' %>" onclick="handleSaveToggle(this, '<%= dest.id %>')">
                                     <i class="bi <%= hasSaved ? 'bi-bookmark-fill' : 'bi-bookmark' %>"></i> <%= hasSaved ? 'Đã lưu' : 'Lưu điểm đến' %>
                                 </button>
-                                <button class="btn btn-outline-success rounded-pill px-4.5 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="shareDestination('<%= dest.name %>', '<%= baseUrl %>/explore/<%= dest.slug %>')">
+                                <button class="btn btn-outline-success rounded-pill px-4 py-2.5 fw-bold shadow-sm d-flex align-items-center gap-2" onclick="shareDestination('<%= dest.name %>', '<%= baseUrl %>/explore/<%= dest.slug %>')">
                                     <i class="bi bi-share-fill"></i> Chia sẻ
                                 </button>
-                                <button class="btn btn-primary rounded-pill px-4.5 py-2.5 fw-bold shadow-lg d-flex align-items-center gap-2" style="background: var(--primary); border: none;" onclick="addToJourney('<%= dest.id %>')">
+                                <button class="btn btn-primary rounded-pill px-4 py-2.5 fw-bold shadow-lg d-flex align-items-center gap-2 text-white" style="background: var(--primary); border: none;" onclick="addToJourney('<%= dest.id %>')">
                                     <i class="bi bi-signpost-split-fill"></i> Thêm vào hành trình
                                 </button>
                                 <% if (user && (user.role === 'manager' || user.role === 'admin') && user.managed_destination_id === dest.id) { %>
