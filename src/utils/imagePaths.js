@@ -1,20 +1,20 @@
 const DEFAULT_IMAGE = '/images/Poster 1.png';
 
 const LEGACY_IMAGE_ALIASES = Object.freeze({
-    '/images/hero-1.png': '/images/Poster 1.png',
-    '/images/hero-2.png': '/images/Poster 2.png',
-    '/images/hero-3.png': '/images/Poster 3.png',
-    '/images/hero-4.png': '/images/Poster 4.png',
-    '/images/hero-5.png': '/images/Poster 5.png',
-    '/images/hero-bg.jpg': '/images/Poster 1.png',
+    '/images/hero-1.png': '/uploads/destinations/chua-phap-tang.png',
+    '/images/hero-2.png': '/uploads/destinations/xuong-nhang.jpg',
+    '/images/hero-3.png': '/uploads/destinations/lang-mai.jpg',
+    '/images/hero-4.png': '/uploads/destinations/cau-chu-u.jpg',
+    '/images/hero-5.png': '/uploads/destinations/lang-le-park.jpg',
+    '/images/hero-bg.jpg': '/uploads/destinations/chua-thanh-tam.png',
     '/images/chua-phap-tang-1.png': '/uploads/destinations/chua-phap-tang.png',
     '/images/xuong-nhang-1.png': '/uploads/destinations/xuong-nhang.jpg',
     '/images/vuon-mai-1.png': '/uploads/destinations/lang-mai.jpg',
     '/images/cau-chu-z-1.png': '/uploads/destinations/cau-chu-u.jpg',
-    '/images/placeholder.png': '/images/Poster 1.png',
-    '/images/placeholder.jpg': '/images/Poster 1.png',
-    '/images/product-placeholder.png': '/images/Poster 1.png',
-    '/images/default-avatar.png': '/images/Poster 1.png',
+    '/images/placeholder.png': '/uploads/destinations/chua-phap-tang.png',
+    '/images/placeholder.jpg': '/uploads/destinations/chua-phap-tang.png',
+    '/images/product-placeholder.png': '/uploads/destinations/vuon-dua.png',
+    '/images/default-avatar.png': '/images/logo.svg',
     '/images/logo.png': '/images/logo.svg'
 });
 
