@@ -31,8 +31,8 @@ const ManagerController = require('../controllers/ManagerController');
 
 // ===== PUBLIC PAGES =====
 router.get('/', HomeController.index);
-router.get('/onboarding', ensureAuthenticated, OnboardingController.index);
-router.post('/onboarding', ensureAuthenticated, OnboardingController.submit);
+router.get(['/onboarding', '/journey/onboarding'], OnboardingController.index);
+router.post(['/onboarding', '/journey/onboarding', '/api/journey/onboarding'], OnboardingController.submit);
 router.get('/checkin', CheckinController.index);
 
 // Dynamic manifest.json endpoint to keep PWA name and logo synchronized with Admin Settings
@@ -196,12 +196,12 @@ router.get('/reviews/video-editor', ensureAuthenticated, ReviewController.videoE
 router.get('/map', MapController.index);
 
 // ===== JOURNEY =====
-router.get('/journey', ensureAuthenticated, (req, res) => res.redirect('/onboarding'));
-router.get('/hanh-trinh-cua-toi', ensureAuthenticated, JourneyController.index);
-router.get('/journey/suggestions', ensureAuthenticated, JourneyController.suggestions);
-router.post('/journey/confirm', ensureAuthenticated, JourneyController.confirm);
-router.post('/api/journey/lock-toggle', ensureAuthenticated, JourneyController.lockJourney);
-router.get('/journey/load-template/:id', ensureAuthenticated, JourneyController.loadTemplate);
+router.get(['/journey', '/hanh-trinh'], (req, res) => res.redirect('/onboarding'));
+router.get(['/hanh-trinh-cua-toi', '/journey/story', '/journey/view', '/journey/my-journey', '/journey/create'], JourneyController.index);
+router.get(['/journey/suggestions', '/journey/de-xuat'], JourneyController.suggestions);
+router.post(['/journey/confirm', '/journey/xac-nhan'], JourneyController.confirm);
+router.post('/api/journey/lock-toggle', JourneyController.lockJourney);
+router.get('/journey/load-template/:id', JourneyController.loadTemplate);
 
 // ===== AUTH PAGES =====
 router.get('/passport', ensureTourist, PassportController.index);

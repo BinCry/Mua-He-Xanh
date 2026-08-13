@@ -20,6 +20,145 @@ body {
     min-height: 90vh;
 }
 
+.onboarding-card-wrapper {
+    background: #ffffff;
+    border-radius: 24px;
+    border: 1px solid #eee7dd;
+    padding: 35px 28px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.04);
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .onboarding-card-wrapper {
+        padding: 20px 14px !important;
+        border-radius: 18px !important;
+    }
+}
+
+.section-badge-num {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #922724 0%, #7f1d1d 100%);
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 1.15rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(146, 39, 36, 0.25);
+}
+
+.section-header-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #1e293b;
+    line-height: 1.3;
+}
+
+.section-header-sub {
+    font-size: 0.82rem;
+    color: #64748b;
+    margin-top: 2px;
+}
+
+.section-divider-line {
+    height: 1px;
+    background: #eee7dd;
+    margin: 18px 0 24px;
+}
+
+/* VIBE CARDS */
+.vibe-card-item {
+    background: #ffffff;
+    border: 2px solid #e2e8f0;
+    border-radius: 18px;
+    padding: 20px 12px;
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s ease;
+    user-select: none;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.vibe-card-item:hover {
+    border-color: #cbd5e1;
+    background: #f8fafc;
+    transform: translateY(-3px);
+}
+
+.vibe-card-item.selected {
+    border-color: #922724 !important;
+    background: #fff5f5 !important;
+    box-shadow: 0 8px 20px rgba(146, 39, 36, 0.15) !important;
+}
+
+.check-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #922724;
+    color: #ffffff;
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.2s ease;
+}
+
+.vibe-card-item.selected .check-badge {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.vibe-icon {
+    font-size: 2.2rem;
+    margin-bottom: 8px;
+    line-height: 1;
+}
+
+.vibe-title {
+    font-size: 0.92rem;
+    font-weight: 900;
+    color: #1e293b;
+    margin-bottom: 4px;
+    letter-spacing: 0.5px;
+}
+
+.vibe-card-item.selected .vibe-title {
+    color: #922724;
+}
+
+.vibe-sub {
+    font-size: 0.75rem;
+    color: #64748b;
+    line-height: 1.3;
+}
+
+.sub-label-title {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .option-pill-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
