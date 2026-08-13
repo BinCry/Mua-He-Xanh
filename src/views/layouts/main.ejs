@@ -536,29 +536,82 @@
                     localStorage.setItem('pwa_ios_dismissed', 'true');
                 });
             }
-    <!-- Global Image Lightbox Modal (Click to Zoom Any Image) -->
-    <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content bg-transparent border-0 shadow-none">
-                <div class="modal-header border-0 pb-0 justify-content-end p-2">
-                    <button type="button" class="btn-close btn-close-white fs-4 shadow" data-bs-dismiss="modal" aria-label="Close" style="background-color: rgba(0,0,0,0.6); padding: 10px; border-radius: 50%; opacity: 1;"></button>
+    <!-- Global Interactive Image Lightbox Modal with Zoom Controls -->
+    <div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1080;">
+        <div class="modal-dialog modal-dialog-centered modal-fullscreen p-0 m-0">
+            <div class="modal-content bg-dark bg-opacity-95 border-0 rounded-0" style="backdrop-filter: blur(12px);">
+                <!-- Lightbox Toolbar Header -->
+                <div class="modal-header border-0 p-3 d-flex justify-content-between align-items-center position-absolute top-0 start-0 w-100" style="z-index: 1090; background: linear-gradient(to bottom, rgba(0,0,0,0.8) 0%, transparent 100%);">
+                    <span class="text-white-50 x-small fw-semibold ms-2 d-none d-md-inline">
+                        <i class="bi bi-info-circle me-1"></i> Cuộn chuột hoặc nhấp đúp để Phóng to / Thu nhỏ
+                    </span>
+                    
+                    <div class="d-flex align-items-center gap-2 ms-auto me-2">
+                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" onclick="zoomLightboxImage(0.25)" title="Phóng to">
+                            <i class="bi bi-zoom-in fs-6"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" onclick="zoomLightboxImage(-0.25)" title="Thu nhỏ">
+                            <i class="bi bi-zoom-out fs-6"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 38px; height: 38px;" onclick="resetLightboxZoom()" title="Kích thước ban đầu">
+                            <i class="bi bi-arrow-counterclockwise fs-6"></i>
+                        </button>
+                        <button type="button" class="btn-close btn-close-white fs-5 ms-3 shadow" data-bs-dismiss="modal" aria-label="Close" style="background-color: rgba(255,255,255,0.2); padding: 10px; border-radius: 50%; opacity: 1;"></button>
+                    </div>
                 </div>
-                <div class="modal-body p-2 text-center" onclick="bootstrap.Modal.getInstance(document.getElementById('imageLightboxModal'))?.hide()">
-                    <img id="lightboxTargetImg" src="" class="img-fluid rounded-4 shadow-lg" style="max-height: 85vh; object-fit: contain; cursor: pointer;" alt="Xem ảnh phóng to">
+
+                <!-- Lightbox Image Stage -->
+                <div class="modal-body p-0 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="height: 100vh; cursor: grab;" id="lightboxStage" onwheel="handleLightboxWheel(event)">
+                    <img id="lightboxTargetImg" src="" class="img-fluid rounded-3 shadow-2xl" style="max-height: 92vh; max-width: 95vw; object-fit: contain; transform: scale(1); transition: transform 0.2s ease; user-select: none;" alt="Xem ảnh phóng to" ondblclick="toggleLightboxZoom()">
                 </div>
             </div>
         </div>
     </div>
 
     <script>
+        let currentZoomScale = 1;
+
         function openImageLightbox(imgSrc) {
             if (!imgSrc) return;
             const target = document.getElementById('lightboxTargetImg');
             const modalEl = document.getElementById('imageLightboxModal');
             if (target && modalEl) {
                 target.src = imgSrc;
+                resetLightboxZoom();
                 const modal = new bootstrap.Modal(modalEl);
                 modal.show();
+            }
+        }
+
+        function zoomLightboxImage(delta) {
+            currentZoomScale = Math.max(0.5, Math.min(4, currentZoomScale + delta));
+            updateLightboxTransform();
+        }
+
+        function resetLightboxZoom() {
+            currentZoomScale = 1;
+            updateLightboxTransform();
+        }
+
+        function toggleLightboxZoom() {
+            if (currentZoomScale > 1) {
+                resetLightboxZoom();
+            } else {
+                currentZoomScale = 2;
+                updateLightboxTransform();
+            }
+        }
+
+        function handleLightboxWheel(e) {
+            e.preventDefault();
+            const delta = e.deltaY < 0 ? 0.25 : -0.25;
+            zoomLightboxImage(delta);
+        }
+
+        function updateLightboxTransform() {
+            const target = document.getElementById('lightboxTargetImg');
+            if (target) {
+                target.style.transform = `scale(${currentZoomScale})`;
             }
         }
     </script>

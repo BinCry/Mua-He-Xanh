@@ -12,10 +12,7 @@
         <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4 bg-white reveal-up">
             <!-- Full Width Hero Cover Banner -->
             <div class="w-100 position-relative overflow-hidden cursor-pointer" style="max-height: 480px; min-height: 280px; background: #0f172a;" onclick="openImageLightbox(this.querySelector('img').src)">
-                <img src="<%= fixImg(dest.cover_image, '/images/hero-3.png') %>" class="w-100 h-100 object-fit-cover" style="max-height: 480px;" alt="<%= dest.name %>" title="Bấm để xem ảnh phóng to">
-                <div class="position-absolute bottom-0 end-0 m-3 bg-dark bg-opacity-60 text-white rounded-pill px-3 py-1.5 x-small fw-semibold pointer-events-none">
-                    <i class="bi bi-zoom-in me-1"></i>Xem ảnh gốc
-                </div>
+                <img src="<%= fixImg(dest.cover_image, '/images/hero-3.png') %>" class="w-100 h-100 object-fit-cover" style="max-height: 480px;" alt="<%= dest.name %>">
             </div>
             
             <div class="p-4 p-md-5">
@@ -64,76 +61,64 @@
             </div>
         </div>
     </div>
-</section>
+</div>
+    </div>
 
-<div class="container-site mt-5 position-relative" style="z-index: 100;">
-    <div class="row g-5">
-        <!-- Main Content: Storytelling -->
+    <!-- Main Content & Sidebar Grid -->
+    <div class="row g-4 mb-5">
+        <!-- Main Content: Storytelling & Gallery -->
         <div class="col-lg-8">
-            <div class="card-bl p-4 p-md-5 mb-5 shadow-lg border-0 rounded-4">
-
-
-                <h2 class="display-text text-primary mb-4 border-bottom pb-3">Câu chuyện Văn hóa</h2>
-                <div class="story-text-rich" style="font-size: 1.15rem; line-height: 2.2; color: #444; text-align: justify;">
+            <div class="card border-0 shadow-sm rounded-4 p-4 p-md-4 mb-4 bg-white">
+                <h3 class="fw-black text-danger mb-3 border-bottom pb-2 font-display">
+                    <i class="bi bi-book-half me-2"></i>Câu chuyện Văn hóa
+                </h3>
+                <div class="story-text-rich" style="font-size: 1.05rem; line-height: 1.85; color: #334155; text-align: justify;">
                     <%- dest.story.replace(/\n/g, '<br><br>') %>
                 </div>
 
                 <!-- Highlight Box -->
-                <div class="highlight-quote p-5 rounded-4 mt-5 position-relative overflow-hidden bg-light border-start border-5 border-secondary">
-                    <i class="bi bi-quote display-1 position-absolute top-0 end-0 opacity-10 m-3 text-secondary"></i>
-                    <h4 class="mb-3 fw-black text-dark"><i class="bi bi-stars text-warning me-2"></i> Trải nghiệm tinh hoa</h4>
-                    <p class="mb-0 fst-italic lead text-muted" style="line-height: 1.8;"><%= (dest.highlight || '').replace(/\.+$/, '') %></p>
+                <% if (dest.highlight) { %>
+                <div class="highlight-quote p-4 rounded-4 mt-4 position-relative overflow-hidden bg-light border-start border-4 border-danger">
+                    <i class="bi bi-quote display-2 position-absolute top-0 end-0 opacity-10 m-2 text-danger"></i>
+                    <h5 class="mb-2 fw-bold text-dark"><i class="bi bi-stars text-warning me-2"></i> Trải nghiệm tinh hoa</h5>
+                    <p class="mb-0 fst-italic lead text-muted" style="font-size: 0.98rem; line-height: 1.6;"><%= dest.highlight.replace(/\.+$/, '') %></p>
                 </div>
+                <% } %>
             </div>
 
-
-
-            <!-- Image Gallery (Góc nhìn Nghệ thuật từ check-in thực tế của du khách) -->
-            <div class="mb-5">
-                <div class="d-flex justify-content-between align-items-end mb-4">
-                    <div class="ps-lg-3">
-                        <h3 class="display-text mb-1">Góc nhìn Nghệ thuật</h3>
-                        <p class="text-muted small mb-0"><i class="bi bi-camera-fill text-success me-1"></i> Khoảnh khắc được chụp thực tế tại điểm bởi du khách</p>
+            <!-- Image Gallery -->
+            <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div>
+                        <h4 class="fw-bold mb-1 text-dark"><i class="bi bi-camera-fill text-danger me-2"></i>Góc nhìn Nghệ thuật</h4>
+                        <p class="text-muted small mb-0">Khoảnh khắc được chụp thực tế tại điểm bởi du khách</p>
                     </div>
                 </div>
                 
                 <div class="row g-3">
                     <% if (galleryImages && galleryImages.length > 0) { %>
                         <div class="col-md-8">
-                            <div class="rounded-4 overflow-hidden shadow-premium ratio ratio-16x9 position-relative custom-gallery-card">
+                            <div class="rounded-4 overflow-hidden shadow-sm ratio ratio-16x9 position-relative custom-gallery-card cursor-pointer" onclick="openImageLightbox(this.querySelector('img').src)">
                                 <img src="<%= fixImg(galleryImages[0]) %>" class="w-100 h-100 object-fit-cover" alt="Artistic Perspective 1">
-                                <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white" style="background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 100%);">
-                                    <h6 class="mb-0 fw-bold"><i class="bi bi-geo-alt-fill text-danger me-1"></i> Góc nhìn chính từ check-in</h6>
-                                </div>
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="d-flex flex-column gap-3 h-100">
+                            <div class="d-flex flex-column gap-2 h-100">
                                 <% if (galleryImages[1]) { %>
-                                <div class="rounded-4 overflow-hidden shadow-premium ratio ratio-4x3 position-relative custom-gallery-card flex-grow-1">
+                                <div class="rounded-4 overflow-hidden shadow-sm ratio ratio-4x3 position-relative custom-gallery-card flex-grow-1 cursor-pointer" onclick="openImageLightbox(this.querySelector('img').src)">
                                     <img src="<%= fixImg(galleryImages[1]) %>" class="w-100 h-100 object-fit-cover" alt="Artistic Perspective 2">
                                 </div>
                                 <% } %>
                                 <% if (galleryImages[2]) { %>
-                                <div class="rounded-4 overflow-hidden shadow-premium ratio ratio-4x3 position-relative custom-gallery-card flex-grow-1">
+                                <div class="rounded-4 overflow-hidden shadow-sm ratio ratio-4x3 position-relative custom-gallery-card flex-grow-1 cursor-pointer" onclick="openImageLightbox(this.querySelector('img').src)">
                                     <img src="<%= fixImg(galleryImages[2]) %>" class="w-100 h-100 object-fit-cover" alt="Artistic Perspective 3">
-                                    <% if (galleryImages.length > 3) { %>
-                                    <div class="position-absolute top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex align-items-center justify-content-center text-white backdrop-blur-sm">
-                                        <div class="text-center">
-                                            <i class="bi bi-images fs-3 mb-1"></i>
-                                            <div class="fw-bold tracking-widest text-uppercase x-small">+<%= galleryImages.length - 3 %> ẢNH</div>
-                                        </div>
-                                    </div>
-                                    <% } %>
                                 </div>
                                 <% } %>
                             </div>
                         </div>
                     <% } else { %>
-                        <div class="col-12 text-center py-5 rounded-4 bg-white border border-dashed">
-                            <i class="bi bi-camera display-4 text-muted opacity-35 mb-3 d-block"></i>
-                            <h6 class="fw-bold text-secondary mb-1">Chưa có hình ảnh góc nhìn nghệ thuật nào</h6>
-                            <p class="x-small text-muted mb-0">Hãy là người đầu tiên chia sẻ khoảnh khắc đẹp tại điểm đến này lên mục Cộng đồng!</p>
+                        <div class="col-12 text-center py-3 rounded-3 bg-light border border-dashed text-muted">
+                            <span class="x-small"><i class="bi bi-info-circle me-1"></i> Chưa có ảnh đóng góp góc nhìn nghệ thuật. Hãy là người đầu tiên chia sẻ ảnh check-in!</span>
                         </div>
                     <% } %>
                 </div>

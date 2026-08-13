@@ -60,28 +60,35 @@
                 
                 messages.forEach(msg => {
                     const isMe = msg.is_mine || false;
+                    const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
+                    
                     if (isMe) {
                         html += `
                             <div class="message-sent mb-3 d-flex justify-content-end">
-                                <div class="p-2 px-3 rounded-4 text-white shadow-sm" style="max-width: 75%; font-size: 0.88rem; line-height: 1.5; background-color: var(--primary) !important; border-bottom-right-radius: 4px !important;">
+                                <div class="p-2.5 px-3 rounded-4 text-white shadow-2xs" style="max-width: 78%; font-size: 0.9rem; line-height: 1.5; background-color: var(--primary) !important; border-bottom-right-radius: 4px !important;">
                                     ${escapeHtml(msg.message)}
+                                    <div class="x-small opacity-60 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
                                 </div>
                             </div>
                         `;
                     } else {
                         html += `
                             <div class="message-received mb-3 d-flex gap-2 align-items-end">
-                                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-sm" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
-                                <div class="p-2 px-3 rounded-4 bg-white text-dark shadow-sm" style="max-width: 75%; font-size: 0.88rem; line-height: 1.5; border-bottom-left-radius: 4px !important;">
+                                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
+                                <div class="p-2.5 px-3 rounded-4 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.5; border-bottom-left-radius: 4px !important;">
                                     ${escapeHtml(msg.message)}
+                                    <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
                                 </div>
                             </div>
                         `;
                     }
                 });
                 
+                const isAtBottom = (container.scrollHeight - container.clientHeight - container.scrollTop) < 80;
                 container.innerHTML = html;
-                container.scrollTop = container.scrollHeight;
+                if (isAtBottom || messages.length <= 2) {
+                    container.scrollTop = container.scrollHeight;
+                }
             }
         } catch (e) {
             console.error('Error loading chat messages:', e);

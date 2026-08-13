@@ -164,11 +164,8 @@
                     <div class="row g-2">
                         <% imgs.forEach((img, idx) => { %>
                         <div class="col-12">
-                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" onclick="openImageLightbox(this.querySelector('img').src)">
-                                <img src="<%= fixImg(img) %>" class="rounded-4 w-100" style="max-height: 540px; object-fit: contain; background: #f8fafc;" alt="Review image" title="Bấm để xem ảnh phóng to" onerror="this.onerror=null; this.src='/images/Poster 1.png';">
-                                <div class="position-absolute bottom-0 end-0 m-2 bg-dark bg-opacity-60 text-white rounded-pill px-2.5 py-1 x-small fw-semibold pointer-events-none">
-                                    <i class="bi bi-zoom-in me-1"></i>Xem ảnh
-                                </div>
+                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer" onclick="openImageLightbox(this.querySelector('img').src)">
+                                <img src="<%= fixImg(img) %>" class="rounded-4 w-100" style="max-height: 560px; object-fit: contain; background: #f8fafc;" alt="Review image" onerror="this.onerror=null; this.src='/images/Poster 1.png';">
                             </div>
                         </div>
                         <% }) %>

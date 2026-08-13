@@ -317,7 +317,7 @@ class ApiController {
             queryParams.push(session.user_id);
         }
 
-        let destCondition = `AND destination_id IS NULL`;
+        let destCondition = '';
         if (destinationId) {
             destCondition = `AND destination_id = $${queryParams.length + 1}`;
             queryParams.push(destinationId);
