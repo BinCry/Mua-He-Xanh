@@ -260,14 +260,13 @@ router.post('/auth/login', AuthController.handlePasswordLogin);
 router.get('/admin/login', AuthController.adminLoginPage);
 router.get('/auth/logout', AuthController.logout);
 
-// Helper for canonical OAuth callback URLs
+// Helper for canonical OAuth callback URLs (Du lịch Bình Lợi)
 function getOAuthCallbackUrl(req, routePath) {
     const host = req.get('host') || '';
     if (host.includes('localhost') || host.includes('127.0.0.1')) {
         return `http://${host}${routePath}`;
     }
-    const base = (process.env.BASE_URL || 'https://dulichbinhloi.com').replace(/\/$/, '');
-    return `${base}${routePath}`;
+    return `https://dulichbinhloi.com${routePath}`;
 }
 
 // Google OAuth
