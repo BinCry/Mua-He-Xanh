@@ -309,7 +309,7 @@
 
                             <!-- Content Body -->
                             <div class="home-dest-body p-2 p-md-4 d-flex flex-column justify-content-end" style="z-index: 5;">
-                                <h5 class="font-black mb-1 font-display home-dest-title text-truncate" style="font-size: 1.15rem;">
+                                <h5 class="font-black mb-1 font-display home-dest-title">
                                     <%= dest.name %>
                                 </h5>
                                 <p class="mb-0 line-clamp-2 home-dest-desc" style="font-size: 0.8rem; line-height: 1.5;">
@@ -350,6 +350,9 @@
     }
     .home-dest-title {
         color: #ffffff;
+        font-size: 1.15rem;
+        font-weight: 800;
+        font-family: 'Inter', sans-serif;
     }
     .home-dest-desc {
         color: rgba(255,255,255,0.85);
@@ -374,7 +377,7 @@
         }
         .home-dest-overlay {
             display: block !important;
-            background: linear-gradient(to top, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.2) 60%, transparent 100%) !important;
+            background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.2) 65%, transparent 100%) !important;
             z-index: 2 !important;
         }
         .home-dest-body {
@@ -387,21 +390,20 @@
         }
         .home-dest-title {
             color: #ffffff !important;
-            font-size: 0.68rem !important;
+            font-size: 0.7rem !important;
             font-weight: 700 !important;
             line-height: 1.25 !important;
             margin-bottom: 0 !important;
             text-align: center !important;
             text-shadow: 0 1px 3px rgba(0,0,0,0.95) !important;
+            white-space: normal !important;
             word-break: normal !important;
             overflow-wrap: break-word !important;
-            hyphens: auto !important;
             display: -webkit-box !important;
             -webkit-line-clamp: 2 !important;
             -webkit-box-orient: vertical !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
-            white-space: normal !important;
         }
         .home-dest-desc {
             display: none !important;
