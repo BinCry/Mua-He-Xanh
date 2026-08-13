@@ -93,26 +93,26 @@
                 <!-- Info Card -->
                 <div class="card border-0 shadow-sm rounded-4 p-4 bg-white border" style="border-left: 5px solid #198754 !important;">
                     <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; color: #198754;">
-                        <i class="bi bi-clock-history me-2"></i>Thời Điểm Mở Cửa
+                        <i class="bi bi-shop me-2"></i>Thông Tin Sản Phẩm & Shop
                     </h4>
                     
                     <div class="mb-3">
-                        <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-2"></i>Lịch trình mở lớp:</div>
+                        <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-2"></i>Lịch trình mở bán / trải nghiệm:</div>
                         <div class="fw-bold fs-6 text-dark" style="font-family: 'Inter', sans-serif;"><%= workshop.schedule_note || 'Liên hệ đại diện để biết thêm chi tiết' %></div>
                     </div>
 
                     <div class="mb-3">
-                        <div class="small text-muted mb-1"><i class="bi bi-clock me-2"></i>Thời lượng lớp học:</div>
-                        <div class="fw-bold text-dark" style="font-family: 'Inter', sans-serif;"><%= workshop.duration_minutes %> phút / buổi</div>
+                        <div class="small text-muted mb-1"><i class="bi bi-clock me-2"></i>Thời gian / Quy cách:</div>
+                        <div class="fw-bold text-dark" style="font-family: 'Inter', sans-serif;"><%= workshop.duration_minutes %> phút / lượt</div>
                     </div>
 
                     <div class="mb-3">
-                        <div class="small text-muted mb-1"><i class="bi bi-cash-stack me-2"></i>Chi phí tham gia:</div>
+                        <div class="small text-muted mb-1"><i class="bi bi-cash-stack me-2"></i>Giá bán / Chi phí:</div>
                         <div class="fw-bold text-success fs-6" style="font-family: 'Inter', sans-serif;"><%= workshop.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %></div>
                     </div>
 
                     <div class="p-3 bg-light rounded-3">
-                        <p class="small text-secondary mb-0"><i class="bi bi-info-circle-fill me-1"></i> Workshop này được tổ chức trực tiếp tại điểm đến. Quý khách vui lòng đến đúng giờ để tham gia trải nghiệm trọn vẹn.</p>
+                        <p class="small text-secondary mb-0"><i class="bi bi-info-circle-fill me-1"></i> Sản phẩm & trải nghiệm này được phục vụ trực tiếp tại địa điểm. Quý khách vui lòng kiểm tra thông tin trước khi đặt mua.</p>
                     </div>
                 </div>
 
@@ -143,55 +143,55 @@
                     <% if (activeBooking) { %>
                         <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white border animate__animated animate__fadeIn" style="border-left: 5px solid #198754 !important;">
                             <h4 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif; color: #198754;">
-                                <i class="bi bi-ticket-perforated-fill me-2"></i>Vé Đã Đăng Ký
+                                <i class="bi bi-bag-check-fill me-2"></i>Đơn Đã Đặt Mua
                             </h4>
                             <div class="p-3 bg-light rounded-4 mb-3 border">
-                                <div class="mb-2"><span class="text-muted small">Mã vé:</span> <strong class="text-primary font-monospace"><%= activeBooking.qr_ticket || 'BHL-WS-' + activeBooking.id.substring(0,8).toUpperCase() %></strong></div>
+                                <div class="mb-2"><span class="text-muted small">Mã đơn / vé:</span> <strong class="text-primary font-monospace"><%= activeBooking.qr_ticket || 'BHL-WS-' + activeBooking.id.substring(0,8).toUpperCase() %></strong></div>
                                 <div class="mb-2"><span class="text-muted small">Thời gian:</span> <strong><%= new Date(activeBooking.booking_date).toLocaleDateString('vi-VN') %> lúc <%= activeBooking.booking_time %></strong></div>
-                                <div class="mb-2"><span class="text-muted small">Số người:</span> <strong><%= activeBooking.num_people %> người</strong></div>
+                                <div class="mb-2"><span class="text-muted small">Số lượng:</span> <strong><%= activeBooking.num_people %></strong></div>
                                 <div><span class="text-muted small">Trạng thái:</span> <span class="badge bg-success"><%= activeBooking.status === 'confirmed' ? 'Đã xác nhận' : activeBooking.status %></span></div>
                             </div>
                             
                             <button onclick="confirmCancelBooking('<%= activeBooking.id %>')" class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold" id="cancelSubmitBtn">
-                                <i class="bi bi-x-circle-fill me-2"></i>HỦY ĐĂNG KÝ
+                                <i class="bi bi-x-circle-fill me-2"></i>HỦY ĐẶT MUA
                             </button>
                         </div>
                     <% } else { %>
                         <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white border animate__animated animate__fadeIn" style="border-left: 5px solid var(--primary) !important;">
                             <% if (cancelledBooking) { %>
                                 <div class="alert alert-warning py-2 small mb-3 rounded-3">
-                                    <i class="bi bi-exclamation-triangle-fill me-1 text-warning"></i>Bạn đã hủy vé đăng ký trước đó. Bạn có thể chọn đăng ký lại dưới đây:
+                                    <i class="bi bi-exclamation-triangle-fill me-1 text-warning"></i>Bạn đã hủy đơn đăng ký trước đó. Bạn có thể chọn đặt mua lại dưới đây:
                                 </div>
                             <% } %>
                             <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; color: var(--primary);">
-                                <i class="bi bi-ticket-perforated me-2"></i>Đăng Ký Tham Gia
+                                <i class="bi bi-bag-plus me-2"></i>Đặt Mua / Đăng Ký
                             </h4>
                             
                             <div class="p-3 bg-light rounded-4 mb-4 border">
-                                <div class="mb-2"><span class="text-muted small">Ngày diễn ra:</span> <strong><%= workshop.start_date ? new Date(workshop.start_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hàng ngày' %></strong></div>
-                                <div class="mb-2"><span class="text-muted small">Giờ học:</span> <strong><%= bookingTime %></strong></div>
-                                <div class="mb-2"><span class="text-muted small">Thời lượng:</span> <strong><%= workshop.duration_minutes %> phút / buổi</strong></div>
-                                <div class="mb-2"><span class="text-muted small">Địa điểm:</span> <strong><%= workshop.destination_name || 'Bình Lợi' %></strong></div>
+                                <div class="mb-2"><span class="text-muted small">Ngày diễn ra / bán:</span> <strong><%= workshop.start_date ? new Date(workshop.start_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hàng ngày' %></strong></div>
+                                <div class="mb-2"><span class="text-muted small">Giờ mở cửa:</span> <strong><%= bookingTime %></strong></div>
+                                <div class="mb-2"><span class="text-muted small">Thời gian / Quy cách:</span> <strong><%= workshop.duration_minutes %> phút / lượt</strong></div>
+                                <div class="mb-2"><span class="text-muted small">Địa điểm Shop:</span> <strong><%= workshop.destination_name || 'Bình Lợi' %></strong></div>
                                 <div class="mb-3 d-flex align-items-center">
-                                    <span id="slots-badge" class="badge rounded-pill bg-success px-3 py-2">CÒN CHỖ</span>
-                                    <span id="slots-text" class="small text-muted ms-2">Đang tải số chỗ trống...</span>
+                                    <span id="slots-badge" class="badge rounded-pill bg-success px-3 py-2">CÒN HÀNG</span>
+                                    <span id="slots-text" class="small text-muted ms-2">Đang tải số lượng...</span>
                                 </div>
                             </div>
                             
                             <button onclick="registerWorkshop()" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" id="bookSubmitBtn">
-                                <i class="bi bi-check-circle-fill me-2"></i>ĐĂNG KÝ NGAY
+                                <i class="bi bi-check-circle-fill me-2"></i>ĐẶT MUA NGAY
                             </button>
                         </div>
                     <% } %>
                 <% } else { %>
                     <div class="card border-0 shadow-sm rounded-4 p-4 mt-4 bg-white border" style="border-left: 5px solid var(--primary) !important;">
                         <h4 class="fw-bold mb-4" style="font-family: 'Inter', sans-serif; color: var(--primary);">
-                            <i class="bi bi-ticket-perforated me-2"></i>Đăng Ký Tham Gia
+                            <i class="bi bi-bag-plus me-2"></i>Đặt Mua / Đăng Ký
                         </h4>
                         <div class="text-center py-4">
                             <i class="bi bi-shield-lock display-6 text-muted mb-3 d-block"></i>
-                            <p class="small text-muted">Vui lòng đăng nhập để đăng ký tham gia workshop này.</p>
-                            <a href="/auth/login?redirect=/workshops/<%= workshop.id %>" class="btn btn-premium rounded-pill px-4 py-2 mt-2 fw-bold" style="background: var(--primary); color: white;">Đăng nhập</a>
+                            <p class="small text-muted">Vui lòng đăng nhập để đặt mua sản phẩm này.</p>
+                            <a href="/auth/login?redirect=/shops/<%= workshop.id %>" class="btn btn-premium rounded-pill px-4 py-2 mt-2 fw-bold" style="background: var(--primary); color: white;">Đăng nhập</a>
                         </div>
                     </div>
                 <% } %>
@@ -208,12 +208,12 @@
                 <div class="mb-3 d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle" style="width: 56px; height: 56px;">
                     <i class="bi bi-exclamation-triangle-fill fs-3"></i>
                 </div>
-                <h5 class="fw-bold mb-2" style="font-family: 'Inter', sans-serif; color: #1a202c; font-size: 1.1rem;">Xác nhận hủy vé</h5>
-                <p class="text-muted small mb-4" style="font-size: 0.85rem; line-height: 1.4;">Bạn có chắc chắn muốn hủy đăng ký tham gia workshop này không?</p>
+                <h5 class="fw-bold mb-2" style="font-family: 'Inter', sans-serif; color: #1a202c; font-size: 1.1rem;">Xác nhận hủy đơn đặt</h5>
+                <p class="text-muted small mb-4" style="font-size: 0.85rem; line-height: 1.4;">Bạn có chắc chắn muốn hủy đặt mua sản phẩm này không?</p>
                 
                 <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-light rounded-pill flex-fill py-2 small fw-semibold border" data-bs-dismiss="modal">Giữ vé lại</button>
-                    <button type="button" class="btn btn-danger rounded-pill flex-fill py-2 small fw-bold" id="confirmCancelBtn" onclick="executeCancelBooking()">Hủy vé ngay</button>
+                    <button type="button" class="btn btn-light rounded-pill flex-fill py-2 small fw-semibold border" data-bs-dismiss="modal">Giữ đơn lại</button>
+                    <button type="button" class="btn btn-danger rounded-pill flex-fill py-2 small fw-bold" id="confirmCancelBtn" onclick="executeCancelBooking()">Hủy đơn ngay</button>
                 </div>
             </div>
         </div>
@@ -234,7 +234,7 @@
         if (!badge || !text) return;
 
         try {
-            const res = await axios.get(`/api/workshop/slots?workshopId=${workshopId}&date=${bookingDate}`);
+            const res = await axios.get(`/api/shop/slots?workshopId=${workshopId}&date=${bookingDate}`);
             if (res.data && res.data.success) {
                 const total = parseInt(res.data.total) || maxParticipants;
                 const remaining = parseInt(res.data.remaining);
@@ -242,26 +242,26 @@
                 
                 if (remaining <= 0) {
                     badge.classList.add('bg-danger');
-                    badge.innerText = 'ĐÃ ĐẦY';
-                    text.innerText = `Lớp học đã đủ ${total}/${total} người`;
+                    badge.innerText = 'HẾT HÀNG';
+                    text.innerText = `Sản phẩm tạm thời hết hàng`;
                     if (submitBtn) submitBtn.disabled = true;
                 } else if (remaining <= total * 0.2) {
                     badge.classList.add('bg-warning', 'text-dark');
-                    badge.innerText = 'SẮP ĐẦY';
-                    text.innerText = `Chỉ còn lại ${remaining} chỗ trống`;
+                    badge.innerText = 'SẮP HẾT';
+                    text.innerText = `Chỉ còn lại ${remaining} sản phẩm`;
                     if (submitBtn) submitBtn.disabled = false;
                 } else {
                     badge.classList.add('bg-success');
-                    badge.innerText = 'CÒN CHỖ';
-                    text.innerText = `Còn trống ${remaining}/${total} chỗ`;
+                    badge.innerText = 'CÒN HÀNG';
+                    text.innerText = `Sẵn sàng phục vụ`;
                     if (submitBtn) submitBtn.disabled = false;
                 }
             }
         } catch (e) {
             console.error('Error checking slots:', e);
             badge.className = 'badge rounded-pill bg-success px-3 py-2';
-            badge.innerText = 'CÒN CHỖ';
-            text.innerText = 'Nhấn Đăng ký để đặt vé';
+            badge.innerText = 'CÒN HÀNG';
+            text.innerText = 'Nhấn Đặt Mua để hoàn tất';
             if (submitBtn) submitBtn.disabled = false;
         }
     }
@@ -278,29 +278,29 @@
             booking_date: bookingDate,
             booking_time: bookingTime,
             num_people: 1,
-            note: 'Đăng ký nhanh từ trang chi tiết'
+            note: 'Đặt mua sản phẩm từ Shop'
         };
 
         try {
-            const res = await axios.post('/api/workshop/book', data);
+            const res = await axios.post('/api/shop/book', data);
             if (res.data && res.data.success) {
                 if (typeof confetti === 'function') {
                     confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
                 }
-                submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>ĐÃ ĐĂNG KÝ THÀNH CÔNG!';
+                submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>ĐẶT MUA THÀNH CÔNG!';
                 submitBtn.classList.replace('btn-primary', 'btn-success');
                 setTimeout(() => {
                     window.location.reload();
                 }, 1000);
             } else {
-                alert(res.data?.message || 'Không thể đăng ký.');
+                alert(res.data?.message || 'Không thể đặt mua.');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = oldHtml;
             }
         } catch (err) {
-            console.error('Lỗi đăng ký:', err);
+            console.error('Lỗi đặt mua:', err);
             const errMsg = err.response?.data?.message || err.message || 'Có lỗi xảy ra';
-            alert('Lỗi đăng ký: ' + errMsg);
+            alert('Lỗi đặt mua: ' + errMsg);
             submitBtn.disabled = false;
             submitBtn.innerHTML = oldHtml;
         }
@@ -331,7 +331,7 @@
         cancelBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
 
         try {
-            const res = await axios.post('/api/workshop/cancel', { bookingId: pendingBookingIdToCancel });
+            const res = await axios.post('/api/shop/cancel', { bookingId: pendingBookingIdToCancel });
             if (res.data && res.data.success) {
                 window.location.reload();
             } else {

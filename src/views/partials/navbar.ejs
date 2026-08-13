@@ -168,8 +168,8 @@
             </button>
 
             <a class="navbar-brand d-flex align-items-center m-0 p-0 min-w-0 flex-shrink-1" href="/" style="position: relative !important; left: auto !important; margin: 0 !important; padding: 0 !important; gap: 10px;">
-                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" class="brand-logo-img flex-shrink-0"
-                    onerror="this.src='/images/logo.png'">
+                <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" alt="Logo" class="brand-logo-img flex-shrink-0"
+                    onerror="this.src='/images/logo.svg'">
                 <div class="d-flex flex-column justify-content-center min-w-0 flex-shrink-1 overflow-hidden">
                     <span class="d-block fw-black lh-1 brand-title-text text-truncate"
                         style="font-family: 'Inter', sans-serif; font-weight: 900; color: var(--primary); letter-spacing: 0.5px;">
@@ -191,8 +191,8 @@
                     </li>
                     <li class="nav-item"><a class="nav-link <%= path.startsWith('/explore') ? 'active' : '' %>"
                             href="/explore">Khám phá</a></li>
-                    <li class="nav-item"><a class="nav-link <%= path.startsWith('/workshops') ? 'active' : '' %>"
-                            href="/workshops">Workshop</a></li>
+                    <li class="nav-item"><a class="nav-link <%= (path.startsWith('/workshops') || path.startsWith('/shops')) ? 'active' : '' %>"
+                            href="/shops">Shop</a></li>
                     <li class="nav-item"><a class="nav-link <%= path.startsWith('/reviews') ? 'active' : '' %>"
                             href="/reviews">Cộng đồng</a></li>
                     <li class="nav-item"><a
@@ -269,113 +269,106 @@
 
 
 
-<!-- MOBILE OFFCANVAS MENU (Premium Dark Sidebar Style) -->
+<!-- MOBILE OFFCANVAS MENU (Clean Light Sidebar Style) -->
 <div class="offcanvas offcanvas-start border-0 shadow-lg" tabindex="-1" id="mobileMenu"
-    style="width: 300px; z-index: 1060; border-radius: 0 20px 20px 0; overflow: hidden;">
+    style="width: 300px; z-index: 1060; border-radius: 0 20px 20px 0; overflow: hidden; background: #ffffff;">
 
-    <!-- Dark Header with Brand -->
-    <div class="offcanvas-header px-4 py-3 align-items-center"
-        style="background: #3c3c3c; border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <!-- Light Header with Brand -->
+    <div class="offcanvas-header px-4 py-3 align-items-center bg-white"
+        style="border-bottom: 1px solid #f1f5f9;">
         <div class="d-flex align-items-center gap-2 flex-grow-1">
-            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo" style="height: 28px; filter: brightness(10);"
-                onerror="this.src='/images/logo.png'">
-            <span class="fw-bold text-white" style="font-size: 0.95rem; letter-spacing: 0.5px;">
+            <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" alt="Logo" style="height: 32px; width: auto;"
+                onerror="this.src='/images/logo.svg'">
+            <span class="fw-bold text-dark" style="font-size: 0.95rem; letter-spacing: 0.5px;">
                 <%= settings.brand_name || 'Bình Lợi' %>
             </span>
         </div>
-        <button type="button" class="btn-close btn-close-white shadow-none p-2" data-bs-dismiss="offcanvas" aria-label="Đóng"
-            style="font-size: 0.7rem; opacity: 0.7;"></button>
+        <button type="button" class="btn-close shadow-none p-2" data-bs-dismiss="offcanvas" aria-label="Đóng"
+            style="font-size: 0.75rem; opacity: 0.7;"></button>
     </div>
 
     <!-- Search Bar -->
-    <div class="px-4 py-3" style="background: #3c3c3c;">
-        <div class="input-group" style="border-radius: 10px; overflow: hidden;">
+    <div class="px-4 py-3 bg-white" style="border-bottom: 1px solid #f1f5f9;">
+        <div class="input-group" style="border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0;">
             <input type="text" class="form-control border-0 py-2 ps-3" placeholder="Tìm kiếm..."
-                style="background: rgba(255,255,255,0.12); color: #ffffff; font-size: 0.82rem;"
-                onfocus="this.style.background='rgba(255,255,255,0.18)'"
-                onblur="this.style.background='rgba(255,255,255,0.12)'">
-            <button class="btn border-0 px-3" style="background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.6);">
+                style="background: #f8fafc; color: #1e293b; font-size: 0.82rem;"
+                onfocus="this.style.background='#ffffff'"
+                onblur="this.style.background='#f8fafc'">
+            <button class="btn border-0 px-3" style="background: #f8fafc; color: #64748b;">
                 <i class="bi bi-search" style="font-size: 0.85rem;"></i>
             </button>
         </div>
     </div>
 
     <!-- Menu Body -->
-    <div class="offcanvas-body d-flex flex-column p-0" style="background: #4a4a4a;">
+    <div class="offcanvas-body d-flex flex-column p-0 bg-white">
         <!-- Navigation Links -->
-        <div class="py-2">
+        <div class="py-2 px-2">
             <% const mPath = (locals.currentPath || '').toLowerCase(); %>
-            <a class="mobile-dark-link <%= mPath === '/' ? 'active' : '' %>" href="/">
+            <a class="mobile-light-link <%= mPath === '/' ? 'active' : '' %>" href="/">
                 <i class="bi bi-house-door-fill"></i> TRANG CHỦ
             </a>
-            <a class="mobile-dark-link <%= mPath.startsWith('/explore') ? 'active' : '' %>" href="/explore">
+            <a class="mobile-light-link <%= mPath.startsWith('/explore') ? 'active' : '' %>" href="/explore">
                 <i class="bi bi-compass-fill"></i> KHÁM PHÁ
                 <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
             </a>
-            <a class="mobile-dark-link <%= mPath.startsWith('/workshops') ? 'active' : '' %>" href="/workshops">
-                <i class="bi bi-palette-fill"></i> WORKSHOP
+            <a class="mobile-light-link <%= (mPath.startsWith('/workshops') || mPath.startsWith('/shops')) ? 'active' : '' %>" href="/shops">
+                <i class="bi bi-shop"></i> SHOP
                 <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
             </a>
-            <a class="mobile-dark-link <%= mPath.startsWith('/reviews') ? 'active' : '' %>" href="/reviews">
+            <a class="mobile-light-link <%= mPath.startsWith('/reviews') ? 'active' : '' %>" href="/reviews">
                 <i class="bi bi-chat-heart-fill"></i> CỘNG ĐỒNG
                 <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
             </a>
-            <a class="mobile-dark-link <%= (mPath.startsWith('/journey') || mPath.startsWith('/onboarding')) ? 'active' : '' %>" href="/journey">
+            <a class="mobile-light-link <%= (mPath.startsWith('/journey') || mPath.startsWith('/onboarding')) ? 'active' : '' %>" href="/journey">
                 <i class="bi bi-signpost-split-fill"></i> HÀNH TRÌNH
                 <i class="bi bi-chevron-right ms-auto" style="font-size: 0.65rem; opacity: 0.4;"></i>
             </a>
-            <a class="mobile-dark-link <%= mPath.startsWith('/map') ? 'active' : '' %>" href="/map">
+            <a class="mobile-light-link <%= mPath.startsWith('/map') ? 'active' : '' %>" href="/map">
                 <i class="bi bi-map-fill"></i> BẢN ĐỒ
             </a>
-            <a class="mobile-dark-link <%= mPath.startsWith('/festivals') ? 'active' : '' %>" href="/festivals">
+            <a class="mobile-light-link <%= mPath.startsWith('/festivals') ? 'active' : '' %>" href="/festivals">
                 <i class="bi bi-calendar-event-fill"></i> LỄ HỘI
             </a>
             <% if (locals.user) { %>
-            <a class="mobile-dark-link" href="/chat">
+            <a class="mobile-light-link" href="/chat">
                 <i class="bi bi-envelope-heart-fill"></i> HỘP THƯ HỖ TRỢ
             </a>
             <% } %>
         </div>
 
-        <!-- User Section / Login at Bottom -->
-        <div class="mt-auto" style="border-top: 1px solid rgba(255,255,255,0.08); background: #3c3c3c;">
-            <% if (user) { %>
-                <div class="d-flex align-items-center gap-3 px-4 py-3" style="border-bottom: 1px solid rgba(255,255,255,0.06);">
-                    <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
-                        style="width: 36px; height: 36px; object-fit: cover; border: 2px solid rgba(255,255,255,0.15);">
-                    <div class="overflow-hidden">
-                        <div class="fw-bold text-white text-truncate notranslate" translate="no" style="font-size: 0.82rem;">
-                            <%= user.full_name %>
-                        </div>
-                        <div class="text-truncate" style="font-size: 0.68rem; color: rgba(255,255,255,0.45);">
-                            <%= user.phone || user.email %>
-                        </div>
+        <!-- User Section at Bottom (Only logged in user actions) -->
+        <% if (user) { %>
+        <div class="mt-auto bg-light border-top" style="border-color: #f1f5f9 !important;">
+            <div class="d-flex align-items-center gap-3 px-4 py-3" style="border-bottom: 1px solid #e2e8f0;">
+                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
+                    style="width: 36px; height: 36px; object-fit: cover; border: 2px solid #cbd5e1;">
+                <div class="overflow-hidden">
+                    <div class="fw-bold text-dark text-truncate notranslate" translate="no" style="font-size: 0.82rem;">
+                        <%= user.full_name %>
+                    </div>
+                    <div class="text-truncate" style="font-size: 0.68rem; color: #64748b;">
+                        <%= user.phone || user.email %>
                     </div>
                 </div>
-                <div class="py-2">
-                    <% if (user.role === 'user') { %>
-                    <a class="mobile-dark-link" href="/profile"><i class="bi bi-person-circle"></i> HỒ SƠ DU KHÁCH</a>
-                    <a class="mobile-dark-link" href="/profile/rewards"><i class="bi bi-gift-fill"></i> ĐIỂM THƯỞNG</a>
-                    <% } %>
-                    <% if (user.role === 'admin') { %>
-                    <a class="mobile-dark-link" href="/admin"><i class="bi bi-shield-check"></i> ADMIN PANEL</a>
-                    <% } %>
-                    <% if (user.role === 'manager') { %>
-                    <a class="mobile-dark-link" href="/manager"><i class="bi bi-shield-check"></i> QUẢN LÝ PANEL</a>
-                    <% } %>
-                    <a class="mobile-dark-link" href="/auth/logout" style="color: #ef4444 !important;">
-                        <i class="bi bi-box-arrow-right"></i> ĐĂNG XUẤT
-                    </a>
-                </div>
-            <% } else { %>
-                <div class="px-4 py-3">
-                    <a href="/auth/login" class="btn w-100 rounded-pill py-2 fw-bold d-flex align-items-center justify-content-center gap-2"
-                        style="background: #922724; color: #fff; font-size: 0.82rem; letter-spacing: 0.5px;">
-                        <i class="bi bi-box-arrow-in-right"></i> ĐĂNG NHẬP / ĐĂNG KÝ
-                    </a>
-                </div>
-            <% } %>
+            </div>
+            <div class="py-2 px-2">
+                <% if (user.role === 'user') { %>
+                <a class="mobile-light-link" href="/profile"><i class="bi bi-person-circle"></i> HỒ SƠ DU KHÁCH</a>
+                <a class="mobile-light-link" href="/profile/rewards"><i class="bi bi-gift-fill"></i> ĐIỂM THƯỞNG</a>
+                <% } %>
+                <% if (user.role === 'admin') { %>
+                <a class="mobile-light-link" href="/admin"><i class="bi bi-shield-check"></i> ADMIN PANEL</a>
+                <% } %>
+                <% if (user.role === 'manager') { %>
+                <a class="mobile-light-link" href="/manager"><i class="bi bi-shield-check"></i> QUẢN LÝ PANEL</a>
+                <% } %>
+                <a class="mobile-light-link" href="/auth/logout" style="color: #ef4444 !important;">
+                    <i class="bi bi-box-arrow-right"></i> ĐĂNG XUẤT
+                </a>
+            </div>
         </div>
+        <% } %>
     </div>
 </div>
 

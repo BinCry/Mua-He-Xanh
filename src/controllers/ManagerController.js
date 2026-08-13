@@ -394,7 +394,7 @@ class ManagerController {
             `, [dest.id]);
 
             res.render('manager/workshops', {
-                title: 'Quản lý Workshop: ' + dest.name,
+                title: 'Quản lý Shop: ' + dest.name,
                 dest,
                 workshops,
                 layout: 'layouts/admin',

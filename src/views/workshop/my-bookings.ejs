@@ -2,17 +2,17 @@
 <section class="py-5" style="margin-top: 80px;">
     <div class="container" style="max-width: 900px;">
         <div class="d-flex align-items-center justify-content-between mb-4">
-            <h2 class="fw-black mb-0"><i class="bi bi-ticket-perforated text-primary me-2"></i>Workshop của tôi</h2>
-            <a href="/workshops" class="btn btn-outline-primary rounded-pill px-4 btn-sm fw-bold">
-                <i class="bi bi-plus-circle me-1"></i>Đăng ký thêm
+            <h2 class="fw-black mb-0"><i class="bi bi-bag-check text-primary me-2"></i>Đơn hàng / Đặt chỗ Shop của tôi</h2>
+            <a href="/shops" class="btn btn-outline-primary rounded-pill px-4 btn-sm fw-bold">
+                <i class="bi bi-plus-circle me-1"></i>Đặt mua thêm
             </a>
         </div>
 
         <% if (bookings.length === 0) { %>
             <div class="text-center py-5 bg-white shadow-sm rounded-4 border">
-                <i class="bi bi-palette display-1 text-muted"></i>
-                <p class="text-muted mt-3 fs-5">Bạn chưa đăng ký workshop nào.</p>
-                <a href="/workshops" class="btn btn-premium rounded-pill px-5 mt-2 text-white" style="background: var(--primary);">Khám phá Workshop</a>
+                <i class="bi bi-shop display-1 text-muted"></i>
+                <p class="text-muted mt-3 fs-5">Bạn chưa đăng ký / đặt mua sản phẩm shop nào.</p>
+                <a href="/shops" class="btn btn-premium rounded-pill px-5 mt-2 text-white" style="background: var(--primary);">Khám phá Shop</a>
             </div>
         <% } else { %>
             <% bookings.forEach(b => { %>
@@ -110,12 +110,12 @@
 
 <script>
     async function cancelBooking(bookingId) {
-        if (!confirm('Bạn có chắc chắn muốn hủy đăng ký workshop này? (Bạn sẽ bị trừ 50 điểm thưởng)')) {
+        if (!confirm('Bạn có chắc chắn muốn hủy đơn đặt hàng sản phẩm này? (Bạn sẽ bị trừ 50 điểm thưởng)')) {
             return;
         }
 
         try {
-            const res = await axios.post('/api/workshop/cancel', { bookingId });
+            const res = await axios.post('/api/shop/cancel', { bookingId });
             if (res.data.success) {
                 alert(res.data.message);
                 window.location.reload();
@@ -146,7 +146,7 @@
         submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang gửi...';
 
         try {
-            const res = await axios.post('/api/workshop/review', {
+            const res = await axios.post('/api/shop/review', {
                 booking_id: bookingId,
                 rating: parseInt(rating, 10),
                 review: review

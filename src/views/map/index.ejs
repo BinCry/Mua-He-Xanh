@@ -1,15 +1,15 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-<section class="min-vh-100 d-flex flex-column pt-5 mt-4">
+<section class="position-relative w-100 p-0 m-0 overflow-hidden">
     <!-- Map UI Layout: Sidebar (Desktop) + Full Map -->
     <div class="row g-0 flex-grow-1 position-relative">
         
         <!-- Left Sidebar (Desktop Only) -->
-        <div class="col-lg-3 bg-white shadow-lg z-index-10 d-none d-lg-flex flex-column" style="height: calc(100vh - 80px);">
+        <div class="col-lg-3 bg-white shadow-lg z-index-10 d-none d-lg-flex flex-column" style="height: calc(100vh - 107px);">
             <div class="p-4 border-bottom bg-light">
                 <h5 class="fw-black text-primary mb-1"><i class="bi bi-map-fill me-2"></i>Bản đồ du lịch Bình Lợi</h5>
-                <p class="small text-muted mb-3">Khám phá và định vị không gian xã Bình Lợi</p>
+                <p class="small text-muted mb-3">Khám phá và định vị các địa điểm trên bản đồ</p>
                 
                 <div class="input-group mb-3">
                     <span class="input-group-text bg-white border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
@@ -26,10 +26,7 @@
 
             <!-- Destinations List (Desktop) -->
             <div class="flex-grow-1 overflow-auto p-3" id="mapDestList">
-                <% allDests.forEach(dest => { 
-                    const lat = parseFloat(dest.lat);
-                    const lng = parseFloat(dest.lng);
-                    if (lat >= 10.730 && lat <= 10.788 && lng >= 106.465 && lng <= 106.570) { %>
+                <% allDests.forEach(dest => { %>
                     <div class="card-bl border-0 shadow-sm p-2 mb-3 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" data-lat="<%= dest.lat %>" data-lng="<%= dest.lng %>" onclick="focusMarker(<%= dest.lat %>, <%= dest.lng %>, '<%= dest.name %>')">
                         <div class="d-flex gap-3">
                             <div class="rounded-3 overflow-hidden shadow-sm" style="width: 70px; height: 70px; flex-shrink: 0;">
@@ -42,15 +39,15 @@
                             </div>
                         </div>
                     </div>
-                <% } }) %>
+                <% }) %>
             </div>
         </div>
 
         <!-- Right Side: Google Map & Mobile Controls -->
         <div class="col-lg-9 col-12 position-relative">
-            <div id="map" style="width: 100%; height: calc(100vh - 80px); z-index: 1;"></div>
+            <div id="map" style="width: 100%; height: calc(100vh - 107px); z-index: 1;"></div>
             
-            <!-- Mobile 3-Bar Button (Nút 3 gạch góc trái thay thế ô tìm kiếm trên di động) -->
+            <!-- Mobile 3-Bar Button -->
             <div class="position-absolute top-0 start-0 m-3 d-lg-none" style="z-index: 1000;">
                 <button class="btn btn-primary-bl rounded-pill shadow-lg px-3 py-2 fw-bold d-flex align-items-center gap-2 border-0" data-bs-toggle="offcanvas" data-bs-target="#mobileDestDrawer" style="font-size: 0.82rem;">
                     <i class="bi bi-list fs-5"></i> <span>Danh sách địa điểm</span>
@@ -67,7 +64,7 @@
     </div>
 </section>
 
-<!-- Mobile Offcanvas Drawer (Khay vuốt 3 gạch danh sách địa điểm Mobile) -->
+<!-- Mobile Offcanvas Drawer -->
 <div class="offcanvas offcanvas-bottom rounded-top-4 d-lg-none" tabindex="-1" id="mobileDestDrawer" style="height: 75vh; z-index: 1055;">
     <div class="offcanvas-header border-bottom py-3 px-4 bg-light">
         <h6 class="offcanvas-title fw-black text-primary mb-0"><i class="bi bi-map-fill me-2"></i>Địa điểm du lịch Bình Lợi</h6>
@@ -84,10 +81,7 @@
 
         <!-- Mobile Destinations List -->
         <div class="d-flex flex-column gap-2" id="mobileDestList">
-            <% allDests.forEach(dest => { 
-                const lat = parseFloat(dest.lat);
-                const lng = parseFloat(dest.lng);
-                if (lat >= 10.730 && lat <= 10.788 && lng >= 106.465 && lng <= 106.570) { %>
+            <% allDests.forEach(dest => { %>
                 <div class="card-bl border-0 shadow-sm p-2 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" onclick="focusMarkerMobile(<%= dest.lat %>, <%= dest.lng %>, '<%= dest.name %>')">
                     <div class="d-flex gap-3 align-items-center">
                         <div class="rounded-3 overflow-hidden shadow-sm" style="width: 60px; height: 60px; flex-shrink: 0;">
@@ -101,21 +95,14 @@
                         <i class="bi bi-chevron-right text-muted me-2"></i>
                     </div>
                 </div>
-            <% } }) %>
+            <% }) %>
         </div>
     </div>
 </div>
 
 <script>
 let map, markers = [];
-const districtBounds = [[10.730, 106.465], [10.788, 106.570]];
-const desktopNavigationBounds = [[10.730, 106.465], [10.796, 106.582]];
-const desktopMapQuery = window.matchMedia('(min-width: 992px)');
-const destData = (<%- JSON.stringify(allDests) %>).filter(dest => {
-    const lat = parseFloat(dest.lat);
-    const lng = parseFloat(dest.lng);
-    return lat >= 10.730 && lat <= 10.788 && lng >= 106.465 && lng <= 106.570;
-});
+const destData = (<%- JSON.stringify(allDests) %>);
 
 function normalizeImageUrl(src) {
     if (!src || src === 'undefined' || src === 'NULL') return '/images/hero-1.png';
@@ -125,34 +112,19 @@ function normalizeImageUrl(src) {
     return clean.startsWith('/') ? clean : '/' + clean;
 }
 
-function getMapNavigationBounds() {
-    return desktopMapQuery.matches ? desktopNavigationBounds : districtBounds;
-}
-
-function updateMapNavigationBounds() {
-    if (!map) return;
-
-    const navigationBounds = getMapNavigationBounds();
-    map.setMaxBounds(navigationBounds);
-    map.panInsideBounds(navigationBounds, { animate: false });
-}
-
 function initMap() {
-    const bounds = getMapNavigationBounds();
     const center = [10.758, 106.518];
     
     map = L.map('map', {
         center: center,
         zoom: 14,
-        minZoom: 14,             // Giới hạn zoom nhỏ nhất (không cho thu nhỏ vượt ngoài Bình Lợi)
-        maxZoom: 17,             // Giới hạn zoom lớn nhất
-        maxBounds: bounds,       // Giới hạn ranh giới kéo bản đồ trong xã Bình Lợi
-        maxBoundsViscosity: 1.0, // Ngăn chặn hoàn toàn việc kéo ra ngoài ranh giới
+        minZoom: 3,
+        maxZoom: 19,
         zoomControl: true,
         attributionControl: false
     });
 
-    // Hiển thị lớp bản đồ CartoDB Voyager
+    // CartoDB Voyager Layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CartoDB',
         subdomains: 'abcd',
@@ -163,6 +135,7 @@ function initMap() {
     destData.forEach(dest => {
         const lat = parseFloat(dest.lat);
         const lng = parseFloat(dest.lng);
+        if (isNaN(lat) || isNaN(lng)) return;
         
         const greenIcon = L.divIcon({
             className: 'custom-div-icon',
@@ -185,18 +158,11 @@ function initMap() {
         `;
 
         marker.bindPopup(content);
-
         markers.push({ marker, slug: dest.slug, name: dest.name, coords: [lat, lng] });
     });
 }
 
 document.addEventListener('DOMContentLoaded', initMap);
-
-if (desktopMapQuery.addEventListener) {
-    desktopMapQuery.addEventListener('change', updateMapNavigationBounds);
-} else {
-    desktopMapQuery.addListener(updateMapNavigationBounds);
-}
 
 function focusMarker(lat, lng, name) {
     map.panTo([parseFloat(lat), parseFloat(lng)]);
@@ -246,13 +212,6 @@ function locateMe() {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         const myPos = [lat, lng];
-        
-        // Kiểm tra xem vị trí người dùng có nằm trong ranh giới xã Bình Lợi không
-        const minLat = 10.730, maxLat = 10.788, minLng = 106.465, maxLng = 106.570;
-        if (lat < minLat || lat > maxLat || lng < minLng || lng > maxLng) {
-            alert('Vị trí hiện tại của bạn đang nằm ngoài ranh giới bản đồ du lịch xã Bình Lợi.');
-            return;
-        }
         
         map.panTo(myPos);
         map.setZoom(16);

@@ -237,11 +237,11 @@ const AdminController = {
             `);
             const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = 1');
             res.render('admin/workshops', {
-                title: 'Quản lý Workshop',
                 layout: 'layouts/admin',
-                adminPage: 'workshops',
+                title: 'Quản lý Shop & Sản Phẩm',
                 workshops,
-                destinations
+                destinations,
+                activeMenu: 'workshops'
             });
         } catch (error) {
             console.error('Admin workshops error:', error);
@@ -534,44 +534,46 @@ const AdminController = {
             await db.query('DELETE FROM user_favorites WHERE destination_id = $1', [id]);
             await db.query('DELETE FROM destinations WHERE id = $1', [id]);
 
-            res.json({ success: true, message: 'Đã xóa địa điểm và tất cả các tài khoản/dữ liệu liên quan thành công!' });
+            res.json({ success: true, message: 'Đã xóa địa điểm và tất cả dữ liệu liên quan!' });
         } catch (error) {
             console.error('Delete destination error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
         }
     },
 
-    // ==================== API: Workshop CRUD ====================
+    // ==================== API: Shop Products CRUD ====================
     createWorkshop: async (req, res) => {
         try {
-            const user = req.user || req.session?.user;
-            if (user && user.role === 'admin') {
-                return res.status(403).json({ success: false, message: 'Chỉ Quản lý địa điểm mới được tạo Workshop.' });
+            const { title, description, type, price, duration, max_participants, destination_id, image, start_date, end_date, is_active } = req.body;
+            if (!title) {
+                return res.status(400).json({ success: false, message: 'Vui lòng nhập tên sản phẩm.' });
             }
-            const { title, description, type, price, duration, max_participants, destination_id, image, start_date, end_date } = req.body;
             await db.query(
                 `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, NOW())`,
-                [uuidv4(), destination_id || null, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())`,
+                [uuidv4(), destination_id || null, title, description || '', type || 'ecology', price || 0, max_participants || 100, duration || 'Hộp / Chiếc', image || '/images/hero-2.png', start_date || null, end_date || null, is_active ? 1 : 0]
             );
-            res.json({ success: true, message: 'Đã tạo workshop!' });
+            res.json({ success: true, message: 'Đã tạo sản phẩm thành công!' });
         } catch (error) {
-            console.error('Create workshop error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+            console.error('Create product error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi tạo sản phẩm: ' + error.message });
         }
     },
 
     updateWorkshop: async (req, res) => {
         try {
             const { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active, destination_id } = req.body;
+            if (!id || !title) {
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin sản phẩm.' });
+            }
             await db.query(
                 `UPDATE workshops SET title = $1, description = $2, type = $3, price = $4, duration = $5, max_participants = $6, image = $7, start_date = $8, end_date = $9, is_active = $10, destination_id = $11 WHERE id = $12`,
-                [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined ? is_active : 1, destination_id || null, id]
+                [title, description || '', type || 'ecology', price || 0, duration || 'Hộp / Chiếc', max_participants || 100, image || '/images/hero-2.png', start_date || null, end_date || null, is_active ? 1 : 0, destination_id || null, id]
             );
-            res.json({ success: true, message: 'Đã cập nhật workshop!' });
+            res.json({ success: true, message: 'Đã cập nhật thông tin sản phẩm!' });
         } catch (error) {
-            console.error('Update workshop error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+            console.error('Update product error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi cập nhật: ' + error.message });
         }
     },
 

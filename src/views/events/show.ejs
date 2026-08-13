@@ -1,21 +1,22 @@
-<section class="py-5" style="margin-top: 80px; background: #f8faf9;">
-    <div class="container py-4">
+<section class="py-4 py-md-5" style="background: #f8faf9;">
+    <div class="container py-3">
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <!-- Breadcrumb -->
                 <nav aria-label="breadcrumb" class="mb-4">
-                    <ol class="breadcrumb">
+                    <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
                         <li class="breadcrumb-item active" aria-current="page">Sự kiện nổi bật</li>
                     </ol>
                 </nav>
 
                 <div class="card border-0 shadow-premium rounded-4 overflow-hidden mb-5 bg-white reveal-up">
-                    <div class="position-relative bg-dark" style="height: 350px;">
-                        <div class="w-100 h-100" style="background: linear-gradient(135deg, var(--primary) 0%, #15803d 100%); opacity: 0.8;"></div>
-                        <div class="position-absolute bottom-0 start-0 w-100 p-4 p-md-5" style="background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);">
+                    <div class="position-relative bg-dark" style="height: 380px;">
+                        <!-- Actual Event Cover Image Banner -->
+                        <img src="<%= fixImg(event.image, '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover" style="opacity: 0.7;">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4 p-md-5" style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.3) 70%, transparent 100%);">
                             <span class="badge bg-warning text-dark mb-3 px-3 py-2 rounded-pill fw-bold text-uppercase">
-                                <i class="bi bi-star-fill me-1"></i> Sự kiện
+                                <i class="bi bi-star-fill me-1"></i> Sự kiện nổi bật
                             </span>
                             <h1 class="display-5 fw-black text-white mb-2 font-display text-shadow-sm"><%= event.title %></h1>
                             <div class="d-flex align-items-center gap-3 text-white-50 mt-3">

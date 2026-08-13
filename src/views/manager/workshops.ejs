@@ -1,11 +1,11 @@
-<!-- Manager: Workshop Management -->
+<!-- Manager: Shop Management -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Workshop - <%= dest.name %></h4>
-        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý danh sách, thêm, sửa, xóa các workshop thuộc địa điểm <%= dest.name %>.</p>
+        <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Shop - <%= dest.name %></h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý danh sách, thêm, sửa, xóa các sản phẩm thuộc địa điểm <%= dest.name %>.</p>
     </div>
     <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#wsModal" onclick="openWsForm()">
-        <i class="bi bi-plus-lg me-1"></i> Thêm Workshop
+        <i class="bi bi-plus-lg me-1"></i> Thêm sản phẩm
     </button>
 </div>
 
@@ -14,11 +14,11 @@
     <table class="table table-borderless mb-0">
         <thead>
             <tr>
-                <th>Tên Workshop</th>
+                <th>Tên sản phẩm</th>
                 <th>Loại</th>
                 <th>Giá</th>
-                <th>Thời gian</th>
-                <th>Sức chứa</th>
+                <th>Thời gian / Quy cách</th>
+                <th>Sức chứa / Kho</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
             </tr>
@@ -39,7 +39,7 @@
                     <% 
                     const typeLabels = {
                         nhang: 'Làm Nhang', mai: 'Chăm Mai', thien: 'Thiền Healing',
-                        banh: 'Bánh Dân Gian', ecology: 'Sinh Thái', culture: 'Văn Hóa', other: 'Khác'
+                        banh: 'Bánh Dân Gian', ecology: 'Nông Sản', culture: 'Văn Hóa & Lưu Niệm', other: 'Sản Phẩm Shop'
                     };
                     %>
                     <span class="role-badge role-user"><%= typeLabels[ws.type] || ws.type %></span>
@@ -74,7 +74,7 @@
             </tr>
             <% }) %>
             <% if (workshops.length === 0) { %>
-            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có workshop nào.</td></tr>
+            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có sản phẩm nào trong shop.</td></tr>
             <% } %>
         </tbody>
     </table>
@@ -85,7 +85,7 @@
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface);">
             <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="wsModalTitle">Thêm Workshop</h5>
+                <h5 class="modal-title fw-bold" id="wsModalTitle">Thêm sản phẩm Shop</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -93,23 +93,23 @@
                     <input type="hidden" id="ws_id" name="id">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Tên workshop</label>
-                            <input type="text" class="form-control admin-input" id="ws_title" name="title" required>
+                            <label class="form-label small fw-bold">Tên sản phẩm</label>
+                            <input type="text" class="form-control admin-input" id="ws_title" name="title" placeholder="VD: Nhang thảo mộc Bình Lợi, Trải nghiệm hoa mai..." required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Mô tả</label>
-                            <textarea class="form-control admin-input" id="ws_description" name="description" rows="3"></textarea>
+                            <label class="form-label small fw-bold">Mô tả sản phẩm</label>
+                            <textarea class="form-control admin-input" id="ws_description" name="description" rows="3" placeholder="Mô tả chi tiết sản phẩm / trải nghiệm..."></textarea>
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold">Loại</label>
+                            <label class="form-label small fw-bold">Loại sản phẩm</label>
                              <select class="form-select admin-input" id="ws_type" name="type">
                                 <option value="nhang">Làm Nhang</option>
                                 <option value="mai">Chăm Mai</option>
                                 <option value="thien">Thiền Healing</option>
                                 <option value="banh">Bánh Dân Gian</option>
-                                <option value="ecology">Sinh Thái</option>
-                                <option value="culture">Văn Hóa</option>
-                                <option value="other">Khác</option>
+                                <option value="ecology">Nông Sản / Sinh Thái</option>
+                                <option value="culture">Văn Hóa & Lưu Niệm</option>
+                                <option value="other">Sản Phẩm Shop Khác</option>
                              </select>
                         </div>
                         <div class="col-md-4">
@@ -117,11 +117,11 @@
                             <input type="number" class="form-control admin-input" id="ws_price" name="price" value="0">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label small fw-bold">Thời gian</label>
+                            <label class="form-label small fw-bold">Thời gian / Quy cách</label>
                             <input type="text" class="form-control admin-input" id="ws_duration" name="duration" value="2 giờ">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Sức chứa tối đa (người)</label>
+                            <label class="form-label small fw-bold">Sức chứa / Số lượng bán tối đa</label>
                             <input type="number" class="form-control admin-input" id="ws_max" name="max_participants" value="20">
                         </div>
                         <div class="col-md-6">
@@ -138,7 +138,7 @@
                             <input type="datetime-local" class="form-control admin-input" id="ws_end_date" name="end_date">
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Ảnh Workshop</label>
+                            <label class="form-label small fw-bold">Ảnh sản phẩm</label>
                             <div class="d-flex align-items-center gap-3 mb-2">
                                 <img id="ws_preview" src="/images/hero-2.png" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                                 <button type="button" class="btn btn-sm btn-outline-dark rounded-pill" onclick="document.getElementById('ws_file').click()">
@@ -200,7 +200,7 @@ async function uploadWsFile(input) {
 
 function openWsForm() {
     editingWs = false;
-    document.getElementById('wsModalTitle').textContent = 'Thêm Workshop';
+    document.getElementById('wsModalTitle').textContent = 'Thêm sản phẩm Shop';
     document.getElementById('wsForm').reset();
     document.getElementById('ws_id').value = '';
     document.getElementById('ws_preview').src = '/images/hero-2.png';
@@ -216,7 +216,7 @@ function editWs(target) {
         ws = JSON.parse(decodeURIComponent(target.getAttribute('data-workshop')));
     }
     editingWs = true;
-    document.getElementById('wsModalTitle').textContent = 'Sửa Workshop';
+    document.getElementById('wsModalTitle').textContent = 'Sửa sản phẩm Shop';
     document.getElementById('ws_id').value = ws.id;
     document.getElementById('ws_title').value = ws.title || '';
     document.getElementById('ws_description').value = ws.description || '';
@@ -349,8 +349,8 @@ async function updateBookingStatus(bookingId, status, wsId, title) {
 <div class="modal fade" id="bookingsModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface);">
-            <div class="modal-header border-0">
-                <h5 class="modal-title fw-bold" id="bookingsModalTitle">Danh sách đăng ký Workshop</h5>
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold" id="bookingsModalTitle">Danh sách đơn đặt mua sản phẩm</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">

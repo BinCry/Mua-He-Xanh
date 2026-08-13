@@ -62,7 +62,7 @@ const WorkshopController = {
             };
 
             res.render('workshop/index', {
-                title: 'Workshop & Trải Nghiệm',
+                title: 'Shop & Sản Phẩm',
                 workshops,
                 typeFilter,
                 typeLabels,
@@ -79,7 +79,7 @@ const WorkshopController = {
         try {
             const workshop = await Workshop.getById(req.params.id);
             if (!workshop) {
-                return res.status(404).render('errors/404', { title: 'Workshop không tồn tại' });
+                return res.status(404).render('errors/404', { title: 'Sản phẩm không tồn tại' });
             }
 
             const stats = await Workshop.getStats(workshop.id);
@@ -314,7 +314,7 @@ const WorkshopController = {
             const bookings = await Workshop.getBookingsByUser(user.id);
 
             res.render('workshop/my-bookings', {
-                title: 'Workshop của tôi',
+                title: 'Đơn hàng Shop của tôi',
                 bookings
             });
         } catch (error) {

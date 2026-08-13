@@ -78,23 +78,25 @@
     }
 
     window.setAppLanguage = function (targetLang) {
-        var current = localStorage.getItem('app_lang') || 'vi';
-        if (current === targetLang && getCookie('googtrans') === (targetLang === 'en' ? '/vi/en' : null)) {
-            return;
-        }
-
         localStorage.setItem('app_lang', targetLang);
 
         if (targetLang === 'en') {
             setCookie('googtrans', '/vi/en', 30);
         } else {
             eraseCookie('googtrans');
-            eraseCookie('googtrans');
-            setCookie('googtrans', '/vi/vi', -1);
+            document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            try {
+                var host = window.location.hostname;
+                document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + host;
+                if (host.includes('.')) {
+                    var domainPart = '.' + host.split('.').slice(-2).join('.');
+                    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + domainPart;
+                }
+            } catch (e) {}
         }
 
         updateLanguageUI(targetLang);
-        location.reload();
+        window.location.reload();
     };
 
     window.toggleLanguage = function() {

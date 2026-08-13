@@ -1,30 +1,26 @@
-<!-- Admin: Workshop Management -->
+<!-- Admin: Shop & Product Management -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Workshop</h4>
-        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Thêm, sửa, xóa workshop trải nghiệm.</p>
+        <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Shop & Sản phẩm</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý danh sách sản phẩm, đặc sản, quà lưu niệm & OCOP tại shop.</p>
     </div>
-    <% if (locals.user && locals.user.role === 'admin') { %>
-        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 rounded-pill px-3 py-2 fw-semibold">
-            <i class="bi bi-info-circle me-1"></i> Workshop được tạo bởi Quản lý địa điểm
-        </span>
-    <% } else { %>
-        <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#wsModal" onclick="openWsForm()">
-            <i class="bi bi-plus-lg me-1"></i> Thêm Workshop
+    <div>
+        <button class="btn btn-primary rounded-pill px-4 py-2.5 fw-bold d-inline-flex align-items-center gap-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#wsModal" onclick="openWsForm()">
+            <i class="bi bi-plus-circle-fill"></i> Thêm sản phẩm mới
         </button>
-    <% } %>
+    </div>
 </div>
 
-<!-- Workshops Table -->
+<!-- Products Table -->
 <div class="admin-table">
     <table class="table table-borderless mb-0">
         <thead>
             <tr>
-                <th>Tên Workshop</th>
-                <th>Loại</th>
-                <th>Giá</th>
-                <th>Thời gian</th>
-                <th>Sức chứa</th>
+                <th>Tên sản phẩm</th>
+                <th>Loại sản phẩm</th>
+                <th>Giá bán</th>
+                <th>Quy cách / Đơn vị</th>
+                <th>Tồn kho</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
             </tr>
@@ -33,140 +29,165 @@
             <% workshops.forEach(ws => { %>
             <tr>
                 <td>
-                    <div class="d-flex align-items-center gap-2">
-                        <img src="<%= fixImg(ws.image, '/images/hero-2.png') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
+                    <div class="d-flex align-items-center gap-3">
+                        <img src="<%= fixImg(ws.image, '/images/hero-2.png') %>" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover; border: 1px solid rgba(0,0,0,0.08);">
                         <div>
-                            <div class="fw-bold small"><%= ws.title %></div>
-                            <div style="font-size: 0.72rem; color: var(--admin-muted);"><%= ws.destination_name || '-' %></div>
+                            <div class="fw-bold text-dark" style="font-size: 0.9rem;"><%= ws.title %></div>
+                            <div class="text-muted text-truncate" style="font-size: 0.76rem; max-width: 250px;"><%= ws.description || '-' %></div>
                         </div>
                     </div>
                 </td>
                 <td>
                     <% 
                     const typeLabels = {
-                        nhang: 'Làm Nhang', mai: 'Chăm Mai', thien: 'Thiền Healing',
-                        banh: 'Bánh Dân Gian', ecology: 'Sinh Thái', culture: 'Văn Hóa', other: 'Khác'
+                        nhang: 'Nhang Thảo Mộc', mai: 'Mai Vàng Bình Lợi', thien: 'Thiền Healing',
+                        banh: 'Thực Phẩm & Bánh', ecology: 'Tổ Yến & OCOP ★★★★', culture: 'Văn Hóa & Lưu Niệm', other: 'Sản Phẩm Khác'
                     };
                     %>
-                    <span class="role-badge role-user"><%= typeLabels[ws.type] || ws.type %></span>
+                    <span class="badge bg-light text-dark border px-2.5 py-1 rounded-pill small fw-semibold">
+                        <%= typeLabels[ws.type] || ws.type %>
+                    </span>
                 </td>
                 <td>
-                    <% if (ws.price == 0) { %>
-                        <span class="text-success small fw-bold">Miễn phí</span>
-                    <% } else { %>
-                        <span class="small"><%= new Intl.NumberFormat('vi-VN').format(ws.price) %>đ</span>
-                    <% } %>
-                </td>
-                <td class="small"><%= ws.duration || '2 giờ' %></td>
-                <td class="small"><%= ws.max_participants || 20 %></td>
-                <td>
-                    <% if (ws.is_active) { %>
-                        <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Active</span>
-                    <% } else { %>
-                        <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill px-3">Ẩn</span>
-                    <% } %>
+                    <div class="fw-bold text-success" style="font-size: 0.9rem;">
+                        <%= ws.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(ws.price) + 'đ' %>
+                    </div>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editWs(this)" data-workshop="<%= encodeURIComponent(JSON.stringify(ws)) %>">
-                        <i class="bi bi-pencil"></i>
+                    <div class="small text-secondary"><%= ws.duration || 'Chiếc / Hộp' %></div>
+                </td>
+                <td>
+                    <div class="small fw-semibold text-dark"><%= ws.max_participants || 100 %> sản phẩm</div>
+                </td>
+                <td>
+                    <span class="badge bg-<%= ws.is_active ? 'success' : 'secondary' %> rounded-pill px-2.5 py-1">
+                        <%= ws.is_active ? 'Đang bán' : 'Ẩn' %>
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-outline-primary rounded-circle p-2 me-1" onclick="editWs(this)" data-workshop="<%= encodeURIComponent(JSON.stringify(ws)) %>" title="Chỉnh sửa">
+                        <i class="bi bi-pencil-fill"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteWs('<%= ws.id %>')">
-                        <i class="bi bi-trash"></i>
+                    <button class="btn btn-sm btn-outline-danger rounded-circle p-2" onclick="deleteWs('<%= ws.id %>')" title="Xóa sản phẩm">
+                        <i class="bi bi-trash-fill"></i>
                     </button>
                 </td>
             </tr>
             <% }) %>
             <% if (workshops.length === 0) { %>
-            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có workshop nào.</td></tr>
+            <tr>
+                <td colspan="7" class="text-center py-5">
+                    <i class="bi bi-bag-plus display-4 text-muted d-block mb-3"></i>
+                    <p class="text-muted fw-semibold mb-3">Chưa có sản phẩm nào trong shop.</p>
+                    <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#wsModal" onclick="openWsForm()">
+                        <i class="bi bi-plus-circle me-1"></i> Thêm sản phẩm đầu tiên
+                    </button>
+                </td>
+            </tr>
             <% } %>
         </tbody>
     </table>
 </div>
 
-<!-- Workshop Modal -->
+<!-- Product Add / Edit Modal -->
 <div class="modal fade" id="wsModal" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content border-0 rounded-4" style="background: var(--admin-surface);">
-            <div class="modal-header border-0 pb-0">
-                <h5 class="modal-title fw-bold" id="wsModalTitle">Thêm Workshop</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-content border-0 rounded-4 shadow-lg" style="background: #ffffff;">
+            <div class="modal-header border-bottom px-4 py-3">
+                <h5 class="modal-title fw-bold text-dark" id="wsModalTitle">Thêm sản phẩm mới</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body p-4">
                 <form id="wsForm">
                     <input type="hidden" id="ws_id" name="id">
                     <div class="row g-3">
+                        
+                        <!-- Product Title -->
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Tên workshop</label>
-                            <input type="text" class="form-control admin-input" id="ws_title" name="title" required>
+                            <label class="form-label small fw-bold text-dark">Tên sản phẩm <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control rounded-3 py-2" id="ws_title" name="title" placeholder="VD: Tổ Yến Chưng Đông Trùng Hạ Thảo (Hộp 6+2 hũ 70ml)..." required>
                         </div>
+
+                        <!-- Short Description -->
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Mô tả</label>
-                            <textarea class="form-control admin-input" id="ws_description" name="description" rows="3"></textarea>
+                            <label class="form-label small fw-bold text-dark">Mô tả sản phẩm (Hiển thị trên thẻ sản phẩm) <span class="text-danger">*</span></label>
+                            <textarea class="form-control rounded-3" id="ws_description" name="description" rows="3" placeholder="VD: 12g tổ yến tươi/hũ — OCOP 4 Sao TP.HCM..."></textarea>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold">Loại</label>
-                             <select class="form-select admin-input" id="ws_type" name="type">
-                                <option value="nhang">Làm Nhang</option>
-                                <option value="mai">Chăm Mai</option>
-                                <option value="thien">Thiền Healing</option>
-                                <option value="banh">Bánh Dân Gian</option>
-                                <option value="ecology">Sinh Thái</option>
-                                <option value="culture">Văn Hóa</option>
-                                <option value="other">Khác</option>
+
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Loại sản phẩm / Danh mục</label>
+                            <select class="form-select rounded-3 py-2" id="ws_type" name="type">
+                                <option value="ecology">Tổ Yến & OCOP ★★★★</option>
+                                <option value="banh">Thực Phẩm & Bánh Dân Gian</option>
+                                <option value="nhang">Nhang Thảo Mộc Bình Lợi</option>
+                                <option value="mai">Mai Vàng Bình Lợi</option>
+                                <option value="culture">Văn Hóa & Quà Lưu Niệm</option>
+                                <option value="other">Sản Phẩm Khác</option>
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold">Giá (VNĐ)</label>
-                            <input type="number" class="form-control admin-input" id="ws_price" name="price" value="0">
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label small fw-bold">Thời gian</label>
-                            <input type="text" class="form-control admin-input" id="ws_duration" name="duration" value="2 giờ">
-                        </div>
+
+                        <!-- Selling Price -->
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Sức chứa</label>
-                            <input type="number" class="form-control admin-input" id="ws_max" name="max_participants" value="20">
+                            <label class="form-label small fw-bold text-dark">Giá bán (VNĐ) <span class="text-danger">*</span></label>
+                            <input type="number" class="form-control rounded-3 py-2" id="ws_price" name="price" value="0" placeholder="VD: 1029000">
                         </div>
+
+                        <!-- Packaging Unit -->
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold">Thuộc địa điểm</label>
-                            <select class="form-select admin-input" id="ws_dest" name="destination_id">
-                                <option value="">-- Không --</option>
+                            <label class="form-label small fw-bold text-dark">Quy cách / Đơn vị đóng gói</label>
+                            <input type="text" class="form-control rounded-3 py-2" id="ws_duration" name="duration" placeholder="VD: Hộp 8 hũ x 70ml, Gói 50g, Hộp 100 nụ..." value="Hộp / Chiếc">
+                        </div>
+
+                        <!-- Stock Quantity -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Số lượng tồn kho</label>
+                            <input type="number" class="form-control rounded-3 py-2" id="ws_max" name="max_participants" value="100" placeholder="VD: 100">
+                        </div>
+
+                        <!-- Product Image -->
+                        <div class="col-12">
+                            <label class="form-label small fw-bold text-dark">Ảnh sản phẩm</label>
+                            <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                                <img id="ws_preview" src="/images/hero-2.png" class="rounded-3 shadow-sm" style="width: 100px; height: 75px; object-fit: cover; border: 1px solid #cbd5e1;">
+                                <div>
+                                    <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold" onclick="document.getElementById('ws_file').click()">
+                                        <i class="bi bi-upload me-1"></i>Chọn ảnh tải lên
+                                    </button>
+                                    <div class="text-muted x-small mt-1" style="font-size: 0.78rem;">Định dạng PNG, JPG, WEBP. Ảnh hình vuông hoặc 4:3 đẹp nhất.</div>
+                                    <input type="file" id="ws_file" class="d-none" accept="image/*" onchange="uploadWsFile(this)">
+                                </div>
+                            </div>
+                            <input type="hidden" id="ws_image" name="image" value="/images/hero-2.png">
+                        </div>
+
+                        <!-- Optional Destination -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Thuộc địa điểm (Tùy chọn)</label>
+                            <select class="form-select rounded-3 py-2" id="ws_dest" name="destination_id">
+                                <option value="">-- Không chọn --</option>
                                 <% destinations.forEach(d => { %>
                                     <option value="<%= d.id %>"><%= d.name %></option>
                                 <% }) %>
                             </select>
                         </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold">Ngày giờ bắt đầu</label>
-                            <input type="datetime-local" class="form-control admin-input" id="ws_start_date" name="start_date">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label small fw-bold">Ngày giờ kết thúc</label>
-                            <input type="datetime-local" class="form-control admin-input" id="ws_end_date" name="end_date">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label small fw-bold">Ảnh Workshop</label>
-                            <div class="d-flex align-items-center gap-3 mb-2">
-                                <img id="ws_preview" src="/images/hero-2.png" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
-                                <button type="button" class="btn btn-sm btn-admin-outline rounded-pill px-3" onclick="document.getElementById('ws_file').click()">
-                                    <i class="bi bi-upload me-1"></i>Chọn ảnh
-                                </button>
-                                <input type="file" id="ws_file" class="d-none" accept="image/*" onchange="uploadWsFile(this)">
-                            </div>
-                            <input type="hidden" id="ws_image" name="image" value="/images/hero-2.png">
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check form-switch mt-2">
-                                <input class="form-check-input" type="checkbox" id="ws_is_active" name="is_active" checked>
-                                <label class="form-check-label small" for="ws_is_active">Hoạt động</label>
+
+                        <!-- Status -->
+                        <div class="col-md-6 d-flex align-items-center">
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" id="ws_is_active" name="is_active" checked style="width: 45px; height: 22px;">
+                                <label class="form-check-label small fw-bold text-dark ms-2 mt-1" for="ws_is_active">Hiển thị bán tại Shop</label>
                             </div>
                         </div>
+
                     </div>
                 </form>
             </div>
-            <div class="modal-footer border-0">
-                <button class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button>
-                <button class="btn btn-primary rounded-pill px-4 fw-bold" onclick="saveWs()">Lưu</button>
+            <div class="modal-footer border-top px-4 py-3">
+                <button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
+                <button class="btn btn-primary rounded-pill px-5 fw-bold" onclick="saveWs()">
+                    <i class="bi bi-check-circle-fill me-1"></i>Lưu sản phẩm
+                </button>
             </div>
         </div>
     </div>
@@ -181,10 +202,10 @@ async function uploadWsFile(input) {
     const formData = new FormData();
     formData.append('image', input.files[0]);
     
-    const btn = input.previousElementSibling;
+    const btn = input.previousElementSibling.querySelector('button');
     const oldHtml = btn.innerHTML;
     btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang tải ảnh...';
     
     try {
         const res = await axios.post('/api/upload', formData, {
@@ -194,7 +215,7 @@ async function uploadWsFile(input) {
         if (res.data.success) {
             document.getElementById('ws_image').value = res.data.url;
             document.getElementById('ws_preview').src = res.data.url;
-            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã tải ảnh';
         }
     } catch (err) {
         alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
@@ -207,13 +228,11 @@ async function uploadWsFile(input) {
 
 function openWsForm() {
     editingWs = false;
-    document.getElementById('wsModalTitle').textContent = 'Thêm Workshop';
+    document.getElementById('wsModalTitle').textContent = 'Thêm sản phẩm mới';
     document.getElementById('wsForm').reset();
     document.getElementById('ws_id').value = '';
     document.getElementById('ws_preview').src = '/images/hero-2.png';
     document.getElementById('ws_image').value = '/images/hero-2.png';
-    document.getElementById('ws_start_date').value = '';
-    document.getElementById('ws_end_date').value = '';
     document.getElementById('ws_is_active').checked = true;
 }
 
@@ -223,61 +242,66 @@ function editWs(target) {
         ws = JSON.parse(decodeURIComponent(target.getAttribute('data-workshop')));
     }
     editingWs = true;
-    document.getElementById('wsModalTitle').textContent = 'Sửa Workshop';
+    document.getElementById('wsModalTitle').textContent = 'Sửa thông tin sản phẩm';
     document.getElementById('ws_id').value = ws.id;
     document.getElementById('ws_title').value = ws.title || '';
     document.getElementById('ws_description').value = ws.description || '';
-    document.getElementById('ws_type').value = ws.type || 'nhang';
+    document.getElementById('ws_type').value = ws.type || 'ecology';
     document.getElementById('ws_price').value = ws.price || 0;
-    document.getElementById('ws_duration').value = ws.duration || '2 giờ';
-    document.getElementById('ws_max').value = ws.max_participants || 20;
+    document.getElementById('ws_duration').value = ws.duration || 'Hộp / Chiếc';
+    document.getElementById('ws_max').value = ws.max_participants || 100;
     document.getElementById('ws_image').value = ws.image || '/images/hero-2.png';
     document.getElementById('ws_preview').src = ws.image || '/images/hero-2.png';
     document.getElementById('ws_dest').value = ws.destination_id || '';
-    if (ws.start_date) {
-        document.getElementById('ws_start_date').value = new Date(new Date(ws.start_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    } else {
-        document.getElementById('ws_start_date').value = '';
-    }
-    if (ws.end_date) {
-        document.getElementById('ws_end_date').value = new Date(new Date(ws.end_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
-    } else {
-        document.getElementById('ws_end_date').value = '';
-    }
     document.getElementById('ws_is_active').checked = ws.is_active;
     new bootstrap.Modal(document.getElementById('wsModal')).show();
 }
 
 async function saveWs() {
+    const titleVal = document.getElementById('ws_title').value.trim();
+    if (!titleVal) {
+        alert('Vui lòng nhập tên sản phẩm.');
+        return;
+    }
+
     const data = {
         id: document.getElementById('ws_id').value,
-        title: document.getElementById('ws_title').value,
+        title: titleVal,
         description: document.getElementById('ws_description').value,
         type: document.getElementById('ws_type').value,
         price: parseInt(document.getElementById('ws_price').value) || 0,
-        duration: document.getElementById('ws_duration').value,
-        max_participants: parseInt(document.getElementById('ws_max').value) || 20,
+        duration: document.getElementById('ws_duration').value || 'Hộp / Chiếc',
+        max_participants: parseInt(document.getElementById('ws_max').value) || 100,
         image: document.getElementById('ws_image').value,
-        destination_id: document.getElementById('ws_dest').value,
-        start_date: document.getElementById('ws_start_date').value || null,
-        end_date: document.getElementById('ws_end_date').value || null,
+        destination_id: document.getElementById('ws_dest').value || null,
         is_active: document.getElementById('ws_is_active').checked
     };
     
-    const url = editingWs ? '/api/admin/update-workshop' : '/api/admin/create-workshop';
+    const url = editingWs ? '/api/admin/update-shop' : '/api/admin/create-shop';
     try {
         const res = await axios.post(url, data);
-        if (res.data.success) { alert(res.data.message); location.reload(); }
-        else alert(res.data.message);
-    } catch (e) { alert('Lỗi: ' + (e.response?.data?.message || e.message)); }
+        if (res.data.success) {
+            alert(res.data.message || 'Đã lưu sản phẩm thành công!');
+            location.reload();
+        } else {
+            alert(res.data.message || 'Không thể lưu sản phẩm.');
+        }
+    } catch (e) {
+        alert('Lỗi lưu sản phẩm: ' + (e.response?.data?.message || e.message));
+    }
 }
 
 async function deleteWs(id) {
-    if (!confirm('Xóa workshop này?')) return;
+    if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này khỏi Shop?')) return;
     try {
-        const res = await axios.post('/api/admin/delete-workshop', { id });
-        if (res.data.success) location.reload();
-        else alert(res.data.message);
-    } catch (e) { alert('Lỗi'); }
+        const res = await axios.post('/api/admin/delete-shop', { id });
+        if (res.data.success) {
+            location.reload();
+        } else {
+            alert(res.data.message || 'Không thể xóa.');
+        }
+    } catch (e) {
+        alert('Lỗi xóa sản phẩm: ' + (e.response?.data?.message || e.message));
+    }
 }
 </script>

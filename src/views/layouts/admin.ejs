@@ -130,8 +130,8 @@
                     <a href="/admin/destinations" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'destinations' ? 'active' : '' %>">
                         <i class="bi bi-geo-alt-fill"></i> Địa điểm
                     </a>
-                    <a href="/admin/workshops" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'workshops' ? 'active' : '' %>">
-                        <i class="bi bi-palette-fill"></i> Workshop
+                    <a href="/admin/shops" class="sb-link <%= typeof adminPage !== 'undefined' && (adminPage === 'workshops' || adminPage === 'shops') ? 'active' : '' %>">
+                        <i class="bi bi-shop"></i> Quản lý Shop
                     </a>
                     <a href="/admin/reviews" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'reviews' ? 'active' : '' %>">
                         <i class="bi bi-people-fill"></i> Cộng đồng
@@ -161,15 +161,15 @@
                     <a href="/manager/destination" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'destination' ? 'active' : '' %>">
                         <i class="bi bi-geo-alt-fill"></i> Quản lý Địa điểm
                     </a>
-                    <a href="/manager/workshops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'workshops' ? 'active' : '' %>">
-                        <i class="bi bi-palette-fill"></i> Quản lý Workshop
-                    </a>
                 <% } %>
             </nav>
             <div class="sb-footer">
                 <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
                     <span class="small fw-bold text-muted">Ngôn ngữ / Lang</span>
-                    <button id="adminLangToggleBtn" onclick="toggleLanguage()" class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 py-1 x-small lang-toggle-btn" style="font-size: 0.75rem;">EN</button>
+                    <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm notranslate" translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
+                        <button class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="setAppLanguage('vi')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
+                        <button class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="setAppLanguage('en')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
+                    </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 mb-3">
                     <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
@@ -189,7 +189,10 @@
             <!-- Mobile Admin Top Bar with Language Toggle -->
             <div class="d-lg-none d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <a href="/" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Trang chủ</a>
-                <button onclick="toggleLanguage()" class="btn btn-outline-dark btn-sm rounded-pill fw-bold px-3 py-1 x-small lang-toggle-btn" style="font-size: 0.75rem;">EN</button>
+                <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm notranslate" translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
+                    <button class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="setAppLanguage('vi')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
+                    <button class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="setAppLanguage('en')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
+                </div>
             </div>
             <%- body %>
         </main>

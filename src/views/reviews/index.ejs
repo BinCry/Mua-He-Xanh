@@ -1,6 +1,6 @@
 <!-- Premium Social Network Feed -->
-<section class="py-5" style="margin-top: 80px; background: #f4f6f5;">
-    <div class="container py-4" style="max-width: 680px;">
+<section class="py-4 py-md-5" style="background: #f4f6f5;">
+    <div class="container py-3" style="max-width: 680px;">
         
         <!-- Header -->
         <div class="text-center mb-4 reveal-up">
@@ -41,34 +41,62 @@
                     </div>
                 </div>
 
-                <!-- Actions Bar (Responsive Mobile Optimized) -->
-                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-stretch gap-2 pt-3 border-top border-light">
-                    <div class="d-flex gap-2 align-items-center flex-fill">
-                        <!-- Upload Photo -->
-                        <label class="btn btn-light btn-sm rounded-pill px-3 py-2 d-flex align-items-center justify-content-center gap-2 mb-0 flex-fill" style="cursor: pointer; font-size: 0.8rem; font-weight: 600;">
-                            <i class="bi bi-image text-success fs-6"></i> Chọn ảnh từ thư viện
+                <!-- Actions Bar (Responsive Mobile & Locket Style Shutter Button) -->
+                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 pt-3 border-top border-light">
+                    <div class="d-flex gap-3 align-items-center w-100 w-sm-auto">
+                        <!-- Locket Shutter Button -->
+                        <label class="locket-shutter-wrapper d-flex align-items-center gap-2 mb-0" style="cursor: pointer;" title="Chụp / Chọn ảnh kiểu Locket">
+                            <div class="locket-btn-outer d-flex align-items-center justify-content-center">
+                                <div class="locket-btn-inner d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-camera-fill text-white fs-6"></i>
+                                </div>
+                            </div>
+                            <span class="fw-bold text-dark small">Chụp / Đăng ảnh</span>
                             <input type="file" name="image" accept="image/*" class="d-none" id="imageInput" onchange="previewImage(this)">
                         </label>
                         
                         <!-- Rating Selector -->
-                        <select class="form-select form-select-sm rounded-pill border bg-light px-2 py-2 text-center" name="rating" style="width: 110px; font-size: 0.8rem; font-weight: 600;">
+                        <select class="form-select form-select-sm rounded-pill border bg-light px-2 py-2 text-center ms-auto ms-sm-0" name="rating" style="width: 110px; font-size: 0.8rem; font-weight: 600;">
                             <option value="5">⭐⭐⭐⭐⭐</option>
                             <option value="4">⭐⭐⭐⭐</option>
                             <option value="3">⭐⭐⭐</option>
                         </select>
                     </div>
 
-                    <div class="d-flex gap-2 flex-fill justify-content-end">
-                        <a href="/reviews/video-editor" class="btn btn-outline-primary-bl rounded-pill px-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-1 flex-fill" style="font-size: 0.82rem;">
-                            <i class="bi bi-camera-reels-fill"></i> TẠO VIDEO
+                    <div class="d-flex gap-2 w-100 w-sm-auto justify-content-end">
+                        <a href="/reviews/video-editor" class="btn btn-outline-primary-bl rounded-pill px-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;">
+                            <i class="bi bi-camera-reels-fill"></i> TẠO VIDEO CAPCUT
                         </a>
-                        <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold flex-fill" style="font-size: 0.85rem;">
+                        <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold" style="font-size: 0.85rem;">
                             ĐĂNG BÀI
                         </button>
                     </div>
                 </div>
             </form>
         </div>
+        
+        <style>
+            /* Locket Shutter Button CSS */
+            .locket-btn-outer {
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+                padding: 3px;
+                box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
+                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            }
+            .locket-shutter-wrapper:hover .locket-btn-outer {
+                transform: scale(1.1);
+            }
+            .locket-btn-inner {
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                background: #922724;
+                border: 2px solid #ffffff;
+            }
+        </style>
         <% } else { %>
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center bg-white">
             <p class="text-muted mb-3 small">Vui lòng đăng nhập tài khoản để đăng bài viết chia sẻ check-in hoặc tạo video.</p>

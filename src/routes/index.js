@@ -172,10 +172,17 @@ router.get('/explore', ExploreController.list);
 router.get('/explore/audio/:slug', ExploreController.audio);
 router.get('/explore/:slug', ExploreController.show);
 
-// ===== WORKSHOP =====
+// ===== SHOP & WORKSHOP =====
+router.get('/shops', WorkshopController.index);
+router.get('/shops/:id', WorkshopController.show);
+router.get('/my-shops', ensureAuthenticated, WorkshopController.myBookings);
 router.get('/workshops', WorkshopController.index);
 router.get('/workshops/:id', WorkshopController.show);
 router.get('/my-workshops', ensureAuthenticated, WorkshopController.myBookings);
+router.get('/api/shop/slots', WorkshopController.getSlots);
+router.post('/api/shop/book', ensureAuthenticated, WorkshopController.book);
+router.post('/api/shop/cancel', ensureAuthenticated, WorkshopController.cancel);
+router.post('/api/shop/review', ensureAuthenticated, WorkshopController.review);
 router.get('/api/workshop/slots', WorkshopController.getSlots);
 router.post('/api/workshop/book', ensureAuthenticated, WorkshopController.book);
 router.post('/api/workshop/cancel', ensureAuthenticated, WorkshopController.cancel);
@@ -215,25 +222,33 @@ router.get('/admin/users', ensureAdmin, AdminController.users);
 router.get('/admin/destinations', ensureAdmin, AdminController.destinations);
 router.get('/admin/settings', ensureAdmin, AdminController.siteSettings);
 router.get('/admin/workshops', ensureAdmin, AdminController.workshops);
+router.get('/admin/shops', ensureAdmin, AdminController.workshops);
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
 router.get('/admin/journey-templates', ensureAdmin, AdminController.journeyTemplates);
 router.get('/admin/chat', ensureAdmin, AdminController.chat);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
+router.post('/api/admin/create-workshop', ensureAdmin, ManagerController.createWorkshop);
+router.post('/api/admin/update-workshop', ensureAdmin, ManagerController.updateWorkshop);
+router.post('/api/admin/delete-workshop', ensureAdmin, ManagerController.deleteWorkshop);
+router.post('/api/admin/create-shop', ensureAdmin, ManagerController.createWorkshop);
+router.post('/api/admin/update-shop', ensureAdmin, ManagerController.updateWorkshop);
+router.post('/api/admin/delete-shop', ensureAdmin, ManagerController.deleteWorkshop);
 
 // ===== MANAGER =====
 router.get('/manager', ensureManager, ManagerController.index);
 router.get('/manager/chat', ensureManager, ManagerController.chat);
 router.get('/manager/destination', ensureManager, ManagerController.destination);
-router.get('/manager/workshops', ensureManager, ManagerController.workshops);
+router.get('/manager/workshops', ensureManager, (req, res) => res.redirect('/manager'));
+router.get('/manager/shops', ensureManager, (req, res) => res.redirect('/manager'));
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
 router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
-router.post('/api/manager/create-workshop', ensureManager, ManagerController.createWorkshop);
-router.post('/api/manager/update-workshop', ensureManager, ManagerController.updateWorkshop);
-router.post('/api/manager/delete-workshop', ensureManager, ManagerController.deleteWorkshop);
-router.get('/api/manager/workshop-bookings', ensureManager, ManagerController.getWorkshopBookings);
-router.post('/api/manager/update-booking-status', ensureManager, ManagerController.updateBookingStatus);
+router.post('/api/manager/create-workshop', ensureAdmin, ManagerController.createWorkshop);
+router.post('/api/manager/update-workshop', ensureAdmin, ManagerController.updateWorkshop);
+router.post('/api/manager/delete-workshop', ensureAdmin, ManagerController.deleteWorkshop);
+router.get('/api/manager/workshop-bookings', ensureAdmin, ManagerController.getWorkshopBookings);
+router.post('/api/manager/update-booking-status', ensureAdmin, ManagerController.updateBookingStatus);
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);

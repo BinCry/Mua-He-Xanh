@@ -1,16 +1,16 @@
-<section class="py-5" style="margin-top: 80px; background: #f8faf9; min-vh-100;">
-    <div class="container py-4">
+<section class="py-4 py-md-5" style="background: #0f172a; color: #ffffff; min-height: 100vh;">
+    <div class="container py-3">
         
-        <!-- Header -->
-        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-5 border-bottom border-secondary border-opacity-30 pb-4">
+        <!-- CapCut Studio Header -->
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 border-bottom border-secondary border-opacity-30 pb-3">
             <div class="mb-3 mb-md-0">
                 <span class="badge bg-danger bg-opacity-25 text-danger text-uppercase fw-bold tracking-widest px-3 py-2 rounded-pill mb-2 border border-danger border-opacity-35" style="letter-spacing: 1.5px; font-size: 0.7rem;">
-                    <i class="bi bi-magic me-1"></i> Studio Sáng Tạo Premium
+                    <i class="bi bi-camera-reels-fill me-1"></i> CapCut Studio Pro
                 </span>
-                <h1 class="display-5 fw-black text-dark mb-1" style="font-family: 'Inter', sans-serif;">Hành Trình Cảm Giác</h1>
-                <p class="text-muted mb-0 small">Biến những bức ảnh check-in mộc mạc thành video kể chuyện nghệ thuật kèm nhạc nền chữa lành.</p>
+                <h1 class="display-5 fw-black text-white mb-1" style="font-family: 'Inter', sans-serif;">Bộ Dựng Video Ngắn</h1>
+                <p class="text-slate-400 mb-0 small" style="color: #94a3b8;">Tự động biến các khoảnh khắc ảnh check-in thành video ngắn TikTok/Reels chất lượng cao.</p>
             </div>
-            <a href="/reviews" class="btn btn-outline-dark rounded-pill px-4"><i class="bi bi-arrow-left me-1"></i> Quay lại Cộng đồng</a>
+            <a href="/reviews" class="btn btn-outline-light rounded-pill px-4"><i class="bi bi-arrow-left me-1"></i> Quay lại Cộng đồng</a>
         </div>
 
         <div class="row g-4">
@@ -377,6 +377,56 @@
 }
 
 /* Phone Mockup */
+.editor-glass-card {
+    background: #1e293b !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 20px !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+}
+.editor-glass-card h5, .editor-glass-card h6, .editor-glass-card .fw-bold {
+    color: #ffffff !important;
+}
+.editor-glass-card p, .editor-glass-card .text-muted {
+    color: #94a3b8 !important;
+}
+.step-num {
+    background: rgba(225, 29, 72, 0.2) !important;
+    color: #f43f5e !important;
+    border: 1px solid rgba(225, 29, 72, 0.3) !important;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+.template-card-premium {
+    background: #0f172a !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+.template-card-premium.active {
+    border-color: #f43f5e !important;
+    background: rgba(244, 63, 94, 0.1) !important;
+}
+.template-card-premium .fs-4 {
+    color: #ffffff !important;
+}
+.dropzone-premium {
+    background: #0f172a !important;
+    border: 2px dashed rgba(255, 255, 255, 0.15) !important;
+}
+.sound-card-premium {
+    background: #0f172a !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+.sound-card-premium.active {
+    border-color: #f43f5e !important;
+    background: rgba(244, 63, 94, 0.1) !important;
+}
+
 .phone-mockup-premium {
     width: 270px;
     height: 480px;
@@ -435,18 +485,18 @@
 }
 
 .timeline-slot-card {
-    background: rgba(0, 0, 0, 0.03) !important;
-    border: 1px solid rgba(0,0,0,0.05) !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid rgba(255,255,255,0.1) !important;
     transition: all 0.3s ease;
 }
 .timeline-slot-card:hover {
-    border-color: rgba(146, 39, 36, 0.3) !important;
-    background: rgba(0, 0, 0, 0.35) !important;
+    border-color: rgba(244, 63, 94, 0.5) !important;
+    background: rgba(0, 0, 0, 0.5) !important;
 }
 
 .btn-premium-outline {
-    border: 1.5px solid rgba(0,0,0,0.15) !important;
-    color: #333 !important;
+    border: 1.5px solid rgba(255,255,255,0.2) !important;
+    color: #ffffff !important;
     transition: all 0.2s ease;
 }
 .btn-premium-outline:hover {

@@ -30,7 +30,7 @@ class HomeController {
                 [realReviews]
             ] = await Promise.all([
                 db.query('SELECT * FROM settings'),
-                Destination.getActive(6),
+                Destination.getActive(9),
                 CheckIn.getTotalCount(),
                 db.query('SELECT COUNT(*) as total FROM analytics WHERE event = $1', ['page_view']),
                 db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics WHERE event = $1', ['page_view']),
