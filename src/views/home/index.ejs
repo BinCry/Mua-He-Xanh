@@ -582,14 +582,14 @@
                             
                             <!-- Footer Action Badges (Read-Only on Homepage) -->
                             <div class="d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
-                                <span class="d-flex align-items-center gap-1 text-muted">
+                                <span class="d-flex align-items-center gap-1 text-dark fw-bold">
                                     <i class="bi bi-heart-fill text-danger fs-5"></i>
-                                    <span class="fw-bold"><%= r.likes_count || 0 %></span>
+                                    <span><%= parseInt(r.likes_count || 0, 10) %> tim</span>
                                 </span>
                                 
-                                <span class="d-flex align-items-center gap-1 text-muted me-auto">
+                                <span class="d-flex align-items-center gap-1 text-dark fw-bold me-auto">
                                     <i class="bi bi-chat-fill text-primary fs-5"></i>
-                                    <span class="fw-bold"><%= r.comments_count || 0 %></span>
+                                    <span><%= parseInt(r.comments_count || 0, 10) %> bình luận</span>
                                 </span>
                                 
                                 <a href="/reviews" class="btn btn-sm btn-light rounded-pill px-3 py-1 text-danger fw-bold shadow-2xs" style="font-size: 0.78rem;">

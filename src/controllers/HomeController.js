@@ -45,7 +45,9 @@ class HomeController {
                 db.query('SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC'),
                 db.query('SELECT * FROM seasonal_experiences WHERE is_active = 1 ORDER BY sort_order ASC'),
                 db.query(`
-                    SELECT r.id, r.content, r.rating, r.images, r.created_at, r.likes_count, r.comments_count,
+                    SELECT r.id, r.content, r.rating, r.images, r.created_at,
+                           (SELECT COUNT(*) FROM review_likes WHERE review_id = r.id) as likes_count,
+                           (SELECT COUNT(*) FROM review_comments WHERE review_id = r.id) as comments_count,
                            u.full_name, u.avatar,
                            d.name as destination_name, r.location_name
                     FROM (

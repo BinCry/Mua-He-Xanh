@@ -27,9 +27,11 @@ const ReviewController = {
     index: async (req, res) => {
         try {
             const [reviews] = await db.query(`
-                SELECT r.id, r.content, r.rating, r.images, r.created_at, r.likes_count,
+                SELECT r.id, r.content, r.rating, r.images, r.created_at,
+                       (SELECT COUNT(*) FROM review_likes WHERE review_id = r.id) as likes_count,
+                       (SELECT COUNT(*) FROM review_comments WHERE review_id = r.id) as comments_count,
                        u.full_name, u.avatar,
-                       d.name as destination_name
+                       d.name as destination_name, r.location_name
                 FROM (
                     SELECT id
                     FROM reviews
