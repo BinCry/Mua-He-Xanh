@@ -128,13 +128,13 @@ const AdminController = {
                 layout: 'layouts/admin',
                 adminPage: 'dashboard',
                 stats: {
-                    users: parseInt(userCount[0]?.total || 0, 10),
-                    destinations: parseInt(destCount[0]?.total || 0, 10),
-                    checkins: parseInt(checkinCount[0]?.total || 0, 10),
-                    reviews: parseInt(reviewCount[0]?.total || 0, 10),
-                    pageViews: parseInt(pageViewsRow[0]?.total || 0, 10),
-                    events: parseInt(eventCount[0]?.total || 0, 10),
-                    avgDuration: avgDurationSec
+                    users: parseInt(userCount?.[0]?.total || 0, 10) || 0,
+                    destinations: parseInt(destCount?.[0]?.total || 0, 10) || 0,
+                    checkins: parseInt(checkinCount?.[0]?.total || 0, 10) || 0,
+                    reviews: parseInt(reviewCount?.[0]?.total || 0, 10) || 0,
+                    pageViews: parseInt(pageViewsRow?.[0]?.total || 0, 10) || 0,
+                    events: parseInt(eventCount?.[0]?.total || 0, 10) || 0,
+                    avgDuration: avgDurationSec || 0
                 },
                 chartData: { monthlyCheckins, dailyCheckins, monthlyUsers, ratingsDistribution, monthlyWSBookings },
                 topDests,
