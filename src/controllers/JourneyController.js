@@ -293,6 +293,12 @@ class JourneyController {
                 [JSON.stringify(parsed), journey.id]
             );
 
+            return res.json({ success: true });
+        } catch (e) {
+            return res.json({ success: false, error: e.message });
+        }
+    }
+
     async deleteSavedJourney(req, res) {
         try {
             const session = await this.getOrCreateSession(req, res);
