@@ -59,23 +59,45 @@ class ExploreController {
                 }
             }
 
+            // Fetch community reviews & tourist check-in photos for this destination
             const [communityReviews] = await Destination.db.query(
-                "SELECT images FROM reviews WHERE destination_id = $1 AND images IS NOT NULL",
-                [dest.id]
+                `SELECT images FROM reviews 
+                 WHERE (destination_id = $1 OR location_name ILIKE $2) 
+                   AND images IS NOT NULL 
+                 ORDER BY created_at DESC`,
+                [dest.id, `%${dest.name}%`]
             );
             
             let galleryImages = [];
             communityReviews.forEach(r => {
+                if (!r.images) return;
                 try {
-                    const parsed = JSON.parse(r.images);
+                    let parsed = r.images;
+                    if (typeof parsed === 'string') {
+                        if (parsed.trim().startsWith('[')) {
+                            parsed = JSON.parse(parsed);
+                        } else {
+                            parsed = [parsed];
+                        }
+                    }
                     if (Array.isArray(parsed)) {
-                        galleryImages = galleryImages.concat(parsed);
+                        parsed.forEach(img => {
+                            if (img && typeof img === 'string' && img.trim()) {
+                                galleryImages.push(img.trim());
+                            }
+                        });
                     }
                 } catch(e) {}
             });
 
-            if (galleryImages.length === 0) {
-                galleryImages = [];
+            // Fallback to dest.gallery if no tourist photos exist yet
+            if (galleryImages.length === 0 && dest.gallery) {
+                try {
+                    const parsedG = typeof dest.gallery === 'string' ? JSON.parse(dest.gallery) : dest.gallery;
+                    if (Array.isArray(parsedG)) {
+                        galleryImages = parsedG;
+                    }
+                } catch(e) {}
             }
 
             const user = req.user || req.session?.user || null;

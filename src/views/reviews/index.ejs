@@ -136,8 +136,15 @@
                             </span>
                         </div>
                     </div>
-                    <div class="text-warning flex-shrink-0 pt-1" style="font-size: 0.75rem;">
-                        <% for(let s = 0; s < (r.rating || 5); s++) { %><i class="bi bi-star-fill"></i><% } %>
+                    <div class="d-flex align-items-center gap-2 flex-shrink-0 pt-1">
+                        <div class="text-warning" style="font-size: 0.75rem;">
+                            <% for(let s = 0; s < (r.rating || 5); s++) { %><i class="bi bi-star-fill"></i><% } %>
+                        </div>
+                        <% if (typeof user !== 'undefined' && user && (String(user.id) === String(r.user_id) || user.role === 'admin')) { %>
+                        <button class="btn btn-sm btn-light text-danger rounded-circle p-1 ms-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" onclick="deleteUserReview('<%= r.id %>', this)" title="Xóa bài viết">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
+                        <% } %>
                     </div>
                 </div>
                 
@@ -474,7 +481,23 @@
             alert('Lỗi đăng bài: ' + (e.response?.data?.message || e.message));
         } finally {
             btn.disabled = false;
-            btn.innerHTML = 'ĐĂNG BÀI';
+            btn.innerHTML = 'ĐĂNG BÀI VIẾT QUÝ BÁU <i class="bi bi-send-fill ms-1"></i>';
         }
     });
+
+    async function deleteUserReview(reviewId, btnEl) {
+        if (!confirm('Bạn có chắc chắn muốn xóa bài viết này? Ảnh trong bài sẽ tự động gỡ khỏi Góc nhìn nghệ thuật.')) return;
+        try {
+            const res = await axios.post('/api/reviews/delete', { review_id: reviewId });
+            if (res.data.success) {
+                const card = btnEl.closest('.card');
+                if (card) card.remove();
+                else location.reload();
+            } else {
+                alert(res.data.message || 'Không thể xóa bài viết');
+            }
+        } catch(e) {
+            alert('Lỗi khi xóa: ' + (e.response?.data?.message || e.message));
+        }
+    }
 </script>

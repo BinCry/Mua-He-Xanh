@@ -229,6 +229,32 @@ const ReviewController = {
         }
     },
 
+    delete: async (req, res) => {
+        try {
+            const user = req.user || req.session?.user;
+            if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
+
+            const { review_id } = req.body;
+            if (!review_id) return res.status(400).json({ success: false, message: 'Thiếu ID bài viết' });
+
+            const [rows] = await db.query('SELECT id, user_id FROM reviews WHERE id = $1', [review_id]);
+            if (rows.length === 0) return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết' });
+
+            if (String(rows[0].user_id) !== String(user.id) && user.role !== 'admin') {
+                return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa bài viết này' });
+            }
+
+            await db.query('DELETE FROM review_comments WHERE review_id = $1', [review_id]);
+            await db.query('DELETE FROM review_likes WHERE review_id = $1', [review_id]);
+            await db.query('DELETE FROM reviews WHERE id = $1', [review_id]);
+
+            res.json({ success: true, message: 'Đã xóa bài viết thành công!' });
+        } catch (error) {
+            console.error('Delete review error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
+        }
+    },
+
     videoEditor: async (req, res) => {
         try {
             const [soundscapes] = await db.query(
