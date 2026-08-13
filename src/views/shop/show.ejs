@@ -82,54 +82,25 @@
                                 <i class="bi bi-bag-check-fill me-2"></i> Đặt mua & Trải nghiệm sản phẩm
                             </h5>
 
-                            <% if (locals.user) { %>
-                                <% if (activeBooking) { %>
-                                    <!-- User Already Has Active Order -->
-                                    <div class="p-3 bg-white rounded-3 mb-3 border">
-                                        <div class="mb-2"><span class="text-muted small">Mã đơn / vé:</span> <strong class="text-primary font-monospace"><%= activeBooking.qr_ticket || 'BHL-WS-' + activeBooking.id.substring(0,8).toUpperCase() %></strong></div>
-                                        <div class="mb-2"><span class="text-muted small">Thời gian:</span> <strong><%= new Date(activeBooking.booking_date).toLocaleDateString('vi-VN') %> lúc <%= activeBooking.booking_time %></strong></div>
-                                        <div class="mb-2"><span class="text-muted small">Số lượng:</span> <strong><%= activeBooking.num_people %></strong></div>
-                                        <div><span class="text-muted small">Trạng thái:</span> <span class="badge bg-success"><%= activeBooking.status === 'confirmed' ? 'Đã xác nhận' : activeBooking.status %></span></div>
-                                    </div>
-                                    
-                                    <button onclick="confirmCancelBooking('<%= activeBooking.id %>')" class="btn btn-outline-danger w-100 rounded-pill py-3 fw-bold" id="cancelSubmitBtn">
-                                        <i class="bi bi-x-circle-fill me-2"></i>HỦY ĐƠN ĐẶT MUA
-                                    </button>
-                                <% } else { %>
-                                    <!-- Order Form -->
-                                    <% if (cancelledBooking) { %>
-                                        <div class="alert alert-warning py-2 small mb-3 rounded-3">
-                                            <i class="bi bi-exclamation-triangle-fill me-1 text-warning"></i>Bạn đã hủy đơn đăng ký trước đó. Bạn có thể đặt mua lại dưới đây:
-                                        </div>
-                                    <% } %>
-
-                                    <div class="row g-3 mb-3">
-                                        <div class="col-sm-6">
-                                            <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>Ngày mua / nhận:</div>
-                                            <div class="fw-bold text-dark"><%= workshop.start_date ? new Date(workshop.start_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hàng ngày' %></div>
-                                        </div>
-                                        <div class="col-sm-6">
-                                            <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Địa điểm phục vụ:</div>
-                                            <div class="fw-bold text-dark"><%= workshop.destination_name || 'Bình Lợi' %></div>
-                                        </div>
-                                    </div>
-
-                                    <div class="d-flex align-items-center mb-4">
-                                        <span id="slots-badge" class="badge rounded-pill bg-success px-3 py-2">CÒN HÀNG</span>
-                                        <span id="slots-text" class="small text-muted ms-2">Đang kiểm tra số lượng...</span>
-                                    </div>
-
-                                    <button onclick="registerWorkshop()" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" id="bookSubmitBtn" style="background: var(--primary);">
-                                        <i class="bi bi-cart-check-fill me-2"></i>ĐẶT MUA NGAY
-                                    </button>
-                                <% } %>
-                            <% } else { %>
-                                <div class="text-center py-4 bg-white rounded-3 border">
-                                    <i class="bi bi-shield-lock display-6 text-muted mb-3 d-block"></i>
-                                    <p class="small text-muted">Vui lòng đăng nhập để đặt mua sản phẩm này.</p>
-                                    <a href="/auth/login?redirect=/shops/<%= workshop.id %>" class="btn btn-primary rounded-pill px-4 py-2 mt-2 fw-bold" style="background: var(--primary); color: white;">Đăng nhập ngay</a>
+                            <div class="row g-3 mb-3">
+                                <div class="col-sm-6">
+                                    <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>Thời gian / Phục vụ:</div>
+                                    <div class="fw-bold text-dark"><%= workshop.start_date ? new Date(workshop.start_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hàng ngày' %></div>
                                 </div>
-                            <% } %>
+                                <div class="col-sm-6">
+                                    <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Địa điểm phục vụ:</div>
+                                    <div class="fw-bold text-dark"><%= workshop.destination_name || 'Bình Lợi' %></div>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center mb-4">
+                                <span id="slots-badge" class="badge rounded-pill bg-success px-3 py-2">CÒN HÀNG</span>
+                                <span id="slots-text" class="small text-muted ms-2">Sẵn sàng phục vụ</span>
+                            </div>
+
+                            <button onclick="showClosedFeatureModal()" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" id="bookSubmitBtn" style="background: var(--primary);">
+                                <i class="bi bi-cart-check-fill me-2"></i>ĐẶT MUA NGAY
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -137,6 +108,30 @@
         </div>
     </div>
 </section>
+
+<!-- Closed Feature Popup Modal -->
+<div class="modal fade" id="closedFeatureModal" tabindex="-1" aria-hidden="true" style="z-index: 100000;">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 400px;">
+        <div class="modal-content border-0 rounded-4 shadow-lg text-center p-3" style="background: #ffffff;">
+            <div class="modal-body p-3">
+                <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: rgba(245, 158, 11, 0.15) !important;">
+                    <i class="bi bi-exclamation-triangle-fill fs-2" style="color: #d97706;"></i>
+                </div>
+                <h5 class="fw-bold mb-2" style="font-family: 'Inter', sans-serif; color: #1a202c; font-size: 1.15rem;">Thông báo</h5>
+                <p class="text-secondary small mb-4" style="font-size: 0.95rem; line-height: 1.5;">
+                    Tính năng này đang đóng hãy liên hệ zalo <strong>0395529890</strong> để biết thêm!
+                </p>
+                
+                <div class="d-flex flex-column gap-2">
+                    <a href="https://zalo.me/0395529890" target="_blank" class="btn btn-primary rounded-pill py-2.5 fw-bold w-100" style="background: #0068ff; border: none;">
+                        <i class="bi bi-chat-dots-fill me-1.5"></i> Liên hệ Zalo (0395529890)
+                    </a>
+                    <button type="button" class="btn btn-light rounded-pill py-2 small fw-semibold border" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Cancel Confirmation Modal Popup -->
 <div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 100000;">
@@ -165,43 +160,23 @@
     const bookingTime = '<%= bookingTime %>';
     let pendingBookingIdToCancel = null;
 
+    function showClosedFeatureModal() {
+        const modalEl = document.getElementById('closedFeatureModal');
+        if (modalEl) {
+            const modal = new bootstrap.Modal(modalEl);
+            modal.show();
+        } else {
+            alert('Tính năng này đang đóng hãy liên hệ zalo 0395529890 để biết thêm!');
+        }
+    }
+
     async function checkSlots() {
         const badge = document.getElementById('slots-badge');
         const text = document.getElementById('slots-text');
-        const submitBtn = document.getElementById('bookSubmitBtn');
         if (!badge || !text) return;
-
-        try {
-            const res = await axios.get(`/api/shop/slots?workshopId=${workshopId}&date=${bookingDate}`);
-            if (res.data && res.data.success) {
-                const total = parseInt(res.data.total) || maxParticipants;
-                const remaining = parseInt(res.data.remaining);
-                badge.className = 'badge rounded-pill px-3 py-2';
-                
-                if (remaining <= 0) {
-                    badge.classList.add('bg-danger');
-                    badge.innerText = 'HẾT HÀNG';
-                    text.innerText = `Sản phẩm tạm thời hết hàng`;
-                    if (submitBtn) submitBtn.disabled = true;
-                } else if (remaining <= total * 0.2) {
-                    badge.classList.add('bg-warning', 'text-dark');
-                    badge.innerText = 'SẮP HẾT';
-                    text.innerText = `Chỉ còn lại ${remaining} sản phẩm`;
-                    if (submitBtn) submitBtn.disabled = false;
-                } else {
-                    badge.classList.add('bg-success');
-                    badge.innerText = 'CÒN HÀNG';
-                    text.innerText = `Sẵn sàng phục vụ`;
-                    if (submitBtn) submitBtn.disabled = false;
-                }
-            }
-        } catch (e) {
-            console.error('Error checking slots:', e);
-            badge.className = 'badge rounded-pill bg-success px-3 py-2';
-            badge.innerText = 'CÒN HÀNG';
-            text.innerText = 'Nhấn Đặt Mua để hoàn tất';
-            if (submitBtn) submitBtn.disabled = false;
-        }
+        badge.className = 'badge rounded-pill bg-success px-3 py-2';
+        badge.innerText = 'CÒN HÀNG';
+        text.innerText = 'Sẵn sàng phục vụ';
     }
 
     async function registerWorkshop() {
