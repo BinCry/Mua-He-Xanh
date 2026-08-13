@@ -132,7 +132,7 @@ const AdminController = {
                     destinations: parseInt(destCount[0]?.total || 0, 10),
                     checkins: parseInt(checkinCount[0]?.total || 0, 10),
                     reviews: parseInt(reviewCount[0]?.total || 0, 10),
-                    pageViews: parseInt(analyticsCount[0]?.total || 0, 10),
+                    pageViews: parseInt(analyticsCount[0]?.total || 0, 10) || 0,
                     events: parseInt(eventCount[0]?.total || 0, 10),
                     avgDuration: avgDurationSec
                 },
