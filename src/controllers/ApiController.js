@@ -228,6 +228,13 @@ class ApiController {
                 session.user_id = user.id;
             }
 
+            // Check message count for this session BEFORE saving current message
+            const [existingMsgs] = await db.query(
+                "SELECT COUNT(*) as total FROM messages WHERE receiver_uuid = $1 OR sender_uuid = $1",
+                [session.id]
+            );
+            const msgCount = parseInt(existingMsgs[0]?.total || 0, 10);
+
             let receiverUuid = null;
             if (destinationId) {
                 const [managers] = await db.query(
@@ -243,18 +250,21 @@ class ApiController {
             );
 
             let aiReply = null;
-            try {
-                const AIBrain = require('../core/AIBrain');
-                aiReply = await AIBrain.generateResponse(message, destinationId || null);
-                
-                if (aiReply) {
-                    await db.query(
-                        "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, content, is_ai, created_at) VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())",
-                        [uuidv4(), null, session.id, destinationId || null, aiReply, 1]
-                    );
+            // ONLY reply automatically on the VERY FIRST message of the conversation (msgCount === 0)
+            if (msgCount === 0) {
+                try {
+                    const AIBrain = require('../core/AIBrain');
+                    aiReply = await AIBrain.generateResponse(message, destinationId || null);
+                    
+                    if (aiReply) {
+                        await db.query(
+                            "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, content, is_ai, created_at) VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())",
+                            [uuidv4(), null, session.id, destinationId || null, aiReply, 1]
+                        );
+                    }
+                } catch(aiErr) {
+                    console.log("AI reply error:", aiErr);
                 }
-            } catch(aiErr) {
-                console.log("AI reply error:", aiErr);
             }
 
             res.json({ success: true, message: aiReply || 'Tin nhắn đã được gửi thành công.' });
