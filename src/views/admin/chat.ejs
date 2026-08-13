@@ -195,25 +195,28 @@
         opacity: 1;
     }
     .chat-bubble-received {
-        background: #f1f5f9;
-        border: 1px solid #cbd5e1;
-        color: #0f172a;
-        max-width: 80%;
+        background: #e4e6eb !important;
+        border: none !important;
+        color: #050505 !important;
+        max-width: 72%;
         word-wrap: break-word;
+        border-radius: 18px 18px 18px 4px !important;
     }
     .chat-bubble-sent {
-        background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%);
-        color: #ffffff;
-        max-width: 80%;
+        background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important;
+        color: #ffffff !important;
+        max-width: 72%;
         word-wrap: break-word;
-        box-shadow: 0 3px 10px rgba(79, 70, 229, 0.15);
+        border-radius: 18px 18px 4px 18px !important;
+        box-shadow: 0 3px 10px rgba(146, 39, 36, 0.2);
     }
     .chat-bubble-ai {
         background: rgba(16, 185, 129, 0.08);
         border: 1px solid rgba(16, 185, 129, 0.2);
         color: #065f46;
-        max-width: 80%;
+        max-width: 72%;
         word-wrap: break-word;
+        border-radius: 18px 18px 18px 4px !important;
     }
     .custom-scrollbar::-webkit-scrollbar {
         width: 4px;
@@ -305,12 +308,9 @@
 
         stream.innerHTML = '';
         if (messages && messages.length > 0) {
-            messages.forEach(msg => {
-                // A message is FROM the visitor if sender_uuid matches the activeSessionId
-                // Admin/manager replies have sender_uuid = null and sender_id set
-                const isFromVisitor = msg.sender_uuid !== null && String(msg.sender_uuid) === String(activeSessionId);
-                const isAI = msg.is_ai === 1;
-                const isReply = !isFromVisitor && !isAI;
+                // Admin/manager replies have sender_id set
+                const isAI = msg.is_ai === 1 || msg.is_ai === true;
+                const isReply = !isAI && (msg.sender_id !== null && msg.sender_id !== undefined);
 
                 const wrapper = document.createElement('div');
                 wrapper.className = `d-flex flex-column mb-3 ${isReply ? 'align-items-end' : 'align-items-start'}`;

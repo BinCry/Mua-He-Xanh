@@ -759,37 +759,36 @@ const AdminController = {
             try {
                 const [rows] = await db.query(
                     `SELECT 
-                         s.id AS session_id,
-                         s.uuid AS session_uuid,
-                         s.total_points AS visitor_points,
-                         u.full_name AS user_name,
+                         sub.session_key AS session_id,
+                         sub.session_key AS session_uuid,
+                         sub.last_message,
+                         sub.last_message_time,
+                         COALESCE(u.full_name, 'Du khách #' || SUBSTRING(sub.session_key, 1, 6)) AS user_name,
                          u.avatar AS user_avatar,
                          u.phone AS user_phone,
                          u.email AS user_email,
-                         (
-                             SELECT COALESCE(message, content, '') 
-                             FROM messages 
-                             WHERE (sender_uuid = s.id::text OR receiver_uuid = s.id::text OR sender_uuid = s.uuid OR receiver_uuid = s.uuid)
-                             ORDER BY created_at DESC LIMIT 1
-                         ) AS last_message,
-                         (
-                             SELECT created_at 
-                             FROM messages 
-                             WHERE (sender_uuid = s.id::text OR receiver_uuid = s.id::text OR sender_uuid = s.uuid OR receiver_uuid = s.uuid)
-                             ORDER BY created_at DESC LIMIT 1
-                         ) AS last_message_time
-                     FROM user_sessions s
+                         COALESCE(s.total_points, 0) AS visitor_points
+                     FROM (
+                         SELECT 
+                             CASE 
+                                 WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid 
+                                 ELSE receiver_uuid 
+                             END AS session_key,
+                             MAX(created_at) AS last_message_time,
+                             (
+                                 SELECT COALESCE(message, content, '')
+                                 FROM messages m2 
+                                 WHERE m2.sender_uuid = CASE WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid ELSE receiver_uuid END
+                                    OR m2.receiver_uuid = CASE WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid ELSE receiver_uuid END
+                                 ORDER BY created_at DESC LIMIT 1
+                             ) AS last_message
+                         FROM messages
+                         WHERE (sender_uuid IS NOT NULL AND sender_uuid != '') OR (receiver_uuid IS NOT NULL AND receiver_uuid != '')
+                         GROUP BY session_key
+                     ) sub
+                     LEFT JOIN user_sessions s ON (s.id::text = sub.session_key OR s.uuid = sub.session_key)
                      LEFT JOIN users u ON s.user_id = u.id
-                     WHERE s.id IN (
-                         SELECT DISTINCT CAST(sender_uuid AS INTEGER) FROM messages WHERE sender_uuid IS NOT NULL AND sender_uuid ~ '^[0-9]+$'
-                         UNION
-                         SELECT DISTINCT CAST(receiver_uuid AS INTEGER) FROM messages WHERE receiver_uuid IS NOT NULL AND receiver_uuid ~ '^[0-9]+$'
-                     ) OR s.uuid IN (
-                         SELECT DISTINCT sender_uuid FROM messages WHERE sender_uuid IS NOT NULL
-                         UNION
-                         SELECT DISTINCT receiver_uuid FROM messages WHERE receiver_uuid IS NOT NULL
-                     )
-                     ORDER BY last_message_time DESC NULLS LAST
+                     ORDER BY sub.last_message_time DESC
                      LIMIT 100`
                 );
                 conversations = rows;
@@ -823,21 +822,24 @@ const AdminController = {
                 `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id = $1 OR s.uuid = $2`,
-                [isNaN(Number(sessionId)) ? 0 : Number(sessionId), String(sessionId)]
+                 WHERE s.id::text = $1 OR s.uuid = $1`,
+                [String(sessionId)]
             );
-            visitor = visitorDetails[0] || null;
-
-            const targetSessionId = visitor ? String(visitor.id) : String(sessionId);
-            const targetSessionUuid = visitor ? String(visitor.uuid) : String(sessionId);
+            
+            visitor = visitorDetails[0] || {
+                id: sessionId,
+                uuid: sessionId,
+                full_name: 'Du khách #' + String(sessionId).slice(0, 6).toUpperCase(),
+                total_points: 0
+            };
 
             try {
                 const [rows] = await db.query(
                     `SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at
                      FROM messages 
-                     WHERE (sender_uuid = $1 OR receiver_uuid = $1 OR sender_uuid = $2 OR receiver_uuid = $2)
+                     WHERE (sender_uuid = $1 OR receiver_uuid = $1)
                      ORDER BY created_at ASC`,
-                    [targetSessionId, targetSessionUuid]
+                    [String(sessionId)]
                 );
                 messages = rows;
             } catch(e) {

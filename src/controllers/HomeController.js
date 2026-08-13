@@ -18,11 +18,11 @@ class HomeController {
 
             const heroPostersData = await HeroPoster.getActive();
             const defaultHeroPosters = [
-                { id: 'p1', title: 'Poster 1', image_url: '/images/Poster 1.jpg' },
-                { id: 'p2', title: 'Poster 2', image_url: '/images/Poster 2.jpg' },
-                { id: 'p3', title: 'Poster 3', image_url: '/images/Poster 3.jpg' },
-                { id: 'p4', title: 'Poster 4', image_url: '/images/Poster 4.jpg' },
-                { id: 'p5', title: 'Poster 5', image_url: '/images/Poster 5.jpg' }
+                { id: 'p1', title: 'Poster 1', image_url: '/images/Poster 1.webp' },
+                { id: 'p2', title: 'Poster 2', image_url: '/images/Poster 2.webp' },
+                { id: 'p3', title: 'Poster 3', image_url: '/images/Poster 3.webp' },
+                { id: 'p4', title: 'Poster 4', image_url: '/images/Poster 4.webp' },
+                { id: 'p5', title: 'Poster 5', image_url: '/images/Poster 5.webp' }
             ];
             const heroPosters = (heroPostersData && heroPostersData.length > 0) ? heroPostersData : defaultHeroPosters;
 
