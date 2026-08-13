@@ -45,9 +45,9 @@ class HomeController {
                 db.query('SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC'),
                 db.query('SELECT * FROM seasonal_experiences WHERE is_active = 1 ORDER BY sort_order ASC'),
                 db.query(`
-                    SELECT r.id, r.content, r.images, r.created_at, r.likes_count,
+                    SELECT r.id, r.content, r.rating, r.images, r.created_at, r.likes_count, r.comments_count,
                            u.full_name, u.avatar,
-                           d.name as destination_name
+                           d.name as destination_name, r.location_name
                     FROM (
                         SELECT id FROM reviews ORDER BY created_at DESC LIMIT 6
                     ) sub
@@ -101,32 +101,6 @@ class HomeController {
 
             const otherEvents = featuredEvent ? events.filter(e => e.id !== featuredEvent.id) : events;
 
-            const socialFeed = realReviews.map(r => {
-                let firstImage = null;
-                if (r.images) {
-                    try {
-                        if (typeof r.images === 'string') {
-                            const parsed = r.images.trim().startsWith('[') ? JSON.parse(r.images) : [r.images];
-                            firstImage = parsed[0] || null;
-                        } else if (Array.isArray(r.images)) {
-                            firstImage = r.images[0] || null;
-                        }
-                    } catch(e) {
-                        firstImage = r.images;
-                    }
-                }
-                return {
-                    id: r.id,
-                    user: r.full_name,
-                    avatar: r.avatar || '/images/default-avatar.png',
-                    text: r.content,
-                    location: r.destination_name || r.location_name || 'Bình Lợi',
-                    time: getRelativeTime(r.created_at),
-                    likes: r.likes_count || 0,
-                    image: firstImage
-                };
-            });
-
             const renderData = {
                 title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
                 heroPosters,
@@ -141,7 +115,7 @@ class HomeController {
                     workshopCount,
                     avgRating
                 },
-                socialFeed,
+                reviews: realReviews,
                 seasonalExperiences,
                 nextEvent: featuredEvent,
                 otherEvents

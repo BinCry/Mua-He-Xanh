@@ -533,10 +533,9 @@
     </div>
 </section>
 
-<!-- SOCIAL FEED: Real Reviews from Community -->
-<% if (socialFeed.length> 0) { %>
-    <section class="py-section"
-        style="background-color: #eef6fc; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03);">
+<!-- SOCIAL FEED: Real Reviews from Community (Identical to Community Page) -->
+<% if (typeof reviews !== 'undefined' && reviews && reviews.length > 0) { %>
+    <section class="py-section" style="background-color: #f8faf9; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03);">
         <div class="container py-5">
             <div class="text-center mb-5 reveal-up">
                 <span class="section-label">LIVE FROM BÌNH LỢI</span>
@@ -544,87 +543,198 @@
                 <p class="section-desc mx-auto">Câu chuyện thật, hình ảnh thật từ cộng đồng du khách.</p>
             </div>
 
-            <div class="row g-4 mb-5">
-                <% socialFeed.forEach((item, index)=> { %>
-                    <div class="col-md-4 reveal-up">
-                        <div class="card-heal h-100">
-                            <% if (item.image) { %>
-                                <div class="card-img position-relative" style="height: 420px;">
-                                    <img src="<%= fixImg(item.image) %>" alt="Moment">
-                                    <div class="position-absolute top-0 start-0 w-100 h-100"
-                                        style="background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.8) 100%); z-index: 2;">
-                                    </div>
-                                    <div class="position-absolute top-0 end-0 m-3" style="z-index: 5;">
-                                        <span
-                                            class="glass-dark text-white px-3 py-1 rounded-pill d-flex align-items-center gap-1"
-                                            style="font-size: 0.78rem; backdrop-filter: blur(10px);">
-                                            <i class="bi bi-heart-fill text-danger"></i>
-                                            <%= item.likes %>
-                                        </span>
-                                    </div>
-                                    <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white"
-                                        style="z-index: 5;">
-                                        <div class="d-flex align-items-center gap-2 mb-2">
-                                            <img src="<%= item.avatar %>" class="rounded-circle"
-                                                style="width: 36px; height: 36px; object-fit: cover; border: 2px solid rgba(255,255,255,0.4);">
-                                            <div>
-                                                <span class="fw-bold d-block" style="font-size: 0.85rem;">
-                                                    <%= item.user %>
-                                                </span>
-                                                <span class="opacity-60 d-block" style="font-size: 0.7rem;">
-                                                    <%= item.time %>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <p class="mb-2 line-clamp-2 notranslate" translate="no"
-                                            style="font-size: 0.85rem; opacity: 0.9;">
-                                            <%= item.text %>
-                                        </p>
-                                        <span class="opacity-50" style="font-size: 0.75rem;"><i
-                                                class="bi bi-geo-alt-fill me-1"></i>
-                                            <%= item.location %>
+            <div class="row justify-content-center">
+                <div class="col-lg-8">
+                    <div class="d-flex flex-column gap-4">
+                        <% reviews.slice(0, 5).forEach((r, i) => { %>
+                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white reveal-up">
+                            <!-- User Header -->
+                            <div class="d-flex align-items-start justify-content-between gap-2 p-3 p-sm-4 pb-2">
+                                <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
+                                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
+                                    <div class="min-w-0 flex-grow-1">
+                                        <span class="fw-bold d-block text-truncate" style="font-size: 0.92rem; color: #333;"><%= r.full_name %></span>
+                                        <span class="text-muted d-block text-truncate" style="font-size: 0.72rem;">
+                                            <% if (r.destination_name) { %>
+                                                <span class="text-danger fw-bold"><i class="bi bi-geo-alt-fill me-1"></i><%= r.destination_name %></span> · 
+                                            <% } else if (r.location_name) { %>
+                                                <span class="text-secondary"><i class="bi bi-pin-map-fill me-1"></i><%= r.location_name %></span> · 
+                                            <% } %>
+                                            <%= new Date(r.created_at).toLocaleDateString('vi-VN') %>
                                         </span>
                                     </div>
                                 </div>
-                                <% } else { %>
-                                    <div class="card-social-new">
-                                        <div class="d-flex align-items-center gap-2 mb-3">
-                                            <img src="<%= item.avatar %>" class="rounded-circle"
-                                                style="width: 48px; height: 48px; object-fit: cover; border: 2px solid var(--primary-50);">
-                                            <div>
-                                                <span class="fw-bold d-block text-dark">
-                                                    <%= item.user %>
-                                                </span>
-                                                <span class="opacity-60 d-block small">
-                                                    <%= item.time %>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <p class="mb-3 line-clamp-4 text-dark notranslate" translate="no"
-                                            style="font-style: italic;">"<%= item.text %>"</p>
-                                        <div class="d-flex justify-content-between align-items-center mt-auto">
-                                            <span class="small text-muted"><i class="bi bi-geo-alt-fill me-1"></i>
-                                                <%= item.location %>
-                                            </span>
-                                            <span class="badge bg-light text-danger"><i
-                                                    class="bi bi-heart-fill me-1"></i>
-                                                <%= item.likes %>
-                                            </span>
-                                        </div>
+                                <div class="text-warning flex-shrink-0 pt-1" style="font-size: 0.75rem;">
+                                    <% for(let s = 0; s < (r.rating || 5); s++) { %><i class="bi bi-star-fill"></i><% } %>
+                                </div>
+                            </div>
+                            
+                            <!-- Content text -->
+                            <div class="px-3 px-sm-4 pb-2">
+                                <p class="mb-0 notranslate" translate="no" style="font-size: 0.92rem; line-height: 1.7; color: #444;"><%= r.content %></p>
+                            </div>
+
+                            <!-- Feed Images -->
+                            <% if (r.images) { 
+                                let imgs = [];
+                                try { 
+                                    if (typeof r.images === 'string') {
+                                        imgs = r.images.trim().startsWith('[') ? JSON.parse(r.images) : [r.images];
+                                    } else if (Array.isArray(r.images)) {
+                                        imgs = r.images;
+                                    }
+                                } catch(e) {
+                                    imgs = [r.images];
+                                }
+                                imgs = imgs.filter(Boolean);
+                                if (imgs.length > 0) { %>
+                            <div class="px-3 px-sm-4 py-2">
+                                <div class="row g-2">
+                                    <% imgs.forEach((img, idx) => { %>
+                                    <div class="col-12">
+                                        <img src="<%= fixImg(img) %>" class="rounded-4 w-100 shadow-sm" style="max-height: 420px; object-fit: cover;" alt="Review image" onerror="this.onerror=null; this.src='/images/Poster 1.png';">
                                     </div>
-                                    <% } %>
+                                    <% }) %>
+                                </div>
+                            </div>
+                            <% } } %>
+                            
+                            <!-- Footer Action Buttons -->
+                            <div class="d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
+                                <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="likeReview('<%= r.id %>', this)">
+                                    <i class="bi bi-heart fs-5"></i>
+                                    <span class="fw-bold"><%= r.likes_count || 0 %></span>
+                                </button>
+                                
+                                <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="toggleComments('<%= r.id %>')">
+                                    <i class="bi bi-chat fs-5"></i>
+                                    <span class="fw-bold comment-count-<%= r.id %>"><%= r.comments_count || 0 %></span>
+                                </button>
+                                
+                                <div class="d-flex gap-2 ms-auto">
+                                    <a href="https://www.facebook.com/sharer/sharer.php?u=https://dulichbinhloi.com/reviews" 
+                                       target="_blank" class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted">
+                                        <i class="bi bi-facebook fs-5 text-primary"></i>
+                                        <span class="fw-bold d-none d-sm-inline" style="font-size: 0.8rem;">Facebook</span>
+                                    </a>
+                                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" 
+                                            onclick="shareTikTok('<%= r.content.replace(/\'/g, "\\'").replace(/\n/g, " ") %>', '<%= r.destination_name || r.location_name || "" %>', 'https://dulichbinhloi.com/reviews')">
+                                        <i class="bi bi-tiktok fs-5 text-dark"></i>
+                                        <span class="fw-bold d-none d-sm-inline" style="font-size: 0.8rem;">TikTok</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Expandable Interactive Comment Box -->
+                            <div id="comments-box-<%= r.id %>" class="d-none bg-light p-3 border-top">
+                                <div class="comments-list mb-3 d-flex flex-column gap-2" id="comments-list-<%= r.id %>">
+                                    <div class="text-center py-2 text-muted small">Đang tải bình luận...</div>
+                                </div>
+                                <form onsubmit="submitComment(event, '<%= r.id %>')" class="d-flex gap-2">
+                                    <input type="text" class="form-control form-control-sm rounded-pill border px-3" id="comment-input-<%= r.id %>" placeholder="Viết bình luận của bạn..." required>
+                                    <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold text-white flex-shrink-0" style="background: var(--primary);">Gửi</button>
+                                </form>
+                            </div>
                         </div>
+                        <% }) %>
                     </div>
-                    <% }) %>
+                </div>
             </div>
 
-            <div class="text-center reveal-up">
-                <a href="/reviews" class="btn btn-share-moment rounded-pill px-4 py-3 fw-bold">CHIA SẺ KHOẢNH KHẮC CỦA
-                    BẠN <i class="bi bi-arrow-right ms-2"></i></a>
+            <div class="text-center mt-5">
+                <a href="/reviews" class="btn btn-outline-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm" style="border-color: var(--primary); color: var(--primary);">
+                    Xem tất cả bài viết cộng đồng <i class="bi bi-arrow-right ms-1"></i>
+                </a>
             </div>
         </div>
     </section>
-    <% } %>
+
+    <script>
+        async function likeReview(id, btn) {
+            try {
+                const res = await axios.post('/api/reviews/like', { review_id: id });
+                if (res.data.success) {
+                    const icon = btn.querySelector('i');
+                    const count = btn.querySelector('span');
+                    icon.classList.toggle('bi-heart');
+                    icon.classList.toggle('bi-heart-fill');
+                    btn.style.color = icon.classList.contains('bi-heart-fill') ? '#dc3545' : 'inherit';
+                    count.textContent = res.data.likes;
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function toggleComments(reviewId) {
+            const box = document.getElementById(`comments-box-${reviewId}`);
+            if (!box) return;
+            if (box.classList.contains('d-none')) {
+                box.classList.remove('d-none');
+                await loadComments(reviewId);
+            } else {
+                box.classList.add('d-none');
+            }
+        }
+
+        async function loadComments(reviewId) {
+            const list = document.getElementById(`comments-list-${reviewId}`);
+            if (!list) return;
+            try {
+                const res = await axios.get(`/api/reviews/comments?review_id=${reviewId}`);
+                if (res.data.success && res.data.data.length > 0) {
+                    list.innerHTML = res.data.data.map(c => `
+                        <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs border-start border-3 border-primary">
+                            <img src="${c.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 28px; height: 28px; object-fit: cover;">
+                            <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
+                                <span class="fw-bold d-block text-dark" style="font-size: 0.8rem;">${c.full_name}</span>
+                                <span class="text-secondary">${c.content}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    list.innerHTML = `<div class="text-muted small text-center py-1">Chưa có bình luận nào. Hãy là người đầu tiên!</div>`;
+                }
+            } catch(e) {
+                list.innerHTML = `<div class="text-danger small text-center">Không thể tải bình luận.</div>`;
+            }
+        }
+
+        async function submitComment(event, reviewId) {
+            event.preventDefault();
+            const input = document.getElementById(`comment-input-${reviewId}`);
+            if (!input || !input.value.trim()) return;
+
+            const commentText = input.value.trim();
+            input.value = '';
+
+            try {
+                const res = await axios.post('/api/reviews/comment', {
+                    review_id: reviewId,
+                    comment: commentText
+                });
+
+                if (res.data.success) {
+                    const badges = document.querySelectorAll(`.comment-count-${reviewId}`);
+                    badges.forEach(b => { b.textContent = res.data.count; });
+                    await loadComments(reviewId);
+                } else {
+                    alert(res.data.message || 'Lỗi gửi bình luận.');
+                }
+            } catch(e) {
+                console.error('Submit comment error:', e);
+                alert('Không thể gửi bình luận lúc này.');
+            }
+        }
+
+        function shareTikTok(content, destinationName, url) {
+            const text = `Check-in tại ${destinationName || 'Bình Lợi'} - Bình Lợi Healing: "${content.substring(0, 80)}..." #BinhLoiHealing #ChuaLanh #MietVuonGiuaPho`;
+            if (navigator.share) {
+                navigator.share({ title: 'Chia sẻ Bình Lợi Healing', text: text, url: url }).catch(err => console.error(err));
+            } else {
+                window.open(`https://www.tiktok.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+            }
+        }
+    </script>
+<% } %>
 
         <!-- Floating buttons removed - QR in bottom center, Chat via menu -->
 

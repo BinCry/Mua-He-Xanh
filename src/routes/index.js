@@ -360,8 +360,9 @@ router.post('/api/destination/add-to-journey', ensureAuthenticated, ApiControlle
 
 // Review API
 router.post('/api/reviews', ensureAuthenticated, ReviewController.create);
-router.post('/api/reviews/like', ensureAuthenticated, ReviewController.toggleLike);
-router.post('/api/reviews/comment', ensureAuthenticated, ReviewController.comment);
+router.post('/api/reviews/like', ReviewController.toggleLike);
+router.post('/api/reviews/comment', ReviewController.comment);
+router.get('/api/reviews/comments', ReviewController.getComments);
 
 // Profile API
 router.post('/api/redeem-reward', ensureAuthenticated, ProfileController.redeemReward);

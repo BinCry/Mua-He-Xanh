@@ -116,19 +116,44 @@ const ReviewController = {
     toggleLike: async (req, res) => {
         try {
             const user = req.user || req.session?.user;
-            if (!user) return res.status(401).json({ success: false });
+            const sessionUuid = req.cookies?.session_uuid;
+            
+            // Allow logged-in users or guest session UUIDs to like posts
+            const userId = user?.id || null;
+            const guestUuid = !userId ? sessionUuid : null;
+
+            if (!userId && !guestUuid) {
+                return res.status(401).json({ success: false, message: 'Vui lòng mở trình duyệt bình thường để thả tim.' });
+            }
 
             const { review_id } = req.body;
-            const [existing] = await db.query(
-                'SELECT id FROM review_likes WHERE review_id = $1 AND user_id = $2',
-                [review_id, user.id]
-            );
+            let existing = [];
+            if (userId) {
+                const [rows] = await db.query(
+                    'SELECT id FROM review_likes WHERE review_id = $1 AND user_id = $2',
+                    [review_id, userId]
+                );
+                existing = rows;
+            } else {
+                const [rows] = await db.query(
+                    'SELECT id FROM review_likes WHERE review_id = $1 AND guest_uuid = $2',
+                    [review_id, guestUuid]
+                );
+                existing = rows;
+            }
 
             if (existing.length > 0) {
-                await db.query('DELETE FROM review_likes WHERE review_id = $1 AND user_id = $2', [review_id, user.id]);
+                if (userId) {
+                    await db.query('DELETE FROM review_likes WHERE review_id = $1 AND user_id = $2', [review_id, userId]);
+                } else {
+                    await db.query('DELETE FROM review_likes WHERE review_id = $1 AND guest_uuid = $2', [review_id, guestUuid]);
+                }
                 await db.query('UPDATE reviews SET likes_count = GREATEST(0, likes_count - 1) WHERE id = $1', [review_id]);
             } else {
-                await db.query('INSERT INTO review_likes (id, review_id, user_id) VALUES ($1, $2, $3)', [uuidv4(), review_id, user.id]);
+                await db.query(
+                    'INSERT INTO review_likes (id, review_id, user_id, guest_uuid) VALUES ($1, $2, $3, $4)',
+                    [uuidv4(), review_id, userId, guestUuid]
+                );
                 await db.query('UPDATE reviews SET likes_count = likes_count + 1 WHERE id = $1', [review_id]);
             }
 
@@ -136,24 +161,68 @@ const ReviewController = {
             res.json({ success: true, likes: parseInt(result[0]?.likes_count || 0, 10) });
         } catch (error) {
             console.error('Like error:', error);
-            res.status(500).json({ success: false });
+            res.status(500).json({ success: false, message: error.message });
         }
     },
 
     comment: async (req, res) => {
         try {
             const user = req.user || req.session?.user;
-            if (!user) return res.status(401).json({ success: false });
+            const sessionUuid = req.cookies?.session_uuid;
+
+            const userId = user?.id || null;
+            const guestUuid = !userId ? sessionUuid : null;
 
             const { review_id, comment } = req.body;
+            if (!comment || !comment.trim()) {
+                return res.status(400).json({ success: false, message: 'Nội dung bình luận không được để trống.' });
+            }
+
+            const commentId = uuidv4();
             await db.query(
-                'INSERT INTO review_comments (id, review_id, user_id, content) VALUES ($1, $2, $3, $4)',
-                [uuidv4(), review_id, user.id, comment]
+                'INSERT INTO review_comments (id, review_id, user_id, guest_uuid, content, created_at) VALUES ($1, $2, $3, $4, $5, NOW())',
+                [commentId, review_id, userId, guestUuid, comment.trim()]
             );
             await db.query('UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1', [review_id]);
-            res.json({ success: true });
+
+            const [revResult] = await db.query('SELECT comments_count FROM reviews WHERE id = $1', [review_id]);
+            
+            res.json({ 
+                success: true, 
+                count: parseInt(revResult[0]?.comments_count || 0, 10),
+                comment: {
+                    id: commentId,
+                    content: comment.trim(),
+                    created_at: new Date().toISOString(),
+                    full_name: user ? user.full_name : 'Du khách Bình Lợi',
+                    avatar: user ? (user.avatar || '/images/default-avatar.png') : '/images/default-avatar.png'
+                }
+            });
         } catch (error) {
-            res.status(500).json({ success: false });
+            console.error('Comment error:', error);
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    getComments: async (req, res) => {
+        try {
+            const { review_id } = req.query;
+            if (!review_id) return res.json({ success: true, data: [] });
+
+            const [comments] = await db.query(`
+                SELECT c.id, c.content, c.created_at,
+                       COALESCE(u.full_name, 'Du khách Bình Lợi') as full_name,
+                       COALESCE(u.avatar, '/images/default-avatar.png') as avatar
+                FROM review_comments c
+                LEFT JOIN users u ON c.user_id = u.id
+                WHERE c.review_id = $1
+                ORDER BY c.created_at ASC
+            `, [review_id]);
+
+            res.json({ success: true, data: comments });
+        } catch (e) {
+            console.error("getComments error:", e);
+            res.json({ success: false, data: [] });
         }
     },
 

@@ -171,16 +171,16 @@
                 </div>
                 <% } } %>
                 
-                <!-- Footer Action Buttons (Instagram Style) -->
+                <!-- Footer Action Buttons (Instagram/Facebook Style) -->
                 <div class="d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
                     <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="likeReview('<%= r.id %>', this)">
                         <i class="bi bi-heart fs-5"></i>
                         <span class="fw-bold"><%= r.likes_count || 0 %></span>
                     </button>
                     
-                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted">
+                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="toggleComments('<%= r.id %>')">
                         <i class="bi bi-chat fs-5"></i>
-                        <span class="fw-bold"><%= r.comments_count || 0 %></span>
+                        <span class="fw-bold comment-count-<%= r.id %>"><%= r.comments_count || 0 %></span>
                     </button>
                     
                     <div class="d-flex gap-2 ms-auto">
@@ -195,6 +195,17 @@
                             <span class="fw-bold d-none d-sm-inline" style="font-size: 0.8rem;">TikTok</span>
                         </button>
                     </div>
+                </div>
+
+                <!-- Expandable Interactive Comment Box -->
+                <div id="comments-box-<%= r.id %>" class="d-none bg-light p-3 border-top">
+                    <div class="comments-list mb-3 d-flex flex-column gap-2" id="comments-list-<%= r.id %>">
+                        <div class="text-center py-2 text-muted small">Đang tải bình luận...</div>
+                    </div>
+                    <form onsubmit="submitComment(event, '<%= r.id %>')" class="d-flex gap-2">
+                        <input type="text" class="form-control form-control-sm rounded-pill border px-3" id="comment-input-<%= r.id %>" placeholder="Viết bình luận của bạn..." required>
+                        <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold text-white flex-shrink-0" style="background: var(--primary);">Gửi</button>
+                    </form>
                 </div>
             </div>
             <% }) %>
@@ -283,6 +294,69 @@
                 count.textContent = res.data.likes;
             }
         } catch(e) { console.error(e); }
+    }
+
+    // Toggle Comments Section
+    async function toggleComments(reviewId) {
+        const box = document.getElementById(`comments-box-${reviewId}`);
+        if (!box) return;
+        
+        if (box.classList.contains('d-none')) {
+            box.classList.remove('d-none');
+            await loadComments(reviewId);
+        } else {
+            box.classList.add('d-none');
+        }
+    }
+
+    async function loadComments(reviewId) {
+        const list = document.getElementById(`comments-list-${reviewId}`);
+        if (!list) return;
+        try {
+            const res = await axios.get(`/api/reviews/comments?review_id=${reviewId}`);
+            if (res.data.success && res.data.data.length > 0) {
+                list.innerHTML = res.data.data.map(c => `
+                    <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs border-start border-3 border-primary">
+                        <img src="${c.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 28px; height: 28px; object-fit: cover;">
+                        <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
+                            <span class="fw-bold d-block text-dark" style="font-size: 0.8rem;">${c.full_name}</span>
+                            <span class="text-secondary">${c.content}</span>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                list.innerHTML = `<div class="text-muted small text-center py-1">Chưa có bình luận nào. Hãy là người đầu tiên!</div>`;
+            }
+        } catch(e) {
+            list.innerHTML = `<div class="text-danger small text-center">Không thể tải bình luận.</div>`;
+        }
+    }
+
+    async function submitComment(event, reviewId) {
+        event.preventDefault();
+        const input = document.getElementById(`comment-input-${reviewId}`);
+        if (!input || !input.value.trim()) return;
+
+        const commentText = input.value.trim();
+        input.value = '';
+
+        try {
+            const res = await axios.post('/api/reviews/comment', {
+                review_id: reviewId,
+                comment: commentText
+            });
+
+            if (res.data.success) {
+                const badges = document.querySelectorAll(`.comment-count-${reviewId}`);
+                badges.forEach(b => { b.textContent = res.data.count; });
+                await loadComments(reviewId);
+            } else {
+                alert(res.data.message || 'Lỗi gửi bình luận.');
+            }
+        } catch(e) {
+            console.error('Submit comment error:', e);
+            alert('Không thể gửi bình luận lúc này.');
+        }
     }
 
     function triggerPhotoUpload(isCamera) {
