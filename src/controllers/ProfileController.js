@@ -71,19 +71,19 @@ const ProfileController = {
                 savedDestinations = saved;
             } catch(e) {}
 
-            // Saved Journeys (Only confirmed & explicitly saved journeys)
+            // Saved Journeys
             let savedJourneys = [];
             try {
+                const sessionUuid = req.cookies?.session_uuid || '';
                 const [journeys] = await db.query(`
                     SELECT DISTINCT j.id, j.mood, j.duration, j.total_km, j.total_minutes, j.status, j.created_at, j.interests,
                            (SELECT COUNT(*) FROM journey_stops js WHERE js.journey_id = j.id) as total_stops
                     FROM journeys j
-                    JOIN user_sessions us ON (j.session_id = us.id OR j.session_id = us.session_uuid)
-                    WHERE us.user_id = $1 
+                    LEFT JOIN user_sessions us ON (j.session_id = us.id::text OR j.session_id = us.uuid)
+                    WHERE (us.user_id = $1 OR us.uuid = $2 OR j.session_id = $2 OR j.session_id IN (SELECT id::text FROM user_sessions WHERE user_id = $1) OR j.session_id IN (SELECT uuid FROM user_sessions WHERE user_id = $1))
                       AND j.status NOT IN ('replaced', 'abandoned')
-                      AND (j.status = 'confirmed' OR j.interests LIKE '%"isConfirmed":true%')
                     ORDER BY j.created_at DESC
-                `, [user.id]);
+                `, [user.id, sessionUuid]);
                 savedJourneys = journeys;
             } catch(e) {
                 console.error("Fetch savedJourneys error:", e);
