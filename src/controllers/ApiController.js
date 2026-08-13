@@ -220,6 +220,14 @@ class ApiController {
             const session = await UserSession.findOrCreate(sessionUuid, req);
             if (!session) return res.status(404).json({ success: false, message: 'Không thể tạo phiên truy cập.' });
 
+            const user = req.user || req.session?.user || null;
+            const currentUserId = user ? user.id : (session.user_id || null);
+
+            if (user && user.id && !session.user_id) {
+                await db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
+                session.user_id = user.id;
+            }
+
             let receiverUuid = null;
             if (destinationId) {
                 const [managers] = await db.query(
@@ -231,7 +239,7 @@ class ApiController {
 
             await db.query(
                 "INSERT INTO messages (id, sender_id, sender_uuid, receiver_uuid, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, $6, NOW())",
-                [uuidv4(), session.user_id || null, session.id, receiverUuid, destinationId || null, message.trim()]
+                [uuidv4(), currentUserId, session.id, receiverUuid, destinationId || null, message.trim()]
             );
 
             let aiReply = null;
@@ -308,19 +316,27 @@ class ApiController {
         const session = await UserSession.findOrCreate(sessionUuid, req);
         if (!session) return res.json({ success: true, data: [] });
 
+        const user = req.user || req.session?.user || null;
+        const currentUserId = user ? user.id : (session.user_id || null);
+
+        if (user && user.id && !session.user_id) {
+            await db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
+            session.user_id = user.id;
+        }
+
         const { destinationId } = req.query;
         const queryParams = [session.id, session.id];
         
         let userCondition = '';
-        if (session.user_id) {
-            userCondition = 'OR sender_id = $3';
-            queryParams.push(session.user_id);
+        if (currentUserId) {
+            queryParams.push(currentUserId);
+            userCondition = `OR sender_id = $${queryParams.length}`;
         }
 
         let destCondition = '';
         if (destinationId) {
-            destCondition = `AND destination_id = $${queryParams.length + 1}`;
             queryParams.push(destinationId);
+            destCondition = `AND destination_id = $${queryParams.length}`;
         }
 
         const [messages] = await db.query(
@@ -336,10 +352,20 @@ class ApiController {
         );
 
         const formatted = messages.map(m => {
-            const isMine = (m.sender_uuid === session.id) || (session.user_id && String(m.sender_id) === String(session.user_id));
+            const isAi = (m.is_ai === 1 || m.is_ai === true);
+            let isMine = false;
+
+            if (!isAi) {
+                if (m.sender_uuid && String(m.sender_uuid) === String(session.id)) {
+                    isMine = true;
+                } else if (m.sender_id && currentUserId && String(m.sender_id) === String(currentUserId)) {
+                    isMine = true;
+                }
+            }
+
             return {
                 ...m,
-                is_mine: !!isMine
+                is_mine: isMine
             };
         });
 

@@ -44,16 +44,39 @@ class ExploreController {
             if (sessionUuid) {
                 const session = await UserSession.findByUuid(sessionUuid);
                 if (session) {
-                    const [rawMsgs] = await UserSession.db.query(
-                        "SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at FROM messages WHERE destination_id = $1 AND (sender_uuid = $2 OR receiver_uuid = $3) ORDER BY created_at ASC",
-                        [dest.id, session.id, session.id]
-                    );
                     const user = req.user || req.session?.user || null;
+                    const currentUserId = user ? user.id : (session.user_id || null);
+
+                    const queryParams = [dest.id, session.id, session.id];
+                    let userCond = '';
+                    if (currentUserId) {
+                        queryParams.push(currentUserId);
+                        userCond = `OR sender_id = $${queryParams.length}`;
+                    }
+
+                    const [rawMsgs] = await UserSession.db.query(
+                        `SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at 
+                         FROM messages 
+                         WHERE destination_id = $1 AND (sender_uuid = $2 OR receiver_uuid = $3 ${userCond}) 
+                         ORDER BY created_at ASC`,
+                        queryParams
+                    );
+                    
                     messages = rawMsgs.map(m => {
-                        const isMine = (m.sender_uuid === session.id) || (user && String(m.sender_id) === String(user.id));
+                        const isAi = (m.is_ai === 1 || m.is_ai === true);
+                        let isMine = false;
+
+                        if (!isAi) {
+                            if (m.sender_uuid && String(m.sender_uuid) === String(session.id)) {
+                                isMine = true;
+                            } else if (m.sender_id && currentUserId && String(m.sender_id) === String(currentUserId)) {
+                                isMine = true;
+                            }
+                        }
+
                         return {
                             ...m,
-                            is_mine: !!isMine
+                            is_mine: isMine
                         };
                     });
                 }

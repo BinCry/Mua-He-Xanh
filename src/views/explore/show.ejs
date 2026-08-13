@@ -284,19 +284,31 @@
                 <div id="chat-history" class="mb-2 overflow-auto custom-modal-chat-body p-2" style="height: 380px;">
                     <% if (messages && messages.length > 0) { %>
                         <% messages.forEach(msg => { %>
-                            <div class="mb-3 d-flex <%= msg.is_mine ? 'justify-content-end' : 'justify-content-start' %>">
-                                <div class="p-3 rounded-4 small shadow-2xs <%= msg.is_mine ? 'text-white' : 'bg-white text-dark border' %>" style="max-width: 80%; <%= msg.is_mine ? 'background-color: var(--primary) !important;' : '' %>">
-                                    <%= msg.message %>
-                                    <div class="x-small opacity-50 mt-1 text-end"><%= msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '' %></div>
+                            <% if (msg.is_mine) { %>
+                                <div class="mb-2.5 d-flex justify-content-end">
+                                    <div class="p-2.5 px-3.5 text-white shadow-2xs" style="max-width: 78%; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px; font-size: 0.9rem; line-height: 1.45;">
+                                        <%= msg.message %>
+                                        <div class="x-small opacity-75 text-end mt-1" style="font-size: 10px;"><%= msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '' %></div>
+                                    </div>
                                 </div>
-                            </div>
+                            <% } else { %>
+                                <div class="mb-2.5 d-flex justify-content-start align-items-end gap-2">
+                                    <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                        <i class="bi bi-headset"></i>
+                                    </div>
+                                    <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
+                                        <%= msg.message %>
+                                        <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;"><%= msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '' %></div>
+                                    </div>
+                                </div>
+                            <% } %>
                         <% }) %>
                     <% } else { %>
-                        <div class="text-center mb-4">
-                            <span class="badge bg-secondary-subtle text-muted rounded-pill px-3 py-1.5 x-small">Bắt đầu trò chuyện hỗ trợ</span>
-                        </div>
-                        <div class="d-flex justify-content-start mb-3">
-                            <div class="p-3 rounded-4 small shadow-2xs bg-white text-dark border" style="max-width: 85%;">
+                        <div class="d-flex justify-content-start align-items-end gap-2 mb-3">
+                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                <i class="bi bi-headset"></i>
+                            </div>
+                            <div class="p-3 bg-white text-dark shadow-2xs border" style="max-width: 82%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
                                 <strong>👋 Chào bạn!</strong><br>
                                 Tôi là quản lý địa điểm <%= dest.name %>. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
                             </div>
