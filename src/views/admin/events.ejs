@@ -27,7 +27,12 @@
         <tbody>
             <% events.forEach(evt => { %>
             <tr>
-                <td class="fw-bold"><%= evt.title %></td>
+                <td>
+                    <div class="d-flex align-items-center gap-2">
+                        <img src="<%= fixImg(evt.image, '/images/hero-1.png') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
+                        <span class="fw-bold"><%= evt.title %></span>
+                    </div>
+                </td>
                 <td>
                     <span class="role-badge role-<%= evt.season === 'spring' ? 'admin' : (evt.season === 'summer' ? 'manager' : 'user') %>">
                         <%= evt.season %>
@@ -51,7 +56,7 @@
                     <% } %>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editEvent(this)" data-event="<%= encodeURIComponent(JSON.stringify(evt)) %>">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editEvent(this)" data-event="<%= encodeURIComponent(JSON.stringify({id: evt.id, title: evt.title, description: evt.description, season: evt.season, event_date: evt.event_date, end_date: evt.end_date, location: evt.location, image: evt.image, banner_image: evt.banner_image || evt.image, is_featured: evt.is_featured, is_countdown: evt.is_countdown, is_active: evt.is_active})) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteEvent('<%= evt.id %>')">
@@ -61,7 +66,7 @@
             </tr>
             <% }) %>
             <% if (events.length === 0) { %>
-            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có sự kiện nào.</td></tr>
+            <tr><td colspan="8" class="text-center py-5 text-muted">Chưa có sự kiện nào.</td></tr>
             <% } %>
         </tbody>
     </table>
@@ -84,8 +89,30 @@
                             <input type="text" class="form-control admin-input" id="evt_title" name="title" required>
                         </div>
                         <div class="col-12">
-                            <label class="form-label small fw-bold">Mô tả</label>
+                            <label class="form-label small fw-bold">Mô tả sự kiện</label>
                             <textarea class="form-control admin-input" id="evt_description" name="description" rows="3"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ảnh bìa sự kiện</label>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <img id="evt_image_preview" src="/images/hero-1.png" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                                <button type="button" class="btn btn-sm btn-admin-outline rounded-pill px-3" onclick="document.getElementById('evt_image_file').click()">
+                                    <i class="bi bi-upload me-1"></i>Upload ảnh bìa
+                                </button>
+                                <input type="file" id="evt_image_file" class="d-none" accept="image/*" onchange="uploadEventImageFile(this)">
+                            </div>
+                            <input type="hidden" id="evt_image" name="image" value="/images/hero-1.png">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ảnh background chi tiết sự kiện</label>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <img id="evt_banner_preview" src="/images/hero-1.png" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                                <button type="button" class="btn btn-sm btn-admin-outline rounded-pill px-3" onclick="document.getElementById('evt_banner_file').click()">
+                                    <i class="bi bi-upload me-1"></i>Upload background
+                                </button>
+                                <input type="file" id="evt_banner_file" class="d-none" accept="image/*" onchange="uploadEventBannerFile(this)">
+                            </div>
+                            <input type="hidden" id="evt_banner_image" name="banner_image" value="/images/hero-1.png">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Mùa</label>
@@ -141,11 +168,67 @@
 <script>
 let editingEvent = false;
 
+async function uploadEventImageFile(input) {
+    if (!input.files || !input.files[0]) return;
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (res.data.success) {
+            document.getElementById('evt_image').value = res.data.url;
+            document.getElementById('evt_image_preview').src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
+async function uploadEventBannerFile(input) {
+    if (!input.files || !input.files[0]) return;
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        if (res.data.success) {
+            document.getElementById('evt_banner_image').value = res.data.url;
+            document.getElementById('evt_banner_preview').src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
 function openEventForm() {
     editingEvent = false;
     document.getElementById('eventModalTitle').textContent = 'Thêm Sự kiện';
     document.getElementById('eventForm').reset();
     document.getElementById('evt_id').value = '';
+    document.getElementById('evt_image').value = '/images/hero-1.png';
+    document.getElementById('evt_image_preview').src = '/images/hero-1.png';
+    document.getElementById('evt_banner_image').value = '/images/hero-1.png';
+    document.getElementById('evt_banner_preview').src = '/images/hero-1.png';
     document.getElementById('evt_is_featured').checked = false;
     document.getElementById('evt_is_countdown').checked = false;
     document.getElementById('evt_is_active').checked = true;
@@ -163,6 +246,15 @@ function editEvent(target) {
     document.getElementById('evt_description').value = evt.description || '';
     document.getElementById('evt_season').value = evt.season;
     document.getElementById('evt_location').value = evt.location || '';
+    
+    const imgUrl = evt.image || '/images/hero-1.png';
+    document.getElementById('evt_image').value = imgUrl;
+    document.getElementById('evt_image_preview').src = imgUrl;
+
+    const bannerUrl = evt.banner_image || imgUrl;
+    document.getElementById('evt_banner_image').value = bannerUrl;
+    document.getElementById('evt_banner_preview').src = bannerUrl;
+
     document.getElementById('evt_is_featured').checked = evt.is_featured;
     document.getElementById('evt_is_countdown').checked = evt.is_countdown;
     document.getElementById('evt_is_active').checked = evt.is_active;
@@ -188,6 +280,8 @@ async function saveEvent() {
         event_date: document.getElementById('evt_event_date').value || null,
         end_date: document.getElementById('evt_end_date').value || null,
         location: document.getElementById('evt_location').value,
+        image: document.getElementById('evt_image').value,
+        banner_image: document.getElementById('evt_banner_image').value,
         is_featured: document.getElementById('evt_is_featured').checked,
         is_countdown: document.getElementById('evt_is_countdown').checked,
         is_active: document.getElementById('evt_is_active').checked

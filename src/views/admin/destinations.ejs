@@ -48,7 +48,7 @@
                     <button class="btn btn-sm btn-outline-info rounded-pill px-3 me-1" onclick="showQrModal('<%= d.name %>', '<%= d.slug %>', '<%= d.qr_secret %>')" title="Xem mã QR">
                         <i class="bi bi-qr-code"></i>
                     </button>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editDest(this)" data-destination="<%= encodeURIComponent(JSON.stringify({id: d.id, name: d.name, slug: d.slug, type: d.type, short_desc: d.short_desc, description: d.description, open_hours: d.open_hours, cost: d.cost, points: d.points, lat: d.lat, lng: d.lng, cover_image: d.cover_image})) %>">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editDest(this)" data-destination="<%= encodeURIComponent(JSON.stringify({id: d.id, name: d.name, slug: d.slug, type: d.type, short_desc: d.short_desc, description: d.description, open_hours: d.open_hours, cost: d.cost, points: d.points, lat: d.lat, lng: d.lng, cover_image: d.cover_image, banner_image: d.banner_image || d.cover_image})) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteDest('<%= d.id %>', '<%= d.name %>')">
@@ -131,7 +131,7 @@
                                 <i class="bi bi-geo-fill me-1"></i>Lấy vị trí hiện tại của tôi (GPS)
                             </button>
                         </div>
-                        <div class="col-12">
+                        <div class="col-md-6">
                             <label class="form-label small fw-bold">Ảnh bìa địa điểm</label>
                             <div class="d-flex align-items-center gap-3 mb-2">
                                 <img id="d_cover_preview" src="/images/placeholder.jpg" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
@@ -141,6 +141,17 @@
                                 <input type="file" id="d_cover_file" class="d-none" accept="image/*" onchange="uploadCoverFile(this)">
                             </div>
                             <input type="hidden" id="d_cover_image" name="cover_image" value="/images/placeholder.jpg">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold">Ảnh background chi tiết địa điểm</label>
+                            <div class="d-flex align-items-center gap-3 mb-2">
+                                <img id="d_banner_preview" src="/images/placeholder.jpg" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                                <button type="button" class="btn btn-sm btn-admin-outline rounded-pill px-3" onclick="document.getElementById('d_banner_file').click()">
+                                    <i class="bi bi-upload me-1"></i>Upload background
+                                </button>
+                                <input type="file" id="d_banner_file" class="d-none" accept="image/*" onchange="uploadBannerFile(this)">
+                            </div>
+                            <input type="hidden" id="d_banner_image" name="banner_image" value="/images/placeholder.jpg">
                         </div>
                         <!-- Manager Account Section (Only shown when adding new destination) -->
                         <div id="managerAccountSection" class="col-12 border-top border-secondary border-opacity-10 pt-3 mt-3">
@@ -227,6 +238,36 @@ async function uploadCoverFile(input) {
     }
 }
 
+async function uploadBannerFile(input) {
+    if (!input.files || !input.files[0]) return;
+    
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            document.getElementById('d_banner_image').value = res.data.url;
+            document.getElementById('d_banner_preview').src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
 function openDestForm() {
     editingDest = false;
     document.getElementById('destModalTitle').textContent = 'Thêm Địa điểm';
@@ -234,6 +275,8 @@ function openDestForm() {
     document.getElementById('d_id').value = '';
     document.getElementById('d_cover_image').value = '/images/placeholder.jpg';
     document.getElementById('d_cover_preview').src = '/images/placeholder.jpg';
+    document.getElementById('d_banner_image').value = '/images/placeholder.jpg';
+    document.getElementById('d_banner_preview').src = '/images/placeholder.jpg';
     document.getElementById('d_maps_link').value = '';
     const feedback = document.getElementById('d_maps_feedback');
     if (feedback) feedback.className = "form-text small mt-1 d-none";
@@ -268,6 +311,10 @@ function editDest(target) {
     const coverUrl = d.cover_image || '/images/placeholder.jpg';
     document.getElementById('d_cover_image').value = coverUrl;
     document.getElementById('d_cover_preview').src = coverUrl;
+
+    const bannerUrl = d.banner_image || coverUrl;
+    document.getElementById('d_banner_image').value = bannerUrl;
+    document.getElementById('d_banner_preview').src = bannerUrl;
     
     document.getElementById('managerAccountSection').style.display = 'none';
     document.getElementById('d_manager_email').removeAttribute('required');
@@ -295,7 +342,8 @@ async function saveDest() {
         points: parseInt(document.getElementById('d_points').value) || 10,
         lat: document.getElementById('d_lat').value,
         lng: document.getElementById('d_lng').value,
-        cover_image: document.getElementById('d_cover_image').value
+        cover_image: document.getElementById('d_cover_image').value,
+        banner_image: document.getElementById('d_banner_image').value
     };
     
     if (!editingDest) {

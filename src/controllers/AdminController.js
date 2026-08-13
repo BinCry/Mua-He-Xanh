@@ -435,7 +435,7 @@ const AdminController = {
     // ==================== API: Create Destination ====================
     createDestination: async (req, res) => {
         try {
-            const { name, slug, type, short_desc, points, description, open_hours, cost, lat, lng, manager_name, manager_email, manager_password } = req.body;
+            const { name, slug, type, short_desc, points, description, open_hours, cost, lat, lng, cover_image, banner_image, manager_name, manager_email, manager_password } = req.body;
             if (!name || !slug) return res.status(400).json({ success: false, message: 'Thiếu thông tin bắt buộc' });
             
             if (!manager_email || !manager_password) {
@@ -451,20 +451,23 @@ const AdminController = {
             const parsedPoints = parseInt(points) || 10;
             const parsedLat = (lat && String(lat).trim() !== '') ? parseFloat(lat) : 10.75;
             const parsedLng = (lng && String(lng).trim() !== '') ? parseFloat(lng) : 106.54;
+            const finalCover = (cover_image && cover_image.trim()) ? cover_image : '/images/placeholder.jpg';
+            const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalCover;
 
             await db.query(
                 `INSERT INTO destinations 
                  (id, name, slug, type, short_desc, description, open_hours, cost, lat, lng, points,
-                  is_active, cover_image, sort_order, moods, seasons, story, highlight,
+                  is_active, cover_image, banner_image, sort_order, moods, seasons, story, highlight,
                   checkin_tip, qr_secret, best_time, map_x, map_y, radius_meter) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, '/images/placeholder.jpg', 99,
-                         $12, $13, $14, $15, $16, $17, $18, $19, $20, $21)`,
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, $12, $13, 99,
+                         $14, $15, $16, $17, $18, $19, $20, $21, $22, 100)`,
                 [destinationId, name, slug, type || 'nature',
                  short_desc || '', description || '', open_hours || '08:00 - 17:00', cost || 'Miễn phí',
                  parsedLat, parsedLng, parsedPoints,
+                 finalCover, finalBanner,
                  '[]', '[]', description || '', short_desc || '',
                  'Hãy chụp ảnh tại điểm này!', 'SECURE_' + slug.toUpperCase(),
-                 'Quanh năm', 50, 50, 100]
+                 'Quanh năm', 50, 50]
             );
 
             const managerId = uuidv4();
@@ -473,8 +476,8 @@ const AdminController = {
 
             await db.query(
                 `INSERT INTO users (id, full_name, email, password, role, role_id, managed_destination_id, avatar, total_points, is_active) 
-                 VALUES ($1, $2, $3, $4, 'manager', 2, $5, '/images/placeholder.jpg', 0, 1)`,
-                [managerId, manager_name || `QL ${name}`, manager_email, hashedManagerPassword, destinationId]
+                 VALUES ($1, $2, $3, $4, 'manager', 2, $5, $6, 0, 1)`,
+                [managerId, manager_name || `QL ${name}`, manager_email, hashedManagerPassword, destinationId, finalCover]
             );
             
             res.json({ success: true, message: 'Đã tạo địa điểm và tài khoản quản lý mới thành công!' });
@@ -486,7 +489,7 @@ const AdminController = {
 
     updateDestination: async (req, res) => {
         try {
-            const { id, name, slug, short_desc, description, type, open_hours, cost, points, lat, lng, cover_image } = req.body;
+            const { id, name, slug, short_desc, description, type, open_hours, cost, points, lat, lng, cover_image, banner_image } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID' });
 
             const parsedPoints = parseInt(points) || 10;
@@ -500,6 +503,10 @@ const AdminController = {
             if (cover_image && cover_image.trim() !== '') {
                 query += `, cover_image = $${index++}`;
                 params.push(cover_image);
+            }
+            if (banner_image && banner_image.trim() !== '') {
+                query += `, banner_image = $${index++}`;
+                params.push(banner_image);
             }
 
             query += ` WHERE id = $${index}`;
@@ -597,14 +604,16 @@ const AdminController = {
 
     createEvent: async (req, res) => {
         try {
-            const { title, description, season, event_date, end_date, location, image, is_featured, is_countdown } = req.body;
+            const { title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown } = req.body;
             if (is_countdown) {
                 await db.query('UPDATE events SET is_countdown = 0');
             }
+            const finalImg = (image && image.trim()) ? image : '/images/hero-1.png';
+            const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalImg;
             await db.query(
-                `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, is_featured, is_countdown, is_active) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 1)`,
-                [uuidv4(), title, description, season || 'all', event_date, end_date || null, location, image, is_featured ? 1 : 0, is_countdown ? 1 : 0]
+                `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active) 
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1)`,
+                [uuidv4(), title, description, season || 'all', event_date, end_date || null, location, finalImg, finalBanner, is_featured ? 1 : 0, is_countdown ? 1 : 0]
             );
             res.json({ success: true, message: 'Đã tạo sự kiện!' });
         } catch (error) {
@@ -614,13 +623,15 @@ const AdminController = {
 
     updateEvent: async (req, res) => {
         try {
-            const { id, title, description, season, event_date, end_date, location, image, is_featured, is_countdown, is_active } = req.body;
+            const { id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active } = req.body;
             if (is_countdown) {
                 await db.query('UPDATE events SET is_countdown = 0');
             }
+            const finalImg = (image && image.trim()) ? image : '/images/hero-1.png';
+            const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalImg;
             await db.query(
-                `UPDATE events SET title = $1, description = $2, season = $3, event_date = $4, end_date = $5, location = $6, image = $7, is_featured = $8, is_countdown = $9, is_active = $10 WHERE id = $11`,
-                [title, description, season, event_date, end_date, location, image, is_featured ? 1 : 0, is_countdown ? 1 : 0, is_active ? 1 : 0, id]
+                `UPDATE events SET title = $1, description = $2, season = $3, event_date = $4, end_date = $5, location = $6, image = $7, banner_image = $8, is_featured = $9, is_countdown = $10, is_active = $11 WHERE id = $12`,
+                [title, description, season, event_date, end_date, location, finalImg, finalBanner, is_featured ? 1 : 0, is_countdown ? 1 : 0, is_active ? 1 : 0, id]
             );
             res.json({ success: true, message: 'Đã cập nhật sự kiện!' });
         } catch (error) {

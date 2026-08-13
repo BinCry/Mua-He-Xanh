@@ -39,7 +39,7 @@ app.get('/api/health', async (req, res) => {
     res.json(info);
 });
 
-// Auto-patch DB schema for guest comments & likes
+// Auto-patch DB schema for guest comments, likes, and banner images
 (async () => {
     try {
         const db = require('./core/database');
@@ -48,6 +48,8 @@ app.get('/api/health', async (req, res) => {
         await db.query(`ALTER TABLE review_likes ADD COLUMN IF NOT EXISTS guest_uuid VARCHAR(255)`);
         await db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS message TEXT`);
         await db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_ai INTEGER DEFAULT 0`);
+        await db.query(`ALTER TABLE destinations ADD COLUMN IF NOT EXISTS banner_image VARCHAR(500)`);
+        await db.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS banner_image VARCHAR(500)`);
     } catch(e) {
         console.warn('Auto DB schema patch error:', e.message);
     }
@@ -202,7 +204,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '17.0.0'; 
+    res.locals.assetV = '18.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
