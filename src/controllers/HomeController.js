@@ -11,13 +11,7 @@ const CACHE_TTL = 300000; // 5 minutes
 class HomeController {
     async index(req, res) {
         try {
-            // Homepage always renders for everyone (no redirects to prevent loops on Vercel serverless)
-
-            // Serve from RAM cache if fresh (bypassed in dev for instant template updates)
-            const now = Date.now();
-            if (process.env.NODE_ENV === 'production' && _cache && (now - _cacheTs) < CACHE_TTL) {
-                return res.render('home/index', _cache);
-            }
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
             const heroPostersData = await HeroPoster.getActive();
             const defaultHeroPosters = [
