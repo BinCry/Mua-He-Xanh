@@ -15,8 +15,7 @@ const AdminController = {
             const [destCount] = await db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = 1');
             const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins');
             const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews');
-            const [workshopCount] = await db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1');
-            const [pointsSum] = await db.query('SELECT SUM(total_points) as total FROM users');
+            const [analyticsCount] = await db.query('SELECT COUNT(*) as total FROM analytics');
             const [eventCount] = await db.query('SELECT COUNT(*) as total FROM events WHERE is_active = 1');
 
             // Average session duration (from analytics duration_ms)
@@ -133,8 +132,7 @@ const AdminController = {
                     destinations: parseInt(destCount[0]?.total || 0, 10),
                     checkins: parseInt(checkinCount[0]?.total || 0, 10),
                     reviews: parseInt(reviewCount[0]?.total || 0, 10),
-                    workshops: parseInt(workshopCount[0]?.total || 0, 10),
-                    totalPoints: parseInt(pointsSum[0]?.total || 0, 10),
+                    pageViews: parseInt(analyticsCount[0]?.total || 0, 10),
                     events: parseInt(eventCount[0]?.total || 0, 10),
                     avgDuration: avgDurationSec
                 },
@@ -873,8 +871,8 @@ const AdminController = {
 
             let imageUrl = '/images/Poster 1.png';
             if (req.file) {
-                const cloudResult = await uploadToCloudinary(req.file.buffer, 'hero-posters');
-                imageUrl = cloudResult.secure_url;
+                const cloudResult = await uploadToCloudinary(req.file.path || req.file.buffer, 'hero-posters');
+                imageUrl = cloudResult.url || cloudResult.secure_url || imageUrl;
             } else if (req.body.image_url) {
                 imageUrl = req.body.image_url;
             }
@@ -891,7 +889,7 @@ const AdminController = {
             res.redirect('/admin/posters');
         } catch (e) {
             console.error("Admin createPoster error:", e);
-            res.status(500).send("Server Error");
+            res.status(500).send("Lỗi tạo poster: " + e.message);
         }
     },
 

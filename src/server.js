@@ -39,7 +39,7 @@ app.get('/api/health', async (req, res) => {
     res.json(info);
 });
 
-// Auto-patch DB schema for guest comments, likes, and banner images
+// Auto-patch DB schema and reset image paths for user re-upload
 (async () => {
     try {
         const db = require('./core/database');
@@ -50,6 +50,13 @@ app.get('/api/health', async (req, res) => {
         await db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_ai INTEGER DEFAULT 0`);
         await db.query(`ALTER TABLE destinations ADD COLUMN IF NOT EXISTS banner_image VARCHAR(500)`);
         await db.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS banner_image VARCHAR(500)`);
+
+        // Reset database image paths to clean placeholders so user can upload fresh images
+        await db.query(`UPDATE destinations SET cover_image = '/images/placeholder.jpg', banner_image = '/images/placeholder.jpg'`);
+        await db.query(`UPDATE events SET image = '/images/hero-1.png', banner_image = '/images/hero-1.png'`);
+        await db.query(`UPDATE workshops SET image = '/images/hero-2.png'`);
+        await db.query(`UPDATE hero_posters SET image_url = '/images/hero-1.png'`);
+        await db.query(`UPDATE settings SET key_value = '/images/placeholder.jpg' WHERE key_name IN ('about_bg', 'login_bg', 'hero_image', 'banner_explore', 'banner_workshop')`);
     } catch(e) {
         console.warn('Auto DB schema patch error:', e.message);
     }
@@ -204,7 +211,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '18.0.0'; 
+    res.locals.assetV = '19.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
