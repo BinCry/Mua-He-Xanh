@@ -64,7 +64,7 @@
                 
                 <!-- Top Image Banner -->
                 <div class="position-relative explore-img-wrap" style="height: 240px; overflow: hidden;">
-                    <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100" style="object-fit: cover !important; object-position: center center !important; transition: transform 0.5s;" alt="<%= dest.name %>">
+                    <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100" style="object-fit: cover !important; object-position: center center !important; transition: transform 0.5s;" alt="<%= dest.name %>" loading="lazy" decoding="async">
                     
                     <!-- Custom type tag -->
                     <div class="position-absolute top-0 start-0 m-1 m-md-3">
@@ -185,18 +185,20 @@
         }
         .explore-card-title {
             color: #ffffff !important;
-            font-size: 0.7rem !important;
+            font-size: 0.68rem !important;
             font-weight: 700 !important;
-            line-height: 1.2 !important;
+            line-height: 1.25 !important;
             margin-bottom: 0 !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.95) !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
             display: -webkit-box !important;
             -webkit-line-clamp: 2 !important;
             -webkit-box-orient: vertical !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
             white-space: normal !important;
-            word-break: break-word !important;
             text-align: center !important;
         }
         .destination-card-custom .badge {

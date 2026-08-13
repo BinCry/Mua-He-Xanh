@@ -293,7 +293,7 @@
                             
                             <!-- Image Container -->
                             <div class="home-dest-img-wrap position-relative">
-                                <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100 object-fit-cover">
+                                <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100 object-fit-cover" loading="lazy" decoding="async">
                                 <div class="position-absolute top-0 start-0 w-100 h-100 home-dest-overlay"></div>
 
                                 <!-- Category Badge -->
@@ -387,19 +387,21 @@
         }
         .home-dest-title {
             color: #ffffff !important;
-            font-size: 0.7rem !important;
+            font-size: 0.68rem !important;
             font-weight: 700 !important;
-            line-height: 1.2 !important;
+            line-height: 1.25 !important;
             margin-bottom: 0 !important;
             text-align: center !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.9) !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.95) !important;
+            word-break: normal !important;
+            overflow-wrap: break-word !important;
+            hyphens: auto !important;
             display: -webkit-box !important;
             -webkit-line-clamp: 2 !important;
             -webkit-box-orient: vertical !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
             white-space: normal !important;
-            word-break: break-word !important;
         }
         .home-dest-desc {
             display: none !important;
