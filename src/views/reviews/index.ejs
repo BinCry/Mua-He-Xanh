@@ -20,7 +20,7 @@
                     <div class="flex-grow-1">
                         <div class="fw-bold mb-1" style="font-size: 0.9rem; color: #333;"><%= user.full_name %></div>
                         <textarea class="form-control border-0 bg-transparent shadow-none p-0" rows="3" name="content" 
-                            placeholder="Chia sẻ khoảnh khắc chữa lành của bạn tại Bình Lợi..." style="resize: none; font-size: 0.95rem; color: #444;" required></textarea>
+                            placeholder="Chia sẻ khoảnh khắc chữa lành của bạn tại Bình Lợi (Tùy chọn)..." style="resize: none; font-size: 0.95rem; color: #444;"></textarea>
                     </div>
                 </div>
 
@@ -46,28 +46,28 @@
 
                 <!-- Actions Bar: Camera (Device Camera), Photo (Device Gallery), Rating (1-5 stars) -->
                 <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 pt-3 border-top border-light">
-                    <div class="d-flex flex-wrap gap-2 align-items-center w-100 w-sm-auto">
+                    <div class="d-flex flex-wrap gap-2.5 align-items-center w-100 w-sm-auto">
                         <!-- Button 1: Camera (opens device camera) -->
-                        <label class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 cursor-pointer mb-0" title="Chụp ảnh trực tiếp từ máy ảnh">
-                            <i class="bi bi-camera-fill text-danger fs-6"></i>
+                        <label class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-2 cursor-pointer mb-0" title="Chụp ảnh trực tiếp từ máy ảnh">
+                            <i class="bi bi-camera-fill text-danger fs-6 me-1"></i>
                             <span class="small text-dark">Máy ảnh</span>
                             <input type="file" name="image" accept="image/*" capture="environment" class="d-none" id="cameraInput" onchange="previewImage(this)">
                         </label>
 
                         <!-- Button 2: Photo (opens device gallery) -->
-                        <label class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-1.5 cursor-pointer mb-0" title="Chọn ảnh từ thư viện thiết bị">
-                            <i class="bi bi-image-fill text-primary fs-6"></i>
+                        <label class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center gap-2 cursor-pointer mb-0" title="Chọn ảnh từ thư viện thiết bị">
+                            <i class="bi bi-image-fill text-primary fs-6 me-1"></i>
                             <span class="small text-dark">Thư viện</span>
                             <input type="file" name="image" accept="image/*" class="d-none" id="galleryInput" onchange="previewImage(this)">
                         </label>
                         
-                        <!-- Rating Selector: 1 to 5 Stars -->
-                        <select class="form-select form-select-sm rounded-pill border bg-light px-2 py-1.5 text-center ms-auto ms-sm-0" name="rating" style="width: 125px; font-size: 0.8rem; font-weight: 600;">
-                            <option value="5" selected>⭐⭐⭐⭐⭐ (5 sao)</option>
-                            <option value="4">⭐⭐⭐⭐ (4 sao)</option>
-                            <option value="3">⭐⭐⭐ (3 sao)</option>
-                            <option value="2">⭐⭐ (2 sao)</option>
-                            <option value="1">⭐ (1 sao)</option>
+                        <!-- Rating Selector: 1 to 5 Stars (No dropdown arrow) -->
+                        <select class="form-select form-select-sm rounded-pill border bg-light px-3 py-1.5 text-center ms-auto ms-sm-0 shadow-none" name="rating" style="width: 125px; font-size: 0.8rem; font-weight: 600; -webkit-appearance: none; -moz-appearance: none; appearance: none; cursor: pointer;">
+                            <option value="5" selected>⭐⭐⭐⭐⭐ 5 sao</option>
+                            <option value="4">⭐⭐⭐⭐ 4 sao</option>
+                            <option value="3">⭐⭐⭐ 3 sao</option>
+                            <option value="2">⭐⭐ 2 sao</option>
+                            <option value="1">⭐ 1 sao</option>
                         </select>
                     </div>
 
@@ -148,13 +148,22 @@
                 <!-- Feed Images (always fully styled grid, no hidden elements) -->
                 <% if (r.images) { 
                     let imgs = [];
-                    try { imgs = JSON.parse(r.images); } catch(e) {}
+                    try { 
+                        if (typeof r.images === 'string') {
+                            imgs = r.images.trim().startsWith('[') ? JSON.parse(r.images) : [r.images];
+                        } else if (Array.isArray(r.images)) {
+                            imgs = r.images;
+                        }
+                    } catch(e) {
+                        imgs = [r.images];
+                    }
+                    imgs = imgs.filter(Boolean);
                     if (imgs.length > 0) { %>
                 <div class="px-3 px-sm-4 py-2">
                     <div class="row g-2">
                         <% imgs.forEach((img, idx) => { %>
                         <div class="col-12">
-                            <img src="<%= img.startsWith('http') ? img : fixImg(img) %>" class="rounded-4 w-100 shadow-sm" style="max-height: 380px; object-fit: cover;" alt="Review checkin">
+                            <img src="<%= fixImg(img) %>" class="rounded-4 w-100 shadow-sm" style="max-height: 420px; object-fit: cover;" alt="Review image" onerror="this.onerror=null; this.src='/images/Poster 1.png';">
                         </div>
                         <% }) %>
                     </div>

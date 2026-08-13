@@ -204,27 +204,27 @@
         </div>
 
         <!-- Auth & Language Switcher (ALWAYS VISIBLE on both Desktop and Mobile/Tablet) -->
-        <div class="d-flex align-items-center gap-2 gap-md-3 ms-auto me-1 me-md-2" style="z-index: 10;">
+        <div class="d-flex align-items-center gap-1 gap-md-2 ms-auto me-0 flex-shrink-0" style="z-index: 10;">
             <!-- Dual Language Switcher: VN / EN — Fixed width, notranslate -->
-            <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm me-1 notranslate"
+            <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-0.5 shadow-sm notranslate"
                 translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
                 <button class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate"
-                    translate="no" onclick="setAppLanguage('vi')" style="font-size: 0.75rem; width: 36px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
+                    translate="no" onclick="setAppLanguage('vi')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">VN</button>
                 <button class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate"
-                    translate="no" onclick="setAppLanguage('en')" style="font-size: 0.75rem; width: 36px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
+                    translate="no" onclick="setAppLanguage('en')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">EN</button>
             </div>
 
             <% if (user) { %>
                 <div class="dropdown">
-                    <a href="#" class="d-flex align-items-center gap-2 text-decoration-none p-1 rounded-pill"
+                    <a href="#" class="d-flex align-items-center gap-1 text-decoration-none p-1 rounded-pill"
                         data-bs-toggle="dropdown"
-                        style="background: var(--primary-50); padding-right: 14px !important;">
+                        style="background: var(--primary-50); padding-right: 6px !important;">
                         <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle"
-                            style="width: 34px; height: 34px; object-fit: cover; border: 2px solid var(--primary-100);">
-                        <span class="fw-bold notranslate" translate="no"
-                            style="font-size: 0.82rem; color: var(--primary);">
+                            style="width: 28px; height: 28px; object-fit: cover; border: 1.5px solid var(--primary-100);">
+                        <span class="d-none d-md-inline fw-bold notranslate" translate="no"
+                            style="font-size: 0.8rem; color: var(--primary);">
                             <%= user.full_name.split(' ').pop() %></span>
-                    <i class="bi bi-chevron-down" style="font-size: 0.65rem; color: var(--text-muted);"></i>
+                    <i class="bi bi-chevron-down opacity-50" style="font-size: 0.6rem; color: var(--text-muted);"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 220px;">
                     <li class="px-3 py-2 mb-1">
@@ -313,14 +313,19 @@
             <a class="mobile-light-link <%= mPath.startsWith('/chat') ? 'active' : '' %>" href="/chat">
                 <i class="bi bi-envelope-heart-fill"></i> HỘP THƯ HỖ TRỢ
             </a>
-            <% if (locals.user && (user.role === 'admin' || user.role === 'manager')) { %>
-            <a class="mobile-light-link" href="<%= user.role === 'admin' ? '/admin' : '/manager' %>">
+            <% const currentUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
+            <% if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager')) { %>
+            <a class="mobile-light-link" href="<%= currentUser.role === 'admin' ? '/admin' : '/manager' %>">
                 <i class="bi bi-shield-check"></i> TRANG QUẢN TRỊ
             </a>
             <% } %>
-            <% if (locals.user) { %>
-            <a class="mobile-light-link mt-2" href="/auth/logout" style="color: #ef4444 !important;">
+            <% if (currentUser) { %>
+            <a class="mobile-light-link mt-2 fw-bold" href="/auth/logout" style="color: #ef4444 !important;">
                 <i class="bi bi-box-arrow-right"></i> ĐĂNG XUẤT
+            </a>
+            <% } else { %>
+            <a class="mobile-light-link mt-2 fw-bold text-primary" href="/auth/login">
+                <i class="bi bi-box-arrow-in-right"></i> ĐĂNG NHẬP
             </a>
             <% } %>
         </div>

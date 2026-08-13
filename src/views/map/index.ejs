@@ -47,11 +47,15 @@
         <div class="col-lg-9 col-12 position-relative">
             <div id="map" style="width: 100%; height: calc(100vh - 107px); z-index: 1;"></div>
             
-            <!-- Map Controls Overlay (Top Right: Mobile List Button & Location Control) -->
-            <div class="position-absolute top-0 end-0 m-3 m-md-4 d-flex align-items-center gap-2" style="z-index: 1000;">
-                <button class="btn btn-primary-bl rounded-pill shadow-lg px-3 py-2 fw-bold d-flex align-items-center gap-2 border-0 d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileDestDrawer" style="font-size: 0.82rem;">
+            <!-- Map Controls Overlay (Mobile List Button adjacent to Zoom Controls) -->
+            <div class="position-absolute d-lg-none" style="top: 12px; left: 54px; z-index: 1000;">
+                <button class="btn btn-primary-bl rounded-pill shadow-lg px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 border-0" data-bs-toggle="offcanvas" data-bs-target="#mobileDestDrawer" style="font-size: 0.78rem;">
                     <i class="bi bi-list fs-5"></i> <span>Danh sách địa điểm</span>
                 </button>
+            </div>
+
+            <!-- Location Control (Top Right) -->
+            <div class="position-absolute top-0 end-0 m-3 m-md-4" style="z-index: 1000;">
                 <button class="btn btn-white rounded-circle shadow-lg p-0 map-control-btn" style="width: 45px; height: 45px; background: #ffffff;" onclick="locateMe()" title="Vị trí của tôi">
                     <i class="bi bi-geo-fill text-primary fs-5"></i>
                 </button>
@@ -161,10 +165,10 @@ function initMap() {
 document.addEventListener('DOMContentLoaded', initMap);
 
 function focusMarker(lat, lng, name) {
-    map.panTo([parseFloat(lat), parseFloat(lng)]);
-    map.setZoom(16);
+    const targetCoords = [parseFloat(lat), parseFloat(lng)];
+    map.setView(targetCoords, 16, { animate: true });
     
-    const found = markers.find(m => m.name === name);
+    const found = markers.find(m => m.name === name || (Math.abs(m.coords[0] - lat) < 0.001 && Math.abs(m.coords[1] - lng) < 0.001));
     if (found) {
         found.marker.openPopup();
     }

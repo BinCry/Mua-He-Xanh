@@ -33,13 +33,17 @@ const ProfileController = {
             try { workshopBookings = await Workshop.getBookingsByUser(user.id); } catch(e) {}
 
             // Rewards
-            const [rewards] = await db.query(`
-                SELECT ur.*, r.title, r.description, r.type, r.points_required
-                FROM user_rewards ur
-                JOIN rewards r ON ur.reward_id = r.id
-                WHERE ur.user_id = $1
-                ORDER BY ur.redeemed_at DESC
-            `, [user.id]);
+            let rewards = [];
+            try {
+                const [rRows] = await db.query(`
+                    SELECT ur.*, r.title, r.description, r.type, r.points_required
+                    FROM user_rewards ur
+                    JOIN rewards r ON ur.reward_id = r.id
+                    WHERE ur.user_id = $1
+                    ORDER BY ur.redeemed_at DESC
+                `, [user.id]);
+                rewards = rRows;
+            } catch(e) {}
 
             // Liked destinations
             let likedDestinations = [];
@@ -145,12 +149,22 @@ const ProfileController = {
             if (!user) return res.redirect('/auth/login');
 
             const [users] = await db.query('SELECT total_points FROM users WHERE id = $1', [user.id]);
-            const [allRewards] = await db.query('SELECT * FROM rewards WHERE is_active = 1 ORDER BY points_required ASC');
-            const [userRewards] = await db.query(`
-                SELECT ur.*, r.title, r.type
-                FROM user_rewards ur JOIN rewards r ON ur.reward_id = r.id
-                WHERE ur.user_id = $1 ORDER BY ur.redeemed_at DESC
-            `, [user.id]);
+            
+            let allRewards = [];
+            try {
+                const [r1] = await db.query('SELECT * FROM rewards WHERE is_active = 1 ORDER BY points_required ASC');
+                allRewards = r1;
+            } catch(e) {}
+
+            let userRewards = [];
+            try {
+                const [r2] = await db.query(`
+                    SELECT ur.*, r.title, r.type
+                    FROM user_rewards ur JOIN rewards r ON ur.reward_id = r.id
+                    WHERE ur.user_id = $1 ORDER BY ur.redeemed_at DESC
+                `, [user.id]);
+                userRewards = r2;
+            } catch(e) {}
 
             res.render('profile/rewards', {
                 title: 'Điểm Thưởng',

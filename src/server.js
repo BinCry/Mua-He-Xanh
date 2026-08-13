@@ -157,14 +157,17 @@ app.use((req, res, next) => {
 
 // Global variables for templates
 app.use(async (req, res, next) => {
-    // Dynamic Base URL detection (Prioritize current request host for local testing)
+    // Dynamic Base URL detection (Prioritize dulichbinhloi.com for canonical share links)
     const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-    const host = req.get('host');
-    const autoBaseUrl = `${protocol}://${host}`;
+    const host = req.get('host') || '';
+    let autoBaseUrl = `${protocol}://${host}`;
+    if (host.includes('vercel.app')) {
+        autoBaseUrl = 'https://dulichbinhloi.com';
+    }
     
-    // Use env BASE_URL only if we are in production and it's set
-    const baseUrl = (process.env.NODE_ENV === 'production' && process.env.BASE_URL) 
-        ? process.env.BASE_URL 
+    // Use env BASE_URL or fallback to https://dulichbinhloi.com
+    const baseUrl = (process.env.NODE_ENV === 'production') 
+        ? (process.env.BASE_URL || 'https://dulichbinhloi.com') 
         : autoBaseUrl;
 
     res.locals.baseUrl = baseUrl;

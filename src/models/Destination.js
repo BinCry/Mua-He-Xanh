@@ -57,39 +57,36 @@ class Destination extends Model {
         return null;
     }
 
-    /** Get Hub */
+    /** Get Hub with robust fallback */
     async getHub() {
-        return this.findOne({ is_hub: 1, is_active: 1 });
+        let hub = await this.findOne({ is_hub: 1, is_active: 1 });
+        if (!hub) {
+            const [rows] = await this.db.query("SELECT * FROM destinations WHERE is_active = 1 ORDER BY sort_order ASC LIMIT 1");
+            hub = rows[0] || null;
+        }
+        return hub;
     }
 
-    /** Get destinations for journey */
+    /** Get destinations for journey with robust fallback */
     async getForJourney(mood, interests = [], excludeIds = []) {
         let where = "is_active = 1";
         const params = [];
         let index = 1;
 
-        // Mood
-        where += ` AND moods LIKE $${index++}`;
-        params.push(`%${mood}%`);
-
-        // Interests
-        if (interests.length > 0) {
-            const intParts = interests.map(() => `type = $${index++}`).join(" OR ");
-            where += ` AND (${intParts})`;
-            params.push(...interests);
-        }
-
-        // Exclude
         if (excludeIds.length > 0) {
             const placeholders = excludeIds.map(() => `$${index++}`).join(",");
             where += ` AND id NOT IN (${placeholders})`;
             params.push(...excludeIds);
         }
 
-        const [rows] = await this.db.query(
+        let [rows] = await this.db.query(
             `SELECT * FROM ${this.table} WHERE ${where} ORDER BY sort_order ASC`,
             params
         );
+
+        if (rows.length === 0) {
+            [rows] = await this.db.query(`SELECT * FROM ${this.table} WHERE is_active = 1 ORDER BY sort_order ASC`);
+        }
         return rows;
     }
 

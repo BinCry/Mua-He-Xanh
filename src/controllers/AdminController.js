@@ -750,36 +750,25 @@ const AdminController = {
 
     chat: async (req, res) => {
         try {
-            const [conversations] = await db.query(
-                `SELECT 
-                     s.id AS session_id,
-                     s.uuid AS session_uuid,
-                     s.total_points AS visitor_points,
-                     u.full_name AS user_name,
-                     u.avatar AS user_avatar,
-                     u.phone AS user_phone,
-                     u.email AS user_email,
-                     (
-                         SELECT message 
-                         FROM messages 
-                         WHERE destination_id IS NULL 
-                           AND (sender_uuid = s.id OR receiver_uuid = s.id)
-                         ORDER BY created_at DESC LIMIT 1
-                     ) AS last_message,
-                     (
-                         SELECT created_at 
-                         FROM messages 
-                         WHERE destination_id IS NULL 
-                           AND (sender_uuid = s.id OR receiver_uuid = s.id)
-                         ORDER BY created_at DESC LIMIT 1
-                     ) AS last_message_time
-                 FROM user_sessions s
-                 LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id IN (
-                     SELECT DISTINCT sender_uuid FROM messages WHERE destination_id IS NULL AND sender_uuid IS NOT NULL
-                 )
-                 ORDER BY last_message_time DESC`
-            );
+            let conversations = [];
+            try {
+                const [rows] = await db.query(
+                    `SELECT 
+                         s.id AS session_id,
+                         s.uuid AS session_uuid,
+                         s.total_points AS visitor_points,
+                         u.full_name AS user_name,
+                         u.avatar AS user_avatar,
+                         u.phone AS user_phone,
+                         u.email AS user_email
+                     FROM user_sessions s
+                     LEFT JOIN users u ON s.user_id = u.id
+                     ORDER BY s.updated_at DESC LIMIT 50`
+                );
+                conversations = rows;
+            } catch (e) {
+                console.error("Admin chat query fallback:", e.message);
+            }
 
             res.render('admin/chat', {
                 title: 'Hộp thư Hỗ trợ Admin',

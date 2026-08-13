@@ -58,8 +58,11 @@ const ReviewController = {
             const user = req.user || req.session?.user;
             if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
 
-            const { content, rating, destination_id } = req.body;
-            if (!content) return res.status(400).json({ success: false, message: 'Nội dung không được trống' });
+            const { rating, destination_id } = req.body;
+            let content = req.body.content ? req.body.content.trim() : '';
+            if (!content) {
+                content = req.file ? 'Đã check-in tại Bình Lợi ✨' : `Đánh giá ${rating || 5} sao cho điểm đến`;
+            }
 
             const id = uuidv4();
             let images = null;

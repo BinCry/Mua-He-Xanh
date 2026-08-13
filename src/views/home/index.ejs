@@ -283,11 +283,11 @@
             </div>
         </div>
 
-        <div class="row g-3 g-md-4">
+        <div class="row g-2 g-md-4">
             <% featured.slice(0, 9).forEach((dest, i)=> { %>
-                <div class="col-12 col-md-6 col-lg-4 reveal-up px-1 px-sm-2 mb-2 mb-md-3">
+                <div class="col-4 col-md-6 col-lg-4 reveal-up px-1 px-sm-2 mb-2 mb-md-3">
                     <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
-                        <!-- Desktop View: Vertical Bento Card; Mobile View: 50/50 Split Card -->
+                        <!-- Desktop View: Vertical Bento Card; Mobile View: 3 cards per row -->
                         <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift home-dest-card"
                             style="transition: all 0.3s ease;">
                             
@@ -297,9 +297,9 @@
                                 <div class="position-absolute top-0 start-0 w-100 h-100 home-dest-overlay"></div>
 
                                 <!-- Category Badge -->
-                                <div class="position-absolute top-0 end-0 m-2 m-md-3" style="z-index: 5;">
-                                    <span class="badge rounded-3 px-2.5 py-1.5 fw-black text-uppercase shadow-sm"
-                                        style="font-size: 0.65rem; letter-spacing: 1px; background: rgba(21, 128, 61, 0.92) !important; color: #ffffff !important; backdrop-filter: blur(8px);">
+                                <div class="position-absolute top-0 end-0 m-1 m-md-3" style="z-index: 5;">
+                                    <span class="badge rounded-3 px-1.5 py-1 px-md-2.5 py-md-1.5 fw-black text-uppercase shadow-sm"
+                                        style="font-size: 0.55rem; letter-spacing: 0.5px; background: rgba(21, 128, 61, 0.92) !important; color: #ffffff !important; backdrop-filter: blur(8px);">
                                         <%= (dest.type==='temple' ? 'TÂM LINH' : (dest.type==='nature' ? 'SINH THÁI' :
                                             (dest.type==='craft' ? 'LÀNG NGHỀ' : (dest.type==='food' ? 'ẨM THỰC' :
                                             (dest.type || '' ).toUpperCase())))) %>
@@ -308,8 +308,8 @@
                             </div>
 
                             <!-- Content Body -->
-                            <div class="home-dest-body p-3 p-md-4 d-flex flex-column justify-content-end" style="z-index: 5;">
-                                <h5 class="font-black mb-1 font-display home-dest-title" style="font-size: 1.15rem;">
+                            <div class="home-dest-body p-2 p-md-4 d-flex flex-column justify-content-end" style="z-index: 5;">
+                                <h5 class="font-black mb-1 font-display home-dest-title text-truncate" style="font-size: 1.15rem;">
                                     <%= dest.name %>
                                 </h5>
                                 <p class="mb-0 line-clamp-2 home-dest-desc" style="font-size: 0.8rem; line-height: 1.5;">
@@ -354,6 +354,20 @@
     .home-dest-desc {
         color: rgba(255,255,255,0.85);
     }
+    @media (max-width: 767.98px) {
+        .home-dest-card {
+            height: 160px !important;
+            border-radius: 10px !important;
+        }
+        .home-dest-title {
+            font-size: 0.72rem !important;
+            line-height: 1.2 !important;
+            margin-bottom: 0 !important;
+        }
+        .home-dest-desc {
+            display: none !important;
+        }
+    }
 </style>
 
 <!-- EVENTS & SEASONAL -->
@@ -361,17 +375,20 @@
     style="background-color: #f1f9f6; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03); overflow: hidden;">
     <div class="container py-4 py-md-5 position-relative" style="z-index: 2;">
         <div class="row align-items-stretch g-4 g-md-5">
-            <div class="col-lg-6 reveal-up d-flex flex-column gap-4">
+            <div class="col-lg-6 reveal-up d-flex flex-column gap-3">
                 <% if (nextEvent) { %>
+                    <!-- Badge Outside Event Card Header Margin -->
+                    <div>
+                        <span class="badge rounded-pill px-3 py-2 text-uppercase fw-bold x-small shadow-sm"
+                            style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
+                            <i class="bi bi-star-fill me-1" style="color: #ffc847;"></i> Sự kiện nổi bật
+                        </span>
+                    </div>
+
                     <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-sm hover-lift w-100 d-flex flex-column bg-white border">
-                        <!-- Top 50% Real Image Poster (No Background Gradient Overlay) -->
+                        <!-- Top Image Poster -->
                         <div class="w-100 position-relative" style="height: 240px; flex-shrink: 0;">
                             <img src="<%= fixImg(nextEvent.image, '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover">
-                            <div class="position-absolute top-0 start-0 m-3">
-                                <span class="badge bg-success bg-opacity-90 text-white rounded-pill px-3 py-1.5 fw-bold x-small text-uppercase">
-                                    <i class="bi bi-star-fill me-1" style="color: #ffc847;"></i> Sự kiện nổi bật
-                                </span>
-                            </div>
                         </div>
 
                         <!-- Bottom 50% Information Body -->
