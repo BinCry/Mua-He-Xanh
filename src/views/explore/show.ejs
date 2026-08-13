@@ -300,58 +300,58 @@ function showToast(message, type = 'success') {
 }
 
 function handleLikeToggle(btn, destinationId) {
-    axios.post(window.APP_CONFIG.apiUrl + '/destination/like', { destinationId })
+    axios.post('/api/destination/like', { destinationId })
         .then(res => {
             if (res.data.success) {
                 const icon = btn.querySelector('i');
                 const countSpan = document.getElementById('likes-count');
-                countSpan.innerText = res.data.likesCount;
+                if (countSpan) countSpan.innerText = res.data.likesCount;
                 if (res.data.liked) {
                     icon.className = 'bi bi-heart-fill text-danger';
-                    btn.classList.add('text-danger');
+                    btn.classList.add('active', 'bg-danger', 'text-white');
                     showToast('Đã thêm vào danh sách yêu thích!', 'danger');
                 } else {
                     icon.className = 'bi bi-heart';
-                    btn.classList.remove('text-danger');
+                    btn.classList.remove('active', 'bg-danger', 'text-white');
                     showToast('Đã bỏ yêu thích.', 'secondary');
                 }
             }
         })
         .catch(err => {
             if (err.response?.status === 401) {
-                showToast('Vui lòng đăng nhập để sử dụng tính năng này!', 'warning');
-                setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
+                showToast('Vui lòng đăng nhập để thích địa điểm này!', 'danger');
+                setTimeout(() => { window.location.href = '/auth/login'; }, 1200);
             } else {
-                showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
+                showToast(err.response?.data?.message || 'Vui lòng đăng nhập để sử dụng tính năng này!', 'danger');
             }
         });
 }
 
 function handleSaveToggle(btn, destinationId) {
-    axios.post(window.APP_CONFIG.apiUrl + '/destination/save', { destinationId })
+    axios.post('/api/destination/save', { destinationId })
         .then(res => {
             if (res.data.success) {
                 const icon = btn.querySelector('i');
                 const textNode = btn.childNodes[btn.childNodes.length - 1];
                 if (res.data.saved) {
-                    icon.className = 'bi bi-bookmark-fill text-primary';
-                    btn.classList.add('text-primary');
-                    textNode.textContent = ' Đã lưu';
+                    icon.className = 'bi bi-bookmark-fill text-white';
+                    btn.classList.add('active', 'bg-primary', 'text-white');
+                    if (textNode) textNode.textContent = ' Đã lưu';
                     showToast('Đã lưu địa điểm thành công!', 'primary');
                 } else {
                     icon.className = 'bi bi-bookmark';
-                    btn.classList.remove('text-primary');
-                    textNode.textContent = ' Lưu điểm đến';
+                    btn.classList.remove('active', 'bg-primary', 'text-white');
+                    if (textNode) textNode.textContent = ' Lưu điểm đến';
                     showToast('Đã xóa khỏi danh sách lưu.', 'secondary');
                 }
             }
         })
         .catch(err => {
             if (err.response?.status === 401) {
-                showToast('Vui lòng đăng nhập để sử dụng tính năng này!', 'warning');
-                setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
+                showToast('Vui lòng đăng nhập để lưu địa điểm này!', 'primary');
+                setTimeout(() => { window.location.href = '/auth/login'; }, 1200);
             } else {
-                showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
+                showToast(err.response?.data?.message || 'Vui lòng đăng nhập để sử dụng tính năng này!', 'primary');
             }
         });
 }

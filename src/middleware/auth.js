@@ -26,8 +26,40 @@ const ROLE_NAMES = {
 /**
  * Kiểm tra đã đăng nhập chưa (Tương tự checkAuth() trong Relioo)
  */
-exports.ensureAuthenticated = (req, res, next) => {
-    if (req.user || req.session?.user) {
+exports.ensureAuthenticated = async (req, res, next) => {
+    let user = req.user || req.session?.user;
+    
+    // Vercel serverless fallback: if session lost, try to restore from session_uuid cookie
+    if (!user && req.cookies?.session_uuid) {
+        try {
+            const db = require('../core/database');
+            const [sessions] = await db.query(
+                "SELECT user_id FROM user_sessions WHERE uuid = $1 AND user_id IS NOT NULL ORDER BY updated_at DESC LIMIT 1",
+                [req.cookies.session_uuid]
+            );
+            if (sessions.length > 0 && sessions[0].user_id) {
+                const [users] = await db.query(
+                    "SELECT * FROM users WHERE id = $1 AND is_active = 1",
+                    [sessions[0].user_id]
+                );
+                if (users.length > 0) {
+                    user = users[0];
+                    if (req.session) {
+                        req.session.user = {
+                            id: user.id, email: user.email, full_name: user.full_name,
+                            role: user.role, avatar: user.avatar, phone: user.phone,
+                            managed_destination_id: user.managed_destination_id
+                        };
+                    }
+                }
+            }
+        } catch (e) {
+            console.error("ensureAuthenticated DB fallback error:", e.message);
+        }
+    }
+
+    if (user) {
+        req.user = user;
         return next();
     }
     if (req.originalUrl && req.originalUrl.startsWith('/api')) {
