@@ -204,88 +204,93 @@ class ApiController {
 
     // --- CHAT API ---
     async sendMessage(req, res) {
-        const { destinationId, message } = req.body;
-        const sessionUuid = req.cookies?.session_uuid;
-        
-        if (!sessionUuid || !message) {
-            return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ' });
-        }
-
-        const session = await UserSession.findByUuid(sessionUuid);
-        if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
-
-        let receiverId = null;
-        if (destinationId) {
-            const [managers] = await db.query(
-                "SELECT id FROM users WHERE managed_destination_id = $1 AND role = 'manager' LIMIT 1",
-                [destinationId]
-            );
-            receiverId = managers.length > 0 ? managers[0].id : null;
-        } else {
-            const [admins] = await db.query(
-                "SELECT id FROM users WHERE role = 'admin' LIMIT 1"
-            );
-            receiverId = admins.length > 0 ? admins[0].id : null;
-        }
-
-        await db.query(
-            "INSERT INTO messages (id, sender_id, sender_uuid, receiver_id, destination_id, message) VALUES ($1, $2, $3, $4, $5, $6)",
-            [uuidv4(), session.user_id || null, session.id, receiverId, destinationId || null, message]
-        );
-
-        let aiReply = null;
-        if (destinationId) {
-            const AIBrain = require('../core/AIBrain');
-            aiReply = await AIBrain.generateResponse(message, destinationId);
+        try {
+            const { destinationId, message } = req.body;
+            const sessionUuid = req.cookies?.session_uuid;
             
-            await db.query(
-                "INSERT INTO messages (id, sender_id, receiver_id, destination_id, message, is_ai) VALUES ($1, $2, $3, $4, $5, $6)",
-                [uuidv4(), null, session.id, destinationId, aiReply, 1]
-            );
-        }
+            if (!sessionUuid || !message) {
+                return res.status(400).json({ success: false, message: 'Dữ liệu không đầy đủ' });
+            }
 
-        res.json({ success: true, message: aiReply || 'Tin nhắn đã được gửi đến quản trị viên.' });
+            const session = await UserSession.findByUuid(sessionUuid);
+            if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
+
+            let receiverUuid = null;
+            if (destinationId) {
+                const [managers] = await db.query(
+                    "SELECT id FROM users WHERE managed_destination_id = $1 AND role = 'manager' LIMIT 1",
+                    [destinationId]
+                );
+                receiverUuid = managers.length > 0 ? managers[0].id : null;
+            }
+
+            await db.query(
+                "INSERT INTO messages (id, sender_id, sender_uuid, receiver_uuid, destination_id, message) VALUES ($1, $2, $3, $4, $5, $6)",
+                [uuidv4(), session.user_id || null, session.id, receiverUuid, destinationId || null, message]
+            );
+
+            let aiReply = null;
+            if (destinationId) {
+                try {
+                    const AIBrain = require('../core/AIBrain');
+                    aiReply = await AIBrain.generateResponse(message, destinationId);
+                    
+                    if (aiReply) {
+                        await db.query(
+                            "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, is_ai) VALUES ($1, $2, $3, $4, $5, $6)",
+                            [uuidv4(), null, session.id, destinationId, aiReply, 1]
+                        );
+                    }
+                } catch(aiErr) {
+                    console.log("AI reply error:", aiErr);
+                }
+            }
+
+            res.json({ success: true, message: aiReply || 'Tin nhắn đã được gửi thành công.' });
+        } catch(err) {
+            console.error("SendMessage Error:", err);
+            res.status(500).json({ success: false, message: 'Lỗi gửi tin nhắn: ' + err.message });
+        }
     }
 
     async replyMessage(req, res) {
-        const { messageId, sessionId, replyText, destinationId } = req.body;
-        const manager = req.session.user || req.user;
+        try {
+            const { messageId, sessionId, replyText, destinationId } = req.body;
+            const manager = req.session.user || req.user;
 
-        if (!manager || (manager.role !== 'manager' && manager.role !== 'admin')) {
-            return res.status(403).json({ success: false, message: 'Unauthorized' });
-        }
-
-        if (!replyText) {
-            return res.status(400).json({ success: false, message: 'Nội dung phản hồi không được để trống.' });
-        }
-
-        let receiverId = null;
-        let receiverUuid = null;
-        let finalDestId = destinationId || null;
-
-        if (sessionId) {
-            receiverUuid = sessionId;
-            const [sessions] = await db.query("SELECT user_id FROM user_sessions WHERE id = $1", [sessionId]);
-            if (sessions.length > 0) {
-                receiverId = sessions[0].user_id;
+            if (!manager || (manager.role !== 'manager' && manager.role !== 'admin')) {
+                return res.status(403).json({ success: false, message: 'Unauthorized' });
             }
-        } else if (messageId) {
-            const [rows] = await db.query("SELECT * FROM messages WHERE id = $1", [messageId]);
-            if (rows.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
-            const originalMsg = rows[0];
-            receiverUuid = originalMsg.sender_uuid;
-            receiverId = originalMsg.sender_id;
-            finalDestId = originalMsg.destination_id;
-        } else {
-            return res.status(400).json({ success: false, message: 'Thiếu thông tin người nhận (sessionId hoặc messageId)' });
+
+            if (!replyText) {
+                return res.status(400).json({ success: false, message: 'Nội dung phản hồi không được để trống.' });
+            }
+
+            let receiverUuid = null;
+            let finalDestId = destinationId || null;
+
+            if (sessionId) {
+                receiverUuid = sessionId;
+            } else if (messageId) {
+                const [rows] = await db.query("SELECT * FROM messages WHERE id = $1", [messageId]);
+                if (rows.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
+                const originalMsg = rows[0];
+                receiverUuid = originalMsg.sender_uuid;
+                finalDestId = originalMsg.destination_id;
+            } else {
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin người nhận (sessionId hoặc messageId)' });
+            }
+
+            await db.query(
+                "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message) VALUES ($1, $2, $3, $4, $5)",
+                [uuidv4(), manager.id, receiverUuid, finalDestId, replyText]
+            );
+
+            res.json({ success: true, message: 'Đã gửi phản hồi.' });
+        } catch(err) {
+            console.error("ReplyMessage Error:", err);
+            res.status(500).json({ success: false, message: 'Lỗi gửi phản hồi: ' + err.message });
         }
-
-        await db.query(
-            "INSERT INTO messages (id, sender_id, receiver_id, receiver_uuid, destination_id, message) VALUES ($1, $2, $3, $4, $5, $6)",
-            [uuidv4(), manager.id, receiverId, receiverUuid, finalDestId, replyText]
-        );
-
-        res.json({ success: true, message: 'Đã gửi phản hồi.' });
     }
 
     async getMessages(req, res) {
