@@ -11,8 +11,6 @@ const CACHE_TTL = 300000; // 5 minutes
 class HomeController {
     async index(req, res) {
         try {
-            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-
             const heroPostersData = await HeroPoster.getActive();
             const defaultHeroPosters = [
                 { id: 'p1', title: 'Poster 1', image_url: '/images/Poster 1.png' },

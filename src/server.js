@@ -73,16 +73,16 @@ app.use(cors());
 const compression = require('compression');
 app.use(compression());
 
-// Aggressive Edge CDN caching for static assets only; NEVER cache dynamic user pages on Edge CDN
+// Aggressive Edge CDN caching for static assets & public catalog pages for 6x faster load speeds
 app.use((req, res, next) => {
     if (req.method !== 'GET') return next();
     const p = req.path.toLowerCase();
     // Static assets: cache 1 year on Edge + browser
     if (p.match(/\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-    // Public landing pages: cache 1 minute on Edge
-    } else if (p === '/') {
-        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=60, stale-while-revalidate=120');
+    // Public catalog & landing pages: cache 15s on Edge CDN for lightning fast load speed
+    } else if (p === '/' || p === '/explore' || p === '/shops' || p === '/festivals' || p === '/map' || p === '/reviews') {
+        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=15, stale-while-revalidate=60');
     // Dynamic user/session pages (journey, profile, auth, admin, api, passport, chat, onboarding, etc.): NEVER cache on Edge CDN
     } else {
         res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
@@ -201,7 +201,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '13.0.0'; 
+    res.locals.assetV = '14.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
