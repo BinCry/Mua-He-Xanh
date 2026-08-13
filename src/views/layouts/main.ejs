@@ -38,8 +38,8 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Bình Lợi">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 
     <script>
         window.APP_CONFIG = {
@@ -113,32 +113,46 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js" defer></script>
 
     <script>
-        gsap.registerPlugin(ScrollTrigger);
-
-        // Global Reveal Animation
-        const reveal = () => {
-            const items = document.querySelectorAll('.reveal-up');
-            items.forEach(item => {
-                gsap.fromTo(item, 
-                    { opacity: 0, y: 50 },
-                    { 
-                        opacity: 1, 
-                        y: 0, 
-                        duration: 1, 
-                        ease: "power3.out",
-                        scrollTrigger: {
-                            trigger: item,
-                            start: "top 85%",
-                            toggleActions: "play none none none"
-                        }
-                    }
-                );
-            });
-        };
-
-        // Run reveal immediately on DOMContentLoaded
+        // Global Reveal Animation with Fail-safe Fallback
         document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(reveal, 100);
+            const items = document.querySelectorAll('.reveal-up');
+            if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+                try {
+                    gsap.registerPlugin(ScrollTrigger);
+                    items.forEach(item => {
+                        gsap.fromTo(item, 
+                            { opacity: 0, y: 35 },
+                            { 
+                                opacity: 1, 
+                                y: 0, 
+                                duration: 0.8, 
+                                ease: "power2.out",
+                                scrollTrigger: {
+                                    trigger: item,
+                                    start: "top 92%",
+                                    toggleActions: "play none none none"
+                                }
+                            }
+                        );
+                    });
+                } catch (err) {
+                    console.warn('GSAP reveal error, using CSS fallback:', err);
+                    items.forEach(item => item.classList.add('active'));
+                }
+            } else {
+                items.forEach(item => item.classList.add('active'));
+            }
+            
+            // Safety timeout: ensure all elements are visible after 300ms no matter what
+            setTimeout(() => {
+                items.forEach(item => {
+                    if (getComputedStyle(item).opacity === '0') {
+                        item.classList.add('active');
+                        item.style.opacity = '1';
+                        item.style.transform = 'none';
+                    }
+                });
+            }, 300);
         });
 
         // Navbar Scroll Effect (Fixed top without detached spacing)
