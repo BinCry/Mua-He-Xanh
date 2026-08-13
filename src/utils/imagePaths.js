@@ -1,4 +1,4 @@
-const DEFAULT_IMAGE = '/images/Poster 1.png';
+const DEFAULT_IMAGE = '/images/Poster 1.jpg';
 
 const LEGACY_IMAGE_ALIASES = Object.freeze({
     '/images/hero-1.png': '/uploads/destinations/chua-phap-tang.png',
@@ -14,6 +14,11 @@ const LEGACY_IMAGE_ALIASES = Object.freeze({
     '/images/placeholder.png': '/uploads/destinations/chua-phap-tang.png',
     '/images/placeholder.jpg': '/uploads/destinations/chua-phap-tang.png',
     '/images/product-placeholder.png': '/uploads/destinations/vuon-dua.png',
+    '/images/Poster 1.png': '/images/Poster 1.jpg',
+    '/images/Poster 2.png': '/images/Poster 2.jpg',
+    '/images/Poster 3.png': '/images/Poster 3.jpg',
+    '/images/Poster 4.png': '/images/Poster 4.jpg',
+    '/images/Poster 5.png': '/images/Poster 5.jpg',
     '/images/default-avatar.png': '/images/logo.svg',
     '/images/logo.png': '/images/logo.svg'
 });

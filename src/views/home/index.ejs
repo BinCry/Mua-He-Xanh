@@ -117,7 +117,7 @@
             <% (typeof heroPosters !== 'undefined' && heroPosters ? heroPosters : []).forEach((p, idx) => { %>
             <div class="carousel-item <%= idx === 0 ? 'active' : '' %>" data-bs-interval="5000">
                 <div class="hero-poster-slide position-relative w-100 h-100">
-                    <img src="<%= fixImg(p.image_url) %>" class="hero-poster-img w-100 h-100 d-block" alt="<%= p.title || ('Poster ' + (idx + 1)) %>">
+                    <img src="<%= fixImg(p.image_url) %>" class="hero-poster-img w-100 h-100 d-block" alt="<%= p.title || ('Poster ' + (idx + 1)) %>" <%= idx === 0 ? 'fetchpriority="high"' : 'loading="lazy"' %> decoding="async">
                 </div>
             </div>
             <% }) %>
@@ -416,7 +416,7 @@
                     <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-sm hover-lift w-100 d-flex flex-column bg-white border">
                         <!-- Top Image Poster -->
                         <div class="w-100 position-relative" style="height: 240px; flex-shrink: 0;">
-                            <img src="<%= fixImg(nextEvent.image, '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover">
+                            <img src="<%= fixImg(nextEvent.image, '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover" loading="lazy" decoding="async">
                         </div>
 
                         <!-- Bottom 50% Information Body -->
@@ -472,7 +472,7 @@
                                     <!-- Event Image Thumbnail instead of calendar icon -->
                                     <div class="home-event-icon rounded-3 overflow-hidden flex-shrink-0"
                                         style="width: 54px; height: 54px; border: 1px solid rgba(0,0,0,0.08);">
-                                        <img src="<%= fixImg(evt.image, '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover" alt="<%= evt.title %>">
+                                        <img src="<%= fixImg(evt.image, '/images/hero-2.png') %>" class="w-100 h-100 object-fit-cover" alt="<%= evt.title %>" loading="lazy" decoding="async">
                                     </div>
                                     <div class="home-event-content flex-grow-1 min-w-0 text-start">
                                         <h6 class="home-event-title text-dark font-extrabold mb-1 text-start text-truncate"
@@ -529,7 +529,7 @@
                             <!-- User Header -->
                             <div class="d-flex align-items-start justify-content-between gap-2 p-3 p-sm-4 pb-2">
                                 <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
-                                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
+                                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);" loading="lazy" decoding="async">
                                     <div class="min-w-0 flex-grow-1">
                                         <span class="fw-bold d-block text-truncate" style="font-size: 0.92rem; color: #333;"><%= r.full_name %></span>
                                         <span class="text-muted d-block text-truncate" style="font-size: 0.72rem;">
@@ -571,7 +571,7 @@
                                     <% imgs.forEach((img, idx) => { %>
                                     <div class="col-12">
                                         <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer" onclick="openImageLightbox(this.querySelector('img').src)">
-                                            <img src="<%= fixImg(img) %>" class="rounded-4 w-100" style="max-height: 540px; object-fit: contain; background: #f8fafc;" alt="Review image" onerror="this.onerror=null; this.src='/images/Poster 1.png';">
+                                            <img src="<%= fixImg(img) %>" class="rounded-4 w-100" style="max-height: 540px; object-fit: contain; background: #f8fafc;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.png';">
                                         </div>
                                     </div>
                                     <% }) %>
