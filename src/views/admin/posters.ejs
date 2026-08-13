@@ -60,25 +60,34 @@
                 <h5 class="modal-title fw-bold mb-0"><i class="bi bi-cloud-upload-fill me-2"></i>Upload Poster Hero Mới</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/admin/posters" method="POST" enctype="multipart/form-data">
+            <form id="posterForm" onsubmit="savePoster(event)">
                 <div class="modal-body p-4">
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">Tiêu đề Poster / Ghi chú</label>
-                        <input type="text" name="title" class="form-control rounded-3" placeholder="Ví dụ: Banner Sắc Mai Vàng 2026">
+                        <input type="text" id="p_title" name="title" class="form-control rounded-3" placeholder="Ví dụ: Banner Sắc Mai Vàng 2026">
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-bold small text-muted">Chọn tệp hình ảnh Poster (JPG, PNG)</label>
-                        <input type="file" name="image" accept="image/*" class="form-control rounded-3" required>
-                        <small class="text-muted">Khuyên dùng hình ảnh chất lượng cao độ phân giải 1920x1080 hoặc tỷ lệ banner poster.</small>
+                        <label class="form-label fw-bold small text-muted">Hình ảnh Poster</label>
+                        <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
+                            <img id="p_preview" src="/images/placeholder.jpg" class="rounded-3 shadow-sm" style="width: 120px; height: 75px; object-fit: cover; border: 1px solid #cbd5e1;">
+                            <div>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold" onclick="document.getElementById('p_file').click()">
+                                    <i class="bi bi-upload me-1"></i>Chọn ảnh tải lên
+                                </button>
+                                <div class="text-muted x-small mt-1" style="font-size: 0.78rem;">Tỷ lệ 16:9 hoặc Banner Poster đẹp nhất.</div>
+                                <input type="file" id="p_file" class="d-none" accept="image/*" onchange="uploadPosterFile(this)">
+                            </div>
+                        </div>
+                        <input type="hidden" id="p_image_url" name="image_url" value="/images/placeholder.jpg">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold small text-muted">Thứ tự sắp xếp (Số nhỏ xếp trước)</label>
-                        <input type="number" name="sort_order" class="form-control rounded-3" value="1">
+                        <input type="number" id="p_sort_order" name="sort_order" class="form-control rounded-3" value="1">
                     </div>
                 </div>
                 <div class="modal-footer bg-light p-3 border-0">
                     <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Hủy</button>
-                    <button type="submit" class="btn btn-primary rounded-pill px-4 fw-bold">UPLOAD VÀ LƯU</button>
+                    <button type="submit" id="savePosterBtn" class="btn btn-primary rounded-pill px-4 fw-bold">UPLOAD VÀ LƯU</button>
                 </div>
             </form>
         </div>
@@ -87,6 +96,64 @@
 
 <script>
 function openPosterForm() {
-    // Reset form fields
+    document.getElementById('posterForm').reset();
+    document.getElementById('p_image_url').value = '/images/placeholder.jpg';
+    document.getElementById('p_preview').src = '/images/placeholder.jpg';
+}
+
+async function uploadPosterFile(input) {
+    if (!input.files || !input.files[0]) return;
+    const formData = new FormData();
+    formData.append('image', input.files[0]);
+    
+    const btn = input.previousElementSibling;
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang nén & tải...';
+    
+    try {
+        const res = await axios.post('/api/upload', formData, {
+            headers: { 'Content-Type': 'multipart/form-data' }
+        });
+        
+        if (res.data.success) {
+            document.getElementById('p_image_url').value = res.data.url;
+            document.getElementById('p_preview').src = res.data.url;
+            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã chọn ảnh';
+        }
+    } catch (err) {
+        alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        btn.innerHTML = oldHtml;
+    } finally {
+        btn.disabled = false;
+        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+    }
+}
+
+async function savePoster(e) {
+    e.preventDefault();
+    const btn = document.getElementById('savePosterBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang lưu...';
+    
+    try {
+        const data = {
+            title: document.getElementById('p_title').value,
+            image_url: document.getElementById('p_image_url').value,
+            sort_order: document.getElementById('p_sort_order').value
+        };
+        const res = await axios.post('/admin/posters', data);
+        if (res.data.success) {
+            alert('Đã lưu Poster thành công!');
+            location.reload();
+        } else {
+            alert(res.data.message || 'Lưu thất bại.');
+        }
+    } catch (err) {
+        alert('Lỗi lưu Poster: ' + (err.response?.data?.message || err.message));
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = 'UPLOAD VÀ LƯU';
+    }
 }
 </script>

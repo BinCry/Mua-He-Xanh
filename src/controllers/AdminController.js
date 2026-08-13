@@ -15,7 +15,7 @@ const AdminController = {
             const [destCount] = await db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = 1');
             const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins');
             const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews');
-            const [analyticsCount] = await db.query('SELECT COUNT(*) as total FROM analytics');
+            const [pageViewsRow] = await db.query('SELECT COUNT(*) as total FROM analytics');
             const [eventCount] = await db.query('SELECT COUNT(*) as total FROM events WHERE is_active = 1');
 
             // Average session duration (from analytics duration_ms)
@@ -132,7 +132,7 @@ const AdminController = {
                     destinations: parseInt(destCount[0]?.total || 0, 10),
                     checkins: parseInt(checkinCount[0]?.total || 0, 10),
                     reviews: parseInt(reviewCount[0]?.total || 0, 10),
-                    pageViews: parseInt(analyticsCount[0]?.total || 0, 10) || 0,
+                    pageViews: parseInt(pageViewsRow[0]?.total || 0, 10),
                     events: parseInt(eventCount[0]?.total || 0, 10),
                     avgDuration: avgDurationSec
                 },
@@ -869,12 +869,17 @@ const AdminController = {
             const HeroPoster = require('../models/HeroPoster');
             await HeroPoster.ensureTableExists();
 
-            let imageUrl = '/images/Poster 1.png';
-            if (req.file) {
-                const cloudResult = await uploadToCloudinary(req.file.path || req.file.buffer, 'hero-posters');
-                imageUrl = cloudResult.url || cloudResult.secure_url || imageUrl;
-            } else if (req.body.image_url) {
+            let imageUrl = '/images/placeholder.jpg';
+            if (req.body.image_url && req.body.image_url.trim() !== '') {
                 imageUrl = req.body.image_url;
+            } else if (req.file) {
+                try {
+                    const cloudResult = await uploadToCloudinary(req.file.buffer, 'hero-posters');
+                    imageUrl = cloudResult.secure_url;
+                } catch (err) {
+                    console.error("Cloudinary poster upload error:", err);
+                    imageUrl = 'data:' + req.file.mimetype + ';base64,' + req.file.buffer.toString('base64');
+                }
             }
 
             const posterId = uuidv4();
@@ -886,10 +891,16 @@ const AdminController = {
                 [posterId, title, imageUrl, sortOrder]
             );
 
+            if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+                return res.json({ success: true, message: 'Đã thêm Poster thành công!' });
+            }
             res.redirect('/admin/posters');
         } catch (e) {
             console.error("Admin createPoster error:", e);
-            res.status(500).send("Lỗi tạo poster: " + e.message);
+            if (req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'))) {
+                return res.status(500).json({ success: false, message: 'Lỗi: ' + e.message });
+            }
+            res.status(500).send("Server Error: " + e.message);
         }
     },
 

@@ -39,7 +39,7 @@ app.get('/api/health', async (req, res) => {
     res.json(info);
 });
 
-// Auto-patch DB schema and reset image paths for user re-upload
+// Auto-patch DB schema for guest comments, likes, banner images, and hero posters
 (async () => {
     try {
         const db = require('./core/database');
@@ -50,13 +50,22 @@ app.get('/api/health', async (req, res) => {
         await db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_ai INTEGER DEFAULT 0`);
         await db.query(`ALTER TABLE destinations ADD COLUMN IF NOT EXISTS banner_image VARCHAR(500)`);
         await db.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS banner_image VARCHAR(500)`);
-
-        // Reset database image paths to clean placeholders so user can upload fresh images
-        await db.query(`UPDATE destinations SET cover_image = '/images/placeholder.jpg', banner_image = '/images/placeholder.jpg'`);
-        await db.query(`UPDATE events SET image = '/images/hero-1.png', banner_image = '/images/hero-1.png'`);
-        await db.query(`UPDATE workshops SET image = '/images/hero-2.png'`);
-        await db.query(`UPDATE hero_posters SET image_url = '/images/hero-1.png'`);
-        await db.query(`UPDATE settings SET key_value = '/images/placeholder.jpg' WHERE key_name IN ('about_bg', 'login_bg', 'hero_image', 'banner_explore', 'banner_workshop')`);
+        await db.query(`
+            CREATE TABLE IF NOT EXISTS hero_posters (
+                id VARCHAR(36) PRIMARY KEY,
+                title VARCHAR(255),
+                image_url TEXT NOT NULL,
+                sort_order INT DEFAULT 0,
+                is_active INT DEFAULT 1,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        `);
+        // Reset image fields to placeholder as requested by user for clean re-upload
+        await db.query(`UPDATE destinations SET cover_image = '/images/placeholder.jpg' WHERE cover_image IS NULL OR cover_image = '' OR cover_image LIKE '/images/hero%'`);
+        await db.query(`UPDATE destinations SET banner_image = '/images/placeholder.jpg' WHERE banner_image IS NULL OR banner_image = '' OR banner_image LIKE '/images/hero%'`);
+        await db.query(`UPDATE events SET image = '/images/placeholder.jpg' WHERE image IS NULL OR image = '' OR image LIKE '/images/hero%'`);
+        await db.query(`UPDATE events SET banner_image = '/images/placeholder.jpg' WHERE banner_image IS NULL OR banner_image = '' OR banner_image LIKE '/images/hero%'`);
+        await db.query(`UPDATE workshops SET image = '/images/placeholder.jpg' WHERE image IS NULL OR image = '' OR image LIKE '/images/hero%'`);
     } catch(e) {
         console.warn('Auto DB schema patch error:', e.message);
     }
