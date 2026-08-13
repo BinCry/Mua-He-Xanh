@@ -219,19 +219,61 @@ body {
     font-weight: 900;
     padding: 14px 32px;
     border-radius: 50px;
-    border: none;
-    box-shadow: 0 8px 24px rgba(146, 39, 36, 0.35);
-    transition: all 0.25s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(146, 39, 36, 0.3);
+    transition: all 0.3s ease;
 }
 
 .btn-action-save:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(146, 39, 36, 0.45);
+    box-shadow: 0 12px 25px rgba(146, 39, 36, 0.4);
     color: #ffffff;
+}
+
+/* MOBILE RESPONSIVE TIMELINE & CARDS (CHUẨN 100% NHƯ DESKTOP) */
+@media (max-width: 767.98px) {
+    .b3-timeline-section {
+        padding: 20px 8px 50px;
+    }
+    .timeline-spine-line {
+        left: 17px;
+        top: 20px;
+        bottom: 30px;
+    }
+    .timeline-stop-row {
+        gap: 12px;
+        margin-bottom: 18px;
+    }
+    .stop-num-badge-circle {
+        width: 36px;
+        height: 36px;
+        font-size: 0.95rem;
+    }
+    .stop-card-item {
+        padding: 12px;
+        gap: 12px;
+        border-radius: 18px;
+    }
+    .stop-img-thumb {
+        width: 80px;
+        height: 80px;
+        border-radius: 14px;
+    }
+    .stop-card-title {
+        font-size: 0.95rem;
+        margin-bottom: 2px;
+    }
+    .stop-card-sub {
+        font-size: 0.75rem;
+        margin-bottom: 6px;
+        -webkit-line-clamp: 2;
+    }
+    .stop-tag-time, .stop-tag-type {
+        font-size: 0.68rem;
+        padding: 2px 8px;
+    }
+    #step4-map {
+        height: 300px !important;
+    }
 }
 
 .btn-action-edit {
@@ -379,13 +421,31 @@ body {
         <% if (isStep4) { %>
             <!-- ===== BƯỚC 4: TIMELINE + INTERACTIVE MAP ===== -->
             <div class="row g-4">
-                <!-- LEFT: Confirmed Timeline -->
-                <div class="col-lg-6">
+                <!-- Map on top on mobile, right column on desktop -->
+                <div class="col-12 col-lg-6 order-1 order-lg-2">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style="top:90px; z-index: 10;">
+                        <div class="p-3 bg-white border-bottom d-flex align-items-center justify-content-between">
+                            <span class="fw-bold text-dark small"><i class="bi bi-map-fill text-danger me-1"></i> Bản đồ chỉ đường 100% Google Maps GPS</span>
+                            <button onclick="getUserGPSLocation()" id="btn-gps" class="btn btn-sm btn-outline-danger rounded-pill fw-bold">
+                                <i class="bi bi-crosshair me-1"></i> Bật GPS
+                            </button>
+                        </div>
+                        <div id="step4-map" style="width:100%; height:380px;"></div>
+                        <div class="p-3 bg-white border-top text-center">
+                            <a id="btn-gmaps-link" href="#" target="_blank" class="btn btn-danger rounded-pill fw-bold btn-sm px-4 shadow-sm w-100 py-2">
+                                <i class="bi bi-geo-alt-fill me-1"></i> Mở chỉ đường Google Maps trực tiếp <i class="bi bi-box-arrow-up-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline on bottom on mobile, left column on desktop -->
+                <div class="col-12 col-lg-6 order-2 order-lg-1">
                     <div class="card p-3 mb-3 border-0 shadow-sm rounded-4 bg-success bg-opacity-10">
                         <div class="d-flex align-items-center justify-content-between">
                             <span class="fw-bold text-success small"><i class="bi bi-check-circle-fill me-1"></i> Lộ trình đã chốt thành công!</span>
                             <a href="/onboarding" class="btn btn-sm btn-outline-danger rounded-pill fw-bold" style="font-size:0.75rem;">
-                                <i class="bi bi-pencil me-1"></i> Chỉnh sửa lại
+                                <i class="bi bi-pencil me-1"></i> Chọn lại hành trình
                             </a>
                         </div>
                     </div>
@@ -397,39 +457,21 @@ body {
                                 <div class="stop-num-badge-circle"><%= i + 1 %></div>
                                 <div class="stop-card-item">
                                     <img src="<%= fixImg(stop.cover_image) %>" class="stop-img-thumb" alt="<%= stop.name %>">
-                                    <div style="flex:1;">
-                                        <div class="d-flex gap-2 mb-1">
+                                    <div style="flex:1; min-width:0;">
+                                        <div class="d-flex gap-1.5 flex-wrap mb-1">
                                             <span class="stop-tag-time"><i class="bi bi-clock me-1"></i>0<%= i+8 %>:00 - 0<%= i+9 %>:15</span>
                                             <span class="stop-tag-type"><%= stop.type || 'nature' %></span>
                                         </div>
-                                        <div class="stop-card-title"><%= stop.name %></div>
+                                        <div class="stop-card-title text-truncate"><%= stop.name %></div>
                                         <div class="stop-card-sub"><%= stop.short_desc || stop.highlight || '' %></div>
-                                        <div class="d-flex align-items-center justify-content-between">
-                                            <a href="/explore/<%= stop.slug %>" class="x-small fw-bold text-danger text-decoration-none">Xem thông tin &gt;</a>
+                                        <div class="d-flex align-items-center justify-content-between mt-1">
+                                            <a href="/explore/<%= stop.slug %>" class="x-small fw-bold text-danger text-decoration-none">Xem chi tiết &gt;</a>
                                             <span class="x-small fw-bold text-success"><i class="bi bi-star-fill text-warning me-1"></i>+<%= stop.points || 100 %> điểm</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         <% }) %>
-                    </div>
-                </div>
-
-                <!-- RIGHT: Leaflet Map & GPS -->
-                <div class="col-lg-6">
-                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden sticky-top" style="top:90px;">
-                        <div class="p-3 bg-white border-bottom d-flex align-items-center justify-content-between">
-                            <span class="fw-bold text-dark small"><i class="bi bi-map-fill text-danger me-1"></i> Bản đồ lộ trình & GPS</span>
-                            <button onclick="getUserGPSLocation()" id="btn-gps" class="btn btn-sm btn-outline-danger rounded-pill fw-bold">
-                                <i class="bi bi-crosshair me-1"></i> Bật GPS
-                            </button>
-                        </div>
-                        <div id="step4-map" style="width:100%; height:400px;"></div>
-                        <div class="p-3 bg-white border-top text-center">
-                            <a id="btn-gmaps-link" href="#" target="_blank" class="btn btn-danger rounded-pill fw-bold btn-sm px-4">
-                                Open Google Maps Turn-by-Turn Navigation <i class="bi bi-box-arrow-up-right ms-1"></i>
-                            </a>
-                        </div>
                     </div>
                 </div>
             </div>
