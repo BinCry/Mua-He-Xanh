@@ -369,7 +369,7 @@
             }
         })
         .catch(err => {
-            alert('Lỗi khi gửi phản hồi: ' + (err.response?.data?.message || err.message));
+            showAdminToast('Lỗi khi gửi phản hồi: ' + (err.response?.data?.message || err.message), 'error');
         })
         .finally(() => {
             input.disabled = false;

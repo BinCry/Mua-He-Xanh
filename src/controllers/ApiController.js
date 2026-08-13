@@ -243,20 +243,18 @@ class ApiController {
             );
 
             let aiReply = null;
-            if (destinationId) {
-                try {
-                    const AIBrain = require('../core/AIBrain');
-                    aiReply = await AIBrain.generateResponse(message, destinationId);
-                    
-                    if (aiReply) {
-                        await db.query(
-                            "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, content, is_ai, created_at) VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())",
-                            [uuidv4(), null, session.id, destinationId, aiReply, 1]
-                        );
-                    }
-                } catch(aiErr) {
-                    console.log("AI reply error:", aiErr);
+            try {
+                const AIBrain = require('../core/AIBrain');
+                aiReply = await AIBrain.generateResponse(message, destinationId || null);
+                
+                if (aiReply) {
+                    await db.query(
+                        "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, content, is_ai, created_at) VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())",
+                        [uuidv4(), null, session.id, destinationId || null, aiReply, 1]
+                    );
                 }
+            } catch(aiErr) {
+                console.log("AI reply error:", aiErr);
             }
 
             res.json({ success: true, message: aiReply || 'Tin nhắn đã được gửi thành công.' });
@@ -325,7 +323,7 @@ class ApiController {
         }
 
         const { destinationId } = req.query;
-        const queryParams = [session.id, session.id];
+        const queryParams = [String(session.id), String(session.uuid || session.id)];
         
         let userCondition = '';
         if (currentUserId) {
@@ -343,7 +341,7 @@ class ApiController {
             `SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at 
               FROM messages 
               WHERE (
-                sender_uuid = $1 OR receiver_uuid = $2 
+                sender_uuid = $1 OR receiver_uuid = $1 OR sender_uuid = $2 OR receiver_uuid = $2
                 ${userCondition}
               )
               ${destCondition}
@@ -356,9 +354,8 @@ class ApiController {
             let isMine = false;
 
             if (!isAi) {
-                if (m.sender_uuid && String(m.sender_uuid) === String(session.id)) {
-                    isMine = true;
-                } else if (m.sender_id && currentUserId && String(m.sender_id) === String(currentUserId)) {
+                if ((m.sender_uuid && (String(m.sender_uuid) === String(session.id) || String(m.sender_uuid) === String(session.uuid))) ||
+                    (m.sender_id && currentUserId && String(m.sender_id) === String(currentUserId))) {
                     isMine = true;
                 }
             }

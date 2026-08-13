@@ -771,26 +771,30 @@ const AdminController = {
                          u.phone AS user_phone,
                          u.email AS user_email,
                          (
-                             SELECT message 
+                             SELECT COALESCE(message, content, '') 
                              FROM messages 
-                             WHERE (sender_uuid = s.id OR receiver_uuid = s.id)
+                             WHERE (sender_uuid = s.id::text OR receiver_uuid = s.id::text OR sender_uuid = s.uuid OR receiver_uuid = s.uuid)
                              ORDER BY created_at DESC LIMIT 1
                          ) AS last_message,
                          (
                              SELECT created_at 
                              FROM messages 
-                             WHERE (sender_uuid = s.id OR receiver_uuid = s.id)
+                             WHERE (sender_uuid = s.id::text OR receiver_uuid = s.id::text OR sender_uuid = s.uuid OR receiver_uuid = s.uuid)
                              ORDER BY created_at DESC LIMIT 1
                          ) AS last_message_time
                      FROM user_sessions s
                      LEFT JOIN users u ON s.user_id = u.id
                      WHERE s.id IN (
+                         SELECT DISTINCT CAST(sender_uuid AS INTEGER) FROM messages WHERE sender_uuid IS NOT NULL AND sender_uuid ~ '^[0-9]+$'
+                         UNION
+                         SELECT DISTINCT CAST(receiver_uuid AS INTEGER) FROM messages WHERE receiver_uuid IS NOT NULL AND receiver_uuid ~ '^[0-9]+$'
+                     ) OR s.uuid IN (
                          SELECT DISTINCT sender_uuid FROM messages WHERE sender_uuid IS NOT NULL
                          UNION
                          SELECT DISTINCT receiver_uuid FROM messages WHERE receiver_uuid IS NOT NULL
                      )
                      ORDER BY last_message_time DESC NULLS LAST
-                     LIMIT 50`
+                     LIMIT 100`
                 );
                 conversations = rows;
             } catch (e) {
@@ -817,30 +821,37 @@ const AdminController = {
             }
 
             let messages = [];
+            let visitor = null;
+
+            const [visitorDetails] = await db.query(
+                `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone
+                 FROM user_sessions s
+                 LEFT JOIN users u ON s.user_id = u.id
+                 WHERE s.id = $1 OR s.uuid = $2`,
+                [isNaN(Number(sessionId)) ? 0 : Number(sessionId), String(sessionId)]
+            );
+            visitor = visitorDetails[0] || null;
+
+            const targetSessionId = visitor ? String(visitor.id) : String(sessionId);
+            const targetSessionUuid = visitor ? String(visitor.uuid) : String(sessionId);
+
             try {
                 const [rows] = await db.query(
-                    `SELECT * FROM messages 
-                     WHERE (sender_uuid = $1 OR receiver_uuid = $2)
+                    `SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at
+                     FROM messages 
+                     WHERE (sender_uuid = $1 OR receiver_uuid = $1 OR sender_uuid = $2 OR receiver_uuid = $2)
                      ORDER BY created_at ASC`,
-                    [sessionId, sessionId]
+                    [targetSessionId, targetSessionUuid]
                 );
                 messages = rows;
             } catch(e) {
                 console.log("Admin chat query fallback:", e.message);
             }
 
-            const [visitorDetails] = await db.query(
-                `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone
-                 FROM user_sessions s
-                 LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id = $1`,
-                [sessionId]
-            );
-
             res.json({
                 success: true,
                 messages,
-                visitor: visitorDetails[0] || null
+                visitor
             });
         } catch (error) {
             console.error("Fetch admin chat history error:", error);

@@ -201,25 +201,31 @@ class ManagerController {
                      u.phone AS user_phone,
                      u.email AS user_email,
                      (
-                         SELECT message 
+                         SELECT COALESCE(message, content, '') 
                          FROM messages 
                          WHERE destination_id = $1 
-                           AND (sender_uuid = s.id OR receiver_uuid = s.id)
+                           AND (sender_uuid = s.id::text OR receiver_uuid = s.id::text OR sender_uuid = s.uuid OR receiver_uuid = s.uuid)
                          ORDER BY created_at DESC LIMIT 1
                      ) AS last_message,
                      (
                          SELECT created_at 
                          FROM messages 
                          WHERE destination_id = $2 
-                           AND (sender_uuid = s.id OR receiver_uuid = s.id)
+                           AND (sender_uuid = s.id::text OR receiver_uuid = s.id::text OR sender_uuid = s.uuid OR receiver_uuid = s.uuid)
                          ORDER BY created_at DESC LIMIT 1
                      ) AS last_message_time
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
                  WHERE s.id IN (
+                     SELECT DISTINCT CAST(sender_uuid AS INTEGER) FROM messages WHERE destination_id = $3 AND sender_uuid IS NOT NULL AND sender_uuid ~ '^[0-9]+$'
+                     UNION
+                     SELECT DISTINCT CAST(receiver_uuid AS INTEGER) FROM messages WHERE destination_id = $3 AND receiver_uuid IS NOT NULL AND receiver_uuid ~ '^[0-9]+$'
+                 ) OR s.uuid IN (
                      SELECT DISTINCT sender_uuid FROM messages WHERE destination_id = $3 AND sender_uuid IS NOT NULL
+                     UNION
+                     SELECT DISTINCT receiver_uuid FROM messages WHERE destination_id = $3 AND receiver_uuid IS NOT NULL
                  )
-                 ORDER BY last_message_time DESC`,
+                 ORDER BY last_message_time DESC NULLS LAST`,
                 [dest.id, dest.id, dest.id]
             );
 
@@ -282,34 +288,37 @@ class ManagerController {
                 return res.status(400).json({ success: false, message: 'Thiếu thông tin session hoặc địa điểm.' });
             }
 
-            const [messages] = await UserSession.db.query(
-                `SELECT m.*, s.uuid as sender_uuid, 
-                        u.full_name as sender_name, u.avatar as sender_avatar,
-                        mgr.full_name as manager_name
-                 FROM messages m
-                 LEFT JOIN user_sessions s ON m.sender_uuid = s.id
-                 LEFT JOIN users u ON s.user_id = u.id
-                 LEFT JOIN users mgr ON m.sender_id = mgr.id
-                 WHERE m.destination_id = $1 
-                   AND (m.sender_uuid = $2 OR m.receiver_uuid = $3)
-                 ORDER BY m.created_at ASC`,
-                [destId, sessionId, sessionId]
-            );
-
             const [visitorDetails] = await UserSession.db.query(
                 `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone,
                         (SELECT COUNT(*) FROM check_ins WHERE session_id = s.id AND destination_id = $1) as is_checked_in,
                         (SELECT created_at FROM check_ins WHERE session_id = s.id AND destination_id = $2 ORDER BY created_at DESC LIMIT 1) as checked_in_at
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id = $3`,
-                [destId, destId, sessionId]
+                 WHERE s.id = $3 OR s.uuid = $4`,
+                [destId, destId, isNaN(Number(sessionId)) ? 0 : Number(sessionId), String(sessionId)]
+            );
+            const visitor = visitorDetails[0] || null;
+            const targetSessionId = visitor ? String(visitor.id) : String(sessionId);
+            const targetSessionUuid = visitor ? String(visitor.uuid) : String(sessionId);
+
+            const [messages] = await UserSession.db.query(
+                `SELECT m.id, m.sender_id, m.sender_uuid, m.receiver_uuid, m.destination_id, COALESCE(m.message, m.content, '') as message, m.is_ai, m.created_at,
+                        u.full_name as sender_name, u.avatar as sender_avatar,
+                        mgr.full_name as manager_name
+                 FROM messages m
+                 LEFT JOIN user_sessions s ON m.sender_uuid = s.id::text OR m.sender_uuid = s.uuid
+                 LEFT JOIN users u ON s.user_id = u.id
+                 LEFT JOIN users mgr ON m.sender_id = mgr.id
+                 WHERE m.destination_id = $1 
+                   AND (m.sender_uuid = $2 OR m.receiver_uuid = $2 OR m.sender_uuid = $3 OR m.receiver_uuid = $3)
+                 ORDER BY m.created_at ASC`,
+                [destId, targetSessionId, targetSessionUuid]
             );
 
             res.json({
                 success: true,
                 messages,
-                visitor: visitorDetails[0] || null
+                visitor
             });
         } catch (error) {
             console.error("Fetch chat history error:", error);
