@@ -176,11 +176,11 @@ const ReviewController = {
     comment: async (req, res) => {
         try {
             const user = req.user || req.session?.user;
-            const sessionUuid = req.cookies?.session_uuid;
+            if (!user) {
+                return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để gửi bình luận.' });
+            }
 
-            const userId = user?.id || null;
-            const guestUuid = !userId ? sessionUuid : null;
-
+            const userId = user.id;
             const { review_id, comment, parent_id } = req.body;
             if (!comment || !comment.trim()) {
                 return res.status(400).json({ success: false, message: 'Nội dung bình luận không được để trống.' });
@@ -189,7 +189,7 @@ const ReviewController = {
             const commentId = uuidv4();
             await db.query(
                 'INSERT INTO review_comments (id, review_id, user_id, guest_uuid, parent_id, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
-                [commentId, review_id, userId, guestUuid, parent_id || null, comment.trim()]
+                [commentId, review_id, userId, null, parent_id || null, comment.trim()]
             );
             await db.query('UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1', [review_id]);
 
@@ -203,8 +203,8 @@ const ReviewController = {
                     parent_id: parent_id || null,
                     content: comment.trim(),
                     created_at: new Date().toISOString(),
-                    full_name: user ? user.full_name : 'Du khách Bình Lợi',
-                    avatar: user ? (user.avatar || '/images/default-avatar.png') : '/images/default-avatar.png'
+                    full_name: user.full_name,
+                    avatar: user.avatar || '/images/default-avatar.png'
                 }
             });
         } catch (error) {

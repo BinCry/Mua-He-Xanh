@@ -195,7 +195,7 @@
                     </div>
                     <div id="reply-target-<%= r.id %>" class="d-none alert alert-warning py-1 px-3 mb-2 small d-flex align-items-center justify-content-between rounded-pill"></div>
                     <form onsubmit="submitComment(event, '<%= r.id %>')" class="d-flex gap-2">
-                        <input type="text" class="form-control form-control-sm rounded-pill border px-3" id="comment-input-<%= r.id %>" placeholder="Viết bình luận của bạn..." required>
+                        <input type="text" class="form-control form-control-sm rounded-pill border px-3" id="comment-input-<%= r.id %>" onfocus="checkCommentAuth(this)" placeholder="Viết bình luận của bạn..." required>
                         <button type="submit" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold text-white flex-shrink-0" style="background: var(--primary);">Gửi</button>
                     </form>
                 </div>
@@ -494,8 +494,24 @@
         if (input) input.placeholder = "Viết bình luận của bạn...";
     }
 
+    function checkCommentAuth(input) {
+        if (!currentUserId) {
+            if (input) input.blur();
+            if (confirm('Bạn cần đăng nhập tài khoản để tham gia gửi bình luận. Chuyển sang trang đăng nhập ngay?')) {
+                window.location.href = '/auth/login';
+            }
+        }
+    }
+
     async function submitComment(event, reviewId) {
         event.preventDefault();
+        if (!currentUserId) {
+            if (confirm('Bạn cần đăng nhập tài khoản để tham gia gửi bình luận. Chuyển sang trang đăng nhập ngay?')) {
+                window.location.href = '/auth/login';
+            }
+            return;
+        }
+
         const input = document.getElementById(`comment-input-${reviewId}`);
         if (!input || !input.value.trim()) return;
 
@@ -520,7 +536,13 @@
             }
         } catch(e) {
             console.error('Submit comment error:', e);
-            alert('Không thể gửi bình luận lúc này.');
+            if (e.response?.status === 401) {
+                if (confirm('Phiên đăng nhập đã hết hạn. Chuyển sang trang đăng nhập?')) {
+                    window.location.href = '/auth/login';
+                }
+            } else {
+                alert(e.response?.data?.message || 'Không thể gửi bình luận lúc này.');
+            }
         }
     }
 
