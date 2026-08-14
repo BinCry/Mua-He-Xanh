@@ -262,7 +262,7 @@ function getOAuthCallbackUrl(req, routePath) {
     if (host.includes('localhost') || host.includes('127.0.0.1')) {
         return `http://${host}${routePath}`;
     }
-    return `https://dulichbinhloi.com${routePath}`;
+    return `https://www.dulichbinhloi.com${routePath}`;
 }
 
 // Google OAuth

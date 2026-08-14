@@ -11,11 +11,11 @@ const CACHE_TTL = 300000; // 5 minutes
 const DEFAULT_HOME_DATA = {
     title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
     heroPosters: [
-        { id: 'p1', title: 'Poster 1', image_url: '/images/Poster 1.webp' },
-        { id: 'p2', title: 'Poster 2', image_url: '/images/Poster 2.webp' },
-        { id: 'p3', title: 'Poster 3', image_url: '/images/Poster 3.webp' },
-        { id: 'p4', title: 'Poster 4', image_url: '/images/Poster 4.webp' },
-        { id: 'p5', title: 'Poster 5', image_url: '/images/Poster 5.webp' }
+        { id: 'p1', title: 'Poster 1', image_url: '/uploads/posters/poster-1.webp' },
+        { id: 'p2', title: 'Poster 2', image_url: '/uploads/posters/poster-2.webp' },
+        { id: 'p3', title: 'Poster 3', image_url: '/uploads/posters/poster-3.webp' },
+        { id: 'p4', title: 'Poster 4', image_url: '/uploads/posters/poster-4.webp' },
+        { id: 'p5', title: 'Poster 5', image_url: '/uploads/posters/poster-5.webp' }
     ],
     featured: [],
     season: { type: 'summer', title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn', slogan: 'Miệt vườn giữa phố, trải nghiệm bản sắc' },
