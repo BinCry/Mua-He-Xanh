@@ -418,6 +418,201 @@
 
             if (res.data.success) {
                 const badges = document.querySelectorAll(`.comment-count-${reviewId}`);
+            <i class="bi bi-chat-heart display-1 text-muted opacity-25"></i>
+            <p class="text-muted mt-3">Chưa có bài đăng check-in nào. Hãy là người đầu tiên!</p>
+        </div>
+        <% } %>
+    </div>
+</section>
+
+<script>
+    const activeParentId = {};
+
+    // Preview selected image instantly
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                document.getElementById('previewImg').src = e.target.result;
+                document.getElementById('imagePreview').classList.remove('d-none');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    function clearImage() {
+        document.getElementById('imagePreview').classList.add('d-none');
+        document.getElementById('imageInput').value = '';
+    }
+
+    // Geolocation Tag Matching on compose box load
+    document.addEventListener('DOMContentLoaded', () => {
+        if (navigator.geolocation) {
+            document.getElementById('locationBadge').classList.remove('d-none');
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const lat = pos.coords.latitude;
+                    const lng = pos.coords.longitude;
+                    document.getElementById('locationText').innerText = `Tự động gắn thẻ địa điểm (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                },
+                (err) => {
+                    document.getElementById('locationText').innerText = "Bình Lợi, TP.HCM";
+                }
+            );
+        }
+    });
+
+    // TikTok Share with fallback copy
+    function shareTikTok(content, destinationName, url) {
+        const text = `Check-in tại ${destinationName || 'Bình Lợi'} - Bình Lợi Healing: "${content.substring(0, 80)}..." #BinhLoiHealing #ChuaLanh #MietVuonGiuaPho`;
+        
+        if (navigator.share) {
+            navigator.share({
+                title: 'Chia sẻ Bình Lợi Healing',
+                text: text,
+                url: url
+            }).catch(err => console.error("Web Share failed:", err));
+        } else {
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text + " " + url)
+                    .then(() => {
+                        alert('Đã sao chép nội dung chia sẻ (kèm hashtag)! Đang chuyển hướng bạn sang TikTok...');
+                        window.open('https://www.tiktok.com/upload', '_blank');
+                    })
+                    .catch(() => {
+                        window.open(`https://www.tiktok.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+                    });
+            } else {
+                window.open(`https://www.tiktok.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
+            }
+        }
+    }
+
+    // Handle Likes via API
+    async function likeReview(id, btn) {
+        try {
+            const res = await axios.post('/api/reviews/like', { review_id: id });
+            if (res.data.success) {
+                const icon = btn.querySelector('i');
+                const count = btn.querySelector('span');
+                icon.classList.toggle('bi-heart');
+                icon.classList.toggle('bi-heart-fill');
+                btn.style.color = icon.classList.contains('bi-heart-fill') ? '#dc3545' : 'inherit';
+                count.textContent = res.data.likes;
+            }
+        } catch(e) { console.error(e); }
+    }
+
+    // Toggle Comments Section
+    async function toggleComments(reviewId) {
+        const box = document.getElementById(`comments-box-${reviewId}`);
+        if (!box) return;
+        
+        if (box.classList.contains('d-none')) {
+            box.classList.remove('d-none');
+            await loadComments(reviewId);
+        } else {
+            box.classList.add('d-none');
+        }
+    }
+
+    async function loadComments(reviewId) {
+        const list = document.getElementById(`comments-list-${reviewId}`);
+        if (!list) return;
+        try {
+            const res = await axios.get(`/api/reviews/comments?review_id=${reviewId}`);
+            if (res.data.success && res.data.data.length > 0) {
+                const allComments = res.data.data;
+                const topComments = allComments.filter(c => !c.parent_id);
+                const replyMap = {};
+                allComments.filter(c => c.parent_id).forEach(r => {
+                    if (!replyMap[r.parent_id]) replyMap[r.parent_id] = [];
+                    replyMap[r.parent_id].push(r);
+                });
+
+                list.innerHTML = topComments.map(c => {
+                    const replies = replyMap[c.id] || [];
+                    const repliesHtml = replies.map(r => `
+                        <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs mt-1 ms-4 border-start border-3 border-danger">
+                            <img src="${r.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;">
+                            <div class="min-w-0 flex-grow-1" style="font-size: 0.8rem;">
+                                <span class="fw-bold d-block text-dark" style="font-size: 0.78rem;">${r.full_name}</span>
+                                <span class="text-secondary">${r.content}</span>
+                            </div>
+                        </div>
+                    `).join('');
+
+                    return `
+                        <div class="d-flex flex-column gap-1">
+                            <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs border-start border-3 border-primary">
+                                <img src="${c.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 30px; height: 30px; object-fit: cover;">
+                                <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="fw-bold text-dark" style="font-size: 0.82rem;">${c.full_name}</span>
+                                        <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none fw-bold" style="font-size: 0.72rem;" onclick="setReplyTarget('${reviewId}', '${c.id}', '${c.full_name}')">
+                                            <i class="bi bi-reply-fill me-1"></i>Trả lời
+                                        </button>
+                                    </div>
+                                    <span class="text-secondary d-block mt-0.5">${c.content}</span>
+                                </div>
+                            </div>
+                            ${repliesHtml}
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                list.innerHTML = `<div class="text-muted small text-center py-1">Chưa có bình luận nào. Hãy là người đầu tiên!</div>`;
+            }
+        } catch(e) {
+            list.innerHTML = `<div class="text-danger small text-center">Không thể tải bình luận.</div>`;
+        }
+    }
+
+    function setReplyTarget(reviewId, parentId, authorName) {
+        activeParentId[reviewId] = parentId;
+        const targetBadge = document.getElementById(`reply-target-${reviewId}`);
+        const input = document.getElementById(`comment-input-${reviewId}`);
+        if (targetBadge) {
+            targetBadge.innerHTML = `<span>Đang trả lời <b>@${authorName}</b></span> <button type="button" class="btn-close ms-2" style="font-size:0.65rem;" onclick="cancelReply('${reviewId}')"></button>`;
+            targetBadge.classList.remove('d-none');
+            targetBadge.classList.add('d-flex');
+        }
+        if (input) {
+            input.placeholder = `Trả lời @${authorName}...`;
+            input.focus();
+        }
+    }
+
+    function cancelReply(reviewId) {
+        activeParentId[reviewId] = null;
+        const targetBadge = document.getElementById(`reply-target-${reviewId}`);
+        const input = document.getElementById(`comment-input-${reviewId}`);
+        if (targetBadge) {
+            targetBadge.classList.add('d-none');
+            targetBadge.classList.remove('d-flex');
+        }
+        if (input) input.placeholder = "Viết bình luận của bạn...";
+    }
+
+    async function submitComment(event, reviewId) {
+        event.preventDefault();
+        const input = document.getElementById(`comment-input-${reviewId}`);
+        if (!input || !input.value.trim()) return;
+
+        const commentText = input.value.trim();
+        const parentId = activeParentId[reviewId] || null;
+        input.value = '';
+        cancelReply(reviewId);
+
+        try {
+            const res = await axios.post('/api/reviews/comment', {
+                review_id: reviewId,
+                comment: commentText,
+                parent_id: parentId
+            });
+
+            if (res.data.success) {
+                const badges = document.querySelectorAll(`.comment-count-${reviewId}`);
                 badges.forEach(b => { b.textContent = res.data.count; });
                 await loadComments(reviewId);
             } else {
@@ -472,9 +667,7 @@
                 } catch(geoErr) {}
             }
 
-            const res = await axios.post('/api/reviews', formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
+            const res = await axios.post('/api/reviews', formData);
             if (res.data.success) location.reload();
             else alert(res.data.message || 'Lỗi đăng bài');
         } catch(e) {

@@ -222,9 +222,7 @@ async function saveSoundscape(e) {
     formData.append('audio', document.getElementById('sound_file').files[0]);
 
     try {
-        const res = await axios.post('/api/admin/create-soundscape', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/admin/create-soundscape', formData);
 
         if (res.data.success) {
             showAdminToast(res.data.message, 'success');

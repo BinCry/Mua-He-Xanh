@@ -178,9 +178,7 @@ async function uploadLogo(input) {
         const formData = new FormData();
         formData.append('image', fileToUpload);
 
-        const res = await axios.post('/api/admin/upload-logo', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/admin/upload-logo', formData);
         
         if (res.data.success) {
             preview.src = res.data.url;
@@ -219,9 +217,7 @@ async function uploadFile(input, targetId, previewId) {
         const formData = new FormData();
         formData.append('image', compressed);
 
-        const res = await axios.post('/api/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/upload', formData);
         
         if (res.data.success) {
             document.getElementById(targetId).value = res.data.url;

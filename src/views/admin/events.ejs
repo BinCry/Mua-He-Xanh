@@ -177,9 +177,7 @@ async function uploadEventImageFile(input) {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
     try {
-        const res = await axios.post('/api/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/upload', formData);
         if (res.data.success) {
             document.getElementById('evt_image').value = res.data.url;
             document.getElementById('evt_image_preview').src = res.data.url;
@@ -203,9 +201,7 @@ async function uploadEventBannerFile(input) {
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
     try {
-        const res = await axios.post('/api/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/upload', formData);
         if (res.data.success) {
             document.getElementById('evt_banner_image').value = res.data.url;
             document.getElementById('evt_banner_preview').src = res.data.url;

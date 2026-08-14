@@ -220,9 +220,7 @@ async function uploadCoverFile(input) {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
     
     try {
-        const res = await axios.post('/api/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/upload', formData);
         
         if (res.data.success) {
             document.getElementById('d_cover_image').value = res.data.url;
@@ -250,9 +248,7 @@ async function uploadBannerFile(input) {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
     
     try {
-        const res = await axios.post('/api/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/upload', formData);
         
         if (res.data.success) {
             document.getElementById('d_banner_image').value = res.data.url;

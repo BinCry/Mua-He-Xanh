@@ -175,9 +175,7 @@ async function uploadWsFile(input) {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang nén & tải...';
     
     try {
-        const res = await axios.post('/api/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/upload', formData);
         
         if (res.data.success) {
             document.getElementById('ws_image').value = res.data.url;

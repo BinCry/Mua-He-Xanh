@@ -182,9 +182,7 @@ async function uploadAvatar(input) {
     btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
     
     try {
-        const res = await axios.post('/api/upload', formData, {
-            headers: { 'Content-Type': 'multipart/form-data' }
-        });
+        const res = await axios.post('/api/upload', formData);
         
         if (res.data.success) {
             document.getElementById('avatar_url').value = res.data.url;
