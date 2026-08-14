@@ -160,7 +160,7 @@
 
         updateLanguageUI(lang);
         suppressGoogleTranslateBar();
-        setInterval(suppressGoogleTranslateBar, 100);
+        setInterval(suppressGoogleTranslateBar, 2000);
         window.addEventListener('scroll', suppressGoogleTranslateBar, { passive: true });
         window.addEventListener('resize', suppressGoogleTranslateBar, { passive: true });
     }

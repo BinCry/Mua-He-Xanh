@@ -38,10 +38,16 @@ router.get('/checkin', CheckinController.index);
 // Dynamic manifest.json endpoint to keep PWA name and logo synchronized with Admin Settings
 router.get('/manifest.json', async (req, res) => {
     try {
-        const db = require('../core/database');
-        const [rows] = await db.query('SELECT * FROM settings');
-        const settings = {};
-        rows.forEach(s => { settings[s.key_name] = s.key_value; });
+        let settings = {};
+        if (global._settingsCache) {
+            settings = global._settingsCache;
+        } else {
+            const db = require('../core/database');
+            const [rows] = await db.query('SELECT * FROM settings');
+            rows.forEach(s => { settings[s.key_name] = s.key_value; });
+        }
+        
+        res.setHeader('Cache-Control', 'public, max-age=3600');
         
         const normalizedLogo = normalizeImagePath(settings.brand_logo, '/images/logo.png');
         const logoUrl = normalizedLogo.startsWith('data:image') ? '/brand-logo.png' : normalizedLogo;

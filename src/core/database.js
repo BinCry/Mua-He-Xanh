@@ -11,8 +11,8 @@ if (!connectionString || connectionString.includes('db.dipwbbwedjjmkrmejkjc.supa
 const pgPool = new Pool({
     connectionString,
     ssl: { rejectUnauthorized: false },
-    max: 5,
-    idleTimeoutMillis: 10000,
+    max: 20,
+    idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 3000,
     allowExitOnIdle: true
 });

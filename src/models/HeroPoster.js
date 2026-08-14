@@ -25,7 +25,6 @@ class HeroPoster extends Model {
 
     /** Get active posters */
     async getActive() {
-        await this.ensureTableExists();
         try {
             const [rows] = await this.db.query(
                 `SELECT * FROM ${this.table} WHERE is_active = 1 ORDER BY sort_order ASC, created_at DESC`
@@ -39,7 +38,6 @@ class HeroPoster extends Model {
 
     /** Get all posters for admin */
     async getAll() {
-        await this.ensureTableExists();
         try {
             const [rows] = await this.db.query(
                 `SELECT * FROM ${this.table} ORDER BY sort_order ASC, created_at DESC`
@@ -52,4 +50,11 @@ class HeroPoster extends Model {
     }
 }
 
-module.exports = new HeroPoster();
+const heroPosterInstance = new HeroPoster();
+
+// Run table creation once at module load
+const _initPromise = (async () => {
+    try { await heroPosterInstance.ensureTableExists(); } catch(e) { console.error('HeroPoster init:', e); }
+})();
+
+module.exports = heroPosterInstance;

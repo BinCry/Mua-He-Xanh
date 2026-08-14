@@ -358,6 +358,16 @@
             }
         }
 
+        // Pause polling when tab is hidden to save resources
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && floatingChatInterval) {
+                clearInterval(floatingChatInterval);
+                floatingChatInterval = null;
+            } else if (!document.hidden && !document.getElementById('floatingChatWidget').classList.contains('d-none')) {
+                floatingChatInterval = setInterval(loadFloatingChatMessages, 4000);
+            }
+        });
+
         async function loadFloatingChatMessages() {
             try {
                 const res = await axios.get('/api/get-messages');

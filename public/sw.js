@@ -1,10 +1,9 @@
-const CACHE_NAME = 'binh-loi-healing-v5';
+const CACHE_NAME = 'binh-loi-healing-v6';
 const STATIC_ASSETS = [
     '/offline.html',
     '/css/style-v5.css',
-    '/images/logo.png',
-    '/images/hero-1.png',
-    '/images/hero-bg.jpg'
+    '/images/logo.svg',
+    '/images/no-image.svg'
 ];
 
 const LEGACY_IMAGE_ALIASES = {

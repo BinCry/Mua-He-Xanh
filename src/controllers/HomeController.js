@@ -6,6 +6,7 @@ const db = require('../core/database');
 // In-memory cache: eliminates DB queries for 5 minutes per serverless instance
 let _cache = null;
 let _cacheTs = 0;
+let _statsCacheTs = 0;
 const CACHE_TTL = 300000; // 5 minutes
 
 const DEFAULT_HOME_DATA = {
@@ -32,18 +33,22 @@ class HomeController {
         try {
             // Check in-memory RAM cache first
             if (_cache && (Date.now() - _cacheTs < CACHE_TTL)) {
-                try {
-                    const [[pv], [uv], totalCheckins] = await Promise.all([
-                        db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
-                        db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
-                        CheckIn.getTotalCount().catch(() => 0)
-                    ]);
-                    if (_cache.stats) {
-                        _cache.stats.checkins = totalCheckins ?? 0;
-                        _cache.stats.pageViews = parseInt(pv[0]?.total ?? 0, 10);
-                        _cache.stats.visitors = parseInt(uv[0]?.total ?? 0, 10);
-                    }
-                } catch (e) {}
+                // Only refresh stats every 60 seconds, not every request
+                if (Date.now() - _statsCacheTs > 60000) {
+                    try {
+                        const [[pv], [uv], totalCheckins] = await Promise.all([
+                            db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                            db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                            CheckIn.getTotalCount().catch(() => 0)
+                        ]);
+                        if (_cache.stats) {
+                            _cache.stats.checkins = totalCheckins ?? 0;
+                            _cache.stats.pageViews = parseInt(pv[0]?.total ?? 0, 10);
+                            _cache.stats.visitors = parseInt(uv[0]?.total ?? 0, 10);
+                        }
+                        _statsCacheTs = Date.now();
+                    } catch (e) {}
+                }
                 return res.render('home/index', _cache);
             }
 
@@ -72,8 +77,7 @@ class HomeController {
                 db.query('SELECT * FROM seasonal_experiences WHERE is_active = 1 ORDER BY sort_order ASC').catch(() => [[]]),
                 db.query(`
                     SELECT r.id, r.content, r.rating, r.images, r.created_at,
-                           (SELECT COUNT(*) FROM review_likes WHERE review_id = r.id) as likes_count,
-                           (SELECT COUNT(*) FROM review_comments WHERE review_id = r.id) as comments_count,
+                           r.likes_count, r.comments_count,
                            u.full_name, u.avatar,
                            d.name as destination_name, r.location_name
                     FROM (

@@ -747,6 +747,10 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
-        setInterval(updateRealtimeStats, 5000);
+        let realtimeStatsInterval = setInterval(updateRealtimeStats, 30000);
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) { clearInterval(realtimeStatsInterval); }
+            else { realtimeStatsInterval = setInterval(updateRealtimeStats, 30000); }
+        });
     });
 </script>
