@@ -2,10 +2,6 @@ let app;
 
 module.exports = (req, res) => {
     try {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0, s-maxage=0');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
-
         if (!app) {
             app = require('../src/server');
         }

@@ -95,8 +95,6 @@ if (!global._dbPatched) {
 // Root directory - works on both local and Vercel serverless
 const ROOT_DIR = path.join(__dirname, '..');
 
-
-
 // Trust proxy for Render (required for secure cookies behind proxy)
 app.set('trust proxy', 1);
 
@@ -112,17 +110,52 @@ app.use(cors());
 const compression = require('compression');
 app.use(compression());
 
-// Aggressive Edge CDN caching for static assets & public catalog pages for 6x faster load speeds
+// ========================================================================
+// STATIC FILES — served BEFORE session/cookie middleware for zero overhead
+// ========================================================================
+app.use(express.static(path.join(ROOT_DIR, 'public'), {
+    maxAge: '365d',
+    immutable: true
+}));
+
+// Keep old image URLs working after assets were moved into /uploads/destinations.
+app.use((req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    const target = LEGACY_IMAGE_ALIASES[req.path];
+    if (!target) return next();
+    res.sendFile(path.join(ROOT_DIR, 'public', target.replace(/^\//, '')), (err) => {
+        if (err) next();
+    });
+});
+
+// Force 301 redirect from *.vercel.app to custom domain www.dulichbinhloi.com
+app.use((req, res, next) => {
+    const host = req.get('host') || '';
+    if (host.includes('vercel.app')) {
+        return res.redirect(301, 'https://www.dulichbinhloi.com' + req.originalUrl);
+    }
+    next();
+});
+
+// ========================================================================
+// PUBLIC CACHEABLE PAGES — bypass session/cookie for Edge CDN compatibility
+// Set-Cookie headers prevent Vercel Edge CDN from caching responses.
+// For public pages, we skip session middleware entirely.
+// ========================================================================
+const PUBLIC_CACHEABLE_PATHS = new Set(['/', '/explore', '/shops', '/festivals', '/map', '/reviews']);
+
+function isPublicCacheablePath(p) {
+    return PUBLIC_CACHEABLE_PATHS.has(p) || p.startsWith('/explore/');
+}
+
+// Cache-Control headers
 app.use((req, res, next) => {
     if (req.method !== 'GET') return next();
     const p = req.path.toLowerCase();
-    // Static assets: cache 1 year on Edge + browser
     if (p.match(/\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-    // Public catalog & landing pages: cache 15s on Edge CDN for lightning fast load speed
-    } else if (p === '/' || p === '/explore' || p === '/shops' || p === '/festivals' || p === '/map' || p === '/reviews') {
+    } else if (isPublicCacheablePath(p)) {
         res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=15, stale-while-revalidate=60');
-    // Dynamic user/session pages (journey, profile, auth, admin, api, passport, chat, onboarding, etc.): NEVER cache on Edge CDN
     } else {
         res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
@@ -131,28 +164,50 @@ app.use((req, res, next) => {
     next();
 });
 
+// Body parsers
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(cookieParser());
-app.use(session({
+
+// ========================================================================
+// SESSION + PASSPORT — only for non-public routes (admin, profile, auth, api, etc.)
+// This prevents Set-Cookie on public pages, enabling Vercel Edge CDN caching.
+// ========================================================================
+const sessionMiddleware = session({
     name: 'bl_session',
     secret: process.env.SESSION_SECRET || 'binh_loi_secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
         maxAge: 604800000, // 7 days
-        secure: false // Set to false for compatibility
+        secure: false
     }
-}));
+});
 
-app.use(passport.initialize());
-app.use(passport.session());
+const conditionalSession = (req, res, next) => {
+    // Public cacheable GET pages skip session entirely (no Set-Cookie = Edge CDN can cache)
+    if (req.method === 'GET' && isPublicCacheablePath(req.path)) {
+        return next();
+    }
+    sessionMiddleware(req, res, next);
+};
 
-// Session auto-restoration: recovers session from DB if express-session is lost but session_uuid cookie exists
-// Critical for Vercel serverless where MemoryStore sessions are lost between instances
+app.use(conditionalSession);
+
+// Passport — only initialize when session is present
+app.use((req, res, next) => {
+    if (!req.session) return next();
+    passport.initialize()(req, res, () => {
+        passport.session()(req, res, next);
+    });
+});
+
+// Session auto-restoration: recovers session from DB if express-session is lost
+// Only runs when session middleware was activated (non-public routes)
 app.use(async (req, res, next) => {
+    if (!req.session) return next();
     try {
-        if (req.cookies?.session_uuid && req.session && !req.session?.user && !req.session?.sessionChecked) {
+        if (req.cookies?.session_uuid && !req.session?.user && !req.session?.sessionChecked) {
             req.session.sessionChecked = true;
             const db = require('./core/database');
             const [sessions] = await db.query(
@@ -175,7 +230,6 @@ app.use(async (req, res, next) => {
                         phone: user.phone,
                         managed_destination_id: user.managed_destination_id
                     };
-                    // MUST await req.login to ensure req.user is set BEFORE next() runs
                     await new Promise((resolve) => {
                         req.login(user, (err) => {
                             if (err) console.error("Passport session restore error:", err);
@@ -191,37 +245,14 @@ app.use(async (req, res, next) => {
     next();
 });
 
-// Analytics middleware - track real page views
+// Analytics middleware - track real page views (fire-and-forget, non-blocking)
 const analyticsMiddleware = require('./middleware/analytics');
 app.use(analyticsMiddleware);
 
-// Static files
-app.use(express.static(path.join(ROOT_DIR, 'public')));
-
-// Keep old image URLs working after assets were moved into /uploads/destinations.
-app.use((req, res, next) => {
-    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
-
-    const target = LEGACY_IMAGE_ALIASES[req.path];
-    if (!target) return next();
-
-    res.sendFile(path.join(ROOT_DIR, 'public', target.replace(/^\//, '')), (err) => {
-        if (err) next();
-    });
-});
-
-// Force 301 redirect from *.vercel.app to custom domain www.dulichbinhloi.com
-app.use((req, res, next) => {
-    const host = req.get('host') || '';
-    if (host.includes('vercel.app')) {
-        return res.redirect(301, 'https://www.dulichbinhloi.com' + req.originalUrl);
-    }
-    next();
-});
-
-// Global variables for templates
+// ========================================================================
+// GLOBAL TEMPLATE VARIABLES
+// ========================================================================
 app.use(async (req, res, next) => {
-    // Dynamic Base URL detection (Prioritize www.dulichbinhloi.com for canonical share links)
     const protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const host = req.get('host') || '';
     let autoBaseUrl = `${protocol}://${host}`;
@@ -229,59 +260,57 @@ app.use(async (req, res, next) => {
         autoBaseUrl = 'https://www.dulichbinhloi.com';
     }
     
-    // Use env BASE_URL or fallback to https://www.dulichbinhloi.com
     const baseUrl = (process.env.NODE_ENV === 'production') 
         ? (process.env.BASE_URL || 'https://www.dulichbinhloi.com') 
         : autoBaseUrl;
 
     res.locals.baseUrl = baseUrl;
     res.locals.appName = 'Bình Lợi - Miền Tây giữa lòng Sài Gòn';
-    res.locals.session = req.session;
-    res.locals.user = req.user || req.session.user || null;
+    res.locals.session = req.session || {};
+    res.locals.user = req.user || req.session?.user || null;
     res.locals.currentPath = req.path;
     
-    // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '50.0.0'; 
+    // Cache Buster for assets
+    res.locals.assetV = '51.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
         if (clean.startsWith('http') || clean.startsWith('data:')) return clean;
-
         const v = res.locals.assetV;
         return clean + (clean.includes('?') ? '&' : '?') + 'v=' + v;
     };
 
-    // Ensure session_uuid exists and fetch its DB row ID (Cached in req.session for zero DB latency)
+    // Session UUID + DB row — only for non-public routes (requires session)
     res.locals.sessionDbId = null;
     res.locals.sessionDbUuid = null;
-    try {
-        let sessionUuid = req.cookies?.session_uuid;
-        if (!sessionUuid) {
-            sessionUuid = uuidv4();
-            res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
-            req.cookies = req.cookies || {};
-            req.cookies.session_uuid = sessionUuid;
-        }
-        
-        if (req.session?.sessionDbId && req.session?.sessionDbUuid === sessionUuid) {
-            res.locals.sessionDbId = req.session.sessionDbId;
-            res.locals.sessionDbUuid = req.session.sessionDbUuid;
-        } else {
-            const sessionRow = await UserSession.findOrCreate(sessionUuid, req);
-            if (sessionRow) {
-                res.locals.sessionDbId = sessionRow.id;
-                res.locals.sessionDbUuid = sessionRow.uuid;
-                if (req.session) {
+    if (req.session) {
+        try {
+            let sessionUuid = req.cookies?.session_uuid;
+            if (!sessionUuid) {
+                sessionUuid = uuidv4();
+                res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+                req.cookies = req.cookies || {};
+                req.cookies.session_uuid = sessionUuid;
+            }
+            
+            if (req.session.sessionDbId && req.session.sessionDbUuid === sessionUuid) {
+                res.locals.sessionDbId = req.session.sessionDbId;
+                res.locals.sessionDbUuid = req.session.sessionDbUuid;
+            } else {
+                const sessionRow = await UserSession.findOrCreate(sessionUuid, req);
+                if (sessionRow) {
+                    res.locals.sessionDbId = sessionRow.id;
+                    res.locals.sessionDbUuid = sessionRow.uuid;
                     req.session.sessionDbId = sessionRow.id;
                     req.session.sessionDbUuid = sessionRow.uuid;
                 }
             }
+        } catch (e) {
+            console.error("Session initialize middleware error:", e);
         }
-    } catch (e) {
-        console.error("Session initialize middleware error:", e);
     }
 
-    // Load Site Settings with RAM caching (2 minutes TTL) to prevent DB queries on every request
+    // Load Site Settings with RAM caching (2 minutes TTL)
     const now = Date.now();
     if (global._settingsCache && (now - global._settingsCacheTime < 120000)) {
         res.locals.settings = global._settingsCache;

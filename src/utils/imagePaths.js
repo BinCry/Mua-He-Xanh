@@ -27,22 +27,8 @@ function applyImageAlias(pathname) {
     return LEGACY_IMAGE_ALIASES[pathname] || pathname;
 }
 
-function inferImageMimeFromBase64(value) {
-    if (value.startsWith('iVBORw0KGgo')) return 'image/png';
-    if (value.startsWith('/9j/')) return 'image/jpeg';
-    if (value.startsWith('R0lGOD')) return 'image/gif';
-    if (value.startsWith('UklGR')) return 'image/webp';
-    if (value.startsWith('PHN2Zy')) return 'image/svg+xml';
-    return null;
-}
-
-function normalizeBareImageDataUrl(value) {
-    const compact = value.replace(/\s/g, '');
-    const mimeType = inferImageMimeFromBase64(compact);
-    if (!mimeType) return null;
-    if (!/^[A-Za-z0-9+/]+={0,2}$/.test(compact)) return null;
-    return `data:${mimeType};base64,${compact}`;
-}
+// Max allowed inline data URI size (2KB) — anything larger MUST use a URL
+const MAX_INLINE_DATA_URI_SIZE = 2048;
 
 function normalizeImagePath(imgPath, fallback = DEFAULT_IMAGE) {
     const raw = String(imgPath || '').trim();
@@ -50,14 +36,28 @@ function normalizeImagePath(imgPath, fallback = DEFAULT_IMAGE) {
         return normalizeImagePath(fallback || DEFAULT_IMAGE, DEFAULT_IMAGE);
     }
 
-    if (raw.startsWith('http') || raw.startsWith('data:')) {
+    // If it's a full data URI, only allow small ones (favicons, tiny icons)
+    if (raw.startsWith('data:')) {
+        if (raw.length > MAX_INLINE_DATA_URI_SIZE) {
+            // Large base64 in DB — refuse to inline, use fallback
+            console.warn(`[imagePaths] Blocked large data URI (${(raw.length / 1024).toFixed(0)}KB) — use a URL instead`);
+            return normalizeImagePath(fallback || DEFAULT_IMAGE, DEFAULT_IMAGE);
+        }
         return raw;
     }
 
-    const dataUrl = normalizeBareImageDataUrl(raw);
-    if (dataUrl) return dataUrl;
+    if (raw.startsWith('http')) {
+        return raw;
+    }
 
-    let clean = raw.replace(/^public[\\/]/, '').replace(/\\/g, '/');
+    // Reject bare base64 strings (raw base64 without data: prefix)
+    // These are the main culprits that caused 20MB HTML payloads
+    if (/^[A-Za-z0-9+/]{100,}/.test(raw)) {
+        console.warn(`[imagePaths] Blocked bare base64 string (${(raw.length / 1024).toFixed(0)}KB) — use a URL instead`);
+        return normalizeImagePath(fallback || DEFAULT_IMAGE, DEFAULT_IMAGE);
+    }
+
+    let clean = raw.replace(/^public[\\\/]/, '').replace(/\\/g, '/');
     if (!clean.startsWith('/')) clean = '/' + clean;
 
     const queryStart = clean.indexOf('?');
@@ -70,6 +70,5 @@ function normalizeImagePath(imgPath, fallback = DEFAULT_IMAGE) {
 module.exports = {
     DEFAULT_IMAGE,
     LEGACY_IMAGE_ALIASES,
-    normalizeImagePath,
-    normalizeBareImageDataUrl
+    normalizeImagePath
 };
