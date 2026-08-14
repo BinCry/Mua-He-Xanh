@@ -296,6 +296,30 @@ class ApiController {
         }
     }
 
+    async deleteConversation(req, res) {
+        try {
+            const user = req.user || req.session?.user;
+            if (!user || (user.role !== 'admin' && user.role !== 'manager')) {
+                return res.status(403).json({ success: false, message: 'Bạn không có quyền thực hiện thao tác này.' });
+            }
+
+            const { session_id } = req.body;
+            if (!session_id) {
+                return res.status(400).json({ success: false, message: 'Thiếu ID hội thoại.' });
+            }
+
+            await db.query(
+                "DELETE FROM messages WHERE sender_uuid = $1 OR receiver_uuid = $1",
+                [session_id]
+            );
+
+            res.json({ success: true, message: 'Đã xóa cuộc hội thoại thành công!' });
+        } catch(err) {
+            console.error("Delete conversation error:", err);
+            res.status(500).json({ success: false, message: 'Lỗi xóa hội thoại: ' + err.message });
+        }
+    }
+
     async getMessages(req, res) {
         let sessionUuid = req.cookies?.session_uuid;
         if (!sessionUuid) {

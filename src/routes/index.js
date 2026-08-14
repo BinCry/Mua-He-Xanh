@@ -231,6 +231,7 @@ router.get('/admin/journey-templates', ensureAdmin, AdminController.journeyTempl
 router.get('/admin/chat', ensureAdmin, AdminController.chat);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
 router.post('/api/admin/reply-message', ensureAdmin, ApiController.replyMessage);
+router.post('/api/delete-conversation', ensureAuthenticated, ApiController.deleteConversation);
 router.post('/api/admin/create-shop', ensureAdmin, ManagerController.createWorkshop);
 router.post('/api/admin/update-shop', ensureAdmin, ManagerController.updateWorkshop);
 router.post('/api/admin/delete-shop', ensureAdmin, ManagerController.deleteWorkshop);
