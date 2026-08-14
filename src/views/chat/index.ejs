@@ -1,3 +1,4 @@
+<% const currentUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
 <div class="container py-5 mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
@@ -13,16 +14,16 @@
                             <small class="opacity-90 text-white-50" style="font-size: 11px;"><i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i>Ban Quản Trị • Trực tuyến 24/7</small>
                         </div>
                     </div>
-                    <% if (user) { %>
+                    <% if (currentUser) { %>
                     <div class="d-flex align-items-center gap-2">
-                        <% if (user.avatar) { %>
-                            <img src="<%= user.avatar %>" class="rounded-circle border border-white border-2" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.style.display='none'">
+                        <% if (currentUser.avatar) { %>
+                            <img src="<%= currentUser.avatar %>" class="rounded-circle border border-white border-2" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.style.display='none'">
                         <% } else { %>
                             <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); font-size: 0.75rem;">
-                                <%= (user.full_name || 'U').split(' ').pop().slice(0,1).toUpperCase() %>
+                                <%= (currentUser.full_name || 'U').split(' ').pop().slice(0,1).toUpperCase() %>
                             </div>
                         <% } %>
-                        <small class="text-white fw-semibold d-none d-sm-inline" style="font-size: 0.75rem;"><%= user.full_name %></small>
+                        <small class="text-white fw-semibold d-none d-sm-inline" style="font-size: 0.75rem;"><%= currentUser.full_name %></small>
                     </div>
                     <% } %>
                 </div>
@@ -34,7 +35,7 @@
 
                 <!-- Input Footer -->
                 <div class="p-3 border-top bg-white">
-                    <% if (user) { %>
+                    <% if (currentUser) { %>
                     <form id="chat-form" class="d-flex gap-2 align-items-center">
                         <input type="text" class="form-control rounded-pill border-0 bg-light px-4" style="height: 44px; font-size: 0.9rem;" placeholder="Nhập tin nhắn..." id="chat-input" required autocomplete="off">
                         <button type="submit" class="btn btn-danger rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background-color: var(--primary) !important; border: none;">
@@ -57,7 +58,7 @@
 <script>
     let chatInterval = null;
     let currentGlobalMessages = [];
-    const currentUser = <%- JSON.stringify(user ? { id: user.id, full_name: user.full_name, avatar: user.avatar } : null) %>;
+    const currentUser = <%- JSON.stringify(currentUser ? { id: currentUser.id, full_name: currentUser.full_name, avatar: currentUser.avatar } : null) %>;
 
     async function loadChatMessages() {
         try {
