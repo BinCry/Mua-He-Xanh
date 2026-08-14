@@ -47,122 +47,115 @@ class HomeController {
                 return res.render('home/index', _cache);
             }
 
-            // Timeout race: guarantee response within 600ms on Vercel cold starts
-            const fetchPromise = (async () => {
-                const heroPostersData = await HeroPoster.getActive().catch(() => null);
-                const defaultHeroPosters = DEFAULT_HOME_DATA.heroPosters;
-                const heroPosters = (heroPostersData && heroPostersData.length > 0) ? heroPostersData : defaultHeroPosters;
+            const heroPostersData = await HeroPoster.getActive().catch(() => null);
+            const defaultHeroPosters = DEFAULT_HOME_DATA.heroPosters;
+            const heroPosters = (heroPostersData && heroPostersData.length > 0) ? heroPostersData : defaultHeroPosters;
 
-                const [
-                    featured,
-                    totalCheckins,
-                    [pageViewResult],
-                    [uniqueVisitors],
-                    [workshopCountResult],
-                    [avgRatingResult],
-                    [events],
-                    [seasonalExperiences],
-                    [realReviews]
-                ] = await Promise.all([
-                    Destination.getActive(9).catch(() => []),
-                    CheckIn.getTotalCount().catch(() => 0),
-                    db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
-                    db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
-                    db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1').catch(() => [[{ total: 12 }]]),
-                    db.query('SELECT AVG(rating) as avg FROM reviews').catch(() => [[{ avg: 4.9 }]]),
-                    db.query('SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC').catch(() => [[]]),
-                    db.query('SELECT * FROM seasonal_experiences WHERE is_active = 1 ORDER BY sort_order ASC').catch(() => [[]]),
-                    db.query(`
-                        SELECT r.id, r.content, r.rating, r.images, r.created_at,
-                               (SELECT COUNT(*) FROM review_likes WHERE review_id = r.id) as likes_count,
-                               (SELECT COUNT(*) FROM review_comments WHERE review_id = r.id) as comments_count,
-                               u.full_name, u.avatar,
-                               d.name as destination_name, r.location_name
-                        FROM (
-                            SELECT id FROM reviews ORDER BY created_at DESC LIMIT 6
-                        ) sub
-                        JOIN reviews r ON sub.id = r.id
-                        JOIN users u ON r.user_id = u.id
-                        LEFT JOIN destinations d ON r.destination_id = d.id
-                        ORDER BY r.created_at DESC
-                    `).catch(() => [[]])
-                ]);
+            const [
+                featured,
+                totalCheckins,
+                [pageViewResult],
+                [uniqueVisitors],
+                [workshopCountResult],
+                [avgRatingResult],
+                [events],
+                [seasonalExperiences],
+                [realReviews]
+            ] = await Promise.all([
+                Destination.getActive(9).catch(() => []),
+                CheckIn.getTotalCount().catch(() => 0),
+                db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1').catch(() => [[{ total: 12 }]]),
+                db.query('SELECT AVG(rating) as avg FROM reviews').catch(() => [[{ avg: 4.9 }]]),
+                db.query('SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC').catch(() => [[]]),
+                db.query('SELECT * FROM seasonal_experiences WHERE is_active = 1 ORDER BY sort_order ASC').catch(() => [[]]),
+                db.query(`
+                    SELECT r.id, r.content, r.rating, r.images, r.created_at,
+                           (SELECT COUNT(*) FROM review_likes WHERE review_id = r.id) as likes_count,
+                           (SELECT COUNT(*) FROM review_comments WHERE review_id = r.id) as comments_count,
+                           u.full_name, u.avatar,
+                           d.name as destination_name, r.location_name
+                    FROM (
+                        SELECT id FROM reviews ORDER BY created_at DESC LIMIT 6
+                    ) sub
+                    JOIN reviews r ON sub.id = r.id
+                    JOIN users u ON r.user_id = u.id
+                    LEFT JOIN destinations d ON r.destination_id = d.id
+                    ORDER BY r.created_at DESC
+                `).catch(() => [[]])
+            ]);
 
-                const settingsMap = res.locals.settings || {};
-                const currentDate = new Date();
-                const month = currentDate.getMonth() + 1;
-                
-                let season = 'summer';
-                let seasonTitle = settingsMap.hero_title || 'Bình Lợi - Miền Tây giữa lòng Sài Gòn';
-                let seasonSlogan = settingsMap.hero_slogan || 'Miệt vườn giữa phố, trải nghiệm bản sắc';
+            const settingsMap = res.locals.settings || {};
+            const currentDate = new Date();
+            const month = currentDate.getMonth() + 1;
+            
+            let season = 'summer';
+            let seasonTitle = settingsMap.hero_title || 'Bình Lợi - Miền Tây giữa lòng Sài Gòn';
+            let seasonSlogan = settingsMap.hero_slogan || 'Miệt vườn giữa phố, trải nghiệm bản sắc';
 
-                if (month >= 11 || month <= 3) {
-                    season = 'spring';
-                    if (!settingsMap.hero_title) {
-                        seasonTitle = 'Xuân Bình Lợi - Sắc Mai Vàng';
-                        seasonSlogan = 'Hồn quê giữa thành phố mới';
-                    }
-                } else if (month >= 7 && month <= 10) {
-                    season = 'autumn';
-                    if (!settingsMap.hero_title) {
-                        seasonTitle = 'Mùa Hoa Đăng - Bình Lợi Chữa Lành';
-                        seasonSlogan = 'Bình từ tâm - Lợi từ tầm';
-                    }
+            if (month >= 11 || month <= 3) {
+                season = 'spring';
+                if (!settingsMap.hero_title) {
+                    seasonTitle = 'Xuân Bình Lợi - Sắc Mai Vàng';
+                    seasonSlogan = 'Hồn quê giữa thành phố mới';
                 }
-
-                const totalPageViews = parseInt(pageViewResult[0]?.total ?? 0, 10);
-                const totalVisitors = parseInt(uniqueVisitors[0]?.total ?? 0, 10);
-                const activeDestinations = (featured && featured.length > 0) ? featured.length : 10;
-                const workshopCount = parseInt(workshopCountResult[0]?.total ?? 0, 10);
-
-                let avgRating = avgRatingResult[0]?.avg || 4.9;
-                if (avgRating) {
-                    avgRating = Math.round(parseFloat(avgRating) * 10) / 10;
+            } else if (month >= 7 && month <= 10) {
+                season = 'autumn';
+                if (!settingsMap.hero_title) {
+                    seasonTitle = 'Mùa Hoa Đăng - Bình Lợi Chữa Lành';
+                    seasonSlogan = 'Bình từ tâm - Lợi từ tầm';
                 }
+            }
 
-                const safeEvents = Array.isArray(events) ? events : [];
-                const featuredEvent = safeEvents.find(e => e.is_featured == 1 || e.is_featured === true || e.is_featured === '1') || 
-                                      safeEvents.find(e => e.is_countdown == 1 || e.is_countdown === true || e.is_countdown === '1') || 
-                                      safeEvents[0] || null;
-                const nextFestival = {
-                    name: featuredEvent?.title || "Chưa có sự kiện",
-                    date: featuredEvent?.event_date || new Date(Date.now() + 86400000 * 30).toISOString(),
-                    location: featuredEvent?.location || "Bình Lợi"
-                };
+            const totalPageViews = parseInt(pageViewResult[0]?.total ?? 0, 10);
+            const totalVisitors = parseInt(uniqueVisitors[0]?.total ?? 0, 10);
+            const activeDestinations = (featured && featured.length > 0) ? featured.length : 10;
+            const workshopCount = parseInt(workshopCountResult[0]?.total ?? 0, 10);
 
-                const otherEvents = featuredEvent ? safeEvents.filter(e => e.id !== featuredEvent.id) : safeEvents;
+            let avgRating = avgRatingResult[0]?.avg || 4.9;
+            if (avgRating) {
+                avgRating = Math.round(parseFloat(avgRating) * 10) / 10;
+            }
 
-                const renderData = {
-                    title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
-                    heroPosters,
-                    featured: (featured && featured.length > 0) ? featured : DEFAULT_HOME_DATA.featured,
-                    season: { type: season, title: seasonTitle, slogan: seasonSlogan },
-                    festival: nextFestival,
-                    stats: {
-                        checkins: totalCheckins ?? 0,
-                        pageViews: totalPageViews,
-                        visitors: totalVisitors,
-                        destinations: activeDestinations,
-                        workshopCount,
-                        avgRating
-                    },
-                    reviews: Array.isArray(realReviews) ? realReviews : [],
-                    seasonalExperiences: Array.isArray(seasonalExperiences) ? seasonalExperiences : [],
-                    nextEvent: featuredEvent,
-                    otherEvents
-                };
+            const safeEvents = Array.isArray(events) ? events : [];
+            const featuredEvent = safeEvents.find(e => e.is_featured == 1 || e.is_featured === true || e.is_featured === '1') || 
+                                  safeEvents.find(e => e.is_countdown == 1 || e.is_countdown === true || e.is_countdown === '1') || 
+                                  safeEvents[0] || null;
+            const nextFestival = {
+                name: featuredEvent?.title || "Chưa có sự kiện",
+                date: featuredEvent?.event_date || new Date(Date.now() + 86400000 * 30).toISOString(),
+                location: featuredEvent?.location || "Bình Lợi"
+            };
 
+            const otherEvents = featuredEvent ? safeEvents.filter(e => e.id !== featuredEvent.id) : safeEvents;
+
+            const renderData = {
+                title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
+                heroPosters,
+                featured: (featured && featured.length > 0) ? featured : DEFAULT_HOME_DATA.featured,
+                season: { type: season, title: seasonTitle, slogan: seasonSlogan },
+                festival: nextFestival,
+                stats: {
+                    checkins: totalCheckins ?? 0,
+                    pageViews: totalPageViews,
+                    visitors: totalVisitors,
+                    destinations: activeDestinations,
+                    workshopCount,
+                    avgRating
+                },
+                reviews: Array.isArray(realReviews) ? realReviews : [],
+                seasonalExperiences: Array.isArray(seasonalExperiences) ? seasonalExperiences : [],
+                nextEvent: featuredEvent,
+                otherEvents
+            };
+
+            // Only cache if featured has destinations
+            if (featured && featured.length > 0) {
                 _cache = renderData;
                 _cacheTs = Date.now();
-                return renderData;
-            })();
-
-            const timeoutPromise = new Promise((resolve) => {
-                setTimeout(() => resolve(_cache || DEFAULT_HOME_DATA), 600);
-            });
-
-            const finalData = await Promise.race([fetchPromise, timeoutPromise]);
-            res.render('home/index', finalData);
+            }
+            res.render('home/index', renderData);
         } catch (error) {
             console.error("Home index error:", error);
             res.render('home/index', _cache || DEFAULT_HOME_DATA);
