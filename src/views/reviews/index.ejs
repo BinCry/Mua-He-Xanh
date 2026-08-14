@@ -62,7 +62,7 @@
                             <span class="small text-dark">Thư viện</span>
                         </button>
                         
-                        <!-- Rating Selector: 1 to 5 Stars (Strictly No Arrow / Icon & Full Text) -->
+                        <!-- Rating Selector: 1 to 5 Stars -->
                         <select class="form-select form-select-sm rounded-pill border bg-light px-3 py-1.5 text-center ms-auto ms-sm-0 shadow-none" name="rating" style="width: 140px !important; min-width: 135px !important; font-size: 0.82rem !important; font-weight: 700 !important; background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; padding-right: 8px !important; cursor: pointer;">
                             <option value="5" selected>⭐⭐⭐⭐⭐ 5 sao</option>
                             <option value="4">⭐⭐⭐⭐ 4 sao</option>
@@ -83,29 +83,6 @@
                 </div>
             </form>
         </div>
-        
-        <style>
-            /* Locket Shutter Button CSS */
-            .locket-btn-outer {
-                width: 44px;
-                height: 44px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-                padding: 3px;
-                box-shadow: 0 4px 12px rgba(217, 119, 6, 0.35);
-                transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            }
-            .locket-shutter-wrapper:hover .locket-btn-outer {
-                transform: scale(1.1);
-            }
-            .locket-btn-inner {
-                width: 100%;
-                height: 100%;
-                border-radius: 50%;
-                background: #922724;
-                border: 2px solid #ffffff;
-            }
-        </style>
         <% } else { %>
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 text-center bg-white">
             <p class="text-muted mb-3 small">Vui lòng đăng nhập tài khoản để đăng bài viết chia sẻ check-in hoặc tạo video.</p>
@@ -153,20 +130,23 @@
                     <p class="mb-0 notranslate" translate="no" style="font-size: 0.92rem; line-height: 1.7; color: #444;"><%= r.content %></p>
                 </div>
 
-                <!-- Feed Images (always fully styled grid, no hidden elements) -->
-                <% if (r.images) { 
+                <!-- Feed Images -->
+                <% 
                     let imgs = [];
-                    try { 
-                        if (typeof r.images === 'string') {
-                            imgs = r.images.trim().startsWith('[') ? JSON.parse(r.images) : [r.images];
-                        } else if (Array.isArray(r.images)) {
-                            imgs = r.images;
+                    if (r.images) {
+                        try { 
+                            if (typeof r.images === 'string') {
+                                imgs = r.images.trim().startsWith('[') ? JSON.parse(r.images) : [r.images];
+                            } else if (Array.isArray(r.images)) {
+                                imgs = r.images;
+                            }
+                        } catch(e) {
+                            imgs = [r.images];
                         }
-                    } catch(e) {
-                        imgs = [r.images];
+                        imgs = (imgs || []).filter(Boolean);
                     }
-                    imgs = imgs.filter(Boolean);
-                    if (imgs.length > 0) { %>
+                    if (imgs.length > 0) { 
+                %>
                 <div class="px-3 px-sm-4 py-2">
                     <div class="row g-2">
                         <% imgs.forEach((img, idx) => { %>
@@ -178,9 +158,9 @@
                         <% }) %>
                     </div>
                 </div>
-                <% } } %>
+                <% } %>
                 
-                <!-- Footer Action Buttons (Instagram/Facebook Style) -->
+                <!-- Footer Action Buttons -->
                 <div class="d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
                     <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="likeReview('<%= r.id %>', this)">
                         <i class="bi bi-heart fs-5"></i>
@@ -199,7 +179,9 @@
                             <span class="fw-bold d-none d-sm-inline" style="font-size: 0.8rem;">Facebook</span>
                         </a>
                         <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" 
-                                onclick="shareTikTok('<%= r.content.replace(/\'/g, "\\'").replace(/\n/g, " ") %>', '<%= r.destination_name || r.location_name || "" %>', '<%= baseUrl %>/reviews')">
+                                data-content="<%= (r.content || '').replace(/"/g, '&quot;') %>"
+                                data-location="<%= (r.destination_name || r.location_name || '').replace(/"/g, '&quot;') %>"
+                                onclick="shareTikTokFromBtn(this)">
                             <i class="bi bi-tiktok fs-5 text-dark"></i>
                             <span class="fw-bold d-none d-sm-inline" style="font-size: 0.8rem;">TikTok</span>
                         </button>
@@ -253,19 +235,28 @@
     // Geolocation Tag Matching on compose box load
     document.addEventListener('DOMContentLoaded', () => {
         if (navigator.geolocation) {
-            document.getElementById('locationBadge').classList.remove('d-none');
+            const badge = document.getElementById('locationBadge');
+            if (badge) badge.classList.remove('d-none');
             navigator.geolocation.getCurrentPosition(
                 (pos) => {
                     const lat = pos.coords.latitude;
                     const lng = pos.coords.longitude;
-                    document.getElementById('locationText').innerText = `Tự động gắn thẻ địa điểm (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
+                    const el = document.getElementById('locationText');
+                    if (el) el.innerText = `Tự động gắn thẻ địa điểm (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
                 },
                 (err) => {
-                    document.getElementById('locationText').innerText = "Bình Lợi, TP.HCM";
+                    const el = document.getElementById('locationText');
+                    if (el) el.innerText = "Bình Lợi, TP.HCM";
                 }
             );
         }
     });
+
+    function shareTikTokFromBtn(btn) {
+        const content = btn.getAttribute('data-content') || '';
+        const destinationName = btn.getAttribute('data-location') || '';
+        shareTikTok(content, destinationName, window.location.origin + '/reviews');
+    }
 
     // TikTok Share with fallback copy
     function shareTikTok(content, destinationName, url) {
@@ -300,10 +291,12 @@
             if (res.data.success) {
                 const icon = btn.querySelector('i');
                 const count = btn.querySelector('span');
-                icon.classList.toggle('bi-heart');
-                icon.classList.toggle('bi-heart-fill');
-                btn.style.color = icon.classList.contains('bi-heart-fill') ? '#dc3545' : 'inherit';
-                count.textContent = res.data.likes;
+                if (icon) {
+                    icon.classList.toggle('bi-heart');
+                    icon.classList.toggle('bi-heart-fill');
+                    btn.style.color = icon.classList.contains('bi-heart-fill') ? '#dc3545' : 'inherit';
+                }
+                if (count) count.textContent = res.data.likes;
             }
         } catch(e) { console.error(e); }
     }
@@ -418,168 +411,14 @@
 
             if (res.data.success) {
                 const badges = document.querySelectorAll(`.comment-count-${reviewId}`);
-            <i class="bi bi-chat-heart display-1 text-muted opacity-25"></i>
-            <p class="text-muted mt-3">Chưa có bài đăng check-in nào. Hãy là người đầu tiên!</p>
-        </div>
-        <% } %>
-    </div>
-</section>
-
-<script>
-    const activeParentId = {};
-
-    // Preview selected image instantly
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('imagePreview').classList.remove('d-none');
-            };
-            reader.readAsDataURL(input.files[0]);
-        }
-    }
-
-    function clearImage() {
-        document.getElementById('imagePreview').classList.add('d-none');
-        document.getElementById('imageInput').value = '';
-    }
-
-    // Geolocation Tag Matching on compose box load
-    document.addEventListener('DOMContentLoaded', () => {
-        if (navigator.geolocation) {
-            document.getElementById('locationBadge').classList.remove('d-none');
-            navigator.geolocation.getCurrentPosition(
-                (pos) => {
-                    const lat = pos.coords.latitude;
-                    const lng = pos.coords.longitude;
-                    document.getElementById('locationText').innerText = `Tự động gắn thẻ địa điểm (${lat.toFixed(4)}, ${lng.toFixed(4)})`;
-                },
-                (err) => {
-                    document.getElementById('locationText').innerText = "Bình Lợi, TP.HCM";
-                }
-            );
-        }
-    });
-
-    // TikTok Share with fallback copy
-    function shareTikTok(content, destinationName, url) {
-        const text = `Check-in tại ${destinationName || 'Bình Lợi'} - Bình Lợi Healing: "${content.substring(0, 80)}..." #BinhLoiHealing #ChuaLanh #MietVuonGiuaPho`;
-        
-        if (navigator.share) {
-            navigator.share({
-                title: 'Chia sẻ Bình Lợi Healing',
-                text: text,
-                url: url
-            }).catch(err => console.error("Web Share failed:", err));
-        } else {
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(text + " " + url)
-                    .then(() => {
-                        alert('Đã sao chép nội dung chia sẻ (kèm hashtag)! Đang chuyển hướng bạn sang TikTok...');
-                        window.open('https://www.tiktok.com/upload', '_blank');
-                    })
-                    .catch(() => {
-                        window.open(`https://www.tiktok.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-                    });
+                badges.forEach(b => { b.textContent = res.data.count; });
+                await loadComments(reviewId);
             } else {
-                window.open(`https://www.tiktok.com/share?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}`, '_blank');
-            }
-        }
-    }
-
-    // Handle Likes via API
-    async function likeReview(id, btn) {
-        try {
-            const res = await axios.post('/api/reviews/like', { review_id: id });
-            if (res.data.success) {
-                const icon = btn.querySelector('i');
-                const count = btn.querySelector('span');
-                icon.classList.toggle('bi-heart');
-                icon.classList.toggle('bi-heart-fill');
-                btn.style.color = icon.classList.contains('bi-heart-fill') ? '#dc3545' : 'inherit';
-                count.textContent = res.data.likes;
-            }
-        } catch(e) { console.error(e); }
-    }
-
-    // Toggle Comments Section
-    async function toggleComments(reviewId) {
-        const box = document.getElementById(`comments-box-${reviewId}`);
-        if (!box) return;
-        
-        if (box.classList.contains('d-none')) {
-            box.classList.remove('d-none');
-            await loadComments(reviewId);
-        } else {
-            box.classList.add('d-none');
-        }
-    }
-
-    async function loadComments(reviewId) {
-        const list = document.getElementById(`comments-list-${reviewId}`);
-        if (!list) return;
-        try {
-            const res = await axios.get(`/api/reviews/comments?review_id=${reviewId}`);
-            if (res.data.success && res.data.data.length > 0) {
-                const allComments = res.data.data;
-                const topComments = allComments.filter(c => !c.parent_id);
-                const replyMap = {};
-                allComments.filter(c => c.parent_id).forEach(r => {
-                    if (!replyMap[r.parent_id]) replyMap[r.parent_id] = [];
-                    replyMap[r.parent_id].push(r);
-                });
-
-                list.innerHTML = topComments.map(c => {
-                    const replies = replyMap[c.id] || [];
-                    const repliesHtml = replies.map(r => `
-                        <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs mt-1 ms-4 border-start border-3 border-danger">
-                            <img src="${r.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;">
-                            <div class="min-w-0 flex-grow-1" style="font-size: 0.8rem;">
-                                <span class="fw-bold d-block text-dark" style="font-size: 0.78rem;">${r.full_name}</span>
-                                <span class="text-secondary">${r.content}</span>
-                            </div>
-                        </div>
-                    `).join('');
-
-                    return `
-                        <div class="d-flex flex-column gap-1">
-                            <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs border-start border-3 border-primary">
-                                <img src="${c.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 30px; height: 30px; object-fit: cover;">
-                                <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <span class="fw-bold text-dark" style="font-size: 0.82rem;">${c.full_name}</span>
-                                        <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none fw-bold" style="font-size: 0.72rem;" onclick="setReplyTarget('${reviewId}', '${c.id}', '${c.full_name}')">
-                                            <i class="bi bi-reply-fill me-1"></i>Trả lời
-                                        </button>
-                                    </div>
-                                    <span class="text-secondary d-block mt-0.5">${c.content}</span>
-                                </div>
-                            </div>
-                            ${repliesHtml}
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                list.innerHTML = `<div class="text-muted small text-center py-1">Chưa có bình luận nào. Hãy là người đầu tiên!</div>`;
+                alert(res.data.message || 'Lỗi gửi bình luận.');
             }
         } catch(e) {
-            list.innerHTML = `<div class="text-danger small text-center">Không thể tải bình luận.</div>`;
-        }
-    }
-
-    function setReplyTarget(reviewId, parentId, authorName) {
-        activeParentId[reviewId] = parentId;
-        const targetBadge = document.getElementById(`reply-target-${reviewId}`);
-        const input = document.getElementById(`comment-input-${reviewId}`);
-        if (targetBadge) {
-            targetBadge.innerHTML = `<span>Đang trả lời <b>@${authorName}</b></span> <button type="button" class="btn-close ms-2" style="font-size:0.65rem;" onclick="cancelReply('${reviewId}')"></button>`;
-            targetBadge.classList.remove('d-none');
-            targetBadge.classList.add('d-flex');
-        }
-        if (input) {
-            input.placeholder = `Trả lời @${authorName}...`;
-            input.focus();
+            console.error('Submit comment error:', e);
+            alert('Không thể gửi bình luận lúc này.');
         }
     }
 
