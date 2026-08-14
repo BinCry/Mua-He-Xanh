@@ -25,10 +25,10 @@
                     </div>
                 </div>
 
-                <!-- Destination Select Dropdown from Admin List -->
+                <!-- Destination Select Dropdown -->
                 <div class="mb-3">
                     <select name="destination_id" class="form-select border-0 bg-light rounded-3 py-2 px-3 shadow-none" style="font-size: 0.85rem; color: #334155; font-weight: 500;">
-                        <option value="">📍 Chọn địa điểm check-in (Tùy chọn từ Admin)...</option>
+                        <option value="">📍 Chọn địa điểm check-in (Tùy chọn)...</option>
                         <% (typeof destinations !== 'undefined' && destinations ? destinations : []).forEach(d => { %>
                             <option value="<%= d.id %>"><%= d.name %></option>
                         <% }) %>
@@ -45,41 +45,51 @@
                     </div>
                 </div>
 
-                <!-- Actions Bar: Camera (Device Camera), Photo (Device Gallery), Rating (1-5 stars) -->
-                <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 pt-3 border-top border-light">
-                    <div class="d-flex flex-wrap align-items-center gap-3 w-100 w-sm-auto">
-                        <!-- Single Hidden File Input -->
-                        <input type="file" name="image" accept="image/*" class="d-none" id="reviewFileInput" onchange="previewImage(this)">
+                <!-- Actions Bar: Camera, Photo, Create Video aligned in 1 row; Rating above Submit button on the right -->
+                <div class="pt-3 border-top border-light">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3">
+                        <!-- Left: 3 Action Buttons in a clean straight row -->
+                        <div class="d-flex flex-wrap align-items-center gap-2">
+                            <!-- Single Hidden File Input -->
+                            <input type="file" name="image" accept="image/*" class="d-none" id="reviewFileInput" onchange="previewImage(this)">
 
-                        <!-- Button 1: Camera (opens device camera) -->
-                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0 me-2" onclick="triggerPhotoUpload(true)" title="Chụp ảnh trực tiếp từ máy ảnh">
-                            <i class="bi bi-camera-fill text-danger fs-6 me-2"></i>
-                            <span class="small text-dark">Máy ảnh</span>
-                        </button>
+                            <!-- Button 1: Camera -->
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0" onclick="triggerPhotoUpload(true)" title="Chụp ảnh trực tiếp từ máy ảnh">
+                                <i class="bi bi-camera-fill text-danger fs-6 me-1.5"></i>
+                                <span class="small text-dark">Máy ảnh</span>
+                            </button>
 
-                        <!-- Button 2: Photo (opens device gallery) -->
-                        <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0 me-2" onclick="triggerPhotoUpload(false)" title="Chọn ảnh từ thư viện thiết bị">
-                            <i class="bi bi-image-fill text-primary fs-6 me-2"></i>
-                            <span class="small text-dark">Thư viện</span>
-                        </button>
-                        
-                        <!-- Rating Selector: 1 to 5 Stars -->
-                        <select class="form-select form-select-sm rounded-pill border bg-light px-3 py-1.5 text-center ms-auto ms-sm-0 shadow-none" name="rating" style="width: 140px !important; min-width: 135px !important; font-size: 0.82rem !important; font-weight: 700 !important; background-image: none !important; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; padding-right: 8px !important; cursor: pointer;">
-                            <option value="5" selected>⭐⭐⭐⭐⭐ 5 sao</option>
-                            <option value="4">⭐⭐⭐⭐ 4 sao</option>
-                            <option value="3">⭐⭐⭐ 3 sao</option>
-                            <option value="2">⭐⭐ 2 sao</option>
-                            <option value="1">⭐ 1 sao</option>
-                        </select>
-                    </div>
+                            <!-- Button 2: Photo Gallery -->
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0" onclick="triggerPhotoUpload(false)" title="Chọn ảnh từ thư viện thiết bị">
+                                <i class="bi bi-image-fill text-primary fs-6 me-1.5"></i>
+                                <span class="small text-dark">Thư viện</span>
+                            </button>
 
-                    <div class="d-flex gap-2 w-100 w-sm-auto justify-content-end">
-                        <a href="/reviews/video-editor" class="btn btn-outline-primary-bl rounded-pill px-3 py-2 fw-bold d-flex align-items-center justify-content-center gap-1" style="font-size: 0.82rem;">
-                            <i class="bi bi-camera-reels-fill"></i> TẠO VIDEO CAPCUT
-                        </a>
-                        <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold" style="font-size: 0.85rem;">
-                            ĐĂNG BÀI
-                        </button>
+                            <!-- Button 3: Create Video -->
+                            <a href="/reviews/video-editor" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center text-decoration-none mb-0" title="Tạo video hành trình">
+                                <i class="bi bi-camera-reels-fill text-success fs-6 me-1.5"></i>
+                                <span class="small text-dark">Tạo video</span>
+                            </a>
+                        </div>
+
+                        <!-- Right: Rating Selector (Top) + Submit Button (Bottom) -->
+                        <div class="d-flex flex-column align-items-end gap-2 ms-auto ms-sm-0">
+                            <!-- Rating Selector -->
+                            <div class="d-flex align-items-center gap-1">
+                                <select class="form-select form-select-sm rounded-pill border bg-light px-3 py-1 text-center shadow-none" name="rating" style="width: 140px !important; min-width: 135px !important; font-size: 0.82rem !important; font-weight: 700 !important; cursor: pointer;">
+                                    <option value="5" selected>⭐⭐⭐⭐⭐ 5 sao</option>
+                                    <option value="4">⭐⭐⭐⭐ 4 sao</option>
+                                    <option value="3">⭐⭐⭐ 3 sao</option>
+                                    <option value="2">⭐⭐ 2 sao</option>
+                                    <option value="1">⭐ 1 sao</option>
+                                </select>
+                            </div>
+
+                            <!-- Submit Button: ĐĂNG BÀI (Single horizontal line, no text wrapping) -->
+                            <button type="submit" class="btn btn-primary-bl rounded-pill px-4 py-2 fw-bold text-nowrap flex-shrink-0" style="font-size: 0.88rem; white-space: nowrap;">
+                                ĐĂNG BÀI
+                            </button>
+                        </div>
                     </div>
                 </div>
             </form>
