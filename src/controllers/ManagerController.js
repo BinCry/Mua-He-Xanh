@@ -1,6 +1,7 @@
 const Destination = require('../models/Destination');
 const CheckIn = require('../models/CheckIn');
 const UserSession = require('../models/UserSession');
+const HomeController = require('./HomeController');
 const { v4: uuidv4 } = require('uuid');
 
 class ManagerController {
@@ -357,6 +358,7 @@ class ManagerController {
             if (typeof short_desc !== 'undefined') updateData.short_desc = short_desc || '';
 
             await Destination.update(targetDestId, updateData);
+            HomeController.clearCache();
 
             if (typeof cover_image !== 'undefined' && cover_image && cover_image.trim() !== '') {
                 const db = require('../core/database');

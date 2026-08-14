@@ -384,6 +384,7 @@ const AdminController = {
         try {
             const { id, is_active } = req.body;
             await db.query('UPDATE destinations SET is_active = $1 WHERE id = $2', [is_active ? 1 : 0, id]);
+            HomeController.clearCache();
             res.json({ success: true, message: is_active ? 'Đã kích hoạt' : 'Đã ẩn địa điểm' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
@@ -402,6 +403,7 @@ const AdminController = {
             }
             global._settingsCache = null;
             global._settingsCacheTime = 0;
+            HomeController.clearCache();
             res.json({ success: true, message: 'Đã cập nhật cài đặt!' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
@@ -477,6 +479,7 @@ const AdminController = {
                 [managerId, manager_name || `QL ${name}`, manager_email, hashedManagerPassword, destinationId, finalCover]
             );
             
+            HomeController.clearCache();
             res.json({ success: true, message: 'Đã tạo địa điểm và tài khoản quản lý mới thành công!' });
         } catch (error) {
             console.error('Create destination error:', error);
@@ -538,6 +541,7 @@ const AdminController = {
                 );
             }
 
+            HomeController.clearCache();
             res.json({ success: true, message: 'Đã cập nhật địa điểm thành công!' });
         } catch (error) {
             console.error('Update destination error:', error);
@@ -558,6 +562,7 @@ const AdminController = {
             await db.query('DELETE FROM user_favorites WHERE destination_id = $1', [id]);
             await db.query('DELETE FROM destinations WHERE id = $1', [id]);
 
+            HomeController.clearCache();
             res.json({ success: true, message: 'Đã xóa địa điểm và tất cả dữ liệu liên quan!' });
         } catch (error) {
             console.error('Delete destination error:', error);
