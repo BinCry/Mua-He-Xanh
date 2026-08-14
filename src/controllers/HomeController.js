@@ -53,9 +53,9 @@ class HomeController {
                     [realReviews]
                 ] = await Promise.all([
                     Destination.getActive(9).catch(() => []),
-                    CheckIn.getTotalCount().catch(() => 1250),
-                    db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 3450 }]]),
-                    db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 1890 }]]),
+                    CheckIn.getTotalCount().catch(() => 0),
+                    db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                    db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
                     db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1').catch(() => [[{ total: 12 }]]),
                     db.query('SELECT AVG(rating) as avg FROM reviews').catch(() => [[{ avg: 4.9 }]]),
                     db.query('SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC').catch(() => [[]]),
@@ -125,7 +125,7 @@ class HomeController {
                     season: { type: season, title: seasonTitle, slogan: seasonSlogan },
                     festival: nextFestival,
                     stats: {
-                        checkins: totalCheckins || 1250,
+                        checkins: totalCheckins ?? 0,
                         pageViews: totalPageViews,
                         visitors: totalVisitors,
                         destinations: activeDestinations,
