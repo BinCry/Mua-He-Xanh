@@ -34,7 +34,7 @@ exports.ensureAuthenticated = async (req, res, next) => {
         try {
             const db = require('../core/database');
             const [sessions] = await db.query(
-                "SELECT user_id FROM user_sessions WHERE uuid = $1 AND user_id IS NOT NULL ORDER BY updated_at DESC LIMIT 1",
+                "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
                 [req.cookies.session_uuid]
             );
             if (sessions.length > 0 && sessions[0].user_id) {

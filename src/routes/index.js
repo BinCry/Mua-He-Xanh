@@ -403,7 +403,7 @@ router.post('/api/admin/delete-journey-template', ensureAdmin, AdminController.d
 router.post('/api/journey/delete', ProfileController.deleteJourney);
 
 // General Upload API (with multer error handling)
-router.post('/api/upload', ensureAuthenticated, (req, res, next) => {
+const handleUpload = (req, res, next) => {
     upload.single('image')(req, res, (err) => {
         if (err) {
             console.error('Multer Upload Error:', err);
@@ -414,7 +414,10 @@ router.post('/api/upload', ensureAuthenticated, (req, res, next) => {
         }
         UploadController.uploadImage(req, res).catch(next);
     });
-});
+};
+
+router.post('/api/upload', ensureAuthenticated, handleUpload);
+router.post('/api/admin/upload', ensureAdmin, handleUpload);
 
 // Logo Upload API (Admin only, with multer error handling)
 router.post('/api/admin/upload-logo', ensureAdmin, (req, res, next) => {

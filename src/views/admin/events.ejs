@@ -29,7 +29,7 @@
             <tr>
                 <td>
                     <div class="d-flex align-items-center gap-2">
-                        <img src="<%= fixImg(evt.image, '/images/hero-1.png') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
+                        <img src="<%= fixImg(evt.image, '/uploads/posters/poster-1.webp') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
                         <span class="fw-bold"><%= evt.title %></span>
                     </div>
                 </td>
@@ -95,24 +95,24 @@
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Ảnh bìa sự kiện</label>
                             <div class="d-flex align-items-center gap-3 mb-2">
-                                <img id="evt_image_preview" src="/images/hero-1.png" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                                <img id="evt_image_preview" src="/uploads/posters/poster-1.webp" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                                 <button type="button" class="btn btn-sm btn-admin-outline rounded-pill px-3" onclick="document.getElementById('evt_image_file').click()">
                                     <i class="bi bi-upload me-1"></i>Upload ảnh bìa
                                 </button>
                                 <input type="file" id="evt_image_file" class="d-none" accept="image/*" onchange="uploadEventImageFile(this)">
                             </div>
-                            <input type="hidden" id="evt_image" name="image" value="/images/hero-1.png">
+                            <input type="hidden" id="evt_image" name="image" value="/uploads/posters/poster-1.webp">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Ảnh background chi tiết sự kiện</label>
                             <div class="d-flex align-items-center gap-3 mb-2">
-                                <img id="evt_banner_preview" src="/images/hero-1.png" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                                <img id="evt_banner_preview" src="/uploads/posters/poster-1.webp" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                                 <button type="button" class="btn btn-sm btn-admin-outline rounded-pill px-3" onclick="document.getElementById('evt_banner_file').click()">
                                     <i class="bi bi-upload me-1"></i>Upload background
                                 </button>
                                 <input type="file" id="evt_banner_file" class="d-none" accept="image/*" onchange="uploadEventBannerFile(this)">
                             </div>
-                            <input type="hidden" id="evt_banner_image" name="banner_image" value="/images/hero-1.png">
+                            <input type="hidden" id="evt_banner_image" name="banner_image" value="/uploads/posters/poster-1.webp">
                         </div>
                         <div class="col-md-4">
                             <label class="form-label small fw-bold">Mùa</label>
@@ -225,10 +225,10 @@ function openEventForm() {
     document.getElementById('eventModalTitle').textContent = 'Thêm Sự kiện';
     document.getElementById('eventForm').reset();
     document.getElementById('evt_id').value = '';
-    document.getElementById('evt_image').value = '/images/hero-1.png';
-    document.getElementById('evt_image_preview').src = '/images/hero-1.png';
-    document.getElementById('evt_banner_image').value = '/images/hero-1.png';
-    document.getElementById('evt_banner_preview').src = '/images/hero-1.png';
+    document.getElementById('evt_image').value = '/uploads/posters/poster-1.webp';
+    document.getElementById('evt_image_preview').src = '/uploads/posters/poster-1.webp';
+    document.getElementById('evt_banner_image').value = '/uploads/posters/poster-1.webp';
+    document.getElementById('evt_banner_preview').src = '/uploads/posters/poster-1.webp';
     document.getElementById('evt_is_featured').checked = false;
     document.getElementById('evt_is_countdown').checked = false;
     document.getElementById('evt_is_active').checked = true;
@@ -247,7 +247,7 @@ function editEvent(target) {
     document.getElementById('evt_season').value = evt.season;
     document.getElementById('evt_location').value = evt.location || '';
     
-    const imgUrl = evt.image || '/images/hero-1.png';
+    const imgUrl = evt.image || '/uploads/posters/poster-1.webp';
     document.getElementById('evt_image').value = imgUrl;
     document.getElementById('evt_image_preview').src = imgUrl;
 
