@@ -219,7 +219,7 @@
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
                     <div class="stat-number">
-                        <%= (stats.pageViews || stats.visitors || 1250).toLocaleString() %>+
+                        <%= (stats.pageViews ?? stats.visitors ?? 0).toLocaleString() %>+
                     </div>
                     <div class="stat-text">LƯỢT TRUY CẬP</div>
                 </div>
