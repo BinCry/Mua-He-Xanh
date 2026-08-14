@@ -230,6 +230,7 @@ router.post('/api/admin/reorder-posters', ensureAdmin, AdminController.reorderPo
 router.get('/admin/journey-templates', ensureAdmin, AdminController.journeyTemplates);
 router.get('/admin/chat', ensureAdmin, AdminController.chat);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
+router.post('/api/admin/reply-message', ensureAdmin, ApiController.replyMessage);
 router.post('/api/admin/create-shop', ensureAdmin, ManagerController.createWorkshop);
 router.post('/api/admin/update-shop', ensureAdmin, ManagerController.updateWorkshop);
 router.post('/api/admin/delete-shop', ensureAdmin, ManagerController.deleteWorkshop);
@@ -242,7 +243,7 @@ router.get('/manager/shops', ensureManager, (req, res) => res.redirect('/manager
 router.get('/manager/workshops', ensureManager, (req, res) => res.redirect('/manager'));
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
-router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
+router.post('/api/reply-message', (req, res, next) => { const user = req.session?.user || req.user; if (user && (user.role === 'admin' || user.role === 'manager')) return next(); return res.status(403).json({ success: false, message: 'Unauthorized' }); }, ApiController.replyMessage);
 router.post('/api/manager/create-shop', ensureAdmin, ManagerController.createWorkshop);
 router.post('/api/manager/update-shop', ensureAdmin, ManagerController.updateWorkshop);
 router.post('/api/manager/delete-shop', ensureAdmin, ManagerController.deleteWorkshop);

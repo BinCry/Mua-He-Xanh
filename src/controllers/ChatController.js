@@ -10,10 +10,12 @@ class ChatController {
                 dest = await Destination.findById(destinationId);
             }
 
+            const currentUser = req.user || req.session?.user || null;
+
             res.render('chat/index', {
                 title: 'Trò chuyện cùng Bình Lợi',
                 dest: dest,
-                user: req.user
+                user: currentUser
             });
         } catch (error) {
             console.error("Chat index error:", error);

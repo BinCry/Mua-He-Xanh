@@ -10,9 +10,21 @@
                         </div>
                         <div>
                             <h6 class="fw-bold mb-0 text-white" style="color: #ffffff !important; font-size: 1rem;">Hỗ trợ Trực tuyến - Du Lịch Bình Lợi</h6>
-                            <small class="opacity-90 text-white-50" style="font-size: 11px;"><i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i> Ban Quản Trị • Trực tuyến 24/7</small>
+                            <small class="opacity-90 text-white-50" style="font-size: 11px;"><i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i>Ban Quản Trị • Trực tuyến 24/7</small>
                         </div>
                     </div>
+                    <% if (user) { %>
+                    <div class="d-flex align-items-center gap-2">
+                        <% if (user.avatar) { %>
+                            <img src="<%= user.avatar %>" class="rounded-circle border border-white border-2" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.style.display='none'">
+                        <% } else { %>
+                            <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold" style="width: 32px; height: 32px; background: rgba(255,255,255,0.2); font-size: 0.75rem;">
+                                <%= (user.full_name || 'U').split(' ').pop().slice(0,1).toUpperCase() %>
+                            </div>
+                        <% } %>
+                        <small class="text-white fw-semibold d-none d-sm-inline" style="font-size: 0.75rem;"><%= user.full_name %></small>
+                    </div>
+                    <% } %>
                 </div>
 
                 <!-- Messages Body -->
@@ -22,12 +34,20 @@
 
                 <!-- Input Footer -->
                 <div class="p-3 border-top bg-white">
+                    <% if (user) { %>
                     <form id="chat-form" class="d-flex gap-2 align-items-center">
                         <input type="text" class="form-control rounded-pill border-0 bg-light px-4" style="height: 44px; font-size: 0.9rem;" placeholder="Nhập tin nhắn..." id="chat-input" required autocomplete="off">
                         <button type="submit" class="btn btn-danger rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background-color: var(--primary) !important; border: none;">
                             <i class="bi bi-send-fill text-white"></i>
                         </button>
                     </form>
+                    <% } else { %>
+                    <div class="text-center py-2">
+                        <a href="/login?redirect=/chat" class="btn btn-outline-danger rounded-pill px-4 py-2 fw-semibold" style="font-size: 0.85rem;">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập để gửi tin nhắn
+                        </a>
+                    </div>
+                    <% } %>
                 </div>
             </div>
         </div>
@@ -36,8 +56,8 @@
 
 <script>
     let chatInterval = null;
-
     let currentGlobalMessages = [];
+    const currentUser = <%- JSON.stringify(user ? { id: user.id, full_name: user.full_name, avatar: user.avatar } : null) %>;
 
     async function loadChatMessages() {
         try {
@@ -64,7 +84,7 @@
             <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
                 <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
                 <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
-                    Xin chào! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
+                    Xin chào<%= currentUser ? ' ' + currentUser.full_name : '' %>! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
                 </div>
             </div>
         `;
@@ -75,23 +95,30 @@
                 const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
                 
                 if (isMe) {
-                    // SENT BY TOURIST: Aligned RIGHT, Facebook Messenger Maroon Pill
+                    // SENT BY ME: Aligned RIGHT, Maroon Pill
+                    const senderName = currentUser ? currentUser.full_name : 'Bạn';
                     html += `
                         <div class="message-sent mb-2 d-flex justify-content-end">
-                            <div class="px-3.5 py-2.5 text-white shadow-2xs" style="max-width: 72%; width: fit-content; font-size: 0.92rem; line-height: 1.4; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; word-break: break-word;">
-                                <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
-                                <span class="x-small opacity-65 ms-2" style="font-size: 9.5px;">${timeStr}</span>
+                            <div class="d-flex flex-column align-items-end" style="max-width: 72%;">
+                                <div class="px-3.5 py-2.5 text-white shadow-2xs" style="width: fit-content; font-size: 0.92rem; line-height: 1.4; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; word-break: break-word;">
+                                    <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
+                                    <span class="x-small opacity-65 ms-2" style="font-size: 9.5px;">${timeStr}</span>
+                                </div>
                             </div>
                         </div>
                     `;
                 } else {
-                    // RECEIVED FROM ADMIN / MANAGER: Aligned LEFT with Logo Avatar
+                    // RECEIVED FROM ADMIN / MANAGER / AI: Aligned LEFT with Logo Avatar
+                    const isAI = msg.is_ai === 1 || msg.is_ai === true;
+                    const label = isAI ? '🤖 Trợ lý AI' : 'Ban Quản Trị';
                     html += `
                         <div class="message-received mb-2 d-flex gap-2 align-items-end">
                             <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                            <div class="px-3.5 py-2.5 text-dark shadow-2xs" style="max-width: 72%; width: fit-content; font-size: 0.92rem; line-height: 1.4; background: #e4e6eb !important; color: #050505 !important; border-radius: 18px 18px 18px 4px !important; word-break: break-word;">
-                                <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
-                                <span class="x-small opacity-60 ms-2" style="font-size: 9.5px; color: #65676b;">${timeStr}</span>
+                            <div class="d-flex flex-column" style="max-width: 72%;">
+                                <div class="px-3.5 py-2.5 text-dark shadow-2xs" style="width: fit-content; font-size: 0.92rem; line-height: 1.4; background: ${isAI ? 'rgba(16,185,129,0.08)' : '#e4e6eb'} !important; color: #050505 !important; border-radius: 18px 18px 18px 4px !important; word-break: break-word; ${isAI ? 'border: 1px solid rgba(16,185,129,0.2);' : ''}">
+                                    <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
+                                    <span class="x-small opacity-60 ms-2" style="font-size: 9.5px; color: #65676b;">${timeStr}</span>
+                                </div>
                             </div>
                         </div>
                     `;
@@ -136,7 +163,10 @@
         return div.innerHTML;
     }
 
-    document.getElementById('chat-form').addEventListener('submit', sendMessage);
+    const chatForm = document.getElementById('chat-form');
+    if (chatForm) {
+        chatForm.addEventListener('submit', sendMessage);
+    }
 
     // Initial load and start interval
     loadChatMessages();
