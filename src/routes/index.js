@@ -238,24 +238,32 @@ router.get('/admin/chat', ensureAdmin, AdminController.chat);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
 router.post('/api/admin/reply-message', ensureAdmin, ApiController.replyMessage);
 router.post('/api/delete-conversation', ensureAuthenticated, ApiController.deleteConversation);
-router.post('/api/admin/create-shop', ensureAdmin, ManagerController.createWorkshop);
-router.post('/api/admin/update-shop', ensureAdmin, ManagerController.updateWorkshop);
-router.post('/api/admin/delete-shop', ensureAdmin, ManagerController.deleteWorkshop);
+// ===== SHOP & WORKSHOP PRODUCT API (Admin & Manager) =====
+const handleShopProductUpload = (req, res, next) => {
+    upload.single('image')(req, res, (err) => {
+        if (err) {
+            console.error('Shop Product Image Upload Error:', err);
+            return res.status(400).json({ success: false, message: 'Lỗi tải ảnh sản phẩm: ' + err.message });
+        }
+        next();
+    });
+};
+
+router.post(['/api/admin/create-shop', '/api/admin/create-workshop', '/api/admin/create-shop-product', '/api/manager/create-shop', '/api/manager/create-workshop'], ensureManager, handleShopProductUpload, ManagerController.createWorkshop);
+router.post(['/api/admin/update-shop', '/api/admin/update-workshop', '/api/admin/update-shop-product', '/api/manager/update-shop', '/api/manager/update-workshop'], ensureManager, handleShopProductUpload, ManagerController.updateWorkshop);
+router.post(['/api/admin/delete-shop', '/api/admin/delete-workshop', '/api/admin/delete-shop-product', '/api/manager/delete-shop', '/api/manager/delete-workshop'], ensureManager, ManagerController.deleteWorkshop);
 
 // ===== MANAGER =====
 router.get('/manager', ensureManager, ManagerController.index);
 router.get('/manager/chat', ensureManager, ManagerController.chat);
 router.get('/manager/destination', ensureManager, ManagerController.destination);
-router.get('/manager/shops', ensureManager, (req, res) => res.redirect('/manager'));
-router.get('/manager/workshops', ensureManager, (req, res) => res.redirect('/manager'));
+router.get('/manager/shops', ensureManager, (req, res) => res.redirect('/manager/workshops'));
+router.get('/manager/workshops', ensureManager, ManagerController.workshops);
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
 router.post('/api/reply-message', (req, res, next) => { const user = req.session?.user || req.user; if (user && (user.role === 'admin' || user.role === 'manager')) return next(); return res.status(403).json({ success: false, message: 'Unauthorized' }); }, ApiController.replyMessage);
-router.post('/api/manager/create-shop', ensureAdmin, ManagerController.createWorkshop);
-router.post('/api/manager/update-shop', ensureAdmin, ManagerController.updateWorkshop);
-router.post('/api/manager/delete-shop', ensureAdmin, ManagerController.deleteWorkshop);
-router.get('/api/manager/shop-bookings', ensureAdmin, ManagerController.getWorkshopBookings);
-router.post('/api/manager/update-booking-status', ensureAdmin, ManagerController.updateBookingStatus);
+router.get('/api/manager/shop-bookings', ensureManager, ManagerController.getWorkshopBookings);
+router.post('/api/manager/update-booking-status', ensureManager, ManagerController.updateBookingStatus);
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);

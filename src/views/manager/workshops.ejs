@@ -141,7 +141,7 @@
                             <label class="form-label small fw-bold">Ảnh sản phẩm</label>
                             <div class="d-flex align-items-center gap-3 mb-2">
                                 <img id="ws_preview" src="/uploads/posters/poster-1.webp" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
-                                <button type="button" class="btn btn-sm btn-outline-dark rounded-pill" onclick="document.getElementById('ws_file').click()">
+                                <button type="button" id="ws_upload_btn" class="btn btn-sm btn-outline-dark rounded-pill" onclick="document.getElementById('ws_file').click()">
                                     <i class="bi bi-upload me-1"></i>Chọn ảnh
                                 </button>
                                 <input type="file" id="ws_file" class="d-none" accept="image/*" onchange="uploadWsFile(this)">
@@ -174,10 +174,12 @@ async function uploadWsFile(input) {
     const formData = new FormData();
     formData.append('image', input.files[0]);
     
-    const btn = input.previousElementSibling;
-    const oldHtml = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>...';
+    const btn = document.getElementById('ws_upload_btn') || input.previousElementSibling;
+    const oldHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang tải ảnh...';
+    }
     
     try {
         const res = await axios.post('/api/upload', formData);
@@ -185,14 +187,18 @@ async function uploadWsFile(input) {
         if (res.data.success) {
             document.getElementById('ws_image').value = res.data.url;
             document.getElementById('ws_preview').src = res.data.url;
-            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Xong';
+            if (btn) btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã chọn ảnh!';
+        } else {
+            alert(res.data.message || 'Lỗi tải ảnh');
         }
     } catch (err) {
         alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
-        btn.innerHTML = oldHtml;
+        if (btn) btn.innerHTML = oldHtml;
     } finally {
-        btn.disabled = false;
-        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+        if (btn) {
+            btn.disabled = false;
+            setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+        }
     }
 }
 

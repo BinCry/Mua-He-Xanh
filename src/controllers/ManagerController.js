@@ -437,15 +437,26 @@ class ManagerController {
                 return res.status(400).json({ success: false, message: 'Chưa có địa điểm nào trong hệ thống.' });
             }
 
-            const { title, description, type, price, duration, max_participants, image, start_date, end_date } = req.body;
+            let { title, description, type, price, duration, max_participants, image, start_date, end_date } = req.body;
             if (!title) {
                 return res.status(400).json({ success: false, message: 'Tên sản phẩm là bắt buộc.' });
+            }
+
+            // Direct upload support if image file was attached
+            if (req.file) {
+                try {
+                    const { uploadToCloudinary } = require('../config/cloudinary');
+                    const uploadRes = await uploadToCloudinary(req.file.path, 'binh-loi/workshops');
+                    image = uploadRes.url;
+                } catch (imgErr) {
+                    console.error("Workshop image upload error:", imgErr);
+                }
             }
 
             await UserSession.db.query(
                 `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, NOW())`,
-                [uuidv4(), destId, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/images/placeholder.jpg', start_date || null, end_date || null]
+                [uuidv4(), destId, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null]
             );
 
             res.json({ success: true, message: 'Đã tạo sản phẩm thành công!' });
@@ -458,15 +469,15 @@ class ManagerController {
     async updateWorkshop(req, res) {
         try {
             const user = req.session.user || req.user;
-            let destId = user.managed_destination_id;
+            let destId = user?.managed_destination_id;
             
-            const { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active } = req.body;
+            let { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active } = req.body;
             if (!id) {
                 return res.status(400).json({ success: false, message: 'Thiếu mã sản phẩm.' });
             }
 
             const [check] = await UserSession.db.query(
-                "SELECT destination_id FROM workshops WHERE id = $1",
+                "SELECT destination_id, image FROM workshops WHERE id = $1",
                 [id]
             );
 
@@ -478,11 +489,25 @@ class ManagerController {
                 return res.status(403).json({ success: false, message: 'Bạn không có quyền chỉnh sửa sản phẩm này.' });
             }
 
+            // Direct upload support if image file was attached
+            if (req.file) {
+                try {
+                    const { uploadToCloudinary } = require('../config/cloudinary');
+                    const uploadRes = await uploadToCloudinary(req.file.path, 'binh-loi/workshops');
+                    image = uploadRes.url;
+                } catch (imgErr) {
+                    console.error("Workshop image update error:", imgErr);
+                }
+            }
+            if (!image) {
+                image = check[0].image || '/uploads/posters/poster-1.webp';
+            }
+
             await UserSession.db.query(
                 `UPDATE workshops 
                  SET title = $1, description = $2, type = $3, price = $4, duration = $5, max_participants = $6, image = $7, start_date = $8, end_date = $9, is_active = $10 
                  WHERE id = $11`,
-                [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined ? is_active : 1, id]
+                [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined && is_active !== null ? (is_active === 'false' || is_active === false || is_active === 0 ? 0 : 1) : 1, id]
             );
 
             res.json({ success: true, message: 'Cập nhật sản phẩm thành công!' });
