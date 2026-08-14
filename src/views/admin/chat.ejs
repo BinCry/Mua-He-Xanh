@@ -35,7 +35,14 @@
                 <!-- Conversations List -->
                 <div class="flex-grow-1 overflow-y-auto custom-scrollbar" id="convo-list">
                     <% if (conversations && conversations.length > 0) { %>
-                        <% conversations.forEach((convo, index) => { %>
+                        <% conversations.forEach((convo, index) => { 
+                            const rawId = (convo.session_uuid || convo.session_id || '').toString();
+                            const shortId = rawId ? rawId.slice(0,4).toUpperCase() : 'ANON';
+                            const displayName = convo.user_name || ('Khách vãng lai #' + shortId);
+                            const avatarInitial = convo.user_name ? convo.user_name.split(' ').pop().slice(0,2).toUpperCase() : ('#' + shortId.slice(0,2));
+                            let charCode = 0;
+                            for (let i = 0; i < rawId.length; i++) charCode += rawId.charCodeAt(i);
+                        %>
                             <div class="convo-item-card p-3 border-bottom border-secondary border-opacity-5 d-flex gap-3 position-relative cursor-pointer transition-all" 
                                  id="convo-<%= convo.session_id %>"
                                  onclick="loadConversation('<%= convo.session_id %>')">
@@ -43,11 +50,11 @@
                                 <!-- Avatar -->
                                 <div class="position-relative flex-shrink-0">
                                     <div class="convo-avatar rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm"
-                                         style="width: 40px; height: 40px; background: <%= ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][convo.session_id % 6] %>; object-fit: cover; font-size: 0.8rem;">
+                                         style="width: 40px; height: 40px; background: <%= ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][charCode % 6] %>; object-fit: cover; font-size: 0.8rem;">
                                         <% if (convo.user_avatar) { %>
                                             <img src="<%= convo.user_avatar %>" class="w-100 h-100 rounded-circle object-fit-cover">
                                         <% } else { %>
-                                            <%= (convo.user_name || 'KH').split(' ').pop().slice(0,2).toUpperCase() %>
+                                            <%= avatarInitial %>
                                         <% } %>
                                     </div>
                                     <span class="position-absolute bottom-0 end-0 bg-success border border-dark border-2 rounded-circle" style="width: 10px; height: 10px;"></span>
@@ -56,8 +63,8 @@
                                 <!-- Body -->
                                 <div class="flex-grow-1 overflow-hidden">
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="fw-bold mb-0 text-truncate small" style="color: var(--admin-text); max-width: 110px; font-size: 0.78rem;">
-                                            <%= convo.user_name || 'Du khách #' + (convo.session_uuid ? convo.session_uuid.slice(0,4).toUpperCase() : 'ANON') %>
+                                        <h6 class="fw-bold mb-0 text-truncate small" style="color: var(--admin-text); max-width: 130px; font-size: 0.78rem;">
+                                            <%= displayName %>
                                         </h6>
                                         <small class="text-muted" style="font-size: 0.65rem;">
                                             <%= convo.last_message_time ? new Date(convo.last_message_time).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) : '' %>
@@ -301,16 +308,28 @@
         
         document.getElementById('chat-controls-area').style.display = 'block';
 
+        const rawId = (visitor && (visitor.uuid || visitor.id)) ? String(visitor.uuid || visitor.id) : (activeSessionId || '');
+        const shortId = rawId ? rawId.slice(0, 4).toUpperCase() : 'ANON';
         const vName = (visitor && visitor.full_name) 
             ? visitor.full_name 
-            : 'Khách vãng lai #' + ((visitor && visitor.uuid) ? visitor.uuid.slice(0,4).toUpperCase() : 'ANON');
+            : ('Khách vãng lai #' + shortId);
+
         headerName.innerText = vName;
-        headerStatus.innerHTML = `<span class="text-muted">• ĐIỂM TÍCH LŨY: ${visitor ? visitor.total_points : 0} ✨</span>`;
+        headerStatus.innerHTML = `<span class="text-muted">• ĐIỂM TÍCH LŨY: ${visitor ? (visitor.total_points || 0) : 0} ✨</span>`;
         
-        avatarBox.innerText = vName.split(' ').pop().slice(0,2).toUpperCase();
-        const visitorId = (visitor && visitor.id) ? visitor.id : 0;
-        const visitorIndex = typeof visitorId === 'number' ? visitorId : (visitorId ? visitorId.charCodeAt(0) : 0);
-        avatarBox.style.background = ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][visitorIndex % 6];
+        const avatarInitial = (visitor && visitor.full_name) 
+            ? visitor.full_name.split(' ').pop().slice(0,2).toUpperCase() 
+            : ('#' + shortId.slice(0,2));
+        
+        if (visitor && visitor.avatar) {
+            avatarBox.innerHTML = `<img src="${visitor.avatar}" class="w-100 h-100 rounded-circle object-fit-cover">`;
+        } else {
+            avatarBox.innerText = avatarInitial;
+        }
+        
+        let charCode = 0;
+        for (let i = 0; i < rawId.length; i++) charCode += rawId.charCodeAt(i);
+        avatarBox.style.background = ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][charCode % 6];
 
         stream.innerHTML = '';
         if (messages && messages.length > 0) {
