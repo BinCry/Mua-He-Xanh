@@ -221,65 +221,39 @@
     </div>
 </div>
 
-<!-- Chat Modal (Same as before but with minor UI polish) -->
+<!-- Chat Modal - Premium Maroon Theme matching Admin BQT Chat -->
 <div class="modal fade" id="chatModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden h-100">
-            <div class="modal-header bg-primary text-white border-0 p-4">
+            <!-- Header -->
+            <div class="modal-header border-0 p-3.5 text-white" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%);">
                 <div class="d-flex align-items-center gap-3">
-                    <div class="bg-white rounded-circle p-2 d-flex align-items-center justify-content-center text-primary" style="width: 40px; height: 40px;">
-                        <i class="bi bi-headset fs-5"></i>
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-white text-danger shadow-sm flex-shrink-0" style="width: 42px; height: 42px; font-size: 1.2rem;">
+                        <i class="bi bi-headset"></i>
                     </div>
                     <div>
-                        <h5 class="modal-title fw-black mb-0">Hỗ trợ Trực tuyến</h5>
-                        <small class="opacity-75">Quản lý <%= dest.name %></small>
+                        <h6 class="fw-bold mb-0 text-white" style="color: #ffffff !important; font-size: 0.95rem;">Hỗ trợ Trực tuyến - <%= dest.name %></h6>
+                        <small class="opacity-90 text-white-50" style="font-size: 11px;"><i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i>Ban Quản Lý • Trực tuyến 24/7</small>
                     </div>
                 </div>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body p-3 bg-light">
+
+            <!-- Body -->
+            <div class="modal-body p-3" style="background: #f8faf9;">
                 <div id="chat-history" class="mb-2 overflow-auto custom-modal-chat-body p-2" style="height: 380px;">
-                    <% if (messages && messages.length > 0) { %>
-                        <% messages.forEach(msg => { %>
-                            <% if (msg.is_mine) { %>
-                                <div class="mb-2.5 d-flex justify-content-end">
-                                    <div class="p-2.5 px-3.5 text-white shadow-2xs" style="max-width: 78%; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px; font-size: 0.9rem; line-height: 1.45;">
-                                        <%= msg.message %>
-                                        <div class="x-small opacity-75 text-end mt-1" style="font-size: 10px;"><%= msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '' %></div>
-                                    </div>
-                                </div>
-                            <% } else { %>
-                                <div class="mb-2.5 d-flex justify-content-start align-items-end gap-2">
-                                    <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
-                                        <i class="bi bi-headset"></i>
-                                    </div>
-                                    <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
-                                        <%= msg.message %>
-                                        <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;"><%= msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '' %></div>
-                                    </div>
-                                </div>
-                            <% } %>
-                        <% }) %>
-                    <% } else { %>
-                        <div class="d-flex justify-content-start align-items-end gap-2 mb-3">
-                            <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
-                                <i class="bi bi-headset"></i>
-                            </div>
-                            <div class="p-3 bg-white text-dark shadow-2xs border" style="max-width: 82%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
-                                <strong>👋 Chào bạn!</strong><br>
-                                Tôi là quản lý địa điểm <%= dest.name %>. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
-                            </div>
-                        </div>
-                    <% } %>
+                    <!-- Messages dynamically rendered -->
                 </div>
             </div>
-            <div class="modal-footer border-0 bg-white p-3">
-                <div class="input-group">
-                    <input type="text" id="chat-message" class="form-control border-0 bg-light rounded-pill ps-4 py-3" placeholder="Nhập tin nhắn..." onkeypress="if(event.key === 'Enter') sendChatMessage('<%= dest.id %>')">
-                    <button class="btn btn-primary-bl rounded-circle ms-2 shadow-sm d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;" onclick="sendChatMessage('<%= dest.id %>')">
-                        <i class="bi bi-send-fill"></i>
+
+            <!-- Footer Input -->
+            <div class="modal-footer border-top bg-white p-3">
+                <form onsubmit="event.preventDefault(); sendChatMessage('<%= dest.id %>');" class="d-flex gap-2 w-100 align-items-center">
+                    <input type="text" id="chat-message" class="form-control rounded-pill border-0 bg-light px-4" style="height: 44px; font-size: 0.9rem;" placeholder="Nhập tin nhắn..." autocomplete="off">
+                    <button type="submit" class="btn btn-danger rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background-color: #922724 !important; border: none;">
+                        <i class="bi bi-send-fill text-white"></i>
                     </button>
-                </div>
+                </form>
             </div>
         </div>
     </div>
@@ -431,9 +405,15 @@ function renderChatHistory(messages) {
 
     let html = `
         <div class="text-center mb-3">
-            <span class="badge bg-white text-muted border shadow-2xs px-3 py-1.5 rounded-pill x-small">
+            <span class="badge bg-white text-muted border shadow-2xs px-3 py-1.5 rounded-pill x-small" style="font-size: 11px;">
                 <i class="bi bi-shield-check text-success me-1"></i> Trò chuyện hỗ trợ trực tuyến với Ban Quản Lý
             </span>
+        </div>
+        <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
+            <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+            <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
+                Xin chào! Tôi là quản lý địa điểm <%= dest.name %>. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
+            </div>
         </div>
     `;
 
@@ -453,12 +433,10 @@ function renderChatHistory(messages) {
                     </div>
                 `;
             } else {
-                // MANAGER / AI MESSAGE: Left-aligned with headset avatar icon
+                // MANAGER / ADMIN MESSAGE: Left-aligned with brand logo avatar
                 html += `
                     <div class="mb-2.5 d-flex justify-content-start align-items-end gap-2">
-                        <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
-                            <i class="bi bi-headset"></i>
-                        </div>
+                        <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
                         <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
                             ${escapeHtml(msg.message)}
                             <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
@@ -467,18 +445,6 @@ function renderChatHistory(messages) {
                 `;
             }
         });
-    } else {
-        html += `
-            <div class="d-flex justify-content-start align-items-end gap-2 mb-3">
-                <div class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
-                    <i class="bi bi-headset"></i>
-                </div>
-                <div class="p-3 bg-white text-dark shadow-2xs border" style="max-width: 82%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
-                    <strong>👋 Chào bạn!</strong><br>
-                    Tôi là quản lý địa điểm <%= dest.name %>. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
-                </div>
-            </div>
-        `;
     }
     chatHistory.innerHTML = html;
     chatHistory.scrollTop = chatHistory.scrollHeight;

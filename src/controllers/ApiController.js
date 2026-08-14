@@ -314,19 +314,12 @@ class ApiController {
             session.user_id = user.id;
         }
 
-        const { destinationId } = req.query;
         const queryParams = [String(session.id), String(session.uuid || session.id)];
         
         let userCondition = '';
         if (currentUserId) {
             queryParams.push(currentUserId);
             userCondition = `OR sender_id = $${queryParams.length}`;
-        }
-
-        let destCondition = '';
-        if (destinationId) {
-            queryParams.push(destinationId);
-            destCondition = `AND destination_id = $${queryParams.length}`;
         }
 
         const [messages] = await db.query(
@@ -336,7 +329,6 @@ class ApiController {
                 sender_uuid = $1 OR receiver_uuid = $1 OR sender_uuid = $2 OR receiver_uuid = $2
                 ${userCondition}
               )
-              ${destCondition}
               ORDER BY created_at ASC`,
             queryParams
         );
