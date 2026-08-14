@@ -51,8 +51,17 @@ if (!global._dbPatched) {
                 db.query(`ALTER TABLE review_likes ADD COLUMN IF NOT EXISTS guest_uuid VARCHAR(255)`),
                 db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS message TEXT`),
                 db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_ai INTEGER DEFAULT 0`),
-                db.query(`ALTER TABLE destinations ADD COLUMN IF NOT EXISTS banner_image VARCHAR(500)`),
-                db.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS banner_image VARCHAR(500)`),
+                db.query(`ALTER TABLE destinations ADD COLUMN IF NOT EXISTS banner_image TEXT`),
+                db.query(`ALTER TABLE events ADD COLUMN IF NOT EXISTS banner_image TEXT`),
+                db.query(`ALTER TABLE destinations ALTER COLUMN checkin_tip TYPE TEXT`),
+                db.query(`ALTER TABLE destinations ALTER COLUMN audio_url TYPE TEXT`),
+                db.query(`ALTER TABLE destinations ALTER COLUMN video_url TYPE TEXT`),
+                db.query(`ALTER TABLE destinations ALTER COLUMN zen_walk_desc TYPE TEXT`),
+                db.query(`ALTER TABLE destinations ALTER COLUMN open_hours TYPE TEXT`),
+                db.query(`ALTER TABLE destinations ALTER COLUMN cost TYPE TEXT`),
+                db.query(`ALTER TABLE destinations ALTER COLUMN best_time TYPE TEXT`),
+                db.query(`ALTER TABLE events ALTER COLUMN description TYPE TEXT`),
+                db.query(`ALTER TABLE workshops ALTER COLUMN description TYPE TEXT`),
                 db.query(`
                     CREATE TABLE IF NOT EXISTS hero_posters (
                         id VARCHAR(36) PRIMARY KEY,
@@ -232,7 +241,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '47.0.0'; 
+    res.locals.assetV = '48.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);

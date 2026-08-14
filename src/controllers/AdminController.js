@@ -483,7 +483,7 @@ const AdminController = {
 
     updateDestination: async (req, res) => {
         try {
-            const { id, name, slug, short_desc, description, type, open_hours, cost, points, lat, lng, cover_image, banner_image } = req.body;
+            const { id, name, slug, short_desc, description, type, open_hours, cost, points, lat, lng, cover_image, banner_image, story, highlight, checkin_tip, best_time, zen_walk_desc } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID' });
 
             const parsedPoints = parseInt(points) || 10;
@@ -494,6 +494,26 @@ const AdminController = {
             let params = [name, slug, short_desc || '', description || '', type || 'nature', open_hours || '', cost || '', parsedPoints, parsedLat, parsedLng];
             let index = 11;
 
+            if (typeof story !== 'undefined') {
+                query += `, story = $${index++}`;
+                params.push(story || '');
+            }
+            if (typeof highlight !== 'undefined') {
+                query += `, highlight = $${index++}`;
+                params.push(highlight || '');
+            }
+            if (typeof checkin_tip !== 'undefined') {
+                query += `, checkin_tip = $${index++}`;
+                params.push(checkin_tip || '');
+            }
+            if (typeof best_time !== 'undefined') {
+                query += `, best_time = $${index++}`;
+                params.push(best_time || '');
+            }
+            if (typeof zen_walk_desc !== 'undefined') {
+                query += `, zen_walk_desc = $${index++}`;
+                params.push(zen_walk_desc || '');
+            }
             if (cover_image && cover_image.trim() !== '') {
                 query += `, cover_image = $${index++}`;
                 params.push(cover_image);
