@@ -59,26 +59,31 @@
 <div class="row g-2 g-md-4">
     <% destinations.forEach(dest => { %>
     <div class="col-4 col-md-6 col-lg-4 reveal-up px-1 px-sm-2 mb-2 mb-md-3">
-        <a href="/explore/<%= dest.slug %>" class="text-decoration-none">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100 destination-card-custom" style="transition: all 0.3s ease;">
+        <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
+            <!-- Equal Bento Card: identical to homepage cards -->
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift home-dest-card" style="transition: all 0.3s ease;">
                 
-                <!-- Top Image Banner -->
-                <div class="position-relative explore-img-wrap" style="height: 240px; overflow: hidden;">
-                    <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100" style="object-fit: cover !important; object-position: center center !important; transition: transform 0.5s;" alt="<%= dest.name %>" loading="lazy" decoding="async">
-                    
-                    <!-- Custom type tag -->
-                    <div class="position-absolute top-0 start-0 m-1 m-md-3">
-                        <span class="badge bg-success bg-opacity-90 text-white rounded-pill px-2 py-1 px-md-3 py-md-2 text-uppercase fw-bold" style="font-size: 0.55rem; backdrop-filter: blur(8px);">
-                            <%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : 'Làng nghề') %>
+                <!-- Image Container -->
+                <div class="home-dest-img-wrap position-relative">
+                    <img src="<%= fixImg(dest.cover_image) %>" alt="<%= dest.name %>" class="w-100 h-100 object-fit-cover" loading="lazy" decoding="async">
+                    <div class="position-absolute top-0 start-0 w-100 h-100 home-dest-overlay"></div>
+
+                    <!-- Category Badge -->
+                    <div class="position-absolute top-0 end-0 m-1 m-md-3" style="z-index: 5;">
+                        <span class="badge rounded-3 px-1.5 py-1 px-md-2.5 py-md-1.5 fw-black text-uppercase shadow-sm"
+                            style="font-size: 0.55rem; letter-spacing: 0.5px; background: rgba(21, 128, 61, 0.92) !important; color: #ffffff !important; backdrop-filter: blur(8px);">
+                            <%= (dest.type==='temple' ? 'TÂM LINH' : (dest.type==='nature' || dest.type==='park' ? 'SINH THÁI' :
+                                (dest.type==='craft' ? 'LÀNG NGHỀ' : (dest.type==='food' ? 'ẨM THỰC' :
+                                (dest.type || '' ).toUpperCase())))) %>
                         </span>
                     </div>
                 </div>
 
-                <!-- Card Body Details -->
-                <div class="card-body p-2 p-md-4 d-flex flex-column justify-content-between">
-                    <div>
-                        <h5 class="fw-black mb-1 explore-card-title"><%= dest.name %></h5>
-                    </div>
+                <!-- Content Body -->
+                <div class="home-dest-body p-2 p-md-4 d-flex flex-column justify-content-end" style="z-index: 5;">
+                    <h5 class="font-black mb-0 font-display home-dest-title">
+                        <%= dest.name %>
+                    </h5>
                 </div>
             </div>
         </a>
@@ -112,12 +117,33 @@
 </section>
 
 <style>
-    .destination-card-custom:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 12px 30px rgba(0,0,0,0.08) !important;
+    .home-dest-card {
+        height: 340px;
+        background: #ffffff;
+        border-radius: 16px;
     }
-    .destination-card-custom:hover img {
-        transform: scale(1.06);
+    .home-dest-img-wrap {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+    }
+    .home-dest-overlay {
+        background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
+        z-index: 2;
+    }
+    .home-dest-body {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+    }
+    .home-dest-title {
+        color: #ffffff;
+        font-size: 1.15rem;
+        font-weight: 800;
+        font-family: 'Inter', sans-serif;
     }
     
     /* Capsule Filter buttons */
@@ -147,44 +173,33 @@
         border-color: var(--primary);
         box-shadow: 0 4px 12px rgba(146, 39, 36, 0.15);
     }
-    .explore-card-title {
-        color: #222222;
-        font-size: 1.15rem;
-        font-weight: 800;
-        font-family: 'Inter', sans-serif;
-    }
+
     @media (max-width: 767.98px) {
-        .destination-card-custom {
+        .home-dest-card {
             height: 140px !important;
             border-radius: 12px !important;
             position: relative !important;
             overflow: hidden !important;
         }
-        .explore-img-wrap {
+        .home-dest-img-wrap {
             width: 100% !important;
             height: 100% !important;
             position: absolute !important;
             top: 0 !important;
             left: 0 !important;
         }
-        .explore-img-wrap img {
+        .home-dest-img-wrap img {
             width: 100% !important;
             height: 100% !important;
             object-fit: cover !important;
             object-position: center center !important;
             border-radius: 12px !important;
         }
-        .explore-img-wrap::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.15) 60%, transparent 100%);
-            z-index: 2;
+        .home-dest-overlay {
+            background: linear-gradient(to top, rgba(0,0,0,0.92) 0%, rgba(0,0,0,0.15) 60%, transparent 100%) !important;
+            z-index: 2 !important;
         }
-        .destination-card-custom .card-body {
+        .home-dest-body {
             position: absolute !important;
             bottom: 0 !important;
             left: 0 !important;
@@ -192,7 +207,7 @@
             padding: 4px 5px !important;
             z-index: 5 !important;
         }
-        .explore-card-title {
+        .home-dest-title {
             color: #ffffff !important;
             font-size: 0.7rem !important;
             font-weight: 700 !important;
@@ -209,7 +224,7 @@
             text-overflow: ellipsis !important;
             text-align: center !important;
         }
-        .destination-card-custom .badge {
+        .home-dest-card .badge {
             font-size: 0.48rem !important;
             padding: 2px 5px !important;
             border-radius: 4px !important;
