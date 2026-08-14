@@ -5,6 +5,7 @@ const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const { uploadToCloudinary } = require('../config/cloudinary');
+const HomeController = require('./HomeController');
 
 const AdminController = {
 
@@ -624,13 +625,14 @@ const AdminController = {
             if (is_countdown) {
                 await db.query('UPDATE events SET is_countdown = 0');
             }
-            const finalImg = (image && image.trim()) ? image : '/images/hero-1.png';
+            const finalImg = (image && image.trim()) ? image : '/uploads/posters/poster-1.webp';
             const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalImg;
             await db.query(
                 `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active) 
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1)`,
                 [uuidv4(), title, description, season || 'all', event_date, end_date || null, location, finalImg, finalBanner, is_featured ? 1 : 0, is_countdown ? 1 : 0]
             );
+            if (HomeController.clearCache) HomeController.clearCache();
             res.json({ success: true, message: 'Đã tạo sự kiện!' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
@@ -643,12 +645,13 @@ const AdminController = {
             if (is_countdown) {
                 await db.query('UPDATE events SET is_countdown = 0');
             }
-            const finalImg = (image && image.trim()) ? image : '/images/hero-1.png';
+            const finalImg = (image && image.trim()) ? image : '/uploads/posters/poster-1.webp';
             const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalImg;
             await db.query(
                 `UPDATE events SET title = $1, description = $2, season = $3, event_date = $4, end_date = $5, location = $6, image = $7, banner_image = $8, is_featured = $9, is_countdown = $10, is_active = $11 WHERE id = $12`,
                 [title, description, season, event_date, end_date, location, finalImg, finalBanner, is_featured ? 1 : 0, is_countdown ? 1 : 0, is_active ? 1 : 0, id]
             );
+            if (HomeController.clearCache) HomeController.clearCache();
             res.json({ success: true, message: 'Đã cập nhật sự kiện!' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
@@ -658,6 +661,7 @@ const AdminController = {
     deleteEvent: async (req, res) => {
         try {
             await db.query('DELETE FROM events WHERE id = $1', [req.body.id]);
+            if (HomeController.clearCache) HomeController.clearCache();
             res.json({ success: true, message: 'Đã xóa sự kiện' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });

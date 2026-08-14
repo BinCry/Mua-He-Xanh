@@ -19,7 +19,7 @@
             <div class="card border-0 shadow-sm rounded-4 p-4 mb-3 bg-white border position-relative" style="border-left: 5px solid <%= b.status === 'confirmed' ? '#198754' : b.status === 'completed' ? '#0d6efd' : b.status === 'cancelled' ? '#dc3545' : '#ffc107' %> !important;">
                 <div class="d-flex flex-column flex-md-row gap-3 align-items-md-center justify-content-between">
                     <div class="d-flex gap-3 align-items-center">
-                        <img src="<%= fixImg(b.workshop_image, '/images/hero-2.png') %>" class="rounded-3" style="width:80px;height:80px;object-fit:cover;">
+                        <img src="<%= fixImg(b.workshop_image, '/uploads/posters/poster-1.webp') %>" class="rounded-3" style="width:80px;height:80px;object-fit:cover;">
                         <div>
                             <h5 class="fw-bold mb-1"><%= b.workshop_title %></h5>
                             <div class="small text-muted mb-2">

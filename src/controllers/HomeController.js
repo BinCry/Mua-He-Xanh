@@ -109,7 +109,9 @@ class HomeController {
                 }
 
                 const safeEvents = Array.isArray(events) ? events : [];
-                const featuredEvent = safeEvents.find(e => e.is_featured === 1) || safeEvents.find(e => e.is_countdown === 1) || safeEvents[0] || null;
+                const featuredEvent = safeEvents.find(e => e.is_featured == 1 || e.is_featured === true || e.is_featured === '1') || 
+                                      safeEvents.find(e => e.is_countdown == 1 || e.is_countdown === true || e.is_countdown === '1') || 
+                                      safeEvents[0] || null;
                 const nextFestival = {
                     name: featuredEvent?.title || "Chưa có sự kiện",
                     date: featuredEvent?.event_date || new Date(Date.now() + 86400000 * 30).toISOString(),
@@ -153,6 +155,11 @@ class HomeController {
             console.error("Home index error:", error);
             res.render('home/index', _cache || DEFAULT_HOME_DATA);
         }
+    }
+
+    clearCache() {
+        _cache = null;
+        _cacheTs = 0;
     }
 }
 

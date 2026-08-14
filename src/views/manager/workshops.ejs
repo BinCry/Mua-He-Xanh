@@ -28,7 +28,7 @@
             <tr>
                 <td>
                     <div class="d-flex align-items-center gap-2">
-                        <img src="<%= fixImg(ws.image, '/images/hero-2.png') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
+                        <img src="<%= fixImg(ws.image, '/uploads/posters/poster-1.webp') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
                         <div>
                             <div class="fw-bold small"><%= ws.title %></div>
                             <div style="font-size: 0.72rem; color: var(--admin-muted);"><%= dest.name %></div>
@@ -140,13 +140,13 @@
                         <div class="col-12">
                             <label class="form-label small fw-bold">Ảnh sản phẩm</label>
                             <div class="d-flex align-items-center gap-3 mb-2">
-                                <img id="ws_preview" src="/images/hero-2.png" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
+                                <img id="ws_preview" src="/uploads/posters/poster-1.webp" class="rounded-3" style="width: 100px; height: 60px; object-fit: cover; border: 1px solid var(--admin-border);">
                                 <button type="button" class="btn btn-sm btn-outline-dark rounded-pill" onclick="document.getElementById('ws_file').click()">
                                     <i class="bi bi-upload me-1"></i>Chọn ảnh
                                 </button>
                                 <input type="file" id="ws_file" class="d-none" accept="image/*" onchange="uploadWsFile(this)">
                             </div>
-                            <input type="hidden" id="ws_image" name="image" value="/images/hero-2.png">
+                            <input type="hidden" id="ws_image" name="image" value="/uploads/posters/poster-1.webp">
                         </div>
                         <div class="col-md-6">
                             <div class="form-check form-switch mt-2">
@@ -201,8 +201,8 @@ function openWsForm() {
     document.getElementById('wsModalTitle').textContent = 'Thêm sản phẩm Shop';
     document.getElementById('wsForm').reset();
     document.getElementById('ws_id').value = '';
-    document.getElementById('ws_preview').src = '/images/hero-2.png';
-    document.getElementById('ws_image').value = '/images/hero-2.png';
+    document.getElementById('ws_preview').src = '/uploads/posters/poster-1.webp';
+    document.getElementById('ws_image').value = '/uploads/posters/poster-1.webp';
     document.getElementById('ws_start_date').value = '';
     document.getElementById('ws_end_date').value = '';
     document.getElementById('ws_is_active').checked = true;
@@ -222,8 +222,8 @@ function editWs(target) {
     document.getElementById('ws_price').value = ws.price || 0;
     document.getElementById('ws_duration').value = ws.duration || '2 giờ';
     document.getElementById('ws_max').value = ws.max_participants || 20;
-    document.getElementById('ws_image').value = ws.image || '/images/hero-2.png';
-    document.getElementById('ws_preview').src = ws.image || '/images/hero-2.png';
+    document.getElementById('ws_image').value = ws.image || '/uploads/posters/poster-1.webp';
+    document.getElementById('ws_preview').src = ws.image || '/uploads/posters/poster-1.webp';
     document.getElementById('ws_dest').value = ws.destination_id || '';
     if (ws.start_date) {
         document.getElementById('ws_start_date').value = new Date(new Date(ws.start_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
