@@ -313,6 +313,9 @@
             <a class="mobile-light-link <%= mPath.startsWith('/chat') ? 'active' : '' %>" href="/chat">
                 <i class="bi bi-envelope-heart-fill"></i> HỘP THƯ HỖ TRỢ
             </a>
+            <a class="mobile-light-link text-danger fw-bold cursor-pointer" onclick="triggerPwaInstall()">
+                <i class="bi bi-download"></i> CÀI ĐẶT ỨNG DỤNG (APP)
+            </a>
             <% const currentUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
             <% if (currentUser && (currentUser.role === 'admin' || currentUser.role === 'manager')) { %>
                 <a class="mobile-light-link mt-2 text-primary fw-bold" href="<%= currentUser.role === 'admin' ? '/admin' : '/manager' %>">

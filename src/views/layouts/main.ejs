@@ -30,9 +30,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" media="print" onload="this.media='all'" />
     
     <!-- Favicon & Brand Icons -->
+    <link rel="manifest" href="/manifest.json">
     <link rel="icon" type="image/svg+xml" href="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>">
     <link rel="apple-touch-icon" href="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>">
     <meta name="theme-color" content="#922724">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Bình Lợi">
@@ -429,6 +431,28 @@
 
     <!-- PWA Service Worker & App Mode Handler -->
     <script>
+        let deferredPwaPrompt = null;
+
+        // Global trigger to initiate PWA installation from any button
+        window.triggerPwaInstall = async function() {
+            if (deferredPwaPrompt) {
+                deferredPwaPrompt.prompt();
+                const { outcome } = await deferredPwaPrompt.userChoice;
+                console.log(`PWA install prompt outcome: ${outcome}`);
+                deferredPwaPrompt = null;
+                const banner = document.getElementById('pwaInstallBanner');
+                if (banner) banner.classList.add('d-none');
+            } else {
+                const isIos = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+                if (isIos) {
+                    const iosBanner = document.getElementById('pwaIosInstructions');
+                    if (iosBanner) iosBanner.classList.remove('d-none');
+                } else {
+                    alert('Để cài đặt ứng dụng vào màn hình chính:\n- Mở Menu trình duyệt (dấu 3 chấm ⋮ ở góc phải trên)\n- Chọn "Thêm vào màn hình chính" (hoặc "Cài đặt ứng dụng").');
+                }
+            }
+        };
+
         // Service Worker Registration
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -449,21 +473,18 @@
                 document.body.classList.add('is-pwa');
             }
             
-            // PWA Standalone Back Button visibility (only shown in standalone mode when not on home page)
+            // PWA Standalone Back Button visibility
             const pwaBackBtn = document.getElementById('pwaBackButton');
             const path = window.location.pathname;
             if (pwaBackBtn && isStandalone && path !== '/') {
                 pwaBackBtn.classList.remove('d-none');
                 pwaBackBtn.classList.add('d-flex');
             }
-            
-
 
             // In-App Install Prompt Banner (Android/Chrome)
-            let deferredPrompt;
             window.addEventListener('beforeinstallprompt', (e) => {
                 e.preventDefault();
-                deferredPrompt = e;
+                deferredPwaPrompt = e;
                 
                 const isDismissed = localStorage.getItem('pwa_install_dismissed');
                 if (!isDismissed && !isStandalone) {
@@ -476,16 +497,8 @@
 
             const btnPwaInstall = document.getElementById('btnPwaInstall');
             if (btnPwaInstall) {
-                btnPwaInstall.addEventListener('click', async () => {
-                    if (!deferredPrompt) return;
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    console.log(`PWA install prompt outcome: ${outcome}`);
-                    deferredPrompt = null;
-                    const banner = document.getElementById('pwaInstallBanner');
-                    if (banner) {
-                        banner.classList.add('d-none');
-                    }
+                btnPwaInstall.addEventListener('click', () => {
+                    window.triggerPwaInstall();
                 });
             }
 
@@ -523,6 +536,8 @@
                     if (iosBanner) {
                         iosBanner.classList.add('d-none');
                     }
+                    localStorage.setItem('pwa_ios_dismissed', 'true');
+                });
             }
         });
     </script>
