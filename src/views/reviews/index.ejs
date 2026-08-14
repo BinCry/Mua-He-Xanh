@@ -583,47 +583,6 @@
         }
     }
 
-    function cancelReply(reviewId) {
-        activeParentId[reviewId] = null;
-        const targetBadge = document.getElementById(`reply-target-${reviewId}`);
-        const input = document.getElementById(`comment-input-${reviewId}`);
-        if (targetBadge) {
-            targetBadge.classList.add('d-none');
-            targetBadge.classList.remove('d-flex');
-        }
-        if (input) input.placeholder = "Viết bình luận của bạn...";
-    }
-
-    async function submitComment(event, reviewId) {
-        event.preventDefault();
-        const input = document.getElementById(`comment-input-${reviewId}`);
-        if (!input || !input.value.trim()) return;
-
-        const commentText = input.value.trim();
-        const parentId = activeParentId[reviewId] || null;
-        input.value = '';
-        cancelReply(reviewId);
-
-        try {
-            const res = await axios.post('/api/reviews/comment', {
-                review_id: reviewId,
-                comment: commentText,
-                parent_id: parentId
-            });
-
-            if (res.data.success) {
-                const badges = document.querySelectorAll(`.comment-count-${reviewId}`);
-                badges.forEach(b => { b.textContent = res.data.count; });
-                await loadComments(reviewId);
-            } else {
-                alert(res.data.message || 'Lỗi gửi bình luận.');
-            }
-        } catch(e) {
-            console.error('Submit comment error:', e);
-            alert('Không thể gửi bình luận lúc này.');
-        }
-    }
-
     function triggerPhotoUpload(isCamera) {
         const input = document.getElementById('reviewFileInput');
         if (!input) return;

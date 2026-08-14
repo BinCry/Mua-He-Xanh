@@ -67,7 +67,7 @@ class HomeController {
                 db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
                 db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
                 db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1').catch(() => [[{ total: 12 }]]),
-                db.query('SELECT AVG(rating) as avg FROM reviews').catch(() => [[{ avg: 4.9 }]]),
+                db.query('SELECT AVG(rating) as avg, COUNT(*) as count FROM reviews').catch(() => [[{ avg: null, count: 0 }]]),
                 db.query('SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC').catch(() => [[]]),
                 db.query('SELECT * FROM seasonal_experiences WHERE is_active = 1 ORDER BY sort_order ASC').catch(() => [[]]),
                 db.query(`
@@ -113,9 +113,10 @@ class HomeController {
             const activeDestinations = (featured && featured.length > 0) ? featured.length : 10;
             const workshopCount = parseInt(workshopCountResult[0]?.total ?? 0, 10);
 
-            let avgRating = avgRatingResult[0]?.avg || 4.9;
-            if (avgRating) {
-                avgRating = Math.round(parseFloat(avgRating) * 10) / 10;
+            const reviewCount = parseInt(avgRatingResult[0]?.count ?? 0, 10);
+            let avgRating = '-/-';
+            if (reviewCount > 0 && avgRatingResult[0]?.avg !== null) {
+                avgRating = (Math.round(parseFloat(avgRatingResult[0].avg) * 10) / 10).toFixed(1);
             }
 
             const safeEvents = Array.isArray(events) ? events : [];

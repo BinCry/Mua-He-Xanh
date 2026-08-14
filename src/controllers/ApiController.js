@@ -554,15 +554,19 @@ class ApiController {
                 db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
                 db.query('SELECT COUNT(*) as total FROM check_ins').catch(() => [[{ total: 0 }]]),
                 db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = 1').catch(() => [[{ total: 10 }]]),
-                db.query('SELECT AVG(rating) as avg FROM reviews').catch(() => [[{ avg: 4.9 }]])
+                db.query('SELECT AVG(rating) as avg, COUNT(*) as count FROM reviews').catch(() => [[{ avg: null, count: 0 }]])
             ]);
 
             const pageViews = parseInt(pv[0]?.total ?? 0, 10);
             const visitors = parseInt(uv[0]?.total ?? 0, 10);
             const checkins = parseInt(ck[0]?.total ?? 0, 10);
             const destinations = parseInt(dest[0]?.total ?? 10, 10);
-            let avgRating = parseFloat(avg[0]?.avg ?? 4.9);
-            avgRating = Math.round(avgRating * 10) / 10;
+            
+            const reviewCount = parseInt(avg[0]?.count ?? 0, 10);
+            let avgRating = '-/-';
+            if (reviewCount > 0 && avg[0]?.avg !== null) {
+                avgRating = (Math.round(parseFloat(avg[0].avg) * 10) / 10).toFixed(1);
+            }
 
             res.json({
                 success: true,
