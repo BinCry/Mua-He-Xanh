@@ -433,5 +433,8 @@ router.post('/api/admin/upload-logo', ensureAdmin, (req, res, next) => {
     });
 });
 
+// Real-time Stats API
+router.get('/api/stats/realtime', ApiController.getRealtimeStats);
+
 module.exports = router;
 

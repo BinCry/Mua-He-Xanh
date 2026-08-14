@@ -32,6 +32,18 @@ class HomeController {
         try {
             // Check in-memory RAM cache first
             if (_cache && (Date.now() - _cacheTs < CACHE_TTL)) {
+                try {
+                    const [[pv], [uv], totalCheckins] = await Promise.all([
+                        db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                        db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                        CheckIn.getTotalCount().catch(() => 0)
+                    ]);
+                    if (_cache.stats) {
+                        _cache.stats.checkins = totalCheckins ?? 0;
+                        _cache.stats.pageViews = parseInt(pv[0]?.total ?? 0, 10);
+                        _cache.stats.visitors = parseInt(uv[0]?.total ?? 0, 10);
+                    }
+                } catch (e) {}
                 return res.render('home/index', _cache);
             }
 

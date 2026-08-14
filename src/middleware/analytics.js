@@ -20,7 +20,7 @@ module.exports = function analyticsMiddleware(req, res, next) {
     const cacheKey = `${sessionId}:${pageUrl}`;
 
     const lastVisited = pageViewCache.get(cacheKey);
-    const THROTTLE_LIMIT = 15 * 60 * 1000; // 15 minutes throttle
+    const THROTTLE_LIMIT = 3000; // 3 seconds anti-spam throttle for real-time tracking
 
     let shouldLog = true;
     if (lastVisited && (startTime - lastVisited < THROTTLE_LIMIT)) {
