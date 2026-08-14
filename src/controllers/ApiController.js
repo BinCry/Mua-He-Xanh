@@ -249,25 +249,7 @@ class ApiController {
                 [uuidv4(), currentUserId, session.id, receiverUuid, destinationId || null, message.trim()]
             );
 
-            let aiReply = null;
-            // ONLY reply automatically on the VERY FIRST message of the conversation (msgCount === 0)
-            if (msgCount === 0) {
-                try {
-                    const AIBrain = require('../core/AIBrain');
-                    aiReply = await AIBrain.generateResponse(message, destinationId || null);
-                    
-                    if (aiReply) {
-                        await db.query(
-                            "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, content, is_ai, created_at) VALUES ($1, $2, $3, $4, $5, $5, $6, NOW())",
-                            [uuidv4(), null, session.id, destinationId || null, aiReply, 1]
-                        );
-                    }
-                } catch(aiErr) {
-                    console.log("AI reply error:", aiErr);
-                }
-            }
-
-            res.json({ success: true, message: aiReply || 'Tin nhắn đã được gửi thành công.' });
+            res.json({ success: true, message: 'Tin nhắn đã được gửi thành công.' });
         } catch(err) {
             console.error("SendMessage Error:", err);
             res.status(500).json({ success: false, message: 'Lỗi gửi tin nhắn: ' + err.message });
