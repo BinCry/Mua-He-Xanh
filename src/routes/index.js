@@ -31,8 +31,8 @@ const ManagerController = require('../controllers/ManagerController');
 
 // ===== PUBLIC PAGES =====
 router.get('/', HomeController.index);
-router.get(['/onboarding', '/journey/onboarding'], OnboardingController.index);
-router.post(['/onboarding', '/journey/onboarding', '/api/journey/onboarding'], OnboardingController.submit);
+router.get(['/onboarding', '/journey/onboarding'], ensureAuthenticated, OnboardingController.index);
+router.post(['/onboarding', '/journey/onboarding', '/api/journey/onboarding'], ensureAuthenticated, OnboardingController.submit);
 router.get('/checkin', CheckinController.index);
 
 // Dynamic manifest.json endpoint to keep PWA name and logo synchronized with Admin Settings
@@ -192,14 +192,14 @@ router.get('/reviews/video-editor', ensureAuthenticated, ReviewController.videoE
 // ===== MAP =====
 router.get('/map', MapController.index);
 
-// ===== JOURNEY =====
-router.all(['/journey', '/journey/', '/hanh-trinh', '/hanh-trinh/'], (req, res) => res.redirect('/onboarding'));
-router.all(['/hanh-trinh-cua-toi', '/hanh-trinh-cua-toi/', '/journey/story', '/journey/story/', '/journey/view', '/journey/my-journey', '/journey/create', '/journey/show', '/journey/detail'], JourneyController.index);
-router.all(['/journey/suggestions', '/journey/suggestions/', '/journey/de-xuat', '/journey/de-xuat/'], JourneyController.suggestions);
-router.all(['/journey/confirm', '/journey/confirm/', '/journey/xac-nhan', '/journey/xac-nhan/'], JourneyController.confirm);
-router.all(['/api/journey/lock-toggle', '/journey/lock-toggle'], JourneyController.lockJourney);
-router.all(['/api/journey/delete', '/journey/delete'], JourneyController.deleteSavedJourney);
-router.get('/journey/load-template/:id', JourneyController.loadTemplate);
+// ===== JOURNEY (Requires Login) =====
+router.all(['/journey', '/journey/', '/hanh-trinh', '/hanh-trinh/'], ensureAuthenticated, (req, res) => res.redirect('/onboarding'));
+router.all(['/hanh-trinh-cua-toi', '/hanh-trinh-cua-toi/', '/journey/story', '/journey/story/', '/journey/view', '/journey/my-journey', '/journey/create', '/journey/show', '/journey/detail'], ensureAuthenticated, JourneyController.index);
+router.all(['/journey/suggestions', '/journey/suggestions/', '/journey/de-xuat', '/journey/de-xuat/'], ensureAuthenticated, JourneyController.suggestions);
+router.all(['/journey/confirm', '/journey/confirm/', '/journey/xac-nhan', '/journey/xac-nhan/'], ensureAuthenticated, JourneyController.confirm);
+router.all(['/api/journey/lock-toggle', '/journey/lock-toggle'], ensureAuthenticated, JourneyController.lockJourney);
+router.all(['/api/journey/delete', '/journey/delete'], ensureAuthenticated, JourneyController.deleteSavedJourney);
+router.get('/journey/load-template/:id', ensureAuthenticated, JourneyController.loadTemplate);
 
 // ===== AUTH PAGES =====
 router.get('/passport', ensureTourist, PassportController.index);
@@ -341,8 +341,8 @@ router.get('/auth/facebook/callback', (req, res, next) => {
 router.all('/api/session', ApiController.session);
 router.all('/api/session/:uuid', ApiController.session);
 router.get('/api/destinations', ApiController.destinations);
-router.post('/api/journey', ApiController.journey);
-router.post('/api/journey/update-stop', ApiController.updateJourneyStop);
+router.post('/api/journey', ensureAuthenticated, ApiController.journey);
+router.post('/api/journey/update-stop', ensureAuthenticated, ApiController.updateJourneyStop);
 router.post('/api/checkin', ApiController.checkin);
 router.post('/api/send-message', ApiController.sendMessage);
 router.get('/api/get-messages', ApiController.getMessages);
