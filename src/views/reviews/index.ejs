@@ -1,3 +1,4 @@
+<% const currentUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
 <!-- Premium Social Network Feed -->
 <section class="py-4 py-md-5" style="background: #f4f6f5;">
     <div class="container py-3" style="max-width: 680px;">
@@ -117,7 +118,7 @@
                         <div class="text-warning" style="font-size: 0.75rem;">
                             <% for(let s = 0; s < (r.rating || 5); s++) { %><i class="bi bi-star-fill"></i><% } %>
                         </div>
-                        <% if (typeof user !== 'undefined' && user && (String(user.id) === String(r.user_id) || user.role === 'admin')) { %>
+                        <% if (currentUser && (String(currentUser.id) === String(r.user_id) || currentUser.role === 'admin' || currentUser.role === 'manager')) { %>
                         <button class="btn btn-sm btn-light text-danger rounded-circle p-1 ms-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" onclick="deleteUserReview('<%= r.id %>', this)" title="Xóa bài viết">
                             <i class="bi bi-trash3-fill"></i>
                         </button>
@@ -369,8 +370,8 @@
         }
     }
 
-    const currentUserId = '<%= user ? user.id : "" %>';
-    const currentUserRole = '<%= user ? user.role : "" %>';
+    const currentUserId = '<%= currentUser ? currentUser.id : "" %>';
+    const currentUserRole = '<%= currentUser ? currentUser.role : "" %>';
 
     async function loadComments(reviewId) {
         const list = document.getElementById(`comments-list-${reviewId}`);
