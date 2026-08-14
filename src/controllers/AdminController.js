@@ -573,14 +573,27 @@ const AdminController = {
     // ==================== API: Shop Products CRUD ====================
     createWorkshop: async (req, res) => {
         try {
-            const { title, description, type, price, duration, max_participants, destination_id, image, start_date, end_date, is_active } = req.body;
+            let { title, description, type, price, duration, max_participants, destination_id, image, start_date, end_date, is_active } = req.body;
             if (!title) {
                 return res.status(400).json({ success: false, message: 'Vui lòng nhập tên sản phẩm.' });
             }
+            if (req.file) {
+                try {
+                    const { uploadToCloudinary } = require('../config/cloudinary');
+                    const uploadRes = await uploadToCloudinary(req.file.path, 'binh-loi/workshops');
+                    image = uploadRes.url;
+                } catch (imgErr) {
+                    console.error("Workshop image upload error:", imgErr);
+                }
+            }
+            const priceInt = parseInt(price, 10) || 0;
+            const maxParticipantsInt = parseInt(max_participants, 10) || 100;
+            const isActiveInt = (is_active === false || is_active === 'false' || is_active === 0 || is_active === '0' || is_active === 'off') ? 0 : 1;
+
             await db.query(
                 `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())`,
-                [uuidv4(), destination_id || null, title, description || '', type || 'ecology', price || 0, max_participants || 100, duration || 'Hộp / Chiếc', image || '/images/hero-2.png', start_date || null, end_date || null, is_active ? 1 : 0]
+                [uuidv4(), destination_id || null, title, description || '', type || 'ecology', priceInt, maxParticipantsInt, duration || 'Hộp / Chiếc', image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null, isActiveInt]
             );
             res.json({ success: true, message: 'Đã tạo sản phẩm thành công!' });
         } catch (error) {
@@ -591,13 +604,26 @@ const AdminController = {
 
     updateWorkshop: async (req, res) => {
         try {
-            const { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active, destination_id } = req.body;
+            let { id, title, description, type, price, duration, max_participants, image, start_date, end_date, is_active, destination_id } = req.body;
             if (!id || !title) {
                 return res.status(400).json({ success: false, message: 'Thiếu thông tin sản phẩm.' });
             }
+            if (req.file) {
+                try {
+                    const { uploadToCloudinary } = require('../config/cloudinary');
+                    const uploadRes = await uploadToCloudinary(req.file.path, 'binh-loi/workshops');
+                    image = uploadRes.url;
+                } catch (imgErr) {
+                    console.error("Workshop image update error:", imgErr);
+                }
+            }
+            const priceInt = parseInt(price, 10) || 0;
+            const maxParticipantsInt = parseInt(max_participants, 10) || 100;
+            const isActiveInt = (is_active === false || is_active === 'false' || is_active === 0 || is_active === '0' || is_active === 'off') ? 0 : 1;
+
             await db.query(
                 `UPDATE workshops SET title = $1, description = $2, type = $3, price = $4, duration = $5, max_participants = $6, image = $7, start_date = $8, end_date = $9, is_active = $10, destination_id = $11 WHERE id = $12`,
-                [title, description || '', type || 'ecology', price || 0, duration || 'Hộp / Chiếc', max_participants || 100, image || '/images/hero-2.png', start_date || null, end_date || null, is_active ? 1 : 0, destination_id || null, id]
+                [title, description || '', type || 'ecology', priceInt, duration || 'Hộp / Chiếc', maxParticipantsInt, image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null, isActiveInt, destination_id || null, id]
             );
             res.json({ success: true, message: 'Đã cập nhật thông tin sản phẩm!' });
         } catch (error) {

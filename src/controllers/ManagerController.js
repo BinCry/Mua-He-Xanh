@@ -453,10 +453,13 @@ class ManagerController {
                 }
             }
 
+            const priceInt = parseInt(price, 10) || 0;
+            const maxParticipantsInt = parseInt(max_participants, 10) || 20;
+
             await UserSession.db.query(
                 `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, NOW())`,
-                [uuidv4(), destId, title, description || '', type || 'other', price || 0, max_participants || 20, duration || '2 giờ', image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null]
+                [uuidv4(), destId, title, description || '', type || 'other', priceInt, maxParticipantsInt, duration || '2 giờ', image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null]
             );
 
             res.json({ success: true, message: 'Đã tạo sản phẩm thành công!' });
@@ -503,11 +506,15 @@ class ManagerController {
                 image = check[0].image || '/uploads/posters/poster-1.webp';
             }
 
+            const priceInt = parseInt(price, 10) || 0;
+            const maxParticipantsInt = parseInt(max_participants, 10) || 20;
+            const isActiveInt = (is_active === false || is_active === 'false' || is_active === 0 || is_active === '0' || is_active === 'off') ? 0 : 1;
+
             await UserSession.db.query(
                 `UPDATE workshops 
                  SET title = $1, description = $2, type = $3, price = $4, duration = $5, max_participants = $6, image = $7, start_date = $8, end_date = $9, is_active = $10 
                  WHERE id = $11`,
-                [title, description, type, price, duration, max_participants, image, start_date || null, end_date || null, is_active !== undefined && is_active !== null ? (is_active === 'false' || is_active === false || is_active === 0 ? 0 : 1) : 1, id]
+                [title, description || '', type || 'other', priceInt, duration || 'Hộp / Chiếc', maxParticipantsInt, image, start_date || null, end_date || null, isActiveInt, id]
             );
 
             res.json({ success: true, message: 'Cập nhật sản phẩm thành công!' });
