@@ -157,13 +157,8 @@
             }
         }
 
-        // Use ResizeObserver for instant, lag-free updates
         document.addEventListener('DOMContentLoaded', function () {
             syncHeroMargin();
-            const nav = document.querySelector('.navbar-premium');
-            if (nav && window.ResizeObserver) {
-                new ResizeObserver(syncHeroMargin).observe(nav);
-            }
             window.addEventListener('resize', syncHeroMargin);
         });
         window.addEventListener('load', syncHeroMargin);

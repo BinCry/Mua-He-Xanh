@@ -111,46 +111,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
 
     <script>
-        // Global Reveal Animation with Fail-safe Fallback
+        // Smooth Reveal Animation without layout jump or mid-frame flickering
         document.addEventListener('DOMContentLoaded', () => {
             const items = document.querySelectorAll('.reveal-up');
-            if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-                try {
-                    gsap.registerPlugin(ScrollTrigger);
-                    items.forEach(item => {
-                        gsap.fromTo(item, 
-                            { opacity: 0, y: 35 },
-                            { 
-                                opacity: 1, 
-                                y: 0, 
-                                duration: 0.8, 
-                                ease: "power2.out",
-                                scrollTrigger: {
-                                    trigger: item,
-                                    start: "top 92%",
-                                    toggleActions: "play none none none"
-                                }
-                            }
-                        );
+            if ('IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('active');
+                            observer.unobserve(entry.target);
+                        }
                     });
-                } catch (err) {
-                    console.warn('GSAP reveal error, using CSS fallback:', err);
-                    items.forEach(item => item.classList.add('active'));
-                }
+                }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+                items.forEach(item => observer.observe(item));
             } else {
                 items.forEach(item => item.classList.add('active'));
             }
-            
-            // Safety timeout: ensure all elements are visible after 300ms no matter what
-            setTimeout(() => {
-                items.forEach(item => {
-                    if (getComputedStyle(item).opacity === '0') {
-                        item.classList.add('active');
-                        item.style.opacity = '1';
-                        item.style.transform = 'none';
-                    }
-                });
-            }, 300);
         });
 
         // Navbar Scroll Effect (Fixed top without detached spacing)

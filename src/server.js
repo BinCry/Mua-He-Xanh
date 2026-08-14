@@ -172,11 +172,12 @@ const sessionMiddleware = session({
 });
 
 const conditionalSession = (req, res, next) => {
-    // Public cacheable GET pages skip session entirely (no Set-Cookie = Edge CDN can cache)
-    if (req.method === 'GET' && isPublicCacheablePath(req.path)) {
-        return next();
+    // If request has session cookie, evaluate session for seamless login state everywhere (same as localhost)
+    const hasSessionCookie = !!(req.cookies?.bl_session || req.cookies?.session_uuid);
+    if (hasSessionCookie || req.method !== 'GET' || !isPublicCacheablePath(req.path)) {
+        return sessionMiddleware(req, res, next);
     }
-    sessionMiddleware(req, res, next);
+    next();
 };
 
 app.use(conditionalSession);
@@ -258,7 +259,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets
-    res.locals.assetV = '57.0.0'; 
+    res.locals.assetV = '58.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
