@@ -7,8 +7,8 @@ function applyImageAlias(pathname) {
     return LEGACY_IMAGE_ALIASES[pathname] || pathname;
 }
 
-// Max allowed inline data URI size (2KB) — anything larger MUST use a URL
-const MAX_INLINE_DATA_URI_SIZE = 2048;
+// Max allowed inline data URI size (10MB) — allows fallback base64 uploaded images
+const MAX_INLINE_DATA_URI_SIZE = 10 * 1024 * 1024;
 
 function normalizeImagePath(imgPath, fallback = DEFAULT_IMAGE) {
     const raw = String(imgPath || '').trim();
@@ -16,12 +16,16 @@ function normalizeImagePath(imgPath, fallback = DEFAULT_IMAGE) {
         return fallback || DEFAULT_IMAGE;
     }
 
-    // If it's a full data URI, only allow small ones (favicons, tiny icons)
-    if (raw.startsWith('data:')) {
+    // If it's a full image data URI, allow it
+    if (raw.startsWith('data:image/')) {
         if (raw.length > MAX_INLINE_DATA_URI_SIZE) {
-            console.warn(`[imagePaths] Blocked large data URI (${(raw.length / 1024).toFixed(0)}KB) — use a URL instead`);
-            return normalizeImagePath(fallback || DEFAULT_IMAGE, DEFAULT_IMAGE);
+            console.warn(`[imagePaths] Blocked excessively large data URI (${(raw.length / 1024 / 1024).toFixed(1)}MB)`);
+            return fallback || DEFAULT_IMAGE;
         }
+        return raw;
+    }
+
+    if (raw.startsWith('data:')) {
         return raw;
     }
 
