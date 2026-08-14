@@ -178,7 +178,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <img src="<%= fixImg(user.avatar, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                    <img src="<%= fixImg(settings.brand_logo || user.avatar, '/brand-logo.png') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='/brand-logo.png'">
                     <div class="min-w-0">
                         <div class="fw-bold text-truncate notranslate" translate="no" style="font-size: 0.82rem;"><%= user.full_name %></div>
                         <div class="text-truncate" style="font-size: 0.7rem; color: var(--admin-muted);"><%= user.email %></div>
