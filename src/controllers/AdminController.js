@@ -399,6 +399,8 @@ const AdminController = {
                     [key, value]
                 );
             }
+            global._settingsCache = null;
+            global._settingsCacheTime = 0;
             res.json({ success: true, message: 'Đã cập nhật cài đặt!' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });

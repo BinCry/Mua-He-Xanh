@@ -73,19 +73,6 @@ if (!global._dbPatched) {
                     )
                 `)
             ]);
-            // Assign distinct cover photos (fire-and-forget, non-blocking)
-            Promise.all([
-                db.query(`UPDATE destinations SET cover_image = '/uploads/destinations/chua-phap-tang.png' WHERE slug LIKE '%phap-tang%' OR name LIKE '%Pháp Tạng%'`),
-                db.query(`UPDATE destinations SET cover_image = '/uploads/destinations/chua-thanh-tam.png' WHERE slug LIKE '%kim-cang%' OR slug LIKE '%thanh-tam%' OR name LIKE '%Kim Cang%' OR name LIKE '%Thanh Tâm%'`),
-                db.query(`UPDATE destinations SET cover_image = '/uploads/destinations/xuong-nhang.jpg' WHERE slug LIKE '%nhang%' OR name LIKE '%Nhang%'`),
-                db.query(`UPDATE destinations SET cover_image = '/uploads/destinations/lang-mai.jpg' WHERE slug LIKE '%mai%' OR name LIKE '%Mai%'`),
-                db.query(`UPDATE destinations SET cover_image = '/uploads/destinations/cau-chu-u.jpg' WHERE slug LIKE '%cau-chu-u%' OR slug LIKE '%cau-chu-z%' OR name LIKE '%Cầu%'`),
-                db.query(`UPDATE destinations SET cover_image = '/uploads/destinations/lang-le-park.jpg' WHERE slug LIKE '%lang-le%' OR name LIKE '%Láng Le%'`),
-                db.query(`UPDATE destinations SET cover_image = '/uploads/destinations/vuon-dua.png' WHERE slug LIKE '%dua%' OR name LIKE '%Dừa%'`),
-                db.query(`UPDATE events SET image = '/images/placeholder.jpg' WHERE image IS NULL OR image = '' OR image LIKE '/images/hero%'`),
-                db.query(`UPDATE events SET banner_image = '/images/placeholder.jpg' WHERE banner_image IS NULL OR banner_image = '' OR banner_image LIKE '/images/hero%'`),
-                db.query(`UPDATE workshops SET image = '/images/placeholder.jpg' WHERE image IS NULL OR image = '' OR image LIKE '/images/hero%'`)
-            ]).catch(() => {});
         } catch(e) {
             console.warn('Auto DB schema patch error:', e.message);
         }
@@ -271,7 +258,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets
-    res.locals.assetV = '55.0.0'; 
+    res.locals.assetV = '56.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
