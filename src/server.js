@@ -138,7 +138,7 @@ app.use(session({
     name: 'bl_session',
     secret: process.env.SESSION_SECRET || 'binh_loi_secret',
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
     cookie: {
         maxAge: 604800000, // 7 days
         secure: false // Set to false for compatibility
@@ -152,8 +152,8 @@ app.use(passport.session());
 // Critical for Vercel serverless where MemoryStore sessions are lost between instances
 app.use(async (req, res, next) => {
     try {
-        if (!req.session?.user && req.cookies?.session_uuid && !req.session?.sessionChecked) {
-            if (req.session) req.session.sessionChecked = true;
+        if (req.cookies?.session_uuid && req.session && !req.session?.user && !req.session?.sessionChecked) {
+            req.session.sessionChecked = true;
             const db = require('./core/database');
             const [sessions] = await db.query(
                 "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
@@ -210,28 +210,28 @@ app.use((req, res, next) => {
     });
 });
 
-// Force 301 redirect from *.vercel.app to custom domain dulichbinhloi.com
+// Force 301 redirect from *.vercel.app to custom domain www.dulichbinhloi.com
 app.use((req, res, next) => {
     const host = req.get('host') || '';
     if (host.includes('vercel.app')) {
-        return res.redirect(301, 'https://dulichbinhloi.com' + req.originalUrl);
+        return res.redirect(301, 'https://www.dulichbinhloi.com' + req.originalUrl);
     }
     next();
 });
 
 // Global variables for templates
 app.use(async (req, res, next) => {
-    // Dynamic Base URL detection (Prioritize dulichbinhloi.com for canonical share links)
+    // Dynamic Base URL detection (Prioritize www.dulichbinhloi.com for canonical share links)
     const protocol = req.headers['x-forwarded-proto'] || req.protocol;
     const host = req.get('host') || '';
     let autoBaseUrl = `${protocol}://${host}`;
     if (host.includes('vercel.app')) {
-        autoBaseUrl = 'https://dulichbinhloi.com';
+        autoBaseUrl = 'https://www.dulichbinhloi.com';
     }
     
-    // Use env BASE_URL or fallback to https://dulichbinhloi.com
+    // Use env BASE_URL or fallback to https://www.dulichbinhloi.com
     const baseUrl = (process.env.NODE_ENV === 'production') 
-        ? (process.env.BASE_URL || 'https://dulichbinhloi.com') 
+        ? (process.env.BASE_URL || 'https://www.dulichbinhloi.com') 
         : autoBaseUrl;
 
     res.locals.baseUrl = baseUrl;
@@ -241,7 +241,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets (Fixed version string allows browser caching)
-    res.locals.assetV = '48.0.0'; 
+    res.locals.assetV = '49.0.0'; 
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);

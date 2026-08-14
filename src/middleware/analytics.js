@@ -1,8 +1,12 @@
 /**
  * Analytics Middleware - Pure PostgreSQL
+ * Optimized for Vercel Edge CDN: Does NOT mutate req.session on GET requests,
+ * allowing Vercel CDN to cache HTML & static assets without Set-Cookie bypass.
  */
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
+
+const pageViewCache = new Map();
 
 module.exports = function analyticsMiddleware(req, res, next) {
     // Only track GET requests to pages (not API/static)
@@ -13,22 +17,23 @@ module.exports = function analyticsMiddleware(req, res, next) {
     const startTime = Date.now();
     const sessionId = req.cookies?.session_uuid || 'anonymous';
     const pageUrl = req.originalUrl;
+    const cacheKey = `${sessionId}:${pageUrl}`;
 
-    let shouldLogPageView = true;
-    if (req.session) {
-        req.session.visitedPages = req.session.visitedPages || {};
-        const lastVisited = req.session.visitedPages[pageUrl];
-        const THROTTLE_LIMIT = 15 * 60 * 1000;
+    const lastVisited = pageViewCache.get(cacheKey);
+    const THROTTLE_LIMIT = 15 * 60 * 1000; // 15 minutes throttle
 
-        if (lastVisited && (startTime - lastVisited < THROTTLE_LIMIT)) {
-            shouldLogPageView = false;
+    let shouldLog = true;
+    if (lastVisited && (startTime - lastVisited < THROTTLE_LIMIT)) {
+        shouldLog = false;
+    } else {
+        pageViewCache.set(cacheKey, startTime);
+        if (pageViewCache.size > 5000) {
+            pageViewCache.clear();
         }
-        req.session.visitedPages[pageUrl] = startTime;
     }
 
     res.on('finish', () => {
-        if (!shouldLogPageView) return;
-
+        if (!shouldLog) return;
         const duration = Date.now() - startTime;
         const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || 'unknown';
 
