@@ -63,9 +63,21 @@
                         </td>
                         <td style="max-width: 300px;">
                             <p class="small mb-1 text-truncate" style="max-width: 280px;" title="<%= r.content %>"><%= r.content %></p>
-                            <% if (imgs && imgs.length > 0) { %>
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-0.5 x-small fw-bold border-0 bg-primary bg-opacity-10 text-primary" 
-                                        onclick="viewReviewModal('<%= r.id %>', '<%= (r.full_name || '').replace(/'/g, "\\'") %>', '<%= r.avatar || '/images/default-avatar.png' %>', '<%= (r.content || '').replace(/'/g, "\\'").replace(/\n/g, ' ') %>', '<%= (r.destination_name || r.location_name || '').replace(/'/g, "\\'") %>', '<%= fixImg(imgs[0]) %>', '<%= r.rating || 5 %>', '<%= new Date(r.created_at).toLocaleDateString('vi-VN') %>')">
+                            <% if (imgs && imgs.length > 0) { 
+                                const modalData = {
+                                    id: r.id,
+                                    userName: r.full_name || 'Du khách',
+                                    avatar: r.avatar || '/images/default-avatar.png',
+                                    content: r.content || '',
+                                    location: r.destination_name || r.location_name || '',
+                                    imgUrl: fixImg(imgs[0]),
+                                    rating: r.rating || 5,
+                                    dateStr: new Date(r.created_at).toLocaleDateString('vi-VN')
+                                };
+                            %>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-0.5 x-small fw-bold border-0 bg-primary bg-opacity-10 text-primary btn-view-review-modal" 
+                                        data-review='<%- JSON.stringify(modalData).replace(/'/g, "&apos;") %>'
+                                        onclick="openReviewModalFromBtn(this)">
                                     <i class="bi bi-link-45deg me-1"></i>Xem bài viết & ảnh (<%= imgs.length %> ảnh)
                                 </button>
                             <% } %>
@@ -240,11 +252,20 @@
 </style>
 
 <script>
+function openReviewModalFromBtn(btn) {
+    try {
+        const data = JSON.parse(btn.getAttribute('data-review'));
+        viewReviewModal(data.id, data.userName, data.avatar, data.content, data.location, data.imgUrl, data.rating, data.dateStr);
+    } catch(e) {
+        console.error("Error opening review modal:", e);
+    }
+}
+
 function viewReviewModal(id, userName, avatar, content, location, imgUrl, rating, dateStr) {
-    document.getElementById('modal_review_user').innerText = userName;
+    document.getElementById('modal_review_user').innerText = userName || 'Du khách';
     document.getElementById('modal_review_avatar').src = avatar || '/images/default-avatar.png';
-    document.getElementById('modal_review_meta').innerText = (location ? location + ' • ' : '') + dateStr;
-    document.getElementById('modal_review_content').innerText = content;
+    document.getElementById('modal_review_meta').innerText = (location ? location + ' • ' : '') + (dateStr || '');
+    document.getElementById('modal_review_content').innerText = content || '';
     
     let starsHtml = '';
     const r = parseInt(rating || 5);
@@ -260,7 +281,8 @@ function viewReviewModal(id, userName, avatar, content, location, imgUrl, rating
         imgWrap.classList.add('d-none');
     }
 
-    const modal = new bootstrap.Modal(document.getElementById('viewReviewModal'));
+    const modalEl = document.getElementById('viewReviewModal');
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     modal.show();
 }
 function deleteReview(id) {
