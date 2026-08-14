@@ -20,7 +20,7 @@ const DEFAULT_HOME_DATA = {
     featured: [],
     season: { type: 'summer', title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn', slogan: 'Miệt vườn giữa phố, trải nghiệm bản sắc' },
     festival: { name: 'Lễ Hội Mai Vàng Bình Lợi', date: new Date(Date.now() + 86400000 * 30).toISOString(), location: 'Bình Lợi' },
-    stats: { checkins: 1250, pageViews: 3450, visitors: 1890, destinations: 10, workshopCount: 12, avgRating: 4.9 },
+    stats: { checkins: 0, pageViews: 0, visitors: 0, destinations: 10, workshopCount: 12, avgRating: 5.0 },
     reviews: [],
     seasonalExperiences: [],
     nextEvent: null,
@@ -98,10 +98,10 @@ class HomeController {
                     }
                 }
 
-                const totalPageViews = parseInt(pageViewResult[0]?.total || 3450, 10);
-                const totalVisitors = parseInt(uniqueVisitors[0]?.total || 1890, 10);
+                const totalPageViews = parseInt(pageViewResult[0]?.total ?? 0, 10);
+                const totalVisitors = parseInt(uniqueVisitors[0]?.total ?? 0, 10);
                 const activeDestinations = (featured && featured.length > 0) ? featured.length : 10;
-                const workshopCount = parseInt(workshopCountResult[0]?.total || 12, 10);
+                const workshopCount = parseInt(workshopCountResult[0]?.total ?? 0, 10);
 
                 let avgRating = avgRatingResult[0]?.avg || 4.9;
                 if (avgRating) {
