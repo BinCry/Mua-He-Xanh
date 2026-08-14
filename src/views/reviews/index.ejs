@@ -454,19 +454,20 @@
     }
 
     async function deleteComment(commentId, reviewId) {
-        if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return;
-        try {
-            const res = await axios.post('/api/reviews/delete-comment', { comment_id: commentId });
-            if (res.data.success) {
-                const countEls = document.querySelectorAll(`.comment-count-${reviewId}`);
-                countEls.forEach(el => el.innerText = res.data.count);
-                await loadComments(reviewId);
-            } else {
-                alert(res.data.message || 'Không thể xóa bình luận');
+        showAppConfirm('Bạn có chắc chắn muốn xóa bình luận này?', 'Xóa bình luận', async () => {
+            try {
+                const res = await axios.post('/api/reviews/delete-comment', { comment_id: commentId });
+                if (res.data.success) {
+                    const countEls = document.querySelectorAll(`.comment-count-${reviewId}`);
+                    countEls.forEach(el => el.innerText = res.data.count);
+                    await loadComments(reviewId);
+                } else {
+                    showAppAlert(res.data.message || 'Không thể xóa bình luận', 'Thông báo');
+                }
+            } catch(e) {
+                showAppAlert('Lỗi xóa bình luận: ' + (e.response?.data?.message || e.message), 'Lỗi');
             }
-        } catch(e) {
-            alert('Lỗi xóa bình luận: ' + (e.response?.data?.message || e.message));
-        }
+        });
     }
 
     function setReplyTarget(reviewId, parentId, authorName) {
@@ -498,18 +499,18 @@
     function checkCommentAuth(input) {
         if (!currentUserId) {
             if (input) input.blur();
-            if (confirm('Bạn cần đăng nhập tài khoản để tham gia gửi bình luận. Chuyển sang trang đăng nhập ngay?')) {
+            showAppConfirm('Bạn cần đăng nhập tài khoản để tham gia gửi bình luận. Chuyển sang trang đăng nhập ngay?', 'Đăng nhập', () => {
                 window.location.href = '/auth/login';
-            }
+            });
         }
     }
 
     async function submitComment(event, reviewId) {
         event.preventDefault();
         if (!currentUserId) {
-            if (confirm('Bạn cần đăng nhập tài khoản để tham gia gửi bình luận. Chuyển sang trang đăng nhập ngay?')) {
+            showAppConfirm('Bạn cần đăng nhập tài khoản để tham gia gửi bình luận. Chuyển sang trang đăng nhập ngay?', 'Đăng nhập', () => {
                 window.location.href = '/auth/login';
-            }
+            });
             return;
         }
 
@@ -533,16 +534,16 @@
                 badges.forEach(b => { b.textContent = res.data.count; });
                 await loadComments(reviewId);
             } else {
-                alert(res.data.message || 'Lỗi gửi bình luận.');
+                showAppAlert(res.data.message || 'Lỗi gửi bình luận.', 'Thông báo');
             }
         } catch(e) {
             console.error('Submit comment error:', e);
             if (e.response?.status === 401) {
-                if (confirm('Phiên đăng nhập đã hết hạn. Chuyển sang trang đăng nhập?')) {
+                showAppConfirm('Phiên đăng nhập đã hết hạn. Chuyển sang trang đăng nhập?', 'Phiên làm việc hết hạn', () => {
                     window.location.href = '/auth/login';
-                }
+                });
             } else {
-                alert(e.response?.data?.message || 'Không thể gửi bình luận lúc này.');
+                showAppAlert(e.response?.data?.message || 'Không thể gửi bình luận lúc này.', 'Lỗi');
             }
         }
     }
@@ -602,9 +603,9 @@
 
             const res = await axios.post('/api/reviews', formData);
             if (res.data.success) location.reload();
-            else alert(res.data.message || 'Lỗi đăng bài');
+            else showAppAlert(res.data.message || 'Lỗi đăng bài', 'Thông báo');
         } catch(e) {
-            alert('Lỗi đăng bài: ' + (e.response?.data?.message || e.message));
+            showAppAlert('Lỗi đăng bài: ' + (e.response?.data?.message || e.message), 'Lỗi');
         } finally {
             btn.disabled = false;
             btn.innerHTML = 'ĐĂNG BÀI';
@@ -612,18 +613,19 @@
     });
 
     async function deleteUserReview(reviewId, btnEl) {
-        if (!confirm('Bạn có chắc chắn muốn xóa bài viết này? Ảnh trong bài sẽ tự động gỡ khỏi Góc nhìn nghệ thuật.')) return;
-        try {
-            const res = await axios.post('/api/reviews/delete', { review_id: reviewId });
-            if (res.data.success) {
-                const card = btnEl.closest('.card');
-                if (card) card.remove();
-                else location.reload();
-            } else {
-                alert(res.data.message || 'Không thể xóa bài viết');
+        showAppConfirm('Bạn có chắc chắn muốn xóa bài viết này? Ảnh trong bài sẽ tự động gỡ khỏi Góc nhìn nghệ thuật.', 'Xóa bài viết', async () => {
+            try {
+                const res = await axios.post('/api/reviews/delete', { review_id: reviewId });
+                if (res.data.success) {
+                    const card = btnEl.closest('.card');
+                    if (card) card.remove();
+                    else location.reload();
+                } else {
+                    showAppAlert(res.data.message || 'Không thể xóa bài viết', 'Thông báo');
+                }
+            } catch(e) {
+                showAppAlert('Lỗi khi xóa: ' + (e.response?.data?.message || e.message), 'Lỗi');
             }
-        } catch(e) {
-            alert('Lỗi khi xóa: ' + (e.response?.data?.message || e.message));
-        }
+        });
     }
 </script>

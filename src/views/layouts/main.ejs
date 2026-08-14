@@ -692,7 +692,7 @@
         });
     </script>
 
-    <!-- Global Modern Confirm Modal Popup for Main App -->
+    <!-- Global Modern Confirm & Alert Modal Popups for Main App -->
     <script>
     let mainConfirmCallback = null;
     window.showAppConfirm = function(message, title = 'Xác nhận', onConfirm = null) {
@@ -707,6 +707,25 @@
         mainConfirmCallback = onConfirm;
         
         const modalEl = document.getElementById('appConfirmModal');
+        if (modalEl) {
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+    };
+
+    let mainAlertCallback = null;
+    window.showAppAlert = function(message, title = 'Thông báo', onOk = null) {
+        if (typeof title === 'function') {
+            onOk = title;
+            title = 'Thông báo';
+        }
+        const titleEl = document.getElementById('appAlertTitle');
+        const msgEl = document.getElementById('appAlertMessage');
+        if (titleEl) titleEl.innerText = title || 'Thông báo';
+        if (msgEl) msgEl.innerText = message || '';
+        mainAlertCallback = onOk;
+        
+        const modalEl = document.getElementById('appAlertModal');
         if (modalEl) {
             const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
             modal.show();
@@ -729,6 +748,22 @@
                 }
             });
         }
+
+        const btnAlertOk = document.getElementById('btnAppAlertOk');
+        if (btnAlertOk) {
+            btnAlertOk.addEventListener('click', function() {
+                const modalEl = document.getElementById('appAlertModal');
+                if (modalEl) {
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                }
+                if (typeof mainAlertCallback === 'function') {
+                    const cb = mainAlertCallback;
+                    mainAlertCallback = null;
+                    cb();
+                }
+            });
+        }
     });
     </script>
 
@@ -745,6 +780,21 @@
                         <button type="button" class="btn btn-light rounded-pill px-4 fw-bold flex-grow-1" data-bs-dismiss="modal">Hủy</button>
                         <button type="button" id="btnAppConfirmSubmit" class="btn btn-primary-bl rounded-pill px-4 fw-bold flex-grow-1">Đồng ý</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="appAlertModal" tabindex="-1" aria-hidden="true" style="z-index: 100005;">
+        <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
+            <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+                <div class="modal-body p-4 text-center">
+                    <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle bg-danger bg-opacity-10 text-danger" style="width: 56px; height: 56px;">
+                        <i class="bi bi-info-circle-fill fs-3" style="color: var(--primary);"></i>
+                    </div>
+                    <h5 id="appAlertTitle" class="fw-bold mb-2 text-dark" style="font-size: 1.05rem;">Thông báo</h5>
+                    <p id="appAlertMessage" class="text-muted small mb-4 px-1" style="line-height: 1.5; font-size: 0.88rem;"></p>
+                    <button type="button" id="btnAppAlertOk" class="btn btn-primary-bl rounded-pill px-4 fw-bold w-100">Đã hiểu</button>
                 </div>
             </div>
         </div>
