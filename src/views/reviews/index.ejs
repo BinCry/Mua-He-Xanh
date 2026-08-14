@@ -369,6 +369,9 @@
         }
     }
 
+    const currentUserId = '<%= user ? user.id : "" %>';
+    const currentUserRole = '<%= user ? user.role : "" %>';
+
     async function loadComments(reviewId) {
         const list = document.getElementById(`comments-list-${reviewId}`);
         if (!list) return;
@@ -384,16 +387,41 @@
                 });
 
                 list.innerHTML = topComments.map(c => {
+                    const isMyComment = (currentUserId && String(c.user_id) === String(currentUserId));
+                    const isMyPost = (currentUserId && String(c.post_user_id) === String(currentUserId));
+                    const isAdminUser = (currentUserRole === 'admin' || currentUserRole === 'manager');
+                    const canDeleteC = isMyComment || isMyPost || isAdminUser;
+
+                    const deleteBtnC = canDeleteC ? `
+                        <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none ms-2" style="font-size: 0.72rem; font-weight: 600;" onclick="deleteComment('${c.id}', '${reviewId}')" title="Xóa bình luận">
+                            <i class="bi bi-trash3-fill me-1"></i>Xóa
+                        </button>
+                    ` : '';
+
                     const replies = replyMap[c.id] || [];
-                    const repliesHtml = replies.map(r => `
-                        <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs mt-1 ms-4 border-start border-3 border-danger">
-                            <img src="${r.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;">
-                            <div class="min-w-0 flex-grow-1" style="font-size: 0.8rem;">
-                                <span class="fw-bold d-block text-dark" style="font-size: 0.78rem;">${r.full_name}</span>
-                                <span class="text-secondary">${r.content}</span>
+                    const repliesHtml = replies.map(r => {
+                        const isMyReply = (currentUserId && String(r.user_id) === String(currentUserId));
+                        const isMyPostReply = (currentUserId && String(r.post_user_id) === String(currentUserId));
+                        const canDeleteR = isMyReply || isMyPostReply || isAdminUser;
+                        const deleteBtnR = canDeleteR ? `
+                            <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none ms-2" style="font-size: 0.72rem; font-weight: 600;" onclick="deleteComment('${r.id}', '${reviewId}')" title="Xóa bình luận">
+                                <i class="bi bi-trash3-fill me-1"></i>Xóa
+                            </button>
+                        ` : '';
+
+                        return `
+                            <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs mt-1 ms-4 border-start border-3 border-danger">
+                                <img src="${r.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;">
+                                <div class="min-w-0 flex-grow-1" style="font-size: 0.8rem;">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="fw-bold text-dark" style="font-size: 0.78rem;">${r.full_name}</span>
+                                        <div>${deleteBtnR}</div>
+                                    </div>
+                                    <span class="text-secondary">${r.content}</span>
+                                </div>
                             </div>
-                        </div>
-                    `).join('');
+                        `;
+                    }).join('');
 
                     return `
                         <div class="d-flex flex-column gap-1">
@@ -402,9 +430,12 @@
                                 <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span class="fw-bold text-dark" style="font-size: 0.82rem;">${c.full_name}</span>
-                                        <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none fw-bold" style="font-size: 0.72rem;" onclick="setReplyTarget('${reviewId}', '${c.id}', '${c.full_name}')">
-                                            <i class="bi bi-reply-fill me-1"></i>Trả lời
-                                        </button>
+                                        <div class="d-flex align-items-center gap-1">
+                                            <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none fw-bold" style="font-size: 0.72rem;" onclick="setReplyTarget('${reviewId}', '${c.id}', '${c.full_name}')">
+                                                <i class="bi bi-reply-fill me-1"></i>Trả lời
+                                            </button>
+                                            ${deleteBtnC}
+                                        </div>
                                     </div>
                                     <span class="text-secondary d-block mt-0.5">${c.content}</span>
                                 </div>
@@ -418,6 +449,22 @@
             }
         } catch(e) {
             list.innerHTML = `<div class="text-danger small text-center">Không thể tải bình luận.</div>`;
+        }
+    }
+
+    async function deleteComment(commentId, reviewId) {
+        if (!confirm('Bạn có chắc chắn muốn xóa bình luận này?')) return;
+        try {
+            const res = await axios.post('/api/reviews/delete-comment', { comment_id: commentId });
+            if (res.data.success) {
+                const countEls = document.querySelectorAll(`.comment-count-${reviewId}`);
+                countEls.forEach(el => el.innerText = res.data.count);
+                await loadComments(reviewId);
+            } else {
+                alert(res.data.message || 'Không thể xóa bình luận');
+            }
+        } catch(e) {
+            alert('Lỗi xóa bình luận: ' + (e.response?.data?.message || e.message));
         }
     }
 

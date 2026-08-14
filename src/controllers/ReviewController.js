@@ -219,10 +219,12 @@ const ReviewController = {
             if (!review_id) return res.json({ success: true, data: [] });
 
             const [comments] = await db.query(`
-                SELECT c.id, c.review_id, c.parent_id, c.content, c.created_at,
+                SELECT c.id, c.review_id, c.parent_id, c.content, c.created_at, c.user_id, c.guest_uuid,
+                       r.user_id as post_user_id,
                        COALESCE(u.full_name, 'Du khách Bình Lợi') as full_name,
                        COALESCE(u.avatar, '/images/default-avatar.png') as avatar
                 FROM review_comments c
+                JOIN reviews r ON c.review_id = r.id
                 LEFT JOIN users u ON c.user_id = u.id
                 WHERE c.review_id = $1
                 ORDER BY c.created_at ASC
@@ -232,6 +234,48 @@ const ReviewController = {
         } catch (e) {
             console.error("getComments error:", e);
             res.json({ success: false, data: [] });
+        }
+    },
+
+    deleteComment: async (req, res) => {
+        try {
+            const user = req.user || req.session?.user;
+            const sessionUuid = req.cookies?.session_uuid;
+
+            const { comment_id } = req.body;
+            if (!comment_id) return res.status(400).json({ success: false, message: 'Thiếu ID bình luận' });
+
+            const [rows] = await db.query(
+                `SELECT c.id, c.review_id, c.user_id as comment_user_id, c.guest_uuid as comment_guest_uuid, r.user_id as post_user_id
+                 FROM review_comments c
+                 JOIN reviews r ON c.review_id = r.id
+                 WHERE c.id = $1`,
+                [comment_id]
+            );
+
+            if (rows.length === 0) {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy bình luận' });
+            }
+
+            const comment = rows[0];
+            const isCommentAuthor = (user && String(comment.comment_user_id) === String(user.id)) || (sessionUuid && comment.comment_guest_uuid === sessionUuid);
+            const isPostAuthor = user && String(comment.post_user_id) === String(user.id);
+            const isAdmin = user && (user.role === 'admin' || user.role === 'manager');
+
+            if (!isCommentAuthor && !isPostAuthor && !isAdmin) {
+                return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa bình luận này.' });
+            }
+
+            await db.query('DELETE FROM review_comments WHERE id = $1 OR parent_id = $1', [comment_id]);
+
+            const [countRow] = await db.query('SELECT COUNT(*) as cnt FROM review_comments WHERE review_id = $1', [comment.review_id]);
+            const newCount = parseInt(countRow[0]?.cnt || 0, 10);
+            await db.query('UPDATE reviews SET comments_count = $1 WHERE id = $2', [newCount, comment.review_id]);
+
+            res.json({ success: true, message: 'Đã xóa bình luận!', count: newCount, review_id: comment.review_id });
+        } catch (error) {
+            console.error('Delete comment error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
         }
     },
 
