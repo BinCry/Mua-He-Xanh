@@ -70,14 +70,6 @@ const ReviewController = {
             let images = null;
             if (req.file) {
                 let savedPath = null;
-                if (req.file.filename) {
-                    savedPath = '/uploads/' + req.file.filename;
-                } else if (req.file.path) {
-                    const rel = req.file.path.replace(/\\/g, '/');
-                    const match = rel.match(/\/uploads\/.+/i);
-                    savedPath = match ? match[0] : ('/' + rel);
-                }
-
                 try {
                     const { uploadToCloudinary } = require('../config/cloudinary');
                     const result = await uploadToCloudinary(req.file.path || req.file.buffer, 'binh-loi/reviews');
@@ -85,7 +77,21 @@ const ReviewController = {
                         savedPath = result.secure_url || result.url;
                     }
                 } catch(e) {
-                    console.log('Cloudinary fallback to local upload path:', savedPath);
+                    console.log('Cloudinary upload warning:', e.message);
+                }
+
+                if (!savedPath && req.file.path && fs.existsSync(req.file.path)) {
+                    try {
+                        const fileBuf = fs.readFileSync(req.file.path);
+                        const mime = req.file.mimetype || 'image/jpeg';
+                        savedPath = `data:${mime};base64,${fileBuf.toString('base64')}`;
+                    } catch(readErr) {
+                        console.error('Base64 fallback error:', readErr);
+                    }
+                }
+
+                if (!savedPath && req.file.filename) {
+                    savedPath = '/uploads/' + req.file.filename;
                 }
 
                 if (savedPath) {

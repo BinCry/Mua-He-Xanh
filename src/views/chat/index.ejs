@@ -100,10 +100,10 @@
                     const senderName = currentUser ? currentUser.full_name : 'Bạn';
                     html += `
                         <div class="message-sent mb-2 d-flex justify-content-end">
-                            <div class="d-flex flex-column align-items-end" style="max-width: 72%;">
-                                <div class="px-3.5 py-2.5 text-white shadow-2xs" style="width: fit-content; font-size: 0.92rem; line-height: 1.4; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; word-break: break-word;">
+                            <div class="d-flex flex-column align-items-end" style="width: fit-content; max-width: 86%;">
+                                <div class="px-3.5 py-2.5 text-white shadow-2xs" style="width: fit-content; max-width: 100%; font-size: 0.92rem; line-height: 1.4; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; word-break: break-word; overflow-wrap: anywhere;">
                                     <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
-                                    <span class="x-small opacity-65 ms-2" style="font-size: 9.5px;">${timeStr}</span>
+                                    <span class="x-small opacity-65 ms-2 text-nowrap" style="font-size: 9.5px;">${timeStr}</span>
                                 </div>
                             </div>
                         </div>
@@ -114,11 +114,11 @@
                     const label = isAI ? '🤖 Trợ lý AI' : 'Ban Quản Trị';
                     html += `
                         <div class="message-received mb-2 d-flex gap-2 align-items-end">
-                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                            <div class="d-flex flex-column" style="max-width: 72%;">
-                                <div class="px-3.5 py-2.5 text-dark shadow-2xs" style="width: fit-content; font-size: 0.92rem; line-height: 1.4; background: ${isAI ? 'rgba(16,185,129,0.08)' : '#e4e6eb'} !important; color: #050505 !important; border-radius: 18px 18px 18px 4px !important; word-break: break-word; ${isAI ? 'border: 1px solid rgba(16,185,129,0.2);' : ''}">
+                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                            <div class="d-flex flex-column" style="width: fit-content; max-width: 86%;">
+                                <div class="px-3.5 py-2.5 text-dark shadow-2xs" style="width: fit-content; max-width: 100%; font-size: 0.92rem; line-height: 1.4; background: ${isAI ? 'rgba(16,185,129,0.08)' : '#e4e6eb'} !important; color: #050505 !important; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere; ${isAI ? 'border: 1px solid rgba(16,185,129,0.2);' : ''}">
                                     <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
-                                    <span class="x-small opacity-60 ms-2" style="font-size: 9.5px; color: #65676b;">${timeStr}</span>
+                                    <span class="x-small opacity-60 ms-2 text-nowrap" style="font-size: 9.5px; color: #65676b;">${timeStr}</span>
                                 </div>
                             </div>
                         </div>

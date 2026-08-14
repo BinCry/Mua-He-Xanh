@@ -46,7 +46,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% reviews.forEach(r => { %>
+                    <% reviews.forEach(r => { 
+                        let imgs = [];
+                        try {
+                            if (r.images) {
+                                imgs = typeof r.images === 'string' ? JSON.parse(r.images) : r.images;
+                            }
+                        } catch(e) {}
+                    %>
                     <tr>
                         <td>
                             <div class="d-flex align-items-center gap-2">
@@ -55,7 +62,13 @@
                             </div>
                         </td>
                         <td style="max-width: 300px;">
-                            <p class="small mb-0 text-truncate" style="max-width: 280px;" title="<%= r.content %>"><%= r.content %></p>
+                            <p class="small mb-1 text-truncate" style="max-width: 280px;" title="<%= r.content %>"><%= r.content %></p>
+                            <% if (imgs && imgs.length > 0) { %>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-0.5 x-small fw-bold border-0 bg-primary bg-opacity-10 text-primary" 
+                                        onclick="viewReviewModal('<%= r.id %>', '<%= (r.full_name || '').replace(/'/g, "\\'") %>', '<%= r.avatar || '/images/default-avatar.png' %>', '<%= (r.content || '').replace(/'/g, "\\'").replace(/\n/g, ' ') %>', '<%= (r.destination_name || r.location_name || '').replace(/'/g, "\\'") %>', '<%= fixImg(imgs[0]) %>', '<%= r.rating || 5 %>', '<%= new Date(r.created_at).toLocaleDateString('vi-VN') %>')">
+                                    <i class="bi bi-link-45deg me-1"></i>Xem bài viết & ảnh (<%= imgs.length %> ảnh)
+                                </button>
+                            <% } %>
                         </td>
                         <td class="small"><%= r.destination_name || r.location_name || '-' %></td>
                         <td>
@@ -175,6 +188,35 @@
             </div>
         </div>
     </div>
+<!-- Review Detail Modal Popup -->
+<div class="modal fade" id="viewReviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden" style="background: var(--admin-surface, #ffffff);">
+            <div class="modal-header border-bottom border-secondary border-opacity-10 p-3 px-4" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%);">
+                <h6 class="modal-title fw-bold text-white mb-0"><i class="bi bi-card-image me-2"></i>Chi Tiết Bài Đăng Cộng Đồng</h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <img id="modal_review_avatar" src="/images/default-avatar.png" class="rounded-circle shadow-sm" style="width: 46px; height: 46px; object-fit: cover;">
+                    <div>
+                        <h6 class="fw-bold mb-0" id="modal_review_user" style="color: var(--admin-text);">---</h6>
+                        <small class="text-muted" style="font-size: 0.78rem;" id="modal_review_meta">---</small>
+                    </div>
+                    <div class="ms-auto" id="modal_review_rating"></div>
+                </div>
+                
+                <p class="p-3 bg-light rounded-3 border text-dark mb-3" id="modal_review_content" style="font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap;"></p>
+
+                <div id="modal_review_img_wrap" class="text-center rounded-4 overflow-hidden shadow-2xs border bg-black d-none">
+                    <img id="modal_review_img" src="" class="w-100" style="max-height: 480px; object-fit: contain;">
+                </div>
+            </div>
+            <div class="modal-footer border-top border-secondary border-opacity-10 p-3">
+                <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <style>
@@ -198,6 +240,29 @@
 </style>
 
 <script>
+function viewReviewModal(id, userName, avatar, content, location, imgUrl, rating, dateStr) {
+    document.getElementById('modal_review_user').innerText = userName;
+    document.getElementById('modal_review_avatar').src = avatar || '/images/default-avatar.png';
+    document.getElementById('modal_review_meta').innerText = (location ? location + ' • ' : '') + dateStr;
+    document.getElementById('modal_review_content').innerText = content;
+    
+    let starsHtml = '';
+    const r = parseInt(rating || 5);
+    for(let i = 0; i < r; i++) starsHtml += '⭐';
+    document.getElementById('modal_review_rating').innerHTML = `<span class="text-warning small">${starsHtml}</span>`;
+
+    const imgWrap = document.getElementById('modal_review_img_wrap');
+    const imgEl = document.getElementById('modal_review_img');
+    if (imgUrl) {
+        imgEl.src = imgUrl;
+        imgWrap.classList.remove('d-none');
+    } else {
+        imgWrap.classList.add('d-none');
+    }
+
+    const modal = new bootstrap.Modal(document.getElementById('viewReviewModal'));
+    modal.show();
+}
 function deleteReview(id) {
     showAdminConfirm('Bạn có chắc chắn muốn xóa bài đánh giá này?', async () => {
         try {

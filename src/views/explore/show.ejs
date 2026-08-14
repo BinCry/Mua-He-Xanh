@@ -426,9 +426,9 @@ function renderChatHistory(messages) {
                 // MY MESSAGE: Right-aligned, Facebook Messenger / Zalo Maroon pill bubble
                 html += `
                     <div class="mb-2.5 d-flex justify-content-end">
-                        <div class="p-2.5 px-3.5 text-white shadow-2xs" style="max-width: 78%; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px; font-size: 0.9rem; line-height: 1.45;">
+                        <div class="p-2.5 px-3.5 text-white shadow-2xs" style="width: fit-content; max-width: 86%; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px; font-size: 0.9rem; line-height: 1.45; word-break: break-word; overflow-wrap: anywhere;">
                             ${escapeHtml(msg.message)}
-                            <div class="x-small opacity-75 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
+                            <div class="x-small opacity-75 text-end mt-1 text-nowrap" style="font-size: 10px;">${timeStr}</div>
                         </div>
                     </div>
                 `;
@@ -437,9 +437,9 @@ function renderChatHistory(messages) {
                 html += `
                     <div class="mb-2.5 d-flex justify-content-start align-items-end gap-2">
                         <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                        <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45;">
+                        <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="width: fit-content; max-width: 86%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45; word-break: break-word; overflow-wrap: anywhere;">
                             ${escapeHtml(msg.message)}
-                            <div class="x-small opacity-50 text-end mt-1" style="font-size: 10px;">${timeStr}</div>
+                            <div class="x-small opacity-50 text-end mt-1 text-nowrap" style="font-size: 10px;">${timeStr}</div>
                         </div>
                     </div>
                 `;
