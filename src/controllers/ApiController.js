@@ -563,7 +563,7 @@ class ApiController {
             const destinations = parseInt(dest[0]?.total ?? 10, 10);
             
             const reviewCount = parseInt(avg[0]?.count ?? 0, 10);
-            let avgRating = '-/-';
+            let avgRating = '5.0';
             if (reviewCount > 0 && avg[0]?.avg !== null) {
                 avgRating = (Math.round(parseFloat(avg[0].avg) * 10) / 10).toFixed(1);
             }

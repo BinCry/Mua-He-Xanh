@@ -114,7 +114,7 @@ class HomeController {
             const workshopCount = parseInt(workshopCountResult[0]?.total ?? 0, 10);
 
             const reviewCount = parseInt(avgRatingResult[0]?.count ?? 0, 10);
-            let avgRating = '-/-';
+            let avgRating = '5.0';
             if (reviewCount > 0 && avgRatingResult[0]?.avg !== null) {
                 avgRating = (Math.round(parseFloat(avgRatingResult[0].avg) * 10) / 10).toFixed(1);
             }

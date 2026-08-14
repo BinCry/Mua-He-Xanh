@@ -227,7 +227,7 @@
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
                     <div class="stat-number" id="stat-rating">
-                        <%= (stats.avgRating && stats.avgRating !== '-/-') ? stats.avgRating + '/5' : '-/-' %>
+                        <%= (stats && stats.avgRating) ? stats.avgRating + '/5' : '5.0/5' %>
                     </div>
                     <div class="stat-text">ĐÁNH GIÁ TRUNG BÌNH</div>
                 </div>
@@ -741,7 +741,7 @@
                 if (pvEl) pvEl.textContent = (s.pageViews || 0).toLocaleString() + '+';
                 if (ckEl) ckEl.textContent = (s.checkins || 0).toLocaleString() + '+';
                 if (destEl) destEl.textContent = (s.destinations || 0) + '+';
-                if (rateEl) rateEl.textContent = (s.avgRating && s.avgRating !== '-/-') ? (s.avgRating + '/5') : '-/-';
+                if (rateEl) rateEl.textContent = (s.avgRating || '5.0') + '/5';
             }
         } catch (e) {}
     }
