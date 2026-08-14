@@ -70,18 +70,29 @@ const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
             
             // Tier 3: Compressed WebP Data URI for Vercel read-only filesystem
             if (fs.existsSync(filePath)) {
-                const buffer = await sharp(filePath)
-                    .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-                    .webp({ quality: 80 })
-                    .toBuffer();
-                
-                try { fs.unlinkSync(filePath); } catch (e) {}
-                
-                const dataUri = `data:image/webp;base64,${buffer.toString('base64')}`;
-                return {
-                    url: dataUri,
-                    public_id: `datauri-${Date.now()}`
-                };
+                try {
+                    const buffer = await sharp(filePath)
+                        .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+                        .webp({ quality: 80 })
+                        .toBuffer();
+                    
+                    try { fs.unlinkSync(filePath); } catch (e) {}
+                    
+                    const dataUri = `data:image/webp;base64,${buffer.toString('base64')}`;
+                    return {
+                        url: dataUri,
+                        public_id: `datauri-${Date.now()}`
+                    };
+                } catch (sharpErr) {
+                    console.warn('[UPLOAD] Sharp conversion failed, using raw Base64 fallback:', sharpErr.message);
+                    const rawBuffer = fs.readFileSync(filePath);
+                    const ext = path.extname(filePath).replace('.', '') || 'jpeg';
+                    try { fs.unlinkSync(filePath); } catch (e) {}
+                    return {
+                        url: `data:image/${ext};base64,${rawBuffer.toString('base64')}`,
+                        public_id: `rawbase64-${Date.now()}`
+                    };
+                }
             }
         }
     } catch (error) {

@@ -1,14 +1,27 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const os = require('os');
 
-// Configure storage
+// Configure storage with dynamic writability check
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const isProduction = process.env.NODE_ENV === 'production' || process.env.VERCEL;
-        const uploadPath = isProduction ? '/tmp' : path.join(__dirname, '../../public/uploads/media');
+        let uploadPath = os.tmpdir();
+        try {
+            const localPath = path.join(__dirname, '../../public/uploads/media');
+            if (!fs.existsSync(localPath)) {
+                fs.mkdirSync(localPath, { recursive: true });
+            }
+            const testFile = path.join(localPath, `.write_test_${Date.now()}`);
+            fs.writeFileSync(testFile, 'w');
+            fs.unlinkSync(testFile);
+            uploadPath = localPath;
+        } catch (e) {
+            uploadPath = os.tmpdir();
+        }
+
         if (!fs.existsSync(uploadPath)) {
-            fs.mkdirSync(uploadPath, { recursive: true });
+            try { fs.mkdirSync(uploadPath, { recursive: true }); } catch (e) {}
         }
         cb(null, uploadPath);
     },
@@ -20,7 +33,11 @@ const storage = multer.diskStorage({
 
 // File filter (images and audio)
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype.startsWith('image/') || file.mimetype.startsWith('audio/') || file.mimetype === 'application/octet-stream') {
+    if (
+        file.mimetype.startsWith('image/') ||
+        file.mimetype.startsWith('audio/') ||
+        file.mimetype === 'application/octet-stream'
+    ) {
         cb(null, true);
     } else {
         cb(new Error('Chỉ được phép tải lên hình ảnh hoặc âm thanh!'), false);
@@ -30,8 +47,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ 
     storage: storage,
     fileFilter: fileFilter,
-    limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit for audio/video files
+    limits: { fileSize: 25 * 1024 * 1024 } // 25MB limit
 });
-
 
 module.exports = upload;
