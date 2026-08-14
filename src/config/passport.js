@@ -65,7 +65,7 @@ if (config.auth.google.clientId && config.auth.google.clientId !== 'MISSING_CLIE
     passport.use(new GoogleStrategy({
         clientID: config.auth.google.clientId,
         clientSecret: config.auth.google.clientSecret,
-        callbackURL: config.auth.google.callbackUrl,
+        callbackURL: '/auth/google/callback',
         proxy: true
       },
       async function(accessToken, refreshToken, profile, cb) {
@@ -120,7 +120,7 @@ if (config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID
     passport.use(new FacebookStrategy({
         clientID: config.auth.facebook.appId,
         clientSecret: config.auth.facebook.appSecret,
-        callbackURL: config.auth.facebook.callbackUrl,
+        callbackURL: '/auth/facebook/callback',
         profileFields: ['id', 'displayName', 'photos'],
         proxy: true
       },
