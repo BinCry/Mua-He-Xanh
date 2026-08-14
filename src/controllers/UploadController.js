@@ -44,6 +44,10 @@ const UploadController = {
                 ['brand_logo', publicUrl]
             );
 
+            // Invalidate RAM cache so the new logo appears immediately on all pages
+            global._settingsCache = null;
+            global._settingsCacheTime = 0;
+
             res.json({
                 success: true,
                 message: 'Logo đã được cập nhật!',

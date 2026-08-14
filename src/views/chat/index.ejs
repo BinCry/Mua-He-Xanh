@@ -62,7 +62,7 @@
                 </span>
             </div>
             <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
-                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
+                <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
                 <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
                     Xin chào! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
                 </div>
@@ -88,7 +88,7 @@
                     // RECEIVED FROM ADMIN / MANAGER: Aligned LEFT with Logo Avatar
                     html += `
                         <div class="message-received mb-2 d-flex gap-2 align-items-end">
-                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
+                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
                             <div class="px-3.5 py-2.5 text-dark shadow-2xs" style="max-width: 72%; width: fit-content; font-size: 0.92rem; line-height: 1.4; background: #e4e6eb !important; color: #050505 !important; border-radius: 18px 18px 18px 4px !important; word-break: break-word;">
                                 <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
                                 <span class="x-small opacity-60 ms-2" style="font-size: 9.5px; color: #65676b;">${timeStr}</span>
