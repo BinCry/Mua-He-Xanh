@@ -18,13 +18,14 @@ if (isCloudinaryConfigured()) {
     });
     console.log('✅ Cloudinary configured successfully.');
 } else {
-    console.warn('⚠️  Cloudinary: Missing or placeholder credentials. Using local storage fallback.');
+    console.warn('⚠️  Cloudinary: Missing credentials. Using local file storage fallback (/uploads/media).');
 }
 
 /**
- * Uploads a local file to Cloudinary or falls back to local relative path if Cloudinary is not configured.
- * @param {string} filePath - Absolute path to local file
- * @param {string} folder - Folder name in Cloudinary (e.g., 'binh-loi/media')
+ * Uploads a file to Cloudinary (if configured) or moves to /public/uploads/media/ (if unconfigured/local fallback).
+ * Never converts to base64 to avoid HTML payload bloat.
+ * @param {string} filePath - Absolute path to temporary uploaded file
+ * @param {string} folder - Folder name in Cloudinary
  * @returns {Promise<{url: string, public_id: string}>}
  */
 const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
@@ -34,94 +35,66 @@ const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
                 folder: folder,
                 resource_type: 'auto'
             });
-            // Try to delete the temp local file after successful upload to Cloudinary
             try {
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
                 }
-            } catch (err) {
-                console.error('Cloudinary: Error deleting local temp file:', err);
-            }
+            } catch (err) {}
             return {
                 url: result.secure_url,
                 public_id: result.public_id
             };
         } else {
-            // Local fallback: convert to base64 data URL to persist across ephemeral Render restarts
+            // Local file storage fallback: move file into /public/uploads/media/
+            const mediaDir = path.join(__dirname, '..', '..', 'public', 'uploads', 'media');
+            if (!fs.existsSync(mediaDir)) {
+                fs.mkdirSync(mediaDir, { recursive: true });
+            }
+
+            const ext = path.extname(filePath).toLowerCase();
+            const filename = `media-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+            const destPath = path.join(mediaDir, filename);
+
+            fs.copyFileSync(filePath, destPath);
             try {
-                const ext = path.extname(filePath).toLowerCase();
-                const mimeTypes = {
-                    '.png': 'image/png',
-                    '.jpg': 'image/jpeg',
-                    '.jpeg': 'image/jpeg',
-                    '.gif': 'image/gif',
-                    '.svg': 'image/svg+xml',
-                    '.webp': 'image/webp',
-                    '.mp3': 'audio/mpeg',
-                    '.wav': 'audio/wav'
-                };
-                const mimeType = mimeTypes[ext] || 'application/octet-stream';
-                const fileData = fs.readFileSync(filePath);
-                const base64Data = fileData.toString('base64');
-                const dataUrl = `data:${mimeType};base64,${base64Data}`;
-                
-                // Delete temporary file
                 if (fs.existsSync(filePath)) {
                     fs.unlinkSync(filePath);
                 }
-                
-                console.log(`[CLOUDINARY FALLBACK] Converted ${ext} file to Base64 data URL.`);
-                return {
-                    url: dataUrl,
-                    public_id: `local-base64-${Date.now()}`
-                };
-            } catch (err) {
-                console.error('Cloudinary: Error converting fallback to base64:', err);
-                const filename = path.basename(filePath);
-                return {
-                    url: `/uploads/media/${filename}`,
-                    public_id: `local-fallback-${Date.now()}`
-                };
-            }
+            } catch (err) {}
+
+            const publicUrl = `/uploads/media/${filename}`;
+            console.log(`[LOCAL UPLOAD] Saved file to ${publicUrl}`);
+            return {
+                url: publicUrl,
+                public_id: `local-${filename}`
+            };
         }
     } catch (error) {
-        console.error('Cloudinary: Upload error:', error);
-        // Fallback: convert to base64 data URL (same as unconfigured path)
-        // This ensures the image data is embedded directly and persists even on ephemeral hosts
+        console.error('Cloudinary upload error:', error);
+        // Fallback: move file into /public/uploads/media/
         try {
             if (fs.existsSync(filePath)) {
+                const mediaDir = path.join(__dirname, '..', '..', 'public', 'uploads', 'media');
+                if (!fs.existsSync(mediaDir)) {
+                    fs.mkdirSync(mediaDir, { recursive: true });
+                }
                 const ext = path.extname(filePath).toLowerCase();
-                const mimeTypes = {
-                    '.png': 'image/png',
-                    '.jpg': 'image/jpeg',
-                    '.jpeg': 'image/jpeg',
-                    '.gif': 'image/gif',
-                    '.svg': 'image/svg+xml',
-                    '.webp': 'image/webp',
-                    '.mp3': 'audio/mpeg',
-                    '.wav': 'audio/wav'
-                };
-                const mimeType = mimeTypes[ext] || 'application/octet-stream';
-                const fileData = fs.readFileSync(filePath);
-                const base64Data = fileData.toString('base64');
-                const dataUrl = `data:${mimeType};base64,${base64Data}`;
-                
-                // Delete temporary file
-                try { fs.unlinkSync(filePath); } catch (e) { /* ignore */ }
-                
-                console.log(`[CLOUDINARY ERROR FALLBACK] Converted ${ext} file to Base64 data URL.`);
+                const filename = `media-err-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+                const destPath = path.join(mediaDir, filename);
+                fs.copyFileSync(filePath, destPath);
+                try { fs.unlinkSync(filePath); } catch (e) {}
+
+                const publicUrl = `/uploads/media/${filename}`;
                 return {
-                    url: dataUrl,
-                    public_id: `local-error-base64-${Date.now()}`
+                    url: publicUrl,
+                    public_id: `local-err-${filename}`
                 };
             }
-        } catch (fallbackErr) {
-            console.error('Cloudinary: Base64 fallback also failed:', fallbackErr);
-        }
-        // Last resort: return a placeholder
+        } catch (err) {}
+
         return {
             url: '/images/placeholder.jpg',
-            public_id: `local-error-${Date.now()}`
+            public_id: `error-${Date.now()}`
         };
     }
 };
