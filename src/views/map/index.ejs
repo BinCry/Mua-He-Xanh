@@ -105,7 +105,7 @@ let map, markers = [];
 const destData = (<%- JSON.stringify(allDests) %>);
 
 function normalizeImageUrl(src) {
-    if (!src || src === 'undefined' || src === 'NULL') return '/images/hero-1.png';
+    if (!src || src === 'undefined' || src === 'NULL' || src.includes('placeholder.jpg') || src.includes('Poster 1') || src.includes('hero-1')) return '/images/no-image.svg';
     if (src.startsWith('http') || src.startsWith('data:')) return src;
 
     const clean = src.replace(/^public[\\/]/, '').replace(/\\/g, '/');
@@ -149,7 +149,7 @@ function initMap() {
 
         const content = `
             <div style="width: 220px; padding: 5px; font-family: 'Inter', sans-serif;">
-                <img src="${normalizeImageUrl(dest.cover_image)}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" onerror="this.src='/images/hero-1.png'">
+                <img src="${normalizeImageUrl(dest.cover_image)}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 8px; margin-bottom: 10px;" onerror="this.src='/images/no-image.svg'">
                 <span class="badge bg-success bg-opacity-10 text-success mb-1" style="font-size: 11px;">${dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm'))))}</span>
                 <h6 style="margin: 5px 0; font-weight: bold; font-family: 'Inter', sans-serif;">${dest.name}</h6>
                 <p style="font-size: 12px; color: #475569; margin: 0 0 8px; font-family: 'Inter', sans-serif;">${dest.short_desc || ''}</p>

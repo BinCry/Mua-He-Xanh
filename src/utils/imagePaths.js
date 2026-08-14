@@ -1,4 +1,4 @@
-const DEFAULT_IMAGE = '/images/Poster 1.jpg';
+const DEFAULT_IMAGE = '/images/no-image.svg';
 
 // Legacy alias overrides removed to ensure user-uploaded images and logos are NEVER hijacked or overwritten
 const LEGACY_IMAGE_ALIASES = Object.freeze({});
@@ -12,8 +12,8 @@ const MAX_INLINE_DATA_URI_SIZE = 2048;
 
 function normalizeImagePath(imgPath, fallback = DEFAULT_IMAGE) {
     const raw = String(imgPath || '').trim();
-    if (!raw || raw.toLowerCase() === 'undefined' || raw.toLowerCase() === 'null') {
-        return normalizeImagePath(fallback || DEFAULT_IMAGE, DEFAULT_IMAGE);
+    if (!raw || raw.toLowerCase() === 'undefined' || raw.toLowerCase() === 'null' || raw.includes('placeholder.jpg') || raw.includes('Poster 1.png') || raw.includes('Poster 1.jpg') || raw.includes('hero-1.png')) {
+        return fallback || DEFAULT_IMAGE;
     }
 
     // If it's a full data URI, only allow small ones (favicons, tiny icons)
