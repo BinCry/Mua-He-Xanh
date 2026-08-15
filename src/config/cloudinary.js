@@ -68,12 +68,12 @@ const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
         } catch (fsErr) {
             console.warn('[UPLOAD] Local FS write error (Vercel read-only), generating compressed Data URI:', fsErr.message);
             
-            // Tier 3: Compressed WebP Data URI for Vercel read-only filesystem
+            // Tier 3: Compressed High-Res WebP Data URI for Vercel read-only filesystem
             if (fs.existsSync(filePath)) {
                 try {
                     const buffer = await sharp(filePath)
-                        .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
-                        .webp({ quality: 80 })
+                        .resize(2560, 2560, { fit: 'inside', withoutEnlargement: true })
+                        .webp({ quality: 92 })
                         .toBuffer();
                     
                     try { fs.unlinkSync(filePath); } catch (e) {}

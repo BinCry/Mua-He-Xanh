@@ -933,19 +933,25 @@ const AdminController = {
     createPoster: async (req, res) => {
         try {
             const HeroPoster = require('../models/HeroPoster');
-            await HeroPoster.ensureTableExists();
 
-            let imageUrl = '/images/placeholder.jpg';
-            if (req.body.image_url && req.body.image_url.trim() !== '') {
-                imageUrl = req.body.image_url;
-            } else if (req.file) {
+            let imageUrl = '';
+            if (req.file) {
                 try {
-                    const cloudResult = await uploadToCloudinary(req.file.buffer, 'hero-posters');
-                    imageUrl = cloudResult.secure_url;
+                    const filePath = req.file.path || req.file.destination;
+                    const cloudResult = await uploadToCloudinary(filePath, 'hero-posters');
+                    imageUrl = cloudResult.url;
                 } catch (err) {
-                    console.error("Cloudinary poster upload error:", err);
-                    imageUrl = 'data:' + req.file.mimetype + ';base64,' + req.file.buffer.toString('base64');
+                    console.error("Poster upload error:", err);
+                    if (req.file && req.file.filename) {
+                        imageUrl = `/uploads/media/${req.file.filename}`;
+                    }
                 }
+            } else if (req.body.image_url && req.body.image_url.trim() !== '') {
+                imageUrl = req.body.image_url;
+            }
+
+            if (!imageUrl || imageUrl === '/images/placeholder.jpg') {
+                return res.status(400).json({ success: false, message: 'Vui lòng chọn hoặc tải lên hình ảnh Poster.' });
             }
 
             const posterId = uuidv4();

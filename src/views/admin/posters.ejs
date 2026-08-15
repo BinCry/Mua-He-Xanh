@@ -72,10 +72,10 @@
                         <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border">
                             <img id="p_preview" src="/images/placeholder.jpg" class="rounded-3 shadow-sm" style="width: 120px; height: 75px; object-fit: cover; border: 1px solid #cbd5e1;">
                             <div>
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold" onclick="document.getElementById('p_file').click()">
+                                <button type="button" id="p_upload_btn" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold" onclick="document.getElementById('p_file').click()">
                                     <i class="bi bi-upload me-1"></i>Chọn ảnh tải lên
                                 </button>
-                                <div class="text-muted x-small mt-1" style="font-size: 0.78rem;">Tỷ lệ 16:9 hoặc Banner Poster đẹp nhất.</div>
+                                <div class="text-muted x-small mt-1" style="font-size: 0.78rem;">Tỷ lệ 16:9 hoặc Banner Poster đẹp nhất (Giữ nguyên độ phân giải HD).</div>
                                 <input type="file" id="p_file" class="d-none" accept="image/*" onchange="uploadPosterFile(this)">
                             </div>
                         </div>
@@ -145,10 +145,12 @@ async function uploadPosterFile(input) {
     const formData = new FormData();
     formData.append('image', input.files[0]);
     
-    const btn = input.previousElementSibling;
-    const oldHtml = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang nén & tải...';
+    const btn = document.getElementById('p_upload_btn') || input.previousElementSibling;
+    const oldHtml = btn ? btn.innerHTML : '';
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Đang tải ảnh HD...';
+    }
     
     try {
         const res = await axios.post('/api/upload', formData);
@@ -156,14 +158,19 @@ async function uploadPosterFile(input) {
         if (res.data.success) {
             document.getElementById('p_image_url').value = res.data.url;
             document.getElementById('p_preview').src = res.data.url;
-            btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã chọn ảnh';
+            if (btn) btn.innerHTML = '<i class="bi bi-check-circle-fill text-success me-1"></i>Đã chọn ảnh HD!';
+            if (typeof showAdminToast === 'function') showAdminToast('Đã tải ảnh Poster HD thành công!', 'success');
+        } else {
+            showAdminToast(res.data.message || 'Lỗi tải ảnh Poster', 'error');
         }
     } catch (err) {
         showAdminToast('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message), 'error');
-        btn.innerHTML = oldHtml;
+        if (btn) btn.innerHTML = oldHtml;
     } finally {
-        btn.disabled = false;
-        setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+        if (btn) {
+            btn.disabled = false;
+            setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
+        }
     }
 }
 
