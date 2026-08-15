@@ -5,7 +5,7 @@
         margin-top: 0 !important;
     }
 
-    /* Hero Poster: Desktop = full viewport minus navbar, Mobile = natural aspect ratio */
+    /* Hero Poster: Natural aspect ratio on all devices (No cropping, no stretching, crisp full view) */
     .hero-poster-section {
         width: 100% !important;
         position: relative;
@@ -13,8 +13,9 @@
         overflow: hidden;
         margin-top: 107px !important;
         padding: 0 !important;
-        height: calc(100vh - 107px) !important;
-        min-height: 400px !important;
+        height: auto !important;
+        min-height: unset !important;
+        max-height: unset !important;
         box-sizing: border-box !important;
     }
 
@@ -22,38 +23,15 @@
     .hero-poster-section .carousel-item,
     .hero-poster-section .hero-poster-slide {
         width: 100% !important;
-        height: 100% !important;
+        height: auto !important;
     }
 
     .hero-poster-img {
         width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-        object-position: top center !important;
+        height: auto !important;
+        object-fit: contain !important;
+        object-position: center center !important;
         display: block !important;
-    }
-
-    /* Mobile/Tablet: poster auto-height, image keeps aspect ratio */
-    @media (max-width: 1199.98px) {
-        .hero-poster-section {
-            margin-top: clamp(56px, 6.5vw, 84px) !important;
-            height: auto !important;
-            min-height: unset !important;
-            max-height: unset !important;
-        }
-
-        .hero-poster-section .carousel-inner,
-        .hero-poster-section .carousel-item,
-        .hero-poster-section .hero-poster-slide {
-            height: auto !important;
-        }
-
-        .hero-poster-img {
-            width: 100% !important;
-            height: auto !important;
-            object-fit: contain !important;
-            object-position: center center !important;
-        }
     }
 
     /* Solid Circular Dots for Hero Poster Carousel Indicators */
@@ -116,8 +94,8 @@
         <div class="carousel-inner" style="background-color: #044b5e !important;">
             <% (typeof heroPosters !== 'undefined' && heroPosters ? heroPosters : []).forEach((p, idx) => { %>
             <div class="carousel-item <%= idx === 0 ? 'active' : '' %>" data-bs-interval="5000">
-                <div class="hero-poster-slide position-relative w-100 h-100">
-                    <img src="<%= fixImg(p.image_url) %>" class="hero-poster-img w-100 h-100 d-block" alt="<%= p.title || ('Poster ' + (idx + 1)) %>" <%= idx === 0 ? 'fetchpriority="high"' : 'loading="lazy"' %> decoding="async">
+                <div class="hero-poster-slide position-relative w-100 h-auto">
+                    <img src="<%= fixImg(p.image_url) %>" class="hero-poster-img w-100 d-block" alt="<%= p.title || ('Poster ' + (idx + 1)) %>" <%= idx === 0 ? 'fetchpriority="high"' : 'loading="lazy"' %> decoding="async">
                 </div>
             </div>
             <% }) %>
@@ -137,7 +115,7 @@
 
 <script>
     (function () {
-        // Only sync margin-top to match actual navbar height — no forced height on mobile
+        // Sync margin-top to match navbar height smoothly
         function syncHeroMargin() {
             const hero = document.querySelector('.hero-poster-section');
             const nav = document.querySelector('.navbar-premium');
@@ -145,14 +123,7 @@
                 const navH = Math.round(nav.getBoundingClientRect().height);
                 if (navH > 0) {
                     hero.style.setProperty('margin-top', navH + 'px', 'important');
-                    // On desktop (>=1200px), also sync height for full-viewport poster
-                    if (window.innerWidth >= 1200) {
-                        const h = window.innerHeight - navH;
-                        hero.style.setProperty('height', Math.max(400, h) + 'px', 'important');
-                    } else {
-                        // On mobile, let CSS handle auto height
-                        hero.style.removeProperty('height');
-                    }
+                    hero.style.removeProperty('height');
                 }
             }
         }
