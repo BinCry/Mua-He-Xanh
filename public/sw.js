@@ -1,4 +1,4 @@
-const CACHE_NAME = 'binh-loi-healing-v6';
+const CACHE_NAME = 'binh-loi-healing-v7';
 const STATIC_ASSETS = [
     '/offline.html',
     '/css/style-v5.css',

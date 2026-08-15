@@ -49,7 +49,7 @@ router.get('/manifest.json', async (req, res) => {
         
         res.setHeader('Cache-Control', 'public, max-age=3600');
         
-        const normalizedLogo = normalizeImagePath(settings.brand_logo, '/images/logo.png');
+        const normalizedLogo = normalizeImagePath(settings.brand_logo, '/images/logo.svg');
         const logoUrl = normalizedLogo.startsWith('data:image') ? '/brand-logo.png' : normalizedLogo;
 
         const manifest = {
@@ -65,13 +65,13 @@ router.get('/manifest.json', async (req, res) => {
                 {
                     "src": logoUrl,
                     "sizes": "192x192",
-                    "type": "image/png",
+                    "type": "image/svg+xml",
                     "purpose": "any"
                 },
                 {
                     "src": logoUrl,
                     "sizes": "512x512",
-                    "type": "image/png",
+                    "type": "image/svg+xml",
                     "purpose": "any"
                 }
             ]
@@ -92,15 +92,15 @@ router.get('/manifest.json', async (req, res) => {
             "orientation": "portrait-primary",
             "icons": [
                 {
-                    "src": "/images/logo.png",
+                    "src": "/images/logo.svg",
                     "sizes": "192x192",
-                    "type": "image/png",
+                    "type": "image/svg+xml",
                     "purpose": "any"
                 },
                 {
-                    "src": "/images/logo.png",
+                    "src": "/images/logo.svg",
                     "sizes": "512x512",
-                    "type": "image/png",
+                    "type": "image/svg+xml",
                     "purpose": "any"
                 }
             ]
@@ -144,7 +144,7 @@ router.get('/brand-logo.png', async (req, res) => {
         const [rows] = await db.query('SELECT key_value FROM settings WHERE key_name = $1', ['brand_logo']);
         const logoData = rows[0]?.key_value;
 
-        const normalizedLogo = normalizeImagePath(logoData, '/images/logo.png');
+        const normalizedLogo = normalizeImagePath(logoData, '/images/logo.svg');
 
         if (normalizedLogo && normalizedLogo.startsWith('data:image')) {
             const matches = normalizedLogo.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
@@ -160,15 +160,19 @@ router.get('/brand-logo.png', async (req, res) => {
             return res.redirect(normalizedLogo);
         } else if (normalizedLogo) {
             const path = require('path');
-            return res.sendFile(path.join(process.cwd(), 'public', normalizedLogo.replace(/^\//, '').split('?')[0]));
+            const targetPath = path.join(process.cwd(), 'public', normalizedLogo.replace(/^\//, '').split('?')[0]);
+            const fs = require('fs');
+            if (fs.existsSync(targetPath)) {
+                return res.sendFile(targetPath);
+            }
         }
 
         const path = require('path');
-        return res.sendFile(path.join(process.cwd(), 'public/images/logo.png'));
+        return res.sendFile(path.join(process.cwd(), 'public/images/logo.svg'));
     } catch (e) {
         console.error("Logo generate error:", e);
         const path = require('path');
-        return res.sendFile(path.join(process.cwd(), 'public/images/logo.png'));
+        return res.sendFile(path.join(process.cwd(), 'public/images/logo.svg'));
     }
 });
 
