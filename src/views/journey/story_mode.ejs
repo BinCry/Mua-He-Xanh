@@ -704,8 +704,13 @@ function saveJourneyAndProceed() {
 }
 
 <% if (isStep4) { %>
+<script id="journey-stops-json-data" type="application/json">
+<%- JSON.stringify(journey.stops || []) %>
+</script>
+
+<script>
 function initStep4Map() {
-    const stops = <%- JSON.stringify(journey.stops || []) %>;
+    const stops = JSON.parse(document.getElementById('journey-stops-json-data')?.textContent || '[]');
     if (!stops || stops.length === 0) return;
 
     // Use Google Maps Vector Tile Layer for 100% Google Maps visual look

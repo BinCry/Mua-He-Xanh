@@ -164,8 +164,12 @@
     </div>
 </div>
 
+<script id="destinations-json-data" type="application/json">
+<%- JSON.stringify(destinations || []) %>
+</script>
+
 <script>
-    const destinationsList = <%- JSON.stringify(destinations || []) %>;
+    const destinationsList = JSON.parse(document.getElementById('destinations-json-data')?.textContent || '[]');
     let editingTemplate = false;
 
     function openTemplateForm() {

@@ -196,10 +196,15 @@
     </div>
 </div>
 
+<script id="manager-chart-data" type="application/json">
+<%- JSON.stringify(chartData || {}) %>
+</script>
+
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    const rawChartData = JSON.parse(document.getElementById('manager-chart-data')?.textContent || '{}');
     // Check-in Chart
-    const checkinData = <%- JSON.stringify(chartData.dailyCheckins) %>;
+    const checkinData = rawChartData.dailyCheckins || [];
     new Chart(document.getElementById('managerCheckinChart'), {
         type: 'line',
         data: {
@@ -228,7 +233,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Rating Chart
-    const ratingData = <%- JSON.stringify(chartData.dailyRatings) %>;
+    const ratingData = rawChartData.dailyRatings || [];
     new Chart(document.getElementById('managerRatingChart'), {
         type: 'line',
         data: {

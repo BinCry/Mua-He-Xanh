@@ -55,11 +55,15 @@
     </div>
 </div>
 
+<script id="current-user-json-data" type="application/json">
+<%- JSON.stringify(currentUser ? { id: currentUser.id, full_name: currentUser.full_name, avatar: currentUser.avatar } : null) %>
+</script>
+
 <script>
     let chatInterval = null;
     let currentGlobalMessages = [];
     let lastGlobalChatCount = -1;
-    const currentUser = <%- JSON.stringify(currentUser ? { id: currentUser.id, full_name: currentUser.full_name, avatar: currentUser.avatar } : null) %>;
+    const currentUser = JSON.parse(document.getElementById('current-user-json-data')?.textContent || 'null');
 
     async function loadChatMessages() {
         try {

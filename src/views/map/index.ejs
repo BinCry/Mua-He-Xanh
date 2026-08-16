@@ -100,9 +100,13 @@
     </div>
 </div>
 
+<script id="all-dests-json-data" type="application/json">
+<%- JSON.stringify(allDests || []) %>
+</script>
+
 <script>
 let map, markers = [];
-const destData = (<%- JSON.stringify(allDests) %>);
+const destData = JSON.parse(document.getElementById('all-dests-json-data')?.textContent || '[]');
 
 function normalizeImageUrl(src) {
     if (!src || src === 'undefined' || src === 'NULL' || src.includes('placeholder.jpg') || src.includes('Poster 1') || src.includes('hero-1')) return '/images/no-image.svg';
