@@ -208,10 +208,10 @@
             <!-- Dual Language Switcher: VN / EN — Fixed width, notranslate -->
             <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-0.5 shadow-sm notranslate"
                 translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
-                <button class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate"
-                    translate="no" onclick="setAppLanguage('vi')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">VN</button>
-                <button class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate"
-                    translate="no" onclick="setAppLanguage('en')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">EN</button>
+                <button type="button" class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate"
+                    translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">VN</button>
+                <button type="button" class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate"
+                    translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">EN</button>
             </div>
 
             <% if (user) { %>

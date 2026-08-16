@@ -173,8 +173,8 @@
                 <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
                     <span class="small fw-bold text-muted">Ngôn ngữ / Lang</span>
                     <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm notranslate" translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
-                        <button class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="setAppLanguage('vi')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
-                        <button class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="setAppLanguage('en')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
+                        <button type="button" class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
+                        <button type="button" class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 mb-3">
@@ -196,8 +196,8 @@
             <div class="d-lg-none d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <a href="/" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Trang chủ</a>
                 <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm notranslate" translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
-                    <button class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="setAppLanguage('vi')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
-                    <button class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="setAppLanguage('en')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
+                    <button type="button" class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
+                    <button type="button" class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
                 </div>
             </div>
             <%- body %>

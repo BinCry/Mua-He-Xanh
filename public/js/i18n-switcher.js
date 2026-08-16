@@ -1,6 +1,6 @@
 /**
  * BINH LOI HEALING - Explicit Dual-Button Language Switcher Engine (VN / EN)
- * Smooth in-place language switching without layout shifts or redundant reloads.
+ * Completely eliminates layout shifts, jumping, and redundant reloads.
  */
 (function () {
     function setCookie(name, value, days) {
@@ -10,15 +10,13 @@
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = "; expires=" + date.toUTCString();
         }
-        document.cookie = name + "=" + (value || "") + expires + "; path=/";
-        try {
-            var host = window.location.hostname;
-            document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + host;
-            if (host.includes('.')) {
-                var domainPart = '.' + host.split('.').slice(-2).join('.');
-                document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + domainPart;
-            }
-        } catch (e) {}
+        var host = window.location.hostname;
+        document.cookie = name + "=" + (value || "") + expires + "; path=/;";
+        document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + host;
+        if (host.includes('.')) {
+            var domainPart = '.' + host.split('.').slice(-2).join('.');
+            document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + domainPart;
+        }
     }
 
     function eraseCookie(name) {
@@ -53,29 +51,29 @@
 
         if (lang === 'en') {
             vnButtons.forEach(function(b) {
-                b.style.background = 'transparent';
-                b.style.color = '#64748b';
-                b.style.fontWeight = '600';
-                b.style.boxShadow = 'none';
+                b.style.setProperty('background', 'transparent', 'important');
+                b.style.setProperty('color', '#64748b', 'important');
+                b.style.setProperty('font-weight', '600', 'important');
+                b.style.setProperty('box-shadow', 'none', 'important');
             });
             enButtons.forEach(function(b) {
-                b.style.background = '#922724';
-                b.style.color = '#ffffff';
-                b.style.fontWeight = '800';
-                b.style.boxShadow = '0 1px 4px rgba(146, 39, 36, 0.4)';
+                b.style.setProperty('background', '#922724', 'important');
+                b.style.setProperty('color', '#ffffff', 'important');
+                b.style.setProperty('font-weight', '800', 'important');
+                b.style.setProperty('box-shadow', '0 1px 4px rgba(146, 39, 36, 0.4)', 'important');
             });
         } else {
             vnButtons.forEach(function(b) {
-                b.style.background = '#922724';
-                b.style.color = '#ffffff';
-                b.style.fontWeight = '800';
-                b.style.boxShadow = '0 1px 4px rgba(146, 39, 36, 0.4)';
+                b.style.setProperty('background', '#922724', 'important');
+                b.style.setProperty('color', '#ffffff', 'important');
+                b.style.setProperty('font-weight', '800', 'important');
+                b.style.setProperty('box-shadow', '0 1px 4px rgba(146, 39, 36, 0.4)', 'important');
             });
             enButtons.forEach(function(b) {
-                b.style.background = 'transparent';
-                b.style.color = '#64748b';
-                b.style.fontWeight = '600';
-                b.style.boxShadow = 'none';
+                b.style.setProperty('background', 'transparent', 'important');
+                b.style.setProperty('color', '#64748b', 'important');
+                b.style.setProperty('font-weight', '600', 'important');
+                b.style.setProperty('box-shadow', 'none', 'important');
             });
         }
     }
@@ -83,7 +81,7 @@
     window.setAppLanguage = function (targetLang) {
         var currentLang = localStorage.getItem('app_lang') || 'vi';
         
-        // If clicking the already selected language, do nothing!
+        // If clicking the currently active language, do nothing!
         if (targetLang === currentLang) {
             return;
         }
@@ -93,19 +91,23 @@
 
         if (targetLang === 'en') {
             setCookie('googtrans', '/vi/en', 30);
+            var combo = document.querySelector('.goog-te-combo');
+            if (combo) {
+                combo.value = 'en';
+                combo.dispatchEvent(new Event('change'));
+                return;
+            }
         } else {
             eraseCookie('googtrans');
             document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            var combo = document.querySelector('.goog-te-combo');
+            if (combo) {
+                window.location.reload();
+                return;
+            }
         }
 
-        // Try in-place translation switch if Google Translate combo element is ready
-        var combo = document.querySelector('.goog-te-combo');
-        if (combo) {
-            combo.value = targetLang === 'en' ? 'en' : 'vi';
-            combo.dispatchEvent(new Event('change'));
-        } else {
-            window.location.reload();
-        }
+        window.location.reload();
     };
 
     window.toggleLanguage = function() {
@@ -113,21 +115,8 @@
         window.setAppLanguage(current === 'vi' ? 'en' : 'vi');
     };
 
-    function suppressGoogleTranslateBar() {
-        var frames = document.querySelectorAll('.goog-te-banner-frame, iframe.goog-te-banner-frame, iframe.skiptranslate, .goog-te-balloon-frame, .VIpgJd-yDnbAf-xl0vld-ODZ2Z, .VIpgJd-yDnbAf-bN924e');
-        frames.forEach(function (f) {
-            f.style.setProperty('display', 'none', 'important');
-            f.style.setProperty('visibility', 'hidden', 'important');
-            f.style.setProperty('height', '0px', 'important');
-            f.style.setProperty('width', '0px', 'important');
-            f.style.setProperty('opacity', '0', 'important');
-            f.style.setProperty('pointer-events', 'none', 'important');
-        });
-    }
-
     window.googleTranslateElementInit = function () {
-        var currentLang = localStorage.getItem('app_lang') || 'vi';
-        if (currentLang === 'en' && window.google && window.google.translate) {
+        if (window.google && window.google.translate) {
             new window.google.translate.TranslateElement({
                 pageLanguage: 'vi',
                 includedLanguages: 'en,vi',
@@ -148,7 +137,22 @@
         }
 
         updateLanguageUI(lang);
-        suppressGoogleTranslateBar();
+    }
+
+    // Passive MutationObserver to prevent Google Translate from setting top: 40px inline style
+    if (typeof MutationObserver !== 'undefined') {
+        var observer = new MutationObserver(function() {
+            if (document.body && document.body.style.top && document.body.style.top !== '0px') {
+                document.body.style.setProperty('top', '0px', 'important');
+            }
+        });
+        if (document.body) {
+            observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+        } else {
+            document.addEventListener('DOMContentLoaded', function() {
+                if (document.body) observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+            });
+        }
     }
 
     init();
