@@ -1,5 +1,6 @@
 /**
  * BINH LOI HEALING - Explicit Dual-Button Language Switcher Engine (VN / EN)
+ * Smooth in-place language switching without layout shifts or redundant reloads.
  */
 (function () {
     function setCookie(name, value, days) {
@@ -26,7 +27,7 @@
         if (host.includes('.')) {
             domains.push('.' + host.split('.').slice(-2).join('.'));
         }
-        var paths = ['/', '/auth', '/journey', '/onboarding', '/explore', '/admin', '/manager', '/profile'];
+        var paths = ['/', '/auth', '/journey', '/onboarding', '/explore', '/admin', '/manager', '/profile', '/shops', '/reviews'];
         
         domains.forEach(function(d) {
             paths.forEach(function(p) {
@@ -55,48 +56,56 @@
                 b.style.background = 'transparent';
                 b.style.color = '#64748b';
                 b.style.fontWeight = '600';
+                b.style.boxShadow = 'none';
             });
             enButtons.forEach(function(b) {
                 b.style.background = '#922724';
                 b.style.color = '#ffffff';
-                b.style.fontWeight = '900';
-                b.style.boxShadow = '0 2px 6px rgba(146, 39, 36, 0.4)';
+                b.style.fontWeight = '800';
+                b.style.boxShadow = '0 1px 4px rgba(146, 39, 36, 0.4)';
             });
         } else {
             vnButtons.forEach(function(b) {
                 b.style.background = '#922724';
                 b.style.color = '#ffffff';
-                b.style.fontWeight = '900';
-                b.style.boxShadow = '0 2px 6px rgba(146, 39, 36, 0.4)';
+                b.style.fontWeight = '800';
+                b.style.boxShadow = '0 1px 4px rgba(146, 39, 36, 0.4)';
             });
             enButtons.forEach(function(b) {
                 b.style.background = 'transparent';
                 b.style.color = '#64748b';
                 b.style.fontWeight = '600';
+                b.style.boxShadow = 'none';
             });
         }
     }
 
     window.setAppLanguage = function (targetLang) {
+        var currentLang = localStorage.getItem('app_lang') || 'vi';
+        
+        // If clicking the already selected language, do nothing!
+        if (targetLang === currentLang) {
+            return;
+        }
+
         localStorage.setItem('app_lang', targetLang);
+        updateLanguageUI(targetLang);
 
         if (targetLang === 'en') {
             setCookie('googtrans', '/vi/en', 30);
         } else {
             eraseCookie('googtrans');
             document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-            try {
-                var host = window.location.hostname;
-                document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + host;
-                if (host.includes('.')) {
-                    var domainPart = '.' + host.split('.').slice(-2).join('.');
-                    document.cookie = "googtrans=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=" + domainPart;
-                }
-            } catch (e) {}
         }
 
-        updateLanguageUI(targetLang);
-        window.location.reload();
+        // Try in-place translation switch if Google Translate combo element is ready
+        var combo = document.querySelector('.goog-te-combo');
+        if (combo) {
+            combo.value = targetLang === 'en' ? 'en' : 'vi';
+            combo.dispatchEvent(new Event('change'));
+        } else {
+            window.location.reload();
+        }
     };
 
     window.toggleLanguage = function() {

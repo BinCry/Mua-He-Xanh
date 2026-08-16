@@ -2570,9 +2570,37 @@ img {
         pointer-events: none !important;
     }
 
-    body {
+    html, body {
         top: 0px !important;
+        margin-top: 0px !important;
         position: static !important;
+        transform: none !important;
+    }
+
+    .lang-switch-group {
+        display: inline-flex !important;
+        align-items: center !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.15) !important;
+        border-radius: 999px !important;
+        padding: 1.5px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+        user-select: none !important;
+    }
+
+    .lang-switch-group button {
+        border: none !important;
+        outline: none !important;
+        box-shadow: none !important;
+        font-size: 0.65rem !important;
+        font-weight: 700 !important;
+        width: 28px !important;
+        height: 20px !important;
+        line-height: 20px !important;
+        padding: 0 !important;
+        border-radius: 999px !important;
+        transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease !important;
+        cursor: pointer !important;
     }
 
     .skiptranslate,
