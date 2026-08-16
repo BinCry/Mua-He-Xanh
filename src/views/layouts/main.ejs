@@ -805,55 +805,6 @@
             </div>
         </div>
     </div>
-    <!-- Top Page Loading Progress Bar -->
-    <style>
-    #page-progress-bar {
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 3px;
-        background: linear-gradient(90deg, #922724, #d90429, #ffb703);
-        width: 0%;
-        z-index: 999999;
-        transition: width 0.2s ease, opacity 0.2s ease;
-        box-shadow: 0 0 8px rgba(217, 4, 41, 0.8);
-        pointer-events: none;
-        opacity: 0;
-    }
-    #page-progress-bar.active {
-        opacity: 1;
-        width: 75%;
-        transition: width 5s cubic-bezier(0.1, 0.05, 0, 1);
-    }
-    #page-progress-bar.done {
-        opacity: 1;
-        width: 100%;
-        transition: width 0.1s ease, opacity 0.25s ease 0.1s;
-    }
-    </style>
-    <div id="page-progress-bar"></div>
-
-    <script>
-    (function() {
-        document.addEventListener('click', function(e) {
-            const link = e.target.closest('a');
-            if (!link) return;
-            const href = link.getAttribute('href');
-            if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('tel:') || href.startsWith('mailto:') || link.target === '_blank' || link.hasAttribute('download') || e.ctrlKey || e.metaKey || e.shiftKey) return;
-            
-            const bar = document.getElementById('page-progress-bar');
-            if (bar) bar.className = 'active';
-        });
-        window.addEventListener('pageshow', function() {
-            const bar = document.getElementById('page-progress-bar');
-            if (bar) {
-                bar.className = 'done';
-                setTimeout(function() { bar.className = ''; }, 350);
-            }
-        });
-    })();
-    </script>
-
     <!-- Instant.page: Ultra-fast pre-fetching on link hover (sub-100ms instant page loads) -->
     <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.min.js" type="module"></script>
 </body>
