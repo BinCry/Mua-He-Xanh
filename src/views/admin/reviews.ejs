@@ -54,7 +54,7 @@
                             }
                         } catch(e) {}
                     %>
-                    <tr>
+                    <tr id="review-row-<%= r.id %>">
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
@@ -130,7 +130,7 @@
                 </thead>
                 <tbody>
                     <% soundscapes.forEach(s => { %>
-                    <tr>
+                    <tr id="soundscape-row-<%= s.id %>">
                         <td class="fw-bold small"><%= s.name %></td>
                         <td>
                             <% if (s.mood === 'calm') { %>
@@ -305,8 +305,17 @@ function deleteReview(id) {
     showAdminConfirm('Bạn có chắc chắn muốn xóa bài đánh giá này?', async () => {
         try {
             const res = await axios.post('/api/admin/delete-review', { id });
-            if (res.data.success) location.reload();
-            else showAdminToast(res.data.message, 'error');
+            if (res.data.success) {
+                const row = document.getElementById('review-row-' + id);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+                showAdminToast(res.data.message || 'Đã xóa bài đánh giá', 'success');
+            } else {
+                showAdminToast(res.data.message, 'error');
+            }
         } catch (e) { showAdminToast('Lỗi xóa bài đánh giá', 'error'); }
     });
 }
@@ -328,7 +337,7 @@ async function saveSoundscape(e) {
         const res = await axios.post('/api/admin/create-soundscape', formData);
 
         if (res.data.success) {
-            showAdminToast(res.data.message, 'success');
+            showAdminToast(res.data.message || 'Đã thêm âm thanh thành công', 'success');
             setTimeout(() => location.reload(), 600);
         } else {
             showAdminToast('Lỗi: ' + res.data.message, 'error');
@@ -347,7 +356,13 @@ function deleteSoundscape(id) {
         try {
             const res = await axios.post('/api/admin/delete-soundscape', { id });
             if (res.data.success) {
-                location.reload();
+                const row = document.getElementById('soundscape-row-' + id);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+                showAdminToast(res.data.message || 'Đã xóa âm thanh thành công', 'success');
             } else {
                 showAdminToast('Lỗi: ' + res.data.message, 'error');
             }

@@ -25,7 +25,7 @@
         </thead>
         <tbody>
             <% templates.forEach(t => { %>
-            <tr class="align-middle" style="border-bottom: 1px solid #f8fafc;">
+            <tr id="tpl-row-<%= t.id %>" class="align-middle" style="border-bottom: 1px solid #f8fafc;">
                 <td class="fw-bold text-dark">
                     <%= t.name %>
                 </td>
@@ -250,8 +250,13 @@
             try {
                 const res = await axios.post('/api/admin/delete-journey-template', { id });
                 if (res.data.success) {
-                    showAdminToast('Đã xóa thành công!', 'success');
-                    setTimeout(() => { location.reload(); }, 800);
+                    const row = document.getElementById('tpl-row-' + id);
+                    if (row) {
+                        row.style.transition = 'all 0.3s ease';
+                        row.style.opacity = '0';
+                        setTimeout(() => row.remove(), 300);
+                    }
+                    showAdminToast(res.data.message || 'Đã xóa thành công!', 'success');
                 } else {
                     showAdminToast(res.data.message, 'error');
                 }

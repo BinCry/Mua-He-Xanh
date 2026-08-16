@@ -26,7 +26,7 @@
         </thead>
         <tbody>
             <% events.forEach(evt => { %>
-            <tr>
+            <tr id="evt-row-<%= evt.id %>">
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <img src="<%= fixImg(evt.image, '/uploads/posters/poster-1.webp') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
@@ -295,8 +295,17 @@ function deleteEvent(id) {
     showAdminConfirm('Bạn có chắc chắn muốn xóa sự kiện này?', async () => {
         try {
             const res = await axios.post('/api/admin/delete-event', { id });
-            if (res.data.success) location.reload();
-            else showAdminToast(res.data.message, 'error');
+            if (res.data.success) {
+                const row = document.getElementById('evt-row-' + id);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+                showAdminToast(res.data.message || 'Đã xóa sự kiện thành công', 'success');
+            } else {
+                showAdminToast(res.data.message, 'error');
+            }
         } catch (e) { showAdminToast('Lỗi xóa sự kiện', 'error'); }
     });
 }

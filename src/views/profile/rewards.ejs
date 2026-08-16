@@ -485,13 +485,19 @@
 
 <script>
 async function redeem(id, title) {
-    if (!confirm('Bạn chắc chắn muốn đổi phần quà "' + title + '"?')) return;
-    try {
-        const res = await axios.post('/api/redeem-reward', { reward_id: id });
-        alert(res.data.message);
-        if (res.data.success) location.reload();
-    } catch(e) { 
-        alert('Lỗi: ' + (e.response?.data?.message || e.message)); 
-    }
+    showAppConfirm('Bạn chắc chắn muốn đổi phần quà "' + title + '"?', 'Đổi phần quà', async () => {
+        try {
+            const res = await axios.post('/api/redeem-reward', { reward_id: id });
+            if (res.data.success) {
+                showAppAlert(res.data.message || 'Đổi quà thành công! Bạn có thể xem mã trong lịch sử đổi quà.', 'Thành công', () => {
+                    location.reload();
+                });
+            } else {
+                showAppAlert(res.data.message || 'Không thể đổi quà lúc này.', 'Thông báo');
+            }
+        } catch(e) { 
+            showAppAlert('Lỗi: ' + (e.response?.data?.message || e.message), 'Lỗi'); 
+        }
+    });
 }
 </script>

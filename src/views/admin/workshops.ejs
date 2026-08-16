@@ -26,7 +26,7 @@
         </thead>
         <tbody>
             <% workshops.forEach(ws => { %>
-            <tr>
+            <tr id="shop-row-<%= ws.id %>">
                 <td>
                     <div class="d-flex align-items-center gap-3">
                         <img src="<%= fixImg(ws.image, '/uploads/posters/poster-1.webp') %>" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover; border: 1px solid rgba(0,0,0,0.08);">
@@ -270,8 +270,13 @@ function deleteWs(id) {
         try {
             const res = await axios.post('/api/admin/delete-shop', { id });
             if (res.data.success) {
-                showAdminToast('Đã xóa sản phẩm!', 'success');
-                setTimeout(() => { location.reload(); }, 800);
+                const row = document.getElementById('shop-row-' + id);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+                showAdminToast(res.data.message || 'Đã xóa sản phẩm thành công!', 'success');
             } else {
                 showAdminToast(res.data.message || 'Không thể xóa.', 'error');
             }

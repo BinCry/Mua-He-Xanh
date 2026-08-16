@@ -58,12 +58,15 @@
 <script>
     let chatInterval = null;
     let currentGlobalMessages = [];
+    let lastGlobalChatCount = -1;
     const currentUser = <%- JSON.stringify(currentUser ? { id: currentUser.id, full_name: currentUser.full_name, avatar: currentUser.avatar } : null) %>;
 
     async function loadChatMessages() {
         try {
             const res = await axios.get('/api/get-messages');
             if (res.data.success) {
+                if (res.data.data && res.data.data.length === lastGlobalChatCount) return;
+                lastGlobalChatCount = res.data.data.length;
                 currentGlobalMessages = res.data.data;
                 renderGlobalChat(currentGlobalMessages);
             }

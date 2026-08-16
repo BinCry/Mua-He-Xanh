@@ -36,7 +36,7 @@
         </thead>
         <tbody>
             <% users.forEach(u => { %>
-            <tr>
+            <tr id="user-row-<%= u.id %>">
                 <td>
                     <div class="d-flex align-items-center gap-2">
                         <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
@@ -228,8 +228,17 @@ function deleteUser(id, name) {
     showAdminConfirm(`Bạn có chắc chắn muốn xóa người dùng "${name}"?`, async () => {
         try {
             const res = await axios.post('/api/admin/delete-user', { id });
-            if (res.data.success) location.reload();
-            else showAdminToast(res.data.message, 'error');
+            if (res.data.success) {
+                const row = document.getElementById('user-row-' + id);
+                if (row) {
+                    row.style.transition = 'all 0.3s ease';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                }
+                showAdminToast(res.data.message || 'Đã xóa người dùng', 'success');
+            } else {
+                showAdminToast(res.data.message, 'error');
+            }
         } catch (e) { showAdminToast('Lỗi xóa người dùng', 'error'); }
     });
 }
@@ -238,12 +247,19 @@ async function approveUserDirectly(id) {
     try {
         const res = await axios.post('/api/admin/update-user', { id: id, is_active: 1 });
         if (res.data.success) {
-            location.reload();
+            const row = document.getElementById('user-row-' + id);
+            if (row) {
+                const statusCell = row.children[5];
+                if (statusCell) {
+                    statusCell.innerHTML = '<span class="badge bg-success bg-opacity-15 text-success rounded-pill px-3 py-1 fw-bold">Đã Duyệt</span>';
+                }
+            }
+            showAdminToast('Đã phê duyệt tài khoản thành công', 'success');
         } else {
-            alert(res.data.message);
+            showAdminToast(res.data.message, 'error');
         }
     } catch (e) {
-        alert('Lỗi phê duyệt tài khoản');
+        showAdminToast('Lỗi phê duyệt tài khoản', 'error');
     }
 }
 </script>
