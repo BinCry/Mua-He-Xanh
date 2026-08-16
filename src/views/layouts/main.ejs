@@ -210,7 +210,10 @@
 
         /* Mobile alignment & responsive adjustments */
         @media (max-width: 991.98px) {
-            body { 
+            .footer-main { 
+                padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important; 
+            }
+            body.is-pwa main {
                 padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important; 
             }
             .fab-qr { display: none !important; }
@@ -280,6 +283,9 @@
         @media (display-mode: standalone) {
             .footer-main {
                 display: none !important;
+            }
+            main {
+                padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
             }
         }
 
