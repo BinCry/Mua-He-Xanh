@@ -633,9 +633,9 @@
             </script>
             <% } %>
 
-                <% if (nextEvent) { %>
+                <% if (nextEvent && (nextEvent.event_date || (typeof festival !== 'undefined' && festival && festival.date))) { %>
                     <script>
-                        const festivalDate = new Date("<%= festival.date instanceof Date ? festival.date.toISOString() : festival.date %>").getTime();
+                        const festivalDate = new Date("<%= nextEvent.event_date ? (nextEvent.event_date instanceof Date ? nextEvent.event_date.toISOString() : nextEvent.event_date) : (typeof festival !== 'undefined' && festival.date ? festival.date : '') %>").getTime();
                         const timer = setInterval(function () {
                             const now = new Date().getTime();
                             const distance = festivalDate - now;

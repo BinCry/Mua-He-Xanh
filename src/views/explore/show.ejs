@@ -384,10 +384,11 @@ function startStorytelling() {
     alert('Đang kết nối thư viện Audio... Chào mừng bạn đến với <%= dest.name %>. Hãy đeo tai nghe để trải nghiệm không gian âm thanh thực tế!');
 }
 
-// Live Chat History Polling & Rendering
 // Live Chat History Polling & Rendering (Facebook Messenger Style)
 let localChatMessages = [];
 let lastExploreChatCount = -1;
+const BRAND_LOGO_URL = "<%= fixImg(settings.brand_logo, '/images/logo.svg') %>";
+const DEST_NAME = "<%= dest.name ? dest.name.replace(/"/g, '\\"') : '' %>";
 
 function pollMessages(destinationId) {
     axios.get(window.APP_CONFIG.apiUrl + '/get-messages?destinationId=' + destinationId)
@@ -413,9 +414,9 @@ function renderChatHistory(messages) {
             </span>
         </div>
         <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
-            <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+            <img src="${BRAND_LOGO_URL}" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
             <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
-                Xin chào! Tôi là quản lý địa điểm <%= dest.name %>. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
+                Xin chào! Tôi là quản lý địa điểm ${DEST_NAME}. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
             </div>
         </div>
     `;
@@ -439,7 +440,7 @@ function renderChatHistory(messages) {
                 // MANAGER / ADMIN MESSAGE: Left-aligned with brand logo avatar
                 html += `
                     <div class="mb-2.5 d-flex justify-content-start align-items-end gap-2">
-                        <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                        <img src="${BRAND_LOGO_URL}" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
                         <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="width: fit-content; max-width: 86%; border-radius: 18px 18px 18px 4px; font-size: 0.9rem; line-height: 1.45; word-break: break-word; overflow-wrap: anywhere;">
                             ${escapeHtml(msg.message)}
                             <div class="x-small opacity-50 text-end mt-1 text-nowrap" style="font-size: 10px;">${timeStr}</div>
