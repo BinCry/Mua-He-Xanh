@@ -105,26 +105,6 @@
     };
 
     function suppressGoogleTranslateBar() {
-        if (document.body) {
-            document.body.style.setProperty('top', '0px', 'important');
-            document.body.style.setProperty('margin-top', '0px', 'important');
-            document.body.style.setProperty('position', 'static', 'important');
-            document.body.style.setProperty('transform', 'none', 'important');
-            document.body.style.setProperty('-webkit-transform', 'none', 'important');
-        }
-        if (document.documentElement) {
-            document.documentElement.style.setProperty('top', '0px', 'important');
-            document.documentElement.style.setProperty('margin-top', '0px', 'important');
-            document.documentElement.style.setProperty('transform', 'none', 'important');
-            document.documentElement.style.setProperty('-webkit-transform', 'none', 'important');
-        }
-        var nav = document.querySelector('.navbar-premium');
-        if (nav) {
-            nav.style.setProperty('top', '0px', 'important');
-            nav.style.setProperty('margin-top', '0px', 'important');
-            nav.style.setProperty('transform', 'none', 'important');
-            nav.style.setProperty('-webkit-transform', 'none', 'important');
-        }
         var frames = document.querySelectorAll('.goog-te-banner-frame, iframe.goog-te-banner-frame, iframe.skiptranslate, .goog-te-balloon-frame, .VIpgJd-yDnbAf-xl0vld-ODZ2Z, .VIpgJd-yDnbAf-bN924e');
         frames.forEach(function (f) {
             f.style.setProperty('display', 'none', 'important');
@@ -160,9 +140,6 @@
 
         updateLanguageUI(lang);
         suppressGoogleTranslateBar();
-        setInterval(suppressGoogleTranslateBar, 2000);
-        window.addEventListener('scroll', suppressGoogleTranslateBar, { passive: true });
-        window.addEventListener('resize', suppressGoogleTranslateBar, { passive: true });
     }
 
     init();

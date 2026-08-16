@@ -387,11 +387,14 @@ function startStorytelling() {
 // Live Chat History Polling & Rendering
 // Live Chat History Polling & Rendering (Facebook Messenger Style)
 let localChatMessages = [];
+let lastExploreChatCount = -1;
 
 function pollMessages(destinationId) {
     axios.get(window.APP_CONFIG.apiUrl + '/get-messages?destinationId=' + destinationId)
         .then(res => {
             if (res.data.success && res.data.data) {
+                if (res.data.data.length === lastExploreChatCount) return;
+                lastExploreChatCount = res.data.data.length;
                 localChatMessages = res.data.data;
                 renderChatHistory(localChatMessages);
             }
@@ -471,6 +474,7 @@ function sendChatMessage(destinationId) {
         created_at: new Date().toISOString()
     };
     localChatMessages.push(newMsgObj);
+    lastExploreChatCount = localChatMessages.length;
     renderChatHistory(localChatMessages);
 
     axios.post(window.APP_CONFIG.apiUrl + '/send-message', {
@@ -487,17 +491,24 @@ function sendChatMessage(destinationId) {
 
 // DOM Setup
 document.addEventListener('DOMContentLoaded', function() {
-    const chatHistory = document.getElementById('chat-history');
-    if (chatHistory) {
-        chatHistory.scrollTop = chatHistory.scrollHeight;
-    }
-    
-    // Start Chat Polling every 5 seconds if modal is active or page is open
     const destId = '<%= dest.id %>';
-    pollMessages(destId);
-    setInterval(() => {
-        pollMessages(destId);
-    }, 5000);
+    const chatModalEl = document.getElementById('customChatModal') || document.querySelector('.custom-modal-chat');
+    let exploreChatPollTimer = null;
+
+    if (chatModalEl) {
+        chatModalEl.addEventListener('show.bs.modal', function() {
+            pollMessages(destId);
+            if (!exploreChatPollTimer) {
+                exploreChatPollTimer = setInterval(() => pollMessages(destId), 5000);
+            }
+        });
+        chatModalEl.addEventListener('hide.bs.modal', function() {
+            if (exploreChatPollTimer) {
+                clearInterval(exploreChatPollTimer);
+                exploreChatPollTimer = null;
+            }
+        });
+    }
 });
 </script>
 

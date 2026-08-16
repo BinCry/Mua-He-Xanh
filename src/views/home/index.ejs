@@ -115,43 +115,15 @@
 
 <script>
     (function () {
-        // Sync margin-top to match navbar height smoothly
-        function syncHeroMargin() {
-            const hero = document.querySelector('.hero-poster-section');
-            const nav = document.querySelector('.navbar-premium');
-            if (hero && nav) {
-                const navH = Math.round(nav.getBoundingClientRect().height);
-                if (navH > 0) {
-                    hero.style.setProperty('margin-top', navH + 'px', 'important');
-                    hero.style.removeProperty('height');
-                }
-            }
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            syncHeroMargin();
-            window.addEventListener('resize', syncHeroMargin);
-        });
-        window.addEventListener('load', syncHeroMargin);
-
-        // Force Continuous Auto-play Carousel (Never pause on hover)
+        // Continuous Auto-play Carousel without pointer jitter
         document.addEventListener('DOMContentLoaded', function () {
             const heroCarousel = document.getElementById('heroPosterCarousel');
             if (heroCarousel && typeof bootstrap !== 'undefined') {
-                const bsCarousel = bootstrap.Carousel.getOrCreateInstance(heroCarousel, {
+                bootstrap.Carousel.getOrCreateInstance(heroCarousel, {
                     interval: 5000,
                     pause: false,
                     touch: true
                 });
-                bsCarousel.cycle();
-
-                const forceCycle = function () {
-                    try { bsCarousel.cycle(); } catch (e) { }
-                };
-                heroCarousel.addEventListener('mouseenter', forceCycle);
-                heroCarousel.addEventListener('mouseleave', forceCycle);
-                heroCarousel.addEventListener('pointerenter', forceCycle);
-                heroCarousel.addEventListener('touchstart', forceCycle);
             }
         });
     })();
