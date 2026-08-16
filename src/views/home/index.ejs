@@ -400,17 +400,17 @@
                 <% } %>
             </div>
 
-            <div class="col-lg-6 reveal-up d-flex flex-column">
-                <div>
+            <div class="<%= nextEvent ? 'col-lg-6' : 'col-lg-8 mx-auto' %> reveal-up d-flex flex-column">
+                <div class="<%= nextEvent ? '' : 'text-center d-flex flex-column align-items-center' %>">
                     <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small"
                         style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
-                        <i class="bi bi-calendar3 me-1"></i> Sự kiện khác
+                        <i class="bi bi-calendar3 me-1"></i> <%= nextEvent ? 'Sự kiện khác' : 'Sự kiện' %>
                     </span>
                     <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2rem; line-height: 1.2;">Lịch
                         sự kiện sắp diễn ra</h2>
                 </div>
 
-                <div class="scrollable-events-container flex-grow-1"
+                <div class="scrollable-events-container flex-grow-1 <%= nextEvent ? '' : 'mx-auto w-100' %>"
                     style="max-height: 480px; overflow-y: auto; padding-right: 8px;">
                     <% if (typeof otherEvents !=='undefined' && otherEvents.length> 0) { %>
                         <div class="d-flex flex-column gap-3">
@@ -451,7 +451,7 @@
                             <div class="text-center py-5 text-muted border rounded-4 bg-white border-dashed h-100 d-flex flex-column align-items-center justify-content-center"
                                 style="min-height: 250px;">
                                 <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary opacity-50"></i>
-                                <span class="small">Chưa có sự kiện nào khác sắp diễn ra</span>
+                                <span class="small"><%= nextEvent ? 'Chưa có sự kiện nào khác sắp diễn ra' : 'Chưa có sự kiện nào sắp diễn ra' %></span>
                             </div>
                             <% } %>
                 </div>
