@@ -1,6 +1,7 @@
 const Workshop = require('../models/Workshop');
 const db = require('../core/database');
 const NotificationController = require('./NotificationController');
+const cache = require('../core/cache');
 
 const ShopController = {
 
@@ -9,8 +10,26 @@ const ShopController = {
         try {
             const typeFilter = req.query.type || null;
             const searchQuery = req.query.q || '';
-            let workshops;
+            const cacheKey = `shops:list:${typeFilter || 'all'}:${searchQuery || 'none'}`;
+
+            const typeLabels = {
+                nhang: '🪔 Làm Nhang', mai: '🌸 Chăm Mai', thien: '🧘 Thiền Healing',
+                banh: '🍰 Bánh Dân Gian', ecology: '🌿 Sinh Thái', culture: '🎭 Văn Hóa', other: '✨ Khác'
+            };
+
+            // Check in-memory cache
+            const cachedData = cache.get(cacheKey);
+            if (cachedData) {
+                return res.render('shop/index', {
+                    title: 'Shop & Sản Phẩm',
+                    workshops: cachedData,
+                    typeFilter,
+                    typeLabels,
+                    searchQuery
+                });
+            }
             
+            let workshops;
             let query = `
                 SELECT w.*, d.name as destination_name, d.slug as destination_slug
                 FROM workshops w
@@ -49,17 +68,17 @@ const ShopController = {
             query += ' ORDER BY w.sort_order ASC, w.created_at DESC LIMIT 50';
 
             const [rows] = await db.query(query, params);
-            workshops = rows;
+            workshops = rows || [];
 
-            // Get stats for each workshop
-            for (let ws of workshops) {
-                ws.stats = await Workshop.getStats(ws.id);
-            }
+            // Parallelize stats queries for fast execution
+            const statsPromises = workshops.map(ws => Workshop.getStats(ws.id).catch(() => ({ total_bookings: 0, completed: 0, avg_rating: null, total_participants: 0 })));
+            const allStats = await Promise.all(statsPromises);
+            workshops.forEach((ws, i) => {
+                ws.stats = allStats[i];
+            });
 
-            const typeLabels = {
-                nhang: '🪔 Làm Nhang', mai: '🌸 Chăm Mai', thien: '🧘 Thiền Healing',
-                banh: '🍰 Bánh Dân Gian', ecology: '🌿 Sinh Thái', culture: '🎭 Văn Hóa', other: '✨ Khác'
-            };
+            // Cache for 3 minutes
+            cache.set(cacheKey, workshops, 180);
 
             res.render('shop/index', {
                 title: 'Shop & Sản Phẩm',
@@ -77,19 +96,31 @@ const ShopController = {
     // GET /shops/:id - Chi tiết sản phẩm + form đặt mua
     show: async (req, res) => {
         try {
-            const workshop = await Workshop.getById(req.params.id);
-            if (!workshop) {
-                return res.status(404).render('errors/404', { title: 'Sản phẩm không tồn tại' });
+            const cacheKey = `shops:item:${req.params.id}`;
+            let cachedItem = cache.get(cacheKey);
+
+            if (!cachedItem) {
+                const workshop = await Workshop.getById(req.params.id);
+                if (!workshop) {
+                    return res.status(404).render('errors/404', { title: 'Sản phẩm không tồn tại' });
+                }
+
+                const [stats, relatedWorkshops] = await Promise.all([
+                    Workshop.getStats(workshop.id).catch(() => null),
+                    Workshop.getByDestination(workshop.destination_id).catch(() => [])
+                ]);
+
+                cachedItem = { workshop, stats, relatedWorkshops };
+                cache.set(cacheKey, cachedItem, 180);
             }
 
-            const stats = await Workshop.getStats(workshop.id);
-            const relatedWorkshops = await Workshop.getByDestination(workshop.destination_id);
+            const { workshop, stats, relatedWorkshops } = cachedItem;
 
-            // Get user's bookings for this workshop if logged in
+            // Get user's bookings for this workshop if logged in (dynamic per user)
             let userBookings = [];
-            if (req.user || req.session.user) {
-                const userId = (req.user || req.session.user).id;
-                const allBookings = await Workshop.getBookingsByUser(userId);
+            const currentUser = req.user || req.session?.user;
+            if (currentUser) {
+                const allBookings = await Workshop.getBookingsByUser(currentUser.id).catch(() => []);
                 userBookings = allBookings.filter(b => b.workshop_id === workshop.id);
             }
 
@@ -97,7 +128,7 @@ const ShopController = {
                 title: workshop.title,
                 workshop,
                 stats,
-                relatedWorkshops: relatedWorkshops.filter(w => w.id !== workshop.id),
+                relatedWorkshops: (relatedWorkshops || []).filter(w => w.id !== workshop.id),
                 userBookings
             });
         } catch (error) {

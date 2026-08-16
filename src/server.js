@@ -132,7 +132,7 @@ app.use((req, res, next) => {
 const PUBLIC_CACHEABLE_PATHS = new Set(['/', '/explore', '/shops', '/festivals', '/map', '/reviews']);
 
 function isPublicCacheablePath(p) {
-    return PUBLIC_CACHEABLE_PATHS.has(p) || p.startsWith('/explore/');
+    return PUBLIC_CACHEABLE_PATHS.has(p) || p.startsWith('/explore/') || p.startsWith('/shops/');
 }
 
 // Cache-Control headers

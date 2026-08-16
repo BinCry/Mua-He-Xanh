@@ -1,5 +1,6 @@
 const Destination = require('../models/Destination');
 const UserSession = require('../models/UserSession');
+const cache = require('../core/cache');
 
 class ExploreController {
     /** List all destinations */
@@ -9,8 +10,13 @@ class ExploreController {
             const type = req.query.type || null;
             const season = req.query.season || null;
             const search = req.query.q || null;
+            const cacheKey = `explore:list:${page}:${type || 'all'}:${season || 'all'}:${search || 'none'}`;
             
-            const result = await Destination.paginateActive(page, 6, type, null, search, season);
+            let result = cache.get(cacheKey);
+            if (!result) {
+                result = await Destination.paginateActive(page, 6, type, null, search, season);
+                cache.set(cacheKey, result, 180);
+            }
             
             res.render('explore/list', {
                 title: 'Khám phá Bình Lợi',
@@ -30,13 +36,25 @@ class ExploreController {
     async show(req, res) {
         try {
             const { slug } = req.params;
-            const dest = await Destination.findBySlug(slug);
-            
+            const cacheKey = `dest:show:${slug}`;
+            let cached = cache.get(cacheKey);
+
+            let dest, related;
+            if (cached) {
+                dest = cached.dest;
+                related = cached.related;
+            } else {
+                dest = await Destination.findBySlug(slug);
+                if (!dest) {
+                    return res.status(404).render('errors/404', { title: 'Không tìm thấy địa điểm' });
+                }
+                related = await Destination.getRelated(dest.type, dest.id);
+                cache.set(cacheKey, { dest, related }, 300);
+            }
+
             if (!dest) {
                 return res.status(404).render('errors/404', { title: 'Không tìm thấy địa điểm' });
             }
-
-            const related = await Destination.getRelated(dest.type, dest.id);
 
             let messages = [];
             const sessionUuid = req.cookies?.session_uuid;

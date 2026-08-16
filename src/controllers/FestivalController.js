@@ -1,9 +1,14 @@
 const Festival = require('../models/Festival');
+const cache = require('../core/cache');
 
 class FestivalController {
     async index(req, res) {
         try {
-            const festivals = await Festival.findAll();
+            let festivals = cache.get('festivals:list');
+            if (!festivals) {
+                festivals = await Festival.findAll();
+                cache.set('festivals:list', festivals, 300);
+            }
             res.render('festivals/index', {
                 title: 'Lễ hội & Sự kiện Bình Lợi',
                 festivals: festivals
