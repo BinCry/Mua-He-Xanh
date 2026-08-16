@@ -165,7 +165,7 @@
 </div>
 
 <script>
-    const destinationsList = <%- JSON.stringify(destinations) %>;
+    const destinationsList = <%- JSON.stringify(destinations || []) %>;
     let editingTemplate = false;
 
     function openTemplateForm() {
