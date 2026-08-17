@@ -1,6 +1,5 @@
-const CACHE_NAME = 'binh-loi-healing-v7';
+const CACHE_NAME = 'binh-loi-healing-v9';
 const STATIC_ASSETS = [
-    '/offline.html',
     '/css/style-v5.css',
     '/images/logo.svg',
     '/images/no-image.svg'
@@ -35,7 +34,7 @@ self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
 
-// Activate Event
+// Activate Event — delete ALL old caches aggressively
 self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
@@ -58,6 +57,11 @@ self.addEventListener('fetch', (event) => {
 
     // Only handle GET requests
     if (req.method !== 'GET') {
+        return;
+    }
+
+    // NEVER intercept offline.html — always fetch fresh from network
+    if (url.pathname === '/offline.html') {
         return;
     }
 
@@ -104,9 +108,26 @@ async function networkFirst(req) {
         if (cachedResponse) {
             return cachedResponse;
         }
-        // If navigation request (HTML page), return offline page
+        // If navigation request (HTML page), show offline page from network (not cache)
         if (req.mode === 'navigate') {
-            return cache.match('/offline.html');
+            try {
+                return await fetch('/offline.html');
+            } catch (e) {
+                // If even offline.html can't load, return a minimal inline response
+                return new Response(
+                    '<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Du Lịch Bình Lợi</title></head>' +
+                    '<body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fafafa;margin:0">' +
+                    '<div style="text-align:center;padding:2rem">' +
+                    '<h1 style="color:#922724;font-size:1.8rem;font-weight:900;letter-spacing:1px">DU LỊCH BÌNH LỢI</h1>' +
+                    '<p style="color:#15803d;font-weight:700;margin-top:4px">Chạm vào bình yên</p>' +
+                    '<h3 style="margin-top:1.5rem;color:#333">Đang kết nối máy chủ...</h3>' +
+                    '<p style="color:#666;font-size:0.9rem">Máy chủ đang cập nhật. Trang sẽ tự động tải lại.</p>' +
+                    '<button onclick="location.reload()" style="margin-top:1rem;padding:12px 32px;background:linear-gradient(135deg,#922724,#b83330);color:#fff;border:none;border-radius:50px;font-weight:700;cursor:pointer">Thử lại</button>' +
+                    '<script>setInterval(function(){fetch("/",{method:"HEAD",cache:"no-store",mode:"no-cors"}).then(function(r){if(r.ok||r.type==="opaque")location.reload()}).catch(function(){})},5000)<\/script>' +
+                    '</div></body></html>',
+                    { status: 503, headers: { 'Content-Type': 'text/html; charset=utf-8' } }
+                );
+            }
         }
         return new Response('Network error happened', { status: 408, headers: { 'Content-Type': 'text/plain' } });
     }

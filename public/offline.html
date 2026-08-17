@@ -3,22 +3,182 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Không có kết nối mạng - Bình Lợi Healing</title>
+    <title>Đang kết nối - Du Lịch Bình Lợi</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style-v5.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
     <style>
-        body { background: #f8faf9; height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .offline-card { max-width: 400px; text-align: center; background: #fff; padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #fdf6f6 0%, #f0fdf4 50%, #fefce8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            padding: 20px;
+        }
+        .offline-card {
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            background: #ffffff;
+            padding: 2.5rem 2rem 2rem;
+            border-radius: 1.5rem;
+            box-shadow: 0 20px 60px rgba(146, 39, 36, 0.08), 0 4px 16px rgba(0,0,0,0.04);
+            border: 1px solid rgba(146, 39, 36, 0.06);
+        }
+
+        /* Brand Header */
+        .brand-box { margin-bottom: 2rem; }
+        .brand-title {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-size: 1.6rem;
+            color: #922724;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .brand-sub {
+            font-family: 'Dancing Script', cursive;
+            font-size: 1.05rem;
+            color: #15803d;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        /* Status */
+        .status-icon {
+            width: 56px; height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+        .status-icon i {
+            font-size: 1.6rem;
+            color: #922724;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .btn-retry {
+            background: linear-gradient(135deg, #922724 0%, #b83330 100%);
+            color: white;
+            border: none;
+            font-weight: 700;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+        }
+        .btn-retry:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(146, 39, 36, 0.3);
+            color: white;
+        }
+        .btn-clear {
+            background: transparent;
+            color: #64748b;
+            border: 1.5px solid #e2e8f0;
+            font-weight: 600;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-size: 0.82rem;
+            transition: all 0.2s;
+        }
+        .btn-clear:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+            color: #334155;
+        }
+        .auto-status {
+            font-size: 0.75rem;
+            color: #94a3b8;
+            margin-top: 1rem;
+        }
+        .auto-status .spinner-border {
+            width: 12px; height: 12px;
+            border-width: 1.5px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body>
     <div class="offline-card">
-        <img src="/images/logo.svg" alt="Bình Lợi Logo" height="60" class="mb-4">
-        <h3 class="fw-bold text-dark mb-3">Bạn đang offline</h3>
-        <p class="text-muted mb-4">Vui lòng kiểm tra lại kết nối Wifi hoặc mạng di động của bạn. Bình Lợi Healing sẽ tự động tải lại khi có mạng.</p>
-        <button class="btn btn-danger w-100 rounded-pill py-2 fw-bold" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%); border: none;" onclick="window.location.reload()">
-            Thử lại
-        </button>
+        <!-- Brand -->
+        <div class="brand-box">
+            <h1 class="brand-title">DU LỊCH BÌNH LỢI</h1>
+            <div class="brand-sub">Chạm vào bình yên</div>
+        </div>
+
+        <!-- Status -->
+        <div class="status-icon">
+            <i class="bi bi-wifi-off"></i>
+        </div>
+        <h4 class="fw-bold text-dark mb-2">Đang kết nối máy chủ...</h4>
+        <p class="text-secondary small mb-4" style="line-height: 1.7;">
+            Máy chủ đang cập nhật hoặc đường truyền tạm gián đoạn.<br>
+            Trang sẽ <strong>tự động tải lại</strong> khi kết nối thành công.
+        </p>
+
+        <!-- Actions -->
+        <div class="d-flex flex-column gap-2">
+            <button class="btn btn-retry w-100 d-flex align-items-center justify-content-center gap-2" onclick="window.location.reload()">
+                <i class="bi bi-arrow-clockwise"></i> Thử lại ngay
+            </button>
+            <button class="btn btn-clear w-100 d-flex align-items-center justify-content-center gap-2" onclick="clearAllCacheAndReload()">
+                <i class="bi bi-trash3"></i> Xóa bộ nhớ đệm & Tải lại
+            </button>
+        </div>
+
+        <!-- Auto reconnect status -->
+        <div class="auto-status" id="autoStatus">
+            <span class="spinner-border text-secondary"></span>
+            Tự động kiểm tra kết nối mỗi 5 giây...
+        </div>
     </div>
+
+    <script>
+        // Auto-retry every 5 seconds
+        setInterval(function() {
+            fetch('/', { method: 'HEAD', cache: 'no-store', mode: 'no-cors' })
+                .then(function(res) {
+                    if (res.ok || res.type === 'opaque' || res.status < 500) {
+                        window.location.reload();
+                    }
+                })
+                .catch(function() {});
+        }, 5000);
+
+        // Clear all caches, unregister service workers, and hard reload
+        async function clearAllCacheAndReload() {
+            try {
+                // Unregister all Service Workers
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (const reg of registrations) {
+                        await reg.unregister();
+                    }
+                }
+                // Delete all caches
+                if ('caches' in window) {
+                    const cacheNames = await caches.keys();
+                    for (const name of cacheNames) {
+                        await caches.delete(name);
+                    }
+                }
+            } catch (e) {}
+            // Hard reload bypassing cache
+            window.location.href = '/?cachebust=' + Date.now();
+        }
+    </script>
 </body>
 </html>
