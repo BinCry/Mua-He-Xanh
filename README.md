@@ -9,6 +9,11 @@
   <em>"Chạm vào bình yên – Trải nghiệm hành trình thiên nhiên & văn hóa bản địa"</em>
 </p>
 
+<p align="center">
+  <a href="https://dulichbinhloi.com"><img src="https://img.shields.io/badge/Trực_tuyến-dulichbinhloi.com-922724?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo"></a>
+  <img src="https://img.shields.io/badge/Phiên_bản-1.0.0-15803d?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/badge/Trạng_thái-Hoạt_động-success?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status">
+</p>
 ---
 
 ## 🌟 Giới thiệu Dự án
