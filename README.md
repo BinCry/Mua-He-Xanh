@@ -9,12 +9,6 @@
   <em>"Chạm vào bình yên – Trải nghiệm hành trình thiên nhiên & văn hóa bản địa"</em>
 </p>
 
-<p align="center">
-  <a href="https://binhloi.bincrydev.id.vn"><img src="https://img.shields.io/badge/Trực_tuyến-binhloi.bincrydev.id.vn-922724?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Live Demo"></a>
-  <img src="https://img.shields.io/badge/Phiên_bản-1.0.0-15803d?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/badge/Trạng_thái-Hoạt_động-success?style=for-the-badge&logo=statuspage&logoColor=white" alt="Status">
-</p>
-
 ---
 
 ## 🌟 Giới thiệu Dự án
@@ -61,7 +55,6 @@
 ![Nginx](https://img.shields.io/badge/Nginx_Proxy-009639?style=flat-square&logo=nginx&logoColor=white)
 ![PM2](https://img.shields.io/badge/PM2_Cluster-2B037A?style=flat-square&logo=pm2&logoColor=white)
 ![Cloudflare](https://img.shields.io/badge/Cloudflare_CDN_%26_SSL-F38020?style=flat-square&logo=cloudflare&logoColor=white)
-![Git](https://img.shields.io/badge/Git-F05032?style=flat-square&logo=git&logoColor=white)
 
 ---
 
