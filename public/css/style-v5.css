@@ -4,6 +4,8 @@
    ========================================================================== */
 
 :root {
+    --navbar-height: 107px;
+
     /* Core Palette: Brand Identity - Deep Red/Maroon + Nature Green */
     --primary: #922724;
     --primary-light: #b03331;
@@ -105,18 +107,24 @@ body {
     -moz-osx-font-smoothing: grayscale;
 }
 
+@media (max-width: 1199.98px) {
+    :root {
+        --navbar-height: clamp(56px, 6.5vw, 84px);
+    }
+}
+
 /* Offset top content to prevent fixed navbar from overlapping page titles */
 main {
-    padding-top: 107px;
+    padding-top: var(--navbar-height);
     overflow-x: hidden !important;
 }
 
 @media (max-width: 991.98px) {
     main {
-        padding-top: 64px;
+        padding-top: var(--navbar-height);
     }
     .navbar-premium {
-        height: 64px !important;
+        height: var(--navbar-height) !important;
     }
     .brand-logo-img {
         height: 28px !important;

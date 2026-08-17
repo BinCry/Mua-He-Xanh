@@ -11,12 +11,18 @@
         position: relative;
         background-color: #044b5e !important;
         overflow: hidden;
-        margin-top: 107px !important;
+        margin-top: var(--navbar-height, 107px) !important;
         padding: 0 !important;
         height: auto !important;
         min-height: unset !important;
         max-height: unset !important;
         box-sizing: border-box !important;
+    }
+
+    @media (max-width: 1199.98px) {
+        .hero-poster-section {
+            margin-top: var(--navbar-height, clamp(56px, 6.5vw, 84px)) !important;
+        }
     }
 
     .hero-poster-section .carousel-inner,

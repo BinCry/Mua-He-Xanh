@@ -1,10 +1,20 @@
 <style>
+    :root {
+        --navbar-height: 107px;
+    }
+
+    @media (max-width: 1199.98px) {
+        :root {
+            --navbar-height: clamp(56px, 6.5vw, 84px);
+        }
+    }
+
     .navbar-premium {
         padding-top: 23px !important;
         padding-bottom: 23px !important;
-        height: 107px !important;
-        min-height: 107px !important;
-        max-height: 107px !important;
+        height: var(--navbar-height) !important;
+        min-height: var(--navbar-height) !important;
+        max-height: var(--navbar-height) !important;
         display: flex !important;
         align-items: center !important;
         background: #ffffff !important;
@@ -87,9 +97,9 @@
         .navbar-premium {
             padding-top: clamp(4px, 1.2vw, 12px) !important;
             padding-bottom: clamp(4px, 1.2vw, 12px) !important;
-            height: clamp(56px, 6.5vw, 84px) !important;
-            min-height: clamp(56px, 6.5vw, 84px) !important;
-            max-height: clamp(56px, 6.5vw, 84px) !important;
+            height: var(--navbar-height) !important;
+            min-height: var(--navbar-height) !important;
+            max-height: var(--navbar-height) !important;
         }
 
         .navbar-premium .navbar-toggler {
