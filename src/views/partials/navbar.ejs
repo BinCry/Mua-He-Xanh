@@ -42,12 +42,19 @@
 
     .brand-title-text {
         font-size: 1.35rem;
+        line-height: 1.25 !important;
+        padding-top: 3px !important;
+        padding-bottom: 1px !important;
         white-space: nowrap !important;
+        overflow: visible !important;
     }
 
     .brand-sub-text {
         font-size: 1.15rem;
+        line-height: 1.25 !important;
+        padding-bottom: 2px !important;
         white-space: nowrap !important;
+        overflow: visible !important;
     }
 
     .navbar-premium .nav-link {
@@ -105,11 +112,18 @@
         }
 
         .brand-title-text {
-            font-size: clamp(0.78rem, 1.1vw, 1.05rem) !important;
+            font-size: clamp(0.82rem, 1.25vw, 1.1rem) !important;
+            line-height: 1.25 !important;
+            padding-top: 2px !important;
+            padding-bottom: 1px !important;
+            overflow: visible !important;
         }
 
         .brand-sub-text {
-            font-size: clamp(0.62rem, 0.8vw, 0.82rem) !important;
+            font-size: clamp(0.66rem, 0.9vw, 0.88rem) !important;
+            line-height: 1.25 !important;
+            padding-bottom: 2px !important;
+            overflow: visible !important;
         }
 
         .nav-hamburger {
@@ -170,13 +184,13 @@
             <a class="navbar-brand d-flex align-items-center m-0 p-0 min-w-0 flex-shrink-1" href="/" style="position: relative !important; left: auto !important; margin: 0 !important; padding: 0 !important; gap: 10px;">
                 <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" alt="Logo" class="brand-logo-img flex-shrink-0"
                     onerror="this.src='/images/logo.svg'">
-                <div class="d-flex flex-column justify-content-center min-w-0 flex-shrink-1 overflow-hidden">
-                    <span class="d-block fw-black lh-1 brand-title-text text-truncate"
-                        style="font-family: 'Inter', sans-serif; font-weight: 900; color: var(--primary); letter-spacing: 0.5px;">
+                <div class="d-flex flex-column justify-content-center min-w-0 flex-shrink-1" style="overflow: visible !important;">
+                    <span class="d-block fw-black brand-title-text"
+                        style="font-family: 'Inter', sans-serif; font-weight: 900; color: var(--primary); letter-spacing: 0.5px; line-height: 1.25; padding-top: 2px;">
                         <%= settings.brand_name || 'BÌNH LỢI' %>
                     </span>
-                    <span class="d-block brand-sub-text text-truncate"
-                        style="font-family: 'Dancing Script', cursive; color: var(--primary-green); font-weight: 700; margin-top: 2px; line-height: 1;">
+                    <span class="d-block brand-sub-text"
+                        style="font-family: 'Dancing Script', cursive; color: var(--primary-green); font-weight: 700; margin-top: 1px; line-height: 1.25; padding-bottom: 2px;">
                         <%= settings.brand_subtext || 'Chạm vào bình yên' %>
                     </span>
                 </div>

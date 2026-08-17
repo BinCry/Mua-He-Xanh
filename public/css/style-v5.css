@@ -123,10 +123,16 @@ main {
         width: auto !important;
     }
     .brand-title-text {
-        font-size: 0.8rem !important;
+        font-size: 0.85rem !important;
+        line-height: 1.25 !important;
+        padding-top: 2px !important;
+        overflow: visible !important;
     }
     .brand-sub-text {
-        font-size: 0.6rem !important;
+        font-size: 0.68rem !important;
+        line-height: 1.25 !important;
+        padding-bottom: 2px !important;
+        overflow: visible !important;
     }
     .lang-switch-group button {
         font-size: 0.68rem !important;
