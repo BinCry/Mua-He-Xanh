@@ -51,18 +51,18 @@
                         <a href="/shops/<%= ws.id %>" class="d-block w-100 h-100">
                             <img src="<%= fixImg(ws.image, '/uploads/posters/poster-1.webp') %>" alt="<%= ws.title %>" class="w-100 h-100 shop-img" style="object-fit: cover; object-position: top center;">
                         </a>
-                        
-                        <!-- Bottom Left Badge (Location / Destination Tag - Placed right above product title) -->
-                        <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 5;">
-                            <span class="badge bg-dark bg-opacity-75 rounded-pill px-3 py-1.5 fw-bold shadow-sm" style="font-size: 0.72rem; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.85) !important; color: #ffffff !important; backdrop-filter: blur(4px);">
-                                ✨ <%= ws.destination_name || 'Bình Lợi' %>
-                            </span>
-                        </div>
                     </div>
 
                     <!-- Card Body -->
                     <div class="card-body p-4 d-flex flex-column justify-content-between flex-grow-1">
                         <div>
+                            <!-- Destination Tag (Placed right above product title) -->
+                            <div class="mb-2 text-start">
+                                <span class="badge rounded-pill px-2.5 py-1 fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.08); color: #1e293b; border: 1px solid rgba(0, 0, 0, 0.08);">
+                                    ✨ <%= ws.destination_name || 'Bình Lợi' %>
+                                </span>
+                            </div>
+
                             <!-- Product Title -->
                             <h5 class="fw-bold mb-1 shop-title-text" style="font-family: 'Inter', sans-serif; font-size: 1.02rem; line-height: 1.45; color: #1e293b; min-height: 2.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
                                 <a href="/shops/<%= ws.id %>" class="text-decoration-none text-dark hover-primary"><%= ws.title %></a>
@@ -74,8 +74,8 @@
                             </p>
                         </div>
 
-                        <!-- Price & Cart Button Row (Bottom Row) -->
-                        <div class="d-flex align-items-center justify-content-between pt-3 mt-auto border-top border-light">
+                        <!-- Price & Cart Button Row (Bottom Row with crisp distinct line) -->
+                        <div class="d-flex align-items-center justify-content-between pt-3 mt-auto" style="border-top: 1.5px solid #e2e8f0;">
                             <!-- Price Block -->
                             <div class="shop-price-wrapper">
                                 <% if (ws.price && ws.price > 500000) { %>
