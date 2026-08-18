@@ -27,7 +27,18 @@ module.exports = function analyticsMiddleware(req, res, next) {
     }
 
     const now = Date.now();
-    const sessionId = req.cookies?.session_uuid || req.ip || 'anonymous';
+    
+    // Automatically issue a session_uuid cookie if absent
+    let sessionId = req.cookies?.session_uuid;
+    let isBrandNewUser = false;
+    if (!sessionId) {
+        sessionId = uuidv4();
+        isBrandNewUser = true;
+        res.cookie('session_uuid', sessionId, { maxAge: 30 * 24 * 3600 * 1000, httpOnly: false, sameSite: 'lax' });
+        if (!req.cookies) req.cookies = {};
+        req.cookies.session_uuid = sessionId;
+    }
+
     const pageUrl = req.originalUrl;
     const cacheKey = `${sessionId}:${pageUrl}`;
 
@@ -35,7 +46,7 @@ module.exports = function analyticsMiddleware(req, res, next) {
     const lastSessionActivity = sessionActivityCache.get(sessionId);
     let isNewSession = false;
 
-    if (!lastSessionActivity || (now - lastSessionActivity > SESSION_TIMEOUT_MS)) {
+    if (isBrandNewUser || !lastSessionActivity || (now - lastSessionActivity > SESSION_TIMEOUT_MS)) {
         isNewSession = true;
     }
     sessionActivityCache.set(sessionId, now);
