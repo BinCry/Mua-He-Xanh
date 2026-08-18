@@ -45,7 +45,13 @@
                                 <!-- Location -->
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="bi bi-geo-alt-fill text-danger fs-5"></i> 
-                                    <span class="fw-semibold"><%= workshop.destination_name || 'Bình Lợi' %></span>
+                                    <% if (workshop.destination_slug) { %>
+                                        <a href="/explore/<%= workshop.destination_slug %>" class="text-decoration-none text-dark fw-bold hover-underline" title="Xem địa điểm bán">
+                                            <%= workshop.destination_name || 'Bình Lợi' %> <i class="bi bi-arrow-up-right-circle text-primary ms-1" style="font-size: 0.85rem;"></i>
+                                        </a>
+                                    <% } else { %>
+                                        <span class="fw-semibold"><%= workshop.destination_name || 'Bình Lợi' %></span>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>

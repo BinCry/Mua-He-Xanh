@@ -73,7 +73,7 @@
                     <i class="bi bi-book-half me-2"></i>Câu chuyện Văn hóa
                 </h3>
                 <div class="story-text-rich" style="font-size: 1.05rem; line-height: 1.85; color: #334155; text-align: justify;">
-                    <%- dest.story.replace(/\n/g, '<br><br>') %>
+                    <%- (dest.story || dest.description || '').replace(/\n/g, '<br><br>') %>
                 </div>
 
                 <!-- Highlight Box -->

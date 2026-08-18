@@ -37,12 +37,15 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="Bình Lợi">
+    <!-- Facebook App ID & Open Graph -->
+    <meta property="fb:app_id" content="1566975911629251">
+    <meta property="og:site_name" content="Bình Lợi - Miền Tây giữa lòng Sài Gòn">
 
     <script>
         window.APP_CONFIG = {
             baseUrl: '<%= baseUrl %>',
-            apiUrl: '<%= baseUrl %>/api'
+            apiUrl: '<%= baseUrl %>/api',
+            fbAppId: '1566975911629251'
         };
         window.CURRENT_SESSION_ID = '<%= typeof sessionDbId !== "undefined" && sessionDbId ? sessionDbId : "" %>';
     </script>
@@ -809,6 +812,44 @@
     </div>
     <!-- Instant.page: Ultra-fast pre-fetching on link hover (sub-100ms instant page loads) -->
     <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.min.js" type="module"></script>
+
+    <!-- Real-time Engagement & 30-Min Session Time Tracker -->
+    <script>
+    (function() {
+        if (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/manager')) return;
+        let sessionStartTime = parseInt(sessionStorage.getItem('bl_session_start_ts') || '0', 10);
+        if (!sessionStartTime || (Date.now() - sessionStartTime > 30 * 60 * 1000)) {
+            sessionStartTime = Date.now();
+            sessionStorage.setItem('bl_session_start_ts', sessionStartTime.toString());
+        }
+
+        function sendHeartbeat(isFinal) {
+            const totalDurationSec = Math.max(1, Math.round((Date.now() - sessionStartTime) / 1000));
+            const payload = JSON.stringify({
+                path: window.location.pathname,
+                seconds: totalDurationSec,
+                isFinal: !!isFinal
+            });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/api/analytics/heartbeat', new Blob([payload], { type: 'application/json' }));
+            } else {
+                fetch('/api/analytics/heartbeat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: payload,
+                    keepalive: true
+                }).catch(function() {});
+            }
+        }
+
+        setInterval(function() { sendHeartbeat(false); }, 20000);
+
+        window.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'hidden') sendHeartbeat(true);
+        });
+        window.addEventListener('beforeunload', function() { sendHeartbeat(true); });
+    })();
+    </script>
 </body>
 
 </html>

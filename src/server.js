@@ -182,6 +182,29 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 app.use(cookieParser());
 
+// Real-time Analytics Heartbeat / Time-on-site Endpoint
+app.post('/api/analytics/heartbeat', async (req, res) => {
+    try {
+        const sessionId = req.cookies?.session_uuid || req.body?.sessionId || req.ip || 'anonymous';
+        const seconds = Math.min(parseInt(req.body?.seconds) || 0, 7200);
+        if (seconds > 0) {
+            const db = require('./core/database');
+            await db.query(
+                `UPDATE analytics SET duration_ms = $1, updated_at = NOW() 
+                 WHERE id = (
+                     SELECT id FROM analytics 
+                     WHERE session_id = $2 AND event = 'session_start' 
+                     ORDER BY created_at DESC LIMIT 1
+                 )`,
+                [seconds * 1000, sessionId]
+            );
+        }
+        res.status(204).end();
+    } catch (e) {
+        res.status(204).end();
+    }
+});
+
 // ========================================================================
 // SESSION + PASSPORT — only for non-public routes (admin, profile, auth, api, etc.)
 // This prevents Set-Cookie on public pages, enabling Vercel Edge CDN caching.

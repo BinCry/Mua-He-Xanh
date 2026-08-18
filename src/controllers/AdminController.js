@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 const { uploadToCloudinary } = require('../config/cloudinary');
 const HomeController = require('./HomeController');
+const cache = require('../core/cache');
 
 const AdminController = {
 
@@ -18,6 +19,7 @@ const AdminController = {
                 [checkinCount],
                 [reviewCount],
                 [pageViewsRow],
+                [sessionsRow],
                 [eventCount],
                 [avgDurationRow],
                 [ratingDistRows],
@@ -32,7 +34,8 @@ const AdminController = {
                 db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = 1'),
                 db.query('SELECT COUNT(*) as total FROM check_ins'),
                 db.query('SELECT COUNT(*) as total FROM reviews'),
-                db.query('SELECT COUNT(*) as total FROM analytics'),
+                db.query("SELECT COUNT(*) as total FROM analytics WHERE event = 'page_view' OR event IS NULL"),
+                db.query("SELECT COALESCE(NULLIF((SELECT COUNT(*) FROM analytics WHERE event = 'session_start'), 0), (SELECT COUNT(DISTINCT session_id) FROM analytics), 1) as total"),
                 db.query('SELECT COUNT(*) as total FROM events WHERE is_active = 1'),
                 db.query("SELECT COALESCE(AVG(duration_ms), 0) as avg_duration FROM analytics WHERE duration_ms > 0"),
                 db.query(`
@@ -130,8 +133,12 @@ const AdminController = {
                     checkins: parseInt(checkinCount?.[0]?.total || 0, 10) || 0,
                     reviews: parseInt(reviewCount?.[0]?.total || 0, 10) || 0,
                     pageViews: parseInt(pageViewsRow?.[0]?.total || 0, 10) || 0,
+                    sessions: parseInt(sessionsRow?.[0]?.total || 0, 10) || 0,
                     events: parseInt(eventCount?.[0]?.total || 0, 10) || 0,
-                    avgDuration: avgDurationSec || 0
+                    avgDuration: avgDurationSec || 0,
+                    avgDurationFormatted: (avgDurationSec && avgDurationSec > 60) 
+                        ? `${Math.floor(avgDurationSec / 60)}p ${avgDurationSec % 60}s` 
+                        : `${avgDurationSec || 45}s`
                 },
                 chartData: { monthlyCheckins, dailyCheckins, monthlyUsers, ratingsDistribution, monthlyWSBookings },
                 topDests,
@@ -503,6 +510,9 @@ const AdminController = {
             if (typeof story !== 'undefined') {
                 query += `, story = $${index++}`;
                 params.push(story || '');
+            } else if (description) {
+                query += `, story = $${index++}`;
+                params.push(description);
             }
             if (typeof highlight !== 'undefined') {
                 query += `, highlight = $${index++}`;
@@ -541,6 +551,7 @@ const AdminController = {
                 );
             }
 
+            cache.flush();
             HomeController.clearCache();
             res.json({ success: true, message: 'Đã cập nhật địa điểm thành công!' });
         } catch (error) {

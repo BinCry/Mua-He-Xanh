@@ -153,7 +153,7 @@
             <div class="col-6 col-md-3">
                 <div class="stat-item-dark">
                     <div class="stat-number" id="stat-pageviews">
-                        <%= (stats.pageViews ?? stats.visitors ?? 0).toLocaleString() %>+
+                        <%= (stats.visitors || stats.pageViews || 0).toLocaleString() %>+
                     </div>
                     <div class="stat-text">LƯỢT TRUY CẬP</div>
                 </div>

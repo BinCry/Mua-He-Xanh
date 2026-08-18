@@ -37,8 +37,8 @@ class HomeController {
                 if (Date.now() - _statsCacheTs > 60000) {
                     try {
                         const [[pv], [uv], totalCheckins] = await Promise.all([
-                            db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
-                            db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                            db.query('SELECT COUNT(*) as total FROM analytics WHERE event = \'page_view\' OR event IS NULL').catch(() => [[{ total: 0 }]]),
+                            db.query('SELECT COALESCE(NULLIF((SELECT COUNT(*) FROM analytics WHERE event = \'session_start\'), 0), (SELECT COUNT(DISTINCT session_id) FROM analytics), 1) as total').catch(() => [[{ total: 0 }]]),
                             CheckIn.getTotalCount().catch(() => 0)
                         ]);
                         if (_cache.stats) {
@@ -69,8 +69,8 @@ class HomeController {
             ] = await Promise.all([
                 Destination.getActive(9).catch(() => []),
                 CheckIn.getTotalCount().catch(() => 0),
-                db.query('SELECT COUNT(*) as total FROM analytics').catch(() => [[{ total: 0 }]]),
-                db.query('SELECT COUNT(DISTINCT session_id) as total FROM analytics').catch(() => [[{ total: 0 }]]),
+                db.query('SELECT COUNT(*) as total FROM analytics WHERE event = \'page_view\' OR event IS NULL').catch(() => [[{ total: 0 }]]),
+                db.query('SELECT COALESCE(NULLIF((SELECT COUNT(*) FROM analytics WHERE event = \'session_start\'), 0), (SELECT COUNT(DISTINCT session_id) FROM analytics), 1) as total').catch(() => [[{ total: 0 }]]),
                 db.query('SELECT COUNT(*) as total FROM workshops WHERE is_active = 1').catch(() => [[{ total: 12 }]]),
                 db.query('SELECT AVG(rating) as avg, COUNT(*) as count FROM reviews').catch(() => [[{ avg: null, count: 0 }]]),
                 db.query('SELECT * FROM events WHERE is_active = 1 ORDER BY event_date ASC').catch(() => [[]]),
