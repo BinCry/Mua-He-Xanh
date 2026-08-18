@@ -335,9 +335,10 @@
                     </div>
 
                     <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-sm hover-lift w-100 d-flex flex-column bg-white border">
-                        <!-- Top Image Poster (Consistent 16:9 Ratio across Mobile and Desktop) -->
+                        <!-- Top Image Poster: 100% FULL UNCROPPED POSTER with blurred background fill -->
                         <div class="w-100 position-relative overflow-hidden" style="aspect-ratio: 16 / 9; width: 100%; background: #0f172a; flex-shrink: 0;">
-                            <img src="<%= fixImg(nextEvent.image, '/uploads/posters/poster-1.webp') %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" loading="lazy" decoding="async" alt="<%= nextEvent.title %>">
+                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg(nextEvent.image, '/uploads/posters/poster-1.webp') %>') center/cover; filter: blur(16px) brightness(0.65); transform: scale(1.2);"></div>
+                            <img src="<%= fixImg(nextEvent.image, '/uploads/posters/poster-1.webp') %>" class="position-relative w-100 h-100" style="object-fit: contain; object-position: center; z-index: 2;" loading="lazy" decoding="async" alt="<%= nextEvent.title %>">
                         </div>
 
                         <!-- Bottom 50% Information Body -->
