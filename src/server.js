@@ -182,10 +182,31 @@ app.use(express.json({ limit: '5mb' }));
 app.use(express.urlencoded({ limit: '5mb', extended: true }));
 app.use(cookieParser());
 
+// Real-time Analytics: Start New Tab-Session / Visit
+app.post('/api/analytics/session-start', async (req, res) => {
+    try {
+        const sessionId = req.body?.tabSession || req.cookies?.tab_session_id || req.cookies?.session_uuid || 'anonymous';
+        const pageUrl = req.body?.path || '/';
+        const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip || 'unknown';
+        const userAgent = (req.headers['user-agent'] || '').substring(0, 500);
+
+        const db = require('./core/database');
+        const { v4: uuidv4 } = require('uuid');
+        await db.query(
+            `INSERT INTO analytics (id, session_id, event, page_url, user_agent, duration_ms, ip_address, created_at, updated_at) 
+             VALUES ($1, $2, 'session_start', $3, $4, 0, $5, NOW(), NOW())`,
+            [uuidv4(), sessionId, pageUrl, userAgent, ip]
+        );
+        res.status(204).end();
+    } catch (e) {
+        res.status(204).end();
+    }
+});
+
 // Real-time Analytics Heartbeat / Time-on-site Endpoint
 app.post('/api/analytics/heartbeat', async (req, res) => {
     try {
-        const sessionId = req.cookies?.session_uuid || req.body?.sessionId || req.ip || 'anonymous';
+        const sessionId = req.body?.sessionId || req.cookies?.tab_session_id || req.cookies?.session_uuid || req.ip || 'anonymous';
         const seconds = Math.min(parseInt(req.body?.seconds) || 0, 7200);
         if (seconds > 0) {
             const db = require('./core/database');

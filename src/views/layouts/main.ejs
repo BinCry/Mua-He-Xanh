@@ -813,20 +813,48 @@
     <!-- Instant.page: Ultra-fast pre-fetching on link hover (sub-100ms instant page loads) -->
     <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.min.js" type="module"></script>
 
-    <!-- Real-time Engagement & 30-Min Session Time Tracker -->
+    <!-- Real-time Engagement & Tab-Session Visit Tracker -->
     <script>
     (function() {
         if (window.location.pathname.startsWith('/admin') || window.location.pathname.startsWith('/manager')) return;
-        let sessionStartTime = parseInt(sessionStorage.getItem('bl_session_start_ts') || '0', 10);
-        if (!sessionStartTime || (Date.now() - sessionStartTime > 30 * 60 * 1000)) {
-            sessionStartTime = Date.now();
-            sessionStorage.setItem('bl_session_start_ts', sessionStartTime.toString());
+
+        const now = Date.now();
+        const THIRTY_MINS = 30 * 60 * 1000;
+        let tabSession = sessionStorage.getItem('bl_tab_session_id');
+        let lastActive = parseInt(sessionStorage.getItem('bl_tab_last_active') || '0', 10);
+        let isNewTabSession = false;
+
+        if (!tabSession || (now - lastActive > THIRTY_MINS)) {
+            tabSession = 'tab_' + Math.random().toString(36).substring(2, 12) + '_' + now;
+            sessionStorage.setItem('bl_tab_session_id', tabSession);
+            sessionStorage.setItem('bl_session_start_ts', now.toString());
+            isNewTabSession = true;
+        }
+        sessionStorage.setItem('bl_tab_last_active', now.toString());
+        document.cookie = "tab_session_id=" + tabSession + "; path=/; SameSite=Lax";
+
+        if (isNewTabSession) {
+            const startPayload = JSON.stringify({ tabSession: tabSession, path: window.location.pathname });
+            if (navigator.sendBeacon) {
+                navigator.sendBeacon('/api/analytics/session-start', new Blob([startPayload], { type: 'application/json' }));
+            } else {
+                fetch('/api/analytics/session-start', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: startPayload,
+                    keepalive: true
+                }).catch(function() {});
+            }
         }
 
+        let sessionStartTime = parseInt(sessionStorage.getItem('bl_session_start_ts') || now.toString(), 10);
+
         function sendHeartbeat(isFinal) {
+            sessionStorage.setItem('bl_tab_last_active', Date.now().toString());
             const totalDurationSec = Math.max(1, Math.round((Date.now() - sessionStartTime) / 1000));
             const payload = JSON.stringify({
                 path: window.location.pathname,
+                sessionId: tabSession,
                 seconds: totalDurationSec,
                 isFinal: !!isFinal
             });
