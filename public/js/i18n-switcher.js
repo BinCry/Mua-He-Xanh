@@ -139,18 +139,30 @@
         updateLanguageUI(lang);
     }
 
-    // Passive MutationObserver to prevent Google Translate from setting top: 40px inline style
-    if (typeof MutationObserver !== 'undefined') {
-        var observer = new MutationObserver(function() {
-            if (document.body && document.body.style.top && document.body.style.top !== '0px') {
-                document.body.style.setProperty('top', '0px', 'important');
+    // Passive MutationObserver + Interval to completely prevent Google Translate banner
+    function removeTranslateBanners() {
+        var iframes = document.querySelectorAll('iframe.goog-te-banner-frame, .VIpgJd-ZVi9od-ORHb-OEVmcd, .skiptranslate');
+        iframes.forEach(function(el) {
+            if (el.tagName === 'IFRAME' || el.classList.contains('VIpgJd-ZVi9od-ORHb-OEVmcd')) {
+                el.style.setProperty('display', 'none', 'important');
+                el.style.setProperty('visibility', 'hidden', 'important');
+                el.style.setProperty('height', '0px', 'important');
             }
         });
+        if (document.body && document.body.style.top && document.body.style.top !== '0px') {
+            document.body.style.setProperty('top', '0px', 'important');
+        }
+    }
+
+    setInterval(removeTranslateBanners, 200);
+
+    if (typeof MutationObserver !== 'undefined') {
+        var observer = new MutationObserver(removeTranslateBanners);
         if (document.body) {
-            observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+            observer.observe(document.body, { attributes: true, childList: true, subtree: true });
         } else {
             document.addEventListener('DOMContentLoaded', function() {
-                if (document.body) observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
+                if (document.body) observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             });
         }
     }

@@ -58,14 +58,14 @@
                         <div>
                             <!-- Destination Tag (Placed right above product title) -->
                             <div class="mb-2 text-start">
-                                <span class="badge rounded-pill px-2.5 py-1 fw-bold text-uppercase" style="font-size: 0.72rem; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.08); color: #1e293b; border: 1px solid rgba(0, 0, 0, 0.08);">
+                                <span class="badge rounded-pill px-2.5 py-1 fw-bold text-uppercase notranslate" translate="no" style="font-size: 0.72rem; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.08); color: #1e293b; border: 1px solid rgba(0, 0, 0, 0.08);">
                                     ✨ <%= ws.destination_name || 'Bình Lợi' %>
                                 </span>
                             </div>
 
-                            <!-- Product Title -->
-                            <h5 class="fw-bold mb-1 shop-title-text" style="font-family: 'Inter', sans-serif; font-size: 1.02rem; line-height: 1.45; color: #1e293b; min-height: 2.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
-                                <a href="/shops/<%= ws.id %>" class="text-decoration-none text-dark hover-primary"><%= ws.title %></a>
+                            <!-- Product Title (Proper noun: notranslate) -->
+                            <h5 class="fw-bold mb-1 shop-title-text notranslate" translate="no" style="font-family: 'Inter', sans-serif; font-size: 1.02rem; line-height: 1.45; color: #1e293b; min-height: 2.9rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                <a href="/shops/<%= ws.id %>" class="text-decoration-none text-dark hover-primary notranslate" translate="no"><%= ws.title %></a>
                             </h5>
                             
                             <!-- Product Sub-description -->
