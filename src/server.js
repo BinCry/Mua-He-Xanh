@@ -290,6 +290,9 @@ app.use(async (req, res, next) => {
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
         if (clean.startsWith('http') || clean.startsWith('data:')) return clean;
+        if (clean.startsWith('/uploads/media/')) {
+            return `https://www.dulichbinhloi.com${clean}`;
+        }
         const v = res.locals.assetV;
         return clean + (clean.includes('?') ? '&' : '?') + 'v=' + v;
     };
