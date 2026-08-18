@@ -35,11 +35,14 @@
                     </select>
                 </div>
 
-                <!-- Image Preview -->
+                <!-- Image Preview (Square Facebook/Instagram Style) -->
                 <div id="imagePreview" class="mb-3 d-none">
-                    <div class="position-relative d-inline-block">
-                        <img id="previewImg" src="" class="rounded-3 border" style="max-height: 220px; max-width: 100%; object-fit: cover;">
-                        <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-2 p-0 d-flex align-items-center justify-content-center shadow" style="width: 28px; height: 28px;" onclick="clearImage()">
+                    <div class="position-relative d-inline-block rounded-4 overflow-hidden border shadow-sm" style="width: 180px; aspect-ratio: 1 / 1; background: #f8fafc;">
+                        <img id="previewImg" src="" class="w-100 h-100" style="object-fit: cover; object-position: center;">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-1 text-center bg-dark bg-opacity-75 text-white" style="font-size: 0.68rem; backdrop-filter: blur(4px);">
+                            <i class="bi bi-aspect-ratio me-1"></i>Cắt vuông 1:1
+                        </div>
+                        <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1.5 p-0 d-flex align-items-center justify-content-center shadow" style="width: 26px; height: 26px; z-index: 10;" onclick="clearImage()">
                             <i class="bi bi-x fs-5"></i>
                         </button>
                     </div>
@@ -162,8 +165,9 @@
                     <div class="row g-2">
                         <% imgs.forEach((img, idx) => { %>
                         <div class="col-12">
-                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer" onclick="openImageLightbox(this.querySelector('img').src)">
-                                <img src="<%= fixImg(img) %>" class="rounded-4 w-100" style="max-height: 560px; object-fit: contain; background: #f8fafc;" alt="Review image" onerror="this.onerror=null; this.src='/images/no-image.svg';">
+                            <!-- 1:1 Square Facebook-Style Post Card -->
+                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1; max-height: 540px;" onclick="openImageLightbox(this.querySelector('img').src)" title="Nhấn để xem ảnh phóng to đầy đủ">
+                                <img src="<%= fixImg(img) %>" class="rounded-4 w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" onerror="this.onerror=null; this.src='/images/no-image.svg';">
                             </div>
                         </div>
                         <% }) %>
@@ -263,6 +267,54 @@
                                     lastModified: Date.now()
                                 });
                                 resolve(compressedFile);
+                            } else {
+                                resolve(file);
+                            }
+                        },
+                        'image/jpeg',
+                        quality
+                    );
+                };
+                img.onerror = () => resolve(file);
+                img.src = e.target.result;
+            };
+            reader.onerror = () => resolve(file);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    // Client-side 1:1 Square Auto-Cropper + Compressor
+    function cropImageToSquare(file, maxDimension = 1200, quality = 0.85) {
+        return new Promise((resolve) => {
+            if (!file || !file.type || !file.type.startsWith('image/')) {
+                return resolve(file);
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const minDim = Math.min(img.width, img.height);
+                    const targetSize = Math.min(minDim, maxDimension);
+
+                    const sx = Math.round((img.width - minDim) / 2);
+                    const sy = Math.round((img.height - minDim) / 2);
+
+                    const canvas = document.createElement('canvas');
+                    canvas.width = targetSize;
+                    canvas.height = targetSize;
+
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, targetSize, targetSize);
+
+                    canvas.toBlob(
+                        (blob) => {
+                            if (blob) {
+                                const croppedFile = new File([blob], file.name.replace(/\.[^/.]+$/, "") + "-square.jpg", {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+                                resolve(croppedFile);
                             } else {
                                 resolve(file);
                             }
@@ -588,12 +640,10 @@
             const fileInput = document.getElementById('reviewFileInput');
             if (fileInput && fileInput.files && fileInput.files.length > 0) {
                 let file = fileInput.files[0];
-                if (file.type && file.type.startsWith('image/') && file.size > 400 * 1024) {
-                    try {
-                        file = await compressImage(file, 1600, 0.82);
-                    } catch(cErr) {
-                        console.warn("Compression error:", cErr);
-                    }
+                try {
+                    file = await cropImageToSquare(file, 1200, 0.85);
+                } catch(cErr) {
+                    console.warn("Square cropping error:", cErr);
                 }
                 formData.append('image', file);
             }

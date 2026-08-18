@@ -492,8 +492,9 @@
                                 <div class="row g-2">
                                     <% imgs.forEach((img, idx) => { %>
                                     <div class="col-12">
-                                        <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer" onclick="openImageLightbox(this.querySelector('img').src)">
-                                            <img src="<%= fixImg(img) %>" class="rounded-4 w-100" style="max-height: 540px; object-fit: contain; background: #f8fafc;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                        <!-- 1:1 Square Facebook-Style Post Card -->
+                                        <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1; max-height: 540px;" onclick="openImageLightbox(this.querySelector('img').src)" title="Nhấn để xem ảnh phóng to đầy đủ">
+                                            <img src="<%= fixImg(img) %>" class="rounded-4 w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
                                         </div>
                                     </div>
                                     <% }) %>
