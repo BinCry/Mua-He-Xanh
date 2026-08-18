@@ -31,8 +31,8 @@ const DEFAULT_HOME_DATA = {
 class HomeController {
     async index(req, res) {
         try {
-            // Check in-memory RAM cache first
-            if (_cache && (Date.now() - _cacheTs < CACHE_TTL)) {
+            // Check in-memory RAM cache first (Only in production, bypass in dev)
+            if (process.env.NODE_ENV === 'production' && _cache && (Date.now() - _cacheTs < CACHE_TTL)) {
                 // Only refresh stats every 60 seconds, not every request
                 if (Date.now() - _statsCacheTs > 60000) {
                     try {
