@@ -52,9 +52,9 @@
                             <img src="<%= fixImg(ws.image, '/uploads/posters/poster-1.webp') %>" alt="<%= ws.title %>" class="w-100 h-100 shop-img" style="object-fit: cover; object-position: top center;">
                         </a>
                         
-                        <!-- Top Left Badge (Location / Destination Tag) -->
-                        <div class="position-absolute top-0 start-0 m-3" style="z-index: 5;">
-                            <span class="badge bg-dark bg-opacity-75 rounded-pill px-3 py-1.5 fw-bold shadow-sm" style="font-size: 0.72rem; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.85) !important; color: #ffffff !important;">
+                        <!-- Bottom Left Badge (Location / Destination Tag - Placed right above product title) -->
+                        <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 5;">
+                            <span class="badge bg-dark bg-opacity-75 rounded-pill px-3 py-1.5 fw-bold shadow-sm" style="font-size: 0.72rem; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.85) !important; color: #ffffff !important; backdrop-filter: blur(4px);">
                                 ✨ <%= ws.destination_name || 'Bình Lợi' %>
                             </span>
                         </div>
