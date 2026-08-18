@@ -1,6 +1,7 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 const cors = require('cors');
 const session = require('express-session');
 const cookieParser = require('cookie-parser');
@@ -116,7 +117,7 @@ app.use((req, res, next) => {
     });
 });
 
-// Smart media sync: If an uploaded image doesn't exist on local disk, proxy it from live VPS
+// Smart media sync: If an uploaded image doesn't exist on local disk, proxy it directly from live VPS
 app.use('/uploads', (req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
     const localFile = path.join(ROOT_DIR, 'public', 'uploads', req.path.replace(/^\//, ''));
@@ -125,7 +126,17 @@ app.use('/uploads', (req, res, next) => {
     }
     const host = req.get('host') || '';
     if (!host.includes('dulichbinhloi.com')) {
-        return res.redirect(`https://www.dulichbinhloi.com/uploads${req.path}`);
+        const liveUrl = `https://www.dulichbinhloi.com/uploads${req.path}`;
+        const proxyReq = https.get(liveUrl, { rejectUnauthorized: false }, (proxyRes) => {
+            if (proxyRes.statusCode === 200) {
+                res.setHeader('Content-Type', proxyRes.headers['content-type'] || 'image/png');
+                res.setHeader('Cache-Control', 'public, max-age=86400');
+                return proxyRes.pipe(res);
+            }
+            return next();
+        });
+        proxyReq.on('error', () => next());
+        return;
     }
     next();
 });
