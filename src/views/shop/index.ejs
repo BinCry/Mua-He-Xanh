@@ -52,10 +52,10 @@
                             <img src="<%= fixImg(ws.image, '/uploads/posters/poster-1.webp') %>" alt="<%= ws.title %>" class="w-100 h-100 shop-img" style="object-fit: cover; object-position: top center;">
                         </a>
                         
-                        <!-- Top Left Badge (Bình Lợi Tag) -->
+                        <!-- Top Left Badge (Location / Destination Tag) -->
                         <div class="position-absolute top-0 start-0 m-3" style="z-index: 5;">
                             <span class="badge bg-dark bg-opacity-75 rounded-pill px-3 py-1.5 fw-bold shadow-sm" style="font-size: 0.72rem; letter-spacing: 0.5px; background: rgba(15, 23, 42, 0.85) !important; color: #ffffff !important;">
-                                ✨ Bình Lợi
+                                ✨ <%= ws.destination_name || 'Bình Lợi' %>
                             </span>
                         </div>
                     </div>
@@ -78,13 +78,13 @@
                         <div class="d-flex align-items-center justify-content-between pt-3 mt-auto border-top border-light">
                             <!-- Price Block -->
                             <div class="shop-price-wrapper">
-                                <% if (ws.price > 500000) { %>
+                                <% if (ws.price && ws.price > 500000) { %>
                                     <div class="text-muted text-decoration-line-through x-small" style="font-size: 0.78rem; color: #94a3b8 !important;">
                                         <%= new Intl.NumberFormat('vi-VN').format(Math.round(ws.price * 1.18)) %>đ
                                     </div>
                                 <% } %>
-                                <div class="fw-black text-dark shop-price-val" style="font-size: 1.28rem; font-weight: 900; color: #0f172a !important;">
-                                    <%= ws.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(ws.price) + 'đ' %>
+                                <div class="fw-black <%= (!ws.price || ws.price <= 0) ? 'text-primary' : 'text-dark' %> shop-price-val" style="font-size: 1.28rem; font-weight: 900;">
+                                    <%= (!ws.price || ws.price <= 0) ? 'Liên hệ' : new Intl.NumberFormat('vi-VN').format(ws.price) + 'đ' %>
                                 </div>
                             </div>
 

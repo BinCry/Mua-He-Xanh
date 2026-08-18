@@ -16,12 +16,13 @@
     <table class="table table-borderless mb-0">
         <thead>
             <tr>
-                <th>Tên sản phẩm</th>
+                <th style="width: 32%;">Sản phẩm</th>
+                <th>Điểm bán / Địa điểm</th>
                 <th>Giá bán</th>
-                <th>Quy cách / Đơn vị</th>
+                <th>Quy cách</th>
                 <th>Tồn kho</th>
                 <th>Trạng thái</th>
-                <th>Thao tác</th>
+                <th style="width: 100px;">Hành động</th>
             </tr>
         </thead>
         <tbody>
@@ -32,13 +33,18 @@
                         <img src="<%= fixImg(ws.image, '/uploads/posters/poster-1.webp') %>" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover; border: 1px solid rgba(0,0,0,0.08);">
                         <div>
                             <div class="fw-bold text-dark" style="font-size: 0.9rem;"><%= ws.title %></div>
-                            <div class="text-muted text-truncate" style="font-size: 0.76rem; max-width: 250px;"><%= ws.description || '-' %></div>
+                            <div class="text-muted text-truncate" style="font-size: 0.76rem; max-width: 230px;"><%= ws.description || '-' %></div>
                         </div>
                     </div>
                 </td>
                 <td>
-                    <div class="fw-bold text-success" style="font-size: 0.9rem;">
-                        <%= ws.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(ws.price) + 'đ' %>
+                    <span class="badge bg-light text-dark border px-2.5 py-1.5 fw-semibold" style="font-size: 0.8rem;">
+                        <i class="bi bi-geo-alt-fill text-danger me-1"></i><%= ws.destination_name || 'Điểm bán chung' %>
+                    </span>
+                </td>
+                <td>
+                    <div class="fw-bold <%= (!ws.price || ws.price <= 0) ? 'text-primary' : 'text-success' %>" style="font-size: 0.9rem;">
+                        <%= (!ws.price || ws.price <= 0) ? 'Liên hệ' : new Intl.NumberFormat('vi-VN').format(ws.price) + 'đ' %>
                     </div>
                 </td>
                 <td>
@@ -107,14 +113,27 @@
 
                         <!-- Selling Price -->
                         <div class="col-md-6">
-                            <label class="form-label small fw-bold text-dark">Giá bán (VNĐ) <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control rounded-3 py-2" id="ws_price" name="price" value="0" placeholder="VD: 1029000">
+                            <label class="form-label small fw-bold text-dark">Giá bán (VNĐ) <span class="text-muted fw-normal">(Nhập 0 = "Liên hệ / Thỏa thuận")</span></label>
+                            <input type="number" class="form-control rounded-3 py-2" id="ws_price" name="price" value="0" placeholder="VD: 1029000 (hoặc 0 để deal giá)">
+                            <div class="text-muted x-small mt-1" style="font-size: 0.78rem;">Sản phẩm deal giá như Bonsai, Cây Mai... hãy để số 0 để hiển thị chữ "Liên hệ".</div>
+                        </div>
+
+                        <!-- Destination / Location Selection -->
+                        <div class="col-md-6">
+                            <label class="form-label small fw-bold text-dark">Điểm bán / Địa điểm xuất xứ</label>
+                            <select class="form-select rounded-3 py-2" id="ws_destination_id" name="destination_id">
+                                <option value="">-- Điểm bán chung (Du Lịch Bình Lợi) --</option>
+                                <% (typeof destinations !== 'undefined' ? destinations : []).forEach(d => { %>
+                                    <option value="<%= d.id %>"><%= d.name %></option>
+                                <% }) %>
+                            </select>
+                            <div class="text-muted x-small mt-1" style="font-size: 0.78rem;">Chọn đúng địa điểm cung cấp sản phẩm này.</div>
                         </div>
 
                         <!-- Packaging Unit -->
                         <div class="col-md-6">
                             <label class="form-label small fw-bold text-dark">Quy cách / Đơn vị đóng gói</label>
-                            <input type="text" class="form-control rounded-3 py-2" id="ws_duration" name="duration" placeholder="VD: Hộp 8 hũ x 70ml, Gói 50g, Hộp 100 nụ..." value="Hộp / Chiếc">
+                            <input type="text" class="form-control rounded-3 py-2" id="ws_duration" name="duration" placeholder="VD: Hộp 8 hũ x 70ml, Gói 50g, Cây / Chậu..." value="Hộp / Chiếc">
                         </div>
 
                         <!-- Stock Quantity -->
@@ -206,6 +225,7 @@ function openWsForm() {
     document.getElementById('wsModalTitle').textContent = 'Thêm sản phẩm mới';
     document.getElementById('wsForm').reset();
     document.getElementById('ws_id').value = '';
+    document.getElementById('ws_destination_id').value = '';
     document.getElementById('ws_preview').src = '/uploads/posters/poster-1.webp';
     document.getElementById('ws_image').value = '/uploads/posters/poster-1.webp';
     document.getElementById('ws_is_active').checked = true;
@@ -221,10 +241,11 @@ function editWs(target) {
     document.getElementById('ws_id').value = ws.id;
     document.getElementById('ws_title').value = ws.title || '';
     document.getElementById('ws_description').value = ws.description || '';
-    document.getElementById('ws_type').value = ws.type || 'ecology';
+    document.getElementById('ws_type').value = ws.type || 'other';
     document.getElementById('ws_price').value = ws.price || 0;
     document.getElementById('ws_duration').value = ws.duration || 'Hộp / Chiếc';
     document.getElementById('ws_max').value = ws.max_participants || 100;
+    document.getElementById('ws_destination_id').value = ws.destination_id || '';
     document.getElementById('ws_image').value = ws.image || '/uploads/posters/poster-1.webp';
     document.getElementById('ws_preview').src = ws.image || '/uploads/posters/poster-1.webp';
     document.getElementById('ws_is_active').checked = ws.is_active;
@@ -238,6 +259,8 @@ async function saveWs() {
         return;
     }
 
+    const destIdVal = document.getElementById('ws_destination_id').value.trim();
+
     const data = {
         id: document.getElementById('ws_id').value,
         title: titleVal,
@@ -247,7 +270,7 @@ async function saveWs() {
         duration: document.getElementById('ws_duration').value || 'Hộp / Chiếc',
         max_participants: parseInt(document.getElementById('ws_max').value) || 100,
         image: document.getElementById('ws_image').value,
-        destination_id: null,
+        destination_id: destIdVal || null,
         is_active: document.getElementById('ws_is_active').checked
     };
     

@@ -11,18 +11,12 @@
         position: relative;
         background-color: #044b5e !important;
         overflow: hidden;
-        margin-top: var(--navbar-height, 107px) !important;
+        margin-top: 107px !important;
         padding: 0 !important;
         height: auto !important;
         min-height: unset !important;
         max-height: unset !important;
         box-sizing: border-box !important;
-    }
-
-    @media (max-width: 1199.98px) {
-        .hero-poster-section {
-            margin-top: var(--navbar-height, clamp(56px, 6.5vw, 84px)) !important;
-        }
     }
 
     .hero-poster-section .carousel-inner,
@@ -341,9 +335,9 @@
                     </div>
 
                     <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-sm hover-lift w-100 d-flex flex-column bg-white border">
-                        <!-- Top Image Poster -->
-                        <div class="w-100 position-relative" style="height: 240px; flex-shrink: 0;">
-                            <img src="<%= fixImg(nextEvent.image, '/uploads/posters/poster-1.webp') %>" class="w-100 h-100 object-fit-cover" loading="lazy" decoding="async">
+                        <!-- Top Image Poster (Consistent 16:9 Ratio across Mobile and Desktop) -->
+                        <div class="w-100 position-relative overflow-hidden" style="aspect-ratio: 16 / 9; width: 100%; background: #0f172a; flex-shrink: 0;">
+                            <img src="<%= fixImg(nextEvent.image, '/uploads/posters/poster-1.webp') %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" loading="lazy" decoding="async" alt="<%= nextEvent.title %>">
                         </div>
 
                         <!-- Bottom 50% Information Body -->

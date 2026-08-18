@@ -23,7 +23,7 @@
                         <!-- Top Badge & Header Section -->
                         <div class="mb-4 pb-3 border-bottom">
                             <span class="badge bg-dark bg-opacity-75 text-white mb-2 px-3 py-1.5 rounded-pill fw-bold text-uppercase" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.85) !important;">
-                                ✨ Bình Lợi
+                                ✨ <%= workshop.destination_name || 'Bình Lợi' %>
                             </span>
                             <h1 class="display-6 fw-black text-dark mb-3 font-display"><%= workshop.title %></h1>
                             
@@ -31,7 +31,9 @@
                                 <!-- Price -->
                                 <div class="d-flex align-items-center gap-2">
                                     <i class="bi bi-tag-fill text-warning fs-5"></i> 
-                                    <span class="fw-black text-dark fs-5"><%= workshop.price === 0 ? 'Miễn phí' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %></span>
+                                    <span class="fw-black <%= (!workshop.price || workshop.price <= 0) ? 'text-primary' : 'text-dark' %> fs-5">
+                                        <%= (!workshop.price || workshop.price <= 0) ? 'Liên hệ' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %>
+                                    </span>
                                 </div>
                                 <span>·</span>
                                 <!-- Duration / Spec -->
@@ -99,7 +101,11 @@
                             </div>
 
                             <button onclick="showClosedFeatureModal()" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" id="bookSubmitBtn" style="background: var(--primary);">
-                                <i class="bi bi-cart-check-fill me-2"></i>ĐẶT MUA NGAY
+                                <% if (!workshop.price || workshop.price <= 0) { %>
+                                    <i class="bi bi-telephone-fill me-2"></i>LIÊN HỆ ĐẶT HÀNG / BÁO GIÁ
+                                <% } else { %>
+                                    <i class="bi bi-cart-check-fill me-2"></i>ĐẶT MUA NGAY
+                                <% } %>
                             </button>
                         </div>
                     </div>
