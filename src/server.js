@@ -115,6 +115,20 @@ app.use((req, res, next) => {
     });
 });
 
+// Smart media sync: If an uploaded image doesn't exist on local disk, proxy it from live VPS
+app.use('/uploads', (req, res, next) => {
+    if (req.method !== 'GET' && req.method !== 'HEAD') return next();
+    const localFile = path.join(ROOT_DIR, 'public', 'uploads', req.path.replace(/^\//, ''));
+    if (fs.existsSync(localFile)) {
+        return res.sendFile(localFile);
+    }
+    const host = req.get('host') || '';
+    if (!host.includes('dulichbinhloi.com')) {
+        return res.redirect(`https://www.dulichbinhloi.com/uploads${req.path}`);
+    }
+    next();
+});
+
 // Force 301 redirect from *.vercel.app to custom domain www.dulichbinhloi.com
 app.use((req, res, next) => {
     const host = req.get('host') || '';
