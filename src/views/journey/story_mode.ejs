@@ -348,11 +348,7 @@ body {
     const calcTimeVal = calcStopsCount > 0 ? (calcStopsCount * 60 + Math.round(calcKmVal * 15)) : 360;
     const calcPtsVal = (journey && journey.stops) ? journey.stops.reduce((s, x) => s + (parseInt(x.points) || 100), 0) : 570;
 
-    function fixImg(url) {
-        if (!url) return 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=600&auto=format&fit=crop';
-        if (url.startsWith('http')) return url;
-        return url.startsWith('/') ? url : '/' + url;
-    }
+
 %>
 
 <!-- HERO HEADER (CHUẨN 100% HÌNH 1) -->
