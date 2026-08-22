@@ -176,7 +176,9 @@
         chatForm.addEventListener('submit', sendMessage);
     }
 
-    // Initial load and start interval
-    loadChatMessages();
-    chatInterval = setInterval(loadChatMessages, 5000);
+    // Wait for deferred scripts (like axios) to load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadChatMessages();
+        chatInterval = setInterval(loadChatMessages, 5000);
+    });
 </script>
