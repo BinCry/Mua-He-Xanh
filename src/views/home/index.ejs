@@ -641,14 +641,18 @@
                         const timer = setInterval(function () {
                             const now = new Date().getTime();
                             const distance = festivalDate - now;
+                            const elCountdown = document.getElementById("countdown");
                             if (distance < 0) {
                                 clearInterval(timer);
-                                document.getElementById("countdown").innerHTML = '<span class="fw-bold fs-5" style="color: #ffc847 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">SỰ KIỆN ĐANG DIỄN RA!</span>';
+                                if (elCountdown) elCountdown.innerHTML = '<span class="fw-bold fs-5" style="color: #ffc847 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">SỰ KIỆN ĐANG DIỄN RA!</span>';
                                 return;
                             }
-                            document.getElementById("days").innerHTML = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
-                            document.getElementById("hours").innerHTML = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-                            document.getElementById("mins").innerHTML = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
+                            const elDays = document.getElementById("days");
+                            const elHours = document.getElementById("hours");
+                            const elMins = document.getElementById("mins");
+                            if (elDays) elDays.innerHTML = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
+                            if (elHours) elHours.innerHTML = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
+                            if (elMins) elMins.innerHTML = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
                         }, 1000);
                     </script>
                     <% } %>
