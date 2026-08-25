@@ -524,8 +524,24 @@
                 </div>
             </div>
 
+            <style>
+                .btn-community-custom {
+                    transition: all 0.3s ease !important;
+                }
+                .btn-community-custom:hover, 
+                .btn-community-custom:active, 
+                .btn-community-custom:focus {
+                    background-color: #ffb6c1 !important; /* Light pink */
+                    border-color: #ffb6c1 !important;
+                    color: white !important;
+                    box-shadow: 0 4px 12px rgba(255, 182, 193, 0.4) !important;
+                }
+                .btn-community-custom:active {
+                    transform: scale(0.96);
+                }
+            </style>
             <div class="text-center mt-5">
-                <a href="/reviews" class="btn btn-outline-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm" style="border-color: var(--primary); color: var(--primary);">
+                <a href="/reviews" class="btn btn-outline-primary rounded-pill px-4 py-2.5 fw-bold shadow-sm btn-community-custom" style="border-color: var(--primary); color: var(--primary);">
                     Xem tất cả bài viết cộng đồng <i class="bi bi-arrow-right ms-1"></i>
                 </a>
             </div>
