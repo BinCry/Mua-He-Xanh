@@ -40,7 +40,7 @@
                         <h4 class="fw-bold mb-3 text-primary font-display">Thông tin sự kiện</h4>
                         
                         <div class="story-text-rich text-secondary" style="font-size: 1.1rem; line-height: 1.8; text-align: justify;">
-                            <%- event.description ? event.description.replace(/\n/g, '<br>') : 'Chưa có thông tin chi tiết.' %>
+                            <%- event.description ? event.description.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-underline">$1</a>').replace(/\n/g, '<br>') : 'Chưa có thông tin chi tiết.' %>
                         </div>
                         
                         <div class="mt-5 p-4 rounded-4 bg-light border">
