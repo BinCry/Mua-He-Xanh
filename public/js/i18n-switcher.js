@@ -154,8 +154,6 @@
         }
     }
 
-    setInterval(removeTranslateBanners, 200);
-
     if (typeof MutationObserver !== 'undefined') {
         var observer = new MutationObserver(removeTranslateBanners);
         if (document.body) {
@@ -165,6 +163,8 @@
                 if (document.body) observer.observe(document.body, { attributes: true, childList: true, subtree: true });
             });
         }
+    } else {
+        setInterval(removeTranslateBanners, 200);
     }
 
     init();

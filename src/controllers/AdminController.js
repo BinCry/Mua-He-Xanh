@@ -402,12 +402,13 @@ const AdminController = {
     updateSettings: async (req, res) => {
         try {
             const entries = Object.entries(req.body);
-            for (const [key, value] of entries) {
-                await db.query(
+            const updatePromises = entries.map(([key, value]) => {
+                return db.query(
                     `INSERT INTO settings (key_name, key_value) VALUES ($1, $2) ON CONFLICT (key_name) DO UPDATE SET key_value = EXCLUDED.key_value`,
                     [key, value]
                 );
-            }
+            });
+            await Promise.all(updatePromises);
             global._settingsCache = null;
             global._settingsCacheTime = 0;
             HomeController.clearCache();
@@ -1014,9 +1015,10 @@ const AdminController = {
         try {
             const { orderedIds } = req.body;
             if (Array.isArray(orderedIds)) {
-                for (let i = 0; i < orderedIds.length; i++) {
-                    await db.query(`UPDATE hero_posters SET sort_order = $1 WHERE id = $2`, [i + 1, orderedIds[i]]);
-                }
+                const updatePromises = orderedIds.map((id, i) => {
+                    return db.query(`UPDATE hero_posters SET sort_order = $1 WHERE id = $2`, [i + 1, id]);
+                });
+                await Promise.all(updatePromises);
             }
             res.json({ success: true, message: 'Đã cập nhật thứ tự Poster!' });
         } catch (e) {
