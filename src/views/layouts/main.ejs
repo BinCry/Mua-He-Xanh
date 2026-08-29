@@ -29,17 +29,61 @@
     <!-- Animate.css (deferred - only needed after page paint) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" media="print" onload="this.media='all'" />
     
-    <!-- Favicon & Brand Icons -->
+    <!-- Favicon & Brand Icons (Standardized for Googlebot, Desktop & Mobile) -->
     <link rel="manifest" href="/manifest.json">
-    <link rel="icon" type="image/svg+xml" href="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>">
-    <link rel="apple-touch-icon" href="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>">
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" sizes="48x48" href="/images/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/images/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="144x144" href="/images/favicon-144x144.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/images/favicon-192x192.png">
+    <link rel="icon" type="image/png" sizes="512x512" href="/images/favicon-512x512.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon.png">
+    <link rel="image_src" href="/images/brand-logo.png">
+
+    <!-- SEO & Social Graph (Rich Snippets & Search Engine Branding) -->
     <meta name="theme-color" content="#922724">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <!-- Facebook App ID & Open Graph -->
+    <meta name="description" content="<%= typeof description !== 'undefined' && description ? description : (settings.site_description || 'Khám phá du lịch Bình Lợi - Điểm đến sinh thái chữa lành, trải nghiệm văn hóa và ẩm thực đậm chất Nam Bộ giữa lòng TP.HCM.') %>">
     <meta property="fb:app_id" content="1566975911629251">
-    <meta property="og:site_name" content="Bình Lợi - Miền Tây giữa lòng Sài Gòn">
+    <meta property="og:site_name" content="<%= settings.site_name || 'Bình Lợi' %>">
+    <meta property="og:title" content="<%= typeof title !== 'undefined' ? title + ' | ' + appName : appName %>">
+    <meta property="og:description" content="<%= typeof description !== 'undefined' && description ? description : (settings.site_description || 'Hành trình khám phá và chữa lành tại làng quê Bình Lợi') %>">
+    <meta property="og:image" content="<%= baseUrl %>/images/brand-logo.png">
+    <meta property="og:image:secure_url" content="<%= baseUrl %>/images/brand-logo.png">
+    <meta property="og:image:width" content="512">
+    <meta property="og:image:height" content="512">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title + ' | ' + appName : appName %>">
+    <meta name="twitter:description" content="<%= typeof description !== 'undefined' && description ? description : (settings.site_description || 'Hành trình khám phá và chữa lành tại làng quê Bình Lợi') %>">
+    <meta name="twitter:image" content="<%= baseUrl %>/images/brand-logo.png">
+
+    <!-- Structured Data (JSON-LD) for Google Search Engine Knowledge & Logo Discovery -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "<%= settings.site_name || 'Bình Lợi' %>",
+      "alternateName": "Bình Lợi Healing",
+      "url": "<%= baseUrl %>",
+      "description": "<%= settings.site_description || 'Nền tảng Du lịch Chữa lành Xã Bình Lợi' %>",
+      "publisher": {
+        "@type": "Organization",
+        "name": "<%= settings.brand_name || 'Bình Lợi' %>",
+        "url": "<%= baseUrl %>",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "<%= baseUrl %>/images/brand-logo.png",
+          "width": 512,
+          "height": 512
+        }
+      }
+    }
+    </script>
 
     <script>
         window.APP_CONFIG = {

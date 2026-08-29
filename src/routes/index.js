@@ -49,9 +49,6 @@ router.get('/manifest.json', async (req, res) => {
         
         res.setHeader('Cache-Control', 'public, max-age=3600');
         
-        const normalizedLogo = normalizeImagePath(settings.brand_logo, '/images/logo.svg');
-        const logoUrl = normalizedLogo.startsWith('data:image') ? '/brand-logo.png' : normalizedLogo;
-
         const manifest = {
             "name": settings.brand_name || "Bình Lợi - Miền Tây giữa lòng Sài Gòn",
             "short_name": settings.brand_name || "Bình Lợi Healing",
@@ -63,16 +60,16 @@ router.get('/manifest.json', async (req, res) => {
             "orientation": "portrait-primary",
             "icons": [
                 {
-                    "src": logoUrl,
+                    "src": "/images/favicon-192x192.png",
                     "sizes": "192x192",
-                    "type": "image/svg+xml",
-                    "purpose": "any"
+                    "type": "image/png",
+                    "purpose": "any maskable"
                 },
                 {
-                    "src": logoUrl,
+                    "src": "/images/favicon-512x512.png",
                     "sizes": "512x512",
-                    "type": "image/svg+xml",
-                    "purpose": "any"
+                    "type": "image/png",
+                    "purpose": "any maskable"
                 }
             ]
         };
@@ -92,19 +89,72 @@ router.get('/manifest.json', async (req, res) => {
             "orientation": "portrait-primary",
             "icons": [
                 {
-                    "src": "/images/logo.svg",
+                    "src": "/images/favicon-192x192.png",
                     "sizes": "192x192",
-                    "type": "image/svg+xml",
-                    "purpose": "any"
+                    "type": "image/png",
+                    "purpose": "any maskable"
                 },
                 {
-                    "src": "/images/logo.svg",
+                    "src": "/images/favicon-512x512.png",
                     "sizes": "512x512",
-                    "type": "image/svg+xml",
-                    "purpose": "any"
+                    "type": "image/png",
+                    "purpose": "any maskable"
                 }
             ]
         });
+    }
+});
+
+// Dynamic sitemap.xml for Google Search Console & Search Engine Crawlers
+router.get('/sitemap.xml', async (req, res) => {
+    try {
+        const baseUrl = config.BASE_URL || 'https://dulichbinhloi.com';
+        const db = require('../core/database');
+        
+        const [dests] = await db.query('SELECT slug, updated_at FROM destinations WHERE is_active = 1');
+        const [workshops] = await db.query('SELECT id, updated_at FROM workshops WHERE is_active = 1');
+        
+        const now = new Date().toISOString().split('T')[0];
+        
+        let urls = [
+            { loc: `${baseUrl}/`, priority: '1.0', changefreq: 'daily', lastmod: now },
+            { loc: `${baseUrl}/explore`, priority: '0.9', changefreq: 'weekly', lastmod: now },
+            { loc: `${baseUrl}/shops`, priority: '0.8', changefreq: 'weekly', lastmod: now },
+            { loc: `${baseUrl}/festivals`, priority: '0.7', changefreq: 'monthly', lastmod: now },
+            { loc: `${baseUrl}/map`, priority: '0.7', changefreq: 'monthly', lastmod: now },
+            { loc: `${baseUrl}/reviews`, priority: '0.6', changefreq: 'daily', lastmod: now }
+        ];
+
+        dests.forEach(d => {
+            urls.push({
+                loc: `${baseUrl}/explore/${d.slug}`,
+                priority: '0.8',
+                changefreq: 'weekly',
+                lastmod: d.updated_at ? new Date(d.updated_at).toISOString().split('T')[0] : now
+            });
+        });
+
+        workshops.forEach(w => {
+            urls.push({
+                loc: `${baseUrl}/shops/${w.id}`,
+                priority: '0.7',
+                changefreq: 'monthly',
+                lastmod: w.updated_at ? new Date(w.updated_at).toISOString().split('T')[0] : now
+            });
+        });
+
+        let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+        urls.forEach(u => {
+            xml += `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${u.lastmod}</lastmod>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>\n`;
+        });
+        xml += `</urlset>`;
+
+        res.setHeader('Content-Type', 'application/xml');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
+        res.send(xml);
+    } catch (e) {
+        console.error("Sitemap generation error:", e);
+        res.status(500).send('Error generating sitemap');
     }
 });
 
@@ -168,10 +218,22 @@ router.get('/brand-logo.png', async (req, res) => {
         }
 
         const path = require('path');
+        const defaultLogo = path.join(process.cwd(), 'public/images/brand-logo.png');
+        if (fs.existsSync(defaultLogo)) {
+            res.setHeader('Content-Type', 'image/png');
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return res.sendFile(defaultLogo);
+        }
         return res.sendFile(path.join(process.cwd(), 'public/images/logo.svg'));
     } catch (e) {
         console.error("Logo generate error:", e);
         const path = require('path');
+        const defaultLogo = path.join(process.cwd(), 'public/images/brand-logo.png');
+        if (fs.existsSync(defaultLogo)) {
+            res.setHeader('Content-Type', 'image/png');
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return res.sendFile(defaultLogo);
+        }
         return res.sendFile(path.join(process.cwd(), 'public/images/logo.svg'));
     }
 });
