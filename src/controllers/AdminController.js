@@ -465,9 +465,9 @@ const AdminController = {
                 `INSERT INTO destinations 
                  (id, name, slug, type, short_desc, description, open_hours, cost, lat, lng, points,
                   is_active, cover_image, banner_image, sort_order, moods, seasons, story, highlight,
-                  checkin_tip, qr_secret, best_time, map_x, map_y, radius_meter) 
+                  checkin_tip, qr_secret, best_time, map_x, map_y, radius_meter)
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, $12, $13, 99,
-                         $14, $15, $16, $17, $18, $19, $20, $21, $22, 100)`,
+                         $14, $15, $16, $17, $18, $19, $20, $21, $22, 5000)`,
                 [destinationId, name, slug, type || 'nature',
                  short_desc || '', description || '', open_hours || '08:00 - 17:00', cost || 'Miễn phí',
                  parsedLat, parsedLng, parsedPoints,

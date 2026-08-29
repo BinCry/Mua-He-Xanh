@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS destinations (
     lng DECIMAL(10,7) DEFAULT 106.7200000,
     map_x INT DEFAULT 50,
     map_y INT DEFAULT 50,
-    radius_meter INT DEFAULT 100,
+    radius_meter INT DEFAULT 5000,
     cover_image TEXT,
     gallery TEXT,
     audio_url VARCHAR(500),

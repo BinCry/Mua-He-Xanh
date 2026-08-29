@@ -7,6 +7,8 @@ const Model = require('../core/Model');
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 
+const CHECKIN_RADIUS_METERS = 5000;
+
 class ApiController {
     
     // --- SESSION API ---
@@ -153,7 +155,7 @@ class ApiController {
         }
 
         const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
-        const maxRadius = dest.radius_meter || 100;
+        const maxRadius = Math.max(Number(dest.radius_meter) || 0, CHECKIN_RADIUS_METERS);
         
         if (distance > maxRadius) {
             return res.status(400).json({ success: false, message: 'Nằm ngoài bán kính địa điểm', error_type: 'OUT_OF_RADIUS' });
