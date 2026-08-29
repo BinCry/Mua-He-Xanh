@@ -20,7 +20,12 @@ const ProfileController = {
             const fullUser = users[0];
 
             // Thống kê
-            const [checkinCount] = await db.query('SELECT COUNT(*) as total FROM check_ins WHERE user_id = $1', [user.id]);
+            const [checkinCount] = await db.query(`
+                SELECT COUNT(*) as total
+                FROM check_ins ci
+                LEFT JOIN user_sessions us ON ci.session_id = us.id
+                WHERE ci.user_id = $1 OR us.user_id = $1
+            `, [user.id]);
             const [journeyCount] = await db.query(`
                 SELECT COUNT(*) as total FROM journeys j 
                 JOIN user_sessions us ON j.session_id = us.session_uuid 

@@ -9,6 +9,7 @@ const expressLayouts = require('express-ejs-layouts');
 const passport = require('./config/passport');
 const config = require('./config/env');
 const UserSession = require('./models/UserSession');
+const CheckIn = require('./models/CheckIn');
 const { LEGACY_IMAGE_ALIASES, DEFAULT_IMAGE, normalizeImagePath } = require('./utils/imagePaths');
 const { v4: uuidv4 } = require('uuid');
 
@@ -75,6 +76,10 @@ if (!global._dbPatched) {
                     )
                 `)
             ]);
+
+            // One-time, idempotent repair for check-ins created before points
+            // were synchronized with the linked user account.
+            await CheckIn.backfillLinkedUserPoints();
         } catch(e) {
             console.warn('Auto DB schema patch error:', e.message);
         }

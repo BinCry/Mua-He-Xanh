@@ -144,6 +144,9 @@ class ApiController {
         const session = await UserSession.findByUuid(sessionUuid);
         if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
 
+        const authenticatedUser = req.user || req.session?.user || null;
+        const userId = authenticatedUser?.id || session.user_id || null;
+
         const dest = await Destination.findBySlug(slug);
         if (!dest) {
             return res.status(404).json({ success: false, message: 'Địa điểm không hợp lệ' });
@@ -163,6 +166,7 @@ class ApiController {
 
             await CheckIn.create({
                 session_id: session.id,
+                user_id: userId,
                 destination_id: dest.id,
                 points_earned: dest.points,
                 checkin_method: method,
