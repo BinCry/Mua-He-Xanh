@@ -58,7 +58,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
         lng: 106,
         radius_meter: 100
     });
-    Model.haversine = () => 5000;
+    Model.haversine = () => 20000;
     CheckIn.existsForStop = async () => false;
     CheckIn.create = async data => {
         createdCheckin = data;
@@ -103,7 +103,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
     }
 });
 
-test('check-in rejects a visitor farther than 5 km from the destination', async () => {
+test('check-in rejects a visitor farther than 20 km from the destination', async () => {
     const originals = {
         findByUuid: UserSession.findByUuid,
         findBySlug: Destination.findBySlug,
@@ -120,7 +120,7 @@ test('check-in rejects a visitor farther than 5 km from the destination', async 
         lng: 106,
         radius_meter: 100
     });
-    Model.haversine = () => 5001;
+    Model.haversine = () => 20001;
 
     const req = {
         method: 'POST',

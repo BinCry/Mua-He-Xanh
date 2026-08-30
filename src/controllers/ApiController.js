@@ -7,7 +7,7 @@ const Model = require('../core/Model');
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 
-const CHECKIN_RADIUS_METERS = 5000;
+const CHECKIN_RADIUS_METERS = 20000;
 
 class ApiController {
     

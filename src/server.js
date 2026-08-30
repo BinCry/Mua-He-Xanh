@@ -63,8 +63,8 @@ if (!global._dbPatched) {
                 db.query(`ALTER TABLE destinations ALTER COLUMN open_hours TYPE TEXT`),
                 db.query(`ALTER TABLE destinations ALTER COLUMN cost TYPE TEXT`),
                 db.query(`ALTER TABLE destinations ALTER COLUMN best_time TYPE TEXT`),
-                db.query(`ALTER TABLE destinations ALTER COLUMN radius_meter SET DEFAULT 5000`),
-                db.query(`UPDATE destinations SET radius_meter = 5000 WHERE radius_meter IS NULL OR radius_meter < 5000`),
+                db.query(`ALTER TABLE destinations ALTER COLUMN radius_meter SET DEFAULT 20000`),
+                db.query(`UPDATE destinations SET radius_meter = 20000 WHERE radius_meter IS NULL OR radius_meter < 20000`),
                 db.query(`ALTER TABLE events ALTER COLUMN description TYPE TEXT`),
                 db.query(`ALTER TABLE workshops ALTER COLUMN description TYPE TEXT`),
                 db.query(`
