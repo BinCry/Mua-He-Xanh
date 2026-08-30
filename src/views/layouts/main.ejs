@@ -620,9 +620,12 @@
             <div class="modal-content bg-black bg-opacity-95 border-0 rounded-0" style="backdrop-filter: blur(16px); user-select: none;">
                 <!-- Lightbox Header Toolbar -->
                 <div class="modal-header border-0 p-3 d-flex justify-content-between align-items-center position-absolute top-0 start-0 w-100" style="z-index: 1100; background: linear-gradient(to bottom, rgba(0,0,0,0.85) 0%, transparent 100%);">
-                    <span class="text-white-50 small fw-semibold ms-2 d-none d-md-inline">
-                        <i class="bi bi-info-circle me-1"></i> Cuộn chuột hoặc nhấp đúp để Phóng to / Thu nhỏ
-                    </span>
+                    <div class="d-flex align-items-center gap-2 ms-2">
+                        <span id="lightboxGalleryCounter" class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1.5 fw-bold d-none" style="font-size: 0.85rem; letter-spacing: 0.5px;">1 / 1</span>
+                        <span class="text-white-50 small fw-semibold d-none d-md-inline">
+                            <i class="bi bi-info-circle me-1"></i> Cuộn chuột hoặc nhấp đúp để Phóng to / Thu nhỏ
+                        </span>
+                    </div>
                     
                     <div class="d-flex align-items-center gap-2 ms-auto me-2">
                         <button type="button" class="btn btn-outline-light btn-sm rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;" onclick="zoomLightboxImage(0.3)" title="Phóng to">
@@ -637,6 +640,14 @@
                         <button type="button" class="btn-close btn-close-white fs-5 ms-3 shadow" data-bs-dismiss="modal" aria-label="Đóng" style="background-color: rgba(255,255,255,0.25); padding: 12px; border-radius: 50%; opacity: 1;"></button>
                     </div>
                 </div>
+
+                <!-- Lightbox Navigation Floating Buttons -->
+                <button type="button" class="btn btn-dark bg-opacity-50 text-white rounded-circle position-absolute start-0 top-50 translate-middle-y ms-2 ms-md-4 d-none d-flex align-items-center justify-content-center border border-white border-opacity-25 shadow-lg" id="lightboxPrevBtn" onclick="prevLightboxImage()" style="z-index: 1100; width: 48px; height: 48px;" title="Ảnh trước (Phím ←)">
+                    <i class="bi bi-chevron-left fs-4"></i>
+                </button>
+                <button type="button" class="btn btn-dark bg-opacity-50 text-white rounded-circle position-absolute end-0 top-50 translate-middle-y me-2 me-md-4 d-none d-flex align-items-center justify-content-center border border-white border-opacity-25 shadow-lg" id="lightboxNextBtn" onclick="nextLightboxImage()" style="z-index: 1100; width: 48px; height: 48px;" title="Ảnh tiếp theo (Phím →)">
+                    <i class="bi bi-chevron-right fs-4"></i>
+                </button>
 
                 <!-- Lightbox Image Container -->
                 <div class="modal-body p-0 d-flex align-items-center justify-content-center overflow-hidden position-relative" style="height: 100vh; cursor: grab;" id="lightboxStage">
@@ -653,16 +664,69 @@
         let isDragging = false;
         let startX = 0;
         let startY = 0;
+        let currentGallery = [];
+        let currentGalleryIndex = 0;
 
-        function openImageLightbox(imgSrc) {
+        function openImageLightbox(imgSrc, galleryList = null, startIndex = 0) {
             if (!imgSrc) return;
             const target = document.getElementById('lightboxTargetImg');
             const modalEl = document.getElementById('imageLightboxModal');
-            if (target && modalEl) {
+            if (!target || !modalEl) return;
+
+            if (Array.isArray(galleryList) && galleryList.length > 0) {
+                currentGallery = galleryList;
+                currentGalleryIndex = Math.max(0, Math.min(galleryList.length - 1, startIndex || 0));
+                target.src = currentGallery[currentGalleryIndex];
+            } else {
+                currentGallery = [imgSrc];
+                currentGalleryIndex = 0;
                 target.src = imgSrc;
+            }
+
+            updateLightboxGalleryUI();
+            resetLightboxZoom();
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+        }
+
+        function updateLightboxGalleryUI() {
+            const counter = document.getElementById('lightboxGalleryCounter');
+            const prevBtn = document.getElementById('lightboxPrevBtn');
+            const nextBtn = document.getElementById('lightboxNextBtn');
+
+            if (currentGallery.length > 1) {
+                if (counter) {
+                    counter.textContent = `${currentGalleryIndex + 1} / ${currentGallery.length}`;
+                    counter.classList.remove('d-none');
+                }
+                if (prevBtn) prevBtn.classList.remove('d-none');
+                if (nextBtn) nextBtn.classList.remove('d-none');
+            } else {
+                if (counter) counter.classList.add('d-none');
+                if (prevBtn) prevBtn.classList.add('d-none');
+                if (nextBtn) nextBtn.classList.add('d-none');
+            }
+        }
+
+        function prevLightboxImage() {
+            if (currentGallery.length <= 1) return;
+            currentGalleryIndex = (currentGalleryIndex - 1 + currentGallery.length) % currentGallery.length;
+            const target = document.getElementById('lightboxTargetImg');
+            if (target) {
+                target.src = currentGallery[currentGalleryIndex];
                 resetLightboxZoom();
-                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-                modal.show();
+                updateLightboxGalleryUI();
+            }
+        }
+
+        function nextLightboxImage() {
+            if (currentGallery.length <= 1) return;
+            currentGalleryIndex = (currentGalleryIndex + 1) % currentGallery.length;
+            const target = document.getElementById('lightboxTargetImg');
+            if (target) {
+                target.src = currentGallery[currentGalleryIndex];
+                resetLightboxZoom();
+                updateLightboxGalleryUI();
             }
         }
 
@@ -697,6 +761,17 @@
                 target.style.transform = `translate(${panX}px, ${panY}px) scale(${currentZoomScale})`;
             }
         }
+
+        window.addEventListener('keydown', (e) => {
+            const modalEl = document.getElementById('imageLightboxModal');
+            if (modalEl && modalEl.classList.contains('show')) {
+                if (e.key === 'ArrowLeft') {
+                    prevLightboxImage();
+                } else if (e.key === 'ArrowRight') {
+                    nextLightboxImage();
+                }
+            }
+        });
 
         document.addEventListener('DOMContentLoaded', () => {
             const stage = document.getElementById('lightboxStage');

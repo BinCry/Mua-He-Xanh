@@ -474,7 +474,7 @@
                                 <p class="mb-0 notranslate" translate="no" style="font-size: 0.92rem; line-height: 1.7; color: #444;"><%= r.content %></p>
                             </div>
 
-                            <!-- Feed Images -->
+                            <!-- Feed Images (Modern Collage Layout) -->
                             <% if (r.images) { 
                                 let imgs = [];
                                 try { 
@@ -487,18 +487,60 @@
                                     imgs = [r.images];
                                 }
                                 imgs = imgs.filter(Boolean);
-                                if (imgs.length > 0) { %>
+                                if (imgs.length > 0) { 
+                                    const galleryJson = JSON.stringify(imgs.map(img => fixImg(img)));
+                            %>
                             <div class="px-3 px-sm-4 py-2">
-                                <div class="row g-2">
-                                    <% imgs.forEach((img, idx) => { %>
-                                    <div class="col-12">
-                                        <!-- 1:1 Square Facebook-Style Post Card -->
-                                        <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1; max-height: 540px;" onclick="openImageLightbox(this.querySelector('img').src)" title="Nhấn để xem ảnh phóng to đầy đủ">
-                                            <img src="<%= fixImg(img) %>" class="rounded-4 w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                <% if (imgs.length === 1) { %>
+                                    <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1; max-height: 540px;" onclick='openImageLightbox("<%= fixImg(imgs[0]) %>", <%= galleryJson %>, 0)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                        <img src="<%= fixImg(imgs[0]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                    </div>
+                                <% } else if (imgs.length === 2) { %>
+                                    <div class="row g-2">
+                                        <% imgs.forEach((img, idx) => { %>
+                                        <div class="col-6">
+                                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(img) %>", <%= galleryJson %>, <%= idx %>)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                                <img src="<%= fixImg(img) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                                    </div>
+                                <% } else if (imgs.length === 3) { %>
+                                    <div class="row g-2">
+                                        <div class="col-12">
+                                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 16 / 9; max-height: 360px;" onclick='openImageLightbox("<%= fixImg(imgs[0]) %>", <%= galleryJson %>, 0)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                                <img src="<%= fixImg(imgs[0]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(imgs[1]) %>", <%= galleryJson %>, 1)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                                <img src="<%= fixImg(imgs[1]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                            </div>
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(imgs[2]) %>", <%= galleryJson %>, 2)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                                <img src="<%= fixImg(imgs[2]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                            </div>
                                         </div>
                                     </div>
-                                    <% }) %>
-                                </div>
+                                <% } else { %>
+                                    <div class="row g-2">
+                                        <% imgs.slice(0, 4).forEach((img, idx) => { %>
+                                        <div class="col-6">
+                                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(img) %>", <%= galleryJson %>, <%= idx %>)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                                <img src="<%= fixImg(img) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                                <% if (idx === 3 && imgs.length > 4) { %>
+                                                <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white" style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);">
+                                                    <i class="bi bi-images fs-3 mb-1"></i>
+                                                    <span class="fw-bold fs-4">+<%= imgs.length - 3 %></span>
+                                                    <span class="small fw-semibold opacity-75">Xem tất cả</span>
+                                                </div>
+                                                <% } %>
+                                            </div>
+                                        </div>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
                             </div>
                             <% } } %>
                             

@@ -35,17 +35,19 @@
                     </select>
                 </div>
 
-                <!-- Image Preview (Square Facebook/Instagram Style) -->
-                <div id="imagePreview" class="mb-3 d-none">
-                    <div class="position-relative d-inline-block rounded-4 overflow-hidden border shadow-sm" style="width: 180px; aspect-ratio: 1 / 1; background: #f8fafc;">
-                        <img id="previewImg" src="" class="w-100 h-100" style="object-fit: cover; object-position: center;">
-                        <div class="position-absolute bottom-0 start-0 w-100 p-1 text-center bg-dark bg-opacity-75 text-white" style="font-size: 0.68rem; backdrop-filter: blur(4px);">
-                            <i class="bi bi-aspect-ratio me-1"></i>Cắt vuông 1:1
-                        </div>
-                        <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1.5 p-0 d-flex align-items-center justify-content-center shadow" style="width: 26px; height: 26px; z-index: 10;" onclick="clearImage()">
-                            <i class="bi bi-x fs-5"></i>
+                <!-- Multi-Image Preview Gallery Container -->
+                <div id="imagePreviewContainer" class="mb-3 d-none">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="small fw-bold text-muted" id="previewCountBadge">
+                            <i class="bi bi-images me-1 text-primary"></i>Đã chọn <span id="selectedCountNum" class="text-primary fw-bold">0</span> ảnh (tối đa 10)
+                        </span>
+                        <button type="button" class="btn btn-link btn-sm text-danger text-decoration-none p-0 fw-semibold" onclick="clearAllImages()" style="font-size: 0.78rem;">
+                            <i class="bi bi-trash3 me-1"></i>Xóa tất cả
                         </button>
                     </div>
+                    
+                    <!-- Thumbnail Grid -->
+                    <div class="d-flex flex-wrap gap-2 align-items-center p-2 rounded-4 bg-light border" id="previewThumbnailsList"></div>
                 </div>
 
                 <!-- Actions Bar: Camera, Photo, Create Video aligned in 1 row; Rating above Submit button on the right -->
@@ -53,8 +55,8 @@
                     <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-end gap-3">
                         <!-- Left: 3 Action Buttons in a clean straight row -->
                         <div class="d-flex flex-wrap align-items-center gap-2">
-                            <!-- Single Hidden File Input -->
-                            <input type="file" name="image" accept="image/*" class="d-none" id="reviewFileInput" onchange="previewImage(this)">
+                            <!-- Multi Hidden File Input -->
+                            <input type="file" name="images" accept="image/*" multiple class="d-none" id="reviewFileInput" onchange="handleFilesSelected(this)">
 
                             <!-- Button 1: Camera -->
                             <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0" onclick="triggerPhotoUpload(true)" title="Chụp ảnh trực tiếp từ máy ảnh">
@@ -63,9 +65,9 @@
                             </button>
 
                             <!-- Button 2: Photo Gallery -->
-                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0" onclick="triggerPhotoUpload(false)" title="Chọn ảnh từ thư viện thiết bị">
-                                <i class="bi bi-image-fill text-primary fs-6 me-2"></i>
-                                <span class="small text-dark">Thư viện</span>
+                            <button type="button" class="btn btn-sm btn-light border rounded-pill px-3 py-1.5 fw-bold d-inline-flex align-items-center cursor-pointer mb-0" onclick="triggerPhotoUpload(false)" title="Chọn nhiều ảnh từ thư viện thiết bị">
+                                <i class="bi bi-images text-primary fs-6 me-2"></i>
+                                <span class="small text-dark">Thư viện ảnh</span>
                             </button>
 
                             <!-- Button 3: Create Video -->
@@ -144,7 +146,7 @@
                     <p class="mb-0 notranslate" translate="no" style="font-size: 0.92rem; line-height: 1.7; color: #444;"><%= r.content %></p>
                 </div>
 
-                <!-- Feed Images -->
+                <!-- Feed Images (Modern Facebook / Instagram Collage) -->
                 <% 
                     let imgs = [];
                     if (r.images) {
@@ -160,18 +162,63 @@
                         imgs = (imgs || []).filter(Boolean);
                     }
                     if (imgs.length > 0) { 
+                        const galleryJson = JSON.stringify(imgs.map(img => fixImg(img)));
                 %>
                 <div class="px-3 px-sm-4 py-2">
-                    <div class="row g-2">
-                        <% imgs.forEach((img, idx) => { %>
-                        <div class="col-12">
-                            <!-- 1:1 Square Facebook-Style Post Card -->
-                            <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1; max-height: 540px;" onclick="openImageLightbox(this.querySelector('img').src)" title="Nhấn để xem ảnh phóng to đầy đủ">
-                                <img src="<%= fixImg(img) %>" class="rounded-4 w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" onerror="this.onerror=null; this.src='/images/no-image.svg';">
+                    <% if (imgs.length === 1) { %>
+                        <!-- 1 Image: Full Hero Square Card -->
+                        <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1; max-height: 540px;" onclick='openImageLightbox("<%= fixImg(imgs[0]) %>", <%= galleryJson %>, 0)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                            <img src="<%= fixImg(imgs[0]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" onerror="this.onerror=null; this.src='/images/no-image.svg';">
+                        </div>
+                    <% } else if (imgs.length === 2) { %>
+                        <!-- 2 Images: 2 Columns Side by Side -->
+                        <div class="row g-2">
+                            <% imgs.forEach((img, idx) => { %>
+                            <div class="col-6">
+                                <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(img) %>", <%= galleryJson %>, <%= idx %>)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                    <img src="<%= fixImg(img) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" onerror="this.onerror=null; this.src='/images/no-image.svg';">
+                                </div>
+                            </div>
+                            <% }) %>
+                        </div>
+                    <% } else if (imgs.length === 3) { %>
+                        <!-- 3 Images: 1 Banner Top + 2 Square Bottom -->
+                        <div class="row g-2">
+                            <div class="col-12">
+                                <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 16 / 9; max-height: 360px;" onclick='openImageLightbox("<%= fixImg(imgs[0]) %>", <%= galleryJson %>, 0)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                    <img src="<%= fixImg(imgs[0]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" onerror="this.onerror=null; this.src='/images/no-image.svg';">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(imgs[1]) %>", <%= galleryJson %>, 1)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                    <img src="<%= fixImg(imgs[1]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" onerror="this.onerror=null; this.src='/images/no-image.svg';">
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(imgs[2]) %>", <%= galleryJson %>, 2)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                    <img src="<%= fixImg(imgs[2]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" onerror="this.onerror=null; this.src='/images/no-image.svg';">
+                                </div>
                             </div>
                         </div>
-                        <% }) %>
-                    </div>
+                    <% } else { %>
+                        <!-- 4+ Images: 2x2 Grid with +N Overlay on 4th image -->
+                        <div class="row g-2">
+                            <% imgs.slice(0, 4).forEach((img, idx) => { %>
+                            <div class="col-6">
+                                <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(img) %>", <%= galleryJson %>, <%= idx %>)' title="Nhấn để xem ảnh phóng to đầy đủ">
+                                    <img src="<%= fixImg(img) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" onerror="this.onerror=null; this.src='/images/no-image.svg';">
+                                    <% if (idx === 3 && imgs.length > 4) { %>
+                                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white" style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);">
+                                        <i class="bi bi-images fs-3 mb-1"></i>
+                                        <span class="fw-bold fs-4">+<%= imgs.length - 3 %></span>
+                                        <span class="small fw-semibold opacity-75">Xem tất cả</span>
+                                    </div>
+                                    <% } %>
+                                </div>
+                            </div>
+                            <% }) %>
+                        </div>
+                    <% } %>
                 </div>
                 <% } %>
                 
@@ -332,22 +379,83 @@
     }
 
     const activeParentId = {};
+    let selectedFiles = [];
 
-    // Preview selected image instantly
-    function previewImage(input) {
-        if (input.files && input.files[0]) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                document.getElementById('previewImg').src = e.target.result;
-                document.getElementById('imagePreview').classList.remove('d-none');
-            };
-            reader.readAsDataURL(input.files[0]);
+    // Handle multiple file selections from input
+    function handleFilesSelected(input) {
+        if (!input.files || input.files.length === 0) return;
+        
+        const newFiles = Array.from(input.files);
+        for (const f of newFiles) {
+            if (selectedFiles.length >= 10) {
+                if (typeof showAppAlert === 'function') {
+                    showAppAlert('Bạn chỉ có thể đăng tối đa 10 ảnh trong một bài viết.', 'Thông báo');
+                } else {
+                    alert('Bạn chỉ có thể đăng tối đa 10 ảnh trong một bài viết.');
+                }
+                break;
+            }
+            const isDuplicate = selectedFiles.some(existing => 
+                existing.name === f.name && existing.size === f.size && existing.lastModified === f.lastModified
+            );
+            if (!isDuplicate) {
+                selectedFiles.push(f);
+            }
+        }
+        input.value = '';
+        renderImagePreviews();
+    }
+
+    // Render multi-image thumbnail preview gallery
+    function renderImagePreviews() {
+        const container = document.getElementById('imagePreviewContainer');
+        const countNum = document.getElementById('selectedCountNum');
+        const thumbnailsList = document.getElementById('previewThumbnailsList');
+        
+        if (!container || !thumbnailsList) return;
+        
+        if (selectedFiles.length === 0) {
+            container.classList.add('d-none');
+            return;
+        }
+        
+        container.classList.remove('d-none');
+        if (countNum) countNum.textContent = selectedFiles.length;
+        
+        let html = '';
+        selectedFiles.forEach((file, index) => {
+            const objectUrl = URL.createObjectURL(file);
+            html += `
+                <div class="position-relative d-inline-block rounded-3 overflow-hidden border shadow-2xs bg-white flex-shrink-0" style="width: 80px; height: 80px;">
+                    <img src="${objectUrl}" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Preview ${index + 1}">
+                    <button type="button" class="btn btn-danger btn-sm rounded-circle position-absolute top-0 end-0 m-1 p-0 d-flex align-items-center justify-content-center shadow" style="width: 22px; height: 22px; z-index: 10; font-size: 0.75rem;" onclick="removeSelectedFile(${index})" title="Xóa ảnh này">
+                        <i class="bi bi-x fs-6"></i>
+                    </button>
+                </div>
+            `;
+        });
+        
+        if (selectedFiles.length < 10) {
+            html += `
+                <button type="button" class="btn btn-outline-secondary border-dashed rounded-3 d-flex flex-column align-items-center justify-content-center flex-shrink-0" style="width: 80px; height: 80px; border-style: dashed !important; border-width: 2px !important; background: rgba(0,0,0,0.02);" onclick="triggerPhotoUpload(false)" title="Thêm ảnh khác">
+                    <i class="bi bi-plus-lg fs-5"></i>
+                    <span style="font-size: 0.65rem;" class="fw-bold mt-1">+ Thêm</span>
+                </button>
+            `;
+        }
+        thumbnailsList.innerHTML = html;
+    }
+
+    function removeSelectedFile(index) {
+        if (index >= 0 && index < selectedFiles.length) {
+            selectedFiles.splice(index, 1);
+            renderImagePreviews();
         }
     }
 
-    function clearImage() {
-        document.getElementById('imagePreview').classList.add('d-none');
-        document.getElementById('imageInput').value = '';
+    function clearAllImages() {
+        selectedFiles = [];
+        renderImagePreviews();
     }
 
     // Geolocation Tag Matching on compose box load
@@ -615,8 +723,10 @@
         if (!input) return;
         if (isCamera) {
             input.setAttribute('capture', 'environment');
+            input.removeAttribute('multiple');
         } else {
             input.removeAttribute('capture');
+            input.setAttribute('multiple', '');
         }
         input.click();
     }
@@ -637,15 +747,17 @@
                 formData.append('destination_id', form.destination_id.value);
             }
             
-            const fileInput = document.getElementById('reviewFileInput');
-            if (fileInput && fileInput.files && fileInput.files.length > 0) {
-                let file = fileInput.files[0];
-                try {
-                    file = await cropImageToSquare(file, 1200, 0.85);
-                } catch(cErr) {
-                    console.warn("Square cropping error:", cErr);
+            // Compress and append all selected files
+            if (selectedFiles && selectedFiles.length > 0) {
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    let file = selectedFiles[i];
+                    try {
+                        file = await compressImage(file, 1600, 0.85);
+                    } catch(cErr) {
+                        console.warn("Compression error:", cErr);
+                    }
+                    formData.append('images', file);
                 }
-                formData.append('image', file);
             }
 
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>ĐANG ĐĂNG...';

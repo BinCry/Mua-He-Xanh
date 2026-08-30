@@ -17,9 +17,9 @@ const upload = multer({
             }
             cb(null, uploadPath);
         },
-        filename: (req, file, cb) => cb(null, 'review_' + Date.now() + path.extname(file.originalname))
+        filename: (req, file, cb) => cb(null, 'review_' + Date.now() + '_' + Math.round(Math.random() * 1e9) + path.extname(file.originalname))
     }),
-    limits: { fileSize: 10 * 1024 * 1024 }
+    limits: { fileSize: 15 * 1024 * 1024, files: 10 }
 });
 
 const ReviewController = {
@@ -54,24 +54,42 @@ const ReviewController = {
         }
     },
 
-    create: [upload.single('image'), async (req, res) => {
+    create: [upload.any(), async (req, res) => {
         try {
             const user = req.user || req.session?.user;
             if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
 
             const { rating, destination_id } = req.body;
             let content = req.body.content ? req.body.content.trim() : '';
+
+            // Collect all uploaded files from req.files and/or req.file
+            let uploadedFiles = [];
+            if (req.files) {
+                if (Array.isArray(req.files)) {
+                    uploadedFiles = req.files;
+                } else if (typeof req.files === 'object') {
+                    Object.values(req.files).forEach(fArr => {
+                        if (Array.isArray(fArr)) uploadedFiles.push(...fArr);
+                        else if (fArr) uploadedFiles.push(fArr);
+                    });
+                }
+            }
+            if (req.file) {
+                uploadedFiles.push(req.file);
+            }
+
             if (!content) {
-                content = req.file ? 'Đã check-in tại Bình Lợi ✨' : `Đánh giá ${rating || 5} sao cho điểm đến`;
+                content = uploadedFiles.length > 0 ? 'Đã check-in tại Bình Lợi ✨' : `Đánh giá ${rating || 5} sao cho điểm đến`;
             }
 
             const id = uuidv4();
-            let images = null;
-            if (req.file) {
+            const savedImageUrls = [];
+            const { uploadToCloudinary } = require('../config/cloudinary');
+
+            for (const file of uploadedFiles) {
                 let savedPath = null;
                 try {
-                    const { uploadToCloudinary } = require('../config/cloudinary');
-                    const result = await uploadToCloudinary(req.file.path || req.file.buffer, 'binh-loi/reviews');
+                    const result = await uploadToCloudinary(file.path || file.buffer, 'binh-loi/reviews');
                     if (result && (result.secure_url || result.url)) {
                         savedPath = result.secure_url || result.url;
                     }
@@ -79,24 +97,26 @@ const ReviewController = {
                     console.log('Cloudinary upload warning:', e.message);
                 }
 
-                if (!savedPath && req.file.path && fs.existsSync(req.file.path)) {
+                if (!savedPath && file.path && fs.existsSync(file.path)) {
                     try {
-                        const fileBuf = fs.readFileSync(req.file.path);
-                        const mime = req.file.mimetype || 'image/jpeg';
+                        const fileBuf = fs.readFileSync(file.path);
+                        const mime = file.mimetype || 'image/jpeg';
                         savedPath = `data:${mime};base64,${fileBuf.toString('base64')}`;
                     } catch(readErr) {
                         console.error('Base64 fallback error:', readErr);
                     }
                 }
 
-                if (!savedPath && req.file.filename) {
-                    savedPath = '/uploads/' + req.file.filename;
+                if (!savedPath && file.filename) {
+                    savedPath = '/uploads/' + file.filename;
                 }
 
                 if (savedPath) {
-                    images = JSON.stringify([savedPath]);
+                    savedImageUrls.push(savedPath);
                 }
             }
+
+            const images = savedImageUrls.length > 0 ? JSON.stringify(savedImageUrls) : null;
 
             let locationName = null;
             let destId = destination_id || null;

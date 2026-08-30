@@ -71,6 +71,7 @@
                                     content: r.content || '',
                                     location: r.destination_name || r.location_name || '',
                                     imgUrl: fixImg(imgs[0]),
+                                    images: imgs.map(i => fixImg(i)),
                                     rating: r.rating || 5,
                                     dateStr: new Date(r.created_at).toLocaleDateString('vi-VN')
                                 };
@@ -79,7 +80,7 @@
                                 <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-0.5 x-small fw-bold border-0 bg-primary bg-opacity-10 text-primary btn-view-review-modal" 
                                         data-review="<%= encodedData %>"
                                         onclick="openReviewModalFromBtn(this)">
-                                    <i class="bi bi-link-45deg me-1"></i>Xem bài viết & ảnh (<%= imgs.length %> ảnh)
+                                    <i class="bi bi-images me-1"></i>Xem bài viết & ảnh (<%= imgs.length %> ảnh)
                                 </button>
                             <% } %>
                         </td>
@@ -257,14 +258,14 @@ function openReviewModalFromBtn(btn) {
     try {
         const rawAttr = btn.getAttribute('data-review');
         const data = JSON.parse(decodeURIComponent(rawAttr));
-        viewReviewModal(data.id, data.userName, data.avatar, data.content, data.location, data.imgUrl, data.rating, data.dateStr);
+        viewReviewModal(data.id, data.userName, data.avatar, data.content, data.location, data.images || (data.imgUrl ? [data.imgUrl] : []), data.rating, data.dateStr);
     } catch(e) {
         console.error("Error opening review modal:", e);
         alert("Lỗi hiển thị bài viết: " + e.message);
     }
 }
 
-function viewReviewModal(id, userName, avatar, content, location, imgUrl, rating, dateStr) {
+function viewReviewModal(id, userName, avatar, content, location, images, rating, dateStr) {
     const modalEl = document.getElementById('viewReviewModal');
     if (!modalEl) return;
 
@@ -284,8 +285,27 @@ function viewReviewModal(id, userName, avatar, content, location, imgUrl, rating
 
     const imgWrap = document.getElementById('modal_review_img_wrap');
     const imgEl = document.getElementById('modal_review_img');
-    if (imgUrl) {
-        imgEl.src = imgUrl;
+    const imgs = Array.isArray(images) ? images.filter(Boolean) : (images ? [images] : []);
+    
+    if (imgs.length === 1) {
+        imgEl.src = imgs[0];
+        imgWrap.className = 'text-center rounded-4 overflow-hidden shadow-2xs border bg-black mb-2';
+        imgEl.classList.remove('d-none');
+        imgWrap.classList.remove('d-none');
+    } else if (imgs.length > 1) {
+        let gridHtml = '<div class="row g-2 p-2 bg-light rounded-4 border">';
+        imgs.forEach(img => {
+            gridHtml += `
+                <div class="col-6 col-md-4">
+                    <div class="rounded-3 overflow-hidden shadow-2xs border bg-white cursor-pointer" style="aspect-ratio: 1/1;">
+                        <img src="${img}" class="w-100 h-100" style="object-fit: cover;" onclick="window.open('${img}', '_blank')">
+                    </div>
+                </div>
+            `;
+        });
+        gridHtml += '</div>';
+        imgWrap.className = 'd-block mb-2';
+        imgWrap.innerHTML = gridHtml;
         imgWrap.classList.remove('d-none');
     } else {
         imgWrap.classList.add('d-none');
