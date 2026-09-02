@@ -395,7 +395,7 @@ function startStorytelling() {
 // Live Chat History Polling & Rendering (Facebook Messenger Style)
 let localChatMessages = [];
 let lastExploreChatCount = -1;
-const BRAND_LOGO_URL = "<%= fixImg(settings.brand_logo, '/images/logo.svg') %>";
+const BRAND_LOGO_URL = "<%= fixImg(settings.brand_logo, '/images/logo.png') %>";
 const DEST_NAME = "<%= dest.name ? dest.name.replace(/"/g, '\\"') : '' %>";
 
 function pollMessages(destinationId) {
@@ -463,7 +463,7 @@ function renderChatHistory(messages) {
                 html += `
                     <div class="d-flex flex-column mb-2.5 align-items-start">
                         <div class="d-flex gap-2 align-items-end" style="max-width: 86%;">
-                            <img src="${BRAND_LOGO_URL}" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                            <img src="${BRAND_LOGO_URL}" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.png'">
                             <div class="p-3 rounded-4 shadow-sm text-start" style="font-size: 0.85rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere; ${bubbleStyle}" title="${new Date(msg.created_at).toLocaleString('vi-VN')}">
                                 <div class="x-small text-muted mb-1" style="font-size: 0.65rem; font-weight: 600;">${senderLabel}</div>
                                 ${escapeHtml(msg.message)}

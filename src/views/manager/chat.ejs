@@ -741,7 +741,7 @@ function formatMessengerSidebarDate(dateStr) {
         
         const avatarEl = document.getElementById('modal-visitor-avatar');
         if (v.avatar) {
-            avatarEl.innerHTML = `<img src="${v.avatar}" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.src='/images/logo.svg'">`;
+            avatarEl.innerHTML = `<img src="${v.avatar}" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.src='/images/logo.png'">`;
         } else {
             avatarEl.innerText = vName.split(' ').pop().slice(0,2).toUpperCase();
         }
@@ -935,7 +935,7 @@ function formatMessengerSidebarDate(dateStr) {
 
         let visitorAvatarHtml = '';
         if (visitor && visitor.avatar) {
-            avatarBox.innerHTML = `<img src="${visitor.avatar}" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.src='/images/logo.svg'">`;
+            avatarBox.innerHTML = `<img src="${visitor.avatar}" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.src='/images/logo.png'">`;
             visitorAvatarHtml = `<img src="${visitor.avatar}" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.outerHTML='<div class=\\'rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-2xs\\' style=\\'width:28px;height:28px;font-size:0.7rem;background:${avatarBg};\\'>${avatarInitial}</div>'">`;
         } else {
             avatarBox.innerText = avatarInitial;

@@ -194,7 +194,7 @@ router.get('/brand-logo.png', async (req, res) => {
         const [rows] = await db.query('SELECT key_value FROM settings WHERE key_name = $1', ['brand_logo']);
         const logoData = rows[0]?.key_value;
 
-        const normalizedLogo = normalizeImagePath(logoData, '/images/logo.svg');
+        const normalizedLogo = normalizeImagePath(logoData, '/images/logo.png');
 
         if (normalizedLogo && normalizedLogo.startsWith('data:image')) {
             const matches = normalizedLogo.match(/^data:([a-zA-Z0-9]+\/[a-zA-Z0-9-.+]+);base64,(.+)$/);
@@ -224,7 +224,7 @@ router.get('/brand-logo.png', async (req, res) => {
             res.setHeader('Cache-Control', 'public, max-age=86400');
             return res.sendFile(defaultLogo);
         }
-        return res.sendFile(path.join(process.cwd(), 'public/images/logo.svg'));
+        return res.sendFile(path.join(process.cwd(), 'public/images/logo.png'));
     } catch (e) {
         console.error("Logo generate error:", e);
         const path = require('path');
@@ -234,7 +234,7 @@ router.get('/brand-logo.png', async (req, res) => {
             res.setHeader('Cache-Control', 'public, max-age=86400');
             return res.sendFile(defaultLogo);
         }
-        return res.sendFile(path.join(process.cwd(), 'public/images/logo.svg'));
+        return res.sendFile(path.join(process.cwd(), 'public/images/logo.png'));
     }
 });
 
