@@ -462,6 +462,21 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display simple error message - only "Xác thực thất bại" + descriptive message
     function showCheckinError(msg, type) {
         msg = msg || 'Xác thực thất bại';
+
+        if (type === 'AUTH_REQUIRED') {
+            document.getElementById('qr-result').innerHTML = 
+                '<div class="alert alert-warning rounded-3 mt-2 p-3 text-center shadow-xs">' +
+                    '<i class="bi bi-person-lock fs-3 d-block mb-2 text-danger"></i>' +
+                    '<strong class="fs-6 d-block mb-1 text-dark">Yêu cầu đăng nhập</strong>' +
+                    '<span class="small text-muted d-block mb-3">' + msg + '</span>' +
+                    '<a href="/auth/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search) + '" class="btn btn-sm text-white rounded-pill px-4 py-2 fw-bold shadow" style="background: var(--primary);">' +
+                        '<i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập ngay</a>' +
+                '</div>';
+            document.getElementById('location-status').innerHTML = 
+                '<span class="text-danger"><i class="bi bi-lock-fill me-1"></i> Cần đăng nhập để tích điểm</span>';
+            return;
+        }
+
         document.getElementById('qr-result').innerHTML = 
             '<div class="alert alert-danger rounded-3 mt-2 p-3 text-center">' +
                 '<i class="bi bi-exclamation-triangle-fill fs-4 d-block mb-2"></i>' +
@@ -477,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<span class="text-danger"><i class="bi bi-x-circle-fill me-1"></i> Nằm ngoài bán kính địa điểm</span>';
         } else if (type === 'ALREADY_CHECKED_IN') {
             document.getElementById('location-status').innerHTML = 
-                '<span class="text-warning"><i class="bi bi-exclamation-circle-fill me-1"></i> Đã xác thực địa điểm này</span>';
+                '<span class="text-warning"><i class="bi bi-clock-history me-1"></i> Đã check-in (Đang chờ 24h)</span>';
         } else {
             document.getElementById('location-status').innerHTML = 
                 '<span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> ' + msg + '</span>';

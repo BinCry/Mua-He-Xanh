@@ -5,9 +5,37 @@ class CheckIn extends Model {
         super('check_ins');
     }
 
-    async existsForStop(sessionId, destinationId) {
-        const row = await this.findOne({ session_id: sessionId, destination_id: destinationId });
-        return row !== null;
+    /**
+     * Check if user checked in at this destination within the last X hours (default 24h)
+     */
+    async existsRecentCheckIn(sessionId, destinationId, userId = null, hours = 24) {
+        let query, params;
+        if (userId) {
+            query = `
+                SELECT id, created_at FROM ${this.table}
+                WHERE (session_id = $1 OR user_id = $2)
+                  AND destination_id = $3
+                  AND created_at >= NOW() - INTERVAL '${parseInt(hours, 10)} hours'
+                ORDER BY created_at DESC LIMIT 1
+            `;
+            params = [sessionId, userId, destinationId];
+        } else {
+            query = `
+                SELECT id, created_at FROM ${this.table}
+                WHERE session_id = $1
+                  AND destination_id = $2
+                  AND created_at >= NOW() - INTERVAL '${parseInt(hours, 10)} hours'
+                ORDER BY created_at DESC LIMIT 1
+            `;
+            params = [sessionId, destinationId];
+        }
+        const [rows] = await this.db.query(query, params);
+        return rows.length > 0 ? rows[0] : null;
+    }
+
+    async existsForStop(sessionId, destinationId, userId = null) {
+        const recent = await this.existsRecentCheckIn(sessionId, destinationId, userId, 24);
+        return recent !== null;
     }
 
     async getBySession(sessionId) {

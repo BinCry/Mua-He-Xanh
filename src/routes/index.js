@@ -33,7 +33,7 @@ const ManagerController = require('../controllers/ManagerController');
 router.get('/', HomeController.index);
 router.get(['/onboarding', '/journey/onboarding'], ensureAuthenticated, OnboardingController.index);
 router.post(['/onboarding', '/journey/onboarding', '/api/journey/onboarding'], ensureAuthenticated, OnboardingController.submit);
-router.get('/checkin', CheckinController.index);
+router.get('/checkin', ensureAuthenticated, CheckinController.index);
 
 // Dynamic manifest.json endpoint to keep PWA name and logo synchronized with Admin Settings
 router.get('/manifest.json', async (req, res) => {

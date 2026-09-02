@@ -7,7 +7,7 @@ const Model = require('../core/Model');
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 
-const CHECKIN_RADIUS_METERS = 20000;
+const CHECKIN_RADIUS_METERS = 50000; // 50km (50,000 meters)
 
 class ApiController {
     
@@ -149,6 +149,15 @@ class ApiController {
         const authenticatedUser = req.user || req.session?.user || null;
         const userId = authenticatedUser?.id || session.user_id || null;
 
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'Vui lòng đăng nhập tài khoản để thực hiện quét mã check-in tích điểm!',
+                error_type: 'AUTH_REQUIRED',
+                login_url: '/auth/login?redirect=' + encodeURIComponent('/checkin' + (slug ? `?slug=${slug}` : ''))
+            });
+        }
+
         const dest = await Destination.findBySlug(slug);
         if (!dest) {
             return res.status(404).json({ success: false, message: 'Địa điểm không hợp lệ' });
@@ -162,8 +171,24 @@ class ApiController {
         }
 
         try {
-            if (await CheckIn.existsForStop(session.id, dest.id)) {
-                return res.status(400).json({ success: false, message: 'Bạn đã xác thực địa điểm này rồi', error_type: 'ALREADY_CHECKED_IN' });
+            const recentCheckin = await CheckIn.existsRecentCheckIn(session.id, dest.id, userId, 24);
+            if (recentCheckin) {
+                const createdAt = new Date(recentCheckin.created_at).getTime();
+                const resetAt = createdAt + (24 * 60 * 60 * 1000);
+                const remainingMs = resetAt - Date.now();
+                const remainingHours = Math.max(0, Math.floor(remainingMs / (1000 * 60 * 60)));
+                const remainingMinutes = Math.max(1, Math.ceil((remainingMs % (1000 * 60 * 60)) / (1000 * 60)));
+                
+                const timeText = remainingHours > 0 
+                    ? `${remainingHours} giờ ${remainingMinutes} phút` 
+                    : `${remainingMinutes} phút`;
+
+                return res.status(400).json({ 
+                    success: false, 
+                    message: `Bạn đã check-in địa điểm này rồi. Hệ thống sẽ mở lại sau ${timeText} (Mỗi 24 giờ được check-in 1 lần).`, 
+                    error_type: 'ALREADY_CHECKED_IN',
+                    reset_in: timeText
+                });
             }
 
             await CheckIn.create({
