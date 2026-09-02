@@ -1,4 +1,5 @@
 <% const currentUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
+<% const currentDest = (typeof dest !== 'undefined' && dest) ? dest : null; %>
 <div class="container py-5 mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
@@ -7,11 +8,20 @@
                 <div class="p-3.5 text-white border-0 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%);">
                     <div class="d-flex align-items-center gap-3">
                         <div class="rounded-circle d-flex align-items-center justify-content-center bg-white text-danger shadow-sm flex-shrink-0" style="width: 42px; height: 42px; font-size: 1.2rem;">
-                            <i class="bi bi-headset"></i>
+                            <% if (currentDest && currentDest.cover_image) { %>
+                                <img src="<%= fixImg(currentDest.cover_image, '/images/logo.svg') %>" class="rounded-circle w-100 h-100 object-fit-cover">
+                            <% } else { %>
+                                <i class="bi bi-headset"></i>
+                            <% } %>
                         </div>
                         <div>
-                            <h6 class="fw-bold mb-0 text-white" style="color: #ffffff !important; font-size: 1rem;">Hỗ trợ Trực tuyến - Du Lịch Bình Lợi</h6>
-                            <small class="opacity-90 text-white-50" style="font-size: 11px;"><i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i>Ban Quản Trị • Trực tuyến 24/7</small>
+                            <h6 class="fw-bold mb-0 text-white" style="color: #ffffff !important; font-size: 1rem;">
+                                <%= currentDest ? ('Hỗ trợ Trực tuyến - ' + currentDest.name) : 'Hỗ trợ Trực tuyến - Du Lịch Bình Lợi' %>
+                            </h6>
+                            <small class="opacity-90 text-white-50" style="font-size: 11px;">
+                                <i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i>
+                                <%= currentDest ? ('Ban Quản Lý ' + currentDest.name + ' • Trực tuyến') : 'Ban Quản Trị • Trực tuyến 24/7' %>
+                            </small>
                         </div>
                     </div>
                     <% if (currentUser) { %>
@@ -44,7 +54,7 @@
                     </form>
                     <% } else { %>
                     <div class="text-center py-2">
-                        <a href="/login?redirect=/chat" class="btn btn-outline-danger rounded-pill px-4 py-2 fw-semibold" style="font-size: 0.85rem;">
+                        <a href="/login?redirect=<%= encodeURIComponent('/chat' + (currentDest ? ('?destinationId=' + currentDest.id) : '')) %>" class="btn btn-outline-danger rounded-pill px-4 py-2 fw-semibold" style="font-size: 0.85rem;">
                             <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập để gửi tin nhắn
                         </a>
                     </div>
@@ -60,6 +70,8 @@
 </script>
 
 <script>
+    const destId = '<%= currentDest ? currentDest.id : "" %>';
+    const destName = '<%= currentDest ? currentDest.name.replace(/'/g, "\\'") : "" %>';
     let chatInterval = null;
     let currentGlobalMessages = [];
     let lastGlobalChatCount = -1;
@@ -67,7 +79,8 @@
 
     async function loadChatMessages() {
         try {
-            const res = await axios.get('/api/get-messages');
+            const url = destId ? `/api/get-messages?destinationId=${destId}` : '/api/get-messages?scope=global';
+            const res = await axios.get(url);
             if (res.data.success) {
                 if (res.data.data && res.data.data.length === lastGlobalChatCount) return;
                 lastGlobalChatCount = res.data.data.length;
@@ -83,16 +96,20 @@
         const container = document.getElementById('chat-messages');
         if (!container) return;
 
+        const welcomeText = destId 
+            ? `Xin chào${currentUser ? ' ' + currentUser.full_name : ''}! Tôi là Quản lý điểm đến ${destName}. Bạn cần hỗ trợ hoặc tư vấn thông tin gì vui lòng gửi tin nhắn tại đây nhé!`
+            : `Xin chào${currentUser ? ' ' + currentUser.full_name : ''}! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!`;
+
         let html = `
             <div class="text-center mb-3">
                 <span class="badge bg-white text-muted shadow-2xs px-3 py-1.5 rounded-pill border x-small" style="font-size: 11px;">
-                    <i class="bi bi-shield-check text-success me-1"></i> Cuộc trò chuyện hỗ trợ bảo mật trực tuyến 24/7
+                    <i class="bi bi-shield-check text-success me-1"></i> Cuộc trò chuyện hỗ trợ trực tuyến bảo mật
                 </span>
             </div>
             <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
                 <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
                 <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
-                    Xin chào<%= currentUser ? ' ' + currentUser.full_name : '' %>! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
+                    ${welcomeText}
                 </div>
             </div>
         `;
@@ -104,7 +121,6 @@
                 
                 if (isMe) {
                     // SENT BY ME: Aligned RIGHT, Maroon Pill
-                    const senderName = currentUser ? currentUser.full_name : 'Bạn';
                     html += `
                         <div class="message-sent mb-2 d-flex justify-content-end">
                             <div class="d-flex flex-column align-items-end" style="width: fit-content; max-width: 86%;">
@@ -118,7 +134,7 @@
                 } else {
                     // RECEIVED FROM ADMIN / MANAGER / AI: Aligned LEFT with Logo Avatar
                     const isAI = msg.is_ai === 1 || msg.is_ai === true;
-                    const label = isAI ? '🤖 Trợ lý AI' : 'Ban Quản Trị';
+                    const senderLabel = isAI ? '🤖 Trợ lý AI' : (msg.destination_name ? `Quản lý ${msg.destination_name}` : 'Ban Quản Trị');
                     html += `
                         <div class="message-received mb-2 d-flex gap-2 align-items-end">
                             <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
@@ -156,7 +172,9 @@
         renderGlobalChat(currentGlobalMessages);
         
         try {
-            const res = await axios.post('/api/send-message', { message: msg });
+            const payload = { message: msg };
+            if (destId) payload.destinationId = destId;
+            const res = await axios.post('/api/send-message', payload);
             if (res.data.success) {
                 loadChatMessages();
             }
@@ -179,6 +197,7 @@
     // Wait for deferred scripts (like axios) to load
     document.addEventListener('DOMContentLoaded', () => {
         loadChatMessages();
-        chatInterval = setInterval(loadChatMessages, 5000);
+        chatInterval = setInterval(loadChatMessages, 4000);
     });
 </script>
+

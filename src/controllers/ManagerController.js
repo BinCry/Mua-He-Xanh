@@ -288,18 +288,20 @@ class ManagerController {
             }
 
             const [visitorDetails] = await UserSession.db.query(
-                `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone
+                `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone,
+                        (SELECT COUNT(*) FROM check_ins ci WHERE (ci.session_id = s.id OR (u.id IS NOT NULL AND ci.user_id = u.id)) AND ci.destination_id = $2) as is_checked_in
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
                  WHERE s.id::text = $1 OR s.uuid = $1`,
-                [String(sessionId)]
+                [String(sessionId), destId]
             );
 
             const visitor = visitorDetails[0] || {
                 id: sessionId,
                 uuid: sessionId,
                 full_name: 'Du khách #' + String(sessionId).slice(0, 6).toUpperCase(),
-                total_points: 0
+                total_points: 0,
+                is_checked_in: 0
             };
 
             const [messages] = await UserSession.db.query(

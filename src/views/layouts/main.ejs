@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        <%= typeof title !=='undefined' ? title + " | " + appName : appName %>
+        <%= (typeof title !== 'undefined' && title && title !== appName) ? (title + " | " + appName) : (typeof title !== 'undefined' && title ? title : appName) %>
     </title>
 
     <!-- Preconnect & DNS Prefetch for Ultra-Fast CDN Loading -->
@@ -49,7 +49,7 @@
     <meta name="description" content="<%= typeof description !== 'undefined' && description ? description : (settings.site_description || 'Khám phá du lịch Bình Lợi - Điểm đến sinh thái chữa lành, trải nghiệm văn hóa và ẩm thực đậm chất Nam Bộ giữa lòng TP.HCM.') %>">
     <meta property="fb:app_id" content="1566975911629251">
     <meta property="og:site_name" content="<%= settings.site_name || 'Bình Lợi' %>">
-    <meta property="og:title" content="<%= typeof title !== 'undefined' ? title + ' | ' + appName : appName %>">
+    <meta property="og:title" content="<%= (typeof title !== 'undefined' && title && title !== appName) ? (title + ' | ' + appName) : (typeof title !== 'undefined' && title ? title : appName) %>">
     <meta property="og:description" content="<%= typeof description !== 'undefined' && description ? description : (settings.site_description || 'Hành trình khám phá và chữa lành tại làng quê Bình Lợi') %>">
     <meta property="og:image" content="<%= baseUrl %>/images/brand-logo.png">
     <meta property="og:image:secure_url" content="<%= baseUrl %>/images/brand-logo.png">
@@ -58,7 +58,7 @@
     <meta property="og:image:type" content="image/png">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="<%= typeof title !== 'undefined' ? title + ' | ' + appName : appName %>">
+    <meta name="twitter:title" content="<%= (typeof title !== 'undefined' && title && title !== appName) ? (title + ' | ' + appName) : (typeof title !== 'undefined' && title ? title : appName) %>">
     <meta name="twitter:description" content="<%= typeof description !== 'undefined' && description ? description : (settings.site_description || 'Hành trình khám phá và chữa lành tại làng quê Bình Lợi') %>">
     <meta name="twitter:image" content="<%= baseUrl %>/images/brand-logo.png">
 

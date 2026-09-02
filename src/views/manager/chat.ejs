@@ -3,22 +3,25 @@
     <!-- Header banner -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
-            <h3 class="fw-bold mb-1 font-display" style="color: var(--admin-text); font-family: 'Inter', sans-serif;">
-                💬 Hỗ trợ Trực tuyến - <%= dest.name %>
-            </h3>
-            <p class="mb-0 text-muted small">
-                Giải đáp thắc mắc, phản hồi và hỗ trợ du khách theo thời gian thực.
+            <div class="admin-page-title">
+                <span class="admin-page-title-mark" aria-hidden="true"><i class="bi bi-chat-square-text"></i></span>
+                <h4 class="fw-bold mb-0 font-display" style="color: var(--admin-text); font-family: 'Inter', sans-serif;">
+                    Hộp thư Hỗ trợ: <%= dest.name %>
+                </h4>
+            </div>
+            <p class="mb-0 text-muted small" style="font-size: 0.85rem;">
+                Giải đáp thắc mắc, tư vấn và hỗ trợ du khách ghé thăm <strong><%= dest.name %></strong> theo thời gian thực.
             </p>
         </div>
         <div>
-            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
-                <i class="bi bi-messenger me-1"></i>Hỗ trợ trực tiếp
+            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
+                <i class="bi bi-geo-alt-fill me-1"></i><%= dest.name %>
             </span>
         </div>
     </div>
 
     <!-- Manager Tab Navigation -->
-    <div class="d-flex gap-2 mb-4 border-bottom border-secondary border-opacity-10 pb-3">
+    <div class="d-flex gap-2 mb-3 border-bottom border-secondary border-opacity-10 pb-3">
         <a href="/manager<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-opacity-25">
             <i class="bi bi-grid-1x2-fill me-1"></i> Bảng điều khiển
         </a>
@@ -36,13 +39,13 @@
     </div>
 
     <!-- MAIN CHAT WORKSPACE -->
-    <div class="chat-container-card" style="height: calc(100vh - 170px); min-height: 550px;">
+    <div class="chat-container-card" style="height: calc(100vh - 200px); min-height: 550px;">
         <div class="row g-0 h-100">
             
             <!-- Chat Sidebar (Active Conversations list) -->
             <div class="col-md-5 col-xl-4 border-end border-secondary border-opacity-10 d-flex flex-column h-100" style="background: rgba(0,0,0,0.03);">
                 <div class="p-3 border-bottom border-secondary border-opacity-10">
-                    <h6 class="fw-bold small mb-3" style="color: var(--admin-text);"><i class="bi bi-people-fill text-primary me-2"></i>HỘI THOẠI GẦN ĐÂY</h6>
+                    <h6 class="fw-bold small mb-3" style="color: var(--admin-text);"><i class="bi bi-people-fill text-primary me-2"></i>HỘI THOẠI DU KHÁCH (<%= conversations ? conversations.length : 0 %>)</h6>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-secondary border-opacity-20 text-muted"><i class="bi bi-search"></i></span>
                         <input type="text" class="form-control admin-input border-secondary border-opacity-20 ps-2" placeholder="Tìm du khách..." id="chat-search" oninput="filterConversations()">
@@ -55,7 +58,7 @@
                         <% conversations.forEach((convo, index) => { 
                             const rawId = (convo.session_uuid || convo.session_id || '').toString();
                             const shortId = rawId ? rawId.slice(0,4).toUpperCase() : 'ANON';
-                            const displayName = convo.user_name || ('Khách vãng lai #' + shortId);
+                            const displayName = convo.user_name || ('Du khách #' + shortId);
                             const avatarInitial = convo.user_name ? convo.user_name.split(' ').pop().slice(0,2).toUpperCase() : ('#' + shortId.slice(0,2));
                             let charCode = 0;
                             for (let i = 0; i < rawId.length; i++) charCode += rawId.charCodeAt(i);
@@ -83,7 +86,7 @@
                                         <h6 class="fw-bold mb-0 text-truncate small" style="color: var(--admin-text); max-width: 130px; font-size: 0.78rem;">
                                             <%= displayName %>
                                         </h6>
-                                        <small class="text-muted" style="font-size: 0.6rem;">
+                                        <small class="text-muted" style="font-size: 0.65rem;">
                                             <%= convo.last_message_time ? new Date(convo.last_message_time).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) : '' %>
                                         </small>
                                     </div>
@@ -109,7 +112,7 @@
                 <!-- Header -->
                 <div class="p-3 border-bottom border-secondary border-opacity-10 d-flex justify-content-between align-items-center" id="chat-header" style="height: 68px;">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" id="active-chat-avatar" style="width: 38px; height: 38px; background: #888; color: #fff; font-size: 0.85rem;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white" id="active-chat-avatar" style="width: 38px; height: 38px; background: #888; font-size: 0.85rem;">
                             ?
                         </div>
                         <div>
@@ -117,13 +120,18 @@
                             <small class="text-muted" style="font-size: 0.65rem;" id="active-chat-status">Ngoại tuyến</small>
                         </div>
                     </div>
+                    <div id="active-chat-actions" style="display: none;">
+                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold" style="font-size: 0.75rem;" onclick="deleteActiveConversation()">
+                            <i class="bi bi-trash3-fill me-1"></i>Xóa cuộc hội thoại
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Chat Messages Container -->
                 <div class="flex-grow-1 p-4 overflow-y-auto custom-scrollbar d-flex flex-column gap-3" id="chat-messages-stream" style="background: rgba(0,0,0,0.05); height: 0;">
                     <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-30 my-auto">
                         <i class="bi bi-messenger display-4 mb-3 text-primary animate-pulse"></i>
-                        <h6 class="fw-bold">Hộp thư Hỗ trợ Hướng dẫn</h6>
+                        <h6 class="fw-bold">Hộp thư Hỗ trợ: <%= dest.name %></h6>
                         <p class="small text-muted px-4" style="max-width: 320px; font-size: 0.72rem;">Chọn một cuộc hội thoại từ danh sách bên trái để phản hồi, giải đáp thắc mắc của du khách về địa điểm.</p>
                     </div>
                 </div>
@@ -133,6 +141,9 @@
                     
                     <!-- Quick answers row -->
                     <div class="p-2 border-bottom border-secondary border-opacity-5 d-flex gap-2 overflow-x-auto custom-scrollbar whitespace-nowrap bg-light" style="padding-left: 15px !important; padding-right: 15px !important;">
+                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('welcome')">
+                            🌿 Chào mừng & Hỗ trợ
+                        </button>
                         <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('road')">
                             🗺️ Vị trí & Bản đồ
                         </button>
@@ -140,7 +151,7 @@
                             ⏰ Giờ & Giá vé
                         </button>
                         <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('highlight')">
-                            ✨ Đặc sản văn hóa
+                            ✨ Trải nghiệm đặc sắc
                         </button>
                         <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('thanks')">
                             🙏 Cảm ơn du khách
@@ -165,6 +176,28 @@
 </div>
 
 <style>
+    .admin-page-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 4px;
+    }
+    .admin-page-title-mark {
+        width: 34px;
+        height: 34px;
+        border: 1px solid var(--admin-border);
+        border-radius: 9px;
+        background: var(--admin-surface);
+        color: var(--admin-primary);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 auto;
+    }
+    .admin-page-title-mark i {
+        font-size: 1rem;
+        line-height: 1;
+    }
     .chat-container-card {
         background: var(--admin-surface);
         border: 1px solid var(--admin-border);
@@ -237,11 +270,40 @@
     .whitespace-nowrap {
         white-space: nowrap;
     }
+    @media (max-width: 575px) {
+        .admin-page-title {
+            align-items: flex-start;
+        }
+        .admin-page-title-mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            margin-top: 1px;
+        }
+        .admin-page-title h4 {
+            font-size: 1.25rem;
+            line-height: 1.3;
+        }
+    }
 </style>
 
 <script>
     let activeSessionId = null;
     let autoRefreshInterval = null;
+
+    function escapeHtmlManager(text) {
+        const div = document.createElement('div');
+        div.innerText = text || '';
+        return div.innerHTML;
+    }
+
+    function showToastMsg(msg, type = 'info') {
+        if (typeof showAdminToast === 'function') {
+            showAdminToast(msg, type);
+        } else {
+            alert(msg);
+        }
+    }
 
     function filterConversations() {
         const query = document.getElementById('chat-search').value.toLowerCase();
@@ -281,17 +343,26 @@
         const avatarBox = document.getElementById('active-chat-avatar');
         
         document.getElementById('chat-controls-area').style.display = 'block';
+        const actionsEl = document.getElementById('active-chat-actions');
+        if (actionsEl) actionsEl.style.display = 'block';
 
         const rawId = (visitor && (visitor.uuid || visitor.id)) ? String(visitor.uuid || visitor.id) : (activeSessionId || '');
         const shortId = rawId ? rawId.slice(0, 4).toUpperCase() : 'ANON';
         const vName = (visitor && visitor.full_name) 
             ? visitor.full_name 
-            : ('Khách vãng lai #' + shortId);
+            : ('Du khách #' + shortId);
 
         headerName.innerText = vName;
-        headerStatus.innerHTML = (visitor && visitor.is_checked_in > 0)
-            ? '<span class="text-success fw-bold">• ĐÃ CHECK-IN TẠI ĐIỂM</span>' 
-            : '<span class="text-muted">• TOURIST</span>';
+        
+        let statusHtml = '';
+        if (visitor && parseInt(visitor.is_checked_in, 10) > 0) {
+            statusHtml += '<span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 rounded-pill px-2 py-0.5 me-2 fw-bold" style="font-size: 0.65rem;"><i class="bi bi-patch-check-fill me-1"></i>ĐÃ CHECK-IN TẠI ĐIỂM</span>';
+        }
+        statusHtml += `<span class="text-muted">• ĐIỂM TÍCH LŨY: ${visitor ? (visitor.total_points || 0) : 0} ✨</span>`;
+        if (visitor && (visitor.phone || visitor.email)) {
+            statusHtml += `<span class="text-muted ms-2">• 📞 ${visitor.phone || visitor.email}</span>`;
+        }
+        headerStatus.innerHTML = statusHtml;
         
         const avatarInitial = (visitor && visitor.full_name) 
             ? visitor.full_name.split(' ').pop().slice(0,2).toUpperCase() 
@@ -310,7 +381,6 @@
         stream.innerHTML = '';
         if (messages && messages.length > 0) {
             messages.forEach(msg => {
-                // Manager replies have sender_id set
                 const isAI = msg.is_ai === 1 || msg.is_ai === true;
                 const isReply = !isAI && (msg.sender_id !== null && msg.sender_id !== undefined);
 
@@ -321,7 +391,7 @@
                 let senderLabel = vName;
                 if (isReply) {
                     bubbleClass = 'chat-bubble-sent';
-                    senderLabel = msg.manager_name || 'Bạn (Quản lý)';
+                    senderLabel = msg.manager_name ? `${msg.manager_name} (Quản lý <%= dest.name %>)` : 'Bạn (Quản lý <%= dest.name %>)';
                 } else if (isAI) {
                     bubbleClass = 'chat-bubble-ai';
                     senderLabel = '🤖 AI Assistant';
@@ -332,7 +402,7 @@
                         ${senderLabel.toUpperCase()}
                     </div>
                     <div class="p-3 rounded-4 shadow-sm ${bubbleClass} text-start" style="font-size: 0.8rem; line-height: 1.4;">
-                        ${msg.message}
+                        ${escapeHtmlManager(msg.message)}
                         <div class="x-small mt-1 text-end opacity-50" style="font-size: 0.58rem;">
                             ${new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}
                         </div>
@@ -350,6 +420,39 @@
         }
 
         stream.scrollTop = stream.scrollHeight;
+    }
+
+    async function deleteActiveConversation() {
+        if (!activeSessionId) return;
+        if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử cuộc hội thoại này? Thao tác này không thể hoàn tác.')) return;
+
+        try {
+            const res = await axios.post('/api/delete-conversation', { 
+                session_id: activeSessionId,
+                destination_id: '<%= dest.id %>'
+            });
+            if (res.data.success) {
+                const item = document.getElementById(`convo-${activeSessionId}`);
+                if (item) item.remove();
+                document.getElementById('chat-messages-stream').innerHTML = `
+                    <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-30 my-auto">
+                        <i class="bi bi-check-circle display-4 mb-3 text-success"></i>
+                        <h6 class="fw-bold">Đã xóa cuộc hội thoại</h6>
+                        <p class="small text-muted px-4" style="max-width: 320px; font-size: 0.72rem;">Chọn cuộc hội thoại khác từ danh sách bên trái.</p>
+                    </div>
+                `;
+                document.getElementById('active-chat-name').innerText = 'Vui lòng chọn hội thoại';
+                const actionsEl = document.getElementById('active-chat-actions');
+                if (actionsEl) actionsEl.style.display = 'none';
+                document.getElementById('chat-controls-area').style.display = 'none';
+                activeSessionId = null;
+                showToastMsg('Đã xóa cuộc hội thoại thành công!', 'success');
+            } else {
+                alert(res.data.message || 'Không thể xóa hội thoại');
+            }
+        } catch(err) {
+            alert('Lỗi xóa hội thoại: ' + (err.response?.data?.message || err.message));
+        }
     }
 
     function sendLiveReply() {
@@ -371,7 +474,7 @@
             }
         })
         .catch(err => {
-            showAdminToast('Lỗi khi gửi phản hồi: ' + (err.response?.data?.message || err.message), 'error');
+            showToastMsg('Lỗi khi gửi phản hồi: ' + (err.response?.data?.message || err.message), 'error');
         })
         .finally(() => {
             input.disabled = false;
@@ -383,14 +486,16 @@
         const input = document.getElementById('manager-chat-input');
         let response = '';
 
-        if (type === 'road') {
-            response = 'Xin chào bạn, để di chuyển đến địa điểm <%= dest.name %>, bạn đi thẳng theo đường chính của xã Bình Lợi, sau đó rẽ theo biển chỉ dẫn hoặc theo định vị Google Maps này nhé: https://www.google.com/maps/dir/?api=1&destination=<%= dest.lat %>,<%= dest.lng %>';
+        if (type === 'welcome') {
+            response = 'Xin chào bạn! Ban quản lý điểm đến <%= dest.name %> rất hân hạnh được đồng hành và hỗ trợ bạn. Bạn cần hỗ trợ thêm thông tin nào hãy nhắn cho chúng tôi nhé!';
+        } else if (type === 'road') {
+            response = 'Xin chào bạn, để di chuyển đến <%= dest.name %>, bạn đi theo đường chính xã Bình Lợi hoặc mở Google Maps chỉ đường tại đây nhé: https://www.google.com/maps/dir/?api=1&destination=<%= dest.lat %>,<%= dest.lng %>';
         } else if (type === 'hours') {
-            response = 'Chào bạn! Địa điểm <%= dest.name %> mở cửa phục vụ du khách từ <%= dest.open_hours || "8:00 - 17:00" %>. Chi phí dự kiến tham quan trải nghiệm khoảng <%= dest.cost || "miễn phí" %>. Rất vui lòng được tiếp đón bạn!';
+            response = 'Chào bạn! Địa điểm <%= dest.name %> mở cửa phục vụ du khách từ <%= dest.open_hours || "8:00 - 17:00" %>. Chi phí tham quan trải nghiệm: <%= dest.cost || "Miễn phí" %>. Rất vui mừng được đón tiếp bạn!';
         } else if (type === 'highlight') {
-            response = 'Chào bạn, trải nghiệm văn hóa nổi bật nhất tại <%= dest.name %> của chúng tôi là: "<%= dest.highlight %>". Mời bạn ghé qua để thực tế cảm nhận nhé!';
+            response = 'Chào bạn, trải nghiệm đặc sắc nhất tại <%= dest.name %> là: "<%= dest.highlight || dest.story || "Khám phá không gian sinh thái và văn hóa truyền thống" %>". Mời bạn ghé qua thực tế trải nghiệm nhé!';
         } else if (type === 'thanks') {
-            response = 'Cảm ơn bạn rất nhiều vì đã chia sẻ và đặt câu hỏi. Chúc bạn có một hành trình chữa lành thật bình an, trọn vẹn tại Bình Lợi!';
+            response = 'Cảm ơn bạn rất nhiều vì đã liên hệ. Chúc bạn có một chuyến đi chữa lành thật ý nghĩa, vui vẻ và bình an tại <%= dest.name %> - xã Bình Lợi!';
         }
 
         input.value = response;
@@ -412,7 +517,7 @@
                         }
                     }).catch(err => console.log(err));
             }
-        }, 5000);
+        }, 4000);
     }
 
     function stopAutoRefresh() {
@@ -431,3 +536,4 @@
         <% } %>
     });
 </script>
+

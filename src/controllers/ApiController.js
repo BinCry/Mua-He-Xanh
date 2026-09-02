@@ -309,15 +309,24 @@ class ApiController {
                 return res.status(403).json({ success: false, message: 'Bạn không có quyền thực hiện thao tác này.' });
             }
 
-            const { session_id } = req.body;
+            const { session_id, destination_id } = req.body;
             if (!session_id) {
                 return res.status(400).json({ success: false, message: 'Thiếu ID hội thoại.' });
             }
 
-            await db.query(
-                "DELETE FROM messages WHERE sender_uuid = $1 OR receiver_uuid = $1",
-                [session_id]
-            );
+            const targetDestId = destination_id || (user.role === 'manager' ? user.managed_destination_id : null);
+
+            if (targetDestId) {
+                await db.query(
+                    "DELETE FROM messages WHERE (sender_uuid = $1 OR receiver_uuid = $1) AND destination_id = $2",
+                    [String(session_id), String(targetDestId)]
+                );
+            } else {
+                await db.query(
+                    "DELETE FROM messages WHERE sender_uuid = $1 OR receiver_uuid = $1",
+                    [String(session_id)]
+                );
+            }
 
             res.json({ success: true, message: 'Đã xóa cuộc hội thoại thành công!' });
         } catch(err) {
@@ -352,14 +361,29 @@ class ApiController {
             userCondition = `OR sender_id = $${queryParams.length}`;
         }
 
+        const { destinationId } = req.query;
+        let destCondition = '';
+        if (destinationId) {
+            queryParams.push(String(destinationId));
+            destCondition = `AND destination_id = $${queryParams.length}`;
+        } else if (req.query.scope === 'global' || req.query.global === 'true') {
+            destCondition = `AND (destination_id IS NULL OR destination_id = '')`;
+        }
+
         const [messages] = await db.query(
-            `SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at 
-              FROM messages 
+            `SELECT m.id, m.sender_id, m.sender_uuid, m.receiver_uuid, m.destination_id, 
+                    COALESCE(m.message, m.content, '') as message, m.is_ai, m.created_at,
+                    d.name as destination_name, d.cover_image as destination_image,
+                    mgr.full_name as manager_name, mgr.avatar as manager_avatar
+              FROM messages m
+              LEFT JOIN destinations d ON m.destination_id = d.id
+              LEFT JOIN users mgr ON m.sender_id = mgr.id
               WHERE (
-                sender_uuid = $1 OR receiver_uuid = $1 OR sender_uuid = $2 OR receiver_uuid = $2
+                m.sender_uuid = $1 OR m.receiver_uuid = $1 OR m.sender_uuid = $2 OR m.receiver_uuid = $2
                 ${userCondition}
               )
-              ORDER BY created_at ASC`,
+              ${destCondition}
+              ORDER BY m.created_at ASC`,
             queryParams
         );
 
