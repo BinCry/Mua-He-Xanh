@@ -1,7 +1,7 @@
-const CACHE_NAME = 'binh-loi-healing-v9';
+const CACHE_NAME = 'binh-loi-healing-v12';
 const STATIC_ASSETS = [
     '/css/style-v5.css',
-    '/images/logo.svg',
+    '/images/logo.png',
     '/images/no-image.svg'
 ];
 
@@ -119,7 +119,7 @@ async function networkFirst(req) {
                     '<body style="font-family:system-ui;display:flex;align-items:center;justify-content:center;min-height:100vh;background:#fafafa;margin:0">' +
                     '<div style="text-align:center;padding:2rem">' +
                     '<h1 style="color:#922724;font-size:1.8rem;font-weight:900;letter-spacing:1px">DU LỊCH BÌNH LỢI</h1>' +
-                    '<p style="color:#15803d;font-weight:700;margin-top:4px">Chạm vào bình yên</p>' +
+                    '<p style="color:#15803d;font-weight:700;margin-top:4px">Chạm sắc bản nguyên</p>' +
                     '<h3 style="margin-top:1.5rem;color:#333">Đang kết nối máy chủ...</h3>' +
                     '<p style="color:#666;font-size:0.9rem">Máy chủ đang cập nhật. Trang sẽ tự động tải lại.</p>' +
                     '<button onclick="location.reload()" style="margin-top:1rem;padding:12px 32px;background:linear-gradient(135deg,#922724,#b83330);color:#fff;border:none;border-radius:50px;font-weight:700;cursor:pointer">Thử lại</button>' +

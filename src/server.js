@@ -174,8 +174,17 @@ function isPublicCacheablePath(p) {
 app.use((req, res, next) => {
     if (req.method !== 'GET') return next();
     const p = req.path.toLowerCase();
+    
+    // Service Worker and Manifest must NEVER be cached by browser or CDN
+    if (p === '/sw.js' || p === '/manifest.json') {
+        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        return next();
+    }
+
     if (p.match(/\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/)) {
-        res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
+        res.setHeader('Cache-Control', 'public, max-age=86400');
     } else {
         // HTML pages must NEVER be cached by browser so login status and user profile always update immediately
         res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
