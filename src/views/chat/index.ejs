@@ -100,16 +100,23 @@
             ? `Xin chào${currentUser ? ' ' + currentUser.full_name : ''}! Tôi là Quản lý điểm đến ${destName}. Bạn cần hỗ trợ hoặc tư vấn thông tin gì vui lòng gửi tin nhắn tại đây nhé!`
             : `Xin chào${currentUser ? ' ' + currentUser.full_name : ''}! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!`;
 
+        const welcomeSender = destId ? `QUẢN LÝ ${destName.toUpperCase()}` : 'BAN QUẢN TRỊ';
+
         let html = `
             <div class="text-center mb-3">
                 <span class="badge bg-white text-muted shadow-2xs px-3 py-1.5 rounded-pill border x-small" style="font-size: 11px;">
                     <i class="bi bi-shield-check text-success me-1"></i> Cuộc trò chuyện hỗ trợ trực tuyến bảo mật
                 </span>
             </div>
-            <div class="message-received mb-2.5 d-flex gap-2 align-items-end">
-                <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                <div class="p-2.5 px-3.5 bg-white text-dark shadow-2xs border" style="max-width: 78%; font-size: 0.9rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important;">
-                    ${welcomeText}
+            <div class="d-flex flex-column mb-3 align-items-start">
+                <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
+                    ${welcomeSender}
+                </div>
+                <div class="d-flex gap-2 align-items-end" style="max-width: 86%;">
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                    <div class="p-3 rounded-4 shadow-sm bg-white text-dark border text-start" style="font-size: 0.88rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere;">
+                        ${welcomeText}
+                    </div>
                 </div>
             </div>
         `;
@@ -117,31 +124,39 @@
         if (messages && messages.length > 0) {
             messages.forEach(msg => {
                 const isMe = msg.is_mine || false;
+                const isAI = msg.is_ai === 1 || msg.is_ai === true;
                 const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
                 
                 if (isMe) {
-                    // SENT BY ME: Aligned RIGHT, Maroon Pill
+                    // SENT BY ME: Aligned RIGHT, Maroon Pill matching Admin/Manager
                     html += `
-                        <div class="message-sent mb-2 d-flex justify-content-end">
-                            <div class="d-flex flex-column align-items-end" style="width: fit-content; max-width: 86%;">
-                                <div class="px-3.5 py-2.5 text-white shadow-2xs" style="width: fit-content; max-width: 100%; font-size: 0.92rem; line-height: 1.4; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; word-break: break-word; overflow-wrap: anywhere;">
-                                    <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
-                                    <span class="x-small opacity-65 ms-2 text-nowrap" style="font-size: 9.5px;">${timeStr}</span>
-                                </div>
+                        <div class="d-flex flex-column mb-3 align-items-end">
+                            <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
+                                BẠN
+                            </div>
+                            <div class="p-3 rounded-4 shadow-sm text-white text-start" style="max-width: 86%; font-size: 0.88rem; line-height: 1.45; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; box-shadow: 0 3px 10px rgba(146, 39, 36, 0.2); word-break: break-word; overflow-wrap: anywhere;">
+                                ${escapeHtml(msg.message)}
+                                <div class="x-small opacity-65 mt-1 text-end text-nowrap" style="font-size: 0.6rem;">${timeStr}</div>
                             </div>
                         </div>
                     `;
                 } else {
                     // RECEIVED FROM ADMIN / MANAGER / AI: Aligned LEFT with Logo Avatar
-                    const isAI = msg.is_ai === 1 || msg.is_ai === true;
-                    const senderLabel = isAI ? '🤖 Trợ lý AI' : (msg.destination_name ? `Quản lý ${msg.destination_name}` : 'Ban Quản Trị');
+                    const senderLabel = isAI ? '🤖 AI ASSISTANT' : (msg.manager_name ? `${msg.manager_name.toUpperCase()} (QUẢN LÝ)` : (msg.destination_name ? `QUẢN LÝ ${msg.destination_name.toUpperCase()}` : 'BAN QUẢN TRỊ'));
+                    const bubbleStyle = isAI 
+                        ? 'background: rgba(16,185,129,0.08) !important; border: 1px solid rgba(16,185,129,0.2) !important; color: #065f46 !important;' 
+                        : 'background: #ffffff !important; border: 1px solid rgba(0,0,0,0.08) !important; color: #050505 !important;';
+
                     html += `
-                        <div class="message-received mb-2 d-flex gap-2 align-items-end">
-                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                            <div class="d-flex flex-column" style="width: fit-content; max-width: 86%;">
-                                <div class="px-3.5 py-2.5 text-dark shadow-2xs" style="width: fit-content; max-width: 100%; font-size: 0.92rem; line-height: 1.4; background: ${isAI ? 'rgba(16,185,129,0.08)' : '#e4e6eb'} !important; color: #050505 !important; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere; ${isAI ? 'border: 1px solid rgba(16,185,129,0.2);' : ''}">
-                                    <span style="font-weight: 450;">${escapeHtml(msg.message)}</span>
-                                    <span class="x-small opacity-60 ms-2 text-nowrap" style="font-size: 9.5px; color: #65676b;">${timeStr}</span>
+                        <div class="d-flex flex-column mb-3 align-items-start">
+                            <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
+                                ${senderLabel}
+                            </div>
+                            <div class="d-flex gap-2 align-items-end" style="max-width: 86%;">
+                                <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                                <div class="p-3 rounded-4 shadow-sm text-start" style="font-size: 0.88rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere; ${bubbleStyle}">
+                                    ${escapeHtml(msg.message)}
+                                    <div class="x-small opacity-50 mt-1 text-end text-nowrap" style="font-size: 0.6rem;">${timeStr}</div>
                                 </div>
                             </div>
                         </div>
@@ -194,8 +209,9 @@
         chatForm.addEventListener('submit', sendMessage);
     }
 
-    // Wait for deferred scripts (like axios) to load
+    // Immediately render initial greeting on DOMContentLoaded
     document.addEventListener('DOMContentLoaded', () => {
+        renderGlobalChat(currentGlobalMessages);
         loadChatMessages();
         chatInterval = setInterval(loadChatMessages, 4000);
     });
