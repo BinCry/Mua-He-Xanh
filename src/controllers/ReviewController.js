@@ -19,7 +19,7 @@ const upload = multer({
         },
         filename: (req, file, cb) => cb(null, 'review_' + Date.now() + '_' + Math.round(Math.random() * 1e9) + path.extname(file.originalname))
     }),
-    limits: { fileSize: 15 * 1024 * 1024, files: 10 }
+    limits: { fileSize: 15 * 1024 * 1024, files: 30 }
 });
 
 const ReviewController = {
