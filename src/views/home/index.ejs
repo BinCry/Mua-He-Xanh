@@ -728,7 +728,7 @@
                 const destEl = document.getElementById('stat-destinations');
                 const rateEl = document.getElementById('stat-rating');
 
-                if (pvEl) pvEl.textContent = (s.pageViews || 0).toLocaleString() + '+';
+                if (pvEl) pvEl.textContent = (s.visitors || 0).toLocaleString() + '+';
                 if (ckEl) ckEl.textContent = (s.checkins || 0).toLocaleString() + '+';
                 if (destEl) destEl.textContent = (s.destinations || 0) + '+';
                 if (rateEl) rateEl.textContent = (s.avgRating || '5.0') + '/5.0';

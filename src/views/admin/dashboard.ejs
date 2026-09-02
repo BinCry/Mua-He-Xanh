@@ -4,8 +4,19 @@
     <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Tổng quan hệ thống du lịch Bình Lợi - Dữ liệu thời gian thực.</p>
 </div>
 
-<!-- Stats Row -->
+<!-- Stats Row (Primary Metrics) -->
 <div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="stat-card">
+            <div class="d-flex align-items-center gap-3">
+                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-globe2"></i></div>
+                <div>
+                    <h3><%= (stats.sessions || 0).toLocaleString() %></h3>
+                    <small>Lượt truy cập Website</small>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="col-md-3 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
@@ -20,10 +31,10 @@
     <div class="col-md-3 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-compass-fill"></i></div>
+                <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="bi bi-compass-fill"></i></div>
                 <div>
                     <h3><%= (stats.destinations || 0).toLocaleString() %></h3>
-                    <small>Địa điểm</small>
+                    <small>Địa điểm du lịch</small>
                 </div>
             </div>
         </div>
@@ -31,7 +42,7 @@
     <div class="col-md-3 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(59,130,246,0.15); color: #3b82f6;"><i class="bi bi-chat-heart-fill"></i></div>
+                <div class="stat-icon" style="background: rgba(236,72,153,0.15); color: #ec4899;"><i class="bi bi-chat-heart-fill"></i></div>
                 <div>
                     <h3><%= (stats.reviews || 0).toLocaleString() %></h3>
                     <small>Bài đánh giá</small>
@@ -39,44 +50,22 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-6">
+</div>
+
+<!-- Secondary Stats Row -->
+<div class="row g-3 mb-4">
+    <div class="col-md-4 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
                 <div class="stat-icon" style="background: rgba(239,68,68,0.15); color: #ef4444;"><i class="bi bi-people-fill"></i></div>
                 <div>
                     <h3><%= (stats.users || 0).toLocaleString() %></h3>
-                    <small>Người dùng</small>
+                    <small>Người dùng tài khoản</small>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-<!-- Secondary Stats -->
-<div class="row g-3 mb-4">
-    <div class="col-md-3 col-6">
-        <div class="stat-card">
-            <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(16,185,129,0.15); color: #10b981;"><i class="bi bi-people-fill"></i></div>
-                <div>
-                    <h3><%= (stats.sessions || 0).toLocaleString() %></h3>
-                    <small>Lượt truy cập (30p)</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
-        <div class="stat-card">
-            <div class="d-flex align-items-center gap-3">
-                <div class="stat-icon" style="background: rgba(139,92,246,0.15); color: #8b5cf6;"><i class="bi bi-eye-fill"></i></div>
-                <div>
-                    <h3><%= (stats.pageViews || 0).toLocaleString() %></h3>
-                    <small>Tổng lượt xem trang</small>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3 col-6">
+    <div class="col-md-4 col-6">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
                 <div class="stat-icon" style="background: rgba(251,191,36,0.15); color: #fbbf24;"><i class="bi bi-clock-history"></i></div>
@@ -87,7 +76,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-3 col-6">
+    <div class="col-md-4 col-12">
         <div class="stat-card">
             <div class="d-flex align-items-center gap-3">
                 <div class="stat-icon" style="background: rgba(34,211,238,0.15); color: #22d3ee;"><i class="bi bi-calendar-event-fill"></i></div>
