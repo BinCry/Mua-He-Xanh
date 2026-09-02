@@ -46,106 +46,178 @@
                 <!-- Input Footer (Messenger Style) -->
                 <div class="p-2.5 px-3 bg-white border-top position-relative" style="border-color: #e4e6eb !important;">
                     <% if (currentUser) { %>
-                    <!-- Floating Quick Emoji & Stickers Popover -->
-                    <div id="tourist-emoji-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 58px; left: 8px; right: 8px; max-width: 380px; z-index: 1050; border-color: #e4e6eb !important;">
-                        <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
-                            <div class="d-flex gap-1">
-                                <button type="button" class="btn btn-sm btn-light active rounded-pill px-2.5 py-0.5 fw-bold fs-7 tourist-picker-tab" id="ttab-emoji" onclick="switchTouristPickerTab('emoji')">😊 Biểu cảm</button>
-                                <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-0.5 fw-bold fs-7 tourist-picker-tab" id="ttab-travel" onclick="switchTouristPickerTab('travel')">🌿 Du lịch</button>
-                                <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-0.5 fw-bold fs-7 tourist-picker-tab" id="ttab-stickers" onclick="switchTouristPickerTab('stickers')">🏷️ Nhãn dán</button>
+                    <!-- Messenger Full Emoji, Sticker & GIF Drawer / Popover -->
+                    <div id="tourist-messenger-drawer" class="messenger-drawer shadow-2xl border bg-white" style="display: none;">
+                        <!-- Mobile Drag Handle -->
+                        <div class="d-md-none text-center py-1.5 cursor-pointer" onclick="toggleTouristEmoji(false)">
+                            <div class="mx-auto rounded-pill" style="width: 40px; height: 4px; background: #cbd5e1;"></div>
+                        </div>
+
+                        <!-- Search & Tabs Header -->
+                        <div class="p-2 border-bottom bg-white rounded-top-4">
+                            <!-- Search Bar -->
+                            <div class="position-relative mb-2">
+                                <i class="bi bi-search position-absolute start-0 top-50 translate-middle-y ms-3 text-muted" style="font-size: 0.85rem;"></i>
+                                <input type="text" id="tourist-picker-search" class="form-control border-0 ps-5 pe-4 rounded-pill" style="background: #f0f2f5; font-size: 0.85rem; height: 34px;" placeholder="Tìm kiếm biểu tượng, nhãn dán, GIF..." oninput="filterTouristPicker(this.value)">
+                                <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y pe-2 text-muted text-decoration-none d-none" id="tourist-picker-search-clear" onclick="clearTouristPickerSearch()">
+                                    <i class="bi bi-x-circle-fill" style="font-size: 0.8rem;"></i>
+                                </button>
                             </div>
-                            <button type="button" class="btn-close" style="font-size: 0.65rem;" onclick="toggleTouristEmoji(false)"></button>
+
+                            <!-- Top Navigation Category Tabs (Messenger Standard) -->
+                            <div class="d-flex align-items-center justify-content-between gap-1 overflow-auto custom-scrollbar pb-1 px-1">
+                                <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-1 fw-bold fs-7 tourist-nav-tab active" id="tntab-all-emoji" onclick="switchTouristNavTab('all-emoji')" title="Tất cả biểu cảm">
+                                    😊 Biểu cảm
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-1 fw-bold fs-7 tourist-nav-tab" id="tntab-stickers" onclick="switchTouristNavTab('stickers')" title="Nhãn dán">
+                                    🏷️ Nhãn dán
+                                </button>
+                                <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-1 fw-bold fs-7 tourist-nav-tab" id="tntab-gifs" onclick="switchTouristNavTab('gifs')" title="Ảnh động GIF">
+                                    <i class="bi bi-filetype-gif text-danger me-1"></i>GIFs
+                                </button>
+                                <button type="button" class="btn-close ms-auto" style="font-size: 0.65rem;" onclick="toggleTouristEmoji(false)"></button>
+                            </div>
                         </div>
                         
-                        <div class="p-2.5 tourist-pane" id="tpane-emoji" style="max-height: 200px; overflow-y: auto;">
-                            <div class="d-flex flex-wrap gap-1.5 fs-3 justify-content-start">
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😊')">😊</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🥰')">🥰</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😂')">😂</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😍')">😍</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😎')">😎</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🥳')">🥳</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('👍')">👍</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('👏')">👏</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🙏')">🙏</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('❤️')">❤️</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('💖')">💖</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🔥')">🔥</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('✨')">✨</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('💯')">💯</span>
-                            </div>
-                        </div>
+                        <!-- Content Area -->
+                        <div class="p-2.5 overflow-auto custom-scrollbar" id="tourist-drawer-content" style="max-height: 260px; min-height: 220px;">
+                            <!-- Tab: All Emojis -->
+                            <div class="tourist-nav-pane" id="tnpane-all-emoji">
+                                <!-- Group 1: Mặt cười & Cảm xúc -->
+                                <div class="emoji-group mb-2.5">
+                                    <div class="x-small fw-bold text-muted mb-1 px-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">MẶT CƯỜI & CẢM XÚC</div>
+                                    <div class="d-flex flex-wrap gap-1 fs-3">
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😊')">😊</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🥰')">🥰</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😍')">😍</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😂')">😂</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🤣')">🤣</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😘')">😘</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🥹')">🥹</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😎')">😎</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🥳')">🥳</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🤩')">🤩</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🤗')">🤗</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😇')">😇</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😉')">😉</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😋')">😋</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('😜')">😜</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🤪')">🤪</span>
+                                    </div>
+                                </div>
 
-                        <div class="p-2.5 tourist-pane" id="tpane-travel" style="display: none; max-height: 200px; overflow-y: auto;">
-                            <div class="d-flex flex-wrap gap-1.5 fs-3 justify-content-start">
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌿')">🌿</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌸')">🌸</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌾')">🌾</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🚣')">🚣</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🚴')">🚴</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🥭')">🥭</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🍵')">🍵</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🏕️')">🏕️</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌅')">🌅</span>
-                                <span class="cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('📸')">📸</span>
-                            </div>
-                        </div>
+                                <!-- Group 2: Du lịch & Sinh thái Bình Lợi -->
+                                <div class="emoji-group mb-2.5">
+                                    <div class="x-small fw-bold text-muted mb-1 px-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">DU LỊCH & BÌNH LỢI HEALING</div>
+                                    <div class="d-flex flex-wrap gap-1 fs-3">
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌸')">🌸</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌿')">🌿</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌾')">🌾</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🚣')">🚣</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🚴')">🚴</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🏕️')">🏕️</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌅')">🌅</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('📸')">📸</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🍃')">🍃</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌺')">🌺</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🌻')">🌻</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🐟')">🐟</span>
+                                    </div>
+                                </div>
 
-                        <div class="p-2 tourist-pane" id="tpane-stickers" style="display: none; max-height: 200px; overflow-y: auto;">
-                            <div class="row g-2 text-center">
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-3 py-1.5 fw-semibold fs-7 text-truncate" onclick="sendCustomMessageTourist('👋 [Xin chào Ban Quản Trị!]')">
-                                        👋 Xin chào
-                                    </button>
-                                </div>
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-outline-primary btn-sm w-100 rounded-3 py-1.5 fw-semibold fs-7 text-truncate" onclick="sendCustomMessageTourist('🙏 [Cảm ơn Ban Quản Trị đã hỗ trợ!]')">
-                                        🙏 Cảm ơn
-                                    </button>
-                                </div>
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-outline-warning btn-sm w-100 rounded-3 py-1.5 fw-semibold fs-7 text-truncate" onclick="sendCustomMessageTourist('✨ [Chuyến đi thật tuyệt vời!]')">
-                                        ✨ Tuyệt vời
-                                    </button>
-                                </div>
-                                <div class="col-6">
-                                    <button type="button" class="btn btn-outline-success btn-sm w-100 rounded-3 py-1.5 fw-semibold fs-7 text-truncate" onclick="sendCustomMessageTourist('💖 [Tôi rất thích Bình Lợi Healing!]')">
-                                        💖 Yêu thích
-                                    </button>
+                                <!-- Group 3: Cử chỉ & Trái tim -->
+                                <div class="emoji-group mb-2.5">
+                                    <div class="x-small fw-bold text-muted mb-1 px-1" style="font-size: 0.72rem; letter-spacing: 0.5px;">CỬ CHỈ & TRÁI TIM</div>
+                                    <div class="d-flex flex-wrap gap-1 fs-3">
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('👍')">👍</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('👏')">👏</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🙏')">🙏</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🫶')">🫶</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('❤️')">❤️</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('💖')">💖</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('💕')">💕</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('🔥')">🔥</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('✨')">✨</span>
+                                        <span class="emoji-item cursor-pointer p-1.5 rounded-2 hover-bg-light" onclick="insertTouristEmoji('💯')">💯</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
 
-                    <!-- Tourist GIF Picker Popover -->
-                    <div id="tourist-gif-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 58px; left: 8px; right: 8px; max-width: 360px; z-index: 1050; border-color: #e4e6eb !important;">
-                        <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
-                            <span class="fw-bold small text-dark"><i class="bi bi-filetype-gif text-danger me-1"></i>Ảnh Động (GIF)</span>
-                            <button type="button" class="btn-close" style="font-size: 0.65rem;" onclick="toggleTouristGif(false)"></button>
-                        </div>
-                        <div class="p-2 row g-2" style="max-height: 240px; overflow-y: auto;">
-                            <div class="col-6">
-                                <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendTouristGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
-                                    <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
-                                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-primary" style="font-size: 0.72rem;">👋 Xin chào!</span></div>
+                            <!-- Tab: Stickers -->
+                            <div class="tourist-nav-pane" id="tnpane-stickers" style="display: none;">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-danger w-100 rounded-3 p-2.5 text-start shadow-2xs hover-scale" onclick="sendCustomMessageTourist('👋 [Xin chào Ban Quản Trị!]')">
+                                            <div class="fs-3 mb-1">👋</div>
+                                            <strong class="d-block text-dark small">Xin chào</strong>
+                                            <small class="text-muted x-small">Chào mừng bạn!</small>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-primary w-100 rounded-3 p-2.5 text-start shadow-2xs hover-scale" onclick="sendCustomMessageTourist('🙏 [Cảm ơn Ban Quản Trị đã hỗ trợ!]')">
+                                            <div class="fs-3 mb-1">🙏</div>
+                                            <strong class="d-block text-dark small">Cảm ơn</strong>
+                                            <small class="text-muted x-small">Cảm ơn rất nhiều!</small>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-warning w-100 rounded-3 p-2.5 text-start shadow-2xs hover-scale" onclick="sendCustomMessageTourist('✨ [Chuyến đi thật tuyệt vời!]')">
+                                            <div class="fs-3 mb-1">✨</div>
+                                            <strong class="d-block text-dark small">Tuyệt vời</strong>
+                                            <small class="text-muted x-small">Trải nghiệm xuất sắc!</small>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-success w-100 rounded-3 p-2.5 text-start shadow-2xs hover-scale" onclick="sendCustomMessageTourist('💖 [Tôi rất thích Bình Lợi Healing!]')">
+                                            <div class="fs-3 mb-1">💖</div>
+                                            <strong class="d-block text-dark small">Yêu thích</strong>
+                                            <small class="text-muted x-small">Thả tim Bình Lợi!</small>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-info w-100 rounded-3 p-2.5 text-start shadow-2xs hover-scale" onclick="sendCustomMessageTourist('🚣 [Tư vấn cho tôi lịch trình chèo xuồng & trải nghiệm nhé!]')">
+                                            <div class="fs-3 mb-1">🚣</div>
+                                            <strong class="d-block text-dark small">Tư vấn tour</strong>
+                                            <small class="text-muted x-small">Chèo xuồng, vườn mai</small>
+                                        </button>
+                                    </div>
+                                    <div class="col-6">
+                                        <button type="button" class="btn btn-outline-secondary w-100 rounded-3 p-2.5 text-start shadow-2xs hover-scale" onclick="sendCustomMessageTourist('🍵 [Cho tôi hỏi đặc sản dưa lưới và trà mai ở đâu nhé!]')">
+                                            <div class="fs-3 mb-1">🍵</div>
+                                            <strong class="d-block text-dark small">Ẩm thực</strong>
+                                            <small class="text-muted x-small">Đặc sản Bình Lợi</small>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="col-6">
-                                <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendTouristGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
-                                    <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
-                                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-success" style="font-size: 0.72rem;">🙏 Cảm ơn!</span></div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendTouristGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
-                                    <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
-                                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-warning" style="font-size: 0.72rem;">👍 Tuyệt vời!</span></div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendTouristGif('https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif')">
-                                    <img src="https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
-                                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-danger" style="font-size: 0.72rem;">❤️ Thả tim!</span></div>
+
+                            <!-- Tab: GIFs -->
+                            <div class="tourist-nav-pane" id="tnpane-gifs" style="display: none;">
+                                <div class="row g-2">
+                                    <div class="col-6">
+                                        <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendTouristGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
+                                            <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 85px; object-fit: cover;" loading="lazy">
+                                            <div class="p-1 text-center bg-white"><span class="small fw-semibold text-primary" style="font-size: 0.72rem;">👋 Xin chào!</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendTouristGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
+                                            <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 85px; object-fit: cover;" loading="lazy">
+                                            <div class="p-1 text-center bg-white"><span class="small fw-semibold text-success" style="font-size: 0.72rem;">🙏 Cảm ơn!</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendTouristGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
+                                            <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 85px; object-fit: cover;" loading="lazy">
+                                            <div class="p-1 text-center bg-white"><span class="small fw-semibold text-warning" style="font-size: 0.72rem;">👍 Tuyệt vời!</span></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendTouristGif('https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif')">
+                                            <img src="https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif" class="w-100" style="height: 85px; object-fit: cover;" loading="lazy">
+                                            <div class="p-1 text-center bg-white"><span class="small fw-semibold text-danger" style="font-size: 0.72rem;">❤️ Thả tim!</span></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -280,6 +352,49 @@
     .hover-bg-light:hover {
         background-color: #f8f9fa !important;
     }
+    .messenger-drawer {
+        position: absolute;
+        bottom: 58px;
+        left: 8px;
+        right: 8px;
+        max-width: 380px;
+        z-index: 1060;
+        border-radius: 16px;
+        border-color: #e4e6eb !important;
+        animation: messengerDrawerSlide 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes messengerDrawerSlide {
+        from { opacity: 0; transform: translateY(12px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (max-width: 767.98px) {
+        .messenger-drawer {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            max-width: 100% !important;
+            border-radius: 20px 20px 0 0 !important;
+            z-index: 99999 !important;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.2) !important;
+        }
+    }
+    .tourist-nav-tab.active {
+        background-color: #f0f2f5 !important;
+        color: #922724 !important;
+    }
+    .emoji-item {
+        user-select: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        transition: transform 0.1s ease;
+    }
+    .emoji-item:active {
+        transform: scale(1.25);
+    }
 </style>
 
 <script id="current-user-json-data" type="application/json">
@@ -312,27 +427,30 @@
     }
 
     function toggleTouristEmoji(force) {
-        const p = document.getElementById('tourist-emoji-popover');
-        if (!p) return;
-        toggleTouristGif(false);
-        p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+        const d = document.getElementById('tourist-messenger-drawer');
+        if (!d) return;
+        const willHide = (force !== undefined) ? !force : (d.style.display !== 'none');
+        d.style.display = willHide ? 'none' : 'block';
+        if (!willHide) {
+            switchTouristNavTab('all-emoji');
+        }
     }
 
-    function toggleTouristGif(force) {
-        const p = document.getElementById('tourist-gif-popover');
-        if (!p) return;
-        toggleTouristEmoji(false);
-        p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+    function toggleTouristGif() {
+        const d = document.getElementById('tourist-messenger-drawer');
+        if (!d) return;
+        d.style.display = 'block';
+        switchTouristNavTab('gifs');
     }
 
-    function switchTouristPickerTab(tab) {
-        document.querySelectorAll('.tourist-picker-tab').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tourist-pane').forEach(p => p.style.display = 'none');
+    function switchTouristNavTab(tab) {
+        document.querySelectorAll('.tourist-nav-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tourist-nav-pane').forEach(p => p.style.display = 'none');
         
-        const activeBtn = document.getElementById(`ttab-${tab}`);
+        const activeBtn = document.getElementById(`tntab-${tab}`);
         if (activeBtn) activeBtn.classList.add('active');
         
-        const activePane = document.getElementById(`tpane-${tab}`);
+        const activePane = document.getElementById(`tnpane-${tab}`);
         if (activePane) activePane.style.display = 'block';
     }
 
@@ -342,11 +460,52 @@
         input.value += emoji;
         input.focus();
         toggleTouristSendIcon(input);
-        toggleTouristEmoji(false);
+    }
+
+    function filterTouristPicker(query) {
+        query = (query || '').toLowerCase().trim();
+        const clearBtn = document.getElementById('tourist-picker-search-clear');
+        if (clearBtn) {
+            clearBtn.classList.toggle('d-none', !query);
+        }
+
+        const emojiItems = document.querySelectorAll('#tnpane-all-emoji .emoji-item');
+        const groups = document.querySelectorAll('#tnpane-all-emoji .emoji-group');
+        
+        if (!query) {
+            emojiItems.forEach(el => el.style.display = 'inline-flex');
+            groups.forEach(g => g.style.display = 'block');
+            return;
+        }
+
+        switchTouristNavTab('all-emoji');
+
+        emojiItems.forEach(el => {
+            const char = el.innerText.trim();
+            const match = char.includes(query);
+            el.style.display = match ? 'inline-flex' : 'none';
+        });
+
+        groups.forEach(g => {
+            let hasVisible = false;
+            g.querySelectorAll('.emoji-item').forEach(e => {
+                if (e.style.display !== 'none') hasVisible = true;
+            });
+            g.style.display = hasVisible ? 'block' : 'none';
+        });
+    }
+
+    function clearTouristPickerSearch() {
+        const searchInput = document.getElementById('tourist-picker-search');
+        if (searchInput) {
+            searchInput.value = '';
+            filterTouristPicker('');
+            searchInput.focus();
+        }
     }
 
     function sendTouristGif(gifUrl) {
-        toggleTouristGif(false);
+        toggleTouristEmoji(false);
         sendCustomMessageTourist(`[GIF: ${gifUrl}]`);
     }
 

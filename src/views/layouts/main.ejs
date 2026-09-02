@@ -383,109 +383,121 @@
             </button>
         </div>
 
-        <!-- Floating Emoji, Stickers & Media Popover -->
-        <div id="floating-emoji-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 65px; left: 10px; right: 10px; z-index: 1060; border-color: #e4e6eb !important;">
-            <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
-                <div class="d-flex gap-1">
-                    <button type="button" class="btn btn-sm btn-light active rounded-pill px-2 py-0.5 fw-bold picker-tab-btn" style="font-size: 0.75rem;" id="ftab-emoji" onclick="switchFloatingPickerTab('emoji')">😊 Biểu cảm</button>
-                    <button type="button" class="btn btn-sm btn-light rounded-pill px-2 py-0.5 fw-bold picker-tab-btn" style="font-size: 0.75rem;" id="ftab-travel" onclick="switchFloatingPickerTab('travel')">🌿 Du lịch</button>
-                    <button type="button" class="btn btn-sm btn-light rounded-pill px-2 py-0.5 fw-bold picker-tab-btn" style="font-size: 0.75rem;" id="ftab-stickers" onclick="switchFloatingPickerTab('stickers')">🏷️ Nhãn dán</button>
+        <!-- Messenger Full Drawer for Floating Chat -->
+        <div id="floating-messenger-drawer" class="position-absolute shadow-lg border bg-white" style="display: none; bottom: 58px; left: 8px; right: 8px; z-index: 1060; border-radius: 16px; border-color: #e4e6eb !important;">
+            <!-- Top Search & Tabs -->
+            <div class="p-2 border-bottom bg-white rounded-top-4">
+                <div class="position-relative mb-2">
+                    <i class="bi bi-search position-absolute start-0 top-50 translate-middle-y ms-2.5 text-muted" style="font-size: 0.75rem;"></i>
+                    <input type="text" id="floating-picker-search" class="form-control border-0 ps-4 pe-3 rounded-pill" style="background: #f0f2f5; font-size: 0.78rem; height: 30px;" placeholder="Tìm biểu cảm, nhãn dán, GIF..." oninput="filterFloatingPicker(this.value)">
                 </div>
-                <button type="button" class="btn-close" style="font-size: 0.6rem;" onclick="toggleFloatingEmoji(false)"></button>
-            </div>
-            
-            <!-- Emojis Pane -->
-            <div class="p-2.5 picker-pane" id="fpane-emoji" style="max-height: 180px; overflow-y: auto;">
-                <div class="d-flex flex-wrap gap-2 fs-4">
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('😊')">😊</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🥰')">🥰</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('😂')">😂</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('😍')">😍</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('😎')">😎</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🥳')">🥳</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('👍')">👍</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('👏')">👏</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🙏')">🙏</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('❤️')">❤️</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('💖')">💖</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🔥')">🔥</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('✨')">✨</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('💯')">💯</span>
+                <div class="d-flex align-items-center justify-content-between gap-1">
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-2 py-0.5 fw-bold fnav-tab active" id="fntab-all-emoji" onclick="switchFloatingNavTab('all-emoji')" style="font-size: 0.72rem;">
+                        😊 Biểu cảm
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-2 py-0.5 fw-bold fnav-tab" id="fntab-stickers" onclick="switchFloatingNavTab('stickers')" style="font-size: 0.72rem;">
+                        🏷️ Nhãn dán
+                    </button>
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-2 py-0.5 fw-bold fnav-tab" id="fntab-gifs" onclick="switchFloatingNavTab('gifs')" style="font-size: 0.72rem;">
+                        <i class="bi bi-filetype-gif text-danger me-0.5"></i>GIFs
+                    </button>
+                    <button type="button" class="btn-close ms-auto" style="font-size: 0.6rem;" onclick="toggleFloatingEmoji(false)"></button>
                 </div>
             </div>
 
-            <!-- Travel & Nature Pane -->
-            <div class="p-2.5 picker-pane" id="fpane-travel" style="display: none; max-height: 180px; overflow-y: auto;">
-                <div class="d-flex flex-wrap gap-2 fs-4">
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🌿')">🌿</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🌸')">🌸</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🌾')">🌾</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🚣')">🚣</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🚴')">🚴</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🥭')">🥭</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🍵')">🍵</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🏕️')">🏕️</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🌅')">🌅</span>
-                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('📸')">📸</span>
+            <!-- Content -->
+            <div class="p-2 overflow-auto custom-scrollbar" style="max-height: 200px;">
+                <!-- Emojis Pane -->
+                <div class="fnav-pane" id="fnpane-all-emoji">
+                    <div class="f-emoji-group mb-2">
+                        <div class="x-small fw-bold text-muted mb-1" style="font-size: 0.68rem;">MẶT CƯỜI & CẢM XÚC</div>
+                        <div class="d-flex flex-wrap gap-1 fs-4">
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('😊')">😊</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🥰')">🥰</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('😍')">😍</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('😂')">😂</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🤣')">🤣</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('😘')">😘</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('😎')">😎</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🥳')">🥳</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('👍')">👍</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('👏')">👏</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🙏')">🙏</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('❤️')">❤️</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('💖')">💖</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🔥')">🔥</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('✨')">✨</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('💯')">💯</span>
+                        </div>
+                    </div>
+                    <div class="f-emoji-group mb-1">
+                        <div class="x-small fw-bold text-muted mb-1" style="font-size: 0.68rem;">DU LỊCH BÌNH LỢI</div>
+                        <div class="d-flex flex-wrap gap-1 fs-4">
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🌸')">🌸</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🌿')">🌿</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🌾')">🌾</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🚣')">🚣</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🚴')">🚴</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🏕️')">🏕️</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('🌅')">🌅</span>
+                            <span class="f-emoji-item cursor-pointer p-1 rounded hover-bg-light" onclick="insertFloatingEmoji('📸')">📸</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
 
-            <!-- Stickers Pane -->
-            <div class="p-2 picker-pane" id="fpane-stickers" style="display: none; max-height: 180px; overflow-y: auto;">
-                <div class="row g-1.5 text-center">
-                    <div class="col-6">
-                        <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('👋 [Xin chào Ban Quản Trị!]')">
-                            👋 Xin chào
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button type="button" class="btn btn-outline-primary btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('🙏 [Cảm ơn Ban Quản Trị đã hỗ trợ!]')">
-                            🙏 Cảm ơn
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button type="button" class="btn btn-outline-warning btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('✨ [Trải nghiệm tại Bình Lợi thật tuyệt vời!]')">
-                            ✨ Tuyệt vời
-                        </button>
-                    </div>
-                    <div class="col-6">
-                        <button type="button" class="btn btn-outline-success btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('💖 [Rất yêu thích Bình Lợi Healing!]')">
-                            💖 Yêu thích
-                        </button>
+                <!-- Stickers Pane -->
+                <div class="fnav-pane" id="fnpane-stickers" style="display: none;">
+                    <div class="row g-1.5 text-center">
+                        <div class="col-6">
+                            <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('👋 [Xin chào Ban Quản Trị!]')">
+                                👋 Xin chào
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('🙏 [Cảm ơn Ban Quản Trị đã hỗ trợ!]')">
+                                🙏 Cảm ơn
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-outline-warning btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('✨ [Trải nghiệm tại Bình Lợi thật tuyệt vời!]')">
+                                ✨ Tuyệt vời
+                            </button>
+                        </div>
+                        <div class="col-6">
+                            <button type="button" class="btn btn-outline-success btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('💖 [Rất yêu thích Bình Lợi Healing!]')">
+                                💖 Yêu thích
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Floating GIF Picker Popover -->
-        <div id="floating-gif-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 58px; left: 8px; right: 8px; z-index: 1060; border-color: #e4e6eb !important;">
-            <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
-                <span class="fw-bold small text-dark" style="font-size: 0.8rem;"><i class="bi bi-filetype-gif text-danger me-1"></i>Ảnh Động (GIF)</span>
-                <button type="button" class="btn-close" style="font-size: 0.6rem;" onclick="toggleFloatingGif(false)"></button>
-            </div>
-            <div class="p-2 row g-2" style="max-height: 220px; overflow-y: auto;">
-                <div class="col-6">
-                    <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
-                        <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 70px; object-fit: cover;" loading="lazy">
-                        <div class="p-1 text-center bg-white"><span class="small fw-semibold text-primary" style="font-size: 0.7rem;">👋 Xin chào!</span></div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
-                        <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 70px; object-fit: cover;" loading="lazy">
-                        <div class="p-1 text-center bg-white"><span class="small fw-semibold text-success" style="font-size: 0.7rem;">🙏 Cảm ơn!</span></div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
-                        <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 70px; object-fit: cover;" loading="lazy">
-                        <div class="p-1 text-center bg-white"><span class="small fw-semibold text-warning" style="font-size: 0.7rem;">👍 Tuyệt vời!</span></div>
-                    </div>
-                </div>
-                <div class="col-6">
-                    <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif')">
-                        <img src="https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif" class="w-100" style="height: 70px; object-fit: cover;" loading="lazy">
-                        <div class="p-1 text-center bg-white"><span class="small fw-semibold text-danger" style="font-size: 0.7rem;">❤️ Thả tim!</span></div>
+                <!-- GIFs Pane -->
+                <div class="fnav-pane" id="fnpane-gifs" style="display: none;">
+                    <div class="row g-1.5">
+                        <div class="col-6">
+                            <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
+                                <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 65px; object-fit: cover;" loading="lazy">
+                                <div class="p-1 text-center bg-white"><span class="small fw-semibold text-primary" style="font-size: 0.68rem;">👋 Xin chào!</span></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
+                                <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 65px; object-fit: cover;" loading="lazy">
+                                <div class="p-1 text-center bg-white"><span class="small fw-semibold text-success" style="font-size: 0.68rem;">🙏 Cảm ơn!</span></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
+                                <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 65px; object-fit: cover;" loading="lazy">
+                                <div class="p-1 text-center bg-white"><span class="small fw-semibold text-warning" style="font-size: 0.68rem;">👍 Tuyệt vời!</span></div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif')">
+                                <img src="https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif" class="w-100" style="height: 65px; object-fit: cover;" loading="lazy">
+                                <div class="p-1 text-center bg-white"><span class="small fw-semibold text-danger" style="font-size: 0.68rem;">❤️ Thả tim!</span></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -655,28 +667,54 @@
         }
 
         function toggleFloatingEmoji(force) {
-            const p = document.getElementById('floating-emoji-popover');
-            if (!p) return;
-            toggleFloatingGif(false);
-            p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+            const d = document.getElementById('floating-messenger-drawer');
+            if (!d) return;
+            const willHide = (force !== undefined) ? !force : (d.style.display !== 'none');
+            d.style.display = willHide ? 'none' : 'block';
+            if (!willHide) switchFloatingNavTab('all-emoji');
         }
 
-        function toggleFloatingGif(force) {
-            const p = document.getElementById('floating-gif-popover');
-            if (!p) return;
-            toggleFloatingEmoji(false);
-            p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+        function toggleFloatingGif() {
+            const d = document.getElementById('floating-messenger-drawer');
+            if (!d) return;
+            d.style.display = 'block';
+            switchFloatingNavTab('gifs');
         }
 
-        function switchFloatingPickerTab(tab) {
-            document.querySelectorAll('#floating-emoji-popover .picker-tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('#floating-emoji-popover .picker-pane').forEach(p => p.style.display = 'none');
+        function switchFloatingNavTab(tab) {
+            document.querySelectorAll('.fnav-tab').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.fnav-pane').forEach(p => p.style.display = 'none');
             
-            const activeBtn = document.getElementById(`ftab-${tab}`);
+            const activeBtn = document.getElementById(`fntab-${tab}`);
             if (activeBtn) activeBtn.classList.add('active');
             
-            const activePane = document.getElementById(`fpane-${tab}`);
+            const activePane = document.getElementById(`fnpane-${tab}`);
             if (activePane) activePane.style.display = 'block';
+        }
+
+        function filterFloatingPicker(query) {
+            query = (query || '').toLowerCase().trim();
+            const emojiItems = document.querySelectorAll('#fnpane-all-emoji .f-emoji-item');
+            const groups = document.querySelectorAll('#fnpane-all-emoji .f-emoji-group');
+            
+            if (!query) {
+                emojiItems.forEach(el => el.style.display = 'inline-flex');
+                groups.forEach(g => g.style.display = 'block');
+                return;
+            }
+
+            switchFloatingNavTab('all-emoji');
+            emojiItems.forEach(el => {
+                const char = el.innerText.trim();
+                el.style.display = char.includes(query) ? 'inline-flex' : 'none';
+            });
+            groups.forEach(g => {
+                let has = false;
+                g.querySelectorAll('.f-emoji-item').forEach(e => {
+                    if (e.style.display !== 'none') has = true;
+                });
+                g.style.display = has ? 'block' : 'none';
+            });
         }
 
         function insertFloatingEmoji(emoji) {
@@ -685,11 +723,10 @@
             input.value += emoji;
             input.focus();
             toggleFloatingSendIcon(input);
-            toggleFloatingEmoji(false);
         }
 
         function sendFloatingGif(gifUrl) {
-            toggleFloatingGif(false);
+            toggleFloatingEmoji(false);
             sendFloatingCustomMessage(`[GIF: ${gifUrl}]`);
         }
 
