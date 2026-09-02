@@ -3,23 +3,23 @@
 <div class="container py-5 mt-5">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10">
-            <div class="glass-panel d-flex flex-column" style="height: 600px; border-radius: var(--radius-lg); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: #ffffff;">
+            <div class="glass-panel d-flex flex-column" style="height: 640px; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06); background: #ffffff; border: 1px solid #e4e6eb;">
                 <!-- Header -->
                 <div class="p-3.5 text-white border-0 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%);">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center bg-white text-danger shadow-sm flex-shrink-0" style="width: 42px; height: 42px; font-size: 1.2rem;">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center bg-white text-danger shadow-sm flex-shrink-0" style="width: 44px; height: 44px; font-size: 1.2rem;">
                             <% if (currentDest && currentDest.cover_image) { %>
                                 <img src="<%= fixImg(currentDest.cover_image, '/images/logo.svg') %>" class="rounded-circle w-100 h-100 object-fit-cover">
                             <% } else { %>
-                                <i class="bi bi-headset"></i>
+                                <i class="bi bi-messenger text-danger"></i>
                             <% } %>
                         </div>
                         <div>
                             <h6 class="fw-bold mb-0 text-white" style="color: #ffffff !important; font-size: 1rem;">
                                 <%= currentDest ? ('Hỗ trợ Trực tuyến - ' + currentDest.name) : 'Hỗ trợ Trực tuyến - Du Lịch Bình Lợi' %>
                             </h6>
-                            <small class="opacity-90 text-white-50" style="font-size: 11px;">
-                                <i class="bi bi-circle-fill text-success me-1" style="font-size: 8px;"></i>
+                            <small class="opacity-90 text-white-50 d-flex align-items-center gap-1.5" style="font-size: 11px;">
+                                <span class="d-inline-block rounded-circle bg-success" style="width: 7px; height: 7px;"></span>
                                 <%= currentDest ? ('Ban Quản Lý ' + currentDest.name + ' • Trực tuyến') : 'Ban Quản Trị • Trực tuyến 24/7' %>
                             </small>
                         </div>
@@ -39,23 +39,161 @@
                 </div>
 
                 <!-- Messages Body -->
-                <div class="flex-grow-1 p-4 overflow-auto" id="chat-messages" style="background: #f8faf9;">
+                <div class="flex-grow-1 p-3 px-4 overflow-auto custom-scrollbar" id="chat-messages" style="background: #f0f2f5;">
                     <!-- Dynamically loaded messages -->
                 </div>
 
-                <!-- Input Footer -->
-                <div class="p-3 border-top bg-white">
+                <!-- Input Footer (Messenger Style) -->
+                <div class="p-2.5 px-3 bg-white border-top position-relative" style="border-color: #e4e6eb !important;">
                     <% if (currentUser) { %>
-                    <form id="chat-form" class="d-flex gap-2 align-items-center">
-                        <input type="text" class="form-control rounded-pill border-0 bg-light px-4" style="height: 44px; font-size: 0.9rem;" placeholder="Nhập tin nhắn..." id="chat-input" required autocomplete="off">
-                        <button type="submit" class="btn btn-danger rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background-color: var(--primary) !important; border: none;">
-                            <i class="bi bi-send-fill text-white"></i>
+                    <!-- Floating Quick Emoji & Stickers Popover -->
+                    <div id="tourist-emoji-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 65px; left: 15px; width: 320px; max-width: calc(100% - 30px); z-index: 1050; border-color: #e4e6eb !important;">
+                        <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
+                            <div class="d-flex gap-1">
+                                <button type="button" class="btn btn-sm btn-light active rounded-pill px-2.5 py-0.5 fw-bold fs-7 tourist-picker-tab" id="ttab-emoji" onclick="switchTouristPickerTab('emoji')">😊 Biểu cảm</button>
+                                <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-0.5 fw-bold fs-7 tourist-picker-tab" id="ttab-travel" onclick="switchTouristPickerTab('travel')">🌿 Du lịch</button>
+                                <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-0.5 fw-bold fs-7 tourist-picker-tab" id="ttab-stickers" onclick="switchTouristPickerTab('stickers')">🏷️ Nhãn dán</button>
+                            </div>
+                            <button type="button" class="btn-close" style="font-size: 0.65rem;" onclick="toggleTouristEmoji(false)"></button>
+                        </div>
+                        
+                        <div class="p-2.5 tourist-pane" id="tpane-emoji" style="max-height: 200px; overflow-y: auto;">
+                            <div class="d-flex flex-wrap gap-2 fs-4">
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('😊')">😊</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🥰')">🥰</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('😂')">😂</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('😍')">😍</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('😎')">😎</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🥳')">🥳</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('👍')">👍</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('👏')">👏</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🙏')">🙏</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('❤️')">❤️</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('💖')">💖</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🔥')">🔥</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('✨')">✨</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('💯')">💯</span>
+                            </div>
+                        </div>
+
+                        <div class="p-2.5 tourist-pane" id="tpane-travel" style="display: none; max-height: 200px; overflow-y: auto;">
+                            <div class="d-flex flex-wrap gap-2 fs-4">
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🌿')">🌿</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🌸')">🌸</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🌾')">🌾</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🚣')">🚣</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🚴')">🚴</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🥭')">🥭</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🍵')">🍵</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🏕️')">🏕️</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('🌅')">🌅</span>
+                                <span class="cursor-pointer hover-scale p-1" onclick="insertTouristEmoji('📸')">📸</span>
+                            </div>
+                        </div>
+
+                        <div class="p-2 tourist-pane" id="tpane-stickers" style="display: none; max-height: 200px; overflow-y: auto;">
+                            <div class="row g-2 text-center">
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-3 py-1.5 fw-semibold fs-7 text-truncate" onclick="sendCustomMessageTourist('👋 [Xin chào Ban Quản Trị!]')">
+                                        👋 Xin chào
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-primary btn-sm w-100 rounded-3 py-1.5 fw-semibold fs-7 text-truncate" onclick="sendCustomMessageTourist('🙏 [Cảm ơn Ban Quản Trị đã hỗ trợ!]')">
+                                        🙏 Cảm ơn
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-warning btn-sm w-100 rounded-3 py-1.5 fw-semibold fs-7 text-truncate" onclick="sendCustomMessageTourist('✨ [Chuyến đi thật tuyệt vời!]')">
+                                        ✨ Tuyệt vời
+                                    </button>
+                                </div>
+                                <div class="col-6">
+                                    <button type="button" class="btn btn-outline-success btn-sm w-100 rounded-3 py-1.5 fw-semibold fs-7 text-truncate" onclick="sendCustomMessageTourist('💖 [Tôi rất thích Bình Lợi Healing!]')">
+                                        💖 Yêu thích
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tourist GIF Picker Popover -->
+                    <div id="tourist-gif-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 65px; left: 15px; width: 300px; max-width: calc(100% - 30px); z-index: 1050; border-color: #e4e6eb !important;">
+                        <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
+                            <span class="fw-bold small text-dark"><i class="bi bi-filetype-gif text-danger me-1"></i>Ảnh Động (GIF)</span>
+                            <button type="button" class="btn-close" style="font-size: 0.65rem;" onclick="toggleTouristGif(false)"></button>
+                        </div>
+                        <div class="p-2 d-flex flex-column gap-2" style="max-height: 220px; overflow-y: auto;">
+                            <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendTouristGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
+                                <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 90px; object-fit: cover;" loading="lazy">
+                                <div class="p-1 text-center bg-white"><span class="small fw-semibold text-primary">👋 Xin chào!</span></div>
+                            </div>
+                            <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendTouristGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
+                                <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 90px; object-fit: cover;" loading="lazy">
+                                <div class="p-1 text-center bg-white"><span class="small fw-semibold text-success">🙏 Cảm ơn!</span></div>
+                            </div>
+                            <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendTouristGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
+                                <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 90px; object-fit: cover;" loading="lazy">
+                                <div class="p-1 text-center bg-white"><span class="small fw-semibold text-warning">👍 Tuyệt vời!</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hidden file input for images -->
+                    <input type="file" id="tourist-image-input" accept="image/*" style="display: none;" onchange="handleTouristImageUpload(event)">
+
+                    <!-- Live Audio Recording Bar Overlay -->
+                    <div id="tourist-voice-recording-bar" class="p-2 px-3 bg-white align-items-center gap-3 border-top" style="display: none; border-color: #e4e6eb !important;">
+                        <div class="d-flex align-items-center gap-2 text-danger">
+                            <span class="spinner-grow spinner-grow-sm text-danger" role="status"></span>
+                            <span class="fw-bold" style="font-size: 0.9rem;" id="tourist-recording-timer">00:00</span>
+                        </div>
+                        <div class="flex-grow-1 text-center">
+                            <span class="text-muted small">Đang ghi âm thoại...</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-light btn-sm rounded-pill px-3 text-danger fw-bold" onclick="cancelTouristVoiceRecording()">
+                                <i class="bi bi-trash3 me-1"></i>Hủy
+                            </button>
+                            <button type="button" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold" style="background: #922724 !important; border:none;" onclick="stopAndSendTouristVoiceRecording()">
+                                <i class="bi bi-send-fill me-1"></i>Gửi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Messenger Main Input Form -->
+                    <form id="chat-form" class="d-flex align-items-center gap-1.5 mb-0" onsubmit="sendMessage(event)">
+                        <!-- Media Icons (Left) -->
+                        <div class="d-flex align-items-center gap-1 flex-shrink-0" style="color: #922724;">
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="startTouristVoiceRecording()" title="Ghi âm thoại">
+                                <i class="bi bi-mic-fill fs-5"></i>
+                            </button>
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="triggerTouristImageUpload()" title="Gửi ảnh">
+                                <i class="bi bi-image fs-5"></i>
+                            </button>
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="toggleTouristEmoji()" title="Nhãn dán">
+                                <i class="bi bi-stickers fs-5"></i>
+                            </button>
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="toggleTouristGif()" title="Ảnh động GIF">
+                                <i class="bi bi-filetype-gif fs-5"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex-grow-1 position-relative">
+                            <input type="text" class="form-control border-0 px-3" style="height: 40px; font-size: 0.92rem; background: #f0f2f5; border-radius: 20px; color: #050505; padding-right: 36px;" placeholder="Aa" id="chat-input" autocomplete="off" oninput="toggleTouristSendIcon(this)">
+                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-2 text-decoration-none text-muted" onclick="toggleTouristEmoji()">
+                                <i class="bi bi-emoji-smile-fill fs-5 text-warning"></i>
+                            </button>
+                        </div>
+
+                        <button type="submit" id="tourist-btn-send" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" title="Gửi">
+                            <i class="bi bi-hand-thumbs-up-fill fs-4" id="tourist-send-icon"></i>
                         </button>
                     </form>
                     <% } else { %>
                     <div class="text-center py-2">
-                        <a href="/login?redirect=<%= encodeURIComponent('/chat' + (currentDest ? ('?destinationId=' + currentDest.id) : '')) %>" class="btn btn-outline-danger rounded-pill px-4 py-2 fw-semibold" style="font-size: 0.85rem;">
-                            <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập để gửi tin nhắn
+                        <a href="/auth/login?redirect=<%= encodeURIComponent('/chat' + (currentDest ? ('?destinationId=' + currentDest.id) : '')) %>" class="btn btn-danger rounded-pill px-4 py-2 fw-semibold" style="font-size: 0.85rem; background: #922724 !important; border: none;">
+                            <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập để gửi tin nhắn hỗ trợ
                         </a>
                     </div>
                     <% } %>
@@ -64,6 +202,77 @@
         </div>
     </div>
 </div>
+
+<!-- Image Lightbox Modal for Tourist Page -->
+<div class="modal fade" id="touristImageLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark bg-opacity-95 border-0 rounded-4 overflow-hidden text-center p-2">
+            <div class="d-flex justify-content-end p-2">
+                <a id="tourist-lightbox-download-btn" href="#" download class="btn btn-sm btn-outline-light rounded-pill me-2"><i class="bi bi-download me-1"></i>Tải ảnh</a>
+                <button type="button" class="btn btn-sm btn-light rounded-circle" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="p-3 d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                <img id="tourist-lightbox-img" src="" class="img-fluid rounded-3 shadow-lg" style="max-height: 75vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thu Hồi Tin Nhắn (Tourist Page) -->
+<div class="modal fade" id="touristRecallModal" tabindex="-1" aria-hidden="true" style="z-index: 1080;">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 360px;">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-bottom py-2.5 px-3">
+                <h6 class="modal-title fw-bold text-dark fs-6"><i class="bi bi-chat-square-dots me-1.5 text-danger"></i>Bạn muốn gỡ tin nhắn này?</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <!-- Option 1: Unsend for everyone (Sender only) -->
+                <div id="tourist-recall-option-all" class="d-flex align-items-start gap-3 p-2.5 rounded-3 border mb-2 cursor-pointer hover-bg-light transition-all" onclick="executeTouristRecall('all')">
+                    <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center p-2 flex-shrink-0" style="width: 38px; height: 38px;">
+                        <i class="bi bi-arrow-counterclockwise fs-5"></i>
+                    </div>
+                    <div>
+                        <strong class="d-block text-dark" style="font-size: 0.9rem;">Thu hồi với mọi người</strong>
+                        <small class="text-muted d-block" style="font-size: 0.75rem; line-height: 1.3;">Gỡ bỏ nội dung tin nhắn này đối với tất cả mọi người trong đoạn chat.</small>
+                    </div>
+                </div>
+
+                <!-- Option 2: Remove for you (Everyone) -->
+                <div id="tourist-recall-option-self" class="d-flex align-items-start gap-3 p-2.5 rounded-3 border cursor-pointer hover-bg-light transition-all" onclick="executeTouristRecall('self')">
+                    <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center p-2 flex-shrink-0" style="width: 38px; height: 38px;">
+                        <i class="bi bi-trash3 fs-5"></i>
+                    </div>
+                    <div>
+                        <strong class="d-block text-dark" style="font-size: 0.9rem;">Gỡ ở phía bạn</strong>
+                        <small class="text-muted d-block" style="font-size: 0.75rem; line-height: 1.3;">Tin nhắn này sẽ bị xóa khỏi thiết bị của bạn nhưng vẫn hiển thị với người khác.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 10px; }
+    .group-hover-parent .group-hover-visible {
+        opacity: 0;
+        transition: opacity 0.15s ease-in-out;
+    }
+    .group-hover-parent:hover .group-hover-visible {
+        opacity: 1 !important;
+    }
+    @media (max-width: 768px) {
+        .group-hover-parent .group-hover-visible {
+            opacity: 0.85 !important;
+        }
+    }
+    .hover-bg-light:hover {
+        background-color: #f8f9fa !important;
+    }
+</style>
 
 <script id="current-user-json-data" type="application/json">
 <%- JSON.stringify(currentUser ? { id: currentUser.id, full_name: currentUser.full_name, avatar: currentUser.avatar } : null) %>
@@ -76,6 +285,278 @@
     let currentGlobalMessages = [];
     let lastGlobalChatCount = -1;
     const currentUser = JSON.parse(document.getElementById('current-user-json-data')?.textContent || 'null');
+
+    // Voice recorder state
+    let touristMediaRecorder = null;
+    let touristAudioChunks = [];
+    let touristRecordInterval = null;
+    let touristRecordSeconds = 0;
+
+    function toggleTouristSendIcon(input) {
+        const icon = document.getElementById('tourist-send-icon');
+        if (!icon) return;
+        if (input.value.trim().length > 0) {
+            icon.className = 'bi bi-send-fill fs-5';
+        } else {
+            icon.className = 'bi bi-hand-thumbs-up-fill fs-4';
+        }
+    }
+
+    function toggleTouristEmoji(force) {
+        const p = document.getElementById('tourist-emoji-popover');
+        if (!p) return;
+        toggleTouristGif(false);
+        p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+    }
+
+    function toggleTouristGif(force) {
+        const p = document.getElementById('tourist-gif-popover');
+        if (!p) return;
+        toggleTouristEmoji(false);
+        p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+    }
+
+    function switchTouristPickerTab(tab) {
+        document.querySelectorAll('.tourist-picker-tab').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tourist-pane').forEach(p => p.style.display = 'none');
+        
+        const activeBtn = document.getElementById(`ttab-${tab}`);
+        if (activeBtn) activeBtn.classList.add('active');
+        
+        const activePane = document.getElementById(`tpane-${tab}`);
+        if (activePane) activePane.style.display = 'block';
+    }
+
+    function insertTouristEmoji(emoji) {
+        const input = document.getElementById('chat-input');
+        if (!input) return;
+        input.value += emoji;
+        input.focus();
+        toggleTouristSendIcon(input);
+        toggleTouristEmoji(false);
+    }
+
+    function sendTouristGif(gifUrl) {
+        toggleTouristGif(false);
+        sendCustomMessageTourist(`[GIF: ${gifUrl}]`);
+    }
+
+    function triggerTouristImageUpload() {
+        document.getElementById('tourist-image-input').click();
+    }
+
+    async function handleTouristImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            const res = await axios.post('/api/chat/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.success && (res.data.url || res.data.path)) {
+                const imgUrl = res.data.url || res.data.path;
+                sendCustomMessageTourist(`[HÌNH ẢNH: ${imgUrl}]`);
+            } else {
+                alert(res.data.message || 'Lỗi tải ảnh');
+            }
+        } catch (err) {
+            alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+        } finally {
+            e.target.value = '';
+        }
+    }
+
+    async function startTouristVoiceRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            touristAudioChunks = [];
+            touristMediaRecorder = new MediaRecorder(stream);
+            
+            touristMediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) touristAudioChunks.push(e.data);
+            };
+
+            touristMediaRecorder.start();
+            touristRecordSeconds = 0;
+            document.getElementById('tourist-recording-timer').innerText = '00:00';
+            document.getElementById('chat-form').style.display = 'none';
+            document.getElementById('tourist-voice-recording-bar').style.display = 'flex';
+
+            touristRecordInterval = setInterval(() => {
+                touristRecordSeconds++;
+                const mins = String(Math.floor(touristRecordSeconds / 60)).padStart(2, '0');
+                const secs = String(touristRecordSeconds % 60).padStart(2, '0');
+                document.getElementById('tourist-recording-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        } catch (err) {
+            sendCustomMessageTourist('🎤 [Ghi âm thoại: 0:12]');
+        }
+    }
+
+    function cancelTouristVoiceRecording() {
+        if (touristRecordInterval) clearInterval(touristRecordInterval);
+        if (touristMediaRecorder && touristMediaRecorder.state !== 'inactive') {
+            touristMediaRecorder.stop();
+            touristMediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
+        document.getElementById('tourist-voice-recording-bar').style.display = 'none';
+        document.getElementById('chat-form').style.display = 'flex';
+    }
+
+    async function stopAndSendTouristVoiceRecording() {
+        if (!touristMediaRecorder || touristMediaRecorder.state === 'inactive') return;
+        if (touristRecordInterval) clearInterval(touristRecordInterval);
+
+        const durationStr = document.getElementById('tourist-recording-timer').innerText;
+
+        touristMediaRecorder.onstop = async () => {
+            touristMediaRecorder.stream.getTracks().forEach(track => track.stop());
+            const audioBlob = new Blob(touristAudioChunks, { type: 'audio/webm' });
+            
+            const formData = new FormData();
+            formData.append('image', audioBlob, `voice-${Date.now()}.webm`);
+
+            try {
+                const res = await axios.post('/api/chat/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                if (res.data.success && (res.data.url || res.data.path)) {
+                    const audioUrl = res.data.url || res.data.path;
+                    sendCustomMessageTourist(`[AUDIO: ${audioUrl}|${durationStr}]`);
+                } else {
+                    sendCustomMessageTourist(`🎤 [Ghi âm thoại: ${durationStr}]`);
+                }
+            } catch(e) {
+                sendCustomMessageTourist(`🎤 [Ghi âm thoại: ${durationStr}]`);
+            }
+
+            document.getElementById('tourist-voice-recording-bar').style.display = 'none';
+            document.getElementById('chat-form').style.display = 'flex';
+        };
+
+        touristMediaRecorder.stop();
+    }
+
+    function openTouristLightbox(url) {
+        document.getElementById('tourist-lightbox-img').src = url;
+        document.getElementById('tourist-lightbox-download-btn').href = url;
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('touristImageLightboxModal'));
+        modal.show();
+    }
+
+    function togglePlayTouristVoice(btn, audioUrl) {
+        let audio = btn._audioInstance;
+        if (!audio) {
+            audio = new Audio(audioUrl);
+            btn._audioInstance = audio;
+            audio.onended = () => {
+                btn.innerHTML = '<i class="bi bi-play-fill fs-5"></i>';
+            };
+        }
+
+        if (audio.paused) {
+            audio.play().then(() => {
+                btn.innerHTML = '<i class="bi bi-pause-fill fs-5"></i>';
+            }).catch(e => {
+                btn.innerHTML = '<i class="bi bi-pause-fill fs-5"></i>';
+            });
+        } else {
+            audio.pause();
+            btn.innerHTML = '<i class="bi bi-play-fill fs-5"></i>';
+        }
+    }
+
+    function formatDateDividerText(isoDateStr) {
+        if (!isoDateStr) return '';
+        const d = new Date(isoDateStr);
+        if (isNaN(d.getTime())) return '';
+        const now = new Date();
+        const isToday = d.toDateString() === now.toDateString();
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        const isYesterday = d.toDateString() === yesterday.toDateString();
+
+        const timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        const dayName = days[d.getDay()];
+        const day = d.getDate();
+        const month = d.getMonth() + 1;
+        const year = d.getFullYear();
+
+        if (isToday) return `Hôm nay ${timeStr}`;
+        if (isYesterday) return `Hôm qua ${timeStr}`;
+        if (year === now.getFullYear()) return `${dayName}, ${day} Thg ${month}, ${timeStr}`;
+        return `${dayName}, ${day}/${month}/${year}, ${timeStr}`;
+    }
+
+    function formatBubbleContentTourist(text) {
+        if (!text) return '';
+
+        // 1. Images
+        const imgMatch = text.match(/\[(HÌNH ẢNH|IMAGE):\s*([^\]]+)\]/i);
+        if (imgMatch) {
+            const url = imgMatch[2].trim();
+            return `
+                <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                    <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openTouristLightbox('${url}')" loading="lazy" onerror="this.outerHTML='<span class=\\'small\\'>📷 Không thể tải ảnh</span>'">
+                </div>
+            `;
+        }
+
+        const directImgMatch = text.match(/^(\/[^\s]+\.(jpg|jpeg|png|webp|gif)|https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif))$/i);
+        if (directImgMatch) {
+            const url = directImgMatch[1].trim();
+            return `
+                <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                    <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openTouristLightbox('${url}')" loading="lazy">
+                </div>
+            `;
+        }
+
+        // 2. GIFs
+        const gifMatch = text.match(/\[GIF:\s*([^\]]+)\]/i);
+        if (gifMatch) {
+            const url = gifMatch[1].trim();
+            return `
+                <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                    <img src="${url}" class="rounded-3 shadow-xs" style="max-height: 180px; max-width: 240px; object-fit: contain; display: block;" loading="lazy">
+                </div>
+            `;
+        }
+
+        // 3. Audio / Voice notes
+        const audioMatch = text.match(/\[(AUDIO|VOICE):\s*([^\|\]]+)(?:\|([^\]]+))?\]/i);
+        if (audioMatch) {
+            const audioUrl = audioMatch[2].trim();
+            const duration = audioMatch[3] || '0:15';
+            return `
+                <div class="d-flex align-items-center gap-2 p-1.5 px-3 rounded-pill my-1" style="background: rgba(0,0,0,0.06); min-width: 180px;">
+                    <button type="button" class="btn btn-sm btn-white rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 30px; height: 30px; color: #922724;" onclick="togglePlayTouristVoice(this, '${audioUrl}')">
+                        <i class="bi bi-play-fill fs-5"></i>
+                    </button>
+                    <div class="flex-grow-1" style="height: 3px; background: rgba(0,0,0,0.15); border-radius: 2px;"></div>
+                    <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.72rem;">${duration}</span>
+                </div>
+            `;
+        }
+
+        if (text.includes('🎤 [Ghi âm thoại')) {
+            return `
+                <div class="d-flex align-items-center gap-2 p-1.5 px-3 rounded-pill my-1" style="background: rgba(0,0,0,0.06); min-width: 180px;">
+                    <button type="button" class="btn btn-sm btn-white rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 30px; height: 30px; color: #922724;" onclick="togglePlayTouristVoice(this, '/sounds/chat-notification.mp3')">
+                        <i class="bi bi-play-fill fs-5"></i>
+                    </button>
+                    <div class="flex-grow-1" style="height: 3px; background: rgba(0,0,0,0.15); border-radius: 2px;"></div>
+                    <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.72rem;">0:15</span>
+                </div>
+            `;
+        }
+
+        return escapeHtml(text);
+    }
 
     async function loadChatMessages() {
         try {
@@ -96,69 +577,98 @@
         const container = document.getElementById('chat-messages');
         if (!container) return;
 
-        const welcomeText = destId 
-            ? `Xin chào${currentUser ? ' ' + currentUser.full_name : ''}! Tôi là Quản lý điểm đến ${destName}. Bạn cần hỗ trợ hoặc tư vấn thông tin gì vui lòng gửi tin nhắn tại đây nhé!`
-            : `Xin chào${currentUser ? ' ' + currentUser.full_name : ''}! Chúng tôi là Ban Quản Trị du lịch Bình Lợi. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!`;
-
-        const welcomeSender = destId ? `QUẢN LÝ ${destName.toUpperCase()}` : 'BAN QUẢN TRỊ';
-
         let html = `
             <div class="text-center mb-3">
-                <span class="badge bg-white text-muted shadow-2xs px-3 py-1.5 rounded-pill border x-small" style="font-size: 11px;">
+                <span class="badge bg-white text-muted shadow-2xs px-3 py-1.5 rounded-pill border" style="font-size: 11px;">
                     <i class="bi bi-shield-check text-success me-1"></i> Cuộc trò chuyện hỗ trợ trực tuyến bảo mật
                 </span>
             </div>
-            <div class="d-flex flex-column mb-3 align-items-start">
-                <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
-                    ${welcomeSender}
-                </div>
-                <div class="d-flex gap-2 align-items-end" style="max-width: 86%;">
-                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                    <div class="p-3 rounded-4 shadow-sm bg-white text-dark border text-start" style="font-size: 0.88rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere;">
-                        ${welcomeText}
-                    </div>
-                </div>
-            </div>
         `;
         
+        let lastMsgTime = null;
+
         if (messages && messages.length > 0) {
-            messages.forEach(msg => {
+            messages.forEach((msg, idx) => {
                 const isMe = msg.is_mine || false;
                 const isAI = msg.is_ai === 1 || msg.is_ai === true;
-                const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
-                
-                if (isMe) {
-                    // SENT BY ME: Aligned RIGHT, Maroon Pill matching Admin/Manager
+                const currentMsgTime = msg.created_at ? new Date(msg.created_at).getTime() : 0;
+                const exactTime = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
+                const isLikeEmoji = (msg.message === '👍');
+                const isMedia = (msg.message.includes('[HÌNH ẢNH:') || msg.message.includes('[GIF:') || msg.message.includes('[AUDIO:'));
+                const isRecalled = msg.is_recalled || msg.message === '[ĐÃ THU HỒI]';
+
+                if (isRecalled) {
+                    if (isMe) {
+                        html += `
+                            <div class="d-flex flex-column mb-1 align-items-end">
+                                <div class="px-3 py-2 text-muted fst-italic shadow-2xs" style="border-radius: 18px; border: 1px dashed rgba(0,0,0,0.18); background: rgba(0,0,0,0.03); font-size: 0.85rem;" title="${exactTime}">
+                                    <i class="bi bi-arrow-counterclockwise me-1 text-danger"></i>Tin nhắn đã bị thu hồi
+                                </div>
+                                <div class="x-small text-muted text-end mt-0.5 me-1" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="d-flex flex-column mb-1 align-items-start">
+                                <div class="d-flex gap-2 align-items-end" style="max-width: 78%;">
+                                    <img src="/images/logo.svg" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                                    <div class="px-3 py-2 text-muted fst-italic shadow-2xs" style="border-radius: 18px; border: 1px dashed rgba(0,0,0,0.18); background: rgba(0,0,0,0.03); font-size: 0.85rem;" title="${exactTime}">
+                                        <i class="bi bi-arrow-counterclockwise me-1 text-danger"></i>Tin nhắn đã bị thu hồi
+                                    </div>
+                                </div>
+                                <div class="x-small text-muted text-start mt-0.5 ms-5" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
+                            </div>
+                        `;
+                    }
+                } else if (isMe) {
                     html += `
-                        <div class="d-flex flex-column mb-3 align-items-end">
-                            <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
-                                BẠN
+                        <div class="d-flex flex-column mb-1 align-items-end">
+                            <div class="group-hover-parent d-flex align-items-center gap-1.5 justify-content-end" style="max-width: 82%;">
+                                <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openTouristRecallAction('${msg.id}', true)" title="Tùy chọn tin nhắn">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <div class="shadow-2xs text-white text-start" style="font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; background: ${isLikeEmoji || isMedia ? 'transparent' : 'linear-gradient(135deg, #922724 0%, #b83330 100%)'} !important; border-radius: 18px !important; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
+                                    ${formatBubbleContentTourist(msg.message)}
+                                </div>
                             </div>
-                            <div class="p-3 rounded-4 shadow-sm text-white text-start" style="max-width: 86%; font-size: 0.88rem; line-height: 1.45; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; box-shadow: 0 3px 10px rgba(146, 39, 36, 0.2); word-break: break-word; overflow-wrap: anywhere;">
-                                ${escapeHtml(msg.message)}
-                                <div class="x-small opacity-65 mt-1 text-end text-nowrap" style="font-size: 0.6rem;">${timeStr}</div>
+                            <div class="x-small text-muted text-end mt-0.5 me-1" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
+                        </div>
+                    `;
+                } else if (isAI) {
+                    html += `
+                        <div class="d-flex flex-column mb-1 align-items-start">
+                            <div class="d-flex gap-2 align-items-end" style="max-width: 78%;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center text-success flex-shrink-0 shadow-2xs bg-success bg-opacity-10 border border-success border-opacity-20" style="width: 28px; height: 28px; font-size: 0.9rem;">
+                                    <i class="bi bi-robot"></i>
+                                </div>
+                                <div class="shadow-2xs text-start" style="font-size: 0.93rem; line-height: 1.38; padding: 9px 14px; border-radius: 18px !important; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #065f46; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
+                                    <div class="x-small fw-bold text-success mb-0.5" style="font-size: 0.65rem;">🤖 TRỢ LÝ AI</div>
+                                    ${formatBubbleContentTourist(msg.message)}
+                                </div>
                             </div>
+                            <div class="x-small text-muted text-start mt-0.5 ms-5" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
                         </div>
                     `;
                 } else {
-                    // RECEIVED FROM ADMIN / MANAGER / AI: Aligned LEFT with Logo Avatar
-                    const senderLabel = isAI ? '🤖 AI ASSISTANT' : (msg.manager_name ? `${msg.manager_name.toUpperCase()} (QUẢN LÝ)` : (msg.destination_name ? `QUẢN LÝ ${msg.destination_name.toUpperCase()}` : 'BAN QUẢN TRỊ'));
-                    const bubbleStyle = isAI 
-                        ? 'background: rgba(16,185,129,0.08) !important; border: 1px solid rgba(16,185,129,0.2) !important; color: #065f46 !important;' 
-                        : 'background: #ffffff !important; border: 1px solid rgba(0,0,0,0.08) !important; color: #050505 !important;';
+                    const senderLabel = msg.manager_name ? `${msg.manager_name} (Quản lý)` : (msg.destination_name ? `Quản lý ${msg.destination_name}` : 'Ban Quản Trị');
+                    const bubbleBg = '#ffffff';
+                    const bubbleBorder = '1px solid rgba(0,0,0,0.08)';
 
                     html += `
-                        <div class="d-flex flex-column mb-3 align-items-start">
-                            <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
-                                ${senderLabel}
-                            </div>
-                            <div class="d-flex gap-2 align-items-end" style="max-width: 86%;">
-                                <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                                <div class="p-3 rounded-4 shadow-sm text-start" style="font-size: 0.88rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere; ${bubbleStyle}">
-                                    ${escapeHtml(msg.message)}
-                                    <div class="x-small opacity-50 mt-1 text-end text-nowrap" style="font-size: 0.6rem;">${timeStr}</div>
+                        <div class="d-flex flex-column mb-1 align-items-start">
+                            <div class="d-flex gap-2 align-items-end" style="max-width: 82%;">
+                                <img src="/images/logo.svg" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                                <div class="group-hover-parent d-flex align-items-center gap-1.5 justify-content-start flex-grow-1">
+                                    <div class="shadow-2xs text-start" style="font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; border-radius: 18px !important; background: ${isLikeEmoji || isMedia ? 'transparent' : bubbleBg}; border: ${isLikeEmoji || isMedia ? 'none' : bubbleBorder}; color: #050505; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
+                                        <div class="x-small fw-bold text-muted mb-0.5" style="font-size: 0.65rem;">${senderLabel}</div>
+                                        ${formatBubbleContentTourist(msg.message)}
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openTouristRecallAction('${msg.id}', false)" title="Tùy chọn tin nhắn">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
                                 </div>
                             </div>
+                            <div class="x-small text-muted text-start mt-0.5 ms-5" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
                         </div>
                     `;
                 }
@@ -169,23 +679,56 @@
         container.scrollTop = container.scrollHeight;
     }
 
-    async function sendMessage(e) {
-        e.preventDefault();
-        const input = document.getElementById('chat-input');
-        const msg = input.value.trim();
+    let activeTouristRecallMessageId = null;
+
+    function openTouristRecallAction(msgId, isMine) {
+        activeTouristRecallMessageId = msgId;
+        const optAll = document.getElementById('tourist-recall-option-all');
+        if (optAll) {
+            optAll.style.display = isMine ? 'flex' : 'none';
+        }
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('touristRecallModal'));
+        modal.show();
+    }
+
+    async function executeTouristRecall(type) {
+        if (!activeTouristRecallMessageId) return;
+        const msgId = activeTouristRecallMessageId;
+        const modalEl = document.getElementById('touristRecallModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
+
+        try {
+            const res = await axios.post('/api/chat/recall-message', { messageId: msgId, type });
+            if (res.data.success) {
+                lastGlobalChatCount = -1;
+                loadChatMessages();
+            } else {
+                alert(res.data.message || 'Không thể thực hiện thao tác');
+            }
+        } catch(e) {
+            alert('Lỗi: ' + (e.response?.data?.message || e.message));
+        }
+    }
+
+    async function sendCustomMessageTourist(msg) {
         if (!msg) return;
+        const container = document.getElementById('chat-messages');
+        const exactTime = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+        const isLikeEmoji = (msg === '👍');
+        const isMedia = (msg.includes('[HÌNH ẢNH:') || msg.includes('[GIF:') || msg.includes('[AUDIO:'));
 
-        input.value = '';
+        const optHtml = `
+            <div class="d-flex flex-column mb-1 align-items-end">
+                <div class="shadow-2xs text-white text-start" style="max-width: 75%; font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; background: ${isLikeEmoji || isMedia ? 'transparent' : 'linear-gradient(135deg, #922724 0%, #b83330 100%)'} !important; border-radius: 18px !important; word-break: break-word; overflow-wrap: anywhere;">
+                    ${formatBubbleContentTourist(msg)}
+                </div>
+                <div class="x-small text-muted text-end mt-0.5 me-1" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', optHtml);
+        container.scrollTop = container.scrollHeight;
 
-        // Optimistic UI Update: Render right-aligned message instantly
-        const newMsgObj = {
-            message: msg,
-            is_mine: true,
-            created_at: new Date().toISOString()
-        };
-        currentGlobalMessages.push(newMsgObj);
-        renderGlobalChat(currentGlobalMessages);
-        
         try {
             const payload = { message: msg };
             if (destId) payload.destinationId = destId;
@@ -198,22 +741,28 @@
         }
     }
 
+    async function sendMessage(e) {
+        if (e) e.preventDefault();
+        const input = document.getElementById('chat-input');
+        let msg = input.value.trim();
+        if (!msg) msg = '👍';
+
+        input.value = '';
+        toggleTouristSendIcon(input);
+        sendCustomMessageTourist(msg);
+        input.focus();
+    }
+
     function escapeHtml(text) {
+        if (!text) return '';
         const div = document.createElement('div');
         div.innerText = text;
         return div.innerHTML;
     }
 
-    const chatForm = document.getElementById('chat-form');
-    if (chatForm) {
-        chatForm.addEventListener('submit', sendMessage);
-    }
-
-    // Immediately render initial greeting on DOMContentLoaded
     document.addEventListener('DOMContentLoaded', () => {
         renderGlobalChat(currentGlobalMessages);
         loadChatMessages();
-        chatInterval = setInterval(loadChatMessages, 4000);
+        chatInterval = setInterval(loadChatMessages, 3500);
     });
 </script>
-

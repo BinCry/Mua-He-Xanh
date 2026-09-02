@@ -28,7 +28,11 @@ const AdminController = {
                 [dailyCheckinRows],
                 [monthlyUsers],
                 [topDests],
-                [recentUsers]
+                [recentUsers],
+                [dailyVisitsRows],
+                [monthlyVisitsRows],
+                [destCheckinsRows],
+                [destVisitsRows]
             ] = await Promise.all([
                 db.query('SELECT COUNT(*) as total FROM users'),
                 db.query('SELECT COUNT(*) as total FROM destinations WHERE is_active = 1'),
@@ -75,6 +79,34 @@ const AdminController = {
                 db.query(`
                     SELECT id, full_name, email, phone, avatar, role, total_points, created_at
                     FROM users ORDER BY created_at DESC LIMIT 4
+                `),
+                db.query(`
+                    SELECT DATE(created_at) as day, COUNT(DISTINCT session_id) as count
+                    FROM analytics 
+                    WHERE created_at >= NOW() - INTERVAL '14 day'
+                    GROUP BY DATE(created_at) ORDER BY day ASC
+                `),
+                db.query(`
+                    SELECT TO_CHAR(created_at, 'YYYY-MM') as month, COUNT(DISTINCT session_id) as count
+                    FROM analytics 
+                    WHERE created_at >= NOW() - INTERVAL '6 month'
+                    GROUP BY TO_CHAR(created_at, 'YYYY-MM') ORDER BY month ASC
+                `),
+                db.query(`
+                    SELECT d.name, d.slug, COUNT(ci.id) as checkin_count
+                    FROM destinations d 
+                    LEFT JOIN check_ins ci ON d.id = ci.destination_id
+                    WHERE d.is_active = 1 
+                    GROUP BY d.id, d.name, d.slug
+                    ORDER BY checkin_count DESC
+                `),
+                db.query(`
+                    SELECT d.name, d.slug, COUNT(a.id) as visit_count
+                    FROM destinations d
+                    LEFT JOIN analytics a ON a.page_url LIKE CONCAT('/explore/', d.slug, '%')
+                    WHERE d.is_active = 1
+                    GROUP BY d.id, d.name, d.slug
+                    ORDER BY visit_count DESC
                 `)
             ]);
 
@@ -123,6 +155,44 @@ const AdminController = {
                 dailyCheckins.push({ day: dayStr, count: checkinsMap[dayStr] || 0 });
             }
 
+            // Daily Website Visits (last 14 days)
+            const visitsMap = {};
+            (dailyVisitsRows || []).forEach(r => {
+                try {
+                    const dateStr = new Date(r.day).toISOString().split('T')[0];
+                    visitsMap[dateStr] = parseInt(r.count, 10);
+                } catch (e) {}
+            });
+            const dailyVisits = [];
+            for (let i = 13; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const dayStr = d.toISOString().split('T')[0];
+                dailyVisits.push({ day: dayStr, count: visitsMap[dayStr] || 0 });
+            }
+
+            // Monthly Website Visits (last 6 months)
+            const monthlyVisitsMap = {};
+            (monthlyVisitsRows || []).forEach(r => { monthlyVisitsMap[r.month] = parseInt(r.count, 10); });
+            const monthlyVisits = [];
+            for (let i = 5; i >= 0; i--) {
+                const d = new Date();
+                d.setMonth(d.getMonth() - i);
+                const monthStr = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+                monthlyVisits.push({ month: monthStr, count: monthlyVisitsMap[monthStr] || 0 });
+            }
+
+            // Destination Check-in & Visits Breakdown
+            const destCheckins = (destCheckinsRows || []).map(r => ({
+                name: r.name,
+                count: parseInt(r.checkin_count || 0, 10)
+            }));
+
+            const destVisits = (destVisitsRows || []).map(r => ({
+                name: r.name,
+                count: parseInt(r.visit_count || 0, 10)
+            }));
+
             res.render('admin/dashboard', {
                 title: 'Bảng Điều Khiển Admin',
                 layout: 'layouts/admin',
@@ -140,7 +210,17 @@ const AdminController = {
                         ? `${Math.floor(avgDurationSec / 60)}p ${avgDurationSec % 60}s` 
                         : `${avgDurationSec || 45}s`
                 },
-                chartData: { monthlyCheckins, dailyCheckins, monthlyUsers, ratingsDistribution, monthlyWSBookings },
+                chartData: { 
+                    monthlyCheckins, 
+                    dailyCheckins, 
+                    destCheckins,
+                    dailyVisits,
+                    monthlyVisits,
+                    destVisits,
+                    monthlyUsers, 
+                    ratingsDistribution, 
+                    monthlyWSBookings 
+                },
                 topDests,
                 recentUsers
             });
@@ -243,7 +323,7 @@ const AdminController = {
                 title: 'Quản lý Shop & Sản Phẩm',
                 workshops,
                 destinations,
-                activeMenu: 'shops'
+                adminPage: 'shops'
             });
         } catch (error) {
             console.error('Admin workshops error:', error);
@@ -828,36 +908,43 @@ const AdminController = {
             try {
                 const [rows] = await db.query(
                     `SELECT 
-                         sub.session_key AS session_id,
-                         sub.session_key AS session_uuid,
-                         sub.last_message,
-                         sub.last_message_time,
-                         COALESCE(u.full_name, 'Du khách #' || SUBSTRING(sub.session_key, 1, 6)) AS user_name,
-                         u.avatar AS user_avatar,
-                         u.phone AS user_phone,
-                         u.email AS user_email,
-                         COALESCE(s.total_points, 0) AS visitor_points
+                         conv.session_key AS session_id,
+                         conv.session_key AS session_uuid,
+                         m_latest.message AS last_message,
+                         conv.last_message_time,
+                         COALESCE(u.full_name, u_sender.full_name, 'Du khách #' || SUBSTRING(conv.session_key, 1, 6)) AS user_name,
+                         COALESCE(u.avatar, u_sender.avatar) AS user_avatar,
+                         COALESCE(u.phone, u_sender.phone) AS user_phone,
+                         COALESCE(u.email, u_sender.email) AS user_email,
+                         COALESCE(s.total_points, u.total_points, u_sender.total_points, 0) AS visitor_points
                      FROM (
                          SELECT 
                              CASE 
                                  WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid 
                                  ELSE receiver_uuid 
                              END AS session_key,
-                             MAX(created_at) AS last_message_time,
-                             (
-                                 SELECT COALESCE(message, content, '')
-                                 FROM messages m2 
-                                 WHERE m2.sender_uuid = CASE WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid ELSE receiver_uuid END
-                                    OR m2.receiver_uuid = CASE WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid ELSE receiver_uuid END
-                                 ORDER BY created_at DESC LIMIT 1
-                             ) AS last_message
+                             MAX(created_at) AS last_message_time
                          FROM messages
                          WHERE (sender_uuid IS NOT NULL AND sender_uuid != '') OR (receiver_uuid IS NOT NULL AND receiver_uuid != '')
                          GROUP BY session_key
-                     ) sub
-                     LEFT JOIN user_sessions s ON (s.id::text = sub.session_key OR s.uuid = sub.session_key)
-                     LEFT JOIN users u ON s.user_id = u.id
-                     ORDER BY sub.last_message_time DESC
+                     ) conv
+                     JOIN LATERAL (
+                         SELECT COALESCE(message, content, '') as message
+                         FROM messages m
+                         WHERE (m.sender_uuid = conv.session_key OR m.receiver_uuid = conv.session_key)
+                         ORDER BY m.created_at DESC
+                         LIMIT 1
+                     ) m_latest ON true
+                     LEFT JOIN user_sessions s ON (s.id::text = conv.session_key OR s.uuid = conv.session_key)
+                     LEFT JOIN users u ON (s.user_id = u.id OR conv.session_key = u.id::text)
+                     LEFT JOIN LATERAL (
+                         SELECT u2.full_name, u2.avatar, u2.phone, u2.email, u2.total_points
+                         FROM messages m3
+                         JOIN users u2 ON m3.sender_id = u2.id
+                         WHERE m3.sender_uuid = conv.session_key AND u2.role = 'user'
+                         LIMIT 1
+                     ) u_sender ON true
+                     ORDER BY conv.last_message_time DESC
                      LIMIT 100`
                 );
                 conversations = rows;
@@ -903,14 +990,33 @@ const AdminController = {
             };
 
             try {
+                const adminId = req.session?.user?.id || req.user?.id;
+                const adminTag = adminId ? `user_${adminId}` : '';
+
                 const [rows] = await db.query(
-                    `SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, COALESCE(message, content, '') as message, is_ai, created_at
+                    `SELECT id, sender_id, sender_uuid, receiver_uuid, destination_id, 
+                            COALESCE(message, content, '') as message, is_ai, created_at,
+                            COALESCE(is_recalled, 0) as is_recalled, COALESCE(deleted_for, '') as deleted_for
                      FROM messages 
                      WHERE (sender_uuid = $1 OR receiver_uuid = $1)
                      ORDER BY created_at ASC`,
                     [String(sessionId)]
                 );
-                messages = rows;
+
+                messages = rows
+                    .filter(m => {
+                        const deletedList = (m.deleted_for || '').split(',');
+                        if (adminTag && deletedList.includes(adminTag)) return false;
+                        return true;
+                    })
+                    .map(m => {
+                        const isRecalled = (m.is_recalled === 1 || m.message === '[ĐÃ THU HỒI]');
+                        return {
+                            ...m,
+                            is_recalled: isRecalled,
+                            message: isRecalled ? '[ĐÃ THU HỒI]' : m.message
+                        };
+                    });
             } catch(e) {
                 console.log("Admin chat query fallback:", e.message);
             }
@@ -934,6 +1040,7 @@ const AdminController = {
             res.render('admin/posters', {
                 title: 'Quản lý Poster Hero Trang Chủ',
                 layout: 'layouts/admin',
+                adminPage: 'posters',
                 posters
             });
         } catch (e) {

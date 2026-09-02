@@ -1,5 +1,9 @@
-const { Pool } = require('pg');
+const { Pool, types } = require('pg');
 require('dotenv').config();
+
+// Fix timezone issue: PostgreSQL TIMESTAMP columns (1114) in Supabase are UTC
+types.setTypeParser(1114, str => str ? new Date(str.replace(' ', 'T') + 'Z') : null);
+types.setTypeParser(1184, str => str ? new Date(str) : null);
 
 let connectionString = process.env.DATABASE_URL || 'postgresql://postgres.dipwbbwedjjmkrmejkjc:Tuandat2204%40@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
 

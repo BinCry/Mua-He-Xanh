@@ -109,23 +109,22 @@
 </section>
 
 <script>
-    async function cancelBooking(bookingId) {
-        if (!confirm('Bạn có chắc chắn muốn hủy đơn đặt hàng sản phẩm này? (Bạn sẽ bị trừ 50 điểm thưởng)')) {
-            return;
-        }
-
-        try {
-            const res = await axios.post('/api/shop/cancel', { bookingId });
-            if (res.data.success) {
-                alert(res.data.message);
-                window.location.reload();
-            } else {
-                alert('Lỗi: ' + res.data.message);
+    function cancelBooking(bookingId) {
+        showAppConfirm('Bạn có chắc chắn muốn hủy đơn đặt hàng sản phẩm này? (Bạn sẽ bị trừ 50 điểm thưởng)', 'Hủy đơn đặt hàng', async () => {
+            try {
+                const res = await axios.post('/api/shop/cancel', { bookingId });
+                if (res.data.success) {
+                    showAppAlert(res.data.message || 'Đã hủy đơn hàng thành công!', 'Thành công', () => {
+                        window.location.reload();
+                    });
+                } else {
+                    showAppAlert('Lỗi: ' + res.data.message, 'Thông báo');
+                }
+            } catch (err) {
+                console.error('Cancel booking error:', err);
+                showAppAlert('Lỗi hủy đặt chỗ: ' + (err.response?.data?.message || err.message), 'Lỗi');
             }
-        } catch (err) {
-            console.error('Cancel booking error:', err);
-            alert('Lỗi hủy đặt chỗ: ' + (err.response?.data?.message || err.message));
-        }
+        });
     }
 
     function toggleReviewForm(bookingId) {
@@ -153,7 +152,6 @@
             });
 
             if (res.data.success) {
-                // Confetti celebration
                 if (typeof confetti === 'function') {
                     confetti({
                         particleCount: 80,
@@ -161,16 +159,17 @@
                         origin: { y: 0.7 }
                     });
                 }
-                alert(res.data.message);
-                window.location.reload();
+                showAppAlert(res.data.message || 'Đã gửi đánh giá thành công!', 'Thành công', () => {
+                    window.location.reload();
+                });
             } else {
-                alert('Lỗi: ' + res.data.message);
+                showAppAlert('Lỗi: ' + res.data.message, 'Thông báo');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Gửi đánh giá';
             }
         } catch (err) {
             console.error('Review submit error:', err);
-            alert('Lỗi gửi đánh giá: ' + (err.response?.data?.message || err.message));
+            showAppAlert('Lỗi gửi đánh giá: ' + (err.response?.data?.message || err.message), 'Lỗi');
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Gửi đánh giá';
         }

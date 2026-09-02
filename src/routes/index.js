@@ -304,6 +304,8 @@ router.get('/admin/chat', ensureAdmin, AdminController.chat);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
 router.post('/api/admin/reply-message', ensureAdmin, ApiController.replyMessage);
 router.post('/api/delete-conversation', ensureAuthenticated, ApiController.deleteConversation);
+router.post('/api/chat/recall-message', ApiController.recallMessage);
+router.post('/api/recall-message', ApiController.recallMessage);
 // ===== SHOP & WORKSHOP PRODUCT API (Admin & Manager) =====
 const handleShopProductUpload = (req, res, next) => {
     upload.single('image')(req, res, (err) => {
@@ -484,9 +486,9 @@ router.post('/api/admin/delete-journey-template', ensureAdmin, AdminController.d
 // Delete User Saved Journey API
 router.post('/api/journey/delete', ProfileController.deleteJourney);
 
-// General Upload API (with multer error handling)
+// General & Chat Upload API (with multer error handling)
 const handleUpload = (req, res, next) => {
-    upload.single('image')(req, res, (err) => {
+    upload.any()(req, res, (err) => {
         if (err) {
             console.error('Multer Upload Error:', err);
             const message = err.code === 'LIMIT_FILE_SIZE' 
@@ -494,12 +496,16 @@ const handleUpload = (req, res, next) => {
                 : (err.message || 'Lỗi khi tải file lên.');
             return res.status(400).json({ success: false, message });
         }
+        if (req.files && req.files.length > 0 && !req.file) {
+            req.file = req.files[0];
+        }
         UploadController.uploadImage(req, res).catch(next);
     });
 };
 
-router.post('/api/upload', ensureAuthenticated, handleUpload);
-router.post('/api/admin/upload', ensureAdmin, handleUpload);
+router.post('/api/upload', handleUpload);
+router.post('/api/chat/upload', handleUpload);
+router.post('/api/admin/upload', ensureManager, handleUpload);
 
 // Logo Upload API (Admin only, with multer error handling)
 router.post('/api/admin/upload-logo', ensureAdmin, (req, res, next) => {

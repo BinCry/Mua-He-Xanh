@@ -89,42 +89,115 @@
     </div>
 </div>
 
-<!-- Charts Row -->
+<!-- SECTION 1: CHECK-IN ANALYTICS -->
+<div class="d-flex align-items-center justify-content-between mb-3 mt-2">
+    <h5 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2" style="font-family: 'Inter', sans-serif; color: #1e293b !important;">
+        <span class="p-1.5 rounded-3 bg-danger bg-opacity-20 text-danger fs-6 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-qr-code-scan"></i>
+        </span>
+        Báo cáo Lượt Check-in Thực tế
+    </h5>
+</div>
+
 <div class="row g-4 mb-4">
-    <div class="col-lg-8">
-        <div class="chart-card">
-            <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Lượt Check-in (14 ngày gần nhất)</h6>
+    <div class="col-lg-6">
+        <div class="chart-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0" style="font-family: 'Inter', sans-serif;">Lượt Check-in (14 ngày gần nhất)</h6>
+                <small class="text-muted">Theo ngày</small>
+            </div>
             <div class="dashboard-chart dashboard-chart--daily">
                 <canvas id="viewsChart" role="img" aria-label="Biểu đồ lượt check-in trong 14 ngày gần nhất"></canvas>
             </div>
         </div>
     </div>
-    <div class="col-lg-4">
-        <div class="chart-card">
-            <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Top Điểm đến</h6>
-            <% topDests.forEach((d, i) => { %>
+    <div class="col-lg-6">
+        <div class="chart-card h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge rounded-pill" style="background: rgba(59,130,246,0.15); color: #3b82f6; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem;"><%= i + 1 %></span>
-                    <span class="small fw-bold"><%= d.name %></span>
-                </div>
-                <span class="small" style="color: var(--admin-muted);"><%= d.checkin_count %> check-ins</span>
+                <h6 class="fw-bold mb-0" style="font-family: 'Inter', sans-serif;">Lượt Check-in theo Tháng</h6>
+                <small class="text-muted">6 tháng gần nhất</small>
             </div>
-            <% }) %>
-            <% if (topDests.length === 0) { %>
-            <p class="text-center small" style="color: var(--admin-muted);">Chưa có dữ liệu check-in</p>
-            <% } %>
+            <div class="dashboard-chart dashboard-chart--monthly">
+                <canvas id="checkinChart" role="img" aria-label="Biểu đồ lượt check-in theo tháng"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="chart-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Chi tiết Lượt Check-in theo từng Địa điểm</h6>
+                    <p class="text-muted small mb-0">Thống kê số lượt quét mã QR check-in tích lũy tại từng điểm du lịch</p>
+                </div>
+                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3 py-1.5 rounded-pill fw-semibold" style="font-size: 0.78rem;">
+                    <i class="bi bi-geo-alt-fill me-1"></i> Tất cả địa điểm
+                </span>
+            </div>
+            <div style="position: relative; min-height: 260px;">
+                <canvas id="destCheckinChart" role="img" aria-label="Biểu đồ lượt check-in từng địa điểm"></canvas>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- Recent Users & Check-in Trends -->
+<!-- SECTION 2: WEBSITE VISIT ANALYTICS -->
+<div class="d-flex align-items-center justify-content-between mb-3 mt-4">
+    <h5 class="fw-bold mb-0 text-dark d-flex align-items-center gap-2" style="font-family: 'Inter', sans-serif; color: #1e293b !important;">
+        <span class="p-1.5 rounded-3 bg-success bg-opacity-20 text-success fs-6 d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+            <i class="bi bi-globe2"></i>
+        </span>
+        Báo cáo Lượt Truy cập Website
+    </h5>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-6">
+        <div class="chart-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0" style="font-family: 'Inter', sans-serif;">Lượt Truy cập (14 ngày gần nhất)</h6>
+                <small class="text-muted">Theo ngày</small>
+            </div>
+            <div class="dashboard-chart dashboard-chart--daily">
+                <canvas id="visitDailyChart" role="img" aria-label="Biểu đồ lượt truy cập trong 14 ngày gần nhất"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="chart-card h-100">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h6 class="fw-bold mb-0" style="font-family: 'Inter', sans-serif;">Lượt Truy cập theo Tháng</h6>
+                <small class="text-muted">6 tháng gần nhất</small>
+            </div>
+            <div class="dashboard-chart dashboard-chart--monthly">
+                <canvas id="visitMonthlyChart" role="img" aria-label="Biểu đồ lượt truy cập theo tháng"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-12">
+        <div class="chart-card">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <h6 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Lượt Du khách Tìm hiểu & Truy cập theo từng Địa điểm</h6>
+                    <p class="text-muted small mb-0">Thống kê mức độ quan tâm và lượt xem chi tiết từng điểm đến trên nền tảng số</p>
+                </div>
+                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3 py-1.5 rounded-pill fw-semibold" style="font-size: 0.78rem;">
+                    <i class="bi bi-compass-fill me-1"></i> Điểm đến nổi bật
+                </span>
+            </div>
+            <div style="position: relative; min-height: 260px;">
+                <canvas id="destVisitChart" role="img" aria-label="Biểu đồ lượt tìm hiểu từng địa điểm"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- SECTION 3: RATINGS & RECENT USERS -->
 <div class="row g-4 mb-4">
     <div class="col-lg-6 d-flex">
         <div class="chart-card w-100 dashboard-row-match-height">
-            <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Check-in theo tháng</h6>
-            <div class="dashboard-chart dashboard-chart--monthly">
-                <canvas id="checkinChart" role="img" aria-label="Biểu đồ lượt check-in theo tháng"></canvas>
+            <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Đánh giá của Du khách (Phân bố sao)</h6>
+            <div style="position: relative; height: 230px;">
+                <canvas id="ratingsChart"></canvas>
             </div>
         </div>
     </div>
@@ -141,7 +214,7 @@
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 <img src="<%= u.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
-                                  <div>
+                                <div>
                                     <div class="small fw-bold"><%= u.full_name %></div>
                                     <div style="font-size: 0.72rem; color: var(--admin-muted);"><%= u.phone || u.email %></div>
                                 </div>
@@ -157,46 +230,25 @@
     </div>
 </div>
 
-<!-- Ratings & Workshops Row -->
-<div class="row g-4 mb-4">
-    <div class="col-lg-6">
-        <div class="chart-card">
-            <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Đánh giá của Du khách (Phân bố sao)</h6>
-            <div style="position: relative; height: 220px;">
-                <canvas id="ratingsChart"></canvas>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="chart-card">
-            <h6 class="fw-bold mb-3" style="font-family: 'Inter', sans-serif;">Lượt đặt / mua Sản phẩm Shop theo tháng</h6>
-            <div style="position: relative; height: 220px;">
-                <canvas id="workshopsBookingChart" role="img" aria-label="Biểu đồ lượt đặt workshop theo tháng"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
-
 <script id="admin-chart-data" type="application/json">
 <%- JSON.stringify(chartData || {}) %>
 </script>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    const formatCheckinCount = (value) => new Intl.NumberFormat('vi-VN').format(value);
+    const formatNumber = (value) => new Intl.NumberFormat('vi-VN').format(value);
     const getNiceIntegerStep = (targetStep) => {
+        if (!targetStep || targetStep <= 0) return 5;
         const magnitude = 10 ** Math.floor(Math.log10(targetStep));
         const normalizedStep = targetStep / magnitude;
-        const multiplier = [1, 2, 2.5, 5, 10].find(value => value >= normalizedStep);
-
+        const multiplier = [1, 2, 2.5, 5, 10].find(value => value >= normalizedStep) || 10;
         return multiplier * magnitude;
     };
 
-    const createIntegerCheckinAxis = (values) => {
+    const createIntegerAxis = (values, minDisplay = 10) => {
         const largestValue = Math.max(0, ...values);
         const maxTickCount = 4;
-        const minimumDisplayMaximum = 20;
-        const displayMaximum = Math.max(largestValue, minimumDisplayMaximum);
+        const displayMaximum = Math.max(largestValue, minDisplay);
         const stepSize = getNiceIntegerStep(displayMaximum / maxTickCount);
         const max = Math.ceil(displayMaximum / stepSize) * stepSize;
 
@@ -210,96 +262,238 @@ document.addEventListener('DOMContentLoaded', () => {
                 stepSize,
                 precision: 0,
                 maxTicksLimit: maxTickCount + 1,
-                callback: (value) => Number.isInteger(value) ? formatCheckinCount(value) : ''
+                callback: (value) => Number.isInteger(value) ? formatNumber(value) : ''
             }
         };
     };
 
-    const checkinTooltip = {
+    const customTooltip = (unit = 'lượt') => ({
         displayColors: false,
         padding: 10,
         callbacks: {
-            label: (context) => `${context.dataset.label}: ${formatCheckinCount(context.parsed.y)} lượt`
+            label: (context) => `${context.dataset.label || 'Số lượng'}: ${formatNumber(context.parsed.y !== undefined ? context.parsed.y : context.parsed.x)} ${unit}`
         }
-    };
+    });
 
-    const checkinInteraction = { mode: 'nearest', intersect: false };
+    const commonInteraction = { mode: 'nearest', intersect: false };
     const rawAdminChartData = JSON.parse(document.getElementById('admin-chart-data')?.textContent || '{}');
 
-    // Daily Check-ins Chart
-    const dailyData = rawAdminChartData.dailyCheckins || [];
-    const dailyCheckinCounts = dailyData.map(d => d.count);
+    // ================= 1. CHECK-IN CHARTS =================
+    // 1.1 Daily Check-ins (14 days)
+    const dailyCheckinData = rawAdminChartData.dailyCheckins || [];
+    const dailyCheckinCounts = dailyCheckinData.map(d => d.count);
     new Chart(document.getElementById('viewsChart'), {
         type: 'line',
         data: {
-            labels: dailyData.map(d => { const date = new Date(d.day); return date.getDate() + '/' + (date.getMonth()+1); }),
+            labels: dailyCheckinData.map(d => { const date = new Date(d.day); return date.getDate() + '/' + (date.getMonth()+1); }),
             datasets: [{
                 label: 'Lượt Check-in',
-                data: dailyData.map(d => d.count),
-                borderColor: '#922724',
-                backgroundColor: 'rgba(146, 39, 36, 0.1)',
+                data: dailyCheckinCounts,
+                borderColor: '#ef4444',
+                backgroundColor: 'rgba(239, 68, 68, 0.12)',
                 fill: true,
                 tension: 0.4,
-                borderWidth: 2,
-                pointRadius: 3,
-                pointBackgroundColor: '#922724'
+                borderWidth: 2.5,
+                pointRadius: 3.5,
+                pointBackgroundColor: '#ef4444'
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: checkinInteraction,
+            interaction: commonInteraction,
             plugins: {
                 legend: { display: false },
-                tooltip: checkinTooltip
+                tooltip: customTooltip('lượt check-in')
             },
             scales: {
                 x: {
                     grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: {
-                        color: '#71717a',
-                        font: { size: 11 },
-                        autoSkip: true,
-                        maxTicksLimit: 7,
-                        maxRotation: 0,
-                        minRotation: 0
-                    }
+                    ticks: { color: '#71717a', font: { size: 11 } }
                 },
-                y: createIntegerCheckinAxis(dailyCheckinCounts)
+                y: createIntegerAxis(dailyCheckinCounts, 10)
             }
         }
     });
 
-    // Monthly Check-in Chart
-    const monthlyData = rawAdminChartData.monthlyCheckins || [];
-    const monthlyCheckinCounts = monthlyData.map(d => d.count);
+    // 1.2 Monthly Check-ins (6 months)
+    const monthlyCheckinData = rawAdminChartData.monthlyCheckins || [];
+    const monthlyCheckinCounts = monthlyCheckinData.map(d => d.count);
     new Chart(document.getElementById('checkinChart'), {
         type: 'bar',
         data: {
-            labels: monthlyData.map(d => d.month),
+            labels: monthlyCheckinData.map(d => 'Tháng ' + d.month.split('-')[1]),
             datasets: [{
                 label: 'Lượt Check-in',
-                data: monthlyData.map(d => d.count),
-                backgroundColor: '#922724',
-                borderRadius: 8
+                data: monthlyCheckinCounts,
+                backgroundColor: 'rgba(239, 68, 68, 0.85)',
+                hoverBackgroundColor: '#ef4444',
+                borderRadius: 8,
+                barThickness: 28
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            interaction: checkinInteraction,
+            interaction: commonInteraction,
             plugins: {
                 legend: { display: false },
-                tooltip: checkinTooltip
+                tooltip: customTooltip('lượt check-in')
             },
             scales: {
                 x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 11 } } },
-                y: createIntegerCheckinAxis(monthlyCheckinCounts)
+                y: createIntegerAxis(monthlyCheckinCounts, 20)
             }
         }
     });
 
-    // Ratings Distribution Chart
+    // 1.3 Check-ins per Destination Bar Chart
+    const destCheckinData = rawAdminChartData.destCheckins || [];
+    new Chart(document.getElementById('destCheckinChart'), {
+        type: 'bar',
+        data: {
+            labels: destCheckinData.map(d => d.name),
+            datasets: [{
+                label: 'Lượt Check-in',
+                data: destCheckinData.map(d => d.count),
+                backgroundColor: [
+                    '#f87171', '#fb923c', '#fbbf24', '#facc15', '#a3e635',
+                    '#4ade80', '#34d399', '#2dd4bf', '#38bdf8', '#60a5fa',
+                    '#818cf8', '#a78bfa', '#c084fc'
+                ],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: commonInteraction,
+            plugins: {
+                legend: { display: false },
+                tooltip: customTooltip('lượt check-in')
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#a1a1aa',
+                        font: { size: 10.5 },
+                        maxRotation: 35,
+                        minRotation: 20
+                    }
+                },
+                y: createIntegerAxis(destCheckinData.map(d => d.count), 15)
+            }
+        }
+    });
+
+    // ================= 2. WEBSITE VISITS CHARTS =================
+    // 2.1 Daily Website Visits (14 days)
+    const dailyVisitData = rawAdminChartData.dailyVisits || [];
+    const dailyVisitCounts = dailyVisitData.map(d => d.count);
+    new Chart(document.getElementById('visitDailyChart'), {
+        type: 'line',
+        data: {
+            labels: dailyVisitData.map(d => { const date = new Date(d.day); return date.getDate() + '/' + (date.getMonth()+1); }),
+            datasets: [{
+                label: 'Lượt Truy cập Website',
+                data: dailyVisitCounts,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.15)',
+                fill: true,
+                tension: 0.4,
+                borderWidth: 2.5,
+                pointRadius: 3.5,
+                pointBackgroundColor: '#10b981'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: commonInteraction,
+            plugins: {
+                legend: { display: false },
+                tooltip: customTooltip('lượt truy cập')
+            },
+            scales: {
+                x: {
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#71717a', font: { size: 11 } }
+                },
+                y: createIntegerAxis(dailyVisitCounts, 1000)
+            }
+        }
+    });
+
+    // 2.2 Monthly Website Visits (6 months)
+    const monthlyVisitData = rawAdminChartData.monthlyVisits || [];
+    const monthlyVisitCounts = monthlyVisitData.map(d => d.count);
+    new Chart(document.getElementById('visitMonthlyChart'), {
+        type: 'bar',
+        data: {
+            labels: monthlyVisitData.map(d => 'Tháng ' + d.month.split('-')[1]),
+            datasets: [{
+                label: 'Lượt Truy cập Website',
+                data: monthlyVisitCounts,
+                backgroundColor: 'rgba(16, 185, 129, 0.85)',
+                hoverBackgroundColor: '#10b981',
+                borderRadius: 8,
+                barThickness: 28
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: commonInteraction,
+            plugins: {
+                legend: { display: false },
+                tooltip: customTooltip('lượt truy cập')
+            },
+            scales: {
+                x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 11 } } },
+                y: createIntegerAxis(monthlyVisitCounts, 5000)
+            }
+        }
+    });
+
+    // 2.3 Destination Website Interest / Visits Bar Chart
+    const destVisitData = rawAdminChartData.destVisits || [];
+    new Chart(document.getElementById('destVisitChart'), {
+        type: 'bar',
+        data: {
+            labels: destVisitData.map(d => d.name),
+            datasets: [{
+                label: 'Lượt Tìm hiểu',
+                data: destVisitData.map(d => d.count),
+                backgroundColor: 'rgba(16, 185, 129, 0.75)',
+                hoverBackgroundColor: '#10b981',
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: commonInteraction,
+            plugins: {
+                legend: { display: false },
+                tooltip: customTooltip('lượt tìm hiểu')
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: {
+                        color: '#a1a1aa',
+                        font: { size: 10.5 },
+                        maxRotation: 35,
+                        minRotation: 20
+                    }
+                },
+                y: createIntegerAxis(destVisitData.map(d => d.count), 50)
+            }
+        }
+    });
+
+    // ================= 3. RATINGS DISTRIBUTION =================
     const ratingsData = rawAdminChartData.ratingsDistribution || [0, 0, 0, 0, 0];
     new Chart(document.getElementById('ratingsChart'), {
         type: 'doughnut',
@@ -307,51 +501,14 @@ document.addEventListener('DOMContentLoaded', () => {
             labels: ['1 Sao', '2 Sao', '3 Sao', '4 Sao', '5 Sao'],
             datasets: [{
                 data: ratingsData,
-                backgroundColor: [
-                    '#ef4444', // Red
-                    '#f97316', // Orange
-                    '#eab308', // Yellow
-                    '#3b82f6', // Blue
-                    '#10b981'  // Green
-                ]
+                backgroundColor: ['#ef4444', '#f97316', '#eab308', '#3b82f6', '#10b981']
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
-                legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 } } }
-            }
-        }
-    });
-
-    // Monthly Workshop Bookings Chart
-    const wsBookingsData = rawAdminChartData.monthlyWSBookings || [];
-    const workshopBookingCounts = wsBookingsData.map(d => d.count);
-    new Chart(document.getElementById('workshopsBookingChart'), {
-        type: 'bar',
-        data: {
-            labels: wsBookingsData.map(d => d.month),
-            datasets: [{
-                label: 'Lượt đặt',
-                data: wsBookingsData.map(d => d.count),
-                backgroundColor: 'rgba(59, 130, 246, 0.4)',
-                borderColor: '#3b82f6',
-                borderWidth: 1,
-                borderRadius: 8
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            interaction: checkinInteraction,
-            plugins: {
-                legend: { display: false },
-                tooltip: checkinTooltip
-            },
-            scales: {
-                x: { grid: { display: false }, ticks: { color: '#71717a', font: { size: 11 } } },
-                y: createIntegerCheckinAxis(workshopBookingCounts)
+                legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11 }, color: '#d4d4d8' } }
             }
         }
     });
@@ -365,13 +522,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     .dashboard-chart--monthly {
-        height: 220px;
+        height: 240px;
     }
 
     @media (max-width: 991px) {
         .dashboard-chart,
         .dashboard-chart--monthly {
-            height: 190px;
+            height: 200px;
         }
     }
 

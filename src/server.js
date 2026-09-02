@@ -67,6 +67,8 @@ if (!global._dbPatched) {
                 db.query(`UPDATE destinations SET radius_meter = 20000 WHERE radius_meter IS NULL OR radius_meter < 20000`),
                 db.query(`ALTER TABLE events ALTER COLUMN description TYPE TEXT`),
                 db.query(`ALTER TABLE workshops ALTER COLUMN description TYPE TEXT`),
+                db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_recalled INTEGER DEFAULT 0`),
+                db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS deleted_for TEXT DEFAULT ''`),
                 db.query(`
                     CREATE TABLE IF NOT EXISTS hero_posters (
                         id VARCHAR(36) PRIMARY KEY,
@@ -174,9 +176,8 @@ app.use((req, res, next) => {
     const p = req.path.toLowerCase();
     if (p.match(/\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/)) {
         res.setHeader('Cache-Control', 'public, max-age=31536000, s-maxage=31536000, immutable');
-    } else if (isPublicCacheablePath(p)) {
-        res.setHeader('Cache-Control', 'public, max-age=0, s-maxage=15, stale-while-revalidate=60');
     } else {
+        // HTML pages must NEVER be cached by browser so login status and user profile always update immediately
         res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
         res.setHeader('Pragma', 'no-cache');
         res.setHeader('Expires', '0');
@@ -234,8 +235,7 @@ app.post('/api/analytics/heartbeat', async (req, res) => {
 });
 
 // ========================================================================
-// SESSION + PASSPORT — only for non-public routes (admin, profile, auth, api, etc.)
-// This prevents Set-Cookie on public pages, enabling Vercel Edge CDN caching.
+// SESSION & PASSPORT — initialized globally on all routes for 100% reliable login state
 // ========================================================================
 const sessionMiddleware = session({
     name: 'bl_session',
@@ -244,28 +244,15 @@ const sessionMiddleware = session({
     saveUninitialized: false,
     cookie: {
         maxAge: 604800000, // 7 days
-        secure: false
+        secure: false,
+        httpOnly: true,
+        sameSite: 'lax'
     }
 });
 
-const conditionalSession = (req, res, next) => {
-    // If request has session cookie, evaluate session for seamless login state everywhere (same as localhost)
-    const hasSessionCookie = !!(req.cookies?.bl_session || req.cookies?.session_uuid);
-    if (hasSessionCookie || req.method !== 'GET' || !isPublicCacheablePath(req.path)) {
-        return sessionMiddleware(req, res, next);
-    }
-    next();
-};
-
-app.use(conditionalSession);
-
-// Passport — only initialize when session is present
-app.use((req, res, next) => {
-    if (!req.session) return next();
-    passport.initialize()(req, res, () => {
-        passport.session()(req, res, next);
-    });
-});
+app.use(sessionMiddleware);
+app.use(passport.initialize());
+app.use(passport.session());
 
 // Session auto-restoration: recovers session from DB if express-session is lost
 // Only runs when session middleware was activated (non-public routes)

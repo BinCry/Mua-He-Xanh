@@ -12,3 +12,4 @@ scratch/
 src/test_maps.js
 Claude-Kit/
 *.sql
+db_backup*.json

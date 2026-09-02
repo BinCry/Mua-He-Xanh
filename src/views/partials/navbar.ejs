@@ -238,49 +238,38 @@
                     translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">EN</button>
             </div>
 
-            <% if (user) { %>
+            <% const navUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
+            <% if (navUser) { %>
                 <div class="dropdown">
                     <a href="#" class="d-flex align-items-center gap-1 text-decoration-none p-1 rounded-pill"
                         data-bs-toggle="dropdown"
                         style="background: var(--primary-50); padding-right: 6px !important;">
-                        <img src="<%= fixImg(user.role === 'admin' ? (settings.brand_logo || '/brand-logo.png') : user.avatar, '/images/default-avatar.png') %>" class="rounded-circle"
+                        <img src="<%= fixImg(navUser.role === 'admin' ? (settings.brand_logo || '/brand-logo.png') : navUser.avatar, '/images/default-avatar.png') %>" class="rounded-circle"
                             style="width: 28px; height: 28px; object-fit: cover; border: 1.5px solid var(--primary-100);" onerror="this.src='/brand-logo.png'">
                         <span class="d-none d-md-inline fw-bold notranslate" translate="no"
                             style="font-size: 0.8rem; color: var(--primary);">
-                            <%= user.full_name.split(' ').pop() %></span>
+                            <%= (navUser.full_name || 'User').split(' ').pop() %></span>
                     <i class="bi bi-chevron-down opacity-50" style="font-size: 0.6rem; color: var(--text-muted);"></i>
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="border-radius: var(--radius-lg); min-width: 220px;">
                     <li class="px-3 py-2 mb-1">
-                        <div class="fw-bold notranslate" translate="no" style="font-size: 0.88rem;"><%= user.full_name %></div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted);"><%= user.email %></div>
+                        <div class="fw-bold notranslate" translate="no" style="font-size: 0.88rem;"><%= navUser.full_name %></div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);"><%= navUser.email %></div>
                     </li>
                     <li><hr class="dropdown-divider my-1"></li>
-                    <% if (user.role === ' admin') { %>
-                                <li><a class="dropdown-item py-2 rounded-2" href="/admin"
-                                        style="color: var(--primary); font-weight: 600;"><i
-                                            class="bi bi-shield-check me-2"></i>Trang quản trị</a></li>
-                                <% } %>
-                                    <% if (user.role==='manager' ) { %>
-                                        <li><a class="dropdown-item py-2 rounded-2" href="/manager"
-                                                style="color: var(--primary); font-weight: 600;"><i
-                                                    class="bi bi-shield-check me-2"></i>Trang quản lý</a></li>
-                                        <% } %>
-                                            <% if (user.role==='user' ) { %>
-                                                <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i
-                                                            class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a>
-                                                </li>
-                                                <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i
-                                                            class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
-                                                <% } %>
-                                                    <li>
-                                                        <hr class="dropdown-divider my-1">
-                                                    </li>
-                                                    <li><a class="dropdown-item py-2 rounded-2 text-danger"
-                                                            href="/auth/logout"><i
-                                                                class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a>
-                                                    </li>
-                                                    </ul>
+                    <% if (navUser.role === 'admin') { %>
+                        <li><a class="dropdown-item py-2 rounded-2" href="/admin" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Trang quản trị</a></li>
+                    <% } %>
+                    <% if (navUser.role === 'manager') { %>
+                        <li><a class="dropdown-item py-2 rounded-2" href="/manager" style="color: var(--primary); font-weight: 600;"><i class="bi bi-shield-check me-2"></i>Trang quản lý</a></li>
+                    <% } %>
+                    <% if (navUser.role === 'user') { %>
+                        <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
+                        <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
+                    <% } %>
+                    <li><hr class="dropdown-divider my-1"></li>
+                    <li><a class="dropdown-item py-2 rounded-2 text-danger" href="/auth/logout"><i class="bi bi-box-arrow-right me-2"></i>Đăng xuất</a></li>
+                </ul>
                 </div>
                 <% } else { %>
                     <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold"

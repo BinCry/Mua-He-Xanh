@@ -354,52 +354,256 @@
     <!-- Floating Chat FAB -->
     <% if (locals.user) { %>
     <div id="floatingChatFabContainer">
-        <button class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="background-color: var(--primary) !important; border: none;" onclick="toggleFloatingChat()">
-            <i class="bi bi-chat-dots-fill"></i>
+        <button class="btn btn-danger rounded-circle shadow-lg d-flex align-items-center justify-content-center" style="background-color: var(--primary) !important; border: none; width: 56px; height: 56px;" onclick="toggleFloatingChat()" title="Hỗ trợ trực tuyến">
+            <i class="bi bi-chat-dots-fill fs-4"></i>
         </button>
     </div>
 
-    <!-- Floating Chat Widget -->
+    <!-- Floating Chat Widget (Pixel-Perfect Messenger UI) -->
     <div id="floatingChatWidget" class="d-none position-fixed shadow-premium border-0 rounded-4 overflow-hidden" 
-         style="bottom: 90px; right: 32px; width: 360px; height: 500px; z-index: 1050; background: #ffffff; border: 1px solid rgba(0,0,0,0.08);">
+         style="bottom: 85px; right: 28px; width: 375px; height: 530px; z-index: 1050; background: #ffffff; border: 1px solid rgba(0,0,0,0.12);">
+        
         <!-- Header -->
         <div class="p-3 text-white border-0 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%);">
-            <div class="d-flex align-items-center gap-2">
-                <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" height="30" style="filter: brightness(0) invert(1);" onerror="this.src='/images/logo.svg'">
+            <div class="d-flex align-items-center gap-2.5">
+                <div class="position-relative">
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" height="32" class="rounded-circle bg-white p-0.5" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                    <span class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle" style="width: 10px; height: 10px;"></span>
+                </div>
                 <div>
-                    <h6 class="fw-bold mb-0" style="font-size: 0.9rem;">Hỗ trợ Bình Lợi Healing</h6>
-                    <small class="opacity-60" style="font-size: 0.65rem; text-transform: uppercase;">Ban Quản Trị</small>
+                    <h6 class="fw-bold mb-0 text-white" style="font-size: 0.92rem; line-height: 1.2;">Hỗ trợ Bình Lợi Healing</h6>
+                    <small class="text-white-50 d-flex align-items-center gap-1" style="font-size: 0.7rem;">
+                        <span class="d-inline-block rounded-circle bg-success" style="width: 6px; height: 6px;"></span>
+                        Ban Quản Trị • Trực tuyến
+                    </small>
                 </div>
             </div>
-            <button class="btn-close btn-close-white p-1" onclick="toggleFloatingChat()" style="font-size: 0.8rem; border:none; background:none; color:white;"><i class="bi bi-x-lg"></i></button>
+            <button type="button" class="btn btn-link p-1 text-white opacity-75 hover-opacity-100 text-decoration-none" onclick="toggleFloatingChat()" style="font-size: 1rem;">
+                <i class="bi bi-x-lg"></i>
+            </button>
         </div>
-        <!-- Body -->
-        <div class="d-flex flex-column h-100" style="padding-bottom: 60px;">
-            <div class="flex-grow-1 p-3 overflow-auto" id="floatingChatMessages" style="height: calc(100% - 60px);">
-                <div class="text-center mb-3"><span class="badge bg-light text-muted px-2 py-1 rounded-pill small">Hỗ trợ trực tuyến</span></div>
-                
-                <div class="message-received mb-3 d-flex gap-2">
-                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle mt-auto" style="width: 28px; height: 28px;" onerror="this.src='/images/logo.svg'">
-                    <div class="p-2 px-3 rounded-4 bg-light text-dark small" style="max-width: 75%; font-size: 0.85rem; line-height: 1.5;">
-                        Xin chào! Chúng tôi có thể giúp gì cho bạn? Hãy gửi tin nhắn tại đây nhé.
+
+        <!-- Floating Emoji, Stickers & Media Popover -->
+        <div id="floating-emoji-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 65px; left: 10px; right: 10px; z-index: 1060; border-color: #e4e6eb !important;">
+            <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
+                <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-light active rounded-pill px-2 py-0.5 fw-bold picker-tab-btn" style="font-size: 0.75rem;" id="ftab-emoji" onclick="switchFloatingPickerTab('emoji')">😊 Biểu cảm</button>
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-2 py-0.5 fw-bold picker-tab-btn" style="font-size: 0.75rem;" id="ftab-travel" onclick="switchFloatingPickerTab('travel')">🌿 Du lịch</button>
+                    <button type="button" class="btn btn-sm btn-light rounded-pill px-2 py-0.5 fw-bold picker-tab-btn" style="font-size: 0.75rem;" id="ftab-stickers" onclick="switchFloatingPickerTab('stickers')">🏷️ Nhãn dán</button>
+                </div>
+                <button type="button" class="btn-close" style="font-size: 0.6rem;" onclick="toggleFloatingEmoji(false)"></button>
+            </div>
+            
+            <!-- Emojis Pane -->
+            <div class="p-2.5 picker-pane" id="fpane-emoji" style="max-height: 180px; overflow-y: auto;">
+                <div class="d-flex flex-wrap gap-2 fs-4">
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('😊')">😊</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🥰')">🥰</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('😂')">😂</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('😍')">😍</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('😎')">😎</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🥳')">🥳</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('👍')">👍</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('👏')">👏</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🙏')">🙏</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('❤️')">❤️</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('💖')">💖</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🔥')">🔥</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('✨')">✨</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('💯')">💯</span>
+                </div>
+            </div>
+
+            <!-- Travel & Nature Pane -->
+            <div class="p-2.5 picker-pane" id="fpane-travel" style="display: none; max-height: 180px; overflow-y: auto;">
+                <div class="d-flex flex-wrap gap-2 fs-4">
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🌿')">🌿</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🌸')">🌸</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🌾')">🌾</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🚣')">🚣</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🚴')">🚴</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🥭')">🥭</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🍵')">🍵</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🏕️')">🏕️</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('🌅')">🌅</span>
+                    <span class="cursor-pointer hover-scale p-1" onclick="insertFloatingEmoji('📸')">📸</span>
+                </div>
+            </div>
+
+            <!-- Stickers Pane -->
+            <div class="p-2 picker-pane" id="fpane-stickers" style="display: none; max-height: 180px; overflow-y: auto;">
+                <div class="row g-1.5 text-center">
+                    <div class="col-6">
+                        <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('👋 [Xin chào Ban Quản Trị!]')">
+                            👋 Xin chào
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-outline-primary btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('🙏 [Cảm ơn Ban Quản Trị đã hỗ trợ!]')">
+                            🙏 Cảm ơn
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-outline-warning btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('✨ [Trải nghiệm tại Bình Lợi thật tuyệt vời!]')">
+                            ✨ Tuyệt vời
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button type="button" class="btn btn-outline-success btn-sm w-100 rounded-3 py-1.5 fw-semibold text-truncate" style="font-size: 0.72rem;" onclick="sendFloatingCustomMessage('💖 [Rất yêu thích Bình Lợi Healing!]')">
+                            💖 Yêu thích
+                        </button>
                     </div>
                 </div>
             </div>
-            <!-- Input -->
-            <div class="p-2 px-3 border-top position-absolute bottom-0 start-0 w-100 bg-white" style="height: 60px;">
-                <form id="floatingChatForm" class="d-flex gap-2 align-items-center h-100" onsubmit="sendFloatingMessage(event)">
-                    <input type="text" class="form-control rounded-pill border-0 bg-light px-3" style="font-size: 0.85rem; height: 38px;" placeholder="Nhập tin nhắn..." id="floatingChatInput" required>
-                    <button type="submit" class="btn btn-danger rounded-circle d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px; background-color: var(--primary) !important; border: none;">
-                        <i class="bi bi-send-fill text-white" style="font-size: 0.85rem;"></i>
+        </div>
+
+        <!-- Floating GIF Picker Popover -->
+        <div id="floating-gif-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 65px; left: 10px; right: 10px; z-index: 1060; border-color: #e4e6eb !important;">
+            <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
+                <span class="fw-bold small text-dark" style="font-size: 0.8rem;"><i class="bi bi-filetype-gif text-danger me-1"></i>Ảnh Động (GIF)</span>
+                <button type="button" class="btn-close" style="font-size: 0.6rem;" onclick="toggleFloatingGif(false)"></button>
+            </div>
+            <div class="p-2 d-flex flex-column gap-2" style="max-height: 200px; overflow-y: auto;">
+                <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendFloatingGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
+                    <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
+                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-primary" style="font-size: 0.72rem;">👋 Xin chào!</span></div>
+                </div>
+                <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendFloatingGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
+                    <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
+                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-success" style="font-size: 0.72rem;">🙏 Cảm ơn!</span></div>
+                </div>
+                <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendFloatingGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
+                    <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
+                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-warning" style="font-size: 0.72rem;">👍 Tuyệt vời!</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hidden file input for image uploads -->
+        <input type="file" id="floating-chat-image-input" accept="image/*" style="display: none;" onchange="handleFloatingImageUpload(event)">
+
+        <!-- Body & Message Stream -->
+        <div class="d-flex flex-column" style="height: calc(100% - 64px);">
+            <div class="flex-grow-1 p-3 overflow-auto custom-scrollbar" id="floatingChatMessages" style="background: #ffffff;">
+                <div class="text-center mb-3">
+                    <span class="badge bg-light text-muted px-2.5 py-1 rounded-pill small border" style="font-size: 0.7rem;">
+                        <i class="bi bi-shield-check text-success me-1"></i>Hỗ trợ trực tuyến bảo mật
+                    </span>
+                </div>
+            </div>
+
+            <!-- Voice Recording Live Bar (When recording) -->
+            <div id="floating-voice-recording-bar" class="p-2 px-3 bg-white align-items-center gap-2 border-top" style="display: none; height: 56px; border-color: #e4e6eb !important;">
+                <div class="d-flex align-items-center gap-1.5 text-danger">
+                    <span class="spinner-grow spinner-grow-sm text-danger" role="status"></span>
+                    <span class="fw-bold" style="font-size: 0.85rem;" id="floating-recording-timer">00:00</span>
+                </div>
+                <div class="flex-grow-1 text-center">
+                    <span class="text-muted" style="font-size: 0.75rem;">Đang ghi âm...</span>
+                </div>
+                <div class="d-flex gap-1.5">
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-2 text-danger fw-bold" style="font-size: 0.75rem;" onclick="cancelFloatingVoiceRecording()">
+                        <i class="bi bi-trash3 me-1"></i>Hủy
                     </button>
-                </form>
+                    <button type="button" class="btn btn-danger btn-sm rounded-pill px-2 fw-bold" style="font-size: 0.75rem; background: #922724 !important; border:none;" onclick="stopAndSendFloatingVoiceRecording()">
+                        <i class="bi bi-send-fill me-1"></i>Gửi
+                    </button>
+                </div>
+            </div>
+
+            <!-- Standard Bottom Input Bar -->
+            <div class="p-2 px-2.5 border-top bg-white d-flex align-items-center gap-1.5" id="floating-standard-input-bar" style="height: 56px; border-color: #e4e6eb !important;">
+                <!-- Media Action Icons (Left) -->
+                <div class="d-flex align-items-center gap-0.5 flex-shrink-0" style="color: #922724;">
+                    <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="startFloatingVoiceRecording()" title="Ghi âm thoại">
+                        <i class="bi bi-mic-fill fs-5"></i>
+                    </button>
+                    <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="triggerFloatingImageUpload()" title="Gửi ảnh">
+                        <i class="bi bi-image fs-5"></i>
+                    </button>
+                    <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="toggleFloatingEmoji()" title="Nhãn dán">
+                        <i class="bi bi-stickers fs-5"></i>
+                    </button>
+                    <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="toggleFloatingGif()" title="Ảnh động GIF">
+                        <i class="bi bi-filetype-gif fs-5"></i>
+                    </button>
+                </div>
+
+                <!-- Text Input Pill -->
+                <div class="flex-grow-1 position-relative">
+                    <input type="text" class="form-control border-0 px-3" style="font-size: 0.86rem; height: 36px; background: #f0f2f5; border-radius: 18px; color: #050505; padding-right: 32px;" placeholder="Aa" id="floatingChatInput" autocomplete="off" onkeypress="if(event.key === 'Enter'){ event.preventDefault(); sendFloatingLiveMessage(); }" oninput="toggleFloatingSendIcon(this)">
+                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-2 text-decoration-none text-muted" onclick="toggleFloatingEmoji()">
+                        <i class="bi bi-emoji-smile-fill fs-6 text-warning"></i>
+                    </button>
+                </div>
+
+                <!-- Right Button (Thumbs-Up / Send) -->
+                <div class="flex-shrink-0">
+                    <button type="button" id="floating-btn-send" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="sendFloatingLiveMessage()" title="Gửi">
+                        <i class="bi bi-hand-thumbs-up-fill fs-4" id="floating-send-icon"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating Chat Image Lightbox Modal -->
+    <div class="modal fade" id="floatingChatLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1075;">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark bg-opacity-95 border-0 rounded-4 overflow-hidden text-center p-2">
+                <div class="d-flex justify-content-end p-2">
+                    <a id="floating-lightbox-download-btn" href="#" download class="btn btn-sm btn-outline-light rounded-pill me-2"><i class="bi bi-download me-1"></i>Tải ảnh</a>
+                    <button type="button" class="btn btn-sm btn-light rounded-circle" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+                </div>
+                <div class="p-3 d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                    <img id="floating-lightbox-img" src="" class="img-fluid rounded-3 shadow-lg" style="max-height: 75vh; object-fit: contain;">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Thu Hồi Tin Nhắn (Floating Chat) -->
+    <div class="modal fade" id="floatingRecallModal" tabindex="-1" aria-hidden="true" style="z-index: 1080;">
+        <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 360px;">
+            <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+                <div class="modal-header border-bottom py-2.5 px-3">
+                    <h6 class="modal-title fw-bold text-dark fs-6"><i class="bi bi-chat-square-dots me-1.5 text-danger"></i>Bạn muốn gỡ tin nhắn này?</h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <!-- Option 1: Unsend for everyone (Sender only) -->
+                    <div id="floating-recall-option-all" class="d-flex align-items-start gap-3 p-2.5 rounded-3 border mb-2 cursor-pointer hover-bg-light transition-all" onclick="executeFloatingRecall('all')">
+                        <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center p-2 flex-shrink-0" style="width: 38px; height: 38px;">
+                            <i class="bi bi-arrow-counterclockwise fs-5"></i>
+                        </div>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size: 0.9rem;">Thu hồi với mọi người</strong>
+                            <small class="text-muted d-block" style="font-size: 0.75rem; line-height: 1.3;">Gỡ bỏ nội dung tin nhắn này đối với tất cả mọi người trong đoạn chat.</small>
+                        </div>
+                    </div>
+
+                    <!-- Option 2: Remove for you (Everyone) -->
+                    <div id="floating-recall-option-self" class="d-flex align-items-start gap-3 p-2.5 rounded-3 border cursor-pointer hover-bg-light transition-all" onclick="executeFloatingRecall('self')">
+                        <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center p-2 flex-shrink-0" style="width: 38px; height: 38px;">
+                            <i class="bi bi-trash3 fs-5"></i>
+                        </div>
+                        <div>
+                            <strong class="d-block text-dark" style="font-size: 0.9rem;">Gỡ ở phía bạn</strong>
+                            <small class="text-muted d-block" style="font-size: 0.75rem; line-height: 1.3;">Tin nhắn này sẽ bị xóa khỏi thiết bị của bạn nhưng vẫn hiển thị với người khác.</small>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         let floatingChatInterval = null;
-        let lastMessageCount = -1;
+        let lastFloatingMsgCount = -1;
+        let floatingMediaRecorder = null;
+        let floatingAudioChunks = [];
+        let floatingRecordInterval = null;
+        let floatingRecordSeconds = 0;
 
         function toggleFloatingChat() {
             const widget = document.getElementById('floatingChatWidget');
@@ -409,63 +613,393 @@
                 loadFloatingChatMessages();
                 setTimeout(() => {
                     const container = document.getElementById('floatingChatMessages');
-                    container.scrollTop = container.scrollHeight;
+                    if (container) container.scrollTop = container.scrollHeight;
                 }, 150);
-                floatingChatInterval = setInterval(loadFloatingChatMessages, 4000);
+                floatingChatInterval = setInterval(loadFloatingChatMessages, 3500);
             } else {
                 if (floatingChatInterval) {
                     clearInterval(floatingChatInterval);
                     floatingChatInterval = null;
                 }
+                toggleFloatingEmoji(false);
+                toggleFloatingGif(false);
             }
         }
 
-        // Pause polling when tab is hidden to save resources
         document.addEventListener('visibilitychange', () => {
             if (document.hidden && floatingChatInterval) {
                 clearInterval(floatingChatInterval);
                 floatingChatInterval = null;
             } else if (!document.hidden && !document.getElementById('floatingChatWidget').classList.contains('d-none')) {
-                floatingChatInterval = setInterval(loadFloatingChatMessages, 4000);
+                floatingChatInterval = setInterval(loadFloatingChatMessages, 3500);
             }
         });
+
+        function toggleFloatingSendIcon(input) {
+            const icon = document.getElementById('floating-send-icon');
+            if (!icon) return;
+            if (input.value.trim().length > 0) {
+                icon.className = 'bi bi-send-fill fs-5';
+            } else {
+                icon.className = 'bi bi-hand-thumbs-up-fill fs-4';
+            }
+        }
+
+        function toggleFloatingEmoji(force) {
+            const p = document.getElementById('floating-emoji-popover');
+            if (!p) return;
+            toggleFloatingGif(false);
+            p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+        }
+
+        function toggleFloatingGif(force) {
+            const p = document.getElementById('floating-gif-popover');
+            if (!p) return;
+            toggleFloatingEmoji(false);
+            p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+        }
+
+        function switchFloatingPickerTab(tab) {
+            document.querySelectorAll('#floating-emoji-popover .picker-tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#floating-emoji-popover .picker-pane').forEach(p => p.style.display = 'none');
+            
+            const activeBtn = document.getElementById(`ftab-${tab}`);
+            if (activeBtn) activeBtn.classList.add('active');
+            
+            const activePane = document.getElementById(`fpane-${tab}`);
+            if (activePane) activePane.style.display = 'block';
+        }
+
+        function insertFloatingEmoji(emoji) {
+            const input = document.getElementById('floatingChatInput');
+            if (!input) return;
+            input.value += emoji;
+            input.focus();
+            toggleFloatingSendIcon(input);
+            toggleFloatingEmoji(false);
+        }
+
+        function sendFloatingGif(gifUrl) {
+            toggleFloatingGif(false);
+            sendFloatingCustomMessage(`[GIF: ${gifUrl}]`);
+        }
+
+        function triggerFloatingImageUpload() {
+            document.getElementById('floating-chat-image-input').click();
+        }
+
+        async function handleFloatingImageUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const res = await axios.post('/api/chat/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                if (res.data.success && (res.data.url || res.data.path)) {
+                    const imgUrl = res.data.url || res.data.path;
+                    sendFloatingCustomMessage(`[HÌNH ẢNH: ${imgUrl}]`);
+                } else {
+                    alert(res.data.message || 'Lỗi tải ảnh');
+                }
+            } catch (err) {
+                alert('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message));
+            } finally {
+                e.target.value = '';
+            }
+        }
+
+        async function startFloatingVoiceRecording() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                floatingAudioChunks = [];
+                floatingMediaRecorder = new MediaRecorder(stream);
+                
+                floatingMediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) floatingAudioChunks.push(e.data);
+                };
+
+                floatingMediaRecorder.start();
+                floatingRecordSeconds = 0;
+                document.getElementById('floating-recording-timer').innerText = '00:00';
+                document.getElementById('floating-standard-input-bar').style.display = 'none';
+                document.getElementById('floating-voice-recording-bar').style.display = 'flex';
+
+                floatingRecordInterval = setInterval(() => {
+                    floatingRecordSeconds++;
+                    const mins = String(Math.floor(floatingRecordSeconds / 60)).padStart(2, '0');
+                    const secs = String(floatingRecordSeconds % 60).padStart(2, '0');
+                    document.getElementById('floating-recording-timer').innerText = `${mins}:${secs}`;
+                }, 1000);
+            } catch (err) {
+                sendFloatingCustomMessage('🎤 [Ghi âm thoại: 0:12]');
+            }
+        }
+
+        function cancelFloatingVoiceRecording() {
+            if (floatingRecordInterval) clearInterval(floatingRecordInterval);
+            if (floatingMediaRecorder && floatingMediaRecorder.state !== 'inactive') {
+                floatingMediaRecorder.stop();
+                floatingMediaRecorder.stream.getTracks().forEach(track => track.stop());
+            }
+            document.getElementById('floating-voice-recording-bar').style.display = 'none';
+            document.getElementById('floating-standard-input-bar').style.display = 'flex';
+        }
+
+        async function stopAndSendFloatingVoiceRecording() {
+            if (!floatingMediaRecorder || floatingMediaRecorder.state === 'inactive') return;
+            if (floatingRecordInterval) clearInterval(floatingRecordInterval);
+
+            const durationStr = document.getElementById('floating-recording-timer').innerText;
+
+            floatingMediaRecorder.onstop = async () => {
+                floatingMediaRecorder.stream.getTracks().forEach(track => track.stop());
+                const audioBlob = new Blob(floatingAudioChunks, { type: 'audio/webm' });
+                
+                const formData = new FormData();
+                formData.append('image', audioBlob, `voice-${Date.now()}.webm`);
+
+                try {
+                    const res = await axios.post('/api/chat/upload', formData, {
+                        headers: { 'Content-Type': 'multipart/form-data' }
+                    });
+                    if (res.data.success && (res.data.url || res.data.path)) {
+                        const audioUrl = res.data.url || res.data.path;
+                        sendFloatingCustomMessage(`[AUDIO: ${audioUrl}|${durationStr}]`);
+                    } else {
+                        sendFloatingCustomMessage(`🎤 [Ghi âm thoại: ${durationStr}]`);
+                    }
+                } catch(e) {
+                    sendFloatingCustomMessage(`🎤 [Ghi âm thoại: ${durationStr}]`);
+                }
+
+                document.getElementById('floating-voice-recording-bar').style.display = 'none';
+                document.getElementById('floating-standard-input-bar').style.display = 'flex';
+            };
+
+            floatingMediaRecorder.stop();
+        }
+
+        function openFloatingChatLightbox(url) {
+            document.getElementById('floating-lightbox-img').src = url;
+            document.getElementById('floating-lightbox-download-btn').href = url;
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('floatingChatLightboxModal'));
+            modal.show();
+        }
+
+        function togglePlayFloatingVoice(btn, audioUrl) {
+            let audio = btn._audioInstance;
+            if (!audio) {
+                audio = new Audio(audioUrl);
+                btn._audioInstance = audio;
+                audio.onended = () => {
+                    btn.innerHTML = '<i class="bi bi-play-fill fs-5"></i>';
+                };
+            }
+
+            if (audio.paused) {
+                audio.play().then(() => {
+                    btn.innerHTML = '<i class="bi bi-pause-fill fs-5"></i>';
+                }).catch(e => {
+                    btn.innerHTML = '<i class="bi bi-pause-fill fs-5"></i>';
+                });
+            } else {
+                audio.pause();
+                btn.innerHTML = '<i class="bi bi-play-fill fs-5"></i>';
+            }
+        }
+
+        function formatFloatingDividerTime(isoDateStr) {
+            if (!isoDateStr) return '';
+            const d = new Date(isoDateStr);
+            if (isNaN(d.getTime())) return '';
+            const now = new Date();
+            const isToday = d.toDateString() === now.toDateString();
+            const yesterday = new Date(now);
+            yesterday.setDate(now.getDate() - 1);
+            const isYesterday = d.toDateString() === yesterday.toDateString();
+
+            const timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+            const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+            const dayName = days[d.getDay()];
+            const day = d.getDate();
+            const month = d.getMonth() + 1;
+            const year = d.getFullYear();
+
+            if (isToday) return `Hôm nay ${timeStr}`;
+            if (isYesterday) return `Hôm qua ${timeStr}`;
+            if (year === now.getFullYear()) return `${dayName}, ${day} Thg ${month}, ${timeStr}`;
+            return `${dayName}, ${day}/${month}/${year}, ${timeStr}`;
+        }
+
+        function formatBubbleContentFloating(text) {
+            if (!text) return '';
+            
+            // 1. Images: [HÌNH ẢNH: url] or [IMAGE: url] or plain /uploads/...
+            const imgTagMatch = text.match(/\[(HÌNH ẢNH|IMAGE):\s*([^\]]+)\]/i);
+            if (imgTagMatch) {
+                const url = imgTagMatch[2].trim();
+                return `
+                    <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                        <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 180px; max-width: 100%; object-fit: cover; display: block;" onclick="openFloatingChatLightbox('${url}')" loading="lazy" onerror="this.outerHTML='<span class=\\'small\\'>📷 Không thể tải ảnh</span>'">
+                    </div>
+                `;
+            }
+
+            const directImgMatch = text.match(/^(\/[^\s]+\.(jpg|jpeg|png|webp|gif)|https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif))$/i);
+            if (directImgMatch) {
+                const url = directImgMatch[1].trim();
+                return `
+                    <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                        <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 180px; max-width: 100%; object-fit: cover; display: block;" onclick="openFloatingChatLightbox('${url}')" loading="lazy">
+                    </div>
+                `;
+            }
+
+            // 2. GIFs [GIF: url]
+            const gifMatch = text.match(/\[GIF:\s*([^\]]+)\]/i);
+            if (gifMatch) {
+                const url = gifMatch[1].trim();
+                return `
+                    <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                        <img src="${url}" class="rounded-3 shadow-xs" style="max-height: 150px; max-width: 200px; object-fit: contain; display: block;" loading="lazy">
+                    </div>
+                `;
+            }
+
+            // 3. Voice notes [AUDIO: url|dur]
+            const audioMatch = text.match(/\[(AUDIO|VOICE):\s*([^\|\]]+)(?:\|([^\]]+))?\]/i);
+            if (audioMatch) {
+                const audioUrl = audioMatch[2].trim();
+                const duration = audioMatch[3] || '0:15';
+                return `
+                    <div class="d-flex align-items-center gap-2 p-1.5 px-2.5 rounded-pill my-1" style="background: rgba(0,0,0,0.06); min-width: 160px;">
+                        <button type="button" class="btn btn-sm btn-white rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 28px; height: 28px; color: #922724;" onclick="togglePlayFloatingVoice(this, '${audioUrl}')">
+                            <i class="bi bi-play-fill fs-5"></i>
+                        </button>
+                        <div class="flex-grow-1" style="height: 3px; background: rgba(0,0,0,0.15); border-radius: 2px;"></div>
+                        <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.7rem;">${duration}</span>
+                    </div>
+                `;
+            }
+
+            if (text.includes('🎤 [Ghi âm thoại')) {
+                return `
+                    <div class="d-flex align-items-center gap-2 p-1.5 px-2.5 rounded-pill my-1" style="background: rgba(0,0,0,0.06); min-width: 160px;">
+                        <button type="button" class="btn btn-sm btn-white rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 28px; height: 28px; color: #922724;" onclick="togglePlayFloatingVoice(this, '/sounds/chat-notification.mp3')">
+                            <i class="bi bi-play-fill fs-5"></i>
+                        </button>
+                        <div class="flex-grow-1" style="height: 3px; background: rgba(0,0,0,0.15); border-radius: 2px;"></div>
+                        <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.7rem;">0:15</span>
+                    </div>
+                `;
+            }
+
+            const div = document.createElement('div');
+            div.innerText = text;
+            return div.innerHTML;
+        }
 
         async function loadFloatingChatMessages() {
             try {
                 const res = await axios.get('/api/get-messages');
                 if (res.data.success) {
                     const messages = res.data.data;
-                    if (messages.length === lastMessageCount) return;
-                    lastMessageCount = messages.length;
+                    if (messages.length === lastFloatingMsgCount) return;
+                    lastFloatingMsgCount = messages.length;
 
                     const container = document.getElementById('floatingChatMessages');
-                    let html = `<div class="text-center mb-3"><span class="badge bg-light text-muted px-2 py-1 rounded-pill small">Hỗ trợ trực tuyến</span></div>
-                                <div class="message-received mb-3 d-flex gap-2">
-                                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle mt-auto" style="width: 28px; height: 28px;" onerror="this.src='/images/logo.svg'">
-                                    <div class="p-2 px-3 rounded-4 bg-light text-dark small" style="max-width: 75%; font-size: 0.85rem; line-height: 1.5;">
-                                        Xin chào! Chúng tôi có thể giúp gì cho bạn? Hãy gửi tin nhắn tại đây nhé.
+                    let html = `
+                        <div class="text-center mb-3">
+                            <span class="badge bg-light text-muted px-2.5 py-1 rounded-pill small border" style="font-size: 0.7rem;">
+                                <i class="bi bi-shield-check text-success me-1"></i>Hỗ trợ trực tuyến bảo mật
+                            </span>
+                        </div>
+                    `;
+                    
+                    let lastMsgTime = null;
+
+                    messages.forEach((msg, idx) => {
+                        const isMe = msg.is_mine || false;
+                        const isAI = msg.is_ai === 1 || msg.is_ai === true;
+                        const currentMsgTime = msg.created_at ? new Date(msg.created_at).getTime() : 0;
+                        const exactTime = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
+                        const isLikeEmoji = (msg.message === '👍');
+                        const isMedia = (msg.message.includes('[HÌNH ẢNH:') || msg.message.includes('[GIF:') || msg.message.includes('[AUDIO:'));
+                        const isRecalled = msg.is_recalled || msg.message === '[ĐÃ THU HỒI]';
+
+                        if (isRecalled) {
+                            if (isMe) {
+                                html += `
+                                    <div class="message-sent mb-1.5 d-flex flex-column align-items-end">
+                                        <div class="px-2.5 py-1.5 text-muted fst-italic shadow-2xs" style="border-radius: 14px; border: 1px dashed rgba(0,0,0,0.18); background: rgba(0,0,0,0.03); font-size: 0.8rem;" title="${exactTime}">
+                                            <i class="bi bi-arrow-counterclockwise me-1 text-danger"></i>Tin nhắn đã bị thu hồi
+                                        </div>
+                                        <div class="x-small text-muted text-end mt-0.5 me-1" style="font-size: 0.65rem; color: #65676b;">${exactTime}</div>
                                     </div>
-                                </div>`;
-                    
-                    const currentSessionId = window.CURRENT_SESSION_ID;
-                    
-                    messages.forEach(msg => {
-                        const isMe = msg.sender_uuid && String(msg.sender_uuid) === String(currentSessionId);
-                        if (isMe) {
+                                `;
+                            } else {
+                                html += `
+                                    <div class="message-received mb-1.5 d-flex flex-column align-items-start">
+                                        <div class="d-flex gap-1.5 align-items-end" style="max-width: 82%;">
+                                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                                            <div class="px-2.5 py-1.5 text-muted fst-italic shadow-2xs" style="border-radius: 14px; border: 1px dashed rgba(0,0,0,0.18); background: rgba(0,0,0,0.03); font-size: 0.8rem;" title="${exactTime}">
+                                                <i class="bi bi-arrow-counterclockwise me-1 text-danger"></i>Tin nhắn đã bị thu hồi
+                                            </div>
+                                        </div>
+                                        <div class="x-small text-muted text-start mt-0.5 ms-4" style="font-size: 0.65rem; color: #65676b;">${exactTime}</div>
+                                    </div>
+                                `;
+                            }
+                        } else if (isMe) {
                             html += `
-                                <div class="message-sent mb-2 d-flex justify-content-end">
-                                    <div class="px-3 py-2 text-white small" style="max-width: 75%; width: fit-content; font-size: 0.86rem; line-height: 1.4; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; word-break: break-word;">
-                                        ${msg.message}
+                                <div class="message-sent mb-1.5 d-flex flex-column align-items-end">
+                                    <div class="group-hover-parent d-flex align-items-center gap-1 justify-content-end" style="max-width: 85%;">
+                                        <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 22px; height: 22px; font-size: 0.75rem;" onclick="openFloatingRecallAction('${msg.id}', true)" title="Tùy chọn tin nhắn">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <div class="shadow-2xs text-white text-start" style="font-size: ${isLikeEmoji ? '2rem' : '0.88rem'}; line-height: 1.35; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '8px 12px'}; background: ${isLikeEmoji || isMedia ? 'transparent' : 'linear-gradient(135deg, #922724 0%, #b83330 100%)'} !important; border-radius: 16px 16px 4px 16px !important; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
+                                            ${formatBubbleContentFloating(msg.message)}
+                                        </div>
                                     </div>
+                                    <div class="x-small text-muted text-end mt-0.5 me-1" style="font-size: 0.65rem; color: #65676b;">${exactTime}</div>
+                                </div>
+                            `;
+                        } else if (isAI) {
+                            html += `
+                                <div class="message-received mb-1.5 d-flex flex-column align-items-start">
+                                    <div class="d-flex gap-1.5 align-items-end" style="max-width: 82%;">
+                                        <div class="rounded-circle d-flex align-items-center justify-content-center text-success flex-shrink-0 bg-success bg-opacity-10 border border-success border-opacity-20" style="width: 24px; height: 24px; font-size: 0.8rem;">
+                                            <i class="bi bi-robot"></i>
+                                        </div>
+                                        <div class="shadow-2xs text-start" style="font-size: 0.88rem; line-height: 1.35; padding: 8px 12px; border-radius: 16px 16px 16px 4px !important; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #065f46; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
+                                            <div class="x-small fw-bold text-success mb-0.5" style="font-size: 0.6rem;">🤖 TRỢ LÝ AI</div>
+                                            ${formatBubbleContentFloating(msg.message)}
+                                        </div>
+                                    </div>
+                                    <div class="x-small text-muted text-start mt-0.5 ms-4" style="font-size: 0.65rem; color: #65676b;">${exactTime}</div>
                                 </div>
                             `;
                         } else {
+                            const senderName = msg.manager_name || (msg.destination_name ? `Quản lý ${msg.destination_name}` : 'Ban Quản Trị');
                             html += `
-                                <div class="message-received mb-2 d-flex gap-2">
-                                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle mt-auto" style="width: 26px; height: 26px;" onerror="this.src='/images/logo.svg'">
-                                    <div class="px-3 py-2 text-dark small" style="max-width: 75%; width: fit-content; font-size: 0.86rem; line-height: 1.4; background: #e4e6eb !important; color: #050505 !important; border-radius: 18px 18px 18px 4px !important; word-break: break-word;">
-                                        ${msg.message}
+                                <div class="message-received mb-1.5 d-flex flex-column align-items-start">
+                                    <div class="d-flex gap-1.5 align-items-end" style="max-width: 85%;">
+                                        <img src="<%= fixImg(settings.brand_logo, '/images/logo.svg') %>" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
+                                        <div class="group-hover-parent d-flex align-items-center gap-1 justify-content-start flex-grow-1">
+                                            <div class="shadow-2xs text-start" style="font-size: ${isLikeEmoji ? '2rem' : '0.88rem'}; line-height: 1.35; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '8px 12px'}; border-radius: 16px 16px 16px 4px !important; background: ${isLikeEmoji || isMedia ? 'transparent' : '#f0f2f5'}; color: #050505; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
+                                                <div class="x-small fw-bold text-muted mb-0.5" style="font-size: 0.6rem;">${senderName}</div>
+                                                ${formatBubbleContentFloating(msg.message)}
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 22px; height: 22px; font-size: 0.75rem;" onclick="openFloatingRecallAction('${msg.id}', false)" title="Tùy chọn tin nhắn">
+                                                <i class="bi bi-three-dots"></i>
+                                            </button>
+                                        </div>
                                     </div>
+                                    <div class="x-small text-muted text-start mt-0.5 ms-4" style="font-size: 0.65rem; color: #65676b;">${exactTime}</div>
                                 </div>
                             `;
                         }
@@ -479,14 +1013,56 @@
             }
         }
 
-        async function sendFloatingMessage(e) {
-            e.preventDefault();
-            const input = document.getElementById('floatingChatInput');
-            const msg = input.value.trim();
-            if (!msg) return;
+        let activeFloatingRecallMessageId = null;
 
-            input.value = '';
-            
+        function openFloatingRecallAction(msgId, isMine) {
+            activeFloatingRecallMessageId = msgId;
+            const optAll = document.getElementById('floating-recall-option-all');
+            if (optAll) {
+                optAll.style.display = isMine ? 'flex' : 'none';
+            }
+            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('floatingRecallModal'));
+            modal.show();
+        }
+
+        async function executeFloatingRecall(type) {
+            if (!activeFloatingRecallMessageId) return;
+            const msgId = activeFloatingRecallMessageId;
+            const modalEl = document.getElementById('floatingRecallModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+
+            try {
+                const res = await axios.post('/api/chat/recall-message', { messageId: msgId, type });
+                if (res.data.success) {
+                    lastFloatingMsgCount = -1;
+                    loadFloatingChatMessages();
+                } else {
+                    alert(res.data.message || 'Không thể thực hiện thao tác');
+                }
+            } catch(e) {
+                alert('Lỗi: ' + (e.response?.data?.message || e.message));
+            }
+        }
+
+        async function sendFloatingCustomMessage(msg) {
+            if (!msg) return;
+            const container = document.getElementById('floatingChatMessages');
+            const exactTime = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+            const isLikeEmoji = (msg === '👍');
+            const isMedia = (msg.includes('[HÌNH ẢNH:') || msg.includes('[GIF:') || msg.includes('[AUDIO:'));
+
+            const optHtml = `
+                <div class="message-sent mb-1.5 d-flex flex-column align-items-end">
+                    <div class="shadow-2xs text-white text-start" style="max-width: 78%; font-size: ${isLikeEmoji ? '2rem' : '0.88rem'}; line-height: 1.35; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '8px 12px'}; background: ${isLikeEmoji || isMedia ? 'transparent' : 'linear-gradient(135deg, #922724 0%, #b83330 100%)'} !important; border-radius: 16px 16px 4px 16px !important; word-break: break-word; overflow-wrap: anywhere;">
+                        ${formatBubbleContentFloating(msg)}
+                    </div>
+                    <div class="x-small text-muted text-end mt-0.5 me-1" style="font-size: 0.65rem; color: #65676b;">${exactTime}</div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', optHtml);
+            container.scrollTop = container.scrollHeight;
+
             try {
                 const res = await axios.post('/api/send-message', { message: msg });
                 if (res.data.success) {
@@ -495,6 +1071,17 @@
             } catch (e) {
                 console.error('Error sending message:', e);
             }
+        }
+
+        function sendFloatingLiveMessage() {
+            const input = document.getElementById('floatingChatInput');
+            let msg = input.value.trim();
+            if (!msg) msg = '👍';
+
+            input.value = '';
+            toggleFloatingSendIcon(input);
+            sendFloatingCustomMessage(msg);
+            input.focus();
         }
     </script>
     <% } %>
@@ -902,6 +1489,12 @@
             });
         }
     });
+
+    // Automatically route all standard alert() calls to the modern popup modal
+    window.alert = function(msg) {
+        if (!msg) return;
+        window.showAppAlert(String(msg), 'Thông báo');
+    };
     </script>
 
     <div class="modal fade" id="appConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 100000;">

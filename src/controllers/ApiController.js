@@ -211,6 +211,15 @@ class ApiController {
     // --- CHAT API ---
     async sendMessage(req, res) {
         try {
+            const user = req.user || req.session?.user || null;
+            if (!user) {
+                return res.status(401).json({ 
+                    success: false, 
+                    requireLogin: true, 
+                    message: 'Vui lòng đăng nhập tài khoản để nhắn tin trò chuyện!' 
+                });
+            }
+
             const { destinationId, message } = req.body;
             let sessionUuid = req.cookies?.session_uuid;
             
@@ -226,10 +235,9 @@ class ApiController {
             const session = await UserSession.findOrCreate(sessionUuid, req);
             if (!session) return res.status(404).json({ success: false, message: 'Không thể tạo phiên truy cập.' });
 
-            const user = req.user || req.session?.user || null;
-            const currentUserId = user ? user.id : (session.user_id || null);
+            const currentUserId = user.id;
 
-            if (user && user.id && !session.user_id) {
+            if (user.id && !session.user_id) {
                 await db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
                 session.user_id = user.id;
             }
@@ -335,6 +343,73 @@ class ApiController {
         }
     }
 
+    async recallMessage(req, res) {
+        try {
+            const { messageId, type } = req.body; // 'all' (Thu hồi với mọi người) | 'self' (Gỡ ở phía bạn)
+            if (!messageId) {
+                return res.status(400).json({ success: false, message: 'Thiếu ID tin nhắn.' });
+            }
+
+            const sessionUuid = req.cookies?.session_uuid;
+            const user = req.user || req.session?.user;
+            const currentUserId = user?.id;
+            const currentRole = user?.role;
+
+            let session = null;
+            if (sessionUuid) {
+                session = await UserSession.findOrCreate(sessionUuid, req);
+            }
+
+            const [rows] = await db.query("SELECT * FROM messages WHERE id::text = $1", [String(messageId)]);
+            if (rows.length === 0) {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy tin nhắn.' });
+            }
+
+            const msg = rows[0];
+
+            if (type === 'all') {
+                let canRecall = false;
+                if (currentRole === 'admin') canRecall = true;
+                else if (currentRole === 'manager' && (!msg.destination_id || msg.destination_id === user?.managed_destination_id)) canRecall = true;
+                else if (currentUserId && String(msg.sender_id) === String(currentUserId)) canRecall = true;
+                else if (session && (String(msg.sender_uuid) === String(session.id) || String(msg.sender_uuid) === String(session.uuid))) canRecall = true;
+                else if (sessionUuid && (String(msg.sender_uuid) === String(sessionUuid))) canRecall = true;
+
+                if (!canRecall) {
+                    return res.status(403).json({ success: false, message: 'Bạn không có quyền thu hồi tin nhắn này với mọi người.' });
+                }
+
+                await db.query(
+                    "UPDATE messages SET is_recalled = 1, message = '[ĐÃ THU HỒI]', content = '[ĐÃ THU HỒI]' WHERE id::text = $1",
+                    [String(messageId)]
+                );
+
+                return res.json({ success: true, type: 'all', message: 'Đã thu hồi tin nhắn với mọi người.' });
+            } else {
+                const userTag = currentUserId ? `user_${currentUserId}` : '';
+                const sessTag = session ? `sess_${session.uuid || session.id}` : (sessionUuid ? `sess_${sessionUuid}` : '');
+                const sessIdTag = session ? `sess_${session.id}` : '';
+
+                const existing = msg.deleted_for || '';
+                const parts = existing ? existing.split(',') : [];
+                if (userTag && !parts.includes(userTag)) parts.push(userTag);
+                if (sessTag && !parts.includes(sessTag)) parts.push(sessTag);
+                if (sessIdTag && !parts.includes(sessIdTag)) parts.push(sessIdTag);
+                const updated = parts.join(',');
+
+                await db.query(
+                    "UPDATE messages SET deleted_for = $1 WHERE id::text = $2",
+                    [updated, String(messageId)]
+                );
+
+                return res.json({ success: true, type: 'self', message: 'Đã gỡ tin nhắn ở phía bạn.' });
+            }
+        } catch(err) {
+            console.error("Recall message error:", err);
+            res.status(500).json({ success: false, message: 'Lỗi thu hồi tin nhắn: ' + err.message });
+        }
+    }
+
     async getMessages(req, res) {
         let sessionUuid = req.cookies?.session_uuid;
         if (!sessionUuid) {
@@ -373,6 +448,7 @@ class ApiController {
         const [messages] = await db.query(
             `SELECT m.id, m.sender_id, m.sender_uuid, m.receiver_uuid, m.destination_id, 
                     COALESCE(m.message, m.content, '') as message, m.is_ai, m.created_at,
+                    COALESCE(m.is_recalled, 0) as is_recalled, COALESCE(m.deleted_for, '') as deleted_for,
                     d.name as destination_name, d.cover_image as destination_image,
                     mgr.full_name as manager_name, mgr.avatar as manager_avatar
               FROM messages m
@@ -387,22 +463,37 @@ class ApiController {
             queryParams
         );
 
-        const formatted = messages.map(m => {
-            const isAi = (m.is_ai === 1 || m.is_ai === true);
-            let isMine = false;
+        const userTag = currentUserId ? `user_${currentUserId}` : '';
+        const sessTag = `sess_${session.uuid || session.id}`;
+        const sessIdTag = `sess_${session.id}`;
 
-            if (!isAi) {
-                if ((m.sender_uuid && (String(m.sender_uuid) === String(session.id) || String(m.sender_uuid) === String(session.uuid))) ||
-                    (m.sender_id && currentUserId && String(m.sender_id) === String(currentUserId))) {
-                    isMine = true;
+        const formatted = messages
+            .filter(m => {
+                const deletedList = (m.deleted_for || '').split(',');
+                if (userTag && deletedList.includes(userTag)) return false;
+                if (deletedList.includes(sessTag) || deletedList.includes(sessIdTag)) return false;
+                return true;
+            })
+            .map(m => {
+                const isAi = (m.is_ai === 1 || m.is_ai === true);
+                let isMine = false;
+
+                if (!isAi) {
+                    if ((m.sender_uuid && (String(m.sender_uuid) === String(session.id) || String(m.sender_uuid) === String(session.uuid))) ||
+                        (m.sender_id && currentUserId && String(m.sender_id) === String(currentUserId))) {
+                        isMine = true;
+                    }
                 }
-            }
 
-            return {
-                ...m,
-                is_mine: isMine
-            };
-        });
+                const isRecalled = (m.is_recalled === 1 || m.message === '[ĐÃ THU HỒI]');
+
+                return {
+                    ...m,
+                    is_mine: isMine,
+                    is_recalled: isRecalled,
+                    message: isRecalled ? '[ĐÃ THU HỒI]' : m.message
+                };
+            });
 
         res.json({ success: true, data: formatted });
     }

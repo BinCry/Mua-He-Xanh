@@ -797,28 +797,28 @@
 
         <script>
             function deleteSavedJourney(journeyId) {
-                if (!confirm('Bạn có chắc chắn muốn xóa hành trình đã lưu này khỏi hồ sơ?')) return;
-                
-                axios.post('/api/journey/delete', { journeyId })
-                    .then(res => {
-                        if (res.data.success) {
-                            const card = document.getElementById(`saved-journey-card-${journeyId}`);
-                            if (card) {
-                                card.style.transition = 'all 0.4s ease';
-                                card.style.opacity = '0';
-                                card.style.transform = 'scale(0.9)';
-                                setTimeout(() => card.remove(), 400);
+                showAppConfirm('Bạn có chắc chắn muốn xóa hành trình đã lưu này khỏi hồ sơ?', 'Xóa hành trình', () => {
+                    axios.post('/api/journey/delete', { journeyId })
+                        .then(res => {
+                            if (res.data.success) {
+                                const card = document.getElementById(`saved-journey-card-${journeyId}`);
+                                if (card) {
+                                    card.style.transition = 'all 0.4s ease';
+                                    card.style.opacity = '0';
+                                    card.style.transform = 'scale(0.9)';
+                                    setTimeout(() => card.remove(), 400);
+                                } else {
+                                    location.reload();
+                                }
                             } else {
-                                location.reload();
+                                showAppAlert(res.data.message || 'Lỗi khi xóa hành trình', 'Thông báo');
                             }
-                        } else {
-                            alert(res.data.message || 'Lỗi khi xóa hành trình');
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Delete journey error:', err);
-                        alert('Không thể xóa hành trình lúc này.');
-                    });
+                        })
+                        .catch(err => {
+                            console.error('Delete journey error:', err);
+                            showAppAlert('Không thể xóa hành trình lúc này.', 'Lỗi');
+                        });
+                });
             }
         </script>
 

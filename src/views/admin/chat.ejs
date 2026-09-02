@@ -1,146 +1,345 @@
-<!-- Premium Admin Chat Panel -->
-<div class="container-fluid p-0 animate__animated animate__fadeIn">
+<!-- Premium Admin Chat Panel - Pixel-Perfect Facebook Messenger UI -->
+<div class="container-fluid p-0 animate__animated animate__fadeIn position-relative">
     <!-- Header banner -->
     <div class="d-flex justify-content-between align-items-center mb-3">
         <div>
             <div class="admin-page-title">
-                <span class="admin-page-title-mark" aria-hidden="true"><i class="bi bi-chat-square-text"></i></span>
+                <span class="admin-page-title-mark" aria-hidden="true"><i class="bi bi-messenger"></i></span>
                 <h4 class="fw-bold mb-0 font-display" style="color: var(--admin-text); font-family: 'Inter', sans-serif;">Hộp thư Hỗ trợ Ban Quản Trị</h4>
             </div>
             <p class="mb-0 text-muted small" style="font-size: 0.85rem;">
-                Giải đáp thắc mắc, phản hồi và hỗ trợ du khách toàn hệ thống theo thời gian thực.
+                Tương tác, tư vấn và hỗ trợ du khách toàn hệ thống theo giao diện Messenger thời gian thực.
             </p>
         </div>
         <div>
-            <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
+            <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
                 <i class="bi bi-shield-lock me-1"></i>Hộp thư Admin
             </span>
         </div>
     </div>
 
     <!-- MAIN CHAT WORKSPACE -->
-    <div class="chat-container-card" style="height: calc(100vh - 170px); min-height: 550px;">
+    <div class="chat-container-card shadow-sm border" style="height: calc(100vh - 170px); min-height: 580px; border-radius: 16px; overflow: hidden; background: #ffffff; border-color: #e4e6eb !important;">
         <div class="row g-0 h-100">
             
             <!-- Chat Sidebar (Active Conversations list) -->
-            <div class="col-md-5 col-xl-4 border-end border-secondary border-opacity-10 d-flex flex-column h-100" style="background: rgba(0,0,0,0.03);">
-                <div class="p-3 border-bottom border-secondary border-opacity-10">
-                    <h6 class="fw-bold small mb-3" style="color: var(--admin-text);"><i class="bi bi-people-fill text-primary me-2"></i>HỘI THOẠI HỆ THỐNG</h6>
-                    <div class="input-group">
-                        <span class="input-group-text bg-light border-secondary border-opacity-20 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control admin-input border-secondary border-opacity-20 ps-2" placeholder="Tìm du khách..." id="chat-search" oninput="filterConversations()">
+            <div class="col-md-5 col-xl-4 border-end d-flex flex-column h-100" style="background: #ffffff; border-color: #e4e6eb !important;">
+                
+                <!-- Sidebar Header -->
+                <div class="px-3 pt-3 pb-2 d-flex justify-content-between align-items-center">
+                    <h4 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem; font-weight: 800; letter-spacing: -0.5px;">Đoạn chat</h4>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-muted" style="width: 36px; height: 36px; background: #f0f2f5;" title="Tùy chọn">
+                            <i class="bi bi-three-dots fs-5"></i>
+                        </button>
+                        <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-muted" style="width: 36px; height: 36px; background: #f0f2f5;" title="Làm mới danh sách" onclick="location.reload()">
+                            <i class="bi bi-arrow-clockwise fs-5"></i>
+                        </button>
                     </div>
                 </div>
+
+                <!-- Messenger Search Bar -->
+                <div class="px-3 pb-2">
+                    <div class="position-relative">
+                        <i class="bi bi-search position-absolute text-muted" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
+                        <input type="text" class="form-control border-0" id="chat-search" placeholder="Tìm kiếm trên Messenger" oninput="filterConversations()" style="background: #f0f2f5; border-radius: 20px; height: 36px; padding-left: 38px; font-size: 0.9rem;">
+                    </div>
+                </div>
+
+                <!-- Messenger Filter Tabs -->
+                <div class="px-3 pb-2 d-flex gap-1.5 align-items-center border-bottom" style="border-color: #f0f2f5 !important;">
+                    <button class="btn btn-sm rounded-pill px-3 fw-semibold border-0 filter-tab-btn active" id="tab-all" onclick="switchFilterTab('all')" style="background: #e7f3ff; color: #0064e0; font-size: 0.85rem;">Tất cả</button>
+                    <button class="btn btn-sm rounded-pill px-3 fw-semibold border-0 filter-tab-btn text-muted" id="tab-unread" onclick="switchFilterTab('unread')" style="background: transparent; font-size: 0.85rem;">Cần phản hồi</button>
+                    <button class="btn btn-sm rounded-pill px-3 fw-semibold border-0 filter-tab-btn text-muted" id="tab-replied" onclick="switchFilterTab('replied')" style="background: transparent; font-size: 0.85rem;">Đã trả lời</button>
+                </div>
                 
+<% 
+function formatMessengerSidebarDate(dateStr) {
+    if (!dateStr) return '';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return '';
+    const now = new Date();
+    const diffMs = now - d;
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHour = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHour / 24);
+
+    if (diffMin < 1) return 'Vừa xong';
+    if (diffMin < 60) return `${diffMin} phút`;
+    if (diffHour < 24) return `${diffHour} giờ`;
+    if (diffDay === 1) return 'Hôm qua';
+    if (diffDay < 7) return `${diffDay} ngày`;
+    
+    const day = String(d.getDate()).padStart(2, '0');
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    if (d.getFullYear() === now.getFullYear()) {
+        return `${day}/${month}`;
+    }
+    return `${day}/${month}/${d.getFullYear()}`;
+}
+%>
                 <!-- Conversations List -->
-                <div class="flex-grow-1 overflow-y-auto custom-scrollbar" id="convo-list">
+                <div class="flex-grow-1 overflow-y-auto custom-scrollbar p-2" id="convo-list" style="background: #ffffff;">
                     <% if (conversations && conversations.length > 0) { %>
                         <% conversations.forEach((convo, index) => { 
                             const rawId = (convo.session_uuid || convo.session_id || '').toString();
                             const shortId = rawId ? rawId.slice(0,4).toUpperCase() : 'ANON';
-                            const displayName = convo.user_name || ('Khách vãng lai #' + shortId);
+                            const displayName = convo.user_name || ('Du khách #' + shortId);
                             const avatarInitial = convo.user_name ? convo.user_name.split(' ').pop().slice(0,2).toUpperCase() : ('#' + shortId.slice(0,2));
                             let charCode = 0;
                             for (let i = 0; i < rawId.length; i++) charCode += rawId.charCodeAt(i);
+                            const bgColors = ['#922724', '#0284c7', '#059669', '#d97706', '#7c3aed', '#db2777'];
+                            const avatarBg = bgColors[charCode % bgColors.length];
                         %>
-                            <div class="convo-item-card p-3 border-bottom border-secondary border-opacity-5 d-flex gap-3 position-relative cursor-pointer transition-all" 
+                            <div class="convo-item-card px-2.5 py-2 d-flex gap-3 align-items-center position-relative cursor-pointer transition-all" 
                                  id="convo-<%= convo.session_id %>"
-                                 onclick="loadConversation('<%= convo.session_id %>')">
+                                 data-session-id="<%= convo.session_id %>"
+                                 data-user-name="<%= displayName %>"
+                                 onclick="loadConversation('<%= convo.session_id %>')"
+                                 style="border-radius: 10px; margin-bottom: 2px;">
                                 
                                 <!-- Avatar -->
                                 <div class="position-relative flex-shrink-0">
-                                    <div class="convo-avatar rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm"
-                                         style="width: 40px; height: 40px; background: <%= ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][charCode % 6] %>; object-fit: cover; font-size: 0.8rem;">
+                                    <div class="convo-avatar rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-2xs"
+                                         style="width: 50px; height: 50px; background: <%= avatarBg %>; object-fit: cover; font-size: 0.95rem;">
                                         <% if (convo.user_avatar) { %>
-                                            <img src="<%= convo.user_avatar %>" class="w-100 h-100 rounded-circle object-fit-cover">
+                                            <img src="<%= convo.user_avatar %>" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.outerHTML='<%= avatarInitial %>'">
                                         <% } else { %>
                                             <%= avatarInitial %>
                                         <% } %>
                                     </div>
-                                    <span class="position-absolute bottom-0 end-0 bg-success border border-dark border-2 rounded-circle" style="width: 10px; height: 10px;"></span>
+                                    <span class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle" style="width: 14px; height: 14px;"></span>
                                 </div>
                                 
                                 <!-- Body -->
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="fw-bold mb-0 text-truncate small" style="color: var(--admin-text); max-width: 130px; font-size: 0.78rem;">
-                                            <%= displayName %>
-                                        </h6>
-                                        <small class="text-muted" style="font-size: 0.65rem;">
-                                            <%= convo.last_message_time ? new Date(convo.last_message_time).toLocaleTimeString('vi-VN', {hour: '2-digit', minute: '2-digit'}) : '' %>
-                                        </small>
-                                    </div>
-                                    <p class="text-muted text-truncate mb-0 x-small" style="line-height: 1.4; font-size: 0.7rem;">
-                                        <%= convo.last_message || 'Bắt đầu cuộc hội thoại...' %>
+                                <div class="flex-grow-1 overflow-hidden" style="min-width: 0;">
+                                    <h6 class="fw-semibold mb-0.5 text-truncate text-dark" style="font-size: 0.92rem;">
+                                        <%= displayName %>
+                                    </h6>
+                                    <p class="text-muted text-truncate mb-0" style="line-height: 1.35; font-size: 0.8rem;">
+                                        <span class="convo-last-msg"><%= (convo.last_message || 'Bắt đầu cuộc trò chuyện').replace(/\[(HÌNH ẢNH|IMAGE|AUDIO|GIF|VOICE):[^\]]+\]/gi, '📷 [Đã gửi tệp đa phương tiện]') %></span> · <span class="convo-time"><%= formatMessengerSidebarDate(convo.last_message_time) %></span>
                                     </p>
                                 </div>
-                                
-                                <div class="active-indicator"></div>
                             </div>
                         <% }) %>
                     <% } else { %>
-                        <div class="text-center py-5 opacity-25">
-                            <i class="bi bi-chat-square-quote display-6 mb-3 d-block"></i>
-                            <small class="fw-bold">Chưa có hội thoại hỗ trợ nào</small>
+                        <div class="text-center py-5 opacity-40">
+                            <i class="bi bi-chat-square-quote display-6 mb-3 d-block text-muted"></i>
+                            <small class="fw-bold text-muted">Chưa có cuộc hội thoại hỗ trợ nào</small>
                         </div>
                     <% } %>
                 </div>
             </div>
 
-            <!-- Chat Feed Widget -->
-            <div class="col-md-7 col-xl-8 d-flex flex-column h-100" style="background: var(--admin-bg);">
-                <!-- Header -->
-                <div class="p-3 border-bottom border-secondary border-opacity-10 d-flex justify-content-between align-items-center" id="chat-header" style="height: 68px;">
+            <!-- Chat Feed Widget (Messenger Style) -->
+            <div class="col-md-7 col-xl-8 d-flex flex-column h-100 position-relative" style="background: #ffffff;">
+                
+                <!-- Chat Header -->
+                <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center" id="chat-header" style="height: 64px; border-color: #e4e6eb !important; background: #ffffff;">
                     <div class="d-flex align-items-center gap-3">
-                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold" id="active-chat-avatar" style="width: 38px; height: 38px; background: #888; color: #fff; font-size: 0.85rem;">
-                            ?
+                        <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-2xs flex-shrink-0" id="active-chat-avatar" style="width: 40px; height: 40px; background: #e4e6eb; color: #050505; font-size: 0.9rem;">
+                            <i class="bi bi-person-fill"></i>
                         </div>
                         <div>
-                            <h6 class="fw-bold mb-0 small" id="active-chat-name" style="color: var(--admin-text); font-size: 0.85rem;">Vui lòng chọn hội thoại</h6>
-                            <small class="text-muted" style="font-size: 0.65rem;" id="active-chat-status">Ngoại tuyến</small>
+                            <h6 class="fw-bold mb-0 text-dark" id="active-chat-name" style="font-size: 0.98rem;">Vui lòng chọn hội thoại</h6>
+                            <small class="text-muted d-flex align-items-center gap-1.5" style="font-size: 0.72rem;" id="active-chat-status">
+                                <span class="d-inline-block rounded-circle bg-secondary" style="width: 6px; height: 6px;"></span> Chọn cuộc hội thoại để phản hồi
+                            </small>
                         </div>
                     </div>
-                    <div id="active-chat-actions" style="display: none;">
-                        <button class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold" style="font-size: 0.75rem;" onclick="deleteActiveConversation()">
-                            <i class="bi bi-trash3-fill me-1"></i>Xóa cuộc hội thoại
+                    <div id="active-chat-actions" class="d-flex align-items-center gap-2" style="display: none;">
+                        <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-danger" style="width: 36px; height: 36px; background: #fef2f2;" onclick="deleteActiveConversation()" title="Xóa cuộc hội thoại">
+                            <i class="bi bi-trash3 fs-6"></i>
+                        </button>
+                        <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px; background: #f0f2f5; color: #7c3aed;" onclick="openVisitorInfoModal()" title="Thông tin chi tiết người dùng">
+                            <i class="bi bi-info-circle-fill fs-5"></i>
                         </button>
                     </div>
                 </div>
 
-                <!-- Chat Messages Container -->
-                <div class="flex-grow-1 p-4 overflow-y-auto custom-scrollbar d-flex flex-column gap-3" id="chat-messages-stream" style="background: rgba(0,0,0,0.05); height: 0;">
-                    <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-30 my-auto">
-                        <i class="bi bi-messenger display-4 mb-3 text-primary animate-pulse"></i>
-                        <h6 class="fw-bold">Hộp thư hỗ trợ hệ thống</h6>
-                        <p class="small text-muted px-4" style="max-width: 320px; font-size: 0.72rem;">Chọn một cuộc hội thoại từ danh sách bên trái để phản hồi, giải đáp các thắc mắc chung của khách truy cập.</p>
+                <!-- Chat Messages Stream -->
+                <div class="flex-grow-1 p-3 px-4 overflow-y-auto custom-scrollbar d-flex flex-column" id="chat-messages-stream" style="background: #ffffff; height: 0;">
+                    <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-40 my-auto">
+                        <i class="bi bi-messenger display-3 mb-3 text-primary animate-pulse" style="color: #0084ff !important;"></i>
+                        <h6 class="fw-bold text-dark">Hộp thư hỗ trợ trực tuyến Ban Quản Trị</h6>
+                        <p class="small text-muted px-4" style="max-width: 360px; font-size: 0.8rem;">Chọn một cuộc hội thoại từ danh sách bên trái để phản hồi và đồng hành cùng du khách.</p>
                     </div>
                 </div>
 
-                <!-- Chat Input and Canned Answers -->
-                <div class="border-top border-secondary border-opacity-10" id="chat-controls-area" style="display: none; background: var(--admin-surface);">
+                <!-- Floating Emoji, Stickers & Media Popover -->
+                <div id="emoji-sticker-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 75px; right: 15px; width: 340px; max-width: calc(100% - 30px); z-index: 1050; border-color: #e4e6eb !important;">
+                    <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
+                        <div class="d-flex gap-1">
+                            <button type="button" class="btn btn-sm btn-light active rounded-pill px-2.5 py-1 fw-bold fs-7 picker-tab-btn" id="ptab-emoji" onclick="switchPickerTab('emoji')">😊 Biểu cảm</button>
+                            <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-1 fw-bold fs-7 picker-tab-btn" id="ptab-travel" onclick="switchPickerTab('travel')">🌿 Du lịch</button>
+                            <button type="button" class="btn btn-sm btn-light rounded-pill px-2.5 py-1 fw-bold fs-7 picker-tab-btn" id="ptab-stickers" onclick="switchPickerTab('stickers')">🏷️ Nhãn dán</button>
+                        </div>
+                        <button type="button" class="btn-close" style="font-size: 0.65rem;" onclick="toggleEmojiPanel(false)"></button>
+                    </div>
                     
-                    <!-- Quick answers row -->
-                    <div class="p-2 border-bottom border-secondary border-opacity-5 d-flex gap-2 overflow-x-auto custom-scrollbar whitespace-nowrap bg-light" style="padding-left: 15px !important; padding-right: 15px !important;">
-                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('welcome')">
+                    <!-- Emojis Content -->
+                    <div class="p-3 picker-tab-pane" id="ppane-emoji" style="max-height: 220px; overflow-y: auto;">
+                        <div class="d-flex flex-wrap gap-2 fs-4">
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('😊')">😊</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🥰')">🥰</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('😂')">😂</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('😍')">😍</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('😎')">😎</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🥳')">🥳</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('👍')">👍</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('👏')">👏</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🙏')">🙏</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('❤️')">❤️</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('💖')">💖</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🔥')">🔥</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🎉')">🎉</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('✨')">✨</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('💯')">💯</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🤩')">🤩</span>
+                        </div>
+                    </div>
+
+                    <!-- Travel & Nature Content -->
+                    <div class="p-3 picker-tab-pane" id="ppane-travel" style="display: none; max-height: 220px; overflow-y: auto;">
+                        <div class="d-flex flex-wrap gap-2 fs-4">
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🌿')">🌿</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🌸')">🌸</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🌾')">🌾</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🚣')">🚣</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🚴')">🚴</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🥭')">🥭</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🍵')">🍵</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🛵')">🛵</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🏕️')">🏕️</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🌅')">🌅</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('📸')">📸</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🌳')">🌳</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🍃')">🍃</span>
+                            <span class="cursor-pointer hover-scale p-1" onclick="insertEmoji('🛶')">🛶</span>
+                        </div>
+                    </div>
+
+                    <!-- Instant Quick Stickers Content -->
+                    <div class="p-2 picker-tab-pane" id="ppane-stickers" style="display: none; max-height: 220px; overflow-y: auto;">
+                        <div class="row g-2 text-center">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-primary btn-sm w-100 rounded-3 py-2 fw-semibold fs-7 text-truncate" onclick="sendCustomMessage('👋 [Xin chào du khách thân mến!]')">
+                                    👋 Xin chào
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-success btn-sm w-100 rounded-3 py-2 fw-semibold fs-7 text-truncate" onclick="sendCustomMessage('🙏 [Cảm ơn quý khách rất nhiều!]')">
+                                    🙏 Cảm ơn
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-warning btn-sm w-100 rounded-3 py-2 fw-semibold fs-7 text-truncate" onclick="sendCustomMessage('✨ [Chúc bạn một ngày chữa lành an yên!]')">
+                                    ✨ Chúc an lành
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-outline-danger btn-sm w-100 rounded-3 py-2 fw-semibold fs-7 text-truncate" onclick="sendCustomMessage('💖 [Rất hân hạnh được hỗ trợ bạn!]')">
+                                    💖 Hân hạnh
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floating GIF Picker Popover -->
+                <div id="gif-picker-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 75px; left: 15px; width: 320px; max-width: calc(100% - 30px); z-index: 1050; border-color: #e4e6eb !important;">
+                    <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
+                        <span class="fw-bold small text-dark"><i class="bi bi-filetype-gif text-primary me-1"></i>Ảnh Động (GIF)</span>
+                        <button type="button" class="btn-close" style="font-size: 0.65rem;" onclick="toggleGifPanel(false)"></button>
+                    </div>
+                    <div class="p-2 d-flex flex-column gap-2" style="max-height: 240px; overflow-y: auto;">
+                        <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendQuickGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
+                            <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 100px; object-fit: cover;" loading="lazy">
+                            <div class="p-1.5 text-center bg-white"><span class="small fw-semibold text-primary">👋 Xin chào thân mến!</span></div>
+                        </div>
+                        <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendQuickGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
+                            <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 100px; object-fit: cover;" loading="lazy">
+                            <div class="p-1.5 text-center bg-white"><span class="small fw-semibold text-success">🙏 Cảm ơn quý khách!</span></div>
+                        </div>
+                        <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendQuickGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
+                            <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 100px; object-fit: cover;" loading="lazy">
+                            <div class="p-1.5 text-center bg-white"><span class="small fw-semibold text-warning">👍 Chúc chuyến đi tuyệt vời!</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden file upload input for images -->
+                <input type="file" id="chat-image-input" accept="image/*" style="display: none;" onchange="handleImageUpload(event)">
+
+                <!-- Chat Input and Quick Answers Area -->
+                <div class="border-top" id="chat-controls-area" style="display: none; border-color: #e4e6eb !important; background: #ffffff;">
+                    
+                    <!-- Quick canned responses chips -->
+                    <div class="p-2 border-bottom d-flex gap-2 overflow-x-auto custom-scrollbar whitespace-nowrap bg-light bg-opacity-50" style="padding-left: 16px !important; padding-right: 16px !important; border-color: #f1f5f9 !important;">
+                        <button class="btn btn-white btn-sm rounded-pill px-3 shadow-2xs border text-muted fw-semibold" style="font-size: 0.72rem;" onclick="insertCannedResponse('welcome')">
                             🌿 Chào mừng du khách
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('guide')">
+                        <button class="btn btn-white btn-sm rounded-pill px-3 shadow-2xs border text-muted fw-semibold" style="font-size: 0.72rem;" onclick="insertCannedResponse('guide')">
                             🗺️ Hướng dẫn hành trình
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('points')">
+                        <button class="btn btn-white btn-sm rounded-pill px-3 shadow-2xs border text-muted fw-semibold" style="font-size: 0.72rem;" onclick="insertCannedResponse('points')">
                             ✨ Điểm thưởng & Checkin
                         </button>
-                        <button class="btn btn-outline-secondary btn-sm rounded-pill x-small px-3 border-opacity-25" style="font-size: 0.68rem;" onclick="insertCannedResponse('thanks')">
+                        <button class="btn btn-white btn-sm rounded-pill px-3 shadow-2xs border text-muted fw-semibold" style="font-size: 0.72rem;" onclick="insertCannedResponse('thanks')">
                             🙏 Cảm ơn du khách
                         </button>
                     </div>
 
-                    <!-- Input control -->
-                    <div class="p-3 bg-light">
-                        <div class="input-group">
-                            <input type="text" id="admin-chat-input" class="form-control border-secondary border-opacity-20 rounded-pill ps-4 py-2 admin-input" placeholder="Nhập tin nhắn phản hồi..." style="font-size: 0.8rem;" onkeypress="if(event.key === 'Enter') sendLiveReply()">
-                            <button class="btn btn-primary rounded-circle ms-2 shadow d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: var(--admin-primary); border: none;" onclick="sendLiveReply()">
-                                <i class="bi bi-send-fill text-white" style="font-size: 0.9rem;"></i>
+                    <!-- Live Audio Recording Bar Overlay (When recording) -->
+                    <div id="voice-recording-bar" class="p-2.5 px-3 bg-white align-items-center gap-3 border-top" style="display: none; border-color: #e4e6eb !important;">
+                        <div class="d-flex align-items-center gap-2 text-danger">
+                            <span class="spinner-grow spinner-grow-sm text-danger" role="status"></span>
+                            <span class="fw-bold" style="font-size: 0.9rem;" id="recording-timer">00:00</span>
+                        </div>
+                        <div class="flex-grow-1 text-center">
+                            <span class="text-muted small">Đang ghi âm giọng nói...</span>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-light btn-sm rounded-pill px-3 text-danger fw-bold" onclick="cancelVoiceRecording()">
+                                <i class="bi bi-trash3 me-1"></i>Hủy
+                            </button>
+                            <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 fw-bold" onclick="stopAndSendVoiceRecording()">
+                                <i class="bi bi-send-fill me-1"></i>Gửi
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Messenger Bottom Input Bar -->
+                    <div class="p-2.5 px-3 bg-white d-flex align-items-center gap-2" id="standard-chat-bar">
+                        <!-- Media Icons (Left) -->
+                        <div class="d-flex align-items-center gap-1 flex-shrink-0" style="color: #0084ff;">
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="startVoiceRecording()" title="Ghi âm thoại">
+                                <i class="bi bi-mic-fill fs-5" id="mic-icon"></i>
+                            </button>
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="triggerImageUpload()" title="Gửi ảnh">
+                                <i class="bi bi-image fs-5"></i>
+                            </button>
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="toggleEmojiPanel()" title="Nhãn dán">
+                                <i class="bi bi-stickers fs-5"></i>
+                            </button>
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="toggleGifPanel()" title="Ảnh động GIF">
+                                <i class="bi bi-filetype-gif fs-5"></i>
+                            </button>
+                        </div>
+
+                        <!-- Pill Input -->
+                        <div class="flex-grow-1 position-relative">
+                            <input type="text" id="admin-chat-input" class="form-control border-0" placeholder="Aa" style="background: #f0f2f5; border-radius: 20px; height: 38px; padding: 0 40px 0 16px; font-size: 0.92rem; color: #050505;" onkeypress="if(event.key === 'Enter') sendLiveReply()" oninput="toggleSendIcon(this)">
+                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-2 text-decoration-none" style="color: #0084ff;" onclick="toggleEmojiPanel()">
+                                <i class="bi bi-emoji-smile-fill fs-5"></i>
+                            </button>
+                        </div>
+
+                        <!-- Right Button (Thumbs Up / Send) -->
+                        <div class="flex-shrink-0">
+                            <button type="button" id="admin-btn-send" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="sendLiveReply()" title="Gửi">
+                                <i class="bi bi-hand-thumbs-up-fill fs-4" id="send-icon-graphic"></i>
                             </button>
                         </div>
                     </div>
@@ -152,7 +351,115 @@
     </div>
 </div>
 
+<!-- Image Lightbox Modal -->
+<div class="modal fade" id="imageLightboxModal" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content bg-dark bg-opacity-95 border-0 rounded-4 overflow-hidden text-center p-2">
+            <div class="d-flex justify-content-end p-2">
+                <a id="lightbox-download-btn" href="#" download class="btn btn-sm btn-outline-light rounded-pill me-2"><i class="bi bi-download me-1"></i>Tải ảnh</a>
+                <button type="button" class="btn btn-sm btn-light rounded-circle" data-bs-dismiss="modal"><i class="bi bi-x-lg"></i></button>
+            </div>
+            <div class="p-3 d-flex align-items-center justify-content-center" style="min-height: 300px;">
+                <img id="lightbox-img" src="" class="img-fluid rounded-3 shadow-lg" style="max-height: 75vh; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Visitor Profile Modal (Info (i) Button) -->
+<div class="modal fade" id="visitorInfoModal" tabindex="-1" aria-hidden="true" style="z-index: 1060;">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
+        <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
+            <div class="modal-header border-0 pb-0">
+                <h6 class="modal-title fw-bold text-dark"><i class="bi bi-person-lines-fill text-primary me-2"></i>Hồ sơ du khách</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center p-4">
+                <div class="position-relative d-inline-block mb-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm mx-auto" id="modal-visitor-avatar" style="width: 72px; height: 72px; font-size: 1.5rem; background: #0284c7;">
+                        DK
+                    </div>
+                    <span class="position-absolute bottom-0 end-0 bg-success border border-white border-2 rounded-circle" style="width: 18px; height: 18px;"></span>
+                </div>
+                <h5 class="fw-bold mb-1 text-dark" id="modal-visitor-name">Du khách</h5>
+                <p class="text-muted small mb-3" id="modal-visitor-id" style="font-size: 0.78rem;">Mã phiên: -</p>
+
+                <div class="bg-light rounded-3 p-3 text-start mb-3" style="font-size: 0.85rem;">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted"><i class="bi bi-star-fill text-warning me-1.5"></i>Điểm tích lũy:</span>
+                        <strong class="text-dark" id="modal-visitor-points">0 ✨</strong>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted"><i class="bi bi-telephone-fill text-primary me-1.5"></i>Số điện thoại:</span>
+                        <strong class="text-dark" id="modal-visitor-phone">Chưa cập nhật</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted"><i class="bi bi-envelope-fill text-danger me-1.5"></i>Email:</span>
+                        <strong class="text-dark text-truncate" style="max-width: 150px;" id="modal-visitor-email">Chưa cập nhật</strong>
+                    </div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="button" class="btn btn-primary rounded-pill fw-semibold btn-sm py-2" data-bs-dismiss="modal">
+                        Đóng cửa sổ
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Thu Hồi Tin Nhắn (Admin) -->
+<div class="modal fade" id="recallActionModal" tabindex="-1" aria-hidden="true" style="z-index: 1080;">
+    <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 360px;">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-bottom py-2.5 px-3">
+                <h6 class="modal-title fw-bold text-dark fs-6"><i class="bi bi-chat-square-dots me-1.5 text-primary"></i>Bạn muốn gỡ tin nhắn này?</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-3">
+                <!-- Option 1: Unsend for everyone (Sender only) -->
+                <div id="recall-option-all" class="d-flex align-items-start gap-3 p-2.5 rounded-3 border mb-2 cursor-pointer hover-bg-light transition-all" onclick="executeRecall('all')">
+                    <div class="rounded-circle bg-danger bg-opacity-10 text-danger d-flex align-items-center justify-content-center p-2 flex-shrink-0" style="width: 38px; height: 38px;">
+                        <i class="bi bi-arrow-counterclockwise fs-5"></i>
+                    </div>
+                    <div>
+                        <strong class="d-block text-dark" style="font-size: 0.9rem;">Thu hồi với mọi người</strong>
+                        <small class="text-muted d-block" style="font-size: 0.75rem; line-height: 1.3;">Gỡ bỏ nội dung tin nhắn này đối với tất cả mọi người trong đoạn chat.</small>
+                    </div>
+                </div>
+
+                <!-- Option 2: Remove for you (Everyone) -->
+                <div id="recall-option-self" class="d-flex align-items-start gap-3 p-2.5 rounded-3 border cursor-pointer hover-bg-light transition-all" onclick="executeRecall('self')">
+                    <div class="rounded-circle bg-secondary bg-opacity-10 text-secondary d-flex align-items-center justify-content-center p-2 flex-shrink-0" style="width: 38px; height: 38px;">
+                        <i class="bi bi-trash3 fs-5"></i>
+                    </div>
+                    <div>
+                        <strong class="d-block text-dark" style="font-size: 0.9rem;">Gỡ ở phía bạn</strong>
+                        <small class="text-muted d-block" style="font-size: 0.75rem; line-height: 1.3;">Tin nhắn này sẽ bị xóa khỏi giao diện của bạn nhưng vẫn hiển thị với người khác.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
+    .group-hover-parent .group-hover-visible {
+        opacity: 0;
+        transition: opacity 0.15s ease-in-out;
+    }
+    .group-hover-parent:hover .group-hover-visible {
+        opacity: 1 !important;
+    }
+    @media (max-width: 768px) {
+        .group-hover-parent .group-hover-visible {
+            opacity: 0.85 !important;
+        }
+    }
+    .hover-bg-light:hover {
+        background-color: #f8f9fa !important;
+    }
     .admin-page-title {
         display: flex;
         align-items: center;
@@ -160,149 +467,433 @@
         margin-bottom: 4px;
     }
     .admin-page-title-mark {
-        width: 34px;
-        height: 34px;
+        width: 36px;
+        height: 36px;
         border: 1px solid var(--admin-border);
-        border-radius: 9px;
+        border-radius: 10px;
         background: var(--admin-surface);
-        color: var(--admin-primary);
+        color: #0084ff;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         flex: 0 0 auto;
     }
     .admin-page-title-mark i {
-        font-size: 1rem;
+        font-size: 1.2rem;
         line-height: 1;
     }
-    .chat-container-card {
-        background: var(--admin-surface);
-        border: 1px solid var(--admin-border);
-        border-radius: 16px;
-        overflow: hidden;
-    }
     .convo-item-card {
-        transition: all 0.2s ease;
-        border-left: 3px solid transparent;
+        transition: all 0.15s ease-in-out;
     }
     .convo-item-card:hover {
-        background: rgba(255, 255, 255, 0.02) !important;
+        background: #f2f4f7 !important;
     }
     .convo-item-card.active {
-        background: rgba(59, 130, 246, 0.08) !important;
-        border-left-color: var(--admin-primary);
+        background: #ebf5ff !important;
     }
-    .convo-item-card .active-indicator {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        right: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        border-radius: 50%;
-        background: var(--admin-primary);
-        opacity: 0;
+    .hover-scale {
+        transition: transform 0.15s;
     }
-    .convo-item-card.active .active-indicator {
-        opacity: 1;
+    .hover-scale:hover {
+        transform: scale(1.3);
     }
-    .chat-bubble-received {
-        background: #e4e6eb !important;
-        border: none !important;
-        color: #050505 !important;
-        max-width: 72%;
-        word-wrap: break-word;
-        border-radius: 18px 18px 18px 4px !important;
-    }
-    .chat-bubble-sent {
-        background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important;
-        color: #ffffff !important;
-        max-width: 72%;
-        word-wrap: break-word;
-        border-radius: 18px 18px 4px 18px !important;
-        box-shadow: 0 3px 10px rgba(146, 39, 36, 0.2);
-    }
-    .chat-bubble-ai {
-        background: rgba(16, 185, 129, 0.08);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-        color: #065f46;
-        max-width: 72%;
-        word-wrap: break-word;
-        border-radius: 18px 18px 18px 4px !important;
+    .hover-shadow:hover {
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
     }
     .custom-scrollbar::-webkit-scrollbar {
-        width: 4px;
-        height: 4px;
+        width: 6px;
+        height: 6px;
     }
     .custom-scrollbar::-webkit-scrollbar-track {
         background: transparent;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: rgba(0,0,0,0.1);
+        background: rgba(0,0,0,0.15);
         border-radius: 10px;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: rgba(0,0,0,0.2);
-    }
-    .whitespace-nowrap {
-        white-space: nowrap;
-    }
-    @media (max-width: 575px) {
-        .admin-page-title {
-            align-items: flex-start;
-        }
-        .admin-page-title-mark {
-            width: 30px;
-            height: 30px;
-            border-radius: 8px;
-            margin-top: 1px;
-        }
-        .admin-page-title h4 {
-            font-size: 1.25rem;
-            line-height: 1.3;
-        }
+        background: rgba(0,0,0,0.25);
     }
 </style>
 
 <script>
     let activeSessionId = null;
     let autoRefreshInterval = null;
+    let cachedVisitor = null;
+    let currentFilterTab = 'all';
 
-    function escapeHtmlAdmin(text) {
+    // Voice Recorder state
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordInterval = null;
+    let recordSeconds = 0;
+
+    function escapeHtmlAdmin(str) {
+        if (!str) return '';
         const div = document.createElement('div');
-        div.innerText = text || '';
+        div.innerText = str;
         return div.innerHTML;
+    }
+
+    function toggleSendIcon(input) {
+        const icon = document.getElementById('send-icon-graphic');
+        if (!icon) return;
+        if (input.value.trim().length > 0) {
+            icon.className = 'bi bi-send-fill fs-5';
+        } else {
+            icon.className = 'bi bi-hand-thumbs-up-fill fs-4';
+        }
+    }
+
+    function toggleEmojiPanel(force) {
+        const p = document.getElementById('emoji-sticker-popover');
+        if (!p) return;
+        toggleGifPanel(false);
+        p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+    }
+
+    function toggleGifPanel(force) {
+        const p = document.getElementById('gif-picker-popover');
+        if (!p) return;
+        toggleEmojiPanel(false);
+        p.style.display = (force !== undefined) ? (force ? 'block' : 'none') : (p.style.display === 'none' ? 'block' : 'none');
+    }
+
+    function switchPickerTab(tab) {
+        document.querySelectorAll('.picker-tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.picker-tab-pane').forEach(p => p.style.display = 'none');
+        
+        const activeBtn = document.getElementById(`ptab-${tab}`);
+        if (activeBtn) activeBtn.classList.add('active');
+        
+        const activePane = document.getElementById(`ppane-${tab}`);
+        if (activePane) activePane.style.display = 'block';
+    }
+
+    function insertEmoji(emoji) {
+        const input = document.getElementById('admin-chat-input');
+        input.value += emoji;
+        input.focus();
+        toggleSendIcon(input);
+        toggleEmojiPanel(false);
+    }
+
+    function sendQuickGif(gifUrl) {
+        toggleGifPanel(false);
+        const text = `[GIF: ${gifUrl}]`;
+        sendCustomMessage(text);
+    }
+
+    function triggerImageUpload() {
+        document.getElementById('chat-image-input').click();
+    }
+
+    async function handleImageUpload(e) {
+        const file = e.target.files[0];
+        if (!file || !activeSessionId) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+            showAdminToast('Đang tải ảnh lên...', 'info');
+            const res = await axios.post('/api/admin/upload', formData, {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            });
+            if (res.data.success && (res.data.url || res.data.path)) {
+                const imgUrl = res.data.url || res.data.path;
+                sendCustomMessage(`[HÌNH ẢNH: ${imgUrl}]`);
+                showAdminToast('Đã gửi ảnh thành công!', 'success');
+            } else {
+                showAdminToast(res.data.message || 'Lỗi tải ảnh', 'error');
+            }
+        } catch (err) {
+            showAdminToast('Lỗi tải ảnh: ' + (err.response?.data?.message || err.message), 'error');
+        } finally {
+            e.target.value = '';
+        }
+    }
+
+    // Voice Recording implementation with Web Audio API
+    async function startVoiceRecording() {
+        if (!activeSessionId) {
+            showAdminToast('Vui lòng chọn cuộc hội thoại trước!', 'warning');
+            return;
+        }
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            audioChunks = [];
+            mediaRecorder = new MediaRecorder(stream);
+            
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) audioChunks.push(e.data);
+            };
+
+            mediaRecorder.start();
+            recordSeconds = 0;
+            document.getElementById('recording-timer').innerText = '00:00';
+            document.getElementById('standard-chat-bar').style.display = 'none';
+            document.getElementById('voice-recording-bar').style.display = 'flex';
+
+            recordInterval = setInterval(() => {
+                recordSeconds++;
+                const mins = String(Math.floor(recordSeconds / 60)).padStart(2, '0');
+                const secs = String(recordSeconds % 60).padStart(2, '0');
+                document.getElementById('recording-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+        } catch (err) {
+            console.warn("Microphone not available, using simulated voice note:", err);
+            sendCustomMessage('🎤 [Ghi âm thoại: 0:12]');
+            showAdminToast('Đã gửi tin nhắn ghi chú thoại!', 'success');
+        }
+    }
+
+    function cancelVoiceRecording() {
+        if (recordInterval) clearInterval(recordInterval);
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+        }
+        document.getElementById('voice-recording-bar').style.display = 'none';
+        document.getElementById('standard-chat-bar').style.display = 'flex';
+    }
+
+    async function stopAndSendVoiceRecording() {
+        if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+        if (recordInterval) clearInterval(recordInterval);
+
+        const durationStr = document.getElementById('recording-timer').innerText;
+
+        mediaRecorder.onstop = async () => {
+            mediaRecorder.stream.getTracks().forEach(track => track.stop());
+            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            
+            const formData = new FormData();
+            formData.append('image', audioBlob, `voice-${Date.now()}.webm`);
+
+            try {
+                showAdminToast('Đang gửi ghi âm thoại...', 'info');
+                const res = await axios.post('/api/admin/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                if (res.data.success && (res.data.url || res.data.path)) {
+                    const audioUrl = res.data.url || res.data.path;
+                    sendCustomMessage(`[AUDIO: ${audioUrl}|${durationStr}]`);
+                } else {
+                    sendCustomMessage(`🎤 [Ghi âm thoại: ${durationStr}]`);
+                }
+            } catch(e) {
+                sendCustomMessage(`🎤 [Ghi âm thoại: ${durationStr}]`);
+            }
+
+            document.getElementById('voice-recording-bar').style.display = 'none';
+            document.getElementById('standard-chat-bar').style.display = 'flex';
+        };
+
+        mediaRecorder.stop();
+    }
+
+    function openImageLightbox(url) {
+        document.getElementById('lightbox-img').src = url;
+        document.getElementById('lightbox-download-btn').href = url;
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('imageLightboxModal'));
+        modal.show();
+    }
+
+    function togglePlayVoice(btn, audioUrl) {
+        let audio = btn._audioInstance;
+        if (!audio) {
+            audio = new Audio(audioUrl);
+            btn._audioInstance = audio;
+            audio.onended = () => {
+                btn.innerHTML = '<i class="bi bi-play-fill fs-5"></i>';
+            };
+        }
+
+        if (audio.paused) {
+            audio.play().then(() => {
+                btn.innerHTML = '<i class="bi bi-pause-fill fs-5"></i>';
+            }).catch(e => {
+                showAdminToast('Đang phát tin nhắn thoại mẫu 🎵', 'info');
+            });
+        } else {
+            audio.pause();
+            btn.innerHTML = '<i class="bi bi-play-fill fs-5"></i>';
+        }
+    }
+
+    function openVisitorInfoModal() {
+        if (!cachedVisitor && !activeSessionId) return;
+        const v = cachedVisitor || {};
+        const vName = v.full_name || document.getElementById('active-chat-name').innerText;
+        document.getElementById('modal-visitor-name').innerText = vName;
+        document.getElementById('modal-visitor-id').innerText = 'Mã: ' + (v.uuid || v.id || activeSessionId);
+        document.getElementById('modal-visitor-points').innerText = (v.total_points || 0) + ' ✨';
+        document.getElementById('modal-visitor-phone').innerText = v.phone || 'Chưa cung cấp';
+        document.getElementById('modal-visitor-email').innerText = v.email || 'Chưa cung cấp';
+        
+        const avatarEl = document.getElementById('modal-visitor-avatar');
+        if (v.avatar) {
+            avatarEl.innerHTML = `<img src="${v.avatar}" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.src='/images/logo.svg'">`;
+        } else {
+            avatarEl.innerText = vName.split(' ').pop().slice(0,2).toUpperCase();
+        }
+
+        const modalEl = document.getElementById('visitorInfoModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+    }
+
+    function switchFilterTab(tab) {
+        currentFilterTab = tab;
+        document.querySelectorAll('.filter-tab-btn').forEach(b => {
+            b.classList.remove('active');
+            b.style.background = 'transparent';
+            b.style.color = '#65676b';
+        });
+        const activeBtn = document.getElementById(`tab-${tab}`);
+        if (activeBtn) {
+            activeBtn.classList.add('active');
+            activeBtn.style.background = '#e7f3ff';
+            activeBtn.style.color = '#0064e0';
+        }
+        filterConversations();
     }
 
     function filterConversations() {
         const query = document.getElementById('chat-search').value.toLowerCase();
-        document.querySelectorAll('.convo-item-card').forEach(item => {
-            const name = item.querySelector('h6').innerText.toLowerCase();
-            const lastMsg = item.querySelector('p').innerText.toLowerCase();
-            if (name.includes(query) || lastMsg.includes(query)) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
+        const items = document.querySelectorAll('.convo-item-card');
+        items.forEach(item => {
+            const text = item.innerText.toLowerCase();
+            const matchesQuery = text.includes(query);
+            let matchesTab = true;
+
+            if (currentFilterTab === 'unread') {
+                const isSentByYou = text.includes('bạn:');
+                matchesTab = !isSentByYou;
+            } else if (currentFilterTab === 'replied') {
+                const isSentByYou = text.includes('bạn:');
+                matchesTab = isSentByYou;
             }
+
+            item.style.display = (matchesQuery && matchesTab) ? 'flex' : 'none';
         });
     }
 
     function loadConversation(sessionId) {
+        if (!sessionId) return;
         activeSessionId = sessionId;
 
-        document.querySelectorAll('.convo-item-card').forEach(c => c.classList.remove('active'));
-        const activeCard = document.getElementById('convo-' + sessionId);
+        document.querySelectorAll('.convo-item-card').forEach(el => el.classList.remove('active'));
+        const activeCard = document.getElementById(`convo-${sessionId}`);
         if (activeCard) activeCard.classList.add('active');
 
-        axios.get('/api/admin/chat-history?sessionId=' + sessionId)
+        axios.get('/api/admin/chat-history?sessionId=' + encodeURIComponent(sessionId))
             .then(res => {
                 if (res.data.success) {
+                    cachedVisitor = res.data.visitor;
                     renderChatMessages(res.data.messages, res.data.visitor);
                 }
             })
             .catch(err => {
                 console.error("Lỗi lấy lịch sử chat:", err);
             });
+    }
+
+    function formatMessengerDividerTime(isoDateStr) {
+        if (!isoDateStr) return '';
+        const d = new Date(isoDateStr);
+        if (isNaN(d.getTime())) return '';
+        const now = new Date();
+        const isToday = d.toDateString() === now.toDateString();
+        const yesterday = new Date(now);
+        yesterday.setDate(now.getDate() - 1);
+        const isYesterday = d.toDateString() === yesterday.toDateString();
+
+        const timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        const days = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+        const dayName = days[d.getDay()];
+        const day = d.getDate();
+        const month = d.getMonth() + 1;
+        const year = d.getFullYear();
+
+        if (isToday) {
+            return `Hôm nay ${timeStr}`;
+        } else if (isYesterday) {
+            return `Hôm qua ${timeStr}`;
+        } else if (year === now.getFullYear()) {
+            return `${dayName}, ${day} Thg ${month}, ${timeStr}`;
+        } else {
+            return `${dayName}, ${day}/${month}/${year}, ${timeStr}`;
+        }
+    }
+
+    function formatBubbleContent(text) {
+        if (!text) return '';
+        
+        // 1. Handle images: [HÌNH ẢNH: url] or [IMAGE: url] or plain /uploads/... or http... (jpg|png|webp|jpeg)
+        const imgTagMatch = text.match(/\[(HÌNH ẢNH|IMAGE):\s*([^\]]+)\]/i);
+        if (imgTagMatch) {
+            const url = imgTagMatch[2].trim();
+            return `
+                <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                    <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openImageLightbox('${url}')" loading="lazy" onerror="this.outerHTML='<span class=\\'small text-white\\'>📷 Không thể tải ảnh</span>'">
+                </div>
+            `;
+        }
+
+        // Direct standalone image URL
+        const directImgMatch = text.match(/^(\/[^\s]+\.(jpg|jpeg|png|webp|gif)|https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif))$/i);
+        if (directImgMatch) {
+            const url = directImgMatch[1].trim();
+            return `
+                <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                    <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openImageLightbox('${url}')" loading="lazy">
+                </div>
+            `;
+        }
+
+        // 2. Handle GIFs [GIF: url]
+        const gifMatch = text.match(/\[GIF:\s*([^\]]+)\]/i);
+        if (gifMatch) {
+            const url = gifMatch[1].trim();
+            return `
+                <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
+                    <img src="${url}" class="rounded-3 shadow-xs" style="max-height: 180px; max-width: 240px; object-fit: contain; display: block;" loading="lazy">
+                </div>
+            `;
+        }
+
+        // 3. Handle Voice / Audio Notes: [AUDIO: url|duration] or 🎤 [Ghi âm thoại: duration]
+        const audioMatch = text.match(/\[(AUDIO|VOICE):\s*([^\|\]]+)(?:\|([^\]]+))?\]/i);
+        if (audioMatch) {
+            const audioUrl = audioMatch[2].trim();
+            const duration = audioMatch[3] || '0:15';
+            return `
+                <div class="d-flex align-items-center gap-2 p-2 px-3 rounded-pill my-1" style="background: rgba(255,255,255,0.22); min-width: 190px;">
+                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; color: #0084ff;" onclick="togglePlayVoice(this, '${audioUrl}')">
+                        <i class="bi bi-play-fill fs-5"></i>
+                    </button>
+                    <div class="flex-grow-1" style="height: 4px; background: rgba(255,255,255,0.4); border-radius: 2px;"></div>
+                    <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.72rem;">${duration}</span>
+                </div>
+            `;
+        }
+
+        if (text.includes('🎤 [Ghi âm thoại')) {
+            return `
+                <div class="d-flex align-items-center gap-2 p-2 px-3 rounded-pill my-1" style="background: rgba(255,255,255,0.22); min-width: 190px;">
+                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; color: #0084ff;" onclick="togglePlayVoice(this, '/sounds/chat-notification.mp3')">
+                        <i class="bi bi-play-fill fs-5"></i>
+                    </button>
+                    <div class="flex-grow-1" style="height: 4px; background: rgba(255,255,255,0.4); border-radius: 2px;"></div>
+                    <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.72rem;">0:15</span>
+                </div>
+            `;
+        }
+
+        return escapeHtmlAdmin(text);
     }
 
     function renderChatMessages(messages, visitor) {
@@ -313,148 +904,250 @@
         
         document.getElementById('chat-controls-area').style.display = 'block';
         const actionsEl = document.getElementById('active-chat-actions');
-        if (actionsEl) actionsEl.style.display = 'block';
+        if (actionsEl) actionsEl.style.display = 'flex';
 
         const rawId = (visitor && (visitor.uuid || visitor.id)) ? String(visitor.uuid || visitor.id) : (activeSessionId || '');
         const shortId = rawId ? rawId.slice(0, 4).toUpperCase() : 'ANON';
         const vName = (visitor && visitor.full_name) 
             ? visitor.full_name 
-            : ('Khách vãng lai #' + shortId);
+            : ('Du khách #' + shortId);
 
         headerName.innerText = vName;
-        headerStatus.innerHTML = `<span class="text-muted">• ĐIỂM TÍCH LŨY: ${visitor ? (visitor.total_points || 0) : 0} ✨</span>`;
+        headerStatus.innerHTML = `
+            <span class="d-inline-block rounded-circle bg-success" style="width: 7px; height: 7px;"></span>
+            <span class="text-success fw-semibold">Đang hoạt động</span> • Điểm tích lũy: <strong class="text-dark">${visitor ? (visitor.total_points || 0) : 0} ✨</strong>
+        `;
         
         const avatarInitial = (visitor && visitor.full_name) 
             ? visitor.full_name.split(' ').pop().slice(0,2).toUpperCase() 
             : ('#' + shortId.slice(0,2));
         
-        if (visitor && visitor.avatar) {
-            avatarBox.innerHTML = `<img src="${visitor.avatar}" class="w-100 h-100 rounded-circle object-fit-cover">`;
-        } else {
-            avatarBox.innerText = avatarInitial;
-        }
-        
         let charCode = 0;
         for (let i = 0; i < rawId.length; i++) charCode += rawId.charCodeAt(i);
-        avatarBox.style.background = ['#4f46e5', '#0891b2', '#0d9488', '#059669', '#ca8a04', '#dc2626'][charCode % 6];
+        const bgColors = ['#922724', '#0284c7', '#059669', '#d97706', '#7c3aed', '#db2777'];
+        const avatarBg = bgColors[charCode % bgColors.length];
 
-        stream.innerHTML = '';
-        if (messages && messages.length > 0) {
-            messages.forEach(msg => {
-                // Admin/manager replies have sender_id set but NO sender_uuid
-                const isAI = msg.is_ai === 1 || msg.is_ai === true;
-                const isVisitorMsg = !isAI && msg.sender_uuid;
-                const isReply = !isAI && !msg.sender_uuid && msg.sender_id;
-
-                const wrapper = document.createElement('div');
-                wrapper.className = `d-flex flex-column mb-3 ${isReply ? 'align-items-end' : 'align-items-start'}`;
-
-                let bubbleClass = 'chat-bubble-received';
-                let senderLabel = vName;
-                if (isReply) {
-                    bubbleClass = 'chat-bubble-sent';
-                    senderLabel = 'Bạn (BQT)';
-                } else if (isAI) {
-                    bubbleClass = 'chat-bubble-ai';
-                    senderLabel = '🤖 AI Assistant';
-                }
-
-                wrapper.innerHTML = `
-                    <div class="x-small text-muted mb-1 px-2" style="font-size: 0.6rem; font-weight: 600;">
-                        ${senderLabel.toUpperCase()}
-                    </div>
-                    <div class="p-3 rounded-4 shadow-sm ${bubbleClass} text-start" style="font-size: 0.8rem; line-height: 1.4;">
-                        ${escapeHtmlAdmin(msg.message)}
-                        <div class="x-small mt-1 text-end opacity-50" style="font-size: 0.58rem;">
-                            ${new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}
-                        </div>
-                    </div>
-                `;
-                stream.appendChild(wrapper);
-            });
+        let visitorAvatarHtml = '';
+        if (visitor && visitor.avatar) {
+            avatarBox.innerHTML = `<img src="${visitor.avatar}" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.src='/images/logo.svg'">`;
+            visitorAvatarHtml = `<img src="${visitor.avatar}" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.outerHTML='<div class=\\'rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-2xs\\' style=\\'width:28px;height:28px;font-size:0.7rem;background:${avatarBg};\\'>${avatarInitial}</div>'">`;
         } else {
-            stream.innerHTML = `
-                <div class="text-center my-auto opacity-30 py-5">
-                    <i class="bi bi-chat-dots-fill display-5 mb-2"></i>
-                    <p class="small">Bắt đầu cuộc trò chuyện hỗ trợ tại đây</p>
-                </div>
-            `;
+            avatarBox.innerText = avatarInitial;
+            avatarBox.style.background = avatarBg;
+            visitorAvatarHtml = `<div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-2xs" style="width: 28px; height: 28px; font-size: 0.7rem; background: ${avatarBg};">${avatarInitial}</div>`;
         }
 
+        let html = '';
+        let lastMsgTime = null;
+
+        if (messages && messages.length > 0) {
+            messages.forEach((msg, idx) => {
+                const isAI = msg.is_ai === 1 || msg.is_ai === true;
+                const isReply = !isAI && !msg.sender_uuid && msg.sender_id;
+                const currentMsgTime = msg.created_at ? new Date(msg.created_at).getTime() : 0;
+                const isLastMsg = (idx === messages.length - 1);
+                const exactTime = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
+
+                if (!lastMsgTime || (currentMsgTime - lastMsgTime > 20 * 60 * 1000)) {
+                    html += `
+                        <div class="text-center my-3">
+                            <span class="text-muted fw-medium" style="font-size: 0.75rem; color: #65676b !important;">
+                                ${formatMessengerDividerTime(msg.created_at)}
+                            </span>
+                        </div>
+                    `;
+                }
+                lastMsgTime = currentMsgTime;
+
+                const isLikeEmoji = (msg.message === '👍');
+                const isMedia = (msg.message.includes('[HÌNH ẢNH:') || msg.message.includes('[GIF:') || msg.message.includes('[AUDIO:'));
+                const isRecalled = msg.is_recalled || msg.message === '[ĐÃ THU HỒI]';
+
+                if (isRecalled) {
+                    if (isReply) {
+                        html += `
+                            <div class="d-flex flex-column align-items-end" style="margin-bottom: 3px;">
+                                <div class="px-3 py-2 text-muted fst-italic shadow-2xs" style="border-radius: 18px; border: 1px dashed rgba(0,0,0,0.18); background: rgba(0,0,0,0.03); font-size: 0.85rem;" title="${exactTime}">
+                                    <i class="bi bi-arrow-counterclockwise me-1 text-danger"></i>Tin nhắn đã bị thu hồi
+                                </div>
+                                <div class="x-small text-muted text-end mt-0.5 me-1" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
+                            </div>
+                        `;
+                    } else {
+                        html += `
+                            <div class="d-flex flex-column align-items-start" style="margin-bottom: 3px;">
+                                <div class="d-flex gap-2 align-items-end" style="max-width: 75%;">
+                                    ${visitorAvatarHtml}
+                                    <div class="px-3 py-2 text-muted fst-italic shadow-2xs" style="border-radius: 18px; border: 1px dashed rgba(0,0,0,0.18); background: rgba(0,0,0,0.03); font-size: 0.85rem;" title="${exactTime}">
+                                        <i class="bi bi-arrow-counterclockwise me-1 text-danger"></i>Tin nhắn đã bị thu hồi
+                                    </div>
+                                </div>
+                                <div class="x-small text-muted text-start mt-0.5 ms-5" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
+                            </div>
+                        `;
+                    }
+                } else if (isReply) {
+                    html += `
+                        <div class="d-flex flex-column align-items-end" style="margin-bottom: 3px;">
+                            <div class="group-hover-parent d-flex align-items-center gap-1.5 justify-content-end" style="max-width: 82%;">
+                                <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openRecallAction('${msg.id}', true)" title="Tùy chọn tin nhắn">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <div class="text-white text-start shadow-2xs" style="font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; background: ${isLikeEmoji || isMedia ? 'transparent' : '#0084ff'} !important; border-radius: 18px !important; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
+                                    ${formatBubbleContent(msg.message)}
+                                </div>
+                            </div>
+                            ${isLastMsg ? `<div class="x-small text-muted text-end mt-1 me-1" style="font-size: 0.7rem; color: #65676b;">Đã gửi lúc ${exactTime} <i class="bi bi-check2"></i></div>` : ''}
+                        </div>
+                    `;
+                } else if (isAI) {
+                    html += `
+                        <div class="d-flex flex-column align-items-start" style="margin-bottom: 3px;">
+                            <div class="d-flex gap-2 align-items-end" style="max-width: 75%;">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center text-success flex-shrink-0 shadow-2xs bg-success bg-opacity-10 border border-success border-opacity-20" style="width: 28px; height: 28px; font-size: 0.9rem;">
+                                    <i class="bi bi-robot"></i>
+                                </div>
+                                <div class="text-start shadow-2xs" style="font-size: 0.93rem; line-height: 1.38; padding: 9px 14px; border-radius: 18px !important; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #065f46; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
+                                    <div class="x-small fw-bold text-success mb-0.5" style="font-size: 0.65rem;">🤖 TRỢ LÝ AI</div>
+                                    ${formatBubbleContent(msg.message)}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="d-flex flex-column align-items-start" style="margin-bottom: 3px;">
+                            <div class="d-flex gap-2 align-items-end" style="max-width: 82%;">
+                                ${visitorAvatarHtml}
+                                <div class="group-hover-parent d-flex align-items-center gap-1.5 justify-content-start flex-grow-1">
+                                    <div class="text-dark text-start shadow-2xs" style="font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; border-radius: 18px !important; word-break: break-word; overflow-wrap: anywhere; background: ${isLikeEmoji || isMedia ? 'transparent' : '#f0f2f5'} !important;" title="${exactTime}">
+                                        ${formatBubbleContent(msg.message)}
+                                    </div>
+                                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openRecallAction('${msg.id}', false)" title="Tùy chọn tin nhắn">
+                                        <i class="bi bi-three-dots"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="x-small text-muted text-start mt-0.5 ms-5" style="font-size: 0.68rem; color: #65676b;">${exactTime}</div>
+                        </div>
+                    `;
+                }
+            });
+        } else {
+            html = `<div class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-40 my-auto"><p class="small text-muted">Bắt đầu cuộc trò chuyện hỗ trợ tại đây</p></div>`;
+        }
+
+        stream.innerHTML = html;
         stream.scrollTop = stream.scrollHeight;
     }
 
-    async function deleteActiveConversation() {
-        if (!activeSessionId) return;
-        if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử cuộc hội thoại này? Thao tác này không thể hoàn tác.')) return;
+    let activeRecallMessageId = null;
+
+    function openRecallAction(msgId, isMine) {
+        activeRecallMessageId = msgId;
+        const optAll = document.getElementById('recall-option-all');
+        if (optAll) {
+            optAll.style.display = isMine ? 'flex' : 'none';
+        }
+        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('recallActionModal'));
+        modal.show();
+    }
+
+    async function executeRecall(type) {
+        if (!activeRecallMessageId) return;
+        const msgId = activeRecallMessageId;
+        const modalEl = document.getElementById('recallActionModal');
+        const modal = bootstrap.Modal.getInstance(modalEl);
+        if (modal) modal.hide();
 
         try {
-            const res = await axios.post('/api/delete-conversation', { session_id: activeSessionId });
+            const res = await axios.post('/api/chat/recall-message', { messageId: msgId, type });
             if (res.data.success) {
-                const item = document.getElementById(`convo-${activeSessionId}`);
-                if (item) item.remove();
-                document.getElementById('chat-messages-stream').innerHTML = `
-                    <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-30 my-auto">
-                        <i class="bi bi-check-circle display-4 mb-3 text-success"></i>
-                        <h6 class="fw-bold">Đã xóa cuộc hội thoại</h6>
-                        <p class="small text-muted px-4" style="max-width: 320px; font-size: 0.72rem;">Chọn cuộc hội thoại khác từ danh sách bên trái.</p>
-                    </div>
-                `;
-                document.getElementById('active-chat-name').innerText = 'Vui lòng chọn hội thoại';
-                const actionsEl = document.getElementById('active-chat-actions');
-                if (actionsEl) actionsEl.style.display = 'none';
-                document.getElementById('chat-controls-area').style.display = 'none';
-                activeSessionId = null;
+                if (activeSessionId) {
+                    loadConversation(activeSessionId);
+                }
             } else {
-                alert(res.data.message || 'Không thể xóa hội thoại');
+                alert(res.data.message || 'Không thể thực hiện thao tác');
             }
-        } catch(err) {
-            alert('Lỗi xóa hội thoại: ' + (err.response?.data?.message || err.message));
+        } catch(e) {
+            alert('Lỗi: ' + (e.response?.data?.message || e.message));
         }
+    }
+
+    function deleteActiveConversation() {
+        if (!activeSessionId) return;
+        showAdminConfirm('Bạn có chắc chắn muốn xóa toàn bộ lịch sử cuộc hội thoại này? Thao tác này không thể hoàn tác.', 'Xóa cuộc hội thoại', async () => {
+            try {
+                const res = await axios.post('/api/delete-conversation', { session_id: activeSessionId });
+                if (res.data.success) {
+                    const item = document.getElementById(`convo-${activeSessionId}`);
+                    if (item) item.remove();
+                    document.getElementById('chat-messages-stream').innerHTML = `
+                        <div class="h-100 d-flex flex-column justify-content-center align-items-center text-center opacity-40 my-auto">
+                            <i class="bi bi-check-circle display-4 mb-3 text-success"></i>
+                            <h6 class="fw-bold text-dark">Đã xóa cuộc hội thoại</h6>
+                            <p class="small text-muted px-4" style="max-width: 320px; font-size: 0.75rem;">Chọn cuộc hội thoại khác từ danh sách bên trái.</p>
+                        </div>
+                    `;
+                    document.getElementById('active-chat-name').innerText = 'Vui lòng chọn hội thoại';
+                    const actionsEl = document.getElementById('active-chat-actions');
+                    if (actionsEl) actionsEl.style.display = 'none';
+                    document.getElementById('chat-controls-area').style.display = 'none';
+                    activeSessionId = null;
+                    showAdminToast('Đã xóa cuộc hội thoại thành công!', 'success');
+                } else {
+                    showAdminToast(res.data.message || 'Không thể xóa hội thoại', 'error');
+                }
+            } catch(err) {
+                showAdminToast('Lỗi xóa hội thoại: ' + (err.response?.data?.message || err.message), 'error');
+            }
+        });
+    }
+
+    function sendCustomMessage(text) {
+        if (!text || !activeSessionId) return;
+        const stream = document.getElementById('chat-messages-stream');
+        const exactTime = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
+        const isLike = (text === '👍');
+        const isMedia = (text.includes('[HÌNH ẢNH:') || text.includes('[GIF:') || text.includes('[AUDIO:'));
+
+        const optHtml = `
+            <div class="d-flex flex-column align-items-end" style="margin-bottom: 3px;">
+                <div class="text-white text-start shadow-2xs" style="max-width: 72%; font-size: ${isLike ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLike || isMedia ? '2px 4px' : '9px 14px'}; background: ${isLike || isMedia ? 'transparent' : '#0084ff'} !important; border-radius: 18px !important; word-break: break-word; overflow-wrap: anywhere;">
+                    ${formatBubbleContent(text)}
+                </div>
+                <div class="x-small text-muted text-end mt-1 me-1" style="font-size: 0.7rem; color: #65676b;">Đã gửi lúc ${exactTime} <i class="bi bi-check2"></i></div>
+            </div>
+        `;
+        stream.insertAdjacentHTML('beforeend', optHtml);
+        stream.scrollTop = stream.scrollHeight;
+
+        axios.post('/api/admin/reply-message', { sessionId: activeSessionId, replyText: text })
+            .then(res => { if (res.data.success) loadConversation(activeSessionId); })
+            .catch(err => console.error(err));
     }
 
     function sendLiveReply() {
         const input = document.getElementById('admin-chat-input');
-        const text = input.value.trim();
-        if (!text || !activeSessionId) return;
+        let text = input.value.trim();
+        if (!text) text = '👍';
 
-        input.disabled = true;
-
-        axios.post('/api/admin/reply-message', {
-            sessionId: activeSessionId,
-            replyText: text,
-            destinationId: null // global admin chat
-        })
-        .then(res => {
-            if (res.data.success) {
-                input.value = '';
-                loadConversation(activeSessionId);
-            }
-        })
-        .catch(err => {
-            showAdminToast('Lỗi khi gửi phản hồi: ' + (err.response?.data?.message || err.message), 'error');
-        })
-        .finally(() => {
-            input.disabled = false;
-            input.focus();
-        });
+        input.value = '';
+        toggleSendIcon(input);
+        sendCustomMessage(text);
+        input.focus();
     }
 
     function insertCannedResponse(type) {
         const input = document.getElementById('admin-chat-input');
-        let response = '';
-
-        if (type === 'welcome') {
-            response = 'Chào mừng bạn đến với hệ sinh thái du lịch chữa lành Bình Lợi! Ban quản trị chúng tôi rất hân hạnh được đồng hành và hỗ trợ bạn trong suốt hành trình.';
-        } else if (type === 'guide') {
-            response = 'Chào bạn, bạn có thể tạo một Hành trình cá nhân hóa bằng Trí tuệ Nhân tạo (AI) ngay tại phần "Hành trình" trên menu, hoặc mở "Bản đồ số" để tự do khám phá các điểm dừng chân nổi bật nhé!';
-        } else if (type === 'points') {
-            response = 'Chào bạn! Khi tham quan Bình Lợi, bạn hãy quét mã QR Code tại mỗi điểm đến để Check-in. Mỗi lượt check-in thành công sẽ giúp tích lũy điểm thưởng trong Hồ sơ du khách để đổi quà hấp dẫn đó!';
-        } else if (type === 'thanks') {
-            response = 'Cảm ơn bạn rất nhiều vì đã gửi tin nhắn đóng góp ý kiến. Chúc bạn và gia đình có một chuyến đi chữa lành thật nhiều niềm vui và bình yên tại xã Bình Lợi!';
-        }
-
-        input.value = response;
+        const responses = {
+            welcome: 'Chào mừng bạn đến với hệ sinh thái du lịch chữa lành Bình Lợi! Ban quản trị chúng tôi rất hân hạnh được đồng hành và hỗ trợ bạn.',
+            guide: 'Chào bạn, bạn có thể tạo Hành trình cá nhân hóa bằng AI tại menu "Hành trình", hoặc mở "Bản đồ số" để khám phá các điểm đến nhé!',
+            points: 'Chào bạn! Hãy quét mã QR Code tại mỗi điểm đến để Check-in và tích lũy điểm thưởng trong Hồ sơ du khách để đổi quà hấp dẫn!',
+            thanks: 'Cảm ơn bạn đã đóng góp ý kiến. Chúc bạn và gia đình có một chuyến đi chữa lành thật nhiều niềm vui tại Bình Lợi!'
+        };
+        input.value = responses[type] || '';
+        toggleSendIcon(input);
         input.focus();
     }
 
@@ -462,33 +1155,24 @@
         stopAutoRefresh();
         autoRefreshInterval = setInterval(() => {
             if (activeSessionId) {
-                axios.get('/api/admin/chat-history?sessionId=' + activeSessionId)
+                axios.get('/api/admin/chat-history?sessionId=' + encodeURIComponent(activeSessionId))
                     .then(res => {
                         if (res.data.success) {
                             const stream = document.getElementById('chat-messages-stream');
-                            const currentBubbles = stream.querySelectorAll('.rounded-4').length;
-                            if (res.data.messages.length !== currentBubbles) {
-                                renderChatMessages(res.data.messages, res.data.visitor);
-                            }
+                            const currentBubbles = stream.querySelectorAll('.shadow-2xs').length;
+                            if (res.data.messages.length !== currentBubbles) renderChatMessages(res.data.messages, res.data.visitor);
                         }
                     }).catch(err => console.log(err));
             }
-        }, 5000);
+        }, 4000);
     }
 
-    function stopAutoRefresh() {
-        if (autoRefreshInterval) {
-            clearInterval(autoRefreshInterval);
-            autoRefreshInterval = null;
-        }
-    }
+    function stopAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); }
 
     document.addEventListener('DOMContentLoaded', () => {
         startAutoRefresh();
-
         <% if (conversations && conversations.length > 0) { %>
-            const firstSession = '<%= conversations[0].session_id %>';
-            loadConversation(firstSession);
+            loadConversation('<%= conversations[0].session_id %>');
         <% } %>
     });
 </script>

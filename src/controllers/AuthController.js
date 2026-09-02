@@ -268,12 +268,46 @@ const AuthController = {
             phone: user.phone,
             managed_destination_id: user.managed_destination_id
         };
+
+        // Explicitly wait for session to be written so redirect immediately sees the session
+        await new Promise((resolve) => {
+            if (req.session && typeof req.session.save === 'function') {
+                req.session.save((err) => {
+                    if (err) console.error("Session save error:", err);
+                    resolve();
+                });
+            } else {
+                resolve();
+            }
+        });
     },
 
     logout: (req, res) => {
-        req.session.destroy();
-        res.clearCookie('session_uuid');
-        res.redirect('/');
+        if (typeof req.logout === 'function') {
+            req.logout((err) => {
+                if (req.session) {
+                    req.session.destroy(() => {
+                        res.clearCookie('bl_session');
+                        res.clearCookie('session_uuid');
+                        res.redirect('/');
+                    });
+                } else {
+                    res.clearCookie('bl_session');
+                    res.clearCookie('session_uuid');
+                    res.redirect('/');
+                }
+            });
+        } else if (req.session) {
+            req.session.destroy(() => {
+                res.clearCookie('bl_session');
+                res.clearCookie('session_uuid');
+                res.redirect('/');
+            });
+        } else {
+            res.clearCookie('bl_session');
+            res.clearCookie('session_uuid');
+            res.redirect('/');
+        }
     },
 
     handlePasswordLogin: (req, res, next) => {

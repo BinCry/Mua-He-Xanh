@@ -194,37 +194,43 @@ class ManagerController {
 
             const [conversations] = await UserSession.db.query(
                 `SELECT 
-                     sub.session_key AS session_id,
-                     sub.session_key AS session_uuid,
-                     sub.last_message,
-                     sub.last_message_time,
-                     COALESCE(u.full_name, 'Du khách #' || SUBSTRING(sub.session_key, 1, 6)) AS user_name,
-                     u.avatar AS user_avatar,
-                     u.phone AS user_phone,
-                     u.email AS user_email,
-                     COALESCE(s.total_points, 0) AS visitor_points
+                     conv.session_key AS session_id,
+                     conv.session_key AS session_uuid,
+                     m_latest.message AS last_message,
+                     conv.last_message_time,
+                     COALESCE(u.full_name, u_sender.full_name, 'Du khách #' || SUBSTRING(conv.session_key, 1, 6)) AS user_name,
+                     COALESCE(u.avatar, u_sender.avatar) AS user_avatar,
+                     COALESCE(u.phone, u_sender.phone) AS user_phone,
+                     COALESCE(u.email, u_sender.email) AS user_email,
+                     COALESCE(s.total_points, u.total_points, u_sender.total_points, 0) AS visitor_points
                  FROM (
                      SELECT 
                          CASE 
                              WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid 
                              ELSE receiver_uuid 
                          END AS session_key,
-                         MAX(created_at) AS last_message_time,
-                         (
-                             SELECT COALESCE(message, content, '')
-                             FROM messages m2 
-                             WHERE m2.destination_id = $1
-                               AND (m2.sender_uuid = CASE WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid ELSE receiver_uuid END
-                                 OR m2.receiver_uuid = CASE WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid ELSE receiver_uuid END)
-                             ORDER BY created_at DESC LIMIT 1
-                         ) AS last_message
+                         MAX(created_at) AS last_message_time
                      FROM messages
                      WHERE destination_id = $1 AND ((sender_uuid IS NOT NULL AND sender_uuid != '') OR (receiver_uuid IS NOT NULL AND receiver_uuid != ''))
                      GROUP BY session_key
-                 ) sub
-                 LEFT JOIN user_sessions s ON (s.id::text = sub.session_key OR s.uuid = sub.session_key)
-                 LEFT JOIN users u ON s.user_id = u.id
-                 ORDER BY sub.last_message_time DESC`,
+                 ) conv
+                 JOIN LATERAL (
+                     SELECT COALESCE(message, content, '') as message
+                     FROM messages m
+                     WHERE m.destination_id = $1 AND (m.sender_uuid = conv.session_key OR m.receiver_uuid = conv.session_key)
+                     ORDER BY m.created_at DESC
+                     LIMIT 1
+                 ) m_latest ON true
+                 LEFT JOIN user_sessions s ON (s.id::text = conv.session_key OR s.uuid = conv.session_key)
+                 LEFT JOIN users u ON (s.user_id = u.id OR conv.session_key = u.id::text)
+                 LEFT JOIN LATERAL (
+                     SELECT u2.full_name, u2.avatar, u2.phone, u2.email, u2.total_points
+                     FROM messages m3
+                     JOIN users u2 ON m3.sender_id = u2.id
+                     WHERE m3.sender_uuid = conv.session_key AND u2.role = 'user'
+                     LIMIT 1
+                 ) u_sender ON true
+                 ORDER BY conv.last_message_time DESC`,
                 [dest.id]
             );
 
@@ -304,8 +310,13 @@ class ManagerController {
                 is_checked_in: 0
             };
 
+            const managerId = manager?.id;
+            const managerTag = managerId ? `user_${managerId}` : '';
+
             const [messages] = await UserSession.db.query(
-                `SELECT m.id, m.sender_id, m.sender_uuid, m.receiver_uuid, m.destination_id, COALESCE(m.message, m.content, '') as message, m.is_ai, m.created_at,
+                `SELECT m.id, m.sender_id, m.sender_uuid, m.receiver_uuid, m.destination_id, 
+                        COALESCE(m.message, m.content, '') as message, m.is_ai, m.created_at,
+                        COALESCE(m.is_recalled, 0) as is_recalled, COALESCE(m.deleted_for, '') as deleted_for,
                         u.full_name as sender_name, u.avatar as sender_avatar,
                         mgr.full_name as manager_name
                  FROM messages m
@@ -318,9 +329,24 @@ class ManagerController {
                 [destId, String(sessionId)]
             );
 
+            const formatted = messages
+                .filter(m => {
+                    const deletedList = (m.deleted_for || '').split(',');
+                    if (managerTag && deletedList.includes(managerTag)) return false;
+                    return true;
+                })
+                .map(m => {
+                    const isRecalled = (m.is_recalled === 1 || m.message === '[ĐÃ THU HỒI]');
+                    return {
+                        ...m,
+                        is_recalled: isRecalled,
+                        message: isRecalled ? '[ĐÃ THU HỒI]' : m.message
+                    };
+                });
+
             res.json({
                 success: true,
-                messages,
+                messages: formatted,
                 visitor
             });
         } catch (error) {

@@ -248,12 +248,20 @@
 
             <!-- Footer Input -->
             <div class="modal-footer border-top bg-white p-3">
+                <% if (locals.user || (typeof user !== 'undefined' && user)) { %>
                 <form onsubmit="event.preventDefault(); sendChatMessage('<%= dest.id %>');" class="d-flex gap-2 w-100 align-items-center">
                     <input type="text" id="chat-message" class="form-control rounded-pill border-0 bg-light px-4" style="height: 44px; font-size: 0.9rem;" placeholder="Nhập tin nhắn..." autocomplete="off">
                     <button type="submit" class="btn btn-danger rounded-circle p-2 d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background-color: #922724 !important; border: none;">
                         <i class="bi bi-send-fill text-white"></i>
                     </button>
                 </form>
+                <% } else { %>
+                <div class="text-center w-100 py-1">
+                    <a href="/auth/login?redirect=<%= encodeURIComponent('/explore/' + dest.slug) %>" class="btn btn-danger rounded-pill px-4 py-2.5 fw-semibold w-100 shadow-sm" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%); border: none; font-size: 0.88rem;">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Đăng nhập để nhắn tin với Quản lý
+                    </a>
+                </div>
+                <% } %>
             </div>
         </div>
     </div>
@@ -413,33 +421,33 @@ function renderChatHistory(messages) {
                 <i class="bi bi-shield-check text-success me-1"></i> Trò chuyện hỗ trợ trực tuyến với Ban Quản Lý
             </span>
         </div>
-        <div class="d-flex flex-column mb-3 align-items-start">
-            <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
-                QUẢN LÝ ${DEST_NAME.toUpperCase()}
-            </div>
-            <div class="d-flex gap-2 align-items-end" style="max-width: 86%;">
-                <img src="${BRAND_LOGO_URL}" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                <div class="p-3 rounded-4 shadow-sm bg-white text-dark border text-start" style="font-size: 0.85rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere;">
-                    Xin chào! Tôi là quản lý địa điểm ${DEST_NAME}. Bạn cần hỗ trợ thông tin gì vui lòng gửi tin nhắn tại đây nhé!
-                </div>
-            </div>
-        </div>
     `;
+
+    let lastMsgTime = null;
 
     if (messages && messages.length > 0) {
         messages.forEach(msg => {
             const isMe = msg.is_mine || false;
             const isAI = msg.is_ai === 1 || msg.is_ai === true;
-            const timeStr = msg.created_at ? new Date(msg.created_at).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) : '';
+            const timeStr = formatExploreBubbleTime(msg.created_at);
+            const currentMsgTime = msg.created_at ? new Date(msg.created_at).getTime() : 0;
+
+            if (!lastMsgTime || (currentMsgTime - lastMsgTime > 30 * 60 * 1000)) {
+                html += `
+                    <div class="text-center my-3">
+                        <span class="badge bg-white text-muted border shadow-2xs px-3 py-1.5 rounded-pill" style="font-size: 0.72rem; font-weight: 500; letter-spacing: 0.2px;">
+                            <i class="bi bi-clock-history text-danger me-1"></i> ${formatExploreDateDividerText(msg.created_at)}
+                        </span>
+                    </div>
+                `;
+            }
+            lastMsgTime = currentMsgTime;
             
             if (isMe) {
                 // Sent by Du khách: Exact same style as Admin Sent Message
                 html += `
-                    <div class="d-flex flex-column mb-3 align-items-end">
-                        <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
-                            BẠN
-                        </div>
-                        <div class="p-3 rounded-4 shadow-sm text-white text-start" style="max-width: 86%; font-size: 0.85rem; line-height: 1.45; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; box-shadow: 0 3px 10px rgba(146, 39, 36, 0.2); word-break: break-word; overflow-wrap: anywhere;">
+                    <div class="d-flex flex-column mb-2.5 align-items-end">
+                        <div class="p-3 rounded-4 shadow-sm text-white text-start" style="max-width: 86%; font-size: 0.85rem; line-height: 1.45; background: linear-gradient(135deg, #922724 0%, #b83330 100%) !important; border-radius: 18px 18px 4px 18px !important; box-shadow: 0 3px 10px rgba(146, 39, 36, 0.2); word-break: break-word; overflow-wrap: anywhere;" title="${new Date(msg.created_at).toLocaleString('vi-VN')}">
                             ${escapeHtml(msg.message)}
                             <div class="x-small opacity-65 mt-1 text-end text-nowrap" style="font-size: 0.6rem;">${timeStr}</div>
                         </div>
@@ -447,19 +455,17 @@ function renderChatHistory(messages) {
                 `;
             } else {
                 // Received from Manager or AI
-                const senderLabel = isAI ? '🤖 AI ASSISTANT' : (msg.manager_name ? `${msg.manager_name.toUpperCase()} (QUẢN LÝ)` : `QUẢN LÝ ${DEST_NAME.toUpperCase()}`);
+                const senderLabel = isAI ? '🤖 TRỢ LÝ AI' : (msg.manager_name ? `${msg.manager_name.toUpperCase()} (QUẢN LÝ)` : `QUẢN LÝ ${DEST_NAME.toUpperCase()}`);
                 const bubbleStyle = isAI 
                     ? 'background: rgba(16,185,129,0.08) !important; border: 1px solid rgba(16,185,129,0.2) !important; color: #065f46 !important;' 
                     : 'background: #ffffff !important; border: 1px solid rgba(0,0,0,0.08) !important; color: #050505 !important;';
 
                 html += `
-                    <div class="d-flex flex-column mb-3 align-items-start">
-                        <div class="x-small text-muted mb-1 px-2" style="font-size: 0.65rem; font-weight: 600;">
-                            ${senderLabel}
-                        </div>
+                    <div class="d-flex flex-column mb-2.5 align-items-start">
                         <div class="d-flex gap-2 align-items-end" style="max-width: 86%;">
                             <img src="${BRAND_LOGO_URL}" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; object-fit: cover;" onerror="this.src='/images/logo.svg'">
-                            <div class="p-3 rounded-4 shadow-sm text-start" style="font-size: 0.85rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere; ${bubbleStyle}">
+                            <div class="p-3 rounded-4 shadow-sm text-start" style="font-size: 0.85rem; line-height: 1.45; border-radius: 18px 18px 18px 4px !important; word-break: break-word; overflow-wrap: anywhere; ${bubbleStyle}" title="${new Date(msg.created_at).toLocaleString('vi-VN')}">
+                                <div class="x-small text-muted mb-1" style="font-size: 0.65rem; font-weight: 600;">${senderLabel}</div>
                                 ${escapeHtml(msg.message)}
                                 <div class="x-small opacity-50 mt-1 text-end text-nowrap" style="font-size: 0.6rem;">${timeStr}</div>
                             </div>
@@ -505,7 +511,14 @@ function sendChatMessage(destinationId) {
             pollMessages(destinationId);
         }
     }).catch(err => {
-        console.error("Send message error:", err);
+        if (err.response?.status === 401 || err.response?.data?.requireLogin) {
+            showToast('Vui lòng đăng nhập tài khoản để gửi tin nhắn!', 'danger');
+            setTimeout(() => { 
+                window.location.href = '/auth/login?redirect=' + encodeURIComponent(window.location.pathname); 
+            }, 1200);
+        } else {
+            showToast(err.response?.data?.message || 'Lỗi gửi tin nhắn', 'danger');
+        }
     });
 }
 
