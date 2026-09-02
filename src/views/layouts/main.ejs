@@ -458,23 +458,35 @@
         </div>
 
         <!-- Floating GIF Picker Popover -->
-        <div id="floating-gif-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 65px; left: 10px; right: 10px; z-index: 1060; border-color: #e4e6eb !important;">
+        <div id="floating-gif-popover" class="position-absolute shadow-lg border rounded-4 bg-white" style="display: none; bottom: 58px; left: 8px; right: 8px; z-index: 1060; border-color: #e4e6eb !important;">
             <div class="p-2 border-bottom d-flex justify-content-between align-items-center bg-light rounded-top-4">
                 <span class="fw-bold small text-dark" style="font-size: 0.8rem;"><i class="bi bi-filetype-gif text-danger me-1"></i>Ảnh Động (GIF)</span>
                 <button type="button" class="btn-close" style="font-size: 0.6rem;" onclick="toggleFloatingGif(false)"></button>
             </div>
-            <div class="p-2 d-flex flex-column gap-2" style="max-height: 200px; overflow-y: auto;">
-                <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendFloatingGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
-                    <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
-                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-primary" style="font-size: 0.72rem;">👋 Xin chào!</span></div>
+            <div class="p-2 row g-2" style="max-height: 220px; overflow-y: auto;">
+                <div class="col-6">
+                    <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif')">
+                        <img src="https://media.giphy.com/media/l0HlBO7eyXzSZkJri/giphy.gif" class="w-100" style="height: 70px; object-fit: cover;" loading="lazy">
+                        <div class="p-1 text-center bg-white"><span class="small fw-semibold text-primary" style="font-size: 0.7rem;">👋 Xin chào!</span></div>
+                    </div>
                 </div>
-                <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendFloatingGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
-                    <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
-                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-success" style="font-size: 0.72rem;">🙏 Cảm ơn!</span></div>
+                <div class="col-6">
+                    <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif')">
+                        <img src="https://media.giphy.com/media/osjgQPWRx3cac/giphy.gif" class="w-100" style="height: 70px; object-fit: cover;" loading="lazy">
+                        <div class="p-1 text-center bg-white"><span class="small fw-semibold text-success" style="font-size: 0.7rem;">🙏 Cảm ơn!</span></div>
+                    </div>
                 </div>
-                <div class="border rounded-3 overflow-hidden cursor-pointer hover-shadow" onclick="sendFloatingGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
-                    <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 80px; object-fit: cover;" loading="lazy">
-                    <div class="p-1 text-center bg-white"><span class="small fw-semibold text-warning" style="font-size: 0.72rem;">👍 Tuyệt vời!</span></div>
+                <div class="col-6">
+                    <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/111ebonMs90YLu/giphy.gif')">
+                        <img src="https://media.giphy.com/media/111ebonMs90YLu/giphy.gif" class="w-100" style="height: 70px; object-fit: cover;" loading="lazy">
+                        <div class="p-1 text-center bg-white"><span class="small fw-semibold text-warning" style="font-size: 0.7rem;">👍 Tuyệt vời!</span></div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="border rounded-3 overflow-hidden cursor-pointer hover-bg-light shadow-2xs" onclick="sendFloatingGif('https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif')">
+                        <img src="https://media.giphy.com/media/26AHONQ79FdWZhAI0/giphy.gif" class="w-100" style="height: 70px; object-fit: cover;" loading="lazy">
+                        <div class="p-1 text-center bg-white"><span class="small fw-semibold text-danger" style="font-size: 0.7rem;">❤️ Thả tim!</span></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -512,35 +524,32 @@
             </div>
 
             <!-- Standard Bottom Input Bar -->
-            <div class="p-2 px-2.5 border-top bg-white d-flex align-items-center gap-1.5" id="floating-standard-input-bar" style="height: 56px; border-color: #e4e6eb !important;">
+            <div class="p-2 px-2.5 border-top bg-white d-flex align-items-center gap-1" id="floating-standard-input-bar" style="height: 56px; border-color: #e4e6eb !important;">
                 <!-- Media Action Icons (Left) -->
-                <div class="d-flex align-items-center gap-0.5 flex-shrink-0" style="color: #922724;">
-                    <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="startFloatingVoiceRecording()" title="Ghi âm thoại">
-                        <i class="bi bi-mic-fill fs-5"></i>
+                <div class="d-flex align-items-center gap-0.5 flex-shrink-0">
+                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="startFloatingVoiceRecording()" title="Ghi âm thoại">
+                        <i class="bi bi-mic-fill fs-6"></i>
                     </button>
-                    <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="triggerFloatingImageUpload()" title="Gửi ảnh">
-                        <i class="bi bi-image fs-5"></i>
+                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="triggerFloatingImageUpload()" title="Gửi ảnh">
+                        <i class="bi bi-image fs-6"></i>
                     </button>
-                    <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="toggleFloatingEmoji()" title="Nhãn dán">
-                        <i class="bi bi-stickers fs-5"></i>
-                    </button>
-                    <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="toggleFloatingGif()" title="Ảnh động GIF">
-                        <i class="bi bi-filetype-gif fs-5"></i>
+                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="toggleFloatingGif()" title="Ảnh động GIF">
+                        <i class="bi bi-filetype-gif fs-6"></i>
                     </button>
                 </div>
 
                 <!-- Text Input Pill -->
-                <div class="flex-grow-1 position-relative">
-                    <input type="text" class="form-control border-0 px-3" style="font-size: 0.86rem; height: 36px; background: #f0f2f5; border-radius: 18px; color: #050505; padding-right: 32px;" placeholder="Aa" id="floatingChatInput" autocomplete="off" onkeypress="if(event.key === 'Enter'){ event.preventDefault(); sendFloatingLiveMessage(); }" oninput="toggleFloatingSendIcon(this)">
-                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-2 text-decoration-none text-muted" onclick="toggleFloatingEmoji()">
+                <div class="flex-grow-1 position-relative" style="min-width: 0;">
+                    <input type="text" class="form-control border-0" style="font-size: 0.86rem; height: 36px; background: #f0f2f5; border-radius: 18px; color: #050505; padding-left: 12px; padding-right: 32px; width: 100%;" placeholder="Nhập tin nhắn..." id="floatingChatInput" autocomplete="off" onkeypress="if(event.key === 'Enter'){ event.preventDefault(); sendFloatingLiveMessage(); }" oninput="toggleFloatingSendIcon(this)">
+                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-1.5 text-decoration-none d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;" onclick="toggleFloatingEmoji()" title="Biểu cảm / Nhãn dán">
                         <i class="bi bi-emoji-smile-fill fs-6 text-warning"></i>
                     </button>
                 </div>
 
                 <!-- Right Button (Thumbs-Up / Send) -->
                 <div class="flex-shrink-0">
-                    <button type="button" id="floating-btn-send" class="btn btn-link p-1 text-decoration-none" style="color: #922724;" onclick="sendFloatingLiveMessage()" title="Gửi">
-                        <i class="bi bi-hand-thumbs-up-fill fs-4" id="floating-send-icon"></i>
+                    <button type="button" id="floating-btn-send" class="btn btn-link p-0 d-flex align-items-center justify-content-center flex-shrink-0 text-decoration-none" style="color: #922724; width: 32px; height: 32px;" onclick="sendFloatingLiveMessage()" title="Gửi">
+                        <i class="bi bi-hand-thumbs-up-fill fs-5" id="floating-send-icon"></i>
                     </button>
                 </div>
             </div>
@@ -945,7 +954,7 @@
                                 html += `
                                     <div class="message-received mb-1.5 d-flex flex-column align-items-start">
                                         <div class="d-flex gap-1.5 align-items-end" style="max-width: 82%;">
-                                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.src='/images/logo.png'">
+                                            <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>?v=3" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.src='/images/logo.png'">
                                             <div class="px-2.5 py-1.5 text-muted fst-italic shadow-2xs" style="border-radius: 14px; border: 1px dashed rgba(0,0,0,0.18); background: rgba(0,0,0,0.03); font-size: 0.8rem;" title="${exactTime}">
                                                 <i class="bi bi-arrow-counterclockwise me-1 text-danger"></i>Tin nhắn đã bị thu hồi
                                             </div>
@@ -988,7 +997,7 @@
                             html += `
                                 <div class="message-received mb-1.5 d-flex flex-column align-items-start">
                                     <div class="d-flex gap-1.5 align-items-end" style="max-width: 85%;">
-                                        <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.src='/images/logo.png'">
+                                        <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>?v=3" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;" onerror="this.src='/images/logo.png'">
                                         <div class="group-hover-parent d-flex align-items-center gap-1 justify-content-start flex-grow-1">
                                             <div class="shadow-2xs text-start" style="font-size: ${isLikeEmoji ? '2rem' : '0.88rem'}; line-height: 1.35; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '8px 12px'}; border-radius: 16px 16px 16px 4px !important; background: ${isLikeEmoji || isMedia ? 'transparent' : '#f0f2f5'}; color: #050505; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
                                                 <div class="x-small fw-bold text-muted mb-0.5" style="font-size: 0.6rem;">${senderName}</div>
