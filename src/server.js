@@ -225,8 +225,14 @@ app.post('/api/analytics/heartbeat', async (req, res) => {
     try {
         const sessionId = req.body?.sessionId || req.cookies?.tab_session_id || req.cookies?.session_uuid || req.ip || 'anonymous';
         const seconds = Math.min(parseInt(req.body?.seconds) || 0, 7200);
+        const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || req.ip || 'unknown';
+        const userAgent = (req.headers['user-agent'] || '').substring(0, 500);
+
         if (seconds > 0) {
             const db = require('./core/database');
+            const { v4: uuidv4 } = require('uuid');
+
+            // 1. Update duration for current session
             await db.query(
                 `UPDATE analytics SET duration_ms = $1, updated_at = NOW() 
                  WHERE id = (
@@ -236,6 +242,23 @@ app.post('/api/analytics/heartbeat', async (req, res) => {
                  )`,
                 [seconds * 1000, sessionId]
             );
+
+            // 2. Continuous 30-minute stay rule: Every 1800s triggers +1 visit
+            const intervals = Math.floor(seconds / 1800);
+            if (intervals > 0) {
+                const [existingMilestones] = await db.query(
+                    `SELECT COUNT(*) as cnt FROM analytics 
+                     WHERE session_id = $1 AND event = 'session_start' AND metadata = $2`,
+                    [sessionId, `30m_milestone_${intervals}`]
+                );
+                if (parseInt(existingMilestones[0]?.cnt || 0, 10) === 0) {
+                    await db.query(
+                        `INSERT INTO analytics (id, session_id, event, page_url, user_agent, duration_ms, ip_address, metadata, created_at, updated_at) 
+                         VALUES ($1, $2, 'session_start', $3, $4, 0, $5, $6, NOW(), NOW())`,
+                        [uuidv4(), sessionId, req.body?.path || '/', userAgent, ip, `30m_milestone_${intervals}`]
+                    );
+                }
+            }
         }
         res.status(204).end();
     } catch (e) {

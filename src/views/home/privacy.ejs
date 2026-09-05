@@ -1,0 +1,59 @@
+<section class="py-5" style="background: #f8fafc; min-height: 80vh;">
+    <div class="container py-4" style="max-width: 860px;">
+        <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border">
+            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+                <img src="/images/brand-logo.png" alt="Logo" style="width: 48px; height: 48px; object-fit: cover;" class="rounded-circle" onerror="this.src='/images/logo.png'">
+                <div>
+                    <h3 class="fw-bold text-dark mb-0"><%= typeof isDataDeletion !== 'undefined' && isDataDeletion ? 'Hướng Dẫn Xóa Dữ Liệu Người Dùng' : 'Chính Sách Quyền Riêng Tư & Bảo Mật' %></h3>
+                    <small class="text-muted">Hệ sinh thái Du lịch Chữa lành Bình Lợi</small>
+                </div>
+            </div>
+
+            <% if (typeof isDataDeletion !== 'undefined' && isDataDeletion) { %>
+                <div class="content text-secondary lh-lg">
+                    <h5 class="fw-bold text-dark mt-3">1. Quyền yêu cầu xóa dữ liệu của bạn</h5>
+                    <p>Theo tiêu chuẩn quyền riêng tư và chính sách nền tảng Meta (Facebook), người dùng có toàn quyền yêu cầu xóa bỏ mọi dữ liệu cá nhân liên quan đến tài khoản của mình trên hệ thống <b>Du Lịch Bình Lợi</b>.</p>
+                    
+                    <h5 class="fw-bold text-dark mt-4">2. Các bước xóa dữ liệu liên kết Facebook</h5>
+                    <ol>
+                        <li>Truy cập tài khoản Facebook của bạn và vào mục <b>Cài đặt & Quyền riêng tư</b> &gt; <b>Cài đặt</b>.</li>
+                        <li>Chọn mục <b>Ứng dụng và trang web</b> để xem danh sách các ứng dụng bạn đã cấp quyền.</li>
+                        <li>Tìm ứng dụng <b>Bình Lợi Healing</b> hoặc <b>Du Lịch Bình Lợi</b> và nhấn nút <b>Gỡ (Remove)</b>.</li>
+                    </ol>
+
+                    <h5 class="fw-bold text-dark mt-4">3. Yêu cầu xóa dữ liệu trực tiếp từ máy chủ của chúng tôi</h5>
+                    <p>Nếu bạn muốn xóa toàn bộ lịch sử tương tác, đánh giá, check-in và tài khoản khỏi hệ thống máy chủ, vui lòng gửi email yêu cầu tới:</p>
+                    <ul>
+                        <li><b>Email tiếp nhận:</b> <a href="mailto:admin@dulichbinhloi.com">admin@dulichbinhloi.com</a></li>
+                        <li><b>Tiêu đề:</b> Yêu cầu xóa dữ liệu tài khoản [Tên của bạn]</li>
+                        <li><b>Thời gian xử lý:</b> Dữ liệu của bạn sẽ được xóa vĩnh viễn trong vòng 48 giờ làm việc sau khi xác minh danh tính.</li>
+                    </ul>
+                </div>
+            <% } else { %>
+                <div class="content text-secondary lh-lg">
+                    <h5 class="fw-bold text-dark mt-3">1. Mục đích thu thập thông tin</h5>
+                    <p>Hệ sinh thái Du lịch Bình Lợi cam kết bảo vệ sự riêng tư của du khách. Khi bạn đăng nhập qua Google hoặc Facebook, chúng tôi chỉ thu thập các thông tin công khai cơ bản gồm: Họ tên, Địa chỉ Email, Ảnh đại diện nhằm mục đích:</p>
+                    <ul>
+                        <li>Tạo tài khoản thành viên để lưu trữ lịch sử hành trình khám phá và điểm thưởng check-in.</li>
+                        <li>Đồng bộ bài viết đánh giá cộng đồng và hoạt động tương tác.</li>
+                        <li>Cung cấp hỗ trợ trực tuyến qua tin nhắn tư vấn.</li>
+                    </ul>
+
+                    <h5 class="fw-bold text-dark mt-4">2. Cam kết bảo mật dữ liệu</h5>
+                    <p>Chúng tôi tuyệt đối không bán, chia sẻ hoặc tiết lộ thông tin cá nhân của bạn cho bất kỳ bên thứ ba nào vì mục đích thương mại. Mọi dữ liệu được mã hóa an toàn trên hệ thống máy chủ.</p>
+
+                    <h5 class="fw-bold text-dark mt-4">3. Quyền của người dùng</h5>
+                    <p>Bạn có quyền chỉnh sửa thông tin cá nhân trong mục Hồ sơ hoặc yêu cầu xóa bỏ tài khoản bất cứ lúc nào thông qua trang <a href="/data-deletion">Hướng dẫn xóa dữ liệu</a>.</p>
+
+                    <h5 class="fw-bold text-dark mt-4">4. Thông tin liên hệ</h5>
+                    <p>Mọi thắc mắc về chính sách quyền riêng tư, vui lòng liên hệ Ban Quản Trị Du Lịch Bình Lợi qua email: <b>admin@dulichbinhloi.com</b>.</p>
+                </div>
+            <% } %>
+
+            <div class="mt-4 pt-3 border-top text-center">
+                <a href="/" class="btn btn-outline-secondary rounded-pill px-4 me-2"><i class="bi bi-arrow-left me-1"></i>Về Trang chủ</a>
+                <a href="/auth/login" class="btn btn-primary rounded-pill px-4"><i class="bi bi-person me-1"></i>Trang đăng nhập</a>
+            </div>
+        </div>
+    </div>
+</section>

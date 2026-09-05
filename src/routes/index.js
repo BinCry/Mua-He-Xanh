@@ -238,8 +238,21 @@ router.get('/brand-logo.png', async (req, res) => {
     }
 });
 
+// ===== LEGAL & META VERIFICATION =====
+router.get(['/privacy-policy', '/chinh-sach-bao-mat', '/policy'], (req, res) => {
+    res.render('home/privacy', {
+        title: 'Chính sách Quyền riêng tư & Bảo mật | Du Lịch Bình Lợi',
+        isDataDeletion: false
+    });
+});
+router.get(['/data-deletion', '/xoa-du-lieu'], (req, res) => {
+    res.render('home/privacy', {
+        title: 'Hướng dẫn Xóa Dữ liệu Người dùng | Du Lịch Bình Lợi',
+        isDataDeletion: true
+    });
+});
 
-// ===== EXPLORE =====
+
 router.get('/explore', ExploreController.list);
 router.get('/explore/audio/:slug', ExploreController.audio);
 router.get('/explore/:slug', ExploreController.show);

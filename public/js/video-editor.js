@@ -1,6 +1,6 @@
 /**
- * Studio Hướng Dẫn Hành Trình Cảm Giác
- * Client-side Canvas & Web Audio Video Renderer Engine
+ * CapCut Studio Pro Video Engine - Binh Loi Healing
+ * Client-side Canvas, Multi-track Timeline, Web Audio & Transitions
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -9,184 +9,147 @@ document.addEventListener('DOMContentLoaded', () => {
     const ctx = canvas.getContext('2d');
     const audioEl = document.getElementById('soundscapeAudio');
     
-    // Config controls
-    const durationRadios = document.getElementsByName('video_duration');
-    const dropzone = document.getElementById('dropzone');
+    // Config elements
     const fileInput = document.getElementById('media-files');
+    const dropzone = document.getElementById('dropzone');
+    const thumbnailsWrapper = document.getElementById('thumbnails-wrapper');
     const thumbnailsContainer = document.getElementById('thumbnails-container');
-    const soundCards = document.querySelectorAll('.sound-card');
-    const filterButtons = document.querySelectorAll('.filter-preset');
+    const mediaCountBadge = document.getElementById('media-count-badge');
+    const soundCards = document.querySelectorAll('.capcut-audio-card');
+    const filterCards = document.querySelectorAll('.capcut-filter-card');
+    const effectCards = document.querySelectorAll('.capcut-effect-card');
+    const templateOptions = document.querySelectorAll('.capcut-template-option');
+    
+    // Subtitle Inputs
     const textHookInput = document.getElementById('text-hook');
     const textImmersionInput = document.getElementById('text-immersion');
     const textHighlightInput = document.getElementById('text-highlight');
     const textOutroInput = document.getElementById('text-outro');
     
-    // Playback & Export UI
+    // Monitor Controls
     const playBtn = document.getElementById('playBtn');
-    const playProgress = document.getElementById('playProgress');
+    const playOverlayBtn = document.getElementById('playOverlayBtn');
+    const monitorPlayToggle = document.getElementById('monitorPlayToggle');
     const playerTimeLabel = document.getElementById('player-time');
-    const exportBtn = document.getElementById('exportBtn');
+    const headerTimeIndicator = document.getElementById('header-time-indicator');
+    const btnOpenExportModal = document.getElementById('btnOpenExportModal');
+    const startExportProcessBtn = document.getElementById('startExportProcessBtn');
     const exportStatusPanel = document.getElementById('export-status-panel');
     const exportStatusText = document.getElementById('export-status-text');
     const exportProgressBar = document.getElementById('exportProgress');
     
-    // State variables
-    let videoDuration = 15; // default 15s
+    // Timeline Elements
+    const timelinePlayhead = document.getElementById('timelinePlayhead');
+    const videoTrackSlots = document.getElementById('videoTrackSlots');
+    const timelineClipIndicator = document.getElementById('timeline-clip-indicator');
+    const timelineDurationLabel = document.getElementById('timeline-duration-label');
+    const timelineAudioName = document.getElementById('timeline-audio-name');
+
+    // State
+    let videoDuration = 15; // 15s default
     let loadedImages = []; // Array of { img: Image, file: File }
     let selectedAudioUrl = '';
     let currentFilter = 'none';
+    let currentEffect = 'kenburns';
     let isPlaying = false;
     let isExporting = false;
+    let isMuted = false;
     
-    // Animation loop timer
     let renderInterval = null;
     let startTime = 0;
     let elapsedPlayTime = 0; // ms
 
-    // Web Audio setup for export
+    // Web Audio setup
     let audioContext = null;
     let audioSource = null;
     let audioDestination = null;
-    
-    // Initialize soundscape
-    const activeSoundCard = document.querySelector('.sound-card.active');
-    if (activeSoundCard) {
-        selectedAudioUrl = activeSoundCard.getAttribute('data-audio-url');
+
+    // Initialize Default Soundscape
+    const activeAudioCard = document.querySelector('.capcut-audio-card.active');
+    if (activeAudioCard) {
+        selectedAudioUrl = activeAudioCard.getAttribute('data-audio-url');
         audioEl.src = selectedAudioUrl;
+        const soundTitle = activeAudioCard.querySelector('.fw-bold')?.innerText || 'Tĩnh lặng';
+        if (timelineAudioName) timelineAudioName.innerText = `Nhạc nền: ${soundTitle}`;
     }
 
-    // --- TEMPLATE DURATION SELECTOR ---
-    Array.from(durationRadios).forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            videoDuration = parseInt(e.target.value);
-            updateDurationUI();
+    // --- CAPCUT TAB SWITCHER ---
+    window.switchCapcutTab = function(tabName) {
+        document.querySelectorAll('.capcut-rail-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
         });
-    });
+        document.querySelectorAll('.capcut-pane').forEach(pane => {
+            pane.classList.toggle('active', pane.id === `cpane-${tabName}`);
+        });
+    };
 
-    // Also support clicking card wrapper
-    const templateCards = document.querySelectorAll('.template-card');
-    templateCards.forEach(card => {
-        card.addEventListener('click', () => {
-            templateCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
+    // --- TEMPLATE & DURATION SELECTOR ---
+    templateOptions.forEach(opt => {
+        opt.addEventListener('click', () => {
+            templateOptions.forEach(o => o.classList.remove('active'));
+            opt.classList.add('active');
             
-            const radio = card.querySelector('input[type="radio"]');
-            radio.checked = true;
-            videoDuration = parseInt(radio.value);
+            const radio = opt.querySelector('input[type="radio"]');
+            if (radio) radio.checked = true;
+            
+            videoDuration = parseInt(opt.getAttribute('data-duration') || '15', 10);
             updateDurationUI();
         });
     });
 
     function updateDurationUI() {
-        playerTimeLabel.innerText = `00:00 / 00:${String(videoDuration).padStart(2, '0')}`;
+        const durStr = `00:${String(videoDuration).padStart(2, '0')}`;
+        playerTimeLabel.innerText = `00:00 / ${durStr}`;
+        if (headerTimeIndicator) headerTimeIndicator.innerText = `00:00 / ${durStr}`;
+        if (timelineDurationLabel) timelineDurationLabel.innerText = `${videoDuration}s`;
         
-        // Update timeline slots text
-        const slots = document.querySelectorAll('#timeline-slots > div');
-        if (videoDuration === 30) {
-            // 30s has 5 segments in theory, let's adjust visually
-            document.getElementById('timeline-slots').innerHTML = `
-                <div class="col">
-                    <div class="border border-secondary rounded-3 p-2 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.6rem;">HOOK</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 60px; font-size: 0.8rem;">Ảnh 1</div>
-                        <div class="x-small text-white-50 mt-1" style="font-size: 0.6rem;">0s - 6s</div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="border border-secondary rounded-3 p-2 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.6rem;">IMMERSION</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 60px; font-size: 0.8rem;">Ảnh 2</div>
-                        <div class="x-small text-white-50 mt-1" style="font-size: 0.6rem;">6s - 12s</div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="border border-secondary rounded-3 p-2 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.6rem;">DETAIL</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 60px; font-size: 0.8rem;">Ảnh 3</div>
-                        <div class="x-small text-white-50 mt-1" style="font-size: 0.6rem;">12s - 18s</div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="border border-secondary rounded-3 p-2 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.6rem;">HIGHLIGHT</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 60px; font-size: 0.8rem;">Ảnh 4</div>
-                        <div class="x-small text-white-50 mt-1" style="font-size: 0.6rem;">18s - 24s</div>
-                    </div>
-                </div>
-                <div class="col">
-                    <div class="border border-secondary rounded-3 p-2 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase" style="font-size: 0.6rem;">OUTRO</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 60px; font-size: 0.8rem;">Ảnh 5</div>
-                        <div class="x-small text-white-50 mt-1" style="font-size: 0.6rem;">24s - 30s</div>
-                    </div>
-                </div>
-            `;
-        } else {
-            const step = videoDuration / 4;
-            document.getElementById('timeline-slots').innerHTML = `
-                <div class="col-3">
-                    <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase">HOOK</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Ảnh 1</div>
-                        <div class="small text-white-50 mt-2 font-size-xs">0s - ${step}s</div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase">IMMERSION</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Ảnh 2</div>
-                        <div class="small text-white-50 mt-2 font-size-xs">${step}s - ${step*2}s</div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase">HIGHLIGHT</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Ảnh 3</div>
-                        <div class="small text-white-50 mt-2 font-size-xs">${step*2}s - ${step*3}s</div>
-                    </div>
-                </div>
-                <div class="col-3">
-                    <div class="border border-secondary rounded-3 p-3 bg-dark bg-opacity-50">
-                        <div class="x-small text-muted fw-bold text-uppercase">OUTRO</div>
-                        <div class="timeline-slot-thumb mt-2 border border-secondary rounded bg-secondary bg-opacity-10 d-flex align-items-center justify-content-center text-muted" style="height: 80px;">Ảnh 4</div>
-                        <div class="small text-white-50 mt-2 font-size-xs">${step*3}s - ${videoDuration}s</div>
-                    </div>
-                </div>
-            `;
+        // Update Time Ruler
+        const timeRuler = document.getElementById('timeRuler');
+        if (timeRuler) {
+            const step = videoDuration / 5;
+            let rulerHtml = '';
+            for (let i = 0; i <= 5; i++) {
+                const s = Math.round(i * step);
+                rulerHtml += `<span>00:${String(s).padStart(2, '0')}</span>`;
+            }
+            timeRuler.innerHTML = rulerHtml;
         }
-        
-        // Re-draw initial state on timeline change
+
+        renderTimelineTracks();
         drawFrameAt(0);
-        updateTimelineThumbs();
     }
 
-    // --- UPLOAD FILES & DRAG-DROP ---
-    dropzone.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        dropzone.classList.add('border-primary');
-    });
+    // --- MEDIA UPLOAD & DRAG DROP ---
+    if (dropzone) {
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = '#00f0ff';
+            dropzone.style.background = 'rgba(0, 240, 255, 0.1)';
+        });
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.35)';
+            dropzone.style.background = '#1a1b20';
+        });
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.35)';
+            dropzone.style.background = '#1a1b20';
+            handleFiles(e.dataTransfer.files);
+        });
+    }
 
-    dropzone.addEventListener('dragleave', () => {
-        dropzone.classList.remove('border-primary');
-    });
-
-    dropzone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropzone.classList.remove('border-primary');
-        const files = e.dataTransfer.files;
-        handleFiles(files);
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        handleFiles(e.target.files);
-    });
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            handleFiles(e.target.files);
+        });
+    }
 
     function handleFiles(files) {
         if (!files || files.length === 0) return;
         
-        const count = Math.min(files.length, 5 - loadedImages.length);
+        const count = Math.min(files.length, 10 - loadedImages.length);
         if (count <= 0) {
-            alert('Đã tải tối đa 5 ảnh!');
+            alert('Bạn có thể chọn tối đa 10 ảnh!');
             return;
         }
 
@@ -212,31 +175,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function onImagesLoaded() {
-        thumbnailsContainer.classList.remove('d-none');
+        if (thumbnailsWrapper) thumbnailsWrapper.classList.remove('d-none');
+        if (mediaCountBadge) mediaCountBadge.innerText = `${loadedImages.length} / 5 ảnh`;
+        if (timelineClipIndicator) timelineClipIndicator.innerText = `${loadedImages.length} clip`;
+        
         renderThumbnails();
-        updateTimelineThumbs();
+        renderTimelineTracks();
         
         if (loadedImages.length >= 3) {
-            exportBtn.removeAttribute('disabled');
+            btnOpenExportModal.removeAttribute('disabled');
         } else {
-            exportBtn.setAttribute('disabled', 'true');
+            btnOpenExportModal.setAttribute('disabled', 'true');
         }
         
-        // Draw the first image as static placeholder
         drawFrameAt(0);
     }
 
     function renderThumbnails() {
+        if (!thumbnailsContainer) return;
         thumbnailsContainer.innerHTML = '';
         loadedImages.forEach((item, index) => {
             const col = document.createElement('div');
-            col.className = 'col-2 position-relative';
+            col.className = 'col-3 position-relative';
             col.innerHTML = `
-                <div class="ratio ratio-1x1 border border-secondary rounded overflow-hidden">
+                <div class="ratio ratio-1x1 rounded-3 overflow-hidden border border-secondary" style="background:#0e0f12;">
                     <img src="${item.img.src}" class="w-100 h-100 object-fit-cover">
                 </div>
-                <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center" 
-                        style="width:18px; height:18px; font-size:10px; margin-top:-5px; margin-right:2px;" onclick="removeImage(${index})">
+                <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center shadow" 
+                        style="width:20px; height:20px; font-size:11px; margin-top:-6px; margin-right:-2px; z-index:10;" onclick="removeImage(${index})">
                     <i class="bi bi-x"></i>
                 </button>
             `;
@@ -248,37 +214,59 @@ document.addEventListener('DOMContentLoaded', () => {
         loadedImages.splice(index, 1);
         onImagesLoaded();
         if (loadedImages.length === 0) {
-            thumbnailsContainer.classList.add('d-none');
-            // Clear canvas
-            ctx.fillStyle = '#000000';
+            if (thumbnailsWrapper) thumbnailsWrapper.classList.add('d-none');
+            ctx.fillStyle = '#0e0f12';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
     };
 
-    function updateTimelineThumbs() {
-        const thumbs = document.querySelectorAll('.timeline-slot-thumb');
-        thumbs.forEach((thumb, index) => {
-            if (loadedImages[index]) {
-                thumb.innerHTML = `<img src="${loadedImages[index].img.src}" class="w-100 h-100 object-fit-cover rounded">`;
-                thumb.classList.remove('text-muted');
-            } else {
-                thumb.innerHTML = 'Trống';
-                thumb.classList.add('text-muted');
+    window.clearAllLoadedImages = function() {
+        loadedImages = [];
+        onImagesLoaded();
+        if (thumbnailsWrapper) thumbnailsWrapper.classList.add('d-none');
+        ctx.fillStyle = '#0e0f12';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    };
+
+    // --- TIMELINE TRACKS RENDERING ---
+    function renderTimelineTracks() {
+        if (!videoTrackSlots) return;
+        
+        const segmentsCount = (videoDuration === 30) ? 5 : 4;
+        const segDuration = (videoDuration / segmentsCount).toFixed(1);
+        
+        let html = '';
+        for (let i = 0; i < segmentsCount; i++) {
+            const hasImg = loadedImages[i % (loadedImages.length || 1)];
+            const imgSrc = hasImg ? hasImg.img.src : '';
+            
+            html += `
+                <div class="capcut-timeline-clip-thumb flex-grow-1 position-relative ${hasImg && loadedImages.length > 0 ? 'has-img' : ''}" style="min-width: 60px;">
+                    ${hasImg && loadedImages.length > 0 ? `<img src="${imgSrc}" class="w-100 h-100 object-fit-cover opacity-75">` : `<span class="text-white-50 x-small">Phân đoạn ${i+1}</span>`}
+                    <span class="position-absolute bottom-0 end-0 px-1 py-0.5 rounded text-white x-small fw-bold" style="background: rgba(0,0,0,0.7); font-size: 0.6rem;">${segDuration}s</span>
+                </div>
+            `;
+            if (i < segmentsCount - 1) {
+                html += `<div class="text-cyan x-small opacity-75 flex-shrink-0" style="font-size: 0.65rem;" title="Chuyển cảnh CapCut">⧗</div>`;
             }
-        });
+        }
+        videoTrackSlots.innerHTML = html;
     }
 
-    // --- SOUNDSCAPE SELECTOR ---
+    // --- AUDIO SOUNDSCAPE SELECTION ---
     soundCards.forEach(card => {
         card.addEventListener('click', () => {
             soundCards.forEach(c => c.classList.remove('active'));
             card.classList.add('active');
             
             const radio = card.querySelector('input[type="radio"]');
-            radio.checked = true;
+            if (radio) radio.checked = true;
             
             selectedAudioUrl = card.getAttribute('data-audio-url');
             audioEl.src = selectedAudioUrl;
+            
+            const soundTitle = card.querySelector('.fw-bold')?.innerText || 'Tĩnh lặng';
+            if (timelineAudioName) timelineAudioName.innerText = `Nhạc nền: ${soundTitle}`;
             
             if (isPlaying) {
                 audioEl.play().catch(e => console.error(e));
@@ -286,24 +274,27 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // --- COLOR FILTER SELECTOR ---
-    filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            filterButtons.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.getAttribute('data-filter');
-            
-            // Redraw frame instantly if paused
-            if (!isPlaying) {
-                drawFrameAt(elapsedPlayTime);
-            }
+    // --- EFFECTS & FILTERS ---
+    effectCards.forEach(card => {
+        card.addEventListener('click', () => {
+            effectCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            currentEffect = card.getAttribute('data-effect') || 'kenburns';
+            if (!isPlaying) drawFrameAt(elapsedPlayTime);
         });
     });
 
-    // --- RENDER ENGINE CORE ---
+    filterCards.forEach(card => {
+        card.addEventListener('click', () => {
+            filterCards.forEach(c => c.classList.remove('active'));
+            card.classList.add('active');
+            currentFilter = card.getAttribute('data-filter') || 'none';
+            if (!isPlaying) drawFrameAt(elapsedPlayTime);
+        });
+    });
 
-    // Object-fit Cover calculation for canvas drawing
-    function drawImageCover(ctx, img, x, y, w, h) {
+    // --- CANVAS RENDER ENGINE WITH CAPCUT MOTION ---
+    function drawImageCover(ctx, img, x, y, w, h, scaleFactor = 1.0, panX = 0) {
         const imgRatio = img.width / img.height;
         const canvasRatio = w / h;
         let sx, sy, sWidth, sHeight;
@@ -311,34 +302,45 @@ document.addEventListener('DOMContentLoaded', () => {
         if (imgRatio > canvasRatio) {
             sHeight = img.height;
             sWidth = img.height * canvasRatio;
-            sx = (img.width - sWidth) / 2;
+            sx = (img.width - sWidth) / 2 + panX;
             sy = 0;
         } else {
             sWidth = img.width;
             sHeight = img.width / canvasRatio;
-            sx = 0;
+            sx = panX;
             sy = (img.height - sHeight) / 2;
         }
 
-        ctx.drawImage(img, sx, sy, sWidth, sHeight, x, y, w, h);
+        // Apply scale factor (Ken Burns)
+        const dw = w * scaleFactor;
+        const dh = h * scaleFactor;
+        const dx = x - (dw - w) / 2;
+        const dy = y - (dh - h) / 2;
+
+        ctx.drawImage(img, Math.max(0, sx), Math.max(0, sy), sWidth, sHeight, dx, dy, dw, dh);
     }
 
-    // Main drawing routine at specific timestamp (in ms)
     function drawFrameAt(timestampMs) {
         if (loadedImages.length === 0) {
-            ctx.fillStyle = '#0f0f0f';
+            ctx.fillStyle = '#0e0f12';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
-            // Draw empty guide
-            ctx.fillStyle = '#ffffff';
-            ctx.font = '28px Outfit, sans-serif';
+            
+            // Draw CapCut Placeholder Guide
+            ctx.fillStyle = '#212328';
+            ctx.fillRect(40, 200, canvas.width - 80, canvas.height - 400);
+            
+            ctx.fillStyle = '#00f0ff';
+            ctx.font = 'bold 32px sans-serif';
             ctx.textAlign = 'center';
-            ctx.fillText('Hãy tải 3-5 bức ảnh để bắt đầu', canvas.width / 2, canvas.height / 2);
+            ctx.fillText('✂️ CapCut Studio Pro', canvas.width / 2, canvas.height / 2 - 30);
+            
+            ctx.fillStyle = '#8b929e';
+            ctx.font = '20px sans-serif';
+            ctx.fillText('Thêm từ 3 - 5 ảnh để dựng video', canvas.width / 2, canvas.height / 2 + 15);
             return;
         }
 
         const totalSec = timestampMs / 1000;
-        
-        // 1. Calculate which image and text to show based on duration and slots count
         const segmentsCount = (videoDuration === 30) ? 5 : 4;
         const segmentDuration = videoDuration / segmentsCount;
         
@@ -346,90 +348,99 @@ document.addEventListener('DOMContentLoaded', () => {
         activeIdx = Math.min(activeIdx, segmentsCount - 1);
         activeIdx = Math.max(activeIdx, 0);
 
-        // Fallback image index if we have fewer loaded images than segments
-        let imgIdx = activeIdx % loadedImages.length;
+        const imgIdx = activeIdx % loadedImages.length;
         const currentImageItem = loadedImages[imgIdx];
+        const progressInSeg = (totalSec % segmentDuration) / segmentDuration; // 0.0 to 1.0
 
-        // 2. Draw Image under color filter
+        // 1. Calculate Motion Effect (Ken Burns or Pan)
+        let scale = 1.0;
+        let panX = 0;
+        if (currentEffect === 'kenburns') {
+            scale = 1.0 + (progressInSeg * 0.1); // Smooth 10% zoom in
+        } else if (currentEffect === 'pan') {
+            panX = (progressInSeg - 0.5) * 40; // Pan horizontally
+        }
+
+        // 2. Render Image with Filter
         ctx.save();
         if (currentFilter === 'warm') {
-            ctx.filter = 'sepia(0.3) saturate(1.4) contrast(1.1) brightness(0.95)';
+            ctx.filter = 'sepia(0.35) saturate(1.4) contrast(1.1) brightness(0.98)';
         } else if (currentFilter === 'cool') {
-            ctx.filter = 'hue-rotate(15deg) saturate(1.15) contrast(0.95)';
+            ctx.filter = 'hue-rotate(15deg) saturate(1.2) contrast(1.05)';
         } else if (currentFilter === 'vintage') {
-            ctx.filter = 'sepia(0.55) contrast(0.9) brightness(1.02)';
+            ctx.filter = 'sepia(0.55) contrast(0.95) brightness(1.02)';
         } else if (currentFilter === 'grayscale') {
             ctx.filter = 'grayscale(1) contrast(1.25)';
         } else {
             ctx.filter = 'none';
         }
-        
+
         if (currentImageItem && currentImageItem.img) {
-            drawImageCover(ctx, currentImageItem.img, 0, 0, canvas.width, canvas.height);
+            drawImageCover(ctx, currentImageItem.img, 0, 0, canvas.width, canvas.height, scale, panX);
         }
         ctx.restore();
 
-        // 3. Draw Overlay Gradients (Instagram Style - Darkened bottom and top)
-        const topGrad = ctx.createLinearGradient(0, 0, 0, 180);
-        topGrad.addColorStop(0, 'rgba(0,0,0,0.5)');
+        // 3. Flash White Transition if selected
+        if (currentEffect === 'flash' && progressInSeg < 0.12) {
+            ctx.fillStyle = `rgba(255, 255, 255, ${1.0 - (progressInSeg / 0.12)})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // 4. Dark Vignette Overlays
+        const topGrad = ctx.createLinearGradient(0, 0, 0, 160);
+        topGrad.addColorStop(0, 'rgba(0,0,0,0.6)');
         topGrad.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = topGrad;
-        ctx.fillRect(0, 0, canvas.width, 180);
+        ctx.fillRect(0, 0, canvas.width, 160);
 
-        const bottomGrad = ctx.createLinearGradient(0, canvas.height - 280, 0, canvas.height);
+        const bottomGrad = ctx.createLinearGradient(0, canvas.height - 260, 0, canvas.height);
         bottomGrad.addColorStop(0, 'rgba(0,0,0,0)');
-        bottomGrad.addColorStop(1, 'rgba(0,0,0,0.75)');
+        bottomGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
         ctx.fillStyle = bottomGrad;
-        ctx.fillRect(0, canvas.height - 280, canvas.width, 280);
+        ctx.fillRect(0, canvas.height - 260, canvas.width, 260);
 
-        // 4. Draw Header/Branding
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 22px Outfit, sans-serif';
+        // 5. Header / Brand Mark
+        ctx.fillStyle = '#00f0ff';
+        ctx.font = 'bold 20px sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('BÌNH LỢI HEALING', 40, 60);
+        ctx.fillText('BÌNH LỢI HEALING 🌿', 35, 50);
 
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.font = '16px Outfit, sans-serif';
-        ctx.fillText('Hành Trình Cảm Giác', 40, 85);
+        ctx.font = '14px sans-serif';
+        ctx.fillText('Chạm sắc bản nguyên', 35, 75);
 
-        // 5. Draw dynamic text overlay
+        // 6. Subtitles with Transition Fade
         let subText = '';
-        if (activeIdx === 0) subText = textHookInput.value;
-        else if (activeIdx === 1) subText = textImmersionInput.value;
-        else if (activeIdx === 2) subText = textHighlightInput.value;
+        if (activeIdx === 0) subText = textHookInput?.value || 'Lạc vào miền xanh Bình Lợi...';
+        else if (activeIdx === 1) subText = textImmersionInput?.value || 'Hương mai thoang thoảng bờ kênh thanh mát.';
+        else if (activeIdx === 2) subText = textHighlightInput?.value || 'Chữa lành từ những điều mộc mạc nhất.';
         else if (activeIdx === 3) {
-            subText = (videoDuration === 30) ? 'Chạm vào không gian thanh tịnh.' : textOutroInput.value;
-        } else if (activeIdx === 4) subText = textOutroInput.value;
+            subText = (videoDuration === 30) ? 'Không gian tĩnh lặng miệt vườn.' : (textOutroInput?.value || 'Nghe Bình Lợi theo cách của bạn.');
+        } else if (activeIdx === 4) subText = textOutroInput?.value || 'Nghe Bình Lợi theo cách của bạn.';
 
-        // Calculate text transition opacity (fade in/out during first/last 0.5s of segment)
-        const progressInSeg = totalSec % segmentDuration;
         let opacity = 1.0;
-        if (progressInSeg < 0.5) {
-            opacity = progressInSeg / 0.5; // Fade in
-        } else if (segmentDuration - progressInSeg < 0.5) {
-            opacity = (segmentDuration - progressInSeg) / 0.5; // Fade out
-        }
-        
+        const segSec = totalSec % segmentDuration;
+        if (segSec < 0.4) opacity = segSec / 0.4;
+        else if (segmentDuration - segSec < 0.4) opacity = (segmentDuration - segSec) / 0.4;
+
         ctx.save();
-        ctx.globalAlpha = opacity;
+        ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
         
-        // Wrap text
-        ctx.font = 'bold 36px Outfit, sans-serif';
+        ctx.font = 'bold 32px sans-serif';
         ctx.textAlign = 'center';
         ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(0,0,0,0.8)';
-        ctx.shadowBlur = 10;
+        ctx.shadowColor = 'rgba(0,0,0,0.9)';
+        ctx.shadowBlur = 12;
 
         const words = subText.split(' ');
         let line = '';
         const lines = [];
-        const maxWidth = canvas.width - 100;
+        const maxWidth = canvas.width - 80;
         
         for (let n = 0; n < words.length; n++) {
             let testLine = line + words[n] + ' ';
             let metrics = ctx.measureText(testLine);
-            let testWidth = metrics.width;
-            if (testWidth > maxWidth && n > 0) {
+            if (metrics.width > maxWidth && n > 0) {
                 lines.push(line);
                 line = words[n] + ' ';
             } else {
@@ -438,39 +449,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         lines.push(line);
 
-        let yStart = canvas.height - 180 - ((lines.length - 1) * 45);
+        let yStart = canvas.height - 150 - ((lines.length - 1) * 42);
         lines.forEach((l, idx) => {
-            // Draw a subtle translucent black background box for premium readability
             const metrics = ctx.measureText(l);
-            ctx.fillStyle = 'rgba(0,0,0,0.35)';
-            ctx.fillRect(canvas.width/2 - metrics.width/2 - 15, yStart + (idx * 45) - 34, metrics.width + 30, 48);
+            // CapCut Subtitle Backdrop Pill
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+            ctx.fillRect(canvas.width/2 - metrics.width/2 - 14, yStart + (idx * 42) - 30, metrics.width + 28, 42);
             
             ctx.fillStyle = '#ffffff';
-            ctx.fillText(l.trim(), canvas.width / 2, yStart + (idx * 45));
+            ctx.fillText(l.trim(), canvas.width / 2, yStart + (idx * 42));
         });
-        
+
         ctx.restore();
     }
 
     // --- PLAYBACK CONTROLS ---
-    playBtn.addEventListener('click', () => {
+    window.togglePlay = function() {
         if (loadedImages.length === 0) {
-            alert('Hãy tải ảnh lên trước!');
+            alert('Vui lòng thêm ít nhất 1 ảnh để xem trước!');
             return;
         }
-        
+        if (isPlaying) pauseVideo();
+        else playVideo();
+    };
+
+    if (playBtn) playBtn.addEventListener('click', window.togglePlay);
+
+    window.rewindVideo = function() {
+        elapsedPlayTime = 0;
+        drawFrameAt(0);
+        updateProgressUI();
         if (isPlaying) {
-            pauseVideo();
-        } else {
-            playVideo();
+            startTime = performance.now();
+            audioEl.currentTime = 0;
         }
-    });
+    };
+
+    window.toggleMute = function() {
+        isMuted = !isMuted;
+        audioEl.muted = isMuted;
+        const icon = document.getElementById('volIcon');
+        if (icon) {
+            icon.className = isMuted ? 'bi bi-volume-mute-fill fs-5 text-danger' : 'bi bi-volume-up-fill fs-5';
+        }
+    };
 
     function playVideo() {
         if (isExporting) return;
-        
         isPlaying = true;
-        playBtn.innerHTML = '<i class="bi bi-pause-fill fs-3"></i>';
+        
+        if (playOverlayBtn) playOverlayBtn.style.display = 'none';
+        if (monitorPlayToggle) monitorPlayToggle.innerHTML = '<i class="bi bi-pause-circle-fill fs-4 text-cyan"></i>';
         
         if (elapsedPlayTime >= videoDuration * 1000) {
             elapsedPlayTime = 0;
@@ -478,18 +507,18 @@ document.addEventListener('DOMContentLoaded', () => {
         
         startTime = performance.now() - elapsedPlayTime;
         audioEl.currentTime = elapsedPlayTime / 1000;
-        audioEl.play().catch(e => console.error("Audio playback error:", e));
+        audioEl.play().catch(e => console.error(e));
 
         renderInterval = requestAnimationFrame(tick);
     }
 
     function pauseVideo() {
         isPlaying = false;
-        playBtn.innerHTML = '<i class="bi bi-play-fill fs-3"></i>';
+        if (playOverlayBtn) playOverlayBtn.style.display = 'block';
+        if (monitorPlayToggle) monitorPlayToggle.innerHTML = '<i class="bi bi-play-circle-fill fs-4 text-cyan"></i>';
+        
         audioEl.pause();
-        if (renderInterval) {
-            cancelAnimationFrame(renderInterval);
-        }
+        if (renderInterval) cancelAnimationFrame(renderInterval);
     }
 
     function tick(now) {
@@ -497,7 +526,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         elapsedPlayTime = now - startTime;
         
-        // Loop check
         if (elapsedPlayTime >= videoDuration * 1000) {
             elapsedPlayTime = videoDuration * 1000;
             drawFrameAt(elapsedPlayTime);
@@ -513,122 +541,134 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateProgressUI() {
-        const pct = (elapsedPlayTime / (videoDuration * 1000)) * 100;
-        playProgress.style.width = `${pct}%`;
+        const pct = Math.min((elapsedPlayTime / (videoDuration * 1000)) * 100, 100);
+        if (timelinePlayhead) timelinePlayhead.style.left = `${pct}%`;
 
         const curMin = Math.floor(elapsedPlayTime / 60000);
         const curSec = Math.floor((elapsedPlayTime % 60000) / 1000);
-        playerTimeLabel.innerText = `${String(curMin).padStart(2, '0')}:${String(curSec).padStart(2, '0')} / 00:${String(videoDuration).padStart(2, '0')}`;
+        const durStr = `00:${String(videoDuration).padStart(2, '0')}`;
+        const timeStr = `${String(curMin).padStart(2, '0')}:${String(curSec).padStart(2, '0')} / ${durStr}`;
+        
+        if (playerTimeLabel) playerTimeLabel.innerText = timeStr;
+        if (headerTimeIndicator) headerTimeIndicator.innerText = timeStr;
     }
 
-    // --- EXPORT VIDEO (MediaRecorder API) ---
-    exportBtn.addEventListener('click', async () => {
-        if (loadedImages.length < 3) {
-            alert('Vui lòng chọn ít nhất 3 ảnh!');
-            return;
-        }
-        
-        pauseVideo();
-        isExporting = true;
-        exportBtn.setAttribute('disabled', 'true');
-        exportStatusPanel.classList.remove('d-none');
-        
-        try {
-            // Setup Web Audio nodes for capturing clean soundscape audio
-            if (!audioContext) {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                audioSource = audioContext.createMediaElementSource(audioEl);
-                audioDestination = audioContext.createMediaStreamDestination();
-                
-                // Connect to destination (recording) and also to context destination (hearing preview)
-                audioSource.connect(audioDestination);
-                audioSource.connect(audioContext.destination);
-            }
-            
-            // Prepare mixed stream
-            const canvasStream = canvas.captureStream(30); // 30fps video track
-            const audioTrackStream = audioDestination.stream;
-            
-            const combinedStream = new MediaStream([
-                ...canvasStream.getVideoTracks(),
-                ...audioTrackStream.getAudioTracks()
-            ]);
-            
-            // Initialize MediaRecorder
-            let options = { mimeType: 'video/webm;codecs=vp9' };
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = { mimeType: 'video/webm;codecs=vp8' };
-            }
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = { mimeType: 'video/webm' };
-            }
-            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                options = {}; // browser default
-            }
+    // --- CAPCUT EXPORT PIPELINE ---
+    const exportModalEl = document.getElementById('capcutExportModal');
+    let exportModal = null;
+    if (exportModalEl && typeof bootstrap !== 'undefined') {
+        exportModal = bootstrap.Modal.getOrCreateInstance(exportModalEl);
+    }
 
-            const recorder = new MediaRecorder(combinedStream, options);
-            const chunks = [];
+    if (btnOpenExportModal) {
+        btnOpenExportModal.addEventListener('click', () => {
+            if (loadedImages.length < 3) {
+                alert('Vui lòng chọn ít nhất 3 ảnh để xuất video!');
+                return;
+            }
+            if (exportModal) exportModal.show();
+        });
+    }
+
+    if (startExportProcessBtn) {
+        startExportProcessBtn.addEventListener('click', async () => {
+            if (loadedImages.length < 3) return;
             
-            recorder.ondataavailable = (e) => {
-                if (e.data && e.data.size > 0) {
-                    chunks.push(e.data);
+            pauseVideo();
+            isExporting = true;
+            startExportProcessBtn.setAttribute('disabled', 'true');
+            if (exportStatusPanel) exportStatusPanel.classList.remove('d-none');
+            
+            try {
+                if (!audioContext) {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    audioSource = audioContext.createMediaElementSource(audioEl);
+                    audioDestination = audioContext.createMediaStreamDestination();
+                    audioSource.connect(audioDestination);
+                    audioSource.connect(audioContext.destination);
                 }
-            };
-            
-            recorder.onstop = () => {
-                const blob = new Blob(chunks, { type: 'video/webm' });
-                const url = URL.createObjectURL(blob);
                 
-                // Download file
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `hanh_trinh_cam_giac_${Date.now()}.webm`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
+                const canvasStream = canvas.captureStream(30);
+                const audioTrackStream = audioDestination.stream;
                 
-                // Reset UI
+                const combinedStream = new MediaStream([
+                    ...canvasStream.getVideoTracks(),
+                    ...audioTrackStream.getAudioTracks()
+                ]);
+                
+                let options = { mimeType: 'video/webm;codecs=vp9' };
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'video/webm;codecs=vp8' };
+                }
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = { mimeType: 'video/webm' };
+                }
+                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+                    options = {};
+                }
+
+                const recorder = new MediaRecorder(combinedStream, options);
+                const chunks = [];
+                
+                recorder.ondataavailable = (e) => {
+                    if (e.data && e.data.size > 0) chunks.push(e.data);
+                };
+                
+                recorder.onstop = () => {
+                    const blob = new Blob(chunks, { type: 'video/webm' });
+                    const url = URL.createObjectURL(blob);
+                    
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `capcut_binh_loi_healing_${Date.now()}.webm`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    
+                    isExporting = false;
+                    startExportProcessBtn.removeAttribute('disabled');
+                    if (exportStatusPanel) exportStatusPanel.classList.add('d-none');
+                    if (exportModal) exportModal.hide();
+                    
+                    if (typeof showToast === 'function') {
+                        showToast('Xuất video thành công! Tệp tin đã được lưu về máy của bạn.', 'success');
+                    } else {
+                        alert('Xuất video thành công! Tệp tin đã được lưu về máy của bạn.');
+                    }
+                };
+                
+                recorder.start();
+                audioEl.currentTime = 0;
+                audioEl.play().catch(e => console.error(e));
+                
+                const exportStartTime = performance.now();
+                const exportTimer = setInterval(() => {
+                    const elapsed = performance.now() - exportStartTime;
+                    const pct = Math.min((elapsed / (videoDuration * 1000)) * 100, 100);
+                    
+                    if (exportProgressBar) exportProgressBar.style.width = `${pct}%`;
+                    if (exportStatusText) exportStatusText.innerText = `Đang mã hóa video... (${Math.round(pct)}%)`;
+                    
+                    drawFrameAt(elapsed);
+                    
+                    if (elapsed >= videoDuration * 1000) {
+                        clearInterval(exportTimer);
+                        recorder.stop();
+                        audioEl.pause();
+                    }
+                }, 1000 / 30);
+                
+            } catch (err) {
+                console.error("Export video error:", err);
+                alert("Lỗi xuất video: " + err.message);
                 isExporting = false;
-                exportBtn.removeAttribute('disabled');
-                exportStatusPanel.classList.add('d-none');
-                showToast('Kết xuất video hoàn tất! Tệp tin đã tải về máy của bạn.', 'success');
-            };
-            
-            // Start recording
-            recorder.start();
-            
-            // Run play-record loop
-            audioEl.currentTime = 0;
-            audioEl.play().catch(e => console.error(e));
-            
-            const exportStartTime = performance.now();
-            
-            const exportTimer = setInterval(() => {
-                const elapsed = performance.now() - exportStartTime;
-                const pct = Math.min((elapsed / (videoDuration * 1000)) * 100, 100);
-                
-                exportProgressBar.style.width = `${pct}%`;
-                exportStatusText.innerText = `Đang mã hóa video... (${Math.round(pct)}%)`;
-                
-                // Draw frames in real-time
-                drawFrameAt(elapsed);
-                
-                if (elapsed >= videoDuration * 1000) {
-                    clearInterval(exportTimer);
-                    recorder.stop();
-                    audioEl.pause();
-                }
-            }, 1000 / 30); // 30fps interval
-            
-        } catch (err) {
-            console.error("Export video failed:", err);
-            alert("Rất tiếc, trình duyệt của bạn không hỗ trợ ghi hình. Vui lòng cập nhật Safari/Chrome mới nhất.");
-            isExporting = false;
-            exportBtn.removeAttribute('disabled');
-            exportStatusPanel.classList.add('d-none');
-        }
-    });
+                startExportProcessBtn.removeAttribute('disabled');
+                if (exportStatusPanel) exportStatusPanel.classList.add('d-none');
+            }
+        });
+    }
 
-    // Draw initial empty frame
+    // Initial Setup
+    updateDurationUI();
     drawFrameAt(0);
 });

@@ -15,10 +15,10 @@
         <!-- Facebook Style Compose Bar -->
         <% if (user) { %>
         <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 reveal-up bg-white">
-            <div class="d-flex align-items-center gap-2.5 pb-2.5 border-bottom" style="border-color: #e4e6eb !important;">
-                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 42px; height: 42px; object-fit: cover; border: 2px solid #e4e6eb;">
-                <div class="flex-grow-1 cursor-pointer rounded-pill px-3.5 py-2 text-muted small hover-bg-gray transition-all" onclick="openFbCreatePostModal()" style="font-size: 0.92rem; background: #f0f2f5 !important; user-select: none;">
-                    <%= user.full_name %> ơi, bạn đang nghĩ gì thế?
+            <div class="d-flex align-items-center gap-3 pb-2.5 border-bottom" style="border-color: #e4e6eb !important;">
+                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid #f0f2f5;">
+                <div class="flex-grow-1 cursor-pointer rounded-pill ps-3.5 pe-4 py-2 text-muted small hover-bg-gray transition-all d-flex align-items-center" onclick="openFbCreatePostModal()" style="font-size: 0.95rem; background: #f0f2f5 !important; user-select: none; min-height: 42px; color: #65676b !important;">
+                    <span class="ps-1"><%= user.full_name %> ơi, bạn đang nghĩ gì thế?</span>
                 </div>
             </div>
             <div class="d-flex align-items-center justify-content-around pt-2 px-1">
@@ -51,8 +51,8 @@
                     <div class="modal-body p-3.5 custom-scrollbar">
                         <form id="reviewForm" enctype="multipart/form-data">
                             <!-- User Profile Info Row -->
-                            <div class="d-flex align-items-center gap-2.5 mb-3">
-                                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover;">
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid #f0f2f5;">
                                 <div>
                                     <div class="fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.2;"><%= user.full_name %></div>
                                     <div class="d-flex flex-wrap gap-1 mt-1">

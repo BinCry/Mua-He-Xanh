@@ -66,9 +66,10 @@
         .stat-card h3 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.8rem; margin: 0; }
         .stat-card small { color: var(--admin-muted); font-size: 0.78rem; }
         
-        /* Tables */
-        .admin-table { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 16px; overflow: hidden; }
-        .admin-table th { background: rgba(0,0,0,0.02); color: var(--admin-muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 14px 16px; border-bottom: 1px solid var(--admin-border); }
+        /* Tables - Mobile Horizontal Scrollable */
+        .admin-table { background: var(--admin-surface); border: 1px solid var(--admin-border); border-radius: 16px; overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+        .admin-table table { min-width: 650px; margin-bottom: 0; }
+        .admin-table th { background: rgba(0,0,0,0.02); color: var(--admin-muted); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; padding: 14px 16px; border-bottom: 1px solid var(--admin-border); white-space: nowrap; }
         .admin-table td { padding: 12px 16px; border-bottom: 1px solid var(--admin-border); font-size: 0.88rem; vertical-align: middle; }
         .admin-table tr:last-child td { border-bottom: none; }
         .admin-table tr:hover td { background: rgba(0,0,0,0.015); }
@@ -96,10 +97,100 @@
             background: var(--admin-primary) !important;
             color: #ffffff !important;
         }
+
+        /* Mobile Topbar & Hamburger Navigation */
+        .admin-mobile-topbar {
+            background: var(--admin-surface);
+            border-bottom: 1px solid var(--admin-border);
+            padding: 10px 16px;
+            margin: -16px -16px 20px -16px;
+            position: sticky;
+            top: 0;
+            z-index: 990;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .btn-admin-hamburger {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: var(--admin-bg);
+            border: 1.5px solid var(--admin-border);
+            color: var(--admin-primary);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            padding: 0;
+        }
+        .btn-admin-hamburger:hover, .btn-admin-hamburger:active {
+            background: var(--admin-primary);
+            color: #ffffff;
+            border-color: var(--admin-primary);
+        }
+
+        /* Mobile Offcanvas Drawer (From Right) */
+        .admin-offcanvas {
+            width: 310px !important;
+            max-width: 85vw;
+            background: var(--admin-surface) !important;
+            color: var(--admin-text);
+            border-left: 1px solid var(--admin-border) !important;
+        }
+        .admin-offcanvas .offcanvas-header {
+            border-bottom: 1px solid var(--admin-border);
+            padding: 16px 20px;
+        }
+        .admin-offcanvas .offcanvas-body {
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+        }
         
         @media (max-width: 991px) {
-            .admin-sb { display: none; }
-            .admin-main { margin-left: 0; padding: 16px; }
+            .admin-sb { display: none !important; }
+            .admin-main { 
+                margin-left: 0 !important; 
+                padding: 16px !important; 
+                padding-top: 12px !important;
+                width: 100% !important;
+                overflow-x: hidden;
+            }
+            
+            /* Responsive action header buttons */
+            .admin-main .d-flex.justify-content-between.align-items-center.mb-4 {
+                flex-direction: column !important;
+                align-items: stretch !important;
+                gap: 12px !important;
+            }
+            .admin-main .d-flex.justify-content-between.align-items-center.mb-4 > button,
+            .admin-main .d-flex.justify-content-between.align-items-center.mb-4 > a {
+                width: 100% !important;
+                text-align: center !important;
+                justify-content: center !important;
+            }
+            
+            /* Responsive search forms */
+            .admin-main form.d-flex {
+                flex-wrap: wrap !important;
+                gap: 8px !important;
+            }
+            .admin-main form.d-flex input {
+                flex: 1 1 100% !important;
+                max-width: 100% !important;
+            }
+            .admin-main form.d-flex button,
+            .admin-main form.d-flex a {
+                flex: 1 1 auto !important;
+            }
+
+            /* Stat cards */
+            .stat-card {
+                padding: 14px !important;
+            }
+            .stat-card h3 {
+                font-size: 1.45rem !important;
+            }
         }
     </style>
 </head>
@@ -195,16 +286,129 @@
 
         <!-- Main Content -->
         <main class="admin-main">
-            <!-- Mobile Admin Top Bar with Language Toggle -->
-            <div class="d-lg-none d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                <a href="/" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Trang chủ</a>
-                <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm notranslate" translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
-                    <button type="button" class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
-                    <button type="button" class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
+            <!-- Mobile Admin Top Bar with Brand, Language Toggle, and Hamburger Button on the Right -->
+            <div class="d-lg-none d-flex justify-content-between align-items-center admin-mobile-topbar">
+                <div class="d-flex align-items-center gap-2 min-w-0">
+                    <span class="sb-brand-mark" style="width: 34px; height: 34px;">
+                        <i class="bi <%= user.role === 'manager' ? 'bi-geo-alt' : 'bi-buildings' %>"></i>
+                    </span>
+                    <div class="min-w-0">
+                        <span class="fw-black text-truncate d-block" style="color: var(--admin-primary); font-size: 0.95rem; letter-spacing: 0.3px;">
+                            <%= user.role === 'manager' ? 'QUẢN LÝ PANEL' : 'BÌNH LỢI ADMIN' %>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="d-flex align-items-center gap-2">
+                    <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-0.5 shadow-sm notranslate" translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
+                        <button type="button" class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')" style="font-size: 0.7rem; width: 30px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
+                        <button type="button" class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.7rem; width: 30px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
+                    </div>
+                    
+                    <!-- Nút 3 gạch mở menu bên phải trên điện thoại -->
+                    <button type="button" class="btn-admin-hamburger" data-bs-toggle="offcanvas" data-bs-target="#adminMobileOffcanvas" aria-controls="adminMobileOffcanvas" title="Mở danh mục quản trị">
+                        <i class="bi bi-list fs-3"></i>
+                    </button>
                 </div>
             </div>
+
             <%- body %>
         </main>
+    </div>
+
+    <!-- Mobile Admin Offcanvas Drawer (Trượt ra từ bên phải) -->
+    <div class="offcanvas offcanvas-end admin-offcanvas" tabindex="-1" id="adminMobileOffcanvas" aria-labelledby="adminMobileOffcanvasLabel">
+        <div class="offcanvas-header d-flex align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-2">
+                <span class="sb-brand-mark" aria-hidden="true" style="width: 32px; height: 32px;">
+                    <i class="bi <%= user.role === 'manager' ? 'bi-geo-alt' : 'bi-buildings' %>"></i>
+                </span>
+                <div>
+                    <h6 class="mb-0 fw-bold" id="adminMobileOffcanvasLabel" style="color: var(--admin-primary); letter-spacing: 0.5px;">
+                        <%= user.role === 'manager' ? 'QUẢN LÝ PANEL' : 'BÌNH LỢI ADMIN' %>
+                    </h6>
+                    <small class="text-muted" style="font-size: 0.68rem;"><%= user.role === 'manager' ? 'Quản lý Địa điểm' : 'Hệ thống Quản trị cấp Xã' %></small>
+                </div>
+            </div>
+            <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+
+        <div class="offcanvas-body">
+            <!-- User Info Card -->
+            <div class="d-flex align-items-center gap-2.5 p-2.5 rounded-3 mb-3 bg-light border" style="border-color: var(--admin-border) !important;">
+                <img src="<%= fixImg(settings.brand_logo || user.avatar, '/brand-logo.png') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='/brand-logo.png'">
+                <div class="min-w-0 flex-grow-1">
+                    <div class="fw-bold text-truncate notranslate" translate="no" style="font-size: 0.85rem;"><%= user.full_name %></div>
+                    <div class="text-truncate" style="font-size: 0.72rem; color: var(--admin-muted);"><%= user.email %></div>
+                </div>
+                <span class="role-badge role-<%= user.role %> text-uppercase fw-bold" style="font-size: 0.62rem;"><%= user.role %></span>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="flex-grow-1 overflow-y-auto custom-scrollbar pe-1">
+                <% if (user.role === 'admin') { %>
+                    <div class="sb-label mt-0">Tổng quan</div>
+                    <a href="/admin" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'dashboard' ? 'active' : '' %>">
+                        <i class="bi bi-grid-1x2-fill"></i> Dashboard
+                    </a>
+                    
+                    <div class="sb-label">Quản lý</div>
+                    <a href="/admin/users" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'users' ? 'active' : '' %>">
+                        <i class="bi bi-people-fill"></i> Người dùng
+                    </a>
+                    <a href="/admin/destinations" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'destinations' ? 'active' : '' %>">
+                        <i class="bi bi-geo-alt-fill"></i> Địa điểm
+                    </a>
+                    <a href="/admin/shops" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'shops' ? 'active' : '' %>">
+                        <i class="bi bi-shop"></i> Shop
+                    </a>
+                    <a href="/admin/reviews" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'reviews' ? 'active' : '' %>">
+                        <i class="bi bi-chat-heart-fill"></i> Cộng đồng
+                    </a>
+                    <a href="/admin/chat" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'chat' ? 'active' : '' %>">
+                        <i class="bi bi-chat-dots-fill"></i> Hộp thư Hỗ trợ
+                    </a>
+                    <a href="/admin/events" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'events' ? 'active' : '' %>">
+                        <i class="bi bi-calendar-event-fill"></i> Sự kiện
+                    </a>
+                    <a href="/admin/journey-templates" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'journey-templates' ? 'active' : '' %>">
+                        <i class="bi bi-signpost-2-fill"></i> Tour
+                    </a>
+                    
+                    <div class="sb-label">Cài đặt</div>
+                    <a href="/admin/settings" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'settings' ? 'active' : '' %>">
+                        <i class="bi bi-gear-fill"></i> Cài đặt Web
+                    </a>
+                    <a href="/admin/posters" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'posters' ? 'active' : '' %>">
+                        <i class="bi bi-images"></i> Poster Hero Trang Chủ
+                    </a>
+                <% } else if (user.role === 'manager') { %>
+                    <div class="sb-label mt-0">QUẢN LÝ ĐỊA ĐIỂM</div>
+                    <a href="/manager" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'dashboard' ? 'active' : '' %>">
+                        <i class="bi bi-grid-1x2-fill"></i> Bảng điều khiển
+                    </a>
+                    <a href="/manager/chat" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'chat' ? 'active' : '' %>">
+                        <i class="bi bi-chat-dots-fill"></i> Hộp thư Hỗ trợ
+                    </a>
+                    <a href="/manager/destination" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'destination' ? 'active' : '' %>">
+                        <i class="bi bi-geo-alt-fill"></i> Quản lý Địa điểm
+                    </a>
+                    <a href="/manager/workshops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'workshops' ? 'active' : '' %>">
+                        <i class="bi bi-shop"></i> Quản lý Shop
+                    </a>
+                <% } %>
+            </nav>
+
+            <!-- Offcanvas Footer: Quick Links & Logout -->
+            <div class="pt-3 border-top mt-2">
+                <a href="/" class="btn btn-light w-100 rounded-pill btn-sm fw-bold mb-2 border text-muted d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-house-door"></i>Về Trang chủ
+                </a>
+                <a href="/auth/logout" class="btn btn-outline-danger w-100 rounded-pill btn-sm fw-bold d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-box-arrow-right"></i>Đăng xuất
+                </a>
+            </div>
+        </div>
     </div>
 
     <!-- Hidden Google Translate container for auto-translation fallback -->

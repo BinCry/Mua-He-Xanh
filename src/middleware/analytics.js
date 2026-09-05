@@ -1,17 +1,27 @@
 /**
  * Analytics Middleware - Pure PostgreSQL
- * Implements 30-Minute Rolling Session Window (Google Analytics standard)
- * & Real-Time Engagement Time on Site tracking
+ * Implements User's Custom Visit Rule:
+ * 1. Initial visit from an IP: +1 visit (session_start)
+ * 2. Continuously on site: +1 visit for every 30 minutes active
+ * 3. Exit website (inactivity > 15m) & return: starts new cycle (+1 visit)
+ * 4. Sub-actions (videos, images, clicks, assets): NO extra visits
+ * 5. Excludes admin IPs and bots
  */
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 
 const pageViewCache = new Map();
-const sessionActivityCache = new Map();
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes window
+// ipSessionMap: ip -> { sessionStart: timestamp, lastActivity: timestamp, intervalsCounted: number }
+const ipSessionMap = new Map();
+
+const INACTIVITY_TIMEOUT_MS = 15 * 60 * 1000; // 15 minutes of inactivity means user exited
+const BLOCK_30M_MS = 30 * 60 * 1000;          // 30 minutes continuous stay = +1 visit
+
+const ADMIN_IPS = new Set(['222.253.43.189', '27.64.29.198', '127.0.0.1', '::1']);
+const BOT_REGEX = /bot|spider|crawl|python|curl|wget|zgrab|scan|infrawatch|censys|forestengine|headless/i;
 
 module.exports = function analyticsMiddleware(req, res, next) {
-    // Only track GET requests to actual HTML pages (skip API, manifest, sw, static assets)
+    // Only track GET requests to actual HTML pages (skip API, manifest, sw, static assets, media)
     if (
         req.method !== 'GET' || 
         req.path.startsWith('/api/') || 
@@ -21,19 +31,25 @@ module.exports = function analyticsMiddleware(req, res, next) {
         req.path === '/favicon.ico' || 
         req.path === '/robots.txt' || 
         req.path === '/sitemap.xml' || 
-        req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|webp|mp4|webm|json)$/)
+        req.path.match(/\.(js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|webp|mp4|webm|mp3|ogg|wav|json)$/)
     ) {
+        return next();
+    }
+
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket?.remoteAddress || req.ip || 'unknown';
+    const userAgent = (req.headers['user-agent'] || '').substring(0, 500);
+
+    // Skip tracking for Admin IP and automated bots
+    if (ADMIN_IPS.has(ip) || BOT_REGEX.test(userAgent) || userAgent.length < 15) {
         return next();
     }
 
     const now = Date.now();
     
-    // Automatically issue a session_uuid cookie if absent
+    // Maintain cookie session_uuid
     let sessionId = req.cookies?.session_uuid;
-    let isBrandNewUser = false;
     if (!sessionId) {
         sessionId = uuidv4();
-        isBrandNewUser = true;
         res.cookie('session_uuid', sessionId, { maxAge: 30 * 24 * 3600 * 1000, httpOnly: false, sameSite: 'lax' });
         if (!req.cookies) req.cookies = {};
         req.cookies.session_uuid = sessionId;
@@ -42,40 +58,53 @@ module.exports = function analyticsMiddleware(req, res, next) {
     const pageUrl = req.originalUrl;
     const cacheKey = `${sessionId}:${pageUrl}`;
 
-    // 1. Check if this is a NEW 30-minute session / visit
-    const lastSessionActivity = sessionActivityCache.get(sessionId);
-    let isNewSession = false;
+    // Session logic per IP
+    const sessionKey = ip;
+    let sessionData = ipSessionMap.get(sessionKey);
+    let isNewVisit = false;
+    let extraVisits = 0;
 
-    if (isBrandNewUser || !lastSessionActivity || (now - lastSessionActivity > SESSION_TIMEOUT_MS)) {
-        isNewSession = true;
-    }
-    sessionActivityCache.set(sessionId, now);
-
-    // Keep session cache bounded in memory
-    if (sessionActivityCache.size > 10000) {
-        sessionActivityCache.clear();
-    }
-
-    // 2. Anti-spam throttle for page views (3s throttle per identical page URL)
-    const lastVisitedPage = pageViewCache.get(cacheKey);
-    const THROTTLE_LIMIT = 3000;
-
-    let shouldLogPageView = true;
-    if (lastVisitedPage && (now - lastVisitedPage < THROTTLE_LIMIT)) {
-        shouldLogPageView = false;
+    if (!sessionData || (now - sessionData.lastActivity > INACTIVITY_TIMEOUT_MS)) {
+        // User just arrived or exited and returned after > 15m
+        isNewVisit = true;
+        sessionData = {
+            sessionStart: now,
+            lastActivity: now,
+            intervalsCounted: 0
+        };
+        ipSessionMap.set(sessionKey, sessionData);
     } else {
-        pageViewCache.set(cacheKey, now);
-        if (pageViewCache.size > 5000) {
-            pageViewCache.clear();
+        // User is continuously browsing
+        const continuousDuration = now - sessionData.sessionStart;
+        const intervalsNow = Math.floor(continuousDuration / BLOCK_30M_MS);
+        if (intervalsNow > sessionData.intervalsCounted) {
+            extraVisits = intervalsNow - sessionData.intervalsCounted;
+            sessionData.intervalsCounted = intervalsNow;
+        }
+        sessionData.lastActivity = now;
+    }
+
+    // Keep memory map bounded
+    if (ipSessionMap.size > 20000) {
+        const cutoff = now - INACTIVITY_TIMEOUT_MS;
+        for (const [k, v] of ipSessionMap.entries()) {
+            if (v.lastActivity < cutoff) ipSessionMap.delete(k);
         }
     }
 
-    res.on('finish', () => {
-        const ip = req.headers['x-forwarded-for'] || req.socket?.remoteAddress || req.ip || 'unknown';
-        const userAgent = (req.headers['user-agent'] || '').substring(0, 500);
+    // 3s throttle per identical page URL to avoid double-counting reloads
+    const lastVisitedPage = pageViewCache.get(cacheKey);
+    let shouldLogPageView = true;
+    if (lastVisitedPage && (now - lastVisitedPage < 3000)) {
+        shouldLogPageView = false;
+    } else {
+        pageViewCache.set(cacheKey, now);
+        if (pageViewCache.size > 5000) pageViewCache.clear();
+    }
 
-        // If new 30-minute session, log session_start (represents 1 official visit)
-        if (isNewSession) {
+    res.on('finish', () => {
+        // 1. New visit when entering or returning
+        if (isNewVisit) {
             db.query(
                 `INSERT INTO analytics (id, session_id, event, page_url, user_agent, duration_ms, ip_address, created_at, updated_at) 
                  VALUES ($1, $2, 'session_start', $3, $4, 0, $5, NOW(), NOW())`,
@@ -83,7 +112,18 @@ module.exports = function analyticsMiddleware(req, res, next) {
             ).catch(() => {});
         }
 
-        // Log page_view
+        // 2. Extra visits for every 30 minutes continuous stay
+        if (extraVisits > 0) {
+            for (let i = 0; i < extraVisits; i++) {
+                db.query(
+                    `INSERT INTO analytics (id, session_id, event, page_url, user_agent, duration_ms, ip_address, created_at, updated_at) 
+                     VALUES ($1, $2, 'session_start', $3, $4, 0, $5, NOW(), NOW())`,
+                    [uuidv4(), sessionId, pageUrl, userAgent, ip]
+                ).catch(() => {});
+            }
+        }
+
+        // 3. Log standard page_view
         if (shouldLogPageView) {
             db.query(
                 `INSERT INTO analytics (id, session_id, event, page_url, user_agent, duration_ms, ip_address, created_at, updated_at) 
@@ -95,3 +135,4 @@ module.exports = function analyticsMiddleware(req, res, next) {
 
     next();
 };
+
