@@ -51,7 +51,7 @@ router.get('/manifest.json', async (req, res) => {
         
         const manifest = {
             "name": settings.brand_name || "Bình Lợi - Miền Tây giữa lòng Sài Gòn",
-            "short_name": settings.brand_name || "Bình Lợi Healing",
+            "short_name": settings.brand_name || "Bình Lợi",
             "description": settings.brand_subtext || "Hành trình khám phá và chữa lành tại làng quê Bình Lợi",
             "start_url": "/",
             "display": "standalone",
@@ -81,7 +81,7 @@ router.get('/manifest.json', async (req, res) => {
         res.header('Content-Type', 'application/manifest+json');
         res.json({
             "name": "Bình Lợi - Miền Tây giữa lòng Sài Gòn",
-            "short_name": "Bình Lợi Healing",
+            "short_name": "Bình Lợi",
             "start_url": "/",
             "display": "standalone",
             "background_color": "#ffffff",

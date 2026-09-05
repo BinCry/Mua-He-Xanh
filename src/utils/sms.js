@@ -16,7 +16,7 @@ class SMSService {
             formattedPhone = '+84' + formattedPhone.substring(1);
         }
 
-        const message = `Binh Loi Healing Journey: Ma OTP xac thuc dang ky cua ban la ${otp}. Ma co hieu luc trong 5 phut.`;
+        const message = `Binh Loi Journey: Ma OTP xac thuc dang ky cua ban la ${otp}. Ma co hieu luc trong 5 phut.`;
 
         // 1. Try Twilio
         const twilioSid = process.env.TWILIO_ACCOUNT_SID;

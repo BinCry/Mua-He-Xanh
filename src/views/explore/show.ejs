@@ -344,8 +344,8 @@ function shareDestination(name, rawUrl) {
     // Native share (mobile - like TikTok share)
     if (navigator.share) {
         navigator.share({
-            title: name + ' - Bình Lợi Healing',
-            text: 'Khám phá ' + name + ' tại Bình Lợi Healing!',
+            title: name + ' - Bình Lợi',
+            text: 'Khám phá ' + name + ' tại Bình Lợi!',
             url: canonicalUrl
         }).catch(() => {});
     } else {

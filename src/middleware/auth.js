@@ -1,5 +1,5 @@
 /**
- * Hệ thống Phân quyền Bình Lợi Healing
+ * Hệ thống Phân quyền Bình Lợi
  * Tham khảo mô hình RBAC từ dự án Relioo (Nhóm 9)
  * 
  * Bảng roles:

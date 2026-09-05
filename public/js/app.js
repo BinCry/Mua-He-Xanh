@@ -1,5 +1,5 @@
 /**
- * BÌNH LỢI HEALING - CORE JS
+ * BÌNH LỢI - CORE JS
  * Quản lý Session, AJAX và các tương tác UI
  */
 
@@ -7,7 +7,7 @@ const App = {
     config: window.APP_CONFIG || {},
     
     init() {
-        console.log('☘️ Bình Lợi Healing initialized');
+        console.log('☘️ Bình Lợi initialized');
         this.initSession();
         this.initHero();
     },

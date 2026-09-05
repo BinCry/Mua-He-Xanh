@@ -27,7 +27,7 @@ const AuthController = {
         const errorMessage = rawError ? (ERROR_MAP[rawError] || decodeURIComponent(rawError)) : null;
 
         res.render('auth/login', {
-            title: 'Đăng nhập - Bình Lợi Healing',
+            title: 'Đăng nhập - Bình Lợi',
             error: errorMessage,
             facebookConfigured: true
         });
@@ -43,7 +43,7 @@ const AuthController = {
         const errorMessage = rawError ? (ERROR_MAP[rawError] || decodeURIComponent(rawError)) : null;
 
         res.render('auth/admin_login', {
-            title: 'Đăng nhập Quản trị - Bình Lợi Healing',
+            title: 'Đăng nhập Quản trị - Bình Lợi',
             error: errorMessage
         });
     },

@@ -1,5 +1,5 @@
 /**
- * CapCut Studio Pro Video Engine - Binh Loi Healing
+ * CapCut Studio Pro Video Engine - Binh Loi
  * Client-side Canvas, Multi-track Timeline, Web Audio & Transitions
  */
 
@@ -403,7 +403,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ctx.fillStyle = '#00f0ff';
         ctx.font = 'bold 20px sans-serif';
         ctx.textAlign = 'left';
-        ctx.fillText('BÌNH LỢI HEALING 🌿', 35, 50);
+        ctx.fillText('BÌNH LỢI 🌿', 35, 50);
 
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
         ctx.font = '14px sans-serif';
@@ -620,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `capcut_binh_loi_healing_${Date.now()}.webm`;
+                    a.download = `capcut_binh_loi_${Date.now()}.webm`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);

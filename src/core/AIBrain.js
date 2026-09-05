@@ -15,7 +15,7 @@ class AIBrain {
 
         // 2. Simple NLP Logic (Rebuilding into a "Smart Brain")
         if (input.includes('xin chào') || input.includes('hi') || input.includes('hello')) {
-            return "Xin chào! Tôi là trợ lý ảo của Bình Lợi Healing. Tôi có thể giúp gì cho hành trình của bạn?";
+            return "Xin chào! Tôi là trợ lý ảo của Bình Lợi. Tôi có thể giúp gì cho hành trình của bạn?";
         }
 
         if (input.includes('giờ') || input.includes('mở cửa') || input.includes('đóng cửa')) {

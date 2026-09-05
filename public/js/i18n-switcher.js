@@ -1,5 +1,5 @@
 /**
- * BINH LOI HEALING - Explicit Dual-Button Language Switcher Engine (VN / EN)
+ * BINH LOI - Explicit Dual-Button Language Switcher Engine (VN / EN)
  * Completely eliminates layout shifts, jumping, and redundant reloads.
  */
 (function () {

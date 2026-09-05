@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="public/images/logo.svg" alt="Bình Lợi Healing Logo" width="120" height="120">
+  <img src="public/images/logo.svg" alt="Bình Lợi Logo" width="120" height="120">
 </p>
 
-<h1 align="center">🌿 BÌNH LỢI HEALING</h1>
+<h1 align="center">🌿 BÌNH LỢI</h1>
 
 <p align="center">
   <strong>Nền tảng Du lịch Sinh thái & Chữa lành Làng Mai Bình Lợi</strong><br>
@@ -18,7 +18,7 @@
 
 ## 🌟 Giới thiệu Dự án
 
-**Bình Lợi Healing** là hệ thống nền tảng công nghệ số phục vụ phát triển **Du lịch Sinh thái – Nông nghiệp – Văn hóa Chữa lành** tại xã Bình Lợi, huyện Bình Chánh, TP. Hồ Chí Minh. Nền tảng kết nối du khách với các vườn mai vàng, không gian trải nghiệm sinh thái, nghệ nhân địa phương và các sản phẩm đặc trưng OCOP thông qua trải nghiệm web hiện đại, mượt mà và cá nhân hóa.
+**Bình Lợi** là hệ thống nền tảng công nghệ số phục vụ phát triển **Du lịch Sinh thái – Nông nghiệp – Văn hóa Chữa lành** tại xã Bình Lợi, huyện Bình Chánh, TP. Hồ Chí Minh. Nền tảng kết nối du khách với các vườn mai vàng, không gian trải nghiệm sinh thái, nghệ nhân địa phương và các sản phẩm đặc trưng OCOP thông qua trải nghiệm web hiện đại, mượt mà và cá nhân hóa.
 
 ---
 
@@ -66,7 +66,7 @@
 ## 🎯 Tính năng Cốt lõi
 
 ```
-                                  BÌNH LỢI HEALING
+                                  BÌNH LỢI
                                          │
      ┌───────────────────┬───────────────┴───────────────┬───────────────────┐
      ▼                   ▼                               ▼                   ▼
@@ -220,9 +220,9 @@ ssh -i "path/to/key.pem" azureuser@20.196.144.120 "cd ~/binh-loi-healing && git 
 
 ## 👥 Đội ngũ Phát triển & Bản quyền
 
-* **Dự án**: Nền tảng Du lịch Chữa lành Xã Bình Lợi (Bình Lợi Healing)
+* **Dự án**: Nền tảng Du lịch Chữa lành Xã Bình Lợi (Bình Lợi)
 * **Đơn vị quản trị**: Ban Quản trị Du lịch Xã Bình Lợi, Huyện Bình Chánh, TP.HCM
-* **Bản quyền**: © 2026 Bình Lợi Healing. Mọi quyền được bảo lưu.
+* **Bản quyền**: © 2026 Bình Lợi. Mọi quyền được bảo lưu.
 
 <p align="center">
   <sub>Xây dựng với ❤️ vì một nền du lịch xanh, bền vững và đậm đà bản sắc dân tộc.</sub>
