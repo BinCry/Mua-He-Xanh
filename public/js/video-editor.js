@@ -1,674 +1,1379 @@
 /**
- * CapCut Studio Pro Video Engine - Binh Loi
- * Client-side Canvas, Multi-track Timeline, Web Audio & Transitions
+ * ============================================================================
+ * BÌNH LỢI STUDIO - 100% CAPCUT REPLICA CLIENT ENGINE
+ * Complete Canvas 2D Render Pipeline, Direct Interactive Transform Bounding Box,
+ * Multi-Track Timeline, Audio Synchronization, Template Engine, and Video Exporter.
+ * ============================================================================
  */
 
-document.addEventListener('DOMContentLoaded', () => {
-    // Canvas & Audio elements
-    const canvas = document.getElementById('videoCanvas');
-    const ctx = canvas.getContext('2d');
-    const audioEl = document.getElementById('soundscapeAudio');
-    
-    // Config elements
-    const fileInput = document.getElementById('media-files');
-    const dropzone = document.getElementById('dropzone');
-    const thumbnailsWrapper = document.getElementById('thumbnails-wrapper');
-    const thumbnailsContainer = document.getElementById('thumbnails-container');
-    const mediaCountBadge = document.getElementById('media-count-badge');
-    const soundCards = document.querySelectorAll('.capcut-audio-card');
-    const filterCards = document.querySelectorAll('.capcut-filter-card');
-    const effectCards = document.querySelectorAll('.capcut-effect-card');
-    const templateOptions = document.querySelectorAll('.capcut-template-option');
-    
-    // Subtitle Inputs
-    const textHookInput = document.getElementById('text-hook');
-    const textImmersionInput = document.getElementById('text-immersion');
-    const textHighlightInput = document.getElementById('text-highlight');
-    const textOutroInput = document.getElementById('text-outro');
-    
-    // Monitor Controls
-    const playBtn = document.getElementById('playBtn');
-    const playOverlayBtn = document.getElementById('playOverlayBtn');
-    const monitorPlayToggle = document.getElementById('monitorPlayToggle');
-    const playerTimeLabel = document.getElementById('player-time');
-    const headerTimeIndicator = document.getElementById('header-time-indicator');
-    const btnOpenExportModal = document.getElementById('btnOpenExportModal');
-    const startExportProcessBtn = document.getElementById('startExportProcessBtn');
-    const exportStatusPanel = document.getElementById('export-status-panel');
-    const exportStatusText = document.getElementById('export-status-text');
-    const exportProgressBar = document.getElementById('exportProgress');
-    
-    // Timeline Elements
-    const timelinePlayhead = document.getElementById('timelinePlayhead');
-    const videoTrackSlots = document.getElementById('videoTrackSlots');
-    const timelineClipIndicator = document.getElementById('timeline-clip-indicator');
-    const timelineDurationLabel = document.getElementById('timeline-duration-label');
-    const timelineAudioName = document.getElementById('timeline-audio-name');
+(function() {
+    'use strict';
 
-    // State
-    let videoDuration = 15; // 15s default
-    let loadedImages = []; // Array of { img: Image, file: File }
-    let selectedAudioUrl = '';
-    let currentFilter = 'none';
-    let currentEffect = 'kenburns';
-    let isPlaying = false;
-    let isExporting = false;
-    let isMuted = false;
-    
-    let renderInterval = null;
-    let startTime = 0;
-    let elapsedPlayTime = 0; // ms
-
-    // Web Audio setup
-    let audioContext = null;
-    let audioSource = null;
-    let audioDestination = null;
-
-    // Initialize Default Soundscape
-    const activeAudioCard = document.querySelector('.capcut-audio-card.active');
-    if (activeAudioCard) {
-        selectedAudioUrl = activeAudioCard.getAttribute('data-audio-url');
-        audioEl.src = selectedAudioUrl;
-        const soundTitle = activeAudioCard.querySelector('.fw-bold')?.innerText || 'Tĩnh lặng';
-        if (timelineAudioName) timelineAudioName.innerText = `Nhạc nền: ${soundTitle}`;
-    }
-
-    // --- CAPCUT TAB SWITCHER ---
-    window.switchCapcutTab = function(tabName) {
-        document.querySelectorAll('.capcut-rail-btn').forEach(btn => {
-            btn.classList.toggle('active', btn.getAttribute('data-tab') === tabName);
-        });
-        document.querySelectorAll('.capcut-pane').forEach(pane => {
-            pane.classList.toggle('active', pane.id === `cpane-${tabName}`);
-        });
+    // ==========================================
+    // 1. GLOBAL STUDIO STATE
+    // ==========================================
+    const state = {
+        title: 'BinhLoi_Video_' + Math.floor(Math.random() * 900000 + 100000),
+        aspectRatio: '9:16',
+        targetWidth: 1080,
+        targetHeight: 1920,
+        duration: 15.0,
+        fps: 30,
+        currentTime: 0.0,
+        isPlaying: false,
+        activeSlotIndex: 0,
+        slots: [],
+        audio: {
+            url: '/audio/peaceful_stream.mp3',
+            title: 'Suối reo miệt vườn',
+            volume: 1.0,
+            isMuted: false
+        },
+        bgType: 'blur', // 'blur' | 'color'
+        bgColor: '#000000',
+        undoStack: [],
+        redoStack: [],
+        templates: window.__CAPCUT_TEMPLATES__ || [],
+        soundscapes: window.__CAPCUT_SOUNDSCAPES__ || []
     };
 
-    // --- TEMPLATE & DURATION SELECTOR ---
-    templateOptions.forEach(opt => {
-        opt.addEventListener('click', () => {
-            templateOptions.forEach(o => o.classList.remove('active'));
-            opt.classList.add('active');
-            
-            const radio = opt.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-            
-            videoDuration = parseInt(opt.getAttribute('data-duration') || '15', 10);
-            updateDurationUI();
-        });
-    });
+    // DOM Elements Cache
+    const DOM = {
+        canvas: document.getElementById('studioCanvas'),
+        viewport: document.getElementById('canvasViewport'),
+        bbox: document.getElementById('studioBBox'),
+        guideX: document.getElementById('guideLineX'),
+        guideY: document.getElementById('guideLineY'),
+        btnPlayPause: document.getElementById('btnPlayPause'),
+        btnRewind: document.getElementById('btnRewind'),
+        btnPrevFrame: document.getElementById('btnPrevFrame'),
+        btnNextFrame: document.getElementById('btnNextFrame'),
+        dockTimecode: document.getElementById('dockTimecode'),
+        btnToggleMute: document.getElementById('btnToggleMute'),
+        dockMuteIcon: document.getElementById('dockMuteIcon'),
+        btnFitCanvas: document.getElementById('btnFitCanvas'),
+        aspectRatioSelect: document.getElementById('aspectRatioSelect'),
+        projectTitleInput: document.getElementById('projectTitleInput'),
+        btnUndo: document.getElementById('btnUndo'),
+        btnRedo: document.getElementById('btnRedo'),
+        timelineScroll: document.getElementById('timelineScrollArea'),
+        timelinePlayhead: document.getElementById('timelinePlayhead'),
+        timelineRuler: document.getElementById('timelineRuler'),
+        videoTrackContainer: document.getElementById('videoTrackContainer'),
+        subtitlesTrackContainer: document.getElementById('subtitlesTrackContainer'),
+        tlAudioName: document.getElementById('tlAudioName'),
+        tlClipCount: document.getElementById('tlClipCount'),
+        tlDurationLabel: document.getElementById('tlDurationLabel'),
+        toolSplit: document.getElementById('toolSplit'),
+        toolDelete: document.getElementById('toolDelete'),
+        toolDuplicate: document.getElementById('toolDuplicate'),
+        toolBatch: document.getElementById('toolBatch'),
+        mediaInput: document.getElementById('mediaInput'),
+        mediaSlotsList: document.getElementById('mediaSlotsList'),
+        mediaSlotsCount: document.getElementById('mediaSlotsCount'),
+        subtitlesListContainer: document.getElementById('subtitlesListContainer'),
+        btnOpenExportModal: document.getElementById('btnOpenExportModal'),
+        exportModal: document.getElementById('capcutExportModal'),
+        btnCloseExportModal: document.getElementById('btnCloseExportModal'),
+        btnStartExport: document.getElementById('btnStartExport'),
+        exportProgressWrapper: document.getElementById('exportProgressWrapper'),
+        exportProgressBar: document.getElementById('exportProgressBar'),
+        exportStatusLabel: document.getElementById('exportStatusLabel'),
+        exportPercentLabel: document.getElementById('exportPercentLabel'),
+        bgAudio: document.getElementById('bgAudioPlayer'),
+        // Inspector
+        sliderScale: document.getElementById('sliderScale'),
+        valScale: document.getElementById('valScale'),
+        sliderRotate: document.getElementById('sliderRotate'),
+        valRotate: document.getElementById('valRotate'),
+        sliderPosX: document.getElementById('sliderPosX'),
+        valPosX: document.getElementById('valPosX'),
+        sliderPosY: document.getElementById('sliderPosY'),
+        valPosY: document.getElementById('valPosY'),
+        sliderOpacity: document.getElementById('sliderOpacity'),
+        valOpacity: document.getElementById('valOpacity'),
+        btnResetTransform: document.getElementById('btnResetTransform'),
+        sliderBrightness: document.getElementById('sliderBrightness'),
+        valBrightness: document.getElementById('valBrightness'),
+        sliderContrast: document.getElementById('sliderContrast'),
+        valContrast: document.getElementById('valContrast'),
+        sliderSaturation: document.getElementById('sliderSaturation'),
+        valSaturation: document.getElementById('valSaturation'),
+        sliderVolume: document.getElementById('sliderVolume'),
+        valVolume: document.getElementById('valVolume')
+    };
 
-    function updateDurationUI() {
-        const durStr = `00:${String(videoDuration).padStart(2, '0')}`;
-        playerTimeLabel.innerText = `00:00 / ${durStr}`;
-        if (headerTimeIndicator) headerTimeIndicator.innerText = `00:00 / ${durStr}`;
-        if (timelineDurationLabel) timelineDurationLabel.innerText = `${videoDuration}s`;
-        
-        // Update Time Ruler
-        const timeRuler = document.getElementById('timeRuler');
-        if (timeRuler) {
-            const step = videoDuration / 5;
-            let rulerHtml = '';
-            for (let i = 0; i <= 5; i++) {
-                const s = Math.round(i * step);
-                rulerHtml += `<span>00:${String(s).padStart(2, '0')}</span>`;
-            }
-            timeRuler.innerHTML = rulerHtml;
+    const ctx = DOM.canvas ? DOM.canvas.getContext('2d') : null;
+    let animationFrameId = null;
+    let lastRenderTimestamp = 0;
+
+    // ==========================================
+    // 2. INITIALIZATION
+    // ==========================================
+    function initStudio() {
+        if (!DOM.canvas || !ctx) return;
+
+        // 1. Load initial template or defaults
+        loadInitialTemplate();
+
+        // 2. Setup aspect ratio & canvas resizing
+        updateCanvasDimensions();
+        window.addEventListener('resize', () => {
+            updateCanvasDimensions();
+            updateBoundingBoxPosition();
+        });
+
+        // 3. Setup event listeners
+        bindHeaderEvents();
+        bindRailAndDrawerEvents();
+        bindCanvasDirectTransform();
+        bindInspectorEvents();
+        bindTimelineEvents();
+        bindAudioEvents();
+        bindExportEvents();
+
+        // 4. Start 60fps render loop
+        lastRenderTimestamp = performance.now();
+        requestAnimationFrame(renderLoop);
+    }
+
+    function loadInitialTemplate() {
+        let initialTpl = null;
+        if (state.templates && state.templates.length > 0) {
+            initialTpl = state.templates[0];
         }
 
+        if (initialTpl && Array.isArray(initialTpl.slots) && initialTpl.slots.length > 0) {
+            applyTemplate(initialTpl);
+        } else {
+            // Default 4-scene 15s healing template
+            const defaultSlots = [
+                {
+                    slot_index: 1,
+                    title: 'Cảnh 1: Lạc vào miền xanh',
+                    start_time: 0.0,
+                    end_time: 3.75,
+                    src: '/images/Poster 1.jpg',
+                    effect: 'kenburns',
+                    filter: 'none',
+                    subtitle: 'Lạc vào miền xanh Bình Lợi...',
+                    transform: { x: 0, y: 0, scale: 1.0, rotate: 0, opacity: 1.0 }
+                },
+                {
+                    slot_index: 2,
+                    title: 'Cảnh 2: Hương mai thanh mát',
+                    start_time: 3.75,
+                    end_time: 7.5,
+                    src: '/images/Poster 2.jpg',
+                    effect: 'pan',
+                    filter: 'warm',
+                    subtitle: 'Hương mai thoang thoảng bờ kênh thanh mát.',
+                    transform: { x: 0, y: 0, scale: 1.0, rotate: 0, opacity: 1.0 }
+                },
+                {
+                    slot_index: 3,
+                    title: 'Cảnh 3: Chữa lành tâm hồn',
+                    start_time: 7.5,
+                    end_time: 11.25,
+                    src: '/images/Poster 3.jpg',
+                    effect: 'dissolve',
+                    filter: 'cool',
+                    subtitle: 'Chữa lành từ những điều mộc mạc nhất.',
+                    transform: { x: 0, y: 0, scale: 1.0, rotate: 0, opacity: 1.0 }
+                },
+                {
+                    slot_index: 4,
+                    title: 'Cảnh 4: Trở về an yên',
+                    start_time: 11.25,
+                    end_time: 15.0,
+                    src: '/images/Poster 4.jpg',
+                    effect: 'flash',
+                    filter: 'vintage',
+                    subtitle: 'Nghe Bình Lợi theo cách của bạn.',
+                    transform: { x: 0, y: 0, scale: 1.0, rotate: 0, opacity: 1.0 }
+                }
+            ];
+            setProjectSlots(defaultSlots, 15.0);
+        }
+    }
+
+    function setProjectSlots(slots, totalDuration) {
+        state.duration = totalDuration || 15.0;
+        state.slots = slots.map((s, idx) => {
+            const slotObj = {
+                slot_index: idx + 1,
+                title: s.title || ('Cảnh ' + (idx + 1)),
+                start_time: s.start_time !== undefined ? s.start_time : (idx * (state.duration / slots.length)),
+                end_time: s.end_time !== undefined ? s.end_time : ((idx + 1) * (state.duration / slots.length)),
+                src: s.src || s.default_img || ('/images/Poster ' + ((idx % 5) + 1) + '.jpg'),
+                effect: s.effect || 'kenburns',
+                filter: s.filter || 'none',
+                subtitle: s.subtitle || '',
+                transform: s.transform ? { ...s.transform } : { x: 0, y: 0, scale: 1.0, rotate: 0, opacity: 1.0 },
+                adjust: s.adjust ? { ...s.adjust } : { brightness: 100, contrast: 100, saturation: 100 },
+                img: null
+            };
+
+            // Preload Image
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.src = slotObj.src;
+            img.onload = () => { slotObj.img = img; };
+            img.onerror = () => {
+                const fallbackImg = new Image();
+                fallbackImg.src = '/images/Poster 1.jpg';
+                fallbackImg.onload = () => { slotObj.img = fallbackImg; };
+            };
+            slotObj.img = img;
+            return slotObj;
+        });
+
+        state.activeSlotIndex = 0;
+        state.currentTime = 0.0;
+
         renderTimelineTracks();
-        drawFrameAt(0);
+        renderDrawerMediaSlots();
+        renderDrawerSubtitles();
+        syncInspectorWithActiveSlot();
     }
 
-    // --- MEDIA UPLOAD & DRAG DROP ---
-    if (dropzone) {
-        dropzone.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            dropzone.style.borderColor = '#00f0ff';
-            dropzone.style.background = 'rgba(0, 240, 255, 0.1)';
-        });
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.35)';
-            dropzone.style.background = '#1a1b20';
-        });
-        dropzone.addEventListener('drop', (e) => {
-            e.preventDefault();
-            dropzone.style.borderColor = 'rgba(0, 240, 255, 0.35)';
-            dropzone.style.background = '#1a1b20';
-            handleFiles(e.dataTransfer.files);
-        });
+    function applyTemplate(tpl) {
+        const slots = Array.isArray(tpl.slots) ? tpl.slots : [];
+        const dur = tpl.duration_seconds || 15;
+        if (tpl.audio_url) {
+            state.audio.url = tpl.audio_url;
+            state.audio.title = tpl.audio_title || 'Nhạc nền Bình Lợi';
+            if (DOM.bgAudio) DOM.bgAudio.src = tpl.audio_url;
+            if (DOM.tlAudioName) DOM.tlAudioName.textContent = state.audio.title;
+        }
+        setProjectSlots(slots, dur);
     }
 
-    if (fileInput) {
-        fileInput.addEventListener('change', (e) => {
-            handleFiles(e.target.files);
-        });
+    // ==========================================
+    // 3. CANVAS RESIZING & ASPECT RATIO
+    // ==========================================
+    function updateCanvasDimensions() {
+        if (!DOM.canvas || !DOM.viewport) return;
+
+        let ratioW = 9, ratioH = 16;
+        if (state.aspectRatio === '16:9') { ratioW = 16; ratioH = 9; }
+        else if (state.aspectRatio === '1:1') { ratioW = 1; ratioH = 1; }
+        else if (state.aspectRatio === '4:3') { ratioW = 4; ratioH = 3; }
+
+        state.targetWidth = (ratioW / ratioH >= 1) ? 1920 : 1080;
+        state.targetHeight = Math.round(state.targetWidth * (ratioH / ratioW));
+
+        DOM.canvas.width = state.targetWidth;
+        DOM.canvas.height = state.targetHeight;
+
+        // Viewport display dimensions
+        const vpRect = DOM.viewport.parentElement.getBoundingClientRect();
+        const maxW = Math.max(240, vpRect.width - 32);
+        const maxH = Math.max(240, vpRect.height - 80);
+
+        let dispW = maxW;
+        let dispH = dispW * (ratioH / ratioW);
+        if (dispH > maxH) {
+            dispH = maxH;
+            dispW = dispH * (ratioW / ratioH);
+        }
+
+        DOM.canvas.style.width = Math.round(dispW) + 'px';
+        DOM.canvas.style.height = Math.round(dispH) + 'px';
+        DOM.viewport.style.width = Math.round(dispW) + 'px';
+        DOM.viewport.style.height = Math.round(dispH) + 'px';
+
+        updateBoundingBoxPosition();
     }
 
-    function handleFiles(files) {
-        if (!files || files.length === 0) return;
-        
-        const count = Math.min(files.length, 10 - loadedImages.length);
-        if (count <= 0) {
-            alert('Bạn có thể chọn tối đa 10 ảnh!');
+    // ==========================================
+    // 4. CORE CANVAS RENDER PIPELINE (60 FPS)
+    // ==========================================
+    function renderLoop(timestamp) {
+        const delta = (timestamp - lastRenderTimestamp) / 1000;
+        lastRenderTimestamp = timestamp;
+
+        if (state.isPlaying) {
+            state.currentTime += delta;
+            if (state.currentTime >= state.duration) {
+                state.currentTime = 0; // loop
+            }
+            updatePlayheadAndClocks();
+        }
+
+        drawFrame();
+        requestAnimationFrame(renderLoop);
+    }
+
+    function drawFrame() {
+        if (!ctx) return;
+        const cw = DOM.canvas.width;
+        const ch = DOM.canvas.height;
+
+        ctx.clearRect(0, 0, cw, ch);
+
+        // Find active slot
+        let curSlot = state.slots[state.activeSlotIndex] || state.slots[0];
+        for (let i = 0; i < state.slots.length; i++) {
+            const s = state.slots[i];
+            if (state.currentTime >= s.start_time && state.currentTime < s.end_time) {
+                curSlot = s;
+                if (state.activeSlotIndex !== i && state.isPlaying) {
+                    state.activeSlotIndex = i;
+                    highlightActiveClipInTimeline();
+                    updateBoundingBoxPosition();
+                }
+                break;
+            }
+        }
+
+        if (!curSlot) return;
+
+        // 1. Draw Background (Blurred Image or Solid Color)
+        if (state.bgType === 'blur' && curSlot.img && curSlot.img.complete && curSlot.img.naturalWidth > 0) {
+            ctx.save();
+            ctx.filter = 'blur(40px) brightness(0.4)';
+            ctx.drawImage(curSlot.img, -100, -100, cw + 200, ch + 200);
+            ctx.restore();
+        } else {
+            ctx.fillStyle = state.bgColor;
+            ctx.fillRect(0, 0, cw, ch);
+        }
+
+        // 2. Draw Active Slot Main Image with Filters & Motion
+        if (curSlot.img && curSlot.img.complete && curSlot.img.naturalWidth > 0) {
+            const slotDuration = Math.max(0.1, curSlot.end_time - curSlot.start_time);
+            const slotProgress = Math.min(1.0, Math.max(0.0, (state.currentTime - curSlot.start_time) / slotDuration));
+
+            // Dynamic Motion (Ken Burns / Pan / Flash)
+            let motionScale = 1.0;
+            let motionX = 0;
+            let motionY = 0;
+
+            if (curSlot.effect === 'kenburns') {
+                motionScale = 1.0 + slotProgress * 0.12; // slow zoom in
+            } else if (curSlot.effect === 'pan') {
+                motionX = (slotProgress - 0.5) * 60; // smooth side-to-side
+            }
+
+            // CSS Filters
+            let filterStr = '';
+            if (curSlot.filter === 'warm') filterStr += ' sepia(25%) contrast(105%) brightness(105%)';
+            else if (curSlot.filter === 'cool') filterStr += ' hue-rotate(180deg) saturate(110%) brightness(105%)';
+            else if (curSlot.filter === 'vintage') filterStr += ' sepia(45%) contrast(115%) brightness(95%)';
+            else if (curSlot.filter === 'grayscale') filterStr += ' grayscale(100%) contrast(120%)';
+
+            const adj = curSlot.adjust || { brightness: 100, contrast: 100, saturation: 100 };
+            if (adj.brightness !== 100) filterStr += ' brightness(' + adj.brightness + '%)';
+            if (adj.contrast !== 100) filterStr += ' contrast(' + adj.contrast + '%)';
+            if (adj.saturation !== 100) filterStr += ' saturate(' + adj.saturation + '%)';
+
+            ctx.save();
+            if (filterStr) ctx.filter = filterStr.trim();
+
+            const t = curSlot.transform || { x: 0, y: 0, scale: 1.0, rotate: 0, opacity: 1.0 };
+            ctx.globalAlpha = t.opacity !== undefined ? t.opacity : 1.0;
+
+            // Center of Canvas
+            const centerX = cw / 2 + t.x + motionX;
+            const centerY = ch / 2 + t.y + motionY;
+
+            ctx.translate(centerX, centerY);
+            ctx.rotate((t.rotate * Math.PI) / 180);
+            const finalScale = t.scale * motionScale;
+            ctx.scale(finalScale, finalScale);
+
+            // Compute fitted image dimension
+            const imgAspect = curSlot.img.naturalWidth / curSlot.img.naturalHeight;
+            const canvasAspect = cw / ch;
+
+            let drawW, drawH;
+            if (imgAspect > canvasAspect) {
+                drawH = ch;
+                drawW = drawH * imgAspect;
+            } else {
+                drawW = cw;
+                drawH = drawW / imgAspect;
+            }
+
+            ctx.drawImage(curSlot.img, -drawW / 2, -drawH / 2, drawW, drawH);
+            ctx.restore();
+
+            // Flash White Transition Effect
+            if (curSlot.effect === 'flash' && slotProgress < 0.2) {
+                const flashAlpha = 1.0 - (slotProgress / 0.2);
+                ctx.fillStyle = 'rgba(255, 255, 255, ' + (flashAlpha * 0.8) + ')';
+                ctx.fillRect(0, 0, cw, ch);
+            }
+        }
+
+        // 3. Draw Subtitles / Caption Overlay
+        if (curSlot.subtitle) {
+            drawSubtitleOverlay(curSlot.subtitle, cw, ch);
+        }
+    }
+
+    function drawSubtitleOverlay(text, cw, ch) {
+        ctx.save();
+        ctx.font = '700 36px "Be Vietnam Pro", sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        const textMetrics = ctx.measureText(text);
+        const paddingH = 30;
+        const paddingV = 16;
+        const boxW = textMetrics.width + paddingH * 2;
+        const boxH = 58;
+        const boxX = (cw - boxW) / 2;
+        const boxY = ch - 160;
+
+        // Rounded pill background
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.65)';
+        ctx.beginPath();
+        ctx.roundRect(boxX, boxY, boxW, boxH, 29);
+        ctx.fill();
+
+        // Text with subtle shadow
+        ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.shadowBlur = 8;
+        ctx.shadowOffsetX = 0;
+        ctx.shadowOffsetY = 2;
+        ctx.fillStyle = '#ffffff';
+        ctx.fillText(text, cw / 2, boxY + boxH / 2);
+
+        ctx.restore();
+    }
+
+    // ==========================================
+    // 5. DIRECT CANVAS BOUNDING BOX (NO POPUPS!)
+    // ==========================================
+    function updateBoundingBoxPosition() {
+        if (!DOM.bbox || !DOM.canvas || !DOM.viewport) return;
+
+        const curSlot = state.slots[state.activeSlotIndex];
+        if (!curSlot) {
+            DOM.bbox.classList.remove('active');
             return;
         }
 
-        let loadedCount = 0;
-        for (let i = 0; i < count; i++) {
-            const file = files[i];
-            if (!file.type.startsWith('image/')) continue;
+        const canvasRect = DOM.canvas.getBoundingClientRect();
+        const viewportRect = DOM.viewport.getBoundingClientRect();
 
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = new Image();
-                img.onload = () => {
-                    loadedImages.push({ img, file });
-                    loadedCount++;
-                    if (loadedCount === count) {
-                        onImagesLoaded();
-                    }
-                };
-                img.src = e.target.result;
-            };
-            reader.readAsDataURL(file);
+        const t = curSlot.transform || { x: 0, y: 0, scale: 1.0, rotate: 0 };
+        const scaleFactor = canvasRect.width / DOM.canvas.width;
+
+        // Calculate rendered bounding box dimensions
+        const baseBoxW = canvasRect.width * 0.9 * t.scale;
+        const baseBoxH = canvasRect.height * 0.9 * t.scale;
+
+        const boxLeft = (canvasRect.width - baseBoxW) / 2 + (t.x * scaleFactor);
+        const boxTop = (canvasRect.height - baseBoxH) / 2 + (t.y * scaleFactor);
+
+        DOM.bbox.style.width = Math.round(baseBoxW) + 'px';
+        DOM.bbox.style.height = Math.round(baseBoxH) + 'px';
+        DOM.bbox.style.left = Math.round(boxLeft) + 'px';
+        DOM.bbox.style.top = Math.round(boxTop) + 'px';
+        DOM.bbox.style.transform = 'rotate(' + (t.rotate || 0) + 'deg)';
+
+        DOM.bbox.classList.add('active');
+    }
+
+    function bindCanvasDirectTransform() {
+        if (!DOM.viewport || !DOM.bbox) return;
+
+        let isDragging = false;
+        let isScaling = false;
+        let isRotating = false;
+        let activeHandle = null;
+        let startX = 0, startY = 0;
+        let initT = null;
+
+        // 1. Mouse Drag on Bounding Box (Move)
+        DOM.bbox.addEventListener('mousedown', (e) => {
+            if (e.target.classList.contains('capcut-bbox-handle') || e.target.id === 'bboxRotator' || e.target.closest('#bboxRotator')) return;
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            const curSlot = state.slots[state.activeSlotIndex];
+            initT = { ...curSlot.transform };
+            e.preventDefault();
+        });
+
+        // 2. Scale Handles
+        DOM.bbox.querySelectorAll('.capcut-bbox-handle').forEach(h => {
+            h.addEventListener('mousedown', (e) => {
+                isScaling = true;
+                activeHandle = h.getAttribute('data-handle');
+                startX = e.clientX;
+                startY = e.clientY;
+                const curSlot = state.slots[state.activeSlotIndex];
+                initT = { ...curSlot.transform };
+                e.stopPropagation();
+                e.preventDefault();
+            });
+        });
+
+        // 3. Rotator Handle
+        const rotator = document.getElementById('bboxRotator');
+        if (rotator) {
+            rotator.addEventListener('mousedown', (e) => {
+                isRotating = true;
+                const rect = DOM.bbox.getBoundingClientRect();
+                startX = rect.left + rect.width / 2;
+                startY = rect.top + rect.height / 2;
+                const curSlot = state.slots[state.activeSlotIndex];
+                initT = { ...curSlot.transform };
+                e.stopPropagation();
+                e.preventDefault();
+            });
+        }
+
+        // Global Mouse Move & Up
+        window.addEventListener('mousemove', (e) => {
+            const curSlot = state.slots[state.activeSlotIndex];
+            if (!curSlot) return;
+
+            const scaleFactor = DOM.canvas.width / DOM.canvas.getBoundingClientRect().width;
+
+            if (isDragging) {
+                const dx = (e.clientX - startX) * scaleFactor;
+                const dy = (e.clientY - startY) * scaleFactor;
+                let newX = Math.round(initT.x + dx);
+                let newY = Math.round(initT.y + dy);
+
+                // Magnetic Center Snapping
+                if (Math.abs(newX) < 10) {
+                    newX = 0;
+                    if (DOM.guideY) DOM.guideY.style.display = 'block';
+                } else {
+                    if (DOM.guideY) DOM.guideY.style.display = 'none';
+                }
+
+                if (Math.abs(newY) < 10) {
+                    newY = 0;
+                    if (DOM.guideX) DOM.guideX.style.display = 'block';
+                } else {
+                    if (DOM.guideX) DOM.guideX.style.display = 'none';
+                }
+
+                curSlot.transform.x = newX;
+                curSlot.transform.y = newY;
+                updateBoundingBoxPosition();
+                syncInspectorWithActiveSlot();
+            } else if (isScaling) {
+                const dy = (startY - e.clientY) * 0.005;
+                const dx = (e.clientX - startX) * 0.005;
+                const deltaScale = (activeHandle === 'nw' || activeHandle === 'sw') ? -dx : dx;
+                let newScale = +(initT.scale + deltaScale).toFixed(2);
+                newScale = Math.max(0.5, Math.min(3.0, newScale));
+
+                curSlot.transform.scale = newScale;
+                updateBoundingBoxPosition();
+                syncInspectorWithActiveSlot();
+            } else if (isRotating) {
+                const angle = Math.atan2(e.clientY - startY, e.clientX - startX) * (180 / Math.PI) + 90;
+                curSlot.transform.rotate = Math.round(angle);
+                updateBoundingBoxPosition();
+                syncInspectorWithActiveSlot();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            if (isDragging || isScaling || isRotating) {
+                isDragging = false;
+                isScaling = false;
+                isRotating = false;
+                if (DOM.guideX) DOM.guideX.style.display = 'none';
+                if (DOM.guideY) DOM.guideY.style.display = 'none';
+            }
+        });
+
+        // Mobile Touch Gestures Support (Pinch to Zoom & Rotate)
+        DOM.viewport.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 2) {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) initT = { ...curSlot.transform };
+            }
+        }, { passive: true });
+    }
+
+    // ==========================================
+    // 6. MULTI-TRACK TIMELINE ENGINE
+    // ==========================================
+    function renderTimelineTracks() {
+        if (!DOM.videoTrackContainer) return;
+
+        DOM.videoTrackContainer.innerHTML = '';
+        if (DOM.subtitlesTrackContainer) DOM.subtitlesTrackContainer.innerHTML = '';
+
+        const totalW = DOM.timelineScroll ? DOM.timelineScroll.scrollWidth || 1000 : 1000;
+        const dur = Math.max(1, state.duration);
+
+        // Render Clips on Video Track
+        state.slots.forEach((slot, idx) => {
+            const slotDur = slot.end_time - slot.start_time;
+            const pct = (slotDur / dur) * 100;
+
+            const block = document.createElement('div');
+            block.className = 'capcut-clip-block' + (idx === state.activeSlotIndex ? ' selected' : '');
+            block.style.width = pct + '%';
+            block.style.backgroundImage = 'url("' + slot.src + '")';
+
+            block.innerHTML = `
+                <div class="capcut-clip-slot-num">${idx + 1}</div>
+                <div class="capcut-clip-duration">${slotDur.toFixed(1)}s</div>
+                ${idx < state.slots.length - 1 ? '<div class="capcut-transition-badge" title="Hiệu ứng chuyển cảnh">⧗</div>' : ''}
+            `;
+
+            block.addEventListener('click', (e) => {
+                if (e.target.classList.contains('capcut-transition-badge')) {
+                    // Open effects tab
+                    switchRailTab('effects');
+                    return;
+                }
+                state.activeSlotIndex = idx;
+                state.currentTime = slot.start_time;
+                state.isPlaying = false;
+                updatePlayheadAndClocks();
+                highlightActiveClipInTimeline();
+                updateBoundingBoxPosition();
+                syncInspectorWithActiveSlot();
+            });
+
+            DOM.videoTrackContainer.appendChild(block);
+
+            // Subtitle Chip on Subtitle Track
+            if (DOM.subtitlesTrackContainer && slot.subtitle) {
+                const chip = document.createElement('div');
+                chip.className = 'capcut-sub-chip';
+                chip.style.left = (slot.start_time / dur * 100) + '%';
+                chip.style.width = pct + '%';
+                chip.textContent = '📝 ' + slot.subtitle;
+                DOM.subtitlesTrackContainer.appendChild(chip);
+            }
+        });
+
+        if (DOM.tlClipCount) DOM.tlClipCount.textContent = state.slots.length;
+        if (DOM.tlDurationLabel) DOM.tlDurationLabel.textContent = state.duration.toFixed(1) + 's';
+
+        renderRuler();
+        updatePlayheadAndClocks();
+    }
+
+    function renderRuler() {
+        if (!DOM.timelineRuler) return;
+        DOM.timelineRuler.innerHTML = '';
+        const dur = Math.round(state.duration);
+        const step = dur > 20 ? 5 : (dur > 10 ? 3 : 2);
+
+        for (let s = 0; s <= dur; s += step) {
+            const span = document.createElement('span');
+            span.style.position = 'absolute';
+            span.style.left = (s / dur * 100) + '%';
+            const m = String(Math.floor(s / 60)).padStart(2, '0');
+            const sec = String(s % 60).padStart(2, '0');
+            span.textContent = m + ':' + sec;
+            DOM.timelineRuler.appendChild(span);
         }
     }
 
-    function onImagesLoaded() {
-        if (thumbnailsWrapper) thumbnailsWrapper.classList.remove('d-none');
-        if (mediaCountBadge) mediaCountBadge.innerText = `${loadedImages.length} / 5 ảnh`;
-        if (timelineClipIndicator) timelineClipIndicator.innerText = `${loadedImages.length} clip`;
-        
-        renderThumbnails();
-        renderTimelineTracks();
-        
-        if (loadedImages.length >= 3) {
-            btnOpenExportModal.removeAttribute('disabled');
-        } else {
-            btnOpenExportModal.setAttribute('disabled', 'true');
-        }
-        
-        drawFrameAt(0);
+    function highlightActiveClipInTimeline() {
+        if (!DOM.videoTrackContainer) return;
+        const blocks = DOM.videoTrackContainer.querySelectorAll('.capcut-clip-block');
+        blocks.forEach((b, idx) => {
+            if (idx === state.activeSlotIndex) b.classList.add('selected');
+            else b.classList.remove('selected');
+        });
     }
 
-    function renderThumbnails() {
-        if (!thumbnailsContainer) return;
-        thumbnailsContainer.innerHTML = '';
-        loadedImages.forEach((item, index) => {
-            const col = document.createElement('div');
-            col.className = 'col-3 position-relative';
-            col.innerHTML = `
-                <div class="ratio ratio-1x1 rounded-3 overflow-hidden border border-secondary" style="background:#0e0f12;">
-                    <img src="${item.img.src}" class="w-100 h-100 object-fit-cover">
+    function updatePlayheadAndClocks() {
+        const dur = Math.max(1, state.duration);
+        const cur = Math.max(0, Math.min(dur, state.currentTime));
+        const pct = (cur / dur) * 100;
+
+        if (DOM.timelinePlayhead) {
+            DOM.timelinePlayhead.style.left = pct + '%';
+        }
+
+        const formatTime = (t) => {
+            const m = String(Math.floor(t / 60)).padStart(2, '0');
+            const s = String(Math.floor(t % 60)).padStart(2, '0');
+            return m + ':' + s;
+        };
+
+        const timeStr = formatTime(cur) + ' / ' + formatTime(dur);
+        if (DOM.dockTimecode) DOM.dockTimecode.textContent = timeStr;
+    }
+
+    function bindTimelineEvents() {
+        // Ruler Seeking
+        if (DOM.timelineRuler) {
+            DOM.timelineRuler.addEventListener('click', (e) => {
+                const rect = DOM.timelineRuler.getBoundingClientRect();
+                const clickX = e.clientX - rect.left;
+                const pct = Math.max(0, Math.min(1, clickX / rect.width));
+                state.currentTime = pct * state.duration;
+                updatePlayheadAndClocks();
+                if (DOM.bgAudio) DOM.bgAudio.currentTime = state.currentTime;
+            });
+        }
+
+        // Timeline Toolbar: Split
+        if (DOM.toolSplit) {
+            DOM.toolSplit.addEventListener('click', () => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (!curSlot) return;
+                const t = state.currentTime;
+                if (t > curSlot.start_time + 0.5 && t < curSlot.end_time - 0.5) {
+                    const origEnd = curSlot.end_time;
+                    curSlot.end_time = t;
+                    const newSlot = {
+                        ...curSlot,
+                        slot_index: state.slots.length + 1,
+                        start_time: t,
+                        end_time: origEnd,
+                        transform: { ...curSlot.transform }
+                    };
+                    state.slots.splice(state.activeSlotIndex + 1, 0, newSlot);
+                    renderTimelineTracks();
+                    renderDrawerMediaSlots();
+                }
+            });
+        }
+
+        // Timeline Toolbar: Delete
+        if (DOM.toolDelete) {
+            DOM.toolDelete.addEventListener('click', () => {
+                if (state.slots.length <= 1) {
+                    alert('Video cần ít nhất 1 phân đoạn.');
+                    return;
+                }
+                state.slots.splice(state.activeSlotIndex, 1);
+                state.activeSlotIndex = Math.max(0, state.activeSlotIndex - 1);
+                // Re-calculate start and end times
+                const segDur = state.duration / state.slots.length;
+                state.slots.forEach((s, i) => {
+                    s.slot_index = i + 1;
+                    s.start_time = +(i * segDur).toFixed(2);
+                    s.end_time = +((i + 1) * segDur).toFixed(2);
+                });
+                renderTimelineTracks();
+                renderDrawerMediaSlots();
+                updateBoundingBoxPosition();
+            });
+        }
+
+        // Timeline Toolbar: Duplicate
+        if (DOM.toolDuplicate) {
+            DOM.toolDuplicate.addEventListener('click', () => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (!curSlot) return;
+                const copy = { ...curSlot, slot_index: state.slots.length + 1, transform: { ...curSlot.transform } };
+                state.slots.push(copy);
+                // Re-distribute duration
+                const segDur = state.duration / state.slots.length;
+                state.slots.forEach((s, i) => {
+                    s.slot_index = i + 1;
+                    s.start_time = +(i * segDur).toFixed(2);
+                    s.end_time = +((i + 1) * segDur).toFixed(2);
+                });
+                renderTimelineTracks();
+                renderDrawerMediaSlots();
+            });
+        }
+
+        // Batch Replace Photos
+        if (DOM.toolBatch) {
+            DOM.toolBatch.addEventListener('click', () => {
+                if (DOM.mediaInput) DOM.mediaInput.click();
+            });
+        }
+    }
+
+    // ==========================================
+    // 7. DRAWER, MEDIA & TEMPLATE LOGIC
+    // ==========================================
+    function switchRailTab(tabKey) {
+        document.querySelectorAll('.capcut-rail-item').forEach(b => {
+            b.classList.toggle('active', b.getAttribute('data-tab') === tabKey);
+        });
+        document.querySelectorAll('.capcut-drawer-pane').forEach(p => {
+            p.classList.toggle('d-none', p.id !== ('pane-' + tabKey));
+            p.classList.toggle('active', p.id === ('pane-' + tabKey));
+        });
+    }
+
+    function bindRailAndDrawerEvents() {
+        document.querySelectorAll('.capcut-rail-item').forEach(b => {
+            b.addEventListener('click', () => {
+                const tab = b.getAttribute('data-tab');
+                switchRailTab(tab);
+            });
+        });
+
+        // Template Selection Cards
+        document.querySelectorAll('.capcut-tpl-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.capcut-tpl-card').forEach(c => c.classList.remove('active'));
+                card.classList.add('active');
+                const tplId = card.getAttribute('data-template-id');
+                const tpl = state.templates.find(t => String(t.id) === String(tplId));
+                if (tpl) applyTemplate(tpl);
+            });
+        });
+
+        // Media Input File Change (Upload multiple or single)
+        if (DOM.mediaInput) {
+            DOM.mediaInput.addEventListener('change', (e) => {
+                const files = Array.from(e.target.files);
+                if (files.length === 0) return;
+
+                files.forEach((file, fIdx) => {
+                    const reader = new FileReader();
+                    reader.onload = (evt) => {
+                        const targetIdx = (state.activeSlotIndex + fIdx) % state.slots.length;
+                        const targetSlot = state.slots[targetIdx];
+                        if (targetSlot) {
+                            targetSlot.src = evt.target.result;
+                            const newImg = new Image();
+                            newImg.src = evt.target.result;
+                            newImg.onload = () => {
+                                targetSlot.img = newImg;
+                                renderTimelineTracks();
+                                renderDrawerMediaSlots();
+                                updateBoundingBoxPosition();
+                            };
+                        }
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+        }
+
+        // Effect Buttons
+        document.querySelectorAll('.capcut-effect-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.capcut-effect-btn').forEach(b => b.classList.remove('active', 'border-cyan'));
+                btn.classList.add('active', 'border-cyan');
+                const eff = btn.getAttribute('data-effect');
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) curSlot.effect = eff;
+            });
+        });
+
+        // Filter Buttons
+        document.querySelectorAll('.capcut-filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.capcut-filter-btn').forEach(b => b.classList.remove('active', 'border-cyan'));
+                btn.classList.add('active', 'border-cyan');
+                const fil = btn.getAttribute('data-filter');
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) curSlot.filter = fil;
+            });
+        });
+
+        // Background buttons
+        const btnBgBlur = document.getElementById('btnBgBlur');
+        const btnBgColor = document.getElementById('btnBgColor');
+        if (btnBgBlur) {
+            btnBgBlur.addEventListener('click', () => {
+                state.bgType = 'blur';
+                btnBgBlur.className = 'btn btn-sm btn-dark border border-cyan text-cyan rounded-pill flex-grow-1';
+                if (btnBgColor) btnBgColor.className = 'btn btn-sm btn-dark border border-secondary text-white-50 rounded-pill flex-grow-1';
+            });
+        }
+        if (btnBgColor) {
+            btnBgColor.addEventListener('click', () => {
+                state.bgType = 'color';
+                btnBgColor.className = 'btn btn-sm btn-dark border border-cyan text-cyan rounded-pill flex-grow-1';
+                if (btnBgBlur) btnBgBlur.className = 'btn btn-sm btn-dark border border-secondary text-white-50 rounded-pill flex-grow-1';
+            });
+        }
+    }
+
+    function renderDrawerMediaSlots() {
+        if (!DOM.mediaSlotsList) return;
+        DOM.mediaSlotsList.innerHTML = '';
+
+        state.slots.forEach((s, idx) => {
+            const item = document.createElement('div');
+            item.className = 'd-flex align-items-center justify-content-between p-2 rounded-2 border border-secondary border-opacity-25 cursor-pointer ' + (idx === state.activeSlotIndex ? 'border-cyan bg-dark' : '');
+            item.innerHTML = `
+                <div class="d-flex align-items-center gap-2">
+                    <img src="${s.src}" style="width: 38px; height: 38px; object-fit: cover; border-radius: 4px;">
+                    <div>
+                        <div class="small fw-bold text-white">${s.title}</div>
+                        <div class="font-size-xs text-white-50">${(s.end_time - s.start_time).toFixed(1)}s</div>
+                    </div>
                 </div>
-                <button type="button" class="btn btn-danger btn-xs position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center shadow" 
-                        style="width:20px; height:20px; font-size:11px; margin-top:-6px; margin-right:-2px; z-index:10;" onclick="removeImage(${index})">
-                    <i class="bi bi-x"></i>
+                <button type="button" class="btn btn-sm btn-outline-secondary text-white-50 p-1 rounded-circle" title="Đổi ảnh này">
+                    <i class="bi bi-arrow-repeat"></i>
                 </button>
             `;
-            thumbnailsContainer.appendChild(col);
+            item.addEventListener('click', () => {
+                state.activeSlotIndex = idx;
+                state.currentTime = s.start_time;
+                highlightActiveClipInTimeline();
+                renderDrawerMediaSlots();
+                updateBoundingBoxPosition();
+                syncInspectorWithActiveSlot();
+            });
+            DOM.mediaSlotsList.appendChild(item);
         });
+
+        if (DOM.mediaSlotsCount) DOM.mediaSlotsCount.textContent = state.slots.length + ' / ' + state.slots.length + ' ảnh';
     }
 
-    window.removeImage = function(index) {
-        loadedImages.splice(index, 1);
-        onImagesLoaded();
-        if (loadedImages.length === 0) {
-            if (thumbnailsWrapper) thumbnailsWrapper.classList.add('d-none');
-            ctx.fillStyle = '#0e0f12';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-    };
+    function renderDrawerSubtitles() {
+        if (!DOM.subtitlesListContainer) return;
+        DOM.subtitlesListContainer.innerHTML = '';
 
-    window.clearAllLoadedImages = function() {
-        loadedImages = [];
-        onImagesLoaded();
-        if (thumbnailsWrapper) thumbnailsWrapper.classList.add('d-none');
-        ctx.fillStyle = '#0e0f12';
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    };
-
-    // --- TIMELINE TRACKS RENDERING ---
-    function renderTimelineTracks() {
-        if (!videoTrackSlots) return;
-        
-        const segmentsCount = (videoDuration === 30) ? 5 : 4;
-        const segDuration = (videoDuration / segmentsCount).toFixed(1);
-        
-        let html = '';
-        for (let i = 0; i < segmentsCount; i++) {
-            const hasImg = loadedImages[i % (loadedImages.length || 1)];
-            const imgSrc = hasImg ? hasImg.img.src : '';
-            
-            html += `
-                <div class="capcut-timeline-clip-thumb flex-grow-1 position-relative ${hasImg && loadedImages.length > 0 ? 'has-img' : ''}" style="min-width: 60px;">
-                    ${hasImg && loadedImages.length > 0 ? `<img src="${imgSrc}" class="w-100 h-100 object-fit-cover opacity-75">` : `<span class="text-white-50 x-small">Phân đoạn ${i+1}</span>`}
-                    <span class="position-absolute bottom-0 end-0 px-1 py-0.5 rounded text-white x-small fw-bold" style="background: rgba(0,0,0,0.7); font-size: 0.6rem;">${segDuration}s</span>
-                </div>
+        state.slots.forEach((s, idx) => {
+            const group = document.createElement('div');
+            group.className = 'p-2.5 rounded-3 bg-dark border border-secondary border-opacity-20';
+            group.innerHTML = `
+                <label class="font-size-xs fw-bold text-cyan mb-1 d-block">Phân cảnh ${idx + 1} (${(s.end_time - s.start_time).toFixed(1)}s)</label>
+                <input type="text" class="form-control form-control-sm bg-dark text-white border-secondary" value="${s.subtitle || ''}">
             `;
-            if (i < segmentsCount - 1) {
-                html += `<div class="text-cyan x-small opacity-75 flex-shrink-0" style="font-size: 0.65rem;" title="Chuyển cảnh CapCut">⧗</div>`;
-            }
-        }
-        videoTrackSlots.innerHTML = html;
+            const input = group.querySelector('input');
+            input.addEventListener('input', (e) => {
+                s.subtitle = e.target.value;
+                renderTimelineTracks();
+            });
+            DOM.subtitlesListContainer.appendChild(group);
+        });
     }
 
-    // --- AUDIO SOUNDSCAPE SELECTION ---
-    soundCards.forEach(card => {
-        card.addEventListener('click', () => {
-            soundCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            
-            const radio = card.querySelector('input[type="radio"]');
-            if (radio) radio.checked = true;
-            
-            selectedAudioUrl = card.getAttribute('data-audio-url');
-            audioEl.src = selectedAudioUrl;
-            
-            const soundTitle = card.querySelector('.fw-bold')?.innerText || 'Tĩnh lặng';
-            if (timelineAudioName) timelineAudioName.innerText = `Nhạc nền: ${soundTitle}`;
-            
-            if (isPlaying) {
-                audioEl.play().catch(e => console.error(e));
-            }
-        });
-    });
+    // ==========================================
+    // 8. INSPECTOR PANEL BINDING
+    // ==========================================
+    function syncInspectorWithActiveSlot() {
+        const curSlot = state.slots[state.activeSlotIndex];
+        if (!curSlot) return;
 
-    // --- EFFECTS & FILTERS ---
-    effectCards.forEach(card => {
-        card.addEventListener('click', () => {
-            effectCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            currentEffect = card.getAttribute('data-effect') || 'kenburns';
-            if (!isPlaying) drawFrameAt(elapsedPlayTime);
-        });
-    });
+        const t = curSlot.transform || { x: 0, y: 0, scale: 1.0, rotate: 0, opacity: 1.0 };
+        const adj = curSlot.adjust || { brightness: 100, contrast: 100, saturation: 100 };
 
-    filterCards.forEach(card => {
-        card.addEventListener('click', () => {
-            filterCards.forEach(c => c.classList.remove('active'));
-            card.classList.add('active');
-            currentFilter = card.getAttribute('data-filter') || 'none';
-            if (!isPlaying) drawFrameAt(elapsedPlayTime);
-        });
-    });
+        if (DOM.sliderScale) DOM.sliderScale.value = Math.round(t.scale * 100);
+        if (DOM.valScale) DOM.valScale.textContent = Math.round(t.scale * 100) + '%';
 
-    // --- CANVAS RENDER ENGINE WITH CAPCUT MOTION ---
-    function drawImageCover(ctx, img, x, y, w, h, scaleFactor = 1.0, panX = 0) {
-        const imgRatio = img.width / img.height;
-        const canvasRatio = w / h;
-        let sx, sy, sWidth, sHeight;
+        if (DOM.sliderRotate) DOM.sliderRotate.value = t.rotate || 0;
+        if (DOM.valRotate) DOM.valRotate.textContent = (t.rotate || 0) + '°';
 
-        if (imgRatio > canvasRatio) {
-            sHeight = img.height;
-            sWidth = img.height * canvasRatio;
-            sx = (img.width - sWidth) / 2 + panX;
-            sy = 0;
-        } else {
-            sWidth = img.width;
-            sHeight = img.width / canvasRatio;
-            sx = panX;
-            sy = (img.height - sHeight) / 2;
-        }
+        if (DOM.sliderPosX) DOM.sliderPosX.value = t.x || 0;
+        if (DOM.valPosX) DOM.valPosX.textContent = (t.x || 0) + ' px';
 
-        // Apply scale factor (Ken Burns)
-        const dw = w * scaleFactor;
-        const dh = h * scaleFactor;
-        const dx = x - (dw - w) / 2;
-        const dy = y - (dh - h) / 2;
+        if (DOM.sliderPosY) DOM.sliderPosY.value = t.y || 0;
+        if (DOM.valPosY) DOM.valPosY.textContent = (t.y || 0) + ' px';
 
-        ctx.drawImage(img, Math.max(0, sx), Math.max(0, sy), sWidth, sHeight, dx, dy, dw, dh);
+        if (DOM.sliderOpacity) DOM.sliderOpacity.value = Math.round((t.opacity !== undefined ? t.opacity : 1.0) * 100);
+        if (DOM.valOpacity) DOM.valOpacity.textContent = Math.round((t.opacity !== undefined ? t.opacity : 1.0) * 100) + '%';
+
+        if (DOM.sliderBrightness) DOM.sliderBrightness.value = adj.brightness;
+        if (DOM.valBrightness) DOM.valBrightness.textContent = adj.brightness + '%';
+
+        if (DOM.sliderContrast) DOM.sliderContrast.value = adj.contrast;
+        if (DOM.valContrast) DOM.valContrast.textContent = adj.contrast + '%';
+
+        if (DOM.sliderSaturation) DOM.sliderSaturation.value = adj.saturation;
+        if (DOM.valSaturation) DOM.valSaturation.textContent = adj.saturation + '%';
     }
 
-    function drawFrameAt(timestampMs) {
-        if (loadedImages.length === 0) {
-            ctx.fillStyle = '#0e0f12';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw CapCut Placeholder Guide
-            ctx.fillStyle = '#212328';
-            ctx.fillRect(40, 200, canvas.width - 80, canvas.height - 400);
-            
-            ctx.fillStyle = '#00f0ff';
-            ctx.font = 'bold 32px sans-serif';
-            ctx.textAlign = 'center';
-            ctx.fillText('✂️ CapCut Studio Pro', canvas.width / 2, canvas.height / 2 - 30);
-            
-            ctx.fillStyle = '#8b929e';
-            ctx.font = '20px sans-serif';
-            ctx.fillText('Thêm từ 3 - 5 ảnh để dựng video', canvas.width / 2, canvas.height / 2 + 15);
-            return;
+    function bindInspectorEvents() {
+        // Tab switching in inspector
+        document.querySelectorAll('.capcut-inspector-tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.capcut-inspector-tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const itab = btn.getAttribute('data-itab');
+                document.querySelectorAll('.capcut-itab-pane').forEach(p => {
+                    p.classList.toggle('d-none', p.id !== ('itab-' + itab));
+                    p.classList.toggle('active', p.id === ('itab-' + itab));
+                });
+            });
+        });
+
+        // Sliders
+        if (DOM.sliderScale) {
+            DOM.sliderScale.addEventListener('input', (e) => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.transform.scale = +(e.target.value / 100).toFixed(2);
+                    if (DOM.valScale) DOM.valScale.textContent = e.target.value + '%';
+                    updateBoundingBoxPosition();
+                }
+            });
         }
 
-        const totalSec = timestampMs / 1000;
-        const segmentsCount = (videoDuration === 30) ? 5 : 4;
-        const segmentDuration = videoDuration / segmentsCount;
-        
-        let activeIdx = Math.floor(totalSec / segmentDuration);
-        activeIdx = Math.min(activeIdx, segmentsCount - 1);
-        activeIdx = Math.max(activeIdx, 0);
-
-        const imgIdx = activeIdx % loadedImages.length;
-        const currentImageItem = loadedImages[imgIdx];
-        const progressInSeg = (totalSec % segmentDuration) / segmentDuration; // 0.0 to 1.0
-
-        // 1. Calculate Motion Effect (Ken Burns or Pan)
-        let scale = 1.0;
-        let panX = 0;
-        if (currentEffect === 'kenburns') {
-            scale = 1.0 + (progressInSeg * 0.1); // Smooth 10% zoom in
-        } else if (currentEffect === 'pan') {
-            panX = (progressInSeg - 0.5) * 40; // Pan horizontally
+        if (DOM.sliderRotate) {
+            DOM.sliderRotate.addEventListener('input', (e) => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.transform.rotate = parseInt(e.target.value, 10);
+                    if (DOM.valRotate) DOM.valRotate.textContent = e.target.value + '°';
+                    updateBoundingBoxPosition();
+                }
+            });
         }
 
-        // 2. Render Image with Filter
-        ctx.save();
-        if (currentFilter === 'warm') {
-            ctx.filter = 'sepia(0.35) saturate(1.4) contrast(1.1) brightness(0.98)';
-        } else if (currentFilter === 'cool') {
-            ctx.filter = 'hue-rotate(15deg) saturate(1.2) contrast(1.05)';
-        } else if (currentFilter === 'vintage') {
-            ctx.filter = 'sepia(0.55) contrast(0.95) brightness(1.02)';
-        } else if (currentFilter === 'grayscale') {
-            ctx.filter = 'grayscale(1) contrast(1.25)';
-        } else {
-            ctx.filter = 'none';
+        if (DOM.sliderPosX) {
+            DOM.sliderPosX.addEventListener('input', (e) => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.transform.x = parseInt(e.target.value, 10);
+                    if (DOM.valPosX) DOM.valPosX.textContent = e.target.value + ' px';
+                    updateBoundingBoxPosition();
+                }
+            });
         }
 
-        if (currentImageItem && currentImageItem.img) {
-            drawImageCover(ctx, currentImageItem.img, 0, 0, canvas.width, canvas.height, scale, panX);
+        if (DOM.sliderPosY) {
+            DOM.sliderPosY.addEventListener('input', (e) => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.transform.y = parseInt(e.target.value, 10);
+                    if (DOM.valPosY) DOM.valPosY.textContent = e.target.value + ' px';
+                    updateBoundingBoxPosition();
+                }
+            });
         }
-        ctx.restore();
 
-        // 3. Flash White Transition if selected
-        if (currentEffect === 'flash' && progressInSeg < 0.12) {
-            ctx.fillStyle = `rgba(255, 255, 255, ${1.0 - (progressInSeg / 0.12)})`;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        if (DOM.sliderOpacity) {
+            DOM.sliderOpacity.addEventListener('input', (e) => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.transform.opacity = +(e.target.value / 100).toFixed(2);
+                    if (DOM.valOpacity) DOM.valOpacity.textContent = e.target.value + '%';
+                }
+            });
         }
 
-        // 4. Dark Vignette Overlays
-        const topGrad = ctx.createLinearGradient(0, 0, 0, 160);
-        topGrad.addColorStop(0, 'rgba(0,0,0,0.6)');
-        topGrad.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = topGrad;
-        ctx.fillRect(0, 0, canvas.width, 160);
+        if (DOM.btnResetTransform) {
+            DOM.btnResetTransform.addEventListener('click', () => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.transform = { x: 0, y: 0, scale: 1.0, rotate: 0, opacity: 1.0 };
+                    syncInspectorWithActiveSlot();
+                    updateBoundingBoxPosition();
+                }
+            });
+        }
 
-        const bottomGrad = ctx.createLinearGradient(0, canvas.height - 260, 0, canvas.height);
-        bottomGrad.addColorStop(0, 'rgba(0,0,0,0)');
-        bottomGrad.addColorStop(1, 'rgba(0,0,0,0.85)');
-        ctx.fillStyle = bottomGrad;
-        ctx.fillRect(0, canvas.height - 260, canvas.width, 260);
+        if (DOM.sliderBrightness) {
+            DOM.sliderBrightness.addEventListener('input', (e) => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.adjust = curSlot.adjust || {};
+                    curSlot.adjust.brightness = parseInt(e.target.value, 10);
+                    if (DOM.valBrightness) DOM.valBrightness.textContent = e.target.value + '%';
+                }
+            });
+        }
 
-        // 5. Header / Brand Mark
-        ctx.fillStyle = '#00f0ff';
-        ctx.font = 'bold 20px sans-serif';
-        ctx.textAlign = 'left';
-        ctx.fillText('BÌNH LỢI 🌿', 35, 50);
+        if (DOM.sliderContrast) {
+            DOM.sliderContrast.addEventListener('input', (e) => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.adjust = curSlot.adjust || {};
+                    curSlot.adjust.contrast = parseInt(e.target.value, 10);
+                    if (DOM.valContrast) DOM.valContrast.textContent = e.target.value + '%';
+                }
+            });
+        }
 
-        ctx.fillStyle = 'rgba(255,255,255,0.7)';
-        ctx.font = '14px sans-serif';
-        ctx.fillText('Chạm sắc bản nguyên', 35, 75);
+        if (DOM.sliderSaturation) {
+            DOM.sliderSaturation.addEventListener('input', (e) => {
+                const curSlot = state.slots[state.activeSlotIndex];
+                if (curSlot) {
+                    curSlot.adjust = curSlot.adjust || {};
+                    curSlot.adjust.saturation = parseInt(e.target.value, 10);
+                    if (DOM.valSaturation) DOM.valSaturation.textContent = e.target.value + '%';
+                }
+            });
+        }
 
-        // 6. Subtitles with Transition Fade
-        let subText = '';
-        if (activeIdx === 0) subText = textHookInput?.value || 'Lạc vào miền xanh Bình Lợi...';
-        else if (activeIdx === 1) subText = textImmersionInput?.value || 'Hương mai thoang thoảng bờ kênh thanh mát.';
-        else if (activeIdx === 2) subText = textHighlightInput?.value || 'Chữa lành từ những điều mộc mạc nhất.';
-        else if (activeIdx === 3) {
-            subText = (videoDuration === 30) ? 'Không gian tĩnh lặng miệt vườn.' : (textOutroInput?.value || 'Nghe Bình Lợi theo cách của bạn.');
-        } else if (activeIdx === 4) subText = textOutroInput?.value || 'Nghe Bình Lợi theo cách của bạn.';
+        if (DOM.sliderVolume) {
+            DOM.sliderVolume.addEventListener('input', (e) => {
+                state.audio.volume = +(e.target.value / 100).toFixed(2);
+                if (DOM.bgAudio) DOM.bgAudio.volume = state.audio.volume;
+                if (DOM.valVolume) DOM.valVolume.textContent = e.target.value + '%';
+            });
+        }
+    }
 
-        let opacity = 1.0;
-        const segSec = totalSec % segmentDuration;
-        if (segSec < 0.4) opacity = segSec / 0.4;
-        else if (segmentDuration - segSec < 0.4) opacity = (segmentDuration - segSec) / 0.4;
+    // ==========================================
+    // 9. HEADER & CONTROLS BINDING
+    // ==========================================
+    function bindHeaderEvents() {
+        if (DOM.aspectRatioSelect) {
+            DOM.aspectRatioSelect.addEventListener('change', (e) => {
+                state.aspectRatio = e.target.value;
+                updateCanvasDimensions();
+            });
+        }
 
-        ctx.save();
-        ctx.globalAlpha = Math.max(0, Math.min(1, opacity));
-        
-        ctx.font = 'bold 32px sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = 'rgba(0,0,0,0.9)';
-        ctx.shadowBlur = 12;
+        if (DOM.projectTitleInput) {
+            DOM.projectTitleInput.addEventListener('input', (e) => {
+                state.title = e.target.value.trim() || 'BinhLoi_Video';
+            });
+        }
 
-        const words = subText.split(' ');
-        let line = '';
-        const lines = [];
-        const maxWidth = canvas.width - 80;
-        
-        for (let n = 0; n < words.length; n++) {
-            let testLine = line + words[n] + ' ';
-            let metrics = ctx.measureText(testLine);
-            if (metrics.width > maxWidth && n > 0) {
-                lines.push(line);
-                line = words[n] + ' ';
+        // Play / Pause Toggle
+        if (DOM.btnPlayPause) {
+            DOM.btnPlayPause.addEventListener('click', togglePlayPause);
+        }
+
+        // Spacebar shortcut
+        window.addEventListener('keydown', (e) => {
+            if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+            if (e.code === 'Space') {
+                e.preventDefault();
+                togglePlayPause();
+            }
+        });
+
+        if (DOM.btnRewind) {
+            DOM.btnRewind.addEventListener('click', () => {
+                state.currentTime = 0;
+                updatePlayheadAndClocks();
+                if (DOM.bgAudio) DOM.bgAudio.currentTime = 0;
+            });
+        }
+
+        if (DOM.btnPrevFrame) {
+            DOM.btnPrevFrame.addEventListener('click', () => {
+                state.currentTime = Math.max(0, state.currentTime - 1 / state.fps);
+                updatePlayheadAndClocks();
+                if (DOM.bgAudio) DOM.bgAudio.currentTime = state.currentTime;
+            });
+        }
+
+        if (DOM.btnNextFrame) {
+            DOM.btnNextFrame.addEventListener('click', () => {
+                state.currentTime = Math.min(state.duration, state.currentTime + 1 / state.fps);
+                updatePlayheadAndClocks();
+                if (DOM.bgAudio) DOM.bgAudio.currentTime = state.currentTime;
+            });
+        }
+
+        if (DOM.btnToggleMute) {
+            DOM.btnToggleMute.addEventListener('click', () => {
+                state.audio.isMuted = !state.audio.isMuted;
+                if (DOM.bgAudio) DOM.bgAudio.muted = state.audio.isMuted;
+                if (DOM.dockMuteIcon) {
+                    DOM.dockMuteIcon.className = state.audio.isMuted ? 'bi bi-volume-mute-fill text-danger' : 'bi bi-volume-up-fill';
+                }
+            });
+        }
+
+        if (DOM.btnFitCanvas) {
+            DOM.btnFitCanvas.addEventListener('click', () => {
+                updateCanvasDimensions();
+            });
+        }
+    }
+
+    function togglePlayPause() {
+        state.isPlaying = !state.isPlaying;
+        if (DOM.btnPlayPause) {
+            DOM.btnPlayPause.innerHTML = state.isPlaying ? '<i class="bi bi-pause-circle-fill"></i>' : '<i class="bi bi-play-circle-fill"></i>';
+        }
+
+        if (DOM.bgAudio && state.audio.url) {
+            if (state.isPlaying) {
+                DOM.bgAudio.currentTime = state.currentTime;
+                DOM.bgAudio.play().catch(() => {});
             } else {
-                line = testLine;
+                DOM.bgAudio.pause();
             }
         }
-        lines.push(line);
-
-        let yStart = canvas.height - 150 - ((lines.length - 1) * 42);
-        lines.forEach((l, idx) => {
-            const metrics = ctx.measureText(l);
-            // CapCut Subtitle Backdrop Pill
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
-            ctx.fillRect(canvas.width/2 - metrics.width/2 - 14, yStart + (idx * 42) - 30, metrics.width + 28, 42);
-            
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText(l.trim(), canvas.width / 2, yStart + (idx * 42));
-        });
-
-        ctx.restore();
     }
 
-    // --- PLAYBACK CONTROLS ---
-    window.togglePlay = function() {
-        if (loadedImages.length === 0) {
-            alert('Vui lòng thêm ít nhất 1 ảnh để xem trước!');
-            return;
-        }
-        if (isPlaying) pauseVideo();
-        else playVideo();
-    };
+    // ==========================================
+    // 10. AUDIO ENGINE BINDING
+    // ==========================================
+    function bindAudioEvents() {
+        document.querySelectorAll('.capcut-audio-item').forEach(item => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.capcut-audio-item').forEach(i => {
+                    i.classList.remove('active');
+                    const icon = i.querySelector('.check-icon');
+                    if (icon) icon.classList.add('d-none');
+                });
+                item.classList.add('active');
+                const check = item.querySelector('.check-icon');
+                if (check) check.classList.remove('d-none');
 
-    if (playBtn) playBtn.addEventListener('click', window.togglePlay);
+                const audioUrl = item.getAttribute('data-audio-url');
+                const audioTitle = item.getAttribute('data-audio-title');
+                state.audio.url = audioUrl;
+                state.audio.title = audioTitle;
 
-    window.rewindVideo = function() {
-        elapsedPlayTime = 0;
-        drawFrameAt(0);
-        updateProgressUI();
-        if (isPlaying) {
-            startTime = performance.now();
-            audioEl.currentTime = 0;
-        }
-    };
-
-    window.toggleMute = function() {
-        isMuted = !isMuted;
-        audioEl.muted = isMuted;
-        const icon = document.getElementById('volIcon');
-        if (icon) {
-            icon.className = isMuted ? 'bi bi-volume-mute-fill fs-5 text-danger' : 'bi bi-volume-up-fill fs-5';
-        }
-    };
-
-    function playVideo() {
-        if (isExporting) return;
-        isPlaying = true;
-        
-        if (playOverlayBtn) playOverlayBtn.style.display = 'none';
-        if (monitorPlayToggle) monitorPlayToggle.innerHTML = '<i class="bi bi-pause-circle-fill fs-4 text-cyan"></i>';
-        
-        if (elapsedPlayTime >= videoDuration * 1000) {
-            elapsedPlayTime = 0;
-        }
-        
-        startTime = performance.now() - elapsedPlayTime;
-        audioEl.currentTime = elapsedPlayTime / 1000;
-        audioEl.play().catch(e => console.error(e));
-
-        renderInterval = requestAnimationFrame(tick);
-    }
-
-    function pauseVideo() {
-        isPlaying = false;
-        if (playOverlayBtn) playOverlayBtn.style.display = 'block';
-        if (monitorPlayToggle) monitorPlayToggle.innerHTML = '<i class="bi bi-play-circle-fill fs-4 text-cyan"></i>';
-        
-        audioEl.pause();
-        if (renderInterval) cancelAnimationFrame(renderInterval);
-    }
-
-    function tick(now) {
-        if (!isPlaying) return;
-
-        elapsedPlayTime = now - startTime;
-        
-        if (elapsedPlayTime >= videoDuration * 1000) {
-            elapsedPlayTime = videoDuration * 1000;
-            drawFrameAt(elapsedPlayTime);
-            updateProgressUI();
-            pauseVideo();
-            return;
-        }
-
-        drawFrameAt(elapsedPlayTime);
-        updateProgressUI();
-        
-        renderInterval = requestAnimationFrame(tick);
-    }
-
-    function updateProgressUI() {
-        const pct = Math.min((elapsedPlayTime / (videoDuration * 1000)) * 100, 100);
-        if (timelinePlayhead) timelinePlayhead.style.left = `${pct}%`;
-
-        const curMin = Math.floor(elapsedPlayTime / 60000);
-        const curSec = Math.floor((elapsedPlayTime % 60000) / 1000);
-        const durStr = `00:${String(videoDuration).padStart(2, '0')}`;
-        const timeStr = `${String(curMin).padStart(2, '0')}:${String(curSec).padStart(2, '0')} / ${durStr}`;
-        
-        if (playerTimeLabel) playerTimeLabel.innerText = timeStr;
-        if (headerTimeIndicator) headerTimeIndicator.innerText = timeStr;
-    }
-
-    // --- CAPCUT EXPORT PIPELINE ---
-    const exportModalEl = document.getElementById('capcutExportModal');
-    let exportModal = null;
-    if (exportModalEl && typeof bootstrap !== 'undefined') {
-        exportModal = bootstrap.Modal.getOrCreateInstance(exportModalEl);
-    }
-
-    if (btnOpenExportModal) {
-        btnOpenExportModal.addEventListener('click', () => {
-            if (loadedImages.length < 3) {
-                alert('Vui lòng chọn ít nhất 3 ảnh để xuất video!');
-                return;
-            }
-            if (exportModal) exportModal.show();
-        });
-    }
-
-    if (startExportProcessBtn) {
-        startExportProcessBtn.addEventListener('click', async () => {
-            if (loadedImages.length < 3) return;
-            
-            pauseVideo();
-            isExporting = true;
-            startExportProcessBtn.setAttribute('disabled', 'true');
-            if (exportStatusPanel) exportStatusPanel.classList.remove('d-none');
-            
-            try {
-                if (!audioContext) {
-                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
-                    audioSource = audioContext.createMediaElementSource(audioEl);
-                    audioDestination = audioContext.createMediaStreamDestination();
-                    audioSource.connect(audioDestination);
-                    audioSource.connect(audioContext.destination);
+                if (DOM.bgAudio) {
+                    DOM.bgAudio.src = audioUrl;
+                    if (state.isPlaying) DOM.bgAudio.play().catch(() => {});
                 }
-                
-                const canvasStream = canvas.captureStream(30);
-                const audioTrackStream = audioDestination.stream;
-                
-                const combinedStream = new MediaStream([
+                if (DOM.tlAudioName) DOM.tlAudioName.textContent = audioTitle;
+            });
+        });
+
+        // Custom MP3 Upload
+        const customAudio = document.getElementById('customAudioUpload');
+        if (customAudio) {
+            customAudio.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                state.audio.url = url;
+                state.audio.title = file.name.replace(/\.[^/.]+$/, '');
+                if (DOM.bgAudio) DOM.bgAudio.src = url;
+                if (DOM.tlAudioName) DOM.tlAudioName.textContent = state.audio.title;
+            });
+        }
+    }
+
+    // ==========================================
+    // 11. VIDEO EXPORT ENGINE
+    // ==========================================
+    function bindExportEvents() {
+        if (DOM.btnOpenExportModal) {
+            DOM.btnOpenExportModal.addEventListener('click', () => {
+                if (DOM.exportModal) DOM.exportModal.style.display = 'block';
+                const ratioBadge = document.getElementById('exportRatioBadge');
+                if (ratioBadge) ratioBadge.textContent = state.aspectRatio;
+            });
+        }
+
+        if (DOM.btnCloseExportModal) {
+            DOM.btnCloseExportModal.addEventListener('click', () => {
+                if (DOM.exportModal) DOM.exportModal.style.display = 'none';
+            });
+        }
+
+        if (DOM.btnStartExport) {
+            DOM.btnStartExport.addEventListener('click', startExporting);
+        }
+    }
+
+    async function startExporting() {
+        if (!DOM.canvas) return;
+
+        state.isPlaying = false;
+        if (DOM.btnPlayPause) DOM.btnPlayPause.innerHTML = '<i class="bi bi-play-circle-fill"></i>';
+        if (DOM.bgAudio) DOM.bgAudio.pause();
+
+        if (DOM.exportProgressWrapper) DOM.exportProgressWrapper.classList.remove('d-none');
+        if (DOM.btnStartExport) {
+            DOM.btnStartExport.disabled = true;
+            DOM.btnStartExport.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>ĐANG XỬ LÝ...';
+        }
+
+        try {
+            // Audio Stream setup
+            let audioStream = null;
+            if (DOM.bgAudio && DOM.bgAudio.src && !state.audio.isMuted) {
+                try {
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const dest = audioCtx.createMediaStreamDestination();
+                    const source = audioCtx.createMediaElementSource(DOM.bgAudio);
+                    source.connect(dest);
+                    source.connect(audioCtx.destination);
+                    audioStream = dest.stream;
+                } catch(e) {}
+            }
+
+            // Canvas Stream setup
+            const canvasStream = DOM.canvas.captureStream(state.fps);
+            let combinedStream = canvasStream;
+            if (audioStream && audioStream.getAudioTracks().length > 0) {
+                combinedStream = new MediaStream([
                     ...canvasStream.getVideoTracks(),
-                    ...audioTrackStream.getAudioTracks()
+                    ...audioStream.getAudioTracks()
                 ]);
-                
-                let options = { mimeType: 'video/webm;codecs=vp9' };
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                    options = { mimeType: 'video/webm;codecs=vp8' };
-                }
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                    options = { mimeType: 'video/webm' };
-                }
-                if (!MediaRecorder.isTypeSupported(options.mimeType)) {
-                    options = {};
+            }
+
+            const mimeType = MediaRecorder.isTypeSupported('video/mp4;codecs=avc1') ? 'video/mp4;codecs=avc1' :
+                             (MediaRecorder.isTypeSupported('video/webm;codecs=vp9') ? 'video/webm;codecs=vp9' : 'video/webm');
+
+            const recorder = new MediaRecorder(combinedStream, {
+                mimeType,
+                videoBitsPerSecond: 5000000 // 5 Mbps Full HD
+            });
+
+            const chunks = [];
+            recorder.ondataavailable = (e) => {
+                if (e.data && e.data.size > 0) chunks.push(e.data);
+            };
+
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: mimeType });
+                const videoUrl = URL.createObjectURL(blob);
+
+                // Auto download
+                const a = document.createElement('a');
+                a.href = videoUrl;
+                a.download = (state.title || 'BinhLoi_Video') + (mimeType.includes('mp4') ? '.mp4' : '.webm');
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+
+                if (DOM.exportStatusLabel) DOM.exportStatusLabel.textContent = 'Xuất video thành công!';
+                if (DOM.exportProgressBar) DOM.exportProgressBar.style.width = '100%';
+                if (DOM.exportPercentLabel) DOM.exportPercentLabel.textContent = '100%';
+
+                setTimeout(() => {
+                    if (DOM.exportModal) DOM.exportModal.style.display = 'none';
+                    if (DOM.exportProgressWrapper) DOM.exportProgressWrapper.classList.add('d-none');
+                    if (DOM.btnStartExport) {
+                        DOM.btnStartExport.disabled = false;
+                        DOM.btnStartExport.innerHTML = '<i class="bi bi-download fs-5 me-2"></i>BẮT ĐẦU XUẤT VIDEO';
+                    }
+                }, 1500);
+            };
+
+            recorder.start(100);
+
+            // Frame-accurate step loop
+            const totalFrames = Math.round(state.duration * state.fps);
+            let currentFrame = 0;
+
+            if (DOM.bgAudio && !state.audio.isMuted) {
+                DOM.bgAudio.currentTime = 0;
+                DOM.bgAudio.play().catch(() => {});
+            }
+
+            const exportInterval = setInterval(() => {
+                if (currentFrame >= totalFrames) {
+                    clearInterval(exportInterval);
+                    if (DOM.bgAudio) DOM.bgAudio.pause();
+                    recorder.stop();
+                    return;
                 }
 
-                const recorder = new MediaRecorder(combinedStream, options);
-                const chunks = [];
-                
-                recorder.ondataavailable = (e) => {
-                    if (e.data && e.data.size > 0) chunks.push(e.data);
-                };
-                
-                recorder.onstop = () => {
-                    const blob = new Blob(chunks, { type: 'video/webm' });
-                    const url = URL.createObjectURL(blob);
-                    
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `capcut_binh_loi_${Date.now()}.webm`;
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    
-                    isExporting = false;
-                    startExportProcessBtn.removeAttribute('disabled');
-                    if (exportStatusPanel) exportStatusPanel.classList.add('d-none');
-                    if (exportModal) exportModal.hide();
-                    
-                    if (typeof showToast === 'function') {
-                        showToast('Xuất video thành công! Tệp tin đã được lưu về máy của bạn.', 'success');
-                    } else {
-                        alert('Xuất video thành công! Tệp tin đã được lưu về máy của bạn.');
-                    }
-                };
-                
-                recorder.start();
-                audioEl.currentTime = 0;
-                audioEl.play().catch(e => console.error(e));
-                
-                const exportStartTime = performance.now();
-                const exportTimer = setInterval(() => {
-                    const elapsed = performance.now() - exportStartTime;
-                    const pct = Math.min((elapsed / (videoDuration * 1000)) * 100, 100);
-                    
-                    if (exportProgressBar) exportProgressBar.style.width = `${pct}%`;
-                    if (exportStatusText) exportStatusText.innerText = `Đang mã hóa video... (${Math.round(pct)}%)`;
-                    
-                    drawFrameAt(elapsed);
-                    
-                    if (elapsed >= videoDuration * 1000) {
-                        clearInterval(exportTimer);
-                        recorder.stop();
-                        audioEl.pause();
-                    }
-                }, 1000 / 30);
-                
-            } catch (err) {
-                console.error("Export video error:", err);
-                alert("Lỗi xuất video: " + err.message);
-                isExporting = false;
-                startExportProcessBtn.removeAttribute('disabled');
-                if (exportStatusPanel) exportStatusPanel.classList.add('d-none');
+                state.currentTime = currentFrame / state.fps;
+                drawFrame();
+
+                currentFrame++;
+                const pct = Math.round((currentFrame / totalFrames) * 100);
+                if (DOM.exportProgressBar) DOM.exportProgressBar.style.width = pct + '%';
+                if (DOM.exportPercentLabel) DOM.exportPercentLabel.textContent = pct + '%';
+            }, 1000 / state.fps);
+
+        } catch (err) {
+            console.error('Export error:', err);
+            alert('Lỗi xuất video: ' + err.message);
+            if (DOM.btnStartExport) {
+                DOM.btnStartExport.disabled = false;
+                DOM.btnStartExport.innerHTML = 'BẮT ĐẦU XUẤT VIDEO';
             }
-        });
+        }
     }
 
-    // Initial Setup
-    updateDurationUI();
-    drawFrameAt(0);
-});
+    // Run on DOM Ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initStudio);
+    } else {
+        initStudio();
+    }
+
+})();

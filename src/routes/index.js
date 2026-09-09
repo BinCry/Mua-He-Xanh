@@ -270,9 +270,11 @@ router.get('/workshops', (req, res) => res.redirect(301, '/shops'));
 router.get('/workshops/:id', (req, res) => res.redirect(301, '/shops/' + req.params.id));
 router.get('/my-workshops', ensureAuthenticated, (req, res) => res.redirect(301, '/my-shops'));
 
-// ===== COMMUNITY (Reviews) =====
+// ===== COMMUNITY (Reviews) & BÌNH LỢI STUDIO =====
 router.get('/reviews', ReviewController.index);
-router.get('/reviews/video-editor', ensureAuthenticated, ReviewController.videoEditor);
+router.get('/reviews/video-editor', ReviewController.videoEditor);
+router.get('/api/video-templates', ReviewController.getVideoTemplates);
+router.post('/api/video-templates/create', upload.any(), ReviewController.createVideoTemplate);
 
 // ===== MAP =====
 router.get('/map', MapController.index);
@@ -478,10 +480,14 @@ router.post('/api/admin/create-shop-product', ensureAdmin, AdminController.creat
 router.post('/api/admin/update-shop-product', ensureAdmin, AdminController.updateWorkshop);
 router.post('/api/admin/delete-shop-product', ensureAdmin, AdminController.deleteWorkshop);
 
-// Admin API - Reviews
+// Admin API - Reviews & Studio Video Templates
 router.post('/api/admin/delete-review', ensureAdmin, AdminController.deleteReview);
 router.post('/api/admin/create-soundscape', ensureAdmin, upload.single('audio'), AdminController.createSoundscape);
 router.post('/api/admin/delete-soundscape', ensureAdmin, AdminController.deleteSoundscape);
+router.post('/api/admin/create-video-template', ensureAdmin, upload.any(), AdminController.createVideoTemplate);
+router.post('/api/admin/update-video-template', ensureAdmin, upload.any(), AdminController.updateVideoTemplate);
+router.post('/api/admin/delete-video-template', ensureAdmin, AdminController.deleteVideoTemplate);
+router.post('/api/admin/toggle-video-template', ensureAdmin, AdminController.toggleVideoTemplate);
 
 // Admin API - Events
 router.post('/api/admin/create-event', ensureAdmin, AdminController.createEvent);

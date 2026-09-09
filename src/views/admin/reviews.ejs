@@ -1,8 +1,8 @@
-<!-- Admin: Reviews & Soundscape Management -->
+<!-- Admin: Reviews, Soundscape & Video Template Management -->
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Cộng đồng & Soundscape</h4>
-        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Duyệt đánh giá từ du khách và quản lý thư viện âm thanh chữa lành.</p>
+        <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Cộng đồng & Bình Lợi Studio</h4>
+        <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Duyệt đánh giá, quản lý thư viện âm thanh và tạo mẫu video Bình Lợi Studio cho du khách.</p>
     </div>
 </div>
 
@@ -14,14 +14,19 @@
         </button>
     </li>
     <li class="nav-item" role="presentation">
-        <button class="nav-link fw-bold text-muted border-0 bg-transparent position-relative pb-2" id="soundscapes-tab" data-bs-toggle="tab" data-bs-target="#soundscapes-pane" type="button" role="tab" style="outline: none;">
+        <button class="nav-link fw-bold text-muted border-0 bg-transparent position-relative pb-2 me-3" id="soundscapes-tab" data-bs-toggle="tab" data-bs-target="#soundscapes-pane" type="button" role="tab" style="outline: none;">
             <i class="bi bi-music-note-beamed me-2"></i>Âm thanh Soundscape
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link fw-bold text-muted border-0 bg-transparent position-relative pb-2" id="templates-tab" data-bs-toggle="tab" data-bs-target="#templates-pane" type="button" role="tab" style="outline: none;">
+            <i class="bi bi-camera-reels-fill me-2 text-danger"></i>Mẫu Video Bình Lợi Studio
         </button>
     </li>
 </ul>
 
 <div class="tab-content" id="communityTabsContent">
-    <!-- Reviews Tab Pane -->
+    <!-- 1. Reviews Tab Pane -->
     <div class="tab-pane fade show active" id="reviews-pane" role="tabpanel" tabindex="0">
         <!-- Filter by Destination -->
         <div class="mb-4 d-flex gap-2 flex-wrap">
@@ -107,7 +112,7 @@
         </div>
     </div>
 
-    <!-- Soundscapes Tab Pane -->
+    <!-- 2. Soundscapes Tab Pane -->
     <div class="tab-pane fade" id="soundscapes-pane" role="tabpanel" tabindex="0">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h5 class="fw-bold mb-0">Thư viện Âm thanh Soundscape</h5>
@@ -161,6 +166,97 @@
             </table>
         </div>
     </div>
+
+    <!-- 3. Video Templates Tab Pane (Bình Lợi Studio) -->
+    <div class="tab-pane fade" id="templates-pane" role="tabpanel" tabindex="0">
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold mb-0">Mẫu Video Bình Lợi Studio</h5>
+                <p class="text-muted small mb-0">Tạo mẫu video, quy định thời lượng và mốc thời gian (giây) từng ảnh để người dùng chỉ cần chọn ảnh là tạo video ngay.</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="/reviews/video-editor" target="_blank" class="btn btn-outline-dark btn-sm rounded-pill px-3 fw-semibold">
+                    <i class="bi bi-play-circle me-1 text-danger"></i>Mở Bình Lợi Studio
+                </a>
+                <button class="btn btn-primary btn-sm rounded-pill px-3.5 fw-bold" onclick="openAddTemplateModal()">
+                    <i class="bi bi-plus-lg me-1"></i>Thêm mẫu video mới
+                </button>
+            </div>
+        </div>
+
+        <!-- Video Templates Grid / Table -->
+        <div class="row g-3">
+            <% if (typeof videoTemplates !== 'undefined' && videoTemplates && videoTemplates.length > 0) { %>
+                <% videoTemplates.forEach(tpl => { 
+                    const slotsCount = Array.isArray(tpl.slots) ? tpl.slots.length : 0;
+                %>
+                <div class="col-12 col-md-6 col-xl-4" id="template-card-<%= tpl.id %>">
+                    <div class="card h-100 border-0 rounded-4 shadow-sm overflow-hidden" style="background: var(--admin-surface); border: 1px solid var(--admin-border) !important;">
+                        <div class="position-relative bg-dark" style="height: 180px; overflow: hidden;">
+                            <img src="<%= fixImg(tpl.cover_image || '/images/Poster 1.jpg') %>" class="w-100 h-100 object-fit-cover opacity-85">
+                            <span class="position-absolute top-0 start-0 m-2 badge bg-dark bg-opacity-75 text-white border border-light border-opacity-25 rounded-pill px-2.5 py-1" style="font-size: 0.72rem;">
+                                <i class="bi bi-stopwatch text-warning me-1"></i><%= tpl.duration_seconds %>s · <%= slotsCount %> ảnh
+                            </span>
+                            <span class="position-absolute top-0 end-0 m-2 badge <%= tpl.is_active ? 'bg-success' : 'bg-secondary' %> rounded-pill px-2.5 py-1">
+                                <%= tpl.is_active ? 'Đang hoạt động' : 'Tạm ẩn' %>
+                            </span>
+                            <div class="position-absolute bottom-0 start-0 end-0 p-2 text-white bg-gradient-dark" style="background: linear-gradient(0deg, rgba(0,0,0,0.85) 0%, transparent 100%);">
+                                <div class="fw-bold small text-truncate"><%= tpl.title %></div>
+                                <div class="x-small text-white-50 text-truncate"><i class="bi bi-music-note me-1 text-cyan"></i><%= tpl.audio_title || 'Nhạc nền Bình Lợi' %></div>
+                            </div>
+                        </div>
+                        <div class="card-body p-3 d-flex flex-column">
+                            <p class="small text-muted mb-3 flex-grow-1" style="font-size: 0.8rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                                <%= tpl.description || 'Chưa có mô tả' %>
+                            </p>
+
+                            <!-- Mini Slot Timeline Preview -->
+                            <div class="mb-3 p-2 bg-light rounded-3 border">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <span class="x-small fw-bold text-muted">PHÂN ĐOẠN THỜI GIAN</span>
+                                    <span class="badge bg-secondary text-white font-monospace" style="font-size: 0.65rem;">Tổng: <%= tpl.duration_seconds %>s</span>
+                                </div>
+                                <div class="d-flex gap-1" style="height: 18px;">
+                                    <% if (Array.isArray(tpl.slots)) { %>
+                                        <% tpl.slots.forEach((sl, idx) => { 
+                                            const widthPct = Math.max(10, ((sl.end_time - sl.start_time) / tpl.duration_seconds) * 100);
+                                        %>
+                                            <div class="rounded-1 text-white x-small fw-bold d-flex align-items-center justify-content-center text-truncate px-1" 
+                                                 style="width: <%= widthPct %>%; background: <%= ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4'][idx % 5] %>; font-size: 0.58rem;" 
+                                                 title="<%= sl.title %>: <%= sl.start_time %>s - <%= sl.end_time %>s">
+                                                <%= sl.start_time %>s-<%= sl.end_time %>s
+                                            </div>
+                                        <% }) %>
+                                    <% } %>
+                                </div>
+                            </div>
+
+                            <div class="d-flex align-items-center justify-content-between pt-2 border-top gap-1">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill px-2.5 py-1 x-small fw-bold" onclick="toggleTemplateStatus('<%= tpl.id %>')">
+                                    <i class="bi <%= tpl.is_active ? 'bi-eye-slash text-warning' : 'bi-eye text-success' %> me-1"></i><%= tpl.is_active ? 'Ẩn' : 'Hiện' %>
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary rounded-pill px-2.5 py-1 x-small fw-bold" onclick="openEditTemplateModal('<%= encodeURIComponent(JSON.stringify(tpl)) %>')">
+                                    <i class="bi bi-pencil me-1"></i>Chỉnh sửa
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-2.5 py-1 x-small fw-bold" onclick="deleteVideoTemplate('<%= tpl.id %>')">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }) %>
+            <% } else { %>
+                <div class="col-12 py-5 text-center text-muted">
+                    <i class="bi bi-camera-reels display-4 d-block text-secondary opacity-50 mb-2"></i>
+                    <p class="mb-2">Chưa có mẫu video nào. Hãy thêm mẫu đầu tiên để du khách trải nghiệm!</p>
+                    <button class="btn btn-primary btn-sm rounded-pill px-3.5 fw-bold" onclick="openAddTemplateModal()">
+                        <i class="bi bi-plus-lg me-1"></i>Tạo mẫu video ngay
+                    </button>
+                </div>
+            <% } %>
+        </div>
+    </div>
 </div>
 
 <!-- Add Soundscape Modal -->
@@ -202,6 +298,218 @@
             </div>
         </div>
     </div>
+</div>
+
+<!-- Add/Edit Video Template Modal (Bình Lợi Studio Builder - 2-Step Wizard) -->
+<div class="modal fade" id="videoTemplateModal" tabindex="-1" aria-hidden="true" style="z-index: 1070;">
+    <div class="modal-dialog modal-dialog-centered modal-xl">
+        <div class="modal-content border-0 rounded-4 shadow-2xl overflow-hidden" style="background: var(--admin-surface, #ffffff);">
+            <div class="modal-header border-bottom border-secondary border-opacity-10 py-3 px-4" style="background: linear-gradient(135deg, #922724 0%, #7a1f1d 100%);">
+                <div class="d-flex align-items-center gap-2.5">
+                    <div class="bg-white bg-opacity-20 rounded-circle p-1.5 d-flex align-items-center justify-content-center text-white" style="width: 34px; height: 34px;">
+                        <i class="bi bi-camera-reels fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold text-white fs-6 mb-0" id="templateModalTitle">Thiết Lập Mẫu Video Bình Lợi Studio</h5>
+                        <div class="text-white-50 x-small" style="font-size: 0.72rem;">Quy trình 2 bước trực quan: Cấu hình thông tin ➔ Phân bổ thời gian & kịch bản phân cảnh</div>
+                    </div>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form id="videoTemplateForm" onsubmit="saveVideoTemplate(event)">
+                <input type="hidden" id="tpl_id" name="id" value="">
+                
+                <div class="modal-body p-4 custom-scrollbar" style="max-height: calc(85vh - 120px); overflow-y: auto;">
+                    <!-- Step Indicator Tabs -->
+                    <ul class="nav nav-pills nav-fill mb-4 bg-light p-1.5 rounded-pill border" id="adminTemplateWizardTabs" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active rounded-pill fw-bold py-2 px-4 d-flex align-items-center justify-content-center gap-2" id="step1-tab" data-bs-toggle="pill" data-bs-target="#step1-pane" type="button" role="tab">
+                                <span class="badge bg-primary rounded-circle p-0 d-flex align-items-center justify-content-center" style="width:20px; height:20px; font-size: 0.7rem;">1</span>
+                                <span>Bước 1: Thông Tin & Nhạc Nền</span>
+                            </button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link rounded-pill fw-bold py-2 px-4 d-flex align-items-center justify-content-center gap-2" id="step2-tab" data-bs-toggle="pill" data-bs-target="#step2-pane" type="button" role="tab">
+                                <span class="badge bg-danger rounded-circle p-0 d-flex align-items-center justify-content-center" style="width:20px; height:20px; font-size: 0.7rem;">2</span>
+                                <span>Bước 2: Phân Cảnh & Thời Lượng (<span id="tab2SlotsCount">4 cảnh</span>)</span>
+                            </button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="adminTemplateWizardContent">
+                        <!-- TAB PANE 1: THÔNG TIN & NHẠC NỀN -->
+                        <div class="tab-pane fade show active" id="step1-pane" role="tabpanel">
+                            <div class="row g-4">
+                                <!-- Col 1: Basic Information -->
+                                <div class="col-12 col-md-6">
+                                    <div class="card border rounded-3 p-3.5 h-100 bg-white shadow-none">
+                                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
+                                            <i class="bi bi-card-heading text-primary"></i> 1. Thông Tin Cơ Bản
+                                        </h6>
+                                        
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold mb-1">Tên mẫu video <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control admin-input" id="tpl_title" name="title" required placeholder="Ví dụ: Khám Phá Vườn Mai 15s (Hot Trend)">
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label small fw-bold mb-1">Mô tả ngắn</label>
+                                            <textarea class="form-control admin-input" id="tpl_description" name="description" rows="3" placeholder="Gợi ý nội dung, nhịp điệu chuyển cảnh, không khí phù hợp..."></textarea>
+                                        </div>
+
+                                        <div class="row g-3">
+                                            <div class="col-7">
+                                                <label class="form-label small fw-bold mb-1">Tổng thời lượng <span class="text-danger">*</span></label>
+                                                <select class="form-select admin-input fw-semibold" id="tpl_duration" name="duration_seconds" onchange="onTemplateDurationChange(this.value)">
+                                                    <option value="15">15 Giây (TikTok / Story)</option>
+                                                    <option value="20">20 Giây (Reels / Trải nghiệm)</option>
+                                                    <option value="30">30 Giây (Vlog Toàn Cảnh)</option>
+                                                    <option value="10">10 Giây (Teaser Ngắn)</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-5">
+                                                <label class="form-label small fw-bold mb-1">Thứ tự hiển thị</label>
+                                                <input type="number" class="form-control admin-input font-monospace" id="tpl_sort_order" name="sort_order" value="1" min="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Col 2: Cover Image & Audio Selection -->
+                                <div class="col-12 col-md-6">
+                                    <!-- Cover Image Card -->
+                                    <div class="card border rounded-3 p-3.5 mb-3 bg-white shadow-none">
+                                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
+                                            <i class="bi bi-image text-success"></i> 2. Ảnh Bìa Đại Diện (Cover 9:16)
+                                        </h6>
+                                        <div class="d-flex gap-3 align-items-start">
+                                            <div class="position-relative rounded-2 overflow-hidden border bg-dark flex-shrink-0 shadow-sm" style="width: 82px; height: 110px;">
+                                                <img id="tpl_cover_preview" src="/images/Poster 1.jpg" class="w-100 h-100 object-fit-cover" onerror="this.src='/images/Poster 1.jpg'">
+                                                <span class="position-absolute bottom-0 start-0 end-0 text-center x-small py-0.5 text-white bg-dark bg-opacity-75 font-monospace" style="font-size: 0.55rem;">Xem trước</span>
+                                            </div>
+                                            <div class="flex-grow-1 min-w-0">
+                                                <label class="form-label x-small fw-bold text-muted mb-1">Tải ảnh bìa mới từ máy:</label>
+                                                <input type="file" class="form-control form-control-sm admin-input mb-2" id="tpl_cover_file" name="cover_image" accept="image/*" onchange="previewCoverFile(this)">
+                                                <label class="form-label x-small fw-bold text-muted mb-1">Hoặc dán link URL ảnh:</label>
+                                                <input type="text" class="form-control form-control-sm admin-input font-monospace x-small" id="tpl_cover_url" name="cover_image_url" placeholder="/images/Poster 1.jpg" oninput="document.getElementById('tpl_cover_preview').src = this.value || '/images/Poster 1.jpg'">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Music Selection Card -->
+                                    <div class="card border rounded-3 p-3.5 bg-white shadow-none">
+                                        <h6 class="fw-bold text-dark border-bottom pb-2 mb-3 d-flex align-items-center gap-2">
+                                            <i class="bi bi-music-note-beamed text-info"></i> 3. Nhạc Nền Mẫu (Background Audio)
+                                        </h6>
+                                        
+                                        <div class="mb-2">
+                                            <label class="form-label small fw-bold mb-1">Tên bài nhạc hiển thị</label>
+                                            <input type="text" class="form-control form-control-sm admin-input" id="tpl_audio_title" name="audio_title" placeholder="Suối reo miệt vườn">
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label class="form-label x-small fw-bold text-muted mb-1">Chọn từ kho Soundscape Bình Lợi:</label>
+                                            <select class="form-select form-select-sm admin-input" id="tpl_soundscape_select" onchange="selectSoundscapeForTemplate(this)">
+                                                <option value="">-- Chọn bài nhạc Bình Lợi --</option>
+                                                <% if (typeof soundscapes !== 'undefined' && soundscapes) { %>
+                                                    <% soundscapes.forEach(sc => { %>
+                                                        <option value="<%= sc.audio_url %>" data-title="<%= sc.name %>"><%= sc.name %> (<%= sc.mood %>)</option>
+                                                    <% }) %>
+                                                <% } %>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-2">
+                                            <label class="form-label x-small fw-bold text-muted mb-1">Hoặc tải file nhạc riêng (MP3/WAV):</label>
+                                            <input type="file" class="form-control form-control-sm admin-input mb-1" id="tpl_audio_file" name="audio_file" accept="audio/*" onchange="previewAudioFile(this)">
+                                            <input type="text" class="form-control form-control-sm admin-input font-monospace x-small" id="tpl_audio_url" name="audio_url" placeholder="/audio/peaceful_stream.mp3" oninput="updateAudioPlayer(this.value)">
+                                        </div>
+
+                                        <div class="p-2 rounded-2 bg-light border d-flex align-items-center gap-2 mt-2">
+                                            <audio id="tpl_audio_player" controls class="w-100" style="height: 32px;"></audio>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Big Button to Step 2 -->
+                            <div class="d-flex justify-content-end mt-4 pt-3 border-top">
+                                <button type="button" class="btn btn-primary rounded-pill px-4 py-2 fw-bold d-flex align-items-center gap-2 shadow-sm" onclick="goToTemplateStep(2)" style="background: #922724; border-color: #922724;">
+                                    <span>Tiếp Tục: Thiết Lập Phân Cảnh (Bước 2)</span>
+                                    <i class="bi bi-arrow-right fs-6"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TAB PANE 2: PHÂN CẢNH & THỜI LƯỢNG (TIMELINE BUILDER) -->
+                        <div class="tab-pane fade" id="step2-pane" role="tabpanel">
+                            <!-- Timeline Header Toolbar -->
+                            <div class="card border rounded-3 p-3 mb-3 bg-light bg-opacity-60 shadow-none">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2.5">
+                                    <div>
+                                        <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2">
+                                            <i class="bi bi-layers-half text-danger"></i> Kịch Bản Phân Cảnh (Slots Timeline)
+                                        </h6>
+                                        <small class="text-muted" style="font-size: 0.74rem;">
+                                            Chỉ cần điều chỉnh số giây từng cảnh, hệ thống sẽ tự động liên kết các mốc thời gian liên tục mà không cần tính nhẩm!
+                                        </small>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5" onclick="autoRecalculateSlots()">
+                                            <i class="bi bi-magic"></i> ✨ Chia Đều Giây
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5" onclick="addSlotRow()">
+                                            <i class="bi bi-plus-circle-fill"></i> Thêm Cảnh Mới
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Visual Colorful Timeline Bar -->
+                                <div class="p-2 rounded-2 bg-white border">
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <span class="x-small fw-bold text-muted text-uppercase" style="letter-spacing: 0.5px;">Sơ đồ trực quan</span>
+                                        <span id="slotsSumBadge" class="badge bg-success font-monospace" style="font-size: 0.72rem;">✓ Khớp 15.0s / 15s</span>
+                                    </div>
+                                    <div class="d-flex gap-1 rounded-2 overflow-hidden bg-secondary bg-opacity-20 p-1" id="visualSlotsProgressBar" style="min-height: 28px;">
+                                        <!-- Dynamic colored progress segments -->
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Slots Builder Container -->
+                            <div id="slotsBuilderContainer" class="d-flex flex-column gap-2.5 mb-3 custom-scrollbar" style="max-height: 460px; overflow-y: auto; padding-right: 4px;">
+                                <!-- Dynamic slot cards inserted here -->
+                            </div>
+
+                            <!-- Summary & Navigation Footer for Step 2 -->
+                            <div class="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <button type="button" class="btn btn-outline-secondary rounded-pill px-3.5 py-1.5 fw-semibold d-flex align-items-center gap-1.5" onclick="goToTemplateStep(1)">
+                                    <i class="bi bi-arrow-left"></i> Quay lại Bước 1
+                                </button>
+                                
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="small text-muted">
+                                        Tổng thời gian: <b class="text-dark font-monospace" id="slotsDurationSumLabel">15.0s</b> / <b class="text-primary font-monospace" id="targetDurationLabel">15s</b>
+                                    </div>
+                                    <span class="badge bg-dark px-2.5 py-1 text-white font-monospace" id="slotsCountLabel">4 phân cảnh</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer border-top border-secondary border-opacity-10 py-2.5 px-4 bg-light d-flex justify-content-between">
+                    <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                    <button type="submit" class="btn btn-primary rounded-pill px-5 fw-bold shadow-sm" id="btnSaveTemplate" style="background: #922724; border-color: #922724;">
+                        <i class="bi bi-check2-circle me-1.5"></i>LƯU MẪU VIDEO BÌNH LỢI STUDIO
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <!-- Review Detail Modal Popup -->
 <div class="modal fade" id="viewReviewModal" tabindex="-1" aria-hidden="true" style="z-index: 1060 !important;">
     <div class="modal-dialog modal-dialog-centered modal-lg">
@@ -251,9 +559,24 @@
 #communityTabs .nav-link:hover {
     color: var(--admin-primary) !important;
 }
+
+.slot-builder-row {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 10px 14px;
+    transition: all 0.2s ease;
+}
+.slot-builder-row:hover {
+    border-color: #cbd5e1;
+    background: #ffffff;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+.text-cyan { color: #00f0ff !important; }
 </style>
 
 <script>
+// --- REVIEWS & SOUNDSCAPES FUNCTIONS ---
 function openReviewModalFromBtn(btn) {
     try {
         const rawAttr = btn.getAttribute('data-review');
@@ -315,12 +638,6 @@ function viewReviewModal(id, userName, avatar, content, location, images, rating
     modal.show();
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    const modalEl = document.getElementById('viewReviewModal');
-    if (modalEl && modalEl.parentNode !== document.body) {
-        document.body.appendChild(modalEl);
-    }
-});
 function deleteReview(id) {
     showAdminConfirm('Bạn có chắc chắn muốn xóa bài đánh giá này?', async () => {
         try {
@@ -391,5 +708,427 @@ function deleteSoundscape(id) {
         }
     });
 }
-</script>
 
+// --- VIDEO TEMPLATES (BINH LOI STUDIO) BUILDER FUNCTIONS ---
+let templateModalInstance = null;
+
+function getTemplateModal() {
+    if (!templateModalInstance) {
+        const el = document.getElementById('videoTemplateModal');
+        if (el) {
+            if (el.parentNode !== document.body) document.body.appendChild(el);
+            templateModalInstance = bootstrap.Modal.getOrCreateInstance(el);
+        }
+    }
+    return templateModalInstance;
+}
+
+function previewCoverFile(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = e => {
+            const preview = document.getElementById('tpl_cover_preview');
+            if (preview) preview.src = e.target.result;
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function previewAudioFile(input) {
+    if (input.files && input.files[0]) {
+        const url = URL.createObjectURL(input.files[0]);
+        updateAudioPlayer(url);
+    }
+}
+
+function updateAudioPlayer(url) {
+    const player = document.getElementById('tpl_audio_player');
+    if (player && url) {
+        player.src = url;
+    }
+}
+
+function selectSoundscapeForTemplate(sel) {
+    if (!sel.value) return;
+    document.getElementById('tpl_audio_url').value = sel.value;
+    const opt = sel.options[sel.selectedIndex];
+    if (opt && opt.getAttribute('data-title')) {
+        document.getElementById('tpl_audio_title').value = opt.getAttribute('data-title');
+    }
+    updateAudioPlayer(sel.value);
+}
+
+function onTemplateDurationChange(val) {
+    document.getElementById('targetDurationLabel').innerText = `${val}s`;
+    autoRecalculateSlots();
+}
+
+const slotColors = ['#6366f1', '#10b981', '#f59e0b', '#ec4899', '#06b6d4', '#8b5cf6', '#14b8a6', '#f43f5e'];
+
+function openAddTemplateModal() {
+    document.getElementById('videoTemplateForm').reset();
+    document.getElementById('tpl_id').value = '';
+    document.getElementById('templateModalTitle').innerText = 'Thêm Mẫu Video Bình Lợi Studio';
+    document.getElementById('tpl_duration').value = '15';
+    document.getElementById('targetDurationLabel').innerText = '15s';
+    document.getElementById('tpl_cover_preview').src = '/images/Poster 1.jpg';
+    updateAudioPlayer('/audio/peaceful_stream.mp3');
+    
+    const container = document.getElementById('slotsBuilderContainer');
+    container.innerHTML = '';
+    
+    const defaultSlots = [
+        { slot_index: 1, title: 'Cảnh 1: Cổng chào & Đường làng mai', start_time: 0.0, end_time: 3.5, effect: 'kenburns', filter: 'warm', subtitle: 'Lạc vào miền xanh Bình Lợi...' },
+        { slot_index: 2, title: 'Cảnh 2: Check-in Vườn Mai vàng', start_time: 3.5, end_time: 7.5, effect: 'pan', filter: 'warm', subtitle: 'Hương mai thoang thoảng bờ kênh thanh mát.' },
+        { slot_index: 3, title: 'Cảnh 3: Chèo xuồng ba lá miệt vườn', start_time: 7.5, end_time: 11.0, effect: 'dissolve', filter: 'cool', subtitle: 'Chữa lành từ những điều mộc mạc nhất.' },
+        { slot_index: 4, title: 'Cảnh 4: Ẩm thực & Khoảnh khắc kết', start_time: 11.0, end_time: 15.0, effect: 'flash', filter: 'vintage', subtitle: 'Nghe Bình Lợi theo cách của bạn ✨' }
+    ];
+    
+    defaultSlots.forEach(s => addSlotRow(s));
+    updateSlotDurationSum();
+
+    goToTemplateStep(1);
+    getTemplateModal().show();
+}
+
+function openEditTemplateModal(encodedData) {
+    try {
+        const tpl = JSON.parse(decodeURIComponent(encodedData));
+        document.getElementById('videoTemplateForm').reset();
+        document.getElementById('tpl_id').value = tpl.id || '';
+        document.getElementById('templateModalTitle').innerText = 'Chỉnh Sửa Mẫu: ' + tpl.title;
+        document.getElementById('tpl_title').value = tpl.title || '';
+        document.getElementById('tpl_description').value = tpl.description || '';
+        document.getElementById('tpl_duration').value = tpl.duration_seconds || 15;
+        document.getElementById('targetDurationLabel').innerText = `${tpl.duration_seconds || 15}s`;
+        document.getElementById('tpl_sort_order').value = tpl.sort_order || 1;
+        document.getElementById('tpl_cover_url').value = tpl.cover_image || '';
+        document.getElementById('tpl_cover_preview').src = tpl.cover_image || '/images/Poster 1.jpg';
+        document.getElementById('tpl_audio_title').value = tpl.audio_title || 'Nhạc nền Bình Lợi';
+        document.getElementById('tpl_audio_url').value = tpl.audio_url || '';
+        updateAudioPlayer(tpl.audio_url || '');
+
+        const container = document.getElementById('slotsBuilderContainer');
+        container.innerHTML = '';
+        
+        const slots = Array.isArray(tpl.slots) ? tpl.slots : [];
+        if (slots.length > 0) {
+            slots.forEach(s => addSlotRow(s));
+        } else {
+            autoRecalculateSlots();
+        }
+
+        updateSlotDurationSum();
+        goToTemplateStep(1);
+        getTemplateModal().show();
+    } catch(e) {
+        console.error("Edit template error:", e);
+        showAdminToast('Lỗi đọc dữ liệu mẫu video: ' + e.message, 'error');
+    }
+}
+
+function goToTemplateStep(stepNum) {
+    const tabEl = document.getElementById(`step${stepNum}-tab`);
+    if (tabEl && window.bootstrap && window.bootstrap.Tab) {
+        const tabInstance = window.bootstrap.Tab.getOrCreateInstance(tabEl);
+        tabInstance.show();
+    }
+}
+
+function addSlotRow(slotData = null) {
+    const container = document.getElementById('slotsBuilderContainer');
+    const rowIdx = container.querySelectorAll('.slot-builder-row').length + 1;
+    const color = slotColors[(rowIdx - 1) % slotColors.length];
+    
+    const title = slotData?.title || slotData?.scene_name || `Cảnh ${rowIdx}: Phân đoạn mới`;
+    const start = slotData?.start_time !== undefined ? parseFloat(slotData.start_time) : 0.0;
+    const end = slotData?.end_time !== undefined ? parseFloat(slotData.end_time) : 3.5;
+    const subtitle = slotData?.subtitle || `Trải nghiệm Bình Lợi #${rowIdx}`;
+    const effect = slotData?.effect || 'kenburns';
+    const filter = slotData?.filter || 'none';
+    const duration = Math.max(0.5, (end - start) > 0 ? (end - start) : 3.5).toFixed(1);
+
+    const row = document.createElement('div');
+    row.className = 'slot-builder-row card border rounded-3 p-3 mb-2 shadow-sm bg-white';
+    row.style.borderLeft = `5px solid ${color}`;
+    row.innerHTML = `
+        <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
+            <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0 me-2">
+                <span class="badge rounded-pill px-2.5 py-1 fw-bold slot-badge-idx text-white" style="background: ${color}; font-size: 0.74rem;">Cảnh #${rowIdx}</span>
+                <input type="text" class="form-control form-control-sm admin-input slot-title-input py-1 px-2.5 fw-bold flex-grow-1" value="${title}" placeholder="Tên phân cảnh (vd: Check-in vườn mai)..." style="font-size: 0.84rem;">
+            </div>
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-light text-dark border font-monospace slot-time-range-badge" style="font-size: 0.72rem;">${start}s → ${end}s (${duration}s)</span>
+                <button type="button" class="btn btn-outline-danger btn-sm p-0 rounded-circle d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;" onclick="removeSlotRow(this)" title="Xóa phân cảnh này">
+                    <i class="bi bi-x-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="row g-2 align-items-center">
+            <!-- Duration Stepper -->
+            <div class="col-12 col-md-4">
+                <div class="p-1.5 rounded-2 bg-light border d-flex align-items-center justify-content-between">
+                    <span class="x-small fw-bold text-muted"><i class="bi bi-stopwatch text-danger me-1"></i>Thời lượng:</span>
+                    <div class="d-flex align-items-center gap-1">
+                        <button type="button" class="btn btn-sm btn-outline-secondary p-0 rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:24px; height:24px;" onclick="adjustSlotDuration(this, -0.5)">-</button>
+                        <input type="number" step="0.1" min="0.5" max="30" class="form-control form-control-sm admin-input slot-duration-input font-monospace text-center p-0 fw-bold text-primary" style="width: 50px; height: 26px;" value="${duration}" oninput="recalculateSequentialSlots()">
+                        <span class="x-small fw-bold text-muted me-1">s</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary p-0 rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width:24px; height:24px;" onclick="adjustSlotDuration(this, 0.5)">+</button>
+                    </div>
+                </div>
+                <!-- Hidden inputs for start_time & end_time for backward compatibility with saveVideoTemplate -->
+                <input type="hidden" class="slot-start-input" value="${start}">
+                <input type="hidden" class="slot-end-input" value="${end}">
+            </div>
+
+            <!-- Effect Dropdown -->
+            <div class="col-6 col-md-4">
+                <select class="form-select form-select-sm admin-input slot-effect-select py-1.5 x-small fw-semibold">
+                    <option value="kenburns" ${effect === 'kenburns' ? 'selected' : ''}>🎬 Zoom In (Ken Burns)</option>
+                    <option value="pan" ${effect === 'pan' ? 'selected' : ''}>↔ Pan Lướt Ngang</option>
+                    <option value="dissolve" ${effect === 'dissolve' ? 'selected' : ''}>⧗ Hòa Tan (Dissolve)</option>
+                    <option value="flash" ${effect === 'flash' ? 'selected' : ''}>⚡ Flash Sáng (TikTok)</option>
+                </select>
+            </div>
+
+            <!-- Filter Dropdown -->
+            <div class="col-6 col-md-4">
+                <select class="form-select form-select-sm admin-input slot-filter-select py-1.5 x-small fw-semibold">
+                    <option value="none" ${filter === 'none' ? 'selected' : ''}>🌿 Gốc (Natural)</option>
+                    <option value="warm" ${filter === 'warm' ? 'selected' : ''}>☀️ Nắng Ấm</option>
+                    <option value="cool" ${filter === 'cool' ? 'selected' : ''}>🎋 Rừng Trúc</option>
+                    <option value="vintage" ${filter === 'vintage' ? 'selected' : ''}>🎞 Phim Cổ</option>
+                    <option value="grayscale" ${filter === 'grayscale' ? 'selected' : ''}>🖤 Noir (Đen Trắng)</option>
+                </select>
+            </div>
+
+            <!-- Subtitle Input -->
+            <div class="col-12 mt-1">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-light text-muted x-small py-0.5"><i class="bi bi-chat-left-quote me-1"></i>Lời dẫn:</span>
+                    <input type="text" class="form-control form-control-sm admin-input slot-sub-input py-1 px-2.5 x-small" value="${subtitle}" placeholder="Gợi ý phụ đề hiển thị cho cảnh này...">
+                </div>
+            </div>
+        </div>
+    `;
+    container.appendChild(row);
+    recalculateSequentialSlots();
+}
+
+function adjustSlotDuration(btn, delta) {
+    const row = btn.closest('.slot-builder-row');
+    if (!row) return;
+    const durInput = row.querySelector('.slot-duration-input');
+    if (!durInput) return;
+    let cur = parseFloat(durInput.value) || 3.5;
+    cur = Math.max(0.5, Math.min(30.0, +(cur + delta).toFixed(1)));
+    durInput.value = cur.toFixed(1);
+    recalculateSequentialSlots();
+}
+
+function removeSlotRow(btn) {
+    const row = btn.closest('.slot-builder-row');
+    if (row) {
+        row.remove();
+        const rows = document.querySelectorAll('#slotsBuilderContainer .slot-builder-row');
+        rows.forEach((r, idx) => {
+            const color = slotColors[idx % slotColors.length];
+            r.style.borderLeft = `5px solid ${color}`;
+            const badge = r.querySelector('.slot-badge-idx');
+            if (badge) {
+                badge.innerText = `Cảnh #${idx + 1}`;
+                badge.style.background = color;
+            }
+        });
+        recalculateSequentialSlots();
+    }
+}
+
+function recalculateSequentialSlots() {
+    const rows = document.querySelectorAll('#slotsBuilderContainer .slot-builder-row');
+    let currentStart = 0.0;
+
+    rows.forEach((r, idx) => {
+        const durInput = r.querySelector('.slot-duration-input');
+        let dur = durInput ? parseFloat(durInput.value) || 3.5 : 3.5;
+        dur = Math.max(0.5, dur);
+
+        const startInput = r.querySelector('.slot-start-input');
+        const endInput = r.querySelector('.slot-end-input');
+        const timeBadge = r.querySelector('.slot-time-range-badge');
+
+        const st = +currentStart.toFixed(1);
+        const et = +(currentStart + dur).toFixed(1);
+
+        if (startInput) startInput.value = st;
+        if (endInput) endInput.value = et;
+        if (timeBadge) timeBadge.innerText = `${st}s → ${et}s (${dur.toFixed(1)}s)`;
+
+        currentStart = et;
+    });
+
+    updateSlotDurationSum();
+}
+
+function autoRecalculateSlots() {
+    const dur = parseFloat(document.getElementById('tpl_duration').value || '15');
+    const rows = document.querySelectorAll('#slotsBuilderContainer .slot-builder-row');
+    const count = rows.length || (dur === 30 ? 5 : 4);
+
+    if (rows.length === 0) {
+        for (let i = 0; i < count; i++) addSlotRow();
+    }
+
+    const currentRows = document.querySelectorAll('#slotsBuilderContainer .slot-builder-row');
+    const segDur = +(dur / currentRows.length).toFixed(1);
+
+    currentRows.forEach((r, idx) => {
+        const durInput = r.querySelector('.slot-duration-input');
+        const thisDur = (idx === currentRows.length - 1) 
+            ? +(dur - (idx * segDur)).toFixed(1) 
+            : segDur;
+        if (durInput) durInput.value = Math.max(0.5, thisDur).toFixed(1);
+    });
+
+    recalculateSequentialSlots();
+}
+
+function updateSlotDurationSum() {
+    const rows = document.querySelectorAll('#slotsBuilderContainer .slot-builder-row');
+    const targetDur = parseFloat(document.getElementById('tpl_duration').value || '15');
+    let maxEnd = 0;
+
+    const progressContainer = document.getElementById('visualSlotsProgressBar');
+    let progressHtml = '';
+
+    rows.forEach((r, idx) => {
+        const st = parseFloat(r.querySelector('.slot-start-input')?.value || 0);
+        const et = parseFloat(r.querySelector('.slot-end-input')?.value || 0);
+        const title = r.querySelector('.slot-title-input')?.value || `Cảnh ${idx + 1}`;
+        const diff = Math.max(0, et - st);
+        if (et > maxEnd) maxEnd = et;
+
+        const color = slotColors[idx % slotColors.length];
+        const widthPct = targetDur > 0 ? Math.max(8, (diff / targetDur) * 100) : 25;
+
+        progressHtml += `
+            <div class="rounded-1 text-white fw-bold d-flex align-items-center justify-content-center text-truncate px-1"
+                 style="width: ${widthPct}%; background: ${color}; font-size: 0.65rem; height: 100%; transition: all 0.2s;"
+                 title="${title}: ${st}s - ${et}s (${diff.toFixed(1)}s)">
+                #${idx + 1} (${diff.toFixed(1)}s)
+            </div>
+        `;
+    });
+
+    if (progressContainer) progressContainer.innerHTML = progressHtml;
+
+    const label = document.getElementById('slotsDurationSumLabel');
+    if (label) label.innerText = `${maxEnd.toFixed(1)}s`;
+
+    const countLabel = document.getElementById('slotsCountLabel');
+    if (countLabel) countLabel.innerText = `${rows.length} phân cảnh`;
+
+    const tab2Count = document.getElementById('tab2SlotsCount');
+    if (tab2Count) tab2Count.innerText = `${rows.length} cảnh`;
+
+    const badge = document.getElementById('slotsSumBadge');
+    if (badge) {
+        const isMatch = Math.abs(maxEnd - targetDur) < 0.2;
+        badge.className = isMatch ? 'badge bg-success font-monospace' : 'badge bg-warning text-dark font-monospace';
+        badge.innerText = isMatch ? `✓ Khớp ${maxEnd.toFixed(1)}s / ${targetDur}s` : `⚠ Lệch: ${maxEnd.toFixed(1)}s / ${targetDur}s`;
+    }
+}
+
+async function saveVideoTemplate(e) {
+    e.preventDefault();
+    const btn = document.getElementById('btnSaveTemplate');
+    const oldHtml = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang lưu mẫu...';
+
+    // Collect slots
+    const slotRows = document.querySelectorAll('#slotsBuilderContainer .slot-builder-row');
+    const slots = [];
+    slotRows.forEach((r, idx) => {
+        slots.push({
+            slot_index: idx + 1,
+            title: r.querySelector('.slot-title-input')?.value || `Cảnh ${idx + 1}`,
+            start_time: parseFloat(r.querySelector('.slot-start-input')?.value || 0),
+            end_time: parseFloat(r.querySelector('.slot-end-input')?.value || 0),
+            effect: r.querySelector('.slot-effect-select')?.value || 'kenburns',
+            filter: r.querySelector('.slot-filter-select')?.value || 'none',
+            subtitle: r.querySelector('.slot-sub-input')?.value || ''
+        });
+    });
+
+    const formData = new FormData();
+    const id = document.getElementById('tpl_id').value;
+    if (id) formData.append('id', id);
+
+    formData.append('title', document.getElementById('tpl_title').value);
+    formData.append('description', document.getElementById('tpl_description').value);
+    formData.append('duration_seconds', document.getElementById('tpl_duration').value);
+    formData.append('sort_order', document.getElementById('tpl_sort_order').value || '1');
+    formData.append('audio_title', document.getElementById('tpl_audio_title').value || 'Nhạc nền Bình Lợi');
+    formData.append('audio_url', document.getElementById('tpl_audio_url').value || '');
+    formData.append('cover_image', document.getElementById('tpl_cover_url').value || '');
+    formData.append('slots', JSON.stringify(slots));
+
+    const coverFile = document.getElementById('tpl_cover_file').files[0];
+    if (coverFile) formData.append('cover_image_file', coverFile);
+
+    const audioFile = document.getElementById('tpl_audio_file').files[0];
+    if (audioFile) formData.append('audio_file', audioFile);
+
+    try {
+        const url = id ? '/api/admin/update-video-template' : '/api/admin/create-video-template';
+        const res = await axios.post(url, formData);
+
+        if (res.data.success) {
+            showAdminToast(res.data.message || 'Lưu mẫu video thành công!', 'success');
+            setTimeout(() => location.reload(), 600);
+        } else {
+            showAdminToast('Lỗi: ' + res.data.message, 'error');
+            btn.disabled = false;
+            btn.innerHTML = oldHtml;
+        }
+    } catch(err) {
+        showAdminToast('Lỗi lưu mẫu video: ' + (err.response?.data?.message || err.message), 'error');
+        btn.disabled = false;
+        btn.innerHTML = oldHtml;
+    }
+}
+
+function deleteVideoTemplate(id) {
+    showAdminConfirm('Bạn có chắc chắn muốn xóa mẫu video này?', async () => {
+        try {
+            const res = await axios.post('/api/admin/delete-video-template', { id });
+            if (res.data.success) {
+                const card = document.getElementById('template-card-' + id);
+                if (card) {
+                    card.style.transition = 'all 0.3s ease';
+                    card.style.opacity = '0';
+                    setTimeout(() => card.remove(), 300);
+                }
+                showAdminToast(res.data.message || 'Đã xóa mẫu video!', 'success');
+            } else {
+                showAdminToast(res.data.message, 'error');
+            }
+        } catch(e) {
+            showAdminToast('Lỗi xóa mẫu video', 'error');
+        }
+    });
+}
+
+function toggleTemplateStatus(id) {
+    axios.post('/api/admin/toggle-video-template', { id }).then(res => {
+        if (res.data.success) {
+            showAdminToast(res.data.message || 'Đã cập nhật trạng thái', 'success');
+            setTimeout(() => location.reload(), 500);
+        } else {
+            showAdminToast(res.data.message, 'error');
+        }
+    }).catch(e => showAdminToast('Lỗi đổi trạng thái', 'error'));
+}
+</script>

@@ -360,15 +360,18 @@ const AdminController = {
             
             const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY name');
             const [soundscapes] = await db.query('SELECT * FROM soundscapes ORDER BY created_at DESC');
+            const VideoTemplate = require('../models/VideoTemplate');
+            const videoTemplates = await VideoTemplate.getAll();
             
             res.render('admin/reviews', {
-                title: 'Quản lý Cộng đồng',
+                title: 'Quản lý Cộng đồng & Bình Lợi Studio',
                 layout: 'layouts/admin',
                 adminPage: 'reviews',
                 reviews,
                 destinations,
                 currentDestination: destFilter,
-                soundscapes
+                soundscapes,
+                videoTemplates
             });
         } catch (error) {
             console.error('Admin reviews error:', error);
@@ -1131,6 +1134,107 @@ const AdminController = {
         } catch (e) {
             console.error("Admin reorderPosters error:", e);
             res.status(500).json({ success: false, message: e.message });
+        }
+    },
+
+    // ==================== VIDEO TEMPLATES (Bình Lợi Studio) ====================
+    createVideoTemplate: async (req, res) => {
+        try {
+            let { title, description, cover_image, preview_video_url, audio_url, audio_title, duration_seconds, slots, sort_order } = req.body;
+            if (!title) {
+                return res.status(400).json({ success: false, message: 'Vui lòng nhập tên mẫu video.' });
+            }
+
+            let slotsJson = slots;
+            if (typeof slots === 'string') {
+                try { slotsJson = JSON.parse(slots); } catch(e) { slotsJson = []; }
+            }
+            if (!Array.isArray(slotsJson) || slotsJson.length === 0) {
+                const dur = parseInt(duration_seconds || '15', 10);
+                const segCount = (dur === 30) ? 5 : 4;
+                const segDur = +(dur / segCount).toFixed(1);
+                slotsJson = [];
+                for (let i = 0; i < segCount; i++) {
+                    const st = +(i * segDur).toFixed(1);
+                    const et = (i === segCount - 1) ? dur : +((i + 1) * segDur).toFixed(1);
+                    slotsJson.push({
+                        slot_index: i + 1,
+                        title: `Phân cảnh ${i + 1}`,
+                        start_time: st,
+                        end_time: et,
+                        effect: 'kenburns',
+                        filter: 'none',
+                        subtitle: `Khoảnh khắc tuyệt vời tại Bình Lợi #${i + 1}`,
+                        default_img: `/images/Poster ${Math.min(i + 1, 5)}.jpg`
+                    });
+                }
+            }
+
+            const { v4: uuidv4 } = require('uuid');
+            const id = uuidv4();
+            await db.query(
+                `INSERT INTO video_templates (id, title, description, cover_image, preview_video_url, audio_url, audio_title, duration_seconds, slots, is_active, sort_order, created_at, updated_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 1, $10, NOW(), NOW())`,
+                [id, title, description || '', cover_image || '/images/Poster 1.jpg', preview_video_url || '', audio_url || '/audio/peaceful_stream.mp3', audio_title || 'Nhạc nền Bình Lợi', parseInt(duration_seconds || '15', 10), JSON.stringify(slotsJson), parseInt(sort_order || '0', 10)]
+            );
+
+            res.json({ success: true, message: 'Đã tạo mẫu video thành công!', id });
+        } catch (error) {
+            console.error('Create video template error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+        }
+    },
+
+    updateVideoTemplate: async (req, res) => {
+        try {
+            let { id, title, description, cover_image, preview_video_url, audio_url, audio_title, duration_seconds, slots, is_active, sort_order } = req.body;
+            if (!id || !title) {
+                return res.status(400).json({ success: false, message: 'Thiếu thông tin mẫu video.' });
+            }
+
+            let slotsJson = slots;
+            if (typeof slots === 'string') {
+                try { slotsJson = JSON.parse(slots); } catch(e) {}
+            }
+            const slotsStr = typeof slotsJson === 'object' ? JSON.stringify(slotsJson) : slots;
+
+            await db.query(
+                `UPDATE video_templates 
+                 SET title = $1, description = $2, cover_image = COALESCE($3, cover_image), preview_video_url = COALESCE($4, preview_video_url),
+                     audio_url = COALESCE($5, audio_url), audio_title = $6, duration_seconds = $7, slots = $8,
+                     is_active = $9, sort_order = $10, updated_at = NOW()
+                 WHERE id = $11`,
+                [title, description || '', cover_image || null, preview_video_url || null, audio_url || null, audio_title || 'Nhạc nền Bình Lợi', parseInt(duration_seconds || '15', 10), slotsStr, (is_active === 0 || is_active === '0' || is_active === false || is_active === 'false') ? 0 : 1, parseInt(sort_order || '0', 10), id]
+            );
+
+            res.json({ success: true, message: 'Đã cập nhật mẫu video!' });
+        } catch (error) {
+            console.error('Update video template error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+        }
+    },
+
+    deleteVideoTemplate: async (req, res) => {
+        try {
+            const { id } = req.body;
+            if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID mẫu video' });
+            await db.query(`DELETE FROM video_templates WHERE id = $1`, [id]);
+            res.json({ success: true, message: 'Đã xóa mẫu video!' });
+        } catch (error) {
+            console.error('Delete video template error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
+        }
+    },
+
+    toggleVideoTemplate: async (req, res) => {
+        try {
+            const { id } = req.body;
+            if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID mẫu video' });
+            await db.query(`UPDATE video_templates SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END WHERE id = $1`, [id]);
+            res.json({ success: true, message: 'Đã cập nhật trạng thái mẫu!' });
+        } catch (error) {
+            console.error('Toggle video template error:', error);
+            res.status(500).json({ success: false, message: 'Lỗi: ' + error.message });
         }
     }
 };

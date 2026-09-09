@@ -329,13 +329,57 @@ const ReviewController = {
             const [soundscapes] = await db.query(
                 "SELECT * FROM soundscapes WHERE is_active = 1 ORDER BY created_at DESC"
             );
+            const VideoTemplate = require('../models/VideoTemplate');
+            const videoTemplates = await VideoTemplate.getActive();
+
             res.render('reviews/video-editor', {
-                title: 'Tạo Video Hành Trình Cảm Giác',
-                soundscapes
+                title: 'Bình Lợi Studio - Tạo Video Chữa Lành Phong Cách CapCut',
+                soundscapes,
+                videoTemplates,
+                assetV: Date.now(),
+                layout: false
             });
         } catch (error) {
             console.error('Video editor page error:', error);
             res.status(500).send('Lỗi hệ thống');
+        }
+    },
+
+    getVideoTemplates: async (req, res) => {
+        try {
+            const VideoTemplate = require('../models/VideoTemplate');
+            const templates = await VideoTemplate.getActive();
+            res.json({ success: true, templates });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    createVideoTemplate: async (req, res) => {
+        try {
+            let { title, description, cover_image, audio_url, audio_title, duration_seconds, slots } = req.body;
+            if (!title) {
+                return res.status(400).json({ success: false, message: 'Vui lòng nhập tên mẫu video.' });
+            }
+
+            let slotsJson = slots;
+            if (typeof slots === 'string') {
+                try { slotsJson = JSON.parse(slots); } catch(e) { slotsJson = []; }
+            }
+
+            const VideoTemplate = require('../models/VideoTemplate');
+            const { v4: uuidv4 } = require('uuid');
+            const id = uuidv4();
+            await VideoTemplate.db.query(
+                `INSERT INTO video_templates (id, title, description, cover_image, audio_url, audio_title, duration_seconds, slots, is_active, sort_order, created_at, updated_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1, 0, NOW(), NOW())`,
+                [id, title, description || '', cover_image || '/images/Poster 1.jpg', audio_url || '/audio/peaceful_stream.mp3', audio_title || 'Nhạc nền Bình Lợi', parseInt(duration_seconds || '15', 10), JSON.stringify(slotsJson)]
+            );
+
+            res.json({ success: true, message: 'Đã tạo mẫu thành công!', id });
+        } catch (error) {
+            console.error('Create video template error:', error);
+            res.status(500).json({ success: false, message: error.message });
         }
     }
 };

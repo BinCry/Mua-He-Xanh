@@ -84,6 +84,10 @@ if (!global._dbPatched) {
             // One-time, idempotent repair for check-ins created before points
             // were synchronized with the linked user account.
             await CheckIn.backfillLinkedUserPoints();
+
+            // Initialize video templates table and seed defaults
+            const VideoTemplate = require('./models/VideoTemplate');
+            await VideoTemplate.ensureTableExists();
         } catch(e) {
             console.warn('Auto DB schema patch error:', e.message);
         }

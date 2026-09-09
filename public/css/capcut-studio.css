@@ -1,0 +1,900 @@
+/* ==========================================================================
+   BÌNH LỢI STUDIO - 100% CAPCUT REPLICA DESIGN SYSTEM & STYLESHEET
+   Supports Desktop (3-Column Pro NLE) and Mobile (Bottom-Sheet Touch UI)
+   ========================================================================== */
+
+:root {
+    --capcut-bg-canvas: #0e0f12;
+    --capcut-bg-panel: #141518;
+    --capcut-bg-rail: #18191d;
+    --capcut-bg-drawer: #1e2025;
+    --capcut-bg-hover: #2a2d35;
+    --capcut-bg-active: #323640;
+    --capcut-bg-card: #22242a;
+    --capcut-border: #282b33;
+    --capcut-border-light: #383c47;
+    --capcut-cyan: #00f0ff;
+    --capcut-cyan-hover: #33f3ff;
+    --capcut-cyan-glow: rgba(0, 240, 255, 0.25);
+    --capcut-text-primary: #ffffff;
+    --capcut-text-secondary: #9ea3ae;
+    --capcut-text-muted: #646873;
+    --capcut-red: #ff3b30;
+    --capcut-yellow: #ffd700;
+    --capcut-purple: #8b5cf6;
+    --capcut-green: #10b981;
+}
+
+/* Reset & Layout Container */
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background-color: var(--capcut-bg-canvas);
+    color: var(--capcut-text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.capcut-studio-root {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    background: var(--capcut-bg-canvas);
+}
+
+/* Custom Thin Scrollbars */
+.capcut-custom-scroll::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+.capcut-custom-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.capcut-custom-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+}
+.capcut-custom-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 240, 255, 0.5);
+}
+
+/* ==================== 1. TOP HEADER BAR ==================== */
+.capcut-header {
+    height: 50px;
+    min-height: 50px;
+    background: var(--capcut-bg-panel);
+    border-bottom: 1px solid var(--capcut-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 100;
+}
+
+.capcut-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.capcut-brand-badge {
+    width: 30px;
+    height: 30px;
+    background: var(--capcut-cyan);
+    border-radius: 7px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 12px var(--capcut-cyan-glow);
+}
+.capcut-brand-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.capcut-pro-tag {
+    background: var(--capcut-cyan);
+    color: #000;
+    font-size: 0.6rem;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+
+/* Project Name & Canvas Setting in Header */
+.capcut-project-name-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 4px 12px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.capcut-project-input {
+    background: transparent;
+    border: none;
+    color: var(--capcut-text-primary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    outline: none;
+    max-width: 140px;
+}
+.capcut-project-input:focus {
+    border-bottom: 1px solid var(--capcut-cyan);
+}
+
+.capcut-header-tools {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.capcut-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--capcut-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.capcut-icon-btn:hover {
+    background: var(--capcut-bg-hover);
+    color: var(--capcut-text-primary);
+}
+.capcut-icon-btn:active {
+    background: var(--capcut-bg-active);
+}
+
+.capcut-ratio-select {
+    background: var(--capcut-bg-card);
+    border: 1px solid var(--capcut-border);
+    color: var(--capcut-text-primary);
+    font-size: 0.78rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    outline: none;
+}
+.capcut-ratio-select:focus {
+    border-color: var(--capcut-cyan);
+}
+
+.btn-capcut-export {
+    background: linear-gradient(135deg, #00f0ff 0%, #0099ff 100%);
+    color: #000 !important;
+    font-size: 0.84rem;
+    font-weight: 700;
+    padding: 6px 18px;
+    border-radius: 20px;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px var(--capcut-cyan-glow);
+    transition: all 0.2s ease;
+}
+.btn-capcut-export:hover {
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px var(--capcut-cyan-glow);
+}
+.btn-capcut-export:active {
+    transform: translateY(0);
+}
+
+/* ==================== 2. DESKTOP 3-COLUMN WORKSPACE ==================== */
+.capcut-desktop-body {
+    flex: 1;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Left Panel: Rail + Drawer */
+.capcut-left-panel {
+    display: flex;
+    height: 100%;
+    border-right: 1px solid var(--capcut-border);
+    z-index: 50;
+}
+.capcut-rail {
+    width: 64px;
+    min-width: 64px;
+    background: var(--capcut-bg-rail);
+    border-right: 1px solid var(--capcut-border);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 12px 0;
+    gap: 6px;
+}
+.capcut-rail-item {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--capcut-text-secondary);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 600;
+    gap: 3px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.capcut-rail-item i {
+    font-size: 1.15rem;
+}
+.capcut-rail-item:hover {
+    color: var(--capcut-text-primary);
+    background: var(--capcut-bg-hover);
+}
+.capcut-rail-item.active {
+    background: var(--capcut-bg-drawer);
+    color: var(--capcut-cyan);
+    box-shadow: inset 2px 0 0 var(--capcut-cyan);
+}
+
+.capcut-drawer {
+    width: 316px;
+    min-width: 316px;
+    max-width: 316px;
+    background: var(--capcut-bg-drawer);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+.capcut-drawer-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--capcut-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.capcut-drawer-header h6 {
+    margin: 0;
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--capcut-text-primary);
+}
+.capcut-drawer-body {
+    padding: 14px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Template Cards & Audio Cards in Drawer */
+.capcut-tpl-card {
+    background: var(--capcut-bg-card);
+    border: 1px solid var(--capcut-border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+}
+.capcut-tpl-card:hover {
+    border-color: var(--capcut-cyan);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
+.capcut-tpl-card.active {
+    border-color: var(--capcut-cyan);
+    box-shadow: 0 0 0 2px var(--capcut-cyan-glow);
+}
+.capcut-tpl-thumb {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+.capcut-tpl-meta {
+    padding: 10px 12px;
+}
+.capcut-tpl-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 4px;
+}
+.capcut-tpl-info {
+    font-size: 0.68rem;
+    color: var(--capcut-text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.capcut-audio-item {
+    background: var(--capcut-bg-card);
+    border: 1px solid var(--capcut-border);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.capcut-audio-item:hover, .capcut-audio-item.active {
+    border-color: var(--capcut-cyan);
+    background: rgba(0, 240, 255, 0.05);
+}
+
+/* ==================== 3. CENTER PANEL (CANVAS PREVIEW MONITOR) ==================== */
+.capcut-center-panel {
+    flex: 1;
+    background: var(--capcut-bg-canvas);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Canvas Viewport Frame */
+.capcut-viewport-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+    border-radius: 8px;
+    background: #000;
+    overflow: visible;
+}
+
+#studioCanvas {
+    display: block;
+    background: #000;
+    border-radius: 8px;
+}
+
+/* ==================== 4. DIRECT CANVAS BOUNDING BOX (NO POPUPS!) ==================== */
+.capcut-bounding-box {
+    position: absolute;
+    border: 2px solid var(--capcut-cyan);
+    pointer-events: none;
+    z-index: 80;
+    box-shadow: 0 0 8px var(--capcut-cyan-glow);
+    display: none;
+}
+.capcut-bounding-box.active {
+    display: block;
+}
+
+.capcut-bbox-handle {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    background: #ffffff;
+    border: 2px solid var(--capcut-cyan);
+    border-radius: 50%;
+    pointer-events: auto;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    z-index: 85;
+}
+.capcut-bbox-handle.nw { top: -7px; left: -7px; cursor: nwse-resize; }
+.capcut-bbox-handle.ne { top: -7px; right: -7px; cursor: nesw-resize; }
+.capcut-bbox-handle.se { bottom: -7px; right: -7px; cursor: nwse-resize; }
+.capcut-bbox-handle.sw { bottom: -7px; left: -7px; cursor: nesw-resize; }
+
+.capcut-bbox-handle.n { top: -7px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.capcut-bbox-handle.s { bottom: -7px; left: 50%; transform: translateX(-50%); cursor: ns-resize; }
+.capcut-bbox-handle.w { top: 50%; left: -7px; transform: translateY(-50%); cursor: ew-resize; }
+.capcut-bbox-handle.e { top: 50%; right: -7px; transform: translateY(-50%); cursor: ew-resize; }
+
+/* Rotate Handle */
+.capcut-bbox-rotator-stem {
+    position: absolute;
+    top: -24px;
+    left: 50%;
+    width: 1px;
+    height: 18px;
+    background: var(--capcut-cyan);
+}
+.capcut-bbox-rotator {
+    position: absolute;
+    top: -32px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 16px;
+    background: var(--capcut-cyan);
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    pointer-events: auto;
+    cursor: grab;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+}
+
+/* Magnetic Alignment Guidelines */
+.capcut-guide-line-x {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+    background: var(--capcut-cyan);
+    pointer-events: none;
+    z-index: 70;
+    display: none;
+}
+.capcut-guide-line-y {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+    background: var(--capcut-cyan);
+    pointer-events: none;
+    z-index: 70;
+    display: none;
+}
+
+/* Floating Control Bar Below Canvas */
+.capcut-monitor-dock {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--capcut-bg-panel);
+    border: 1px solid var(--capcut-border);
+    padding: 6px 18px;
+    border-radius: 30px;
+    margin-top: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+    z-index: 90;
+}
+.capcut-dock-btn {
+    background: transparent;
+    border: none;
+    color: var(--capcut-text-secondary);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px;
+    transition: color 0.15s ease;
+}
+.capcut-dock-btn:hover {
+    color: var(--capcut-text-primary);
+}
+.capcut-dock-btn.play {
+    color: var(--capcut-cyan);
+    font-size: 1.4rem;
+}
+.capcut-dock-time {
+    font-size: 0.78rem;
+    font-family: monospace;
+    font-weight: 700;
+    color: #fff;
+    min-width: 90px;
+    text-align: center;
+}
+
+/* ==================== 5. RIGHT PANEL (PROPERTY INSPECTOR) ==================== */
+.capcut-right-panel {
+    width: 320px;
+    min-width: 320px;
+    max-width: 320px;
+    background: var(--capcut-bg-drawer);
+    border-left: 1px solid var(--capcut-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 50;
+    overflow-y: auto;
+}
+.capcut-inspector-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--capcut-border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.capcut-inspector-tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--capcut-text-secondary);
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.capcut-inspector-tab-btn.active {
+    background: var(--capcut-bg-hover);
+    color: var(--capcut-cyan);
+}
+
+.capcut-inspector-body {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+.capcut-control-group {
+    margin-bottom: 18px;
+}
+.capcut-control-label {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--capcut-text-secondary);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.capcut-range-slider {
+    width: 100%;
+    height: 4px;
+    background: var(--capcut-border-light);
+    border-radius: 2px;
+    outline: none;
+    -webkit-appearance: none;
+    appearance: none;
+}
+.capcut-range-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--capcut-cyan);
+    cursor: pointer;
+    box-shadow: 0 0 6px var(--capcut-cyan-glow);
+}
+
+/* ==================== 6. BOTTOM MULTI-TRACK TIMELINE ==================== */
+.capcut-timeline-panel {
+    height: 270px;
+    min-height: 270px;
+    background: var(--capcut-bg-panel);
+    border-top: 1px solid var(--capcut-border);
+    display: flex;
+    flex-direction: column;
+    z-index: 60;
+}
+
+/* Timeline Toolbar */
+.capcut-timeline-toolbar {
+    height: 38px;
+    min-height: 38px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--capcut-border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.capcut-tool-btn {
+    background: transparent;
+    border: none;
+    color: var(--capcut-text-secondary);
+    font-size: 0.76rem;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+.capcut-tool-btn:hover {
+    background: var(--capcut-bg-hover);
+    color: var(--capcut-text-primary);
+}
+.capcut-tool-btn.active {
+    color: var(--capcut-cyan);
+}
+
+/* Timeline Track Area */
+.capcut-timeline-tracks-scroll {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    position: relative;
+    padding: 10px 16px 20px 16px;
+    background: #0f1013;
+}
+
+/* Playhead Needle */
+.capcut-playhead {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--capcut-red);
+    z-index: 95;
+    pointer-events: none;
+    transform: translateX(-50%);
+}
+.capcut-playhead-knob {
+    width: 14px;
+    height: 16px;
+    background: var(--capcut-red);
+    clip-path: polygon(0 0, 100% 0, 100% 60%, 50% 100%, 0 60%);
+    position: absolute;
+    top: 0;
+    left: -6px;
+    pointer-events: auto;
+    cursor: ew-resize;
+}
+
+/* Time Ruler */
+.capcut-ruler {
+    height: 22px;
+    display: flex;
+    align-items: center;
+    font-size: 0.65rem;
+    font-family: monospace;
+    color: var(--capcut-text-muted);
+    position: relative;
+    user-select: none;
+    border-bottom: 1px solid var(--capcut-border);
+    margin-bottom: 8px;
+    cursor: pointer;
+}
+
+/* Track 1: Filmstrip Video Track */
+.capcut-track-video {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 64px;
+    background: #191b20;
+    border: 1px solid var(--capcut-border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+}
+.capcut-clip-block {
+    height: 100%;
+    position: relative;
+    border-right: 2px solid #000;
+    cursor: pointer;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    background-size: cover;
+    background-position: center;
+    transition: filter 0.15s ease;
+}
+.capcut-clip-block:hover {
+    filter: brightness(1.15);
+}
+.capcut-clip-block.selected {
+    box-shadow: inset 0 0 0 2px var(--capcut-cyan);
+}
+.capcut-clip-duration {
+    position: absolute;
+    bottom: 4px;
+    left: 6px;
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 1px 5px;
+    border-radius: 4px;
+}
+.capcut-clip-slot-num {
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    background: var(--capcut-cyan);
+    color: #000;
+    font-size: 0.6rem;
+    font-weight: 800;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Transition Connector Between Clips */
+.capcut-transition-badge {
+    position: absolute;
+    right: -10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    background: #252830;
+    border: 1px solid var(--capcut-border-light);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--capcut-cyan);
+    z-index: 10;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+.capcut-transition-badge:hover {
+    background: var(--capcut-cyan);
+    color: #000;
+}
+
+/* Track 2: Subtitle / Text Track */
+.capcut-track-subtitles {
+    display: flex;
+    align-items: center;
+    height: 30px;
+    background: #171622;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    position: relative;
+    overflow: hidden;
+}
+.capcut-sub-chip {
+    height: 22px;
+    background: rgba(139, 92, 246, 0.35);
+    border: 1px solid var(--capcut-purple);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    position: absolute;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    cursor: pointer;
+}
+
+/* Track 3: Audio Track with Waveform */
+.capcut-track-audio {
+    height: 32px;
+    background: #112019;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    border-radius: 6px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    overflow: hidden;
+}
+.capcut-audio-bar {
+    width: 100%;
+    height: 24px;
+    background: linear-gradient(90deg, rgba(16, 185, 129, 0.4) 0%, rgba(16, 185, 129, 0.6) 100%);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding: 0 10px;
+    gap: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* ==================== 7. MOBILE CAPCUT LAYOUT (< 992px) ==================== */
+@media (max-width: 991.98px) {
+    .capcut-left-panel, .capcut-right-panel {
+        display: none !important;
+    }
+
+    .capcut-desktop-body {
+        flex-direction: column;
+    }
+
+    .capcut-center-panel {
+        flex: none;
+        height: 46vh;
+        padding: 8px;
+    }
+
+    .capcut-timeline-panel {
+        flex: 1;
+        height: auto;
+        min-height: auto;
+    }
+
+    /* Mobile Fixed Center Needle Timeline */
+    .capcut-mobile-playhead-center {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        width: 2px;
+        background: #fff;
+        z-index: 95;
+        pointer-events: none;
+        box-shadow: 0 0 8px rgba(255,255,255,0.8);
+    }
+
+    /* Mobile Bottom Sticky Dock */
+    .capcut-mobile-bottom-bar {
+        height: 60px;
+        min-height: 60px;
+        background: var(--capcut-bg-rail);
+        border-top: 1px solid var(--capcut-border);
+        display: flex !important;
+        align-items: center;
+        overflow-x: auto;
+        padding: 0 10px;
+        gap: 6px;
+        z-index: 100;
+    }
+    .capcut-m-btn {
+        flex: 0 0 62px;
+        height: 50px;
+        background: transparent;
+        border: none;
+        color: var(--capcut-text-secondary);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        font-size: 0.68rem;
+        font-weight: 600;
+        cursor: pointer;
+    }
+    .capcut-m-btn i {
+        font-size: 1.25rem;
+    }
+    .capcut-m-btn:active, .capcut-m-btn.active {
+        color: var(--capcut-cyan);
+    }
+
+    /* Mobile Bottom Sheet Drawer */
+    .capcut-mobile-sheet {
+        position: absolute;
+        bottom: 60px;
+        left: 0;
+        right: 0;
+        max-height: 50vh;
+        background: var(--capcut-bg-drawer);
+        border-top: 1px solid var(--capcut-border);
+        border-radius: 16px 16px 0 0;
+        z-index: 110;
+        display: none;
+        flex-direction: column;
+        overflow: hidden;
+        box-shadow: 0 -10px 30px rgba(0,0,0,0.7);
+    }
+    .capcut-mobile-sheet.open {
+        display: flex;
+        animation: slideUpMobile 0.25s ease forwards;
+    }
+
+    @keyframes slideUpMobile {
+        from { transform: translateY(100%); }
+        to { transform: translateY(0); }
+    }
+}
