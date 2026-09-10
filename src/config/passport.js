@@ -3,6 +3,9 @@ const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const FacebookStrategy = require('passport-facebook').Strategy;
 const LocalStrategy = require('passport-local').Strategy;
 const bcrypt = require('bcryptjs');
+const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 const db = require('../core/database');
 const config = require('./env');
 
@@ -115,33 +118,96 @@ if (config.auth.google.clientId && config.auth.google.clientId !== 'MISSING_CLIE
     console.log('⚠️  Google OAuth: Chưa cấu hình Client ID - Bỏ qua');
 }
 
+// Helper to safely cache Facebook avatar locally
+async function cacheFacebookAvatar(profileId, photoUrl, accessToken) {
+    try {
+        const avatarsDir = path.resolve(__dirname, '../../public/uploads/avatars');
+        if (!fs.existsSync(avatarsDir)) {
+            fs.mkdirSync(avatarsDir, { recursive: true });
+        }
+        const fileName = `fb_${profileId}.jpg`;
+        const filePath = path.join(avatarsDir, fileName);
+        
+        let response = null;
+        if (photoUrl) {
+            try {
+                response = await axios({
+                    method: 'GET',
+                    url: photoUrl,
+                    responseType: 'arraybuffer',
+                    timeout: 8000,
+                    maxRedirects: 5,
+                    headers: { 'User-Agent': 'Mozilla/5.0' }
+                });
+            } catch (fetchErr) {
+                // Ignore and try graph fallback
+            }
+        }
+
+        if (!response || response.status !== 200 || !response.data || response.data.length < 500) {
+            if (accessToken) {
+                const graphUrl = `https://graph.facebook.com/v20.0/${profileId}/picture?type=large&access_token=${accessToken}`;
+                response = await axios({
+                    method: 'GET',
+                    url: graphUrl,
+                    responseType: 'arraybuffer',
+                    timeout: 8000,
+                    maxRedirects: 5
+                });
+            }
+        }
+
+        if (response && response.status === 200 && response.data && response.data.length > 500) {
+            fs.writeFileSync(filePath, response.data);
+            return `/uploads/avatars/${fileName}`;
+        }
+    } catch (err) {
+        console.warn('Could not cache Facebook avatar locally:', err.message);
+    }
+    return photoUrl;
+}
+
 // --- FACEBOOK OAUTH STRATEGY ---
 if (config.auth.facebook.appId && config.auth.facebook.appId !== 'MISSING_APP_ID') {
     passport.use(new FacebookStrategy({
         clientID: config.auth.facebook.appId,
         clientSecret: config.auth.facebook.appSecret,
         callbackURL: '/auth/facebook/callback',
-        profileFields: ['id', 'displayName', 'photos'],
+        profileFields: ['id', 'displayName', 'picture.type(large)', 'photos', 'email'],
         proxy: true
       },
       async function(accessToken, refreshToken, profile, cb) {
           try {
+              const rawPhotoUrl = (profile.photos && profile.photos.length > 0 && profile.photos[0].value) 
+                  ? profile.photos[0].value 
+                  : `https://graph.facebook.com/${profile.id}/picture?type=large`;
+
+              // Cache avatar locally so it never expires, 404s, or gets blocked
+              const avatarUrl = await cacheFacebookAvatar(profile.id, rawPhotoUrl, accessToken) || rawPhotoUrl;
+
               const [existingUsers] = await db.query('SELECT * FROM users WHERE facebook_id = $1', [profile.id]);
               
               if (existingUsers.length > 0) {
-                  return cb(null, existingUsers[0]);
+                  const user = existingUsers[0];
+                  // Update avatar & name on every login
+                  if (avatarUrl && (user.avatar !== avatarUrl || !user.avatar || user.avatar.includes('platform-lookaside'))) {
+                      await db.query('UPDATE users SET avatar = $1, full_name = COALESCE($2, full_name) WHERE id = $3', 
+                          [avatarUrl, profile.displayName || user.full_name, user.id]
+                      );
+                      user.avatar = avatarUrl;
+                      if (profile.displayName) user.full_name = profile.displayName;
+                  }
+                  return cb(null, user);
               }
-
-              const avatarUrl = (profile.photos && profile.photos.length > 0 && profile.photos[0].value) 
-                  ? profile.photos[0].value 
-                  : `https://graph.facebook.com/${profile.id}/picture?type=large`;
 
               const { v4: uuidv4 } = require('uuid');
               const newUser = {
                   id: uuidv4(),
                   facebook_id: profile.id,
                   full_name: profile.displayName || 'Người dùng Facebook',
-                  email: profile.id + '@facebook.local',
+                  email: (profile.emails && profile.emails.length > 0 && profile.emails[0].value)
+                      ? profile.emails[0].value 
+                      : (profile.id + '@facebook.local'),
                   avatar: avatarUrl,
                   role: 'user',
                   role_id: 3

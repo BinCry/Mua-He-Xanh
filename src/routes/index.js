@@ -20,6 +20,7 @@ const ShopController = require('../controllers/ShopController');
 const ProfileController = require('../controllers/ProfileController');
 const AdminController = require('../controllers/AdminController');
 const ReviewController = require('../controllers/ReviewController');
+const StudioApiController = require('../controllers/StudioApiController');
 const UploadController = require('../controllers/UploadController');
 const upload = require('../middleware/upload');
 const FestivalController = require('../controllers/FestivalController');
@@ -188,7 +189,7 @@ router.get('/test-qr', async (req, res) => {
     }
 });
 
-router.get('/brand-logo.png', async (req, res) => {
+router.get(['/brand-logo.png', '/logo.png'], async (req, res) => {
     try {
         const db = require('../core/database');
         const [rows] = await db.query('SELECT key_value FROM settings WHERE key_name = $1', ['brand_logo']);
@@ -213,33 +214,49 @@ router.get('/brand-logo.png', async (req, res) => {
             const targetPath = path.join(process.cwd(), 'public', normalizedLogo.replace(/^\//, '').split('?')[0]);
             const fs = require('fs');
             if (fs.existsSync(targetPath)) {
-                return res.sendFile(targetPath);
+                res.setHeader('Content-Type', 'image/png');
+                res.setHeader('Cache-Control', 'public, max-age=86400');
+                return fs.createReadStream(targetPath).pipe(res);
             }
         }
 
         const path = require('path');
+        const fs = require('fs');
         const defaultLogo = path.join(process.cwd(), 'public/images/brand-logo.png');
         if (fs.existsSync(defaultLogo)) {
             res.setHeader('Content-Type', 'image/png');
             res.setHeader('Cache-Control', 'public, max-age=86400');
-            return res.sendFile(defaultLogo);
+            return fs.createReadStream(defaultLogo).pipe(res);
         }
-        return res.sendFile(path.join(process.cwd(), 'public/images/logo.png'));
+        const fallbackLogo = path.join(process.cwd(), 'public/images/logo.png');
+        if (fs.existsSync(fallbackLogo)) {
+            res.setHeader('Content-Type', 'image/png');
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return fs.createReadStream(fallbackLogo).pipe(res);
+        }
+        return res.status(404).send('Logo not found');
     } catch (e) {
         console.error("Logo generate error:", e);
         const path = require('path');
+        const fs = require('fs');
         const defaultLogo = path.join(process.cwd(), 'public/images/brand-logo.png');
         if (fs.existsSync(defaultLogo)) {
             res.setHeader('Content-Type', 'image/png');
             res.setHeader('Cache-Control', 'public, max-age=86400');
-            return res.sendFile(defaultLogo);
+            return fs.createReadStream(defaultLogo).pipe(res);
         }
-        return res.sendFile(path.join(process.cwd(), 'public/images/logo.png'));
+        const fallbackLogo = path.join(process.cwd(), 'public/images/logo.png');
+        if (fs.existsSync(fallbackLogo)) {
+            res.setHeader('Content-Type', 'image/png');
+            res.setHeader('Cache-Control', 'public, max-age=86400');
+            return fs.createReadStream(fallbackLogo).pipe(res);
+        }
+        return res.status(500).send('Logo error');
     }
 });
 
 // ===== LEGAL & META VERIFICATION =====
-router.get(['/privacy-policy', '/chinh-sach-bao-mat', '/policy'], (req, res) => {
+router.get(['/privacy', '/privacy-policy', '/chinh-sach-bao-mat', '/policy'], (req, res) => {
     res.render('home/privacy', {
         title: 'Chính sách Quyền riêng tư & Bảo mật | Du Lịch Bình Lợi',
         isDataDeletion: false
@@ -270,11 +287,9 @@ router.get('/workshops', (req, res) => res.redirect(301, '/shops'));
 router.get('/workshops/:id', (req, res) => res.redirect(301, '/shops/' + req.params.id));
 router.get('/my-workshops', ensureAuthenticated, (req, res) => res.redirect(301, '/my-shops'));
 
-// ===== COMMUNITY (Reviews) & BÌNH LỢI STUDIO =====
+// ===== COMMUNITY (Reviews) =====
 router.get('/reviews', ReviewController.index);
 router.get('/reviews/video-editor', ReviewController.videoEditor);
-router.get('/api/video-templates', ReviewController.getVideoTemplates);
-router.post('/api/video-templates/create', upload.any(), ReviewController.createVideoTemplate);
 
 // ===== MAP =====
 router.get('/map', MapController.index);
@@ -315,6 +330,7 @@ router.post('/admin/posters', ensureAdmin, upload.single('image'), AdminControll
 router.post('/admin/posters/delete', ensureAdmin, AdminController.deletePoster);
 router.post('/api/admin/reorder-posters', ensureAdmin, AdminController.reorderPosters);
 router.get('/admin/journey-templates', ensureAdmin, AdminController.journeyTemplates);
+router.get('/admin/studio-templates', ensureAdmin, StudioApiController.adminListTemplates);
 router.get('/admin/chat', ensureAdmin, AdminController.chat);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
 router.post('/api/admin/reply-message', ensureAdmin, ApiController.replyMessage);
@@ -460,6 +476,21 @@ router.get('/api/reviews/comments', ReviewController.getComments);
 router.post('/api/reviews/delete-comment', ReviewController.deleteComment);
 router.post('/api/reviews/delete', ensureAuthenticated, ReviewController.delete);
 
+// Bình Lợi Studio APIs
+router.get('/api/studio/templates', StudioApiController.getTemplates);
+router.get('/api/studio/templates/:id', StudioApiController.getTemplateById);
+router.get('/api/studio/destinations', StudioApiController.getDestinations);
+router.post('/api/studio/generate-location-video', StudioApiController.generateLocationVideo);
+router.post('/api/studio/save-project', StudioApiController.saveProject);
+router.get('/api/studio/projects', StudioApiController.getUserProjects);
+router.get('/api/studio/projects/:id', StudioApiController.loadProject);
+router.post('/api/studio/delete-project', ensureAuthenticated, StudioApiController.deleteProject);
+
+// Admin Studio Template APIs
+router.post('/api/admin/save-studio-template', ensureAdmin, StudioApiController.adminSaveTemplate);
+router.post('/api/admin/delete-studio-template', ensureAdmin, StudioApiController.adminDeleteTemplate);
+router.post('/api/admin/toggle-studio-template', ensureAdmin, StudioApiController.adminToggleTemplate);
+
 // Profile API
 router.post('/api/redeem-reward', ensureAuthenticated, ProfileController.redeemReward);
 
@@ -480,14 +511,10 @@ router.post('/api/admin/create-shop-product', ensureAdmin, AdminController.creat
 router.post('/api/admin/update-shop-product', ensureAdmin, AdminController.updateWorkshop);
 router.post('/api/admin/delete-shop-product', ensureAdmin, AdminController.deleteWorkshop);
 
-// Admin API - Reviews & Studio Video Templates
+// Admin API - Reviews
 router.post('/api/admin/delete-review', ensureAdmin, AdminController.deleteReview);
 router.post('/api/admin/create-soundscape', ensureAdmin, upload.single('audio'), AdminController.createSoundscape);
 router.post('/api/admin/delete-soundscape', ensureAdmin, AdminController.deleteSoundscape);
-router.post('/api/admin/create-video-template', ensureAdmin, upload.any(), AdminController.createVideoTemplate);
-router.post('/api/admin/update-video-template', ensureAdmin, upload.any(), AdminController.updateVideoTemplate);
-router.post('/api/admin/delete-video-template', ensureAdmin, AdminController.deleteVideoTemplate);
-router.post('/api/admin/toggle-video-template', ensureAdmin, AdminController.toggleVideoTemplate);
 
 // Admin API - Events
 router.post('/api/admin/create-event', ensureAdmin, AdminController.createEvent);

@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "template_id": "tpl-healing",
+    "title": "Chữa Lành Bình Lợi",
+    "category": "healing",
+    "badge": "Phổ biến",
+    "aspect_ratio": "9:16",
+    "duration": 15,
+    "slots_count": 5,
+    "audio_title": "Tiếng Chuông Gió & Suối Chảy",
+    "is_published": true
+  },
+  {
+    "id": 2,
+    "template_id": "tpl-vlog-sen",
+    "title": "Vlog Đầm Sen Tam Đa",
+    "category": "vlog",
+    "badge": "Nổi bật",
+    "aspect_ratio": "9:16",
+    "duration": 20,
+    "slots_count": 5,
+    "audio_title": "Gió Mát Đồng Quê",
+    "is_published": true
+  },
+  {
+    "id": 3,
+    "template_id": "tpl-mai-vang",
+    "title": "Sắc Vàng Làng Mai",
+    "category": "vlog",
+    "badge": "Mới",
+    "aspect_ratio": "9:16",
+    "duration": 15,
+    "slots_count": 4,
+    "audio_title": "Mùa Hoa Nở Rộ",
+    "is_published": true
+  },
+  {
+    "id": 4,
+    "template_id": "tpl-food",
+    "title": "Ẩm Thực Quê Nhà",
+    "category": "food",
+    "badge": "Món ngon",
+    "aspect_ratio": "9:16",
+    "duration": 16,
+    "slots_count": 4,
+    "audio_title": "Hương Vị Quê Hương",
+    "is_published": true
+  },
+  {
+    "id": 5,
+    "template_id": "tpl-culture-dinh",
+    "title": "Ký Ức Đình Bình Trường",
+    "category": "culture",
+    "badge": "Di tích",
+    "aspect_ratio": "16:9",
+    "duration": 24,
+    "slots_count": 6,
+    "audio_title": "Thanh Âm Cổ Kính",
+    "is_published": true
+  }
+]

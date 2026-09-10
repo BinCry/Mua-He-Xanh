@@ -125,9 +125,11 @@ app.use((req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
     const target = LEGACY_IMAGE_ALIASES[req.path];
     if (!target) return next();
-    res.sendFile(path.join(ROOT_DIR, 'public', target.replace(/^\//, '')), (err) => {
-        if (err) next();
-    });
+    const targetFile = path.join(ROOT_DIR, 'public', target.replace(/^\//, ''));
+    if (fs.existsSync(targetFile)) {
+        return fs.createReadStream(targetFile).pipe(res);
+    }
+    next();
 });
 
 // Smart media sync: If an uploaded image doesn't exist on local disk, proxy it directly from live VPS
@@ -135,7 +137,7 @@ app.use('/uploads', (req, res, next) => {
     if (req.method !== 'GET' && req.method !== 'HEAD') return next();
     const localFile = path.join(ROOT_DIR, 'public', 'uploads', req.path.replace(/^\//, ''));
     if (fs.existsSync(localFile)) {
-        return res.sendFile(localFile);
+        return fs.createReadStream(localFile).pipe(res);
     }
     const host = req.get('host') || '';
     if (!host.includes('dulichbinhloi.com')) {

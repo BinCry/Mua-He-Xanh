@@ -1,655 +1,1434 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title><%= title || 'Bình Lợi Studio - Trình Tạo Video Chuẩn CapCut' %></title>
-    <!-- Favicon -->
-    <link rel="icon" href="/images/logo.svg" type="image/svg+xml">
-    <!-- Bootstrap Icons & Fonts -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&family=Montserrat:wght@500;700;800;900&family=Playfair+Display:ital,wght@0,700;1,700&display=swap" rel="stylesheet">
-    <!-- CapCut Studio Dedicated CSS -->
-    <link rel="stylesheet" href="/css/capcut-studio.css?v=<%= assetV || Date.now() %>">
-</head>
-<body class="capcut-studio-root">
-
-    <!-- ==================== 1. TOP CAPCUT HEADER ==================== -->
-    <header class="capcut-header">
-        <!-- Brand & Back -->
-        <div class="capcut-brand">
-            <a href="/reviews" class="capcut-icon-btn" title="Quay lại Bảng tin">
-                <i class="bi bi-chevron-left fs-5"></i>
+<!-- Bình Lợi Studio – Trình Tạo Video Ngắn -->
+<div class="bl-studio-workspace" id="blStudioWorkspace">
+    <!-- 1. HEADER / THANH ĐIỀU HƯỚNG TRÊN CÙNG -->
+    <header class="bl-studio-header d-flex align-items-center justify-content-between px-4 border-bottom bg-white shadow-2xs">
+        <!-- Bên trái: Logo & Branding -->
+        <div class="d-flex align-items-center gap-3">
+            <a href="/reviews" class="btn btn-sm bl-btn-back rounded-circle d-flex align-items-center justify-content-center me-1" title="Quay lại Bảng tin">
+                <i class="bi bi-arrow-left fs-6"></i>
             </a>
-            <div class="capcut-brand-badge">
-                <i class="bi bi-scissors fs-5 text-dark"></i>
-            </div>
-            <div class="d-flex flex-column d-none d-sm-flex">
-                <div class="capcut-brand-title">
-                    <span>Bình Lợi Studio</span>
-                    <span class="capcut-pro-tag">CAPCUT PRO</span>
+            <div class="d-flex align-items-center gap-3">
+                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Bình Lợi Studio" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 38px; height: 38px; object-fit: cover; border: 1.5px solid #FEE2E2;" onerror="this.src='/images/logo.png'">
+                <div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="fw-bold text-dark fs-6" style="letter-spacing: -0.2px;">Bình Lợi Studio</span>
+                        <span class="badge bl-badge-pro fw-bold ms-1">PRO</span>
+                    </div>
+                    <div class="text-muted x-small mt-0.5" style="font-size: 0.74rem;">Trình Tạo Video Ngắn Bình Lợi</div>
                 </div>
             </div>
         </div>
 
-        <!-- Center Tools (Project Name, Aspect Ratio, Undo/Redo) -->
-        <div class="d-flex align-items-center gap-2">
-            <!-- Inline Project Name -->
-            <div class="capcut-project-name-wrapper d-none d-md-flex">
-                <i class="bi bi-cloud-check text-info font-size-xs" id="cloudSyncIcon" title="Tự động đồng bộ"></i>
-                <input type="text" id="projectTitleInput" class="capcut-project-input" value="BinhLoi_Video_<%= Math.floor(Math.random()*900000 + 100000) %>" title="Nhấp để đổi tên dự án">
-            </div>
-
-            <!-- Aspect Ratio Selector -->
-            <select id="aspectRatioSelect" class="capcut-ratio-select" title="Tỉ lệ khung hình">
-                <option value="9:16" selected>📱 9:16 (TikTok / Reels)</option>
-                <option value="16:9">🖥️ 16:9 (YouTube / Ngang)</option>
-                <option value="1:1">📷 1:1 (Vuông Instagram)</option>
-                <option value="4:3">🎞️ 4:3 (Cổ điển)</option>
-            </select>
-
-            <!-- Undo / Redo -->
-            <div class="d-none d-sm-flex align-items-center gap-1">
-                <button type="button" class="capcut-icon-btn" id="btnUndo" title="Hoàn tác (Ctrl+Z)">
-                    <i class="bi bi-arrow-counterclockwise"></i>
-                </button>
-                <button type="button" class="capcut-icon-btn" id="btnRedo" title="Làm lại (Ctrl+Y)">
-                    <i class="bi bi-arrow-clockwise"></i>
-                </button>
-            </div>
+        <!-- Khu vực giữa: Tên project & Trạng thái lưu -->
+        <div class="d-none d-md-flex align-items-center gap-2.5 px-3.5 py-1.5 rounded-pill bl-project-name-wrapper border shadow-2xs">
+            <i class="bi bi-pencil-square text-muted font-size-sm"></i>
+            <input type="text" class="bl-project-title-input font-size-sm fw-semibold" id="projectTitleInput" value="Video Bình Lợi – Chữa Lành" placeholder="Nhập tên dự án...">
+            <span class="bl-status-saved d-flex align-items-center gap-1.5 text-success font-size-xs fw-semibold ms-2" id="saveStatusIndicator">
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Đã lưu</span>
+            </span>
         </div>
 
-        <!-- Right Export Button & Resolution -->
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge d-none d-lg-inline-block px-2 py-1 text-white-50 border border-secondary border-opacity-25" style="font-size: 0.7rem; background: #191b20;">
-                1080P · 30 FPS
-            </span>
-            <button type="button" class="btn-capcut-export" id="btnOpenExportModal">
+        <!-- Bên phải: Các công cụ thao tác nhanh (Undo, Redo, Play, Xuất video) -->
+        <div class="d-flex align-items-center gap-2.5">
+            <button type="button" class="btn btn-sm bl-btn-icon" id="btnUndo" title="Hoàn tác (Ctrl+Z)" disabled>
+                <i class="bi bi-arrow-counterclockwise fs-5"></i>
+            </button>
+            <button type="button" class="btn btn-sm bl-btn-icon" id="btnRedo" title="Làm lại (Ctrl+Y)" disabled>
+                <i class="bi bi-arrow-clockwise fs-5"></i>
+            </button>
+            <div class="vr my-1 bl-vr mx-1"></div>
+            <button type="button" class="btn btn-sm bl-btn-secondary d-none d-sm-flex align-items-center gap-2 px-3 py-1.5 rounded-pill" id="btnHeaderPlay">
+                <i class="bi bi-play-fill fs-5"></i>
+                <span>Xem trước</span>
+            </button>
+            <button type="button" class="btn btn-sm bl-btn-secondary d-none d-lg-flex align-items-center gap-2 px-3 py-1.5 rounded-pill" id="btnSaveProject">
+                <i class="bi bi-floppy fs-6"></i>
+                <span>Lưu</span>
+            </button>
+            <!-- Nút Export nổi bật màu đỏ -->
+            <button type="button" class="btn btn-sm bl-btn-export fw-bold d-flex align-items-center gap-2 shadow-sm px-4 py-1.5 rounded-pill ms-1" id="btnOpenExportModal">
                 <i class="bi bi-box-arrow-up-right fs-6"></i>
-                <span>Xuất</span>
+                <span>Xuất video</span>
             </button>
         </div>
     </header>
 
-    <!-- ==================== 2. MAIN 3-COLUMN DESKTOP BODY ==================== -->
-    <div class="capcut-desktop-body">
-        
-        <!-- LEFT PANEL: Category Rail + Drawer -->
-        <aside class="capcut-left-panel">
-            <!-- Tier 1: Vertical Icon Rail -->
-            <nav class="capcut-rail">
-                <button type="button" class="capcut-rail-item active" data-tab="templates" title="Mẫu CapCut có sẵn">
-                    <i class="bi bi-collection-play"></i>
-                    <span>Mẫu</span>
+    <!-- 2. THÂN STUDIO (3 CỘT: SIDEBAR + DRAWER, CANVAS MONITOR, PROPERTIES PANEL) -->
+    <div class="bl-studio-body d-flex">
+        <!-- CỘT 1: SIDEBAR CÔNG CỤ TRÁI + DRAWER NỘI DUNG (RỘNG 440px) -->
+        <aside class="bl-left-panel d-flex border-end bg-white">
+            <!-- Sidebar Cố Định Biểu Tượng (Rộng 74px, tối ưu khoảng cách không bị khuất nút) -->
+            <nav class="bl-nav-rail d-flex flex-column align-items-center py-2 border-end bg-white">
+                <button type="button" class="bl-rail-btn active" data-tab="templates" onclick="switchStudioTab('templates')" title="Mẫu Video">
+                    <i class="bi bi-stars fs-5 text-danger"></i>
+                    <span>Mẫu Video</span>
                 </button>
-                <button type="button" class="capcut-rail-item" data-tab="media" title="Ảnh & Video của bạn">
-                    <i class="bi bi-folder2-open"></i>
-                    <span>Media</span>
+                <button type="button" class="bl-rail-btn" data-tab="media" onclick="switchStudioTab('media')" title="Hình ảnh & Video">
+                    <i class="bi bi-collection-play fs-5"></i>
+                    <span>Ảnh/Video</span>
                 </button>
-                <button type="button" class="capcut-rail-item" data-tab="audio" title="Nhạc nền & Âm thanh">
-                    <i class="bi bi-music-note-beamed"></i>
-                    <span>Nhạc</span>
+                <button type="button" class="bl-rail-btn" data-tab="audio" onclick="switchStudioTab('audio')" title="Âm thanh & Nhạc nền">
+                    <i class="bi bi-music-note-beamed fs-5"></i>
+                    <span>Âm thanh</span>
                 </button>
-                <button type="button" class="capcut-rail-item" data-tab="text" title="Phụ đề & Lời dẫn">
-                    <i class="bi bi-fonts"></i>
+                <button type="button" class="bl-rail-btn" data-tab="text" onclick="switchStudioTab('text')" title="Văn bản & Phụ đề">
+                    <i class="bi bi-fonts fs-5"></i>
                     <span>Văn bản</span>
                 </button>
-                <button type="button" class="capcut-rail-item" data-tab="effects" title="Hiệu ứng chuyển cảnh">
-                    <i class="bi bi-magic"></i>
+                <button type="button" class="bl-rail-btn" data-tab="effects" onclick="switchStudioTab('effects')" title="Hiệu ứng">
+                    <i class="bi bi-magic fs-5"></i>
                     <span>Hiệu ứng</span>
                 </button>
-                <button type="button" class="capcut-rail-item" data-tab="filters" title="Bộ lọc màu sắc (LUTs)">
-                    <i class="bi bi-palette"></i>
+                <button type="button" class="bl-rail-btn" data-tab="filters" onclick="switchStudioTab('filters')" title="Bộ lọc màu">
+                    <i class="bi bi-palette fs-5"></i>
                     <span>Bộ lọc</span>
                 </button>
-                <button type="button" class="capcut-rail-item" data-tab="canvas" title="Phông nền video">
-                    <i class="bi bi-aspect-ratio"></i>
-                    <span>Nền</span>
+                <button type="button" class="bl-rail-btn" data-tab="transitions" onclick="switchStudioTab('transitions')" title="Chuyển cảnh">
+                    <i class="bi bi-distribute-horizontal fs-5"></i>
+                    <span>Chuyển cảnh</span>
+                </button>
+                <button type="button" class="bl-rail-btn" data-tab="canvas" onclick="switchStudioTab('canvas')" title="Tỷ lệ khung hình">
+                    <i class="bi bi-aspect-ratio fs-5"></i>
+                    <span>Tỷ lệ</span>
+                </button>
+                <button type="button" class="bl-rail-btn" data-tab="speed" onclick="switchStudioTab('speed')" title="Tốc độ phát">
+                    <i class="bi bi-speedometer2 fs-5"></i>
+                    <span>Tốc độ</span>
                 </button>
             </nav>
 
-            <!-- Tier 2: Drawer Content -->
-            <div class="capcut-drawer capcut-custom-scroll">
-                
-                <!-- TAB 1: TEMPLATES (Mẫu CapCut Bình Lợi) -->
-                <div class="capcut-drawer-pane active" id="pane-templates">
-                    <div class="capcut-drawer-header">
-                        <h6><i class="bi bi-collection-play text-cyan me-1"></i> Mẫu CapCut Bình Lợi</h6>
-                        <span class="badge bg-dark border border-secondary text-white-50 font-size-xs" id="tplCountBadge">6 mẫu</span>
+            <!-- Drawer Panel Bên Cạnh Sidebar (Chiều rộng 360px) -->
+            <div class="bl-drawer-panel p-3.5 custom-scrollbar bg-white">
+                <!-- 0. TAB: MẪU VIDEO -->
+                <div class="bl-tab-pane active" id="spane-templates">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-stars text-danger me-2"></i>Mẫu Video Bình Lợi</h6>
+                            <span class="text-muted x-small">Chọn mẫu 1-chạm & chỉ cần thêm ảnh</span>
+                        </div>
+                        <span class="badge bg-danger text-white px-2.5 py-1 rounded-pill font-size-xs fw-bold">Xu hướng</span>
                     </div>
-                    <div class="capcut-drawer-body">
-                        <div class="d-flex gap-1 mb-3 overflow-x-auto pb-1" style="scrollbar-width: none;">
-                            <button type="button" class="btn btn-sm btn-dark text-cyan rounded-pill px-2.5 py-0.5 border border-cyan" style="font-size: 0.7rem;">Tất cả</button>
-                            <button type="button" class="btn btn-sm btn-dark text-white-50 rounded-pill px-2.5 py-0.5" style="font-size: 0.7rem;">Hot Trend</button>
-                            <button type="button" class="btn btn-sm btn-dark text-white-50 rounded-pill px-2.5 py-0.5" style="font-size: 0.7rem;">Chữa lành</button>
-                            <button type="button" class="btn btn-sm btn-dark text-white-50 rounded-pill px-2.5 py-0.5" style="font-size: 0.7rem;">Vlog</button>
-                        </div>
 
-                        <div id="templatesListContainer">
-                            <!-- Populated dynamically via JS from videoTemplates data -->
-                            <% if (videoTemplates && videoTemplates.length > 0) { %>
-                                <% videoTemplates.forEach((tpl, idx) => { %>
-                                    <div class="capcut-tpl-card <%= idx === 0 ? 'active' : '' %>" data-template-id="<%= tpl.id %>">
-                                        <img src="<%= tpl.cover_image || '/images/Poster 1.jpg' %>" alt="<%= tpl.title %>" class="capcut-tpl-thumb">
-                                        <div class="capcut-tpl-meta">
-                                            <div class="capcut-tpl-title"><%= tpl.title %></div>
-                                            <div class="capcut-tpl-info">
-                                                <span><i class="bi bi-clock me-1"></i><%= tpl.duration_seconds || 15 %>s</span>
-                                                <span class="text-cyan"><i class="bi bi-images me-1"></i><%= Array.isArray(tpl.slots) ? tpl.slots.length : 4 %> phân đoạn</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                <% }) %>
-                            <% } %>
-                        </div>
+                    <!-- Category Filter Chips -->
+                    <div class="d-flex gap-1.5 mb-3 overflow-x-auto pb-1 no-scrollbar" id="templateFilterChips">
+                        <button type="button" class="btn btn-sm bl-chip-btn active" onclick="filterTemplates('all')">Tất cả</button>
+                        <button type="button" class="btn btn-sm bl-chip-btn" onclick="filterTemplates('healing')">Chữa lành</button>
+                        <button type="button" class="btn btn-sm bl-chip-btn" onclick="filterTemplates('vlog')">Vlog Sen</button>
+                        <button type="button" class="btn btn-sm bl-chip-btn" onclick="filterTemplates('chill')">Hoàng Hôn</button>
+                        <button type="button" class="btn btn-sm bl-chip-btn" onclick="filterTemplates('langmai')">Làng Mai</button>
+                        <button type="button" class="btn btn-sm bl-chip-btn" onclick="filterTemplates('food')">Ẩm Thực</button>
+                    </div>
+
+                    <!-- Templates Cards List -->
+                    <div class="d-flex flex-column gap-3" id="templateCardsContainer">
+                        <!-- Populated dynamically via JS -->
                     </div>
                 </div>
 
-                <!-- TAB 2: MEDIA (Tải ảnh & Video của bạn) -->
-                <div class="capcut-drawer-pane d-none" id="pane-media">
-                    <div class="capcut-drawer-header">
-                        <h6><i class="bi bi-images text-cyan me-1"></i> Tải ảnh từ thiết bị</h6>
-                        <button type="button" class="btn btn-sm btn-outline-cyan rounded-pill px-2 py-0.5 font-size-xs" id="btnBatchReplace">
-                            <i class="bi bi-shuffle me-1"></i>Thay hàng loạt
+                <!-- 1. TAB: MEDIA (Tải ảnh, Thư viện ảnh Bình Lợi) -->
+                <div class="bl-tab-pane" id="spane-media">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-images text-danger me-2"></i>Thư viện Media</h6>
+                            <span class="text-muted x-small">Thêm ảnh để bắt đầu video của bạn</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 fw-semibold font-size-xs d-flex align-items-center gap-1.5" onclick="document.getElementById('media-files').click()">
+                            <i class="bi bi-plus-lg"></i> Tải ảnh lên
                         </button>
+                        <input type="file" id="media-files" multiple accept="image/*,video/*" class="d-none">
                     </div>
-                    <div class="capcut-drawer-body">
-                        <!-- Dropzone -->
-                        <div class="p-4 rounded-3 text-center mb-3 cursor-pointer border border-secondary border-dashed" style="background: rgba(255,255,255,0.02); border-color: rgba(0, 240, 255, 0.3) !important;" onclick="document.getElementById('mediaInput').click()">
-                            <i class="bi bi-cloud-arrow-up display-6 text-cyan d-block mb-1"></i>
-                            <div class="fw-bold text-white small mb-0.5">Nhấp hoặc Kéo thả ảnh vào đây</div>
-                            <div class="text-white-50 font-size-xs mb-2">Hỗ trợ JPG, PNG, WEBP (Tự động canh tỉ lệ)</div>
-                            <button type="button" class="btn btn-sm btn-cyan text-dark fw-bold rounded-pill px-3 py-1 font-size-xs">
-                                + Thêm ảnh mới
-                            </button>
-                            <input type="file" id="mediaInput" multiple accept="image/*" class="d-none">
-                        </div>
 
-                        <!-- Media slots preview list -->
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <span class="font-size-xs text-white-50 fw-bold text-uppercase">Các phân cảnh trong video</span>
-                            <span class="font-size-xs text-cyan" id="mediaSlotsCount">0 / 4 ảnh</span>
+                    <!-- Category Pills: Bình Lợi Library, My Media -->
+                    <div class="d-flex gap-1 mb-3.5 p-1 rounded-3 bg-light border">
+                        <button type="button" class="btn btn-sm bl-subtab-btn active flex-grow-1" data-mediasub="binhloi" onclick="switchMediaSubTab('binhloi')">Bình Lợi Mẫu</button>
+                        <button type="button" class="btn btn-sm bl-subtab-btn flex-grow-1" data-mediasub="my" onclick="switchMediaSubTab('my')">Ảnh Của Bạn</button>
+                    </div>
+
+                    <!-- Sub 1: Thư viện Bình Lợi Library có sẵn -->
+                    <div id="mediaSubBinhLoi">
+                        <div class="d-flex align-items-center justify-content-between mb-2.5">
+                            <span class="x-small text-muted fw-bold text-uppercase">Ảnh phong cảnh Bình Lợi</span>
+                            <button type="button" class="btn btn-link p-0 x-small text-danger text-decoration-none fw-semibold" id="btnLoadAllPresetPhotos">
+                                <i class="bi bi-lightning-fill"></i> Dùng tất cả ảnh
+                            </button>
                         </div>
-                        <div id="mediaSlotsList" class="d-flex flex-column gap-2">
+                        <div class="row g-3" id="presetPhotosGrid">
                             <!-- Populated dynamically via JS -->
                         </div>
                     </div>
-                </div>
 
-                <!-- TAB 3: AUDIO (Âm thanh & Nhạc nền) -->
-                <div class="capcut-drawer-pane d-none" id="pane-audio">
-                    <div class="capcut-drawer-header">
-                        <h6><i class="bi bi-music-note-list text-cyan me-1"></i> Kho nhạc Bình Lợi</h6>
-                        <label for="customAudioUpload" class="btn btn-sm btn-outline-cyan rounded-pill px-2 py-0.5 font-size-xs cursor-pointer m-0">
-                            + Tải MP3
-                        </label>
-                        <input type="file" id="customAudioUpload" accept="audio/*" class="d-none">
-                    </div>
-                    <div class="capcut-drawer-body">
-                        <div class="d-flex flex-column gap-2" id="soundscapeList">
-                            <% if (soundscapes && soundscapes.length > 0) { %>
-                                <% soundscapes.forEach((s, idx) => { %>
-                                    <div class="capcut-audio-item <%= idx === 0 ? 'active' : '' %>" data-audio-url="<%= s.audio_url %>" data-audio-title="<%= s.name %>">
-                                        <div class="d-flex align-items-center gap-2 min-w-0">
-                                            <button type="button" class="capcut-icon-btn btn-play-audio-preview text-cyan" title="Nghe thử">
-                                                <i class="bi bi-play-fill fs-5"></i>
-                                            </button>
-                                            <div class="min-w-0">
-                                                <div class="text-truncate small fw-bold text-white"><%= s.name %></div>
-                                                <span class="badge bg-dark border border-secondary text-white-50" style="font-size: 0.6rem;"><%= s.mood || 'Chữa lành' %></span>
-                                            </div>
-                                        </div>
-                                        <i class="bi bi-check-circle-fill text-cyan check-icon <%= idx === 0 ? '' : 'd-none' %>"></i>
-                                    </div>
-                                <% }) %>
-                            <% } else { %>
-                                <div class="capcut-audio-item active" data-audio-url="/audio/peaceful_stream.mp3" data-audio-title="Suối reo miệt vườn">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <button type="button" class="capcut-icon-btn btn-play-audio-preview text-cyan">
-                                            <i class="bi bi-play-fill fs-5"></i>
-                                        </button>
-                                        <div>
-                                            <div class="small fw-bold text-white">Suối reo miệt vườn</div>
-                                            <span class="badge bg-dark border border-secondary text-white-50" style="font-size: 0.6rem;">Chữa lành</span>
-                                        </div>
-                                    </div>
-                                    <i class="bi bi-check-circle-fill text-cyan check-icon"></i>
-                                </div>
-                            <% } %>
+                    <!-- Sub 2: My Media (Tải lên từ máy) -->
+                    <div id="mediaSubMy" class="d-none">
+                        <!-- Dropzone -->
+                        <div id="dropzone" class="bl-dropzone p-4 rounded-4 text-center cursor-pointer mb-3" onclick="document.getElementById('media-files').click()">
+                            <i class="bi bi-cloud-arrow-up text-danger display-5 d-block mb-2"></i>
+                            <div class="fw-bold text-dark small mb-1">Tải ảnh hoặc video lên</div>
+                            <div class="text-muted x-small mb-3">Kéo thả tệp JPG, PNG, MP4 từ máy tính</div>
+                            <span class="btn btn-sm btn-danger rounded-pill px-3.5 py-1.5 font-size-xs fw-semibold">
+                                <i class="bi bi-upload me-1.5"></i>Chọn tệp từ máy
+                            </span>
+                        </div>
+
+                        <!-- Danh sách tệp đã tải lên -->
+                        <div id="myUploadedMediaWrapper" class="d-none">
+                            <div class="d-flex align-items-center justify-content-between mb-2">
+                                <span class="x-small text-muted fw-bold text-uppercase">Tệp của bạn</span>
+                                <button type="button" class="btn btn-link p-0 x-small text-danger text-decoration-none" onclick="clearAllLoadedImages()">Xóa tất cả</button>
+                            </div>
+                            <div class="row g-2.5" id="myUploadedMediaGrid"></div>
                         </div>
                     </div>
                 </div>
 
-                <!-- TAB 4: TEXT (Phụ đề & Lời dẫn) -->
-                <div class="capcut-drawer-pane d-none" id="pane-text">
-                    <div class="capcut-drawer-header">
-                        <h6><i class="bi bi-chat-quote text-cyan me-1"></i> Lời dẫn & Phụ đề</h6>
-                    </div>
-                    <div class="capcut-drawer-body">
-                        <div class="d-flex flex-column gap-3" id="subtitlesListContainer">
-                            <!-- Populated dynamically via JS based on template slots -->
+                <!-- 2. TAB: TEXT (Thêm chữ & Presets kịch bản) -->
+                <div class="bl-tab-pane" id="spane-text">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-fonts text-danger me-2"></i>Văn bản & Phụ đề</h6>
+                            <span class="text-muted x-small">Phụ đề hiển thị theo thời gian trên video</span>
                         </div>
-                    </div>
-                </div>
-
-                <!-- TAB 5: EFFECTS (Hiệu ứng chuyển cảnh) -->
-                <div class="capcut-drawer-pane d-none" id="pane-effects">
-                    <div class="capcut-drawer-header">
-                        <h6><i class="bi bi-magic text-cyan me-1"></i> Hiệu ứng hình ảnh</h6>
-                    </div>
-                    <div class="capcut-drawer-body">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <div class="p-3 rounded-3 text-center border border-secondary cursor-pointer capcut-effect-btn active" data-effect="kenburns">
-                                    <i class="bi bi-zoom-in fs-4 text-cyan d-block mb-1"></i>
-                                    <div class="small fw-bold">Ken Burns</div>
-                                    <div class="font-size-xs text-white-50">Phóng to điện ảnh</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-3 rounded-3 text-center border border-secondary cursor-pointer capcut-effect-btn" data-effect="pan">
-                                    <i class="bi bi-arrow-left-right fs-4 text-info d-block mb-1"></i>
-                                    <div class="small fw-bold">Pan Lướt</div>
-                                    <div class="font-size-xs text-white-50">Trôi ngang êm ái</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-3 rounded-3 text-center border border-secondary cursor-pointer capcut-effect-btn" data-effect="dissolve">
-                                    <i class="bi bi-intersect fs-4 text-warning d-block mb-1"></i>
-                                    <div class="small fw-bold">Hòa tan</div>
-                                    <div class="font-size-xs text-white-50">Cross Dissolve</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-3 rounded-3 text-center border border-secondary cursor-pointer capcut-effect-btn" data-effect="flash">
-                                    <i class="bi bi-lightning-charge fs-4 text-danger d-block mb-1"></i>
-                                    <div class="small fw-bold">Flash Trắng</div>
-                                    <div class="font-size-xs text-white-50">TikTok Giật Beat</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 6: FILTERS (Bộ lọc màu sắc) -->
-                <div class="capcut-drawer-pane d-none" id="pane-filters">
-                    <div class="capcut-drawer-header">
-                        <h6><i class="bi bi-palette text-cyan me-1"></i> Bộ lọc màu (LUTs)</h6>
-                    </div>
-                    <div class="capcut-drawer-body">
-                        <div class="row g-2">
-                            <div class="col-6">
-                                <div class="p-2.5 rounded-3 text-center border border-secondary cursor-pointer capcut-filter-btn active" data-filter="none">
-                                    <div class="rounded-2 mb-1.5" style="height: 38px; background: linear-gradient(135deg, #3a3d46 0%, #1f2127 100%);"></div>
-                                    <div class="small fw-bold">Tự nhiên (Gốc)</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-2.5 rounded-3 text-center border border-secondary cursor-pointer capcut-filter-btn" data-filter="warm">
-                                    <div class="rounded-2 mb-1.5" style="height: 38px; background: linear-gradient(135deg, #ff9966 0%, #ff5e62 100%);"></div>
-                                    <div class="small fw-bold">Nắng Ấm</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-2.5 rounded-3 text-center border border-secondary cursor-pointer capcut-filter-btn" data-filter="cool">
-                                    <div class="rounded-2 mb-1.5" style="height: 38px; background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%);"></div>
-                                    <div class="small fw-bold">Rừng Trúc (Emerald)</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-2.5 rounded-3 text-center border border-secondary cursor-pointer capcut-filter-btn" data-filter="vintage">
-                                    <div class="rounded-2 mb-1.5" style="height: 38px; background: linear-gradient(135deg, #ba8b02 0%, #181818 100%);"></div>
-                                    <div class="small fw-bold">Phim Cổ (Vintage)</div>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="p-2.5 rounded-3 text-center border border-secondary cursor-pointer capcut-filter-btn" data-filter="grayscale">
-                                    <div class="rounded-2 mb-1.5" style="height: 38px; background: linear-gradient(135deg, #2c3e50 0%, #000000 100%);"></div>
-                                    <div class="small fw-bold">Đen Trắng (Noir)</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- TAB 7: CANVAS / BACKGROUND -->
-                <div class="capcut-drawer-pane d-none" id="pane-canvas">
-                    <div class="capcut-drawer-header">
-                        <h6><i class="bi bi-aspect-ratio text-cyan me-1"></i> Bảng vẽ & Nền</h6>
-                    </div>
-                    <div class="capcut-drawer-body">
-                        <label class="capcut-control-label mb-2">Loại phông nền</label>
-                        <div class="d-flex gap-2 mb-3">
-                            <button type="button" class="btn btn-sm btn-dark border border-cyan text-cyan rounded-pill flex-grow-1" id="btnBgBlur">Làm mờ ảnh</button>
-                            <button type="button" class="btn btn-sm btn-dark border border-secondary text-white-50 rounded-pill flex-grow-1" id="btnBgColor">Màu đen</button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </aside>
-
-        <!-- CENTER PANEL: Canvas Preview Monitor (Direct Manipulation) -->
-        <main class="capcut-center-panel">
-            <!-- Viewport with Bounding Box Overlay -->
-            <div class="capcut-viewport-container" id="canvasViewport">
-                <!-- HTML5 Core Canvas -->
-                <canvas id="studioCanvas" width="540" height="960"></canvas>
-
-                <!-- Magnetic Smart Alignment Guidelines -->
-                <div class="capcut-guide-line-x" id="guideLineX"></div>
-                <div class="capcut-guide-line-y" id="guideLineY"></div>
-
-                <!-- DIRECT CANVAS BOUNDING BOX (NO POPUPS!) -->
-                <div class="capcut-bounding-box" id="studioBBox">
-                    <!-- Corner Handles -->
-                    <div class="capcut-bbox-handle nw" data-handle="nw"></div>
-                    <div class="capcut-bbox-handle ne" data-handle="ne"></div>
-                    <div class="capcut-bbox-handle se" data-handle="se"></div>
-                    <div class="capcut-bbox-handle sw" data-handle="sw"></div>
-                    <!-- Edge Handles -->
-                    <div class="capcut-bbox-handle n" data-handle="n"></div>
-                    <div class="capcut-bbox-handle s" data-handle="s"></div>
-                    <div class="capcut-bbox-handle e" data-handle="e"></div>
-                    <div class="capcut-bbox-handle w" data-handle="w"></div>
-                    <!-- Rotator Pin -->
-                    <div class="capcut-bbox-rotator-stem"></div>
-                    <div class="capcut-bbox-rotator" id="bboxRotator" title="Xoay ảnh 360°">
-                        <i class="bi bi-arrow-repeat"></i>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Floating Control Bar Under Canvas -->
-            <div class="capcut-monitor-dock">
-                <button type="button" class="capcut-dock-btn" id="btnRewind" title="Tua về đầu">
-                    <i class="bi bi-skip-start-fill"></i>
-                </button>
-                <button type="button" class="capcut-dock-btn" id="btnPrevFrame" title="Lùi 1 khung hình">
-                    <i class="bi bi-caret-left-fill"></i>
-                </button>
-                <button type="button" class="capcut-dock-btn play" id="btnPlayPause" title="Phát / Tạm dừng (Space)">
-                    <i class="bi bi-play-circle-fill"></i>
-                </button>
-                <button type="button" class="capcut-dock-btn" id="btnNextFrame" title="Tới 1 khung hình">
-                    <i class="bi bi-caret-right-fill"></i>
-                </button>
-                <div class="capcut-dock-time" id="dockTimecode">00:00 / 00:15</div>
-                <button type="button" class="capcut-dock-btn" id="btnToggleMute" title="Bật / Tắt âm thanh">
-                    <i class="bi bi-volume-up-fill" id="dockMuteIcon"></i>
-                </button>
-                <button type="button" class="capcut-dock-btn" id="btnFitCanvas" title="Vừa vặn màn hình">
-                    <i class="bi bi-arrows-angle-expand"></i>
-                </button>
-            </div>
-        </main>
-
-        <!-- RIGHT PANEL: Contextual Property Inspector -->
-        <aside class="capcut-right-panel capcut-custom-scroll">
-            <div class="capcut-inspector-header">
-                <button type="button" class="capcut-inspector-tab-btn active" data-itab="basic">Cơ bản</button>
-                <button type="button" class="capcut-inspector-tab-btn" data-itab="adjust">Màu sắc</button>
-                <button type="button" class="capcut-inspector-tab-btn" data-itab="audio">Âm thanh</button>
-            </div>
-            
-            <div class="capcut-inspector-body">
-                <!-- Tab: Basic (Position, Scale, Rotate, Opacity) -->
-                <div class="capcut-itab-pane active" id="itab-basic">
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Thu phóng (Tỉ lệ)</span>
-                            <span class="text-cyan font-size-xs" id="valScale">100%</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderScale" min="50" max="300" value="100">
-                    </div>
-
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Góc xoay</span>
-                            <span class="text-cyan font-size-xs" id="valRotate">0°</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderRotate" min="-180" max="180" value="0">
-                    </div>
-
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Vị trí ngang (X)</span>
-                            <span class="text-cyan font-size-xs" id="valPosX">0 px</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderPosX" min="-200" max="200" value="0">
-                    </div>
-
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Vị trí dọc (Y)</span>
-                            <span class="text-cyan font-size-xs" id="valPosY">0 px</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderPosY" min="-200" max="200" value="0">
-                    </div>
-
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Độ mờ (Opacity)</span>
-                            <span class="text-cyan font-size-xs" id="valOpacity">100%</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderOpacity" min="10" max="100" value="100">
-                    </div>
-
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="button" class="btn btn-sm btn-dark border border-secondary text-white-50 rounded-pill" id="btnResetTransform">
-                            <i class="bi bi-arrow-counterclockwise me-1"></i>Đặt lại góc nhìn ảnh
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 font-size-xs fw-semibold" id="btnAddNewText">
+                            <i class="bi bi-plus-lg"></i> Thêm chữ
                         </button>
                     </div>
+
+                    <!-- Gợi ý kịch bản chữ theo từng khoảnh khắc -->
+                    <div class="mb-3.5">
+                        <label class="x-small fw-bold text-muted text-uppercase mb-2 d-block">1. Mở đầu (Hook 0s - 4s)</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-chat-quote"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="text-hook" placeholder="Ví dụ: Rời xa khói bụi thành phố, về Bình Lợi thôi...">
+                        </div>
+                    </div>
+
+                    <div class="mb-3.5">
+                        <label class="x-small fw-bold text-muted text-uppercase mb-2 d-block">2. Trải nghiệm (Immersion 4s - 8s)</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-tree"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="text-immersion" placeholder="Ví dụ: Không gian thanh bình bên bóng dừa mát...">
+                        </div>
+                    </div>
+
+                    <div class="mb-3.5">
+                        <label class="x-small fw-bold text-muted text-uppercase mb-2 d-block">3. Điểm nhấn (Highlight 8s - 12s)</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-heart"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="text-highlight" placeholder="Ví dụ: Chữa lành từ những điều mộc mạc nhất...">
+                        </div>
+                    </div>
+
+                    <div class="mb-3.5">
+                        <label class="x-small fw-bold text-muted text-uppercase mb-2 d-block">4. Kết thúc (Outro 12s - 15s)</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0 text-muted"><i class="bi bi-geo-alt"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0" id="text-outro" placeholder="Ví dụ: Hẹn gặp bạn tại Bình Lợi vào cuối tuần!">
+                        </div>
+                    </div>
+
+                    <!-- Các kiểu chữ mẫu (Typography Presets) -->
+                    <div class="mt-4">
+                        <label class="x-small fw-bold text-muted text-uppercase mb-2.5 d-block">Kiểu chữ đẹp có sẵn</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <button type="button" class="btn btn-sm btn-outline-secondary w-100 py-2 rounded-3 text-start d-flex align-items-center justify-content-between" onclick="applyTextStylePreset('modern')">
+                                    <span class="fw-bold small">Hiện đại</span>
+                                    <span class="badge bg-dark text-white">Inter</span>
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-sm btn-outline-secondary w-100 py-2 rounded-3 text-start d-flex align-items-center justify-content-between" onclick="applyTextStylePreset('cinematic')">
+                                    <span class="fw-bold small">Điện ảnh</span>
+                                    <span class="badge bg-warning text-dark">Gold</span>
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-sm btn-outline-secondary w-100 py-2 rounded-3 text-start d-flex align-items-center justify-content-between" onclick="applyTextStylePreset('handwrite')">
+                                    <span class="fw-bold small">Thơ mộng</span>
+                                    <span class="badge bg-info text-dark">Script</span>
+                                </button>
+                            </div>
+                            <div class="col-6">
+                                <button type="button" class="btn btn-sm btn-outline-secondary w-100 py-2 rounded-3 text-start d-flex align-items-center justify-content-between" onclick="applyTextStylePreset('subtitle')">
+                                    <span class="fw-bold small">Phụ đề chuẩn</span>
+                                    <span class="badge bg-secondary text-white">Box</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Tab: Adjust (Brightness, Contrast, Saturation) -->
-                <div class="capcut-itab-pane d-none" id="itab-adjust">
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Độ sáng (Brightness)</span>
-                            <span class="text-cyan font-size-xs" id="valBrightness">100%</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderBrightness" min="50" max="150" value="100">
+                <!-- 3. TAB: AUDIO (Nhạc nền, Soundscapes) -->
+                <div class="bl-tab-pane" id="spane-audio">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-music-note-beamed text-danger me-2"></i>Âm thanh & Nhạc nền</h6>
+                            <span class="text-muted x-small">Nhạc chữa lành độc quyền Bình Lợi</span>
+                        </div>
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill px-3 py-1 font-size-xs fw-semibold" onclick="document.getElementById('userAudioFile').click()">
+                            <i class="bi bi-upload"></i> Tải nhạc
+                        </button>
+                        <input type="file" id="userAudioFile" accept="audio/*" class="d-none" onchange="handleUserAudioUpload(this)">
                     </div>
 
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Độ tương phản (Contrast)</span>
-                            <span class="text-cyan font-size-xs" id="valContrast">100%</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderContrast" min="50" max="150" value="100">
+                    <!-- File nhạc do người dùng tải lên nếu có -->
+                    <div id="userAudioBadgeWrapper" class="d-none mb-3">
+                        <div class="p-3 rounded-3 border bg-light d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center gap-2.5 min-w-0">
+                                <i class="bi bi-file-earmark-music-fill text-danger fs-5"></i>
+                                <div class="min-w-0">
+                                    <div class="fw-bold text-dark text-truncate small" id="userAudioTitle">Tên bài nhạc</div>
+                                    <span class="badge bg-danger-subtle text-danger font-size-xs">Nhạc của bạn</span>
+                                </div>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-sm btn-light border p-1" id="btnPreviewUserAudio" title="Nghe thử"><i class="bi bi-play-circle fs-5"></i></button>
+                                <button type="button" class="btn btn-sm btn-danger rounded-pill px-2.5 py-1 font-size-xs fw-semibold" id="btnSelectUserAudio">Chọn</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Độ bão hòa màu (Saturation)</span>
-                            <span class="text-cyan font-size-xs" id="valSaturation">100%</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderSaturation" min="0" max="200" value="100">
+                    <!-- Danh sách Soundscape có sẵn -->
+                    <div class="d-flex align-items-center justify-content-between mb-2.5">
+                        <label class="x-small fw-bold text-muted text-uppercase mb-0">Thư viện nhạc Bình Lợi</label>
+                        <span class="text-muted x-small">Bản quyền mở</span>
+                    </div>
+                    <div class="d-flex flex-column gap-2.5" id="soundscapeList">
+                        <% if (soundscapes && soundscapes.length > 0) { %>
+                            <% soundscapes.forEach((sound, index) => { %>
+                                <div class="bl-audio-card p-2.5 rounded-3 border bg-white d-flex align-items-center justify-content-between cursor-pointer shadow-2xs" data-audio-url="<%= sound.audio_url %>" data-audio-name="<%= sound.name %>">
+                                    <div class="d-flex align-items-center gap-2.5 min-w-0 flex-grow-1 me-2">
+                                        <div class="bl-audio-icon rounded-circle d-flex align-items-center justify-content-center flex-shrink-0">
+                                            <i class="bi bi-soundwave fs-5 text-danger"></i>
+                                        </div>
+                                        <div class="min-w-0 flex-grow-1">
+                                            <div class="fw-bold text-dark text-truncate small" style="font-size: 0.83rem;"><%= sound.name %></div>
+                                            <span class="badge bg-light border text-muted mt-0.5" style="font-size: 0.65rem;"><%= sound.mood || 'Thư giãn' %></span>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex align-items-center gap-1.5 flex-shrink-0">
+                                        <button type="button" class="btn btn-sm bl-btn-preview-audio p-1 text-muted hover-danger" onclick="previewAudioTrack(event, '<%= sound.audio_url %>')" title="Nghe thử">
+                                            <i class="bi bi-play-circle fs-5"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary bl-btn-add-audio rounded-pill px-2.5 py-1 font-size-xs fw-semibold" onclick="selectAudioTrack(event, '<%= sound.audio_url %>', '<%= sound.name %>')">
+                                            + Thêm
+                                        </button>
+                                    </div>
+                                </div>
+                            <% }); %>
+                        <% } else { %>
+                            <div class="text-center py-4 text-muted x-small">Không có dữ liệu âm thanh</div>
+                        <% } %>
                     </div>
                 </div>
 
-                <!-- Tab: Audio (Volume, Fade) -->
-                <div class="capcut-itab-pane d-none" id="itab-audio">
-                    <div class="capcut-control-group">
-                        <label class="capcut-control-label">
-                            <span>Âm lượng nhạc</span>
-                            <span class="text-cyan font-size-xs" id="valVolume">100%</span>
-                        </label>
-                        <input type="range" class="capcut-range-slider" id="sliderVolume" min="0" max="200" value="100">
+                <!-- 4. TAB: EFFECTS (Hiệu ứng động) -->
+                <div class="bl-tab-pane" id="spane-effects">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-magic text-danger me-2"></i>Hiệu ứng Video</h6>
+                            <span class="text-muted x-small">Chuyển động hình ảnh chuyên nghiệp</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-2.5">
+                        <div class="bl-effect-card p-3 rounded-3 border bg-white cursor-pointer active shadow-2xs" data-effect="kenburns" onclick="selectStudioEffect('kenburns')">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="fw-bold text-dark small"><i class="bi bi-zoom-in text-danger me-1.5"></i>Ken Burns (Zoom nhẹ)</span>
+                                <span class="badge bg-danger-subtle text-danger font-size-xs">Khuyên dùng</span>
+                            </div>
+                            <div class="text-muted x-small">Phóng to thu nhỏ tự nhiên tạo cảm giác điện ảnh sâu lắng</div>
+                        </div>
+                        <div class="bl-effect-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs" data-effect="shimmer" onclick="selectStudioEffect('shimmer')">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="fw-bold text-dark small"><i class="bi bi-sun text-warning me-1.5"></i>Lóe sáng (Shimmer)</span>
+                            </div>
+                            <div class="text-muted x-small">Tia sáng mềm xuyên qua lớp ảnh làm rực rỡ không gian</div>
+                        </div>
+                        <div class="bl-effect-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs" data-effect="bokeh" onclick="selectStudioEffect('bokeh')">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="fw-bold text-dark small"><i class="bi bi-droplet-half text-info me-1.5"></i>Đốm sáng Bokeh</span>
+                            </div>
+                            <div class="text-muted x-small">Hiệu ứng đom đóm lung linh phù hợp hoàng hôn bên sông</div>
+                        </div>
+                        <div class="bl-effect-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs" data-effect="heartbeat" onclick="selectStudioEffect('heartbeat')">
+                            <div class="d-flex align-items-center justify-content-between mb-1">
+                                <span class="fw-bold text-dark small"><i class="bi bi-heart-pulse text-danger me-1.5"></i>Nhịp điệu (Beat pulse)</span>
+                            </div>
+                            <div class="text-muted x-small">Nhấp nhô nhẹ theo từng nhịp nhạc nền miệt vườn</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. TAB: FILTERS (Bộ lọc màu) -->
+                <div class="bl-tab-pane" id="spane-filters">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-palette text-danger me-2"></i>Bộ lọc màu sắc</h6>
+                            <span class="text-muted x-small">Tone màu chuẩn phong cách Bình Lợi</span>
+                        </div>
+                    </div>
+                    <div class="row g-2.5">
+                        <div class="col-6">
+                            <div class="bl-filter-card p-2 rounded-3 border bg-white cursor-pointer active shadow-2xs text-center" data-filter="natural" onclick="selectStudioFilter('natural')">
+                                <div class="bl-filter-swatch mb-1.5" style="background: linear-gradient(135deg, #10B981, #059669);"></div>
+                                <span class="fw-bold x-small text-dark">Tự nhiên</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bl-filter-card p-2 rounded-3 border bg-white cursor-pointer shadow-2xs text-center" data-filter="warm" onclick="selectStudioFilter('warm')">
+                                <div class="bl-filter-swatch mb-1.5" style="background: linear-gradient(135deg, #F59E0B, #D97706);"></div>
+                                <span class="fw-bold x-small text-dark">Nắng vàng</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bl-filter-card p-2 rounded-3 border bg-white cursor-pointer shadow-2xs text-center" data-filter="vintage" onclick="selectStudioFilter('vintage')">
+                                <div class="bl-filter-swatch mb-1.5" style="background: linear-gradient(135deg, #B45309, #78350F);"></div>
+                                <span class="fw-bold x-small text-dark">Vintage</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bl-filter-card p-2 rounded-3 border bg-white cursor-pointer shadow-2xs text-center" data-filter="cool" onclick="selectStudioFilter('cool')">
+                                <div class="bl-filter-swatch mb-1.5" style="background: linear-gradient(135deg, #06B6D4, #0284C7);"></div>
+                                <span class="fw-bold x-small text-dark">Thanh mát</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bl-filter-card p-2 rounded-3 border bg-white cursor-pointer shadow-2xs text-center" data-filter="vibrant" onclick="selectStudioFilter('vibrant')">
+                                <div class="bl-filter-swatch mb-1.5" style="background: linear-gradient(135deg, #EC4899, #EF4444);"></div>
+                                <span class="fw-bold x-small text-dark">Rực rỡ</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bl-filter-card p-2 rounded-3 border bg-white cursor-pointer shadow-2xs text-center" data-filter="bw" onclick="selectStudioFilter('bw')">
+                                <div class="bl-filter-swatch mb-1.5" style="background: linear-gradient(135deg, #4B5563, #1F2937);"></div>
+                                <span class="fw-bold x-small text-dark">Trắng đen</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. TAB: TRANSITIONS (Chuyển cảnh) -->
+                <div class="bl-tab-pane" id="spane-transitions">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-distribute-horizontal text-danger me-2"></i>Chuyển cảnh</h6>
+                            <span class="text-muted x-small">Hiệu ứng chuyển tiếp giữa các khung hình</span>
+                        </div>
+                    </div>
+                    <div class="d-flex flex-column gap-2.5">
+                        <div class="bl-transition-card p-3 rounded-3 border bg-white cursor-pointer active shadow-2xs d-flex align-items-center justify-content-between" data-trans="crossdissolve" onclick="selectStudioTransition('crossdissolve')">
+                            <div>
+                                <div class="fw-bold text-dark small">Hòa tan mềm (Cross Dissolve)</div>
+                                <span class="text-muted x-small">Chuyển cảnh mịn màng chuẩn điện ảnh</span>
+                            </div>
+                            <i class="bi bi-check-circle-fill text-danger fs-5 check-icon"></i>
+                        </div>
+                        <div class="bl-transition-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs d-flex align-items-center justify-content-between" data-trans="fadeblack" onclick="selectStudioTransition('fadeblack')">
+                            <div>
+                                <div class="fw-bold text-dark small">Mờ dần sang đen (Fade Black)</div>
+                                <span class="text-muted x-small">Tạo khoảng lặng tinh tế cho clip</span>
+                            </div>
+                            <i class="bi bi-check-circle-fill text-danger fs-5 check-icon d-none"></i>
+                        </div>
+                        <div class="bl-transition-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs d-flex align-items-center justify-content-between" data-trans="slidedown" onclick="selectStudioTransition('slidedown')">
+                            <div>
+                                <div class="fw-bold text-dark small">Lướt trượt xuống (Slide Down)</div>
+                                <span class="text-muted x-small">Năng động kiểu TikTok / Reels</span>
+                            </div>
+                            <i class="bi bi-check-circle-fill text-danger fs-5 check-icon d-none"></i>
+                        </div>
+                        <div class="bl-transition-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs d-flex align-items-center justify-content-between" data-trans="zoomin" onclick="selectStudioTransition('zoomin')">
+                            <div>
+                                <div class="fw-bold text-dark small">Phóng to lướt tới (Zoom In)</div>
+                                <span class="text-muted x-small">Hiệu ứng bút phá tập trung vào chi tiết</span>
+                            </div>
+                            <i class="bi bi-check-circle-fill text-danger fs-5 check-icon d-none"></i>
+                        </div>
+                    </div>
+
+                    <!-- Thời lượng chuyển cảnh -->
+                    <div class="mt-4 p-3 rounded-3 bg-light border">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="x-small fw-bold text-muted text-uppercase">Thời lượng chuyển cảnh</span>
+                            <span class="fw-bold x-small text-danger" id="transDurationVal">0.5s</span>
+                        </div>
+                        <input type="range" class="form-range" min="0.2" max="1.5" step="0.1" value="0.5" id="transDurationSlider">
+                    </div>
+                </div>
+
+                <!-- 7. TAB: CANVAS (Tỷ lệ khung hình) -->
+                <div class="bl-tab-pane" id="spane-canvas">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-aspect-ratio text-danger me-2"></i>Tỷ lệ khung hình</h6>
+                            <span class="text-muted x-small">Định dạng xuất video cho các nền tảng</span>
+                        </div>
+                    </div>
+                    <div class="row g-2.5">
+                        <div class="col-6">
+                            <div class="bl-ratio-card p-3 rounded-3 border bg-white cursor-pointer active shadow-2xs text-center" data-ratio="9:16" onclick="selectStudioRatio('9:16')">
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div style="width: 22px; height: 38px; border: 2px solid var(--bl-primary); border-radius: 4px;"></div>
+                                </div>
+                                <span class="fw-bold text-dark small d-block">9:16 Dọc</span>
+                                <span class="text-muted x-small">TikTok, Reels, Shorts</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bl-ratio-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs text-center" data-ratio="16:9" onclick="selectStudioRatio('16:9')">
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div style="width: 38px; height: 22px; border: 2px solid #CBD5E1; border-radius: 4px;"></div>
+                                </div>
+                                <span class="fw-bold text-dark small d-block">16:9 Ngang</span>
+                                <span class="text-muted x-small">YouTube, Tivi</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bl-ratio-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs text-center" data-ratio="1:1" onclick="selectStudioRatio('1:1')">
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div style="width: 28px; height: 28px; border: 2px solid #CBD5E1; border-radius: 4px;"></div>
+                                </div>
+                                <span class="fw-bold text-dark small d-block">1:1 Vuông</span>
+                                <span class="text-muted x-small">Instagram, Facebook Post</span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="bl-ratio-card p-3 rounded-3 border bg-white cursor-pointer shadow-2xs text-center" data-ratio="4:5" onclick="selectStudioRatio('4:5')">
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div style="width: 26px; height: 32px; border: 2px solid #CBD5E1; border-radius: 4px;"></div>
+                                </div>
+                                <span class="fw-bold text-dark small d-block">4:5 Dọc ngắn</span>
+                                <span class="text-muted x-small">Facebook Feed</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. TAB: SPEED (Tốc độ phát) -->
+                <div class="bl-tab-pane" id="spane-speed">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <h6 class="fw-bold text-dark mb-0 fs-6"><i class="bi bi-speedometer2 text-danger me-2"></i>Tốc độ video</h6>
+                            <span class="text-muted x-small">Điều chỉnh thời gian & nhịp điệu phát</span>
+                        </div>
+                        <span class="badge bg-light border text-danger fw-bold font-size-xs" id="currentSpeedBadge">1.0x Chuẩn</span>
+                    </div>
+
+                    <!-- Nút gạt chọn nhanh 4 mốc tốc độ -->
+                    <div class="d-flex gap-2 mb-3">
+                        <button type="button" class="btn btn-sm btn-outline-secondary bl-speed-btn flex-grow-1 py-2 fw-semibold" data-speed="0.5" onclick="setStudioPlaybackSpeed(0.5)">0.5x</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary bl-speed-btn flex-grow-1 py-2 fw-semibold active" data-speed="1.0" onclick="setStudioPlaybackSpeed(1.0)">1.0x</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary bl-speed-btn flex-grow-1 py-2 fw-semibold" data-speed="1.5" onclick="setStudioPlaybackSpeed(1.5)">1.5x</button>
+                        <button type="button" class="btn btn-sm btn-outline-secondary bl-speed-btn flex-grow-1 py-2 fw-semibold" data-speed="2.0" onclick="setStudioPlaybackSpeed(2.0)">2.0x</button>
+                    </div>
+
+                    <!-- Thanh trượt tinh chỉnh chi tiết tốc độ -->
+                    <div class="p-3 rounded-3 bg-light border mb-3.5">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="x-small fw-bold text-muted text-uppercase">Tinh chỉnh tốc độ tự do</span>
+                            <span class="fw-bold x-small text-danger" id="sliderSpeedVal">1.0x</span>
+                        </div>
+                        <input type="range" class="form-range" min="0.25" max="3.0" step="0.05" value="1.0" id="studioSpeedSlider" oninput="setStudioPlaybackSpeed(this.value)">
+                        <div class="d-flex justify-content-between x-small text-muted mt-1">
+                            <span>0.25x (Rất chậm)</span>
+                            <span>1.0x (Chuẩn)</span>
+                            <span>3.0x (Cực nhanh)</span>
+                        </div>
+                    </div>
+
+                    <!-- Gợi ý nhịp điệu cho video Bình Lợi -->
+                    <div class="p-3 rounded-3 border bg-white shadow-2xs">
+                        <div class="d-flex align-items-center gap-2 mb-2">
+                            <i class="bi bi-lightbulb-fill text-warning fs-6"></i>
+                            <span class="fw-bold text-dark x-small text-uppercase">Gợi ý phong cách</span>
+                        </div>
+                        <ul class="list-unstyled mb-0 text-muted x-small d-flex flex-column gap-2">
+                            <li class="d-flex align-items-start gap-2">
+                                <span class="badge bg-secondary text-white font-size-xs flex-shrink-0 mt-0.5">0.5x</span>
+                                <span>Thơ mộng, lắng đọng, phù hợp hoàng hôn và hoa mai trổ bông</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <span class="badge bg-danger text-white font-size-xs flex-shrink-0 mt-0.5">1.0x</span>
+                                <span>Chuẩn điện ảnh, nhịp vừa phải cho vlog khám phá miệt vườn</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <span class="badge bg-warning text-dark font-size-xs flex-shrink-0 mt-0.5">1.5x</span>
+                                <span>Nhanh & sôi động, tối ưu thu hút người xem trên TikTok / Reels</span>
+                            </li>
+                            <li class="d-flex align-items-start gap-2">
+                                <span class="badge bg-dark text-white font-size-xs flex-shrink-0 mt-0.5">2.0x</span>
+                                <span>Tua nhanh hành trình du lịch Bình Lợi theo dạng recap</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
         </aside>
 
-    </div>
+        <!-- CỘT 2: KHUNG PREVIEW CHÍNH (CANVAS 9:16 + CONTROLS) -->
+        <section class="bl-center-panel flex-grow-1 d-flex flex-column align-items-center justify-content-center p-3">
+            <div class="bl-canvas-wrapper position-relative d-flex flex-column align-items-center justify-content-center w-100 h-100" id="canvasWrapper">
+                <!-- Monitor Frame 9:16 (Co giãn theo chiều cao viewport) -->
+                <div class="bl-monitor-frame position-relative shadow-2xl overflow-hidden" id="monitorFrame">
+                    <!-- Canvas Vẽ Video Chính (1080x1920) -->
+                    <canvas id="videoCanvas" width="540" height="960" class="w-100 h-100 d-block"></canvas>
 
-    <!-- ==================== 3. BOTTOM MULTI-TRACK TIMELINE ==================== -->
-    <footer class="capcut-timeline-panel">
-        <!-- Toolbar above tracks -->
-        <div class="capcut-timeline-toolbar">
-            <div class="d-flex align-items-center gap-1">
-                <button type="button" class="capcut-tool-btn" id="toolSplit" title="Tách phân cảnh (Ctrl+B)">
-                    <i class="bi bi-scissors"></i>
-                    <span>Tách</span>
-                </button>
-                <button type="button" class="capcut-tool-btn" id="toolDelete" title="Xóa phân cảnh (Del)">
-                    <i class="bi bi-trash3"></i>
-                    <span>Xóa</span>
-                </button>
-                <button type="button" class="capcut-tool-btn" id="toolDuplicate" title="Nhân đôi">
-                    <i class="bi bi-copy"></i>
-                    <span>Nhân bản</span>
-                </button>
-                <button type="button" class="capcut-tool-btn" id="toolBatch" title="Thay thế tất cả ảnh">
-                    <i class="bi bi-shuffle"></i>
-                    <span>Thay loạt ảnh</span>
-                </button>
-            </div>
-
-            <!-- Timecode & Duration Info -->
-            <div class="d-flex align-items-center gap-3">
-                <span class="font-size-xs text-white-50"><i class="bi bi-film text-cyan me-1"></i><span id="tlClipCount">4</span> clip</span>
-                <span class="font-size-xs text-white-50"><i class="bi bi-clock text-cyan me-1"></i><span id="tlDurationLabel">15.0s</span></span>
-            </div>
-        </div>
-
-        <!-- Scrollable Tracks Container -->
-        <div class="capcut-timeline-tracks-scroll capcut-custom-scroll" id="timelineScrollArea">
-            
-            <!-- Red Playhead Needle (Desktop) -->
-            <div class="capcut-playhead" id="timelinePlayhead" style="left: 16px;">
-                <div class="capcut-playhead-knob"></div>
-            </div>
-
-            <!-- Mobile Center Needle Indicator (< 992px) -->
-            <div class="capcut-mobile-playhead-center d-none" id="mobileCenterNeedle"></div>
-
-            <!-- Time Ruler Bar -->
-            <div class="capcut-ruler" id="timelineRuler">
-                <!-- Ticks rendered via JS -->
-            </div>
-
-            <!-- Track 1: Video / Photo Clips Filmstrip -->
-            <div class="capcut-track-video" id="videoTrackContainer">
-                <!-- Dynamic clip blocks -->
-            </div>
-
-            <!-- Track 2: Subtitles Track -->
-            <div class="capcut-track-subtitles" id="subtitlesTrackContainer">
-                <!-- Dynamic subtitle blocks -->
-            </div>
-
-            <!-- Track 3: Audio Track -->
-            <div class="capcut-track-audio" id="audioTrackContainer">
-                <div class="capcut-audio-bar">
-                    <i class="bi bi-music-note"></i>
-                    <span id="tlAudioName">Suối reo miệt vườn - Nhạc bản quyền Bình Lợi</span>
-                </div>
-            </div>
-
-        </div>
-    </footer>
-
-    <!-- ==================== 4. MOBILE BOTTOM STICKY DOCK (< 992px) ==================== -->
-    <div class="capcut-mobile-bottom-bar d-none">
-        <button type="button" class="capcut-m-btn active" data-mtab="templates">
-            <i class="bi bi-collection-play"></i>
-            <span>Mẫu</span>
-        </button>
-        <button type="button" class="capcut-m-btn" data-mtab="media">
-            <i class="bi bi-folder2-open"></i>
-            <span>Ảnh</span>
-        </button>
-        <button type="button" class="capcut-m-btn" data-mtab="audio">
-            <i class="bi bi-music-note-beamed"></i>
-            <span>Nhạc</span>
-        </button>
-        <button type="button" class="capcut-m-btn" data-mtab="text">
-            <i class="bi bi-fonts"></i>
-            <span>Chữ</span>
-        </button>
-        <button type="button" class="capcut-m-btn" data-mtab="effects">
-            <i class="bi bi-magic"></i>
-            <span>Hiệu ứng</span>
-        </button>
-        <button type="button" class="capcut-m-btn" data-mtab="filters">
-            <i class="bi bi-palette"></i>
-            <span>Bộ lọc</span>
-        </button>
-    </div>
-
-    <!-- Mobile Slide-Up Drawer Sheet -->
-    <div class="capcut-mobile-sheet" id="mobileDrawerSheet">
-        <div class="d-flex justify-content-between align-items-center p-3 border-bottom border-secondary border-opacity-25">
-            <h6 class="m-0 text-white font-size-sm fw-bold" id="mobileSheetTitle">Mẫu CapCut</h6>
-            <button type="button" class="btn-close btn-close-white" id="btnCloseMobileSheet"></button>
-        </div>
-        <div class="p-3 overflow-y-auto" id="mobileSheetContent" style="max-height: 40vh;">
-            <!-- Rendered dynamically -->
-        </div>
-    </div>
-
-    <!-- ==================== 5. EXPORT VIDEO MODAL POPUP ==================== -->
-    <div class="modal fade" id="capcutExportModal" tabindex="-1" aria-hidden="true" style="z-index: 1050; display: none;">
-        <div class="modal-dialog modal-dialog-centered" style="max-width: 420px;">
-            <div class="modal-content border-0 rounded-4 overflow-hidden text-white" style="background: #18191d; border: 1px solid #2e313a !important;">
-                <div class="modal-header border-bottom border-secondary border-opacity-25 py-3 px-4">
-                    <div class="d-flex align-items-center gap-2">
-                        <div class="capcut-brand-badge" style="width: 26px; height: 26px;">
-                            <i class="bi bi-scissors fs-6 text-dark"></i>
-                        </div>
-                        <h5 class="modal-title fw-bold fs-6 mb-0">Xuất video CapCut Pro</h5>
+                    <!-- Interactive Drag Overlay cho Text trên canvas -->
+                    <div class="bl-text-drag-box" id="textDragBox" style="display: none;">
+                        <span class="bl-text-drag-handle">✥</span>
                     </div>
-                    <button type="button" class="capcut-icon-btn" id="btnCloseExportModal" style="margin-right: -8px;">
-                        <i class="bi bi-x-lg"></i>
+
+                    <!-- Nút Play trên màn hình khi video đang tạm dừng (Ẩn khi chưa có clip) -->
+                    <button type="button" class="btn bl-canvas-big-play position-absolute top-50 start-50 translate-middle rounded-circle shadow-lg text-white" id="playOverlayBtn" onclick="togglePlayVideo()">
+                        <i class="bi bi-play-fill fs-1"></i>
                     </button>
                 </div>
-                <div class="modal-body p-4">
-                    <div class="mb-3">
-                        <label class="font-size-xs fw-bold text-white-50 text-uppercase mb-1.5 d-block">Định dạng & Chất lượng</label>
-                        <div class="d-flex gap-2">
-                            <span class="badge text-dark fw-bold px-2.5 py-1.5" style="background: var(--capcut-cyan);">1080P Full HD</span>
-                            <span class="badge bg-dark border border-secondary text-white-50 px-2.5 py-1.5">30 FPS</span>
-                            <span class="badge bg-dark border border-secondary text-white-50 px-2.5 py-1.5" id="exportRatioBadge">9:16</span>
-                        </div>
-                    </div>
 
-                    <!-- Progress Bar (hidden during prep) -->
-                    <div id="exportProgressWrapper" class="mb-3 d-none">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span class="font-size-xs fw-bold text-cyan" id="exportStatusLabel">Đang kết xuất khung hình...</span>
-                            <span class="font-size-xs fw-bold text-white" id="exportPercentLabel">0%</span>
-                        </div>
-                        <div class="progress rounded-pill bg-dark border border-secondary border-opacity-30" style="height: 8px;">
-                            <div id="exportProgressBar" class="progress-bar progress-bar-striped progress-bar-animated" style="width: 0%; background: var(--capcut-cyan);"></div>
-                        </div>
-                    </div>
-
-                    <!-- Action Button -->
-                    <div class="d-grid gap-2 mt-4">
-                        <button type="button" class="btn-capcut-export py-2.5 justify-content-center" id="btnStartExport">
-                            <i class="bi bi-download fs-5"></i>
-                            <span>BẮT ĐẦU XUẤT VIDEO</span>
+                <!-- Thanh điều khiển Play/Pause/Timecode dưới màn hình canvas -->
+                <div class="bl-monitor-controls mt-2.5 d-flex align-items-center justify-content-between px-3.5 py-2 rounded-pill bg-white border shadow-sm">
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm bl-ctrl-btn" onclick="rewindStartVideo()" title="Về đầu">
+                            <i class="bi bi-skip-start-fill fs-5"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm bl-ctrl-btn bl-ctrl-play" id="monitorPlayToggle" onclick="togglePlayVideo()" title="Phát / Dừng">
+                            <i class="bi bi-play-circle-fill fs-3 text-danger"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm bl-ctrl-btn" onclick="forwardEndVideo()" title="Đến cuối">
+                            <i class="bi bi-skip-end-fill fs-5"></i>
                         </button>
                     </div>
+
+                    <!-- Timecode đồng hồ -->
+                    <div class="bl-timecode-badge px-3 py-1 rounded-pill bg-light font-monospace fw-bold small text-dark mx-2" id="player-time">
+                        00:00 / 00:15
+                    </div>
+
+                    <!-- Âm lượng / Mute -->
+                    <div class="d-flex align-items-center gap-2">
+                        <button type="button" class="btn btn-sm bl-ctrl-btn" onclick="toggleMute()" title="Bật/Tắt tiếng">
+                            <i class="bi bi-volume-up-fill fs-5" id="volIcon"></i>
+                        </button>
+                        <input type="range" class="form-range d-none d-sm-inline-block" style="width: 70px;" min="0" max="1" step="0.05" value="0.8" id="masterVolumeSlider" oninput="changeMasterVolume(this.value)">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CỘT 3: PROPERTIES PANEL (BÊN PHẢI, CHỈNH THUỘC TÍNH CHỮ / CLIP / DỰ ÁN) -->
+        <aside class="bl-properties-panel border-start bg-white p-3.5 custom-scrollbar">
+            <!-- Header Properties -->
+            <div class="d-flex align-items-center justify-content-between mb-3.5 pb-2 border-bottom">
+                <h6 class="fw-bold text-dark mb-0 fs-6" id="propPanelTitle"><i class="bi bi-sliders text-danger me-1.5"></i>Thuộc tính</h6>
+                <span class="badge bg-light border text-muted x-small" id="propPanelBadge">Tổng quan</span>
+            </div>
+
+            <!-- 1. Tổng quan Dự án (Khi không chọn gì cụ thể) -->
+            <div id="propPanelDefault">
+                <div class="p-3 rounded-3 bg-light border mb-3">
+                    <div class="d-flex justify-content-between mb-1.5">
+                        <span class="text-muted x-small">Tỷ lệ khung hình:</span>
+                        <span class="fw-bold text-dark x-small" id="overviewRatioLabel">9:16 Dọc</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1.5">
+                        <span class="text-muted x-small">Tổng thời lượng:</span>
+                        <span class="fw-bold text-danger x-small" id="overviewDurationLabel">15 Giây</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-1.5">
+                        <span class="text-muted x-small">Số phân cảnh:</span>
+                        <span class="fw-bold text-dark x-small" id="overviewClipsCount">0 Clips</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span class="text-muted x-small">Độ phân giải xuất:</span>
+                        <span class="fw-bold text-dark x-small">1080 × 1920 (FHD)</span>
+                    </div>
+                </div>
+
+                <div class="p-3 rounded-3 border bg-white mb-3">
+                    <div class="d-flex align-items-center gap-2 mb-2">
+                        <i class="bi bi-lightbulb-fill text-warning fs-6"></i>
+                        <span class="fw-bold text-dark small">Gợi ý nhanh:</span>
+                    </div>
+                    <p class="text-muted x-small mb-0">
+                        Bạn có thể chọn <strong>Mẫu Video</strong> ở cột bên trái để tự động nạp nhạc và phụ đề chuẩn, sau đó chỉ cần thêm ảnh là hoàn tất!
+                    </p>
+                </div>
+            </div>
+
+            <!-- 2. Properties của Văn bản (Khi đang chọn Text) -->
+            <div id="propPanelText" class="d-none">
+                <div class="mb-3">
+                    <label class="x-small fw-bold text-muted text-uppercase mb-1.5 d-block">Nội dung chữ</label>
+                    <textarea class="form-control form-control-sm" rows="3" id="propTextInput" placeholder="Nhập chữ..."></textarea>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label class="x-small fw-bold text-muted text-uppercase mb-1.5 d-block">Font chữ</label>
+                        <select class="form-select form-select-sm" id="propFontFamily">
+                            <option value="Inter, sans-serif">Inter (Chuẩn)</option>
+                            <option value="Montserrat, sans-serif">Montserrat (Trẻ)</option>
+                            <option value="'Dancing Script', cursive">Dancing Script</option>
+                            <option value="Arial, sans-serif">Arial</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="x-small fw-bold text-muted text-uppercase mb-1.5 d-block">Cỡ chữ</label>
+                        <input type="number" class="form-control form-control-sm" id="propFontSize" value="32" min="16" max="72">
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-between mb-3 p-2.5 rounded-3 bg-light border">
+                    <span class="x-small fw-bold text-muted text-uppercase">Màu chữ</span>
+                    <input type="color" class="form-control form-control-color p-0 border-0 rounded-circle" id="propTextColor" value="#FFFFFF" style="width: 28px; height: 28px;">
+                </div>
+
+                <!-- Định dạng In đậm, Nghiêng, Căn lề -->
+                <div class="d-flex gap-1.5 mb-3">
+                    <button type="button" class="btn btn-sm btn-outline-secondary flex-grow-1" id="btnPropBold"><i class="bi bi-type-bold"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary flex-grow-1" id="btnPropItalic"><i class="bi bi-type-italic"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary flex-grow-1" id="btnPropUnderline"><i class="bi bi-type-underline"></i></button>
+                    <button type="button" class="btn btn-sm btn-outline-secondary flex-grow-1 active" id="btnAlignCenter"><i class="bi bi-text-center"></i></button>
+                </div>
+
+                <!-- Animation Chữ -->
+                <div class="mb-3">
+                    <label class="x-small fw-bold text-muted text-uppercase mb-1.5 d-block">Hiệu ứng xuất hiện</label>
+                    <select class="form-select form-select-sm" id="propTextAnimation">
+                        <option value="none">Không hiệu ứng</option>
+                        <option value="fade">Mờ dần (Fade In/Out)</option>
+                        <option value="typewriter">Gõ chữ (Typewriter)</option>
+                        <option value="pop">Phóng to bật ra (Pop)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 3. Properties của Phân cảnh (Clip đang chọn trên Timeline) -->
+            <div id="propPanelClip" class="d-none">
+                <div class="p-2.5 rounded-3 bg-light border mb-3 d-flex align-items-center justify-content-between">
+                    <span class="fw-bold text-dark x-small text-truncate" id="propClipName">Clip Ảnh</span>
+                    <button type="button" class="btn btn-link text-danger p-0 x-small text-decoration-none" id="btnDeleteSelectedClip"><i class="bi bi-trash"></i> Xóa clip</button>
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1.5">
+                        <span class="x-small fw-bold text-muted text-uppercase">Thời lượng clip</span>
+                        <span class="fw-bold x-small text-danger" id="clipDurationLabel">3.5s</span>
+                    </div>
+                    <input type="range" class="form-range" min="1.0" max="8.0" step="0.5" value="3.5" id="clipDurationSlider">
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1.5">
+                        <span class="x-small fw-bold text-muted text-uppercase">Thu phóng (Scale)</span>
+                        <span class="fw-bold x-small text-dark" id="clipScaleLabel">100%</span>
+                    </div>
+                    <input type="range" class="form-range" min="100" max="200" step="5" value="100" id="clipScaleSlider">
+                </div>
+
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between mb-1.5">
+                        <span class="x-small fw-bold text-muted text-uppercase">Độ sáng (Brightness)</span>
+                        <span class="fw-bold x-small text-dark" id="clipBrightnessLabel">100%</span>
+                    </div>
+                    <input type="range" class="form-range" min="50" max="150" step="5" value="100" id="clipBrightnessSlider">
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- 3. MULTI-TRACK TIMELINE (DƯỚI CÙNG, CAO 230px, THOÁNG ĐÃNG, CÓ LABEL VIDEO, CHỮ & NHẠC) -->
+    <footer class="bl-timeline-panel border-top bg-white d-flex flex-column shadow-2xs">
+        <!-- Timeline Toolbar (Play, Split, Delete, Zoom, Clip count) -->
+        <div class="bl-timeline-toolbar d-flex align-items-center justify-content-between px-3 py-2 border-bottom bg-light">
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-light border p-1 rounded-2 shadow-2xs" onclick="togglePlayVideo()" title="Phát / Dừng (Space)">
+                    <i class="bi bi-play-fill fs-6" id="btnTimelinePlayIcon"></i>
+                </button>
+                <div class="vr my-1 bl-vr mx-1"></div>
+                <button type="button" class="btn btn-sm btn-light border px-2.5 py-1 rounded-2 font-size-xs fw-semibold shadow-2xs d-flex align-items-center gap-1.5" id="btnTimelineSplit" title="Cắt / Chia clip tại vị trí kim">
+                    <i class="bi bi-scissors"></i> <span>Cắt clip</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-light border px-2.5 py-1 rounded-2 font-size-xs fw-semibold text-danger shadow-2xs d-flex align-items-center gap-1.5" id="btnTimelineDelete" title="Xóa clip đang chọn">
+                    <i class="bi bi-trash"></i> <span>Xóa</span>
+                </button>
+            </div>
+
+            <!-- Timecode & Zoom Controls -->
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge bg-white border text-secondary px-2.5 py-1 font-size-xs font-monospace shadow-2xs" id="timelineDurationBadge">
+                    00:00 / 00:15
+                </span>
+                <span class="badge bg-danger-subtle text-danger px-2.5 py-1 font-size-xs fw-semibold shadow-2xs" id="timelineClipsBadge">
+                    0 clips
+                </span>
+                <div class="vr my-1 bl-vr"></div>
+                <div class="d-flex align-items-center gap-1">
+                    <button type="button" class="btn btn-sm bl-btn-icon p-1" id="btnTimelineZoomOut" title="Thu nhỏ Timeline"><i class="bi bi-zoom-out"></i></button>
+                    <button type="button" class="btn btn-sm bl-btn-icon p-1" id="btnTimelineZoomIn" title="Phóng to Timeline"><i class="bi bi-zoom-in"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Tracks Wrapper (Chứa Time Ruler và 3 Tracks riêng biệt) -->
+        <div class="bl-timeline-scroll custom-scrollbar flex-grow-1 position-relative p-2" id="timelineContainer">
+            <!-- Thước đo thời gian (Time ruler markings) -->
+            <div class="bl-time-ruler d-flex justify-content-between px-2 mb-2 font-monospace text-muted x-small position-relative" id="timeRuler">
+                <span>00:00</span>
+                <span>00:03</span>
+                <span>00:06</span>
+                <span>00:09</span>
+                <span>00:12</span>
+                <span>00:15</span>
+            </div>
+
+            <!-- Kim chỉ giờ (Timeline Playhead Scrubber) -->
+            <div class="bl-timeline-playhead position-absolute" id="timelinePlayhead" style="left: 120px;">
+                <div class="bl-playhead-pointer"></div>
+                <div class="bl-playhead-line"></div>
+            </div>
+
+            <!-- TRACK 1: VIDEO & HÌNH ẢNH -->
+            <div class="bl-track-row d-flex align-items-center mb-2 position-relative" id="trackRowVideo">
+                <div class="bl-track-label d-flex align-items-center gap-2 text-dark fw-bold px-2.5 py-1 rounded-2 shadow-2xs">
+                    <span class="badge bg-primary text-white p-1 rounded-circle"><i class="bi bi-camera-video-fill font-size-xs"></i></span>
+                    <span style="font-size: 0.78rem;">Video</span>
+                </div>
+                <div class="bl-track-slot flex-grow-1 d-flex align-items-center rounded-2 border bg-light position-relative custom-scrollbar" id="videoTrackSlots">
+                    <!-- Populated dynamically with clip thumbnails or empty state -->
+                </div>
+            </div>
+
+            <!-- TRACK 2: CHỮ & PHỤ ĐỀ (TEXT) -->
+            <div class="bl-track-row d-flex align-items-center mb-2 position-relative" id="trackRowText">
+                <div class="bl-track-label d-flex align-items-center gap-2 text-dark fw-bold px-2.5 py-1 rounded-2 shadow-2xs">
+                    <span class="badge text-white p-1 rounded-circle" style="background: #8B5CF6;"><i class="bi bi-fonts font-size-xs"></i></span>
+                    <span style="font-size: 0.78rem;">Chữ</span>
+                </div>
+                <div class="bl-track-slot flex-grow-1 d-flex align-items-center rounded-2 border bg-light position-relative" id="textTrackSlots">
+                    <!-- Populated dynamically with text badges or empty state -->
+                </div>
+            </div>
+
+            <!-- TRACK 3: ÂM THANH (AUDIO) -->
+            <div class="bl-track-row d-flex align-items-center position-relative" id="trackRowAudio">
+                <div class="bl-track-label d-flex align-items-center gap-2 text-dark fw-bold px-2.5 py-1 rounded-2 shadow-2xs">
+                    <span class="badge bg-success text-white p-1 rounded-circle"><i class="bi bi-music-note font-size-xs"></i></span>
+                    <span style="font-size: 0.78rem;">Nhạc</span>
+                </div>
+                <div class="bl-track-slot flex-grow-1 d-flex align-items-center rounded-2 border bg-light position-relative" id="audioTrackSlot">
+                    <!-- Populated dynamically with audio badge or empty state -->
+                </div>
+            </div>
+        </div>
+    </footer>
+</div>
+
+<!-- MODAL 1: ÁP DỤNG MẪU THÀNH CÔNG & CHỌN NHANH ẢNH -->
+<div class="modal fade" id="blTemplateAppliedModal" tabindex="-1" aria-hidden="true" style="z-index: 1085;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
+        <div class="modal-content border-0 rounded-4 shadow-2xl overflow-hidden bg-white">
+            <div class="modal-header border-bottom py-3.5 px-4 bg-light">
+                <div class="d-flex align-items-center gap-2.5">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center bg-danger text-white shadow-2xs" style="width: 38px; height: 38px;">
+                        <i class="bi bi-stars fs-5"></i>
+                    </div>
+                    <div>
+                        <h5 class="modal-title fw-bold fs-6 mb-0 text-dark">Đã Áp Dụng Mẫu Video!</h5>
+                        <span class="text-muted x-small" id="tplAppliedSubtitle">Mẫu video Bình Lợi đã sẵn sàng</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <div class="p-3 rounded-3 bg-light border mb-3.5 text-center">
+                    <div class="fw-bold text-dark fs-6 mb-1" id="tplAppliedTitle">Tên Mẫu</div>
+                    <div class="text-muted small mb-2" id="tplAppliedDesc">Mô tả mẫu...</div>
+                    <div class="d-flex justify-content-center gap-2 flex-wrap" id="tplAppliedBadges">
+                        <!-- Badges -->
+                    </div>
+                </div>
+
+                <div class="text-muted small text-center mb-3">
+                    ✨ Bây giờ bạn chỉ cần thêm ảnh vào để xuất video hoàn chỉnh:
+                </div>
+
+                <div class="d-flex flex-column gap-2.5">
+                    <button type="button" class="btn btn-danger py-2.5 rounded-pill fw-bold d-flex align-items-center justify-content-center gap-2 shadow-sm" id="btnUseTemplateSamplePhotos">
+                        <i class="bi bi-lightning-charge-fill"></i>
+                        <span>Dùng luôn ảnh mẫu có sẵn (Xem ngay video)</span>
+                    </button>
+                    <button type="button" class="btn btn-outline-dark py-2.5 rounded-pill fw-semibold d-flex align-items-center justify-content-center gap-2" id="btnUploadOwnPhotosForTemplate">
+                        <i class="bi bi-upload"></i>
+                        <span>Tải ảnh của bạn lên từ máy tính</span>
+                    </button>
+                    <button type="button" class="btn btn-link text-muted x-small text-decoration-none py-1" data-bs-dismiss="modal">
+                        Tự chọn từng tấm ảnh từ thư viện sau
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Hidden audio element for fallback soundscapes -->
-    <audio id="bgAudioPlayer" preload="auto"></audio>
+<!-- MODAL 2: XUẤT VIDEO (EXPORT VIDEO MODAL) -->
+<div class="modal fade" id="blExportModal" tabindex="-1" aria-hidden="true" style="z-index: 1085;">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 460px;">
+        <div class="modal-content border-0 rounded-4 shadow-2xl overflow-hidden bg-white">
+            <div class="modal-header border-bottom py-3.5 px-4 bg-light">
+                <div class="d-flex align-items-center gap-2.5">
+                    <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Bình Lợi Studio" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 34px; height: 34px; object-fit: cover; border: 1.5px solid #FEE2E2;" onerror="this.src='/images/logo.png'">
+                    <div>
+                        <h5 class="modal-title fw-bold fs-6 mb-0 text-dark">Xuất video Bình Lợi Studio</h5>
+                        <span class="text-muted x-small">Tạo video độ nét cao trực tiếp trên trình duyệt</span>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <!-- Resolution & Format Settings -->
+                <div class="mb-3.5">
+                    <label class="x-small fw-bold text-muted text-uppercase mb-2 d-block">Độ phân giải & Thông số</label>
+                    <div class="d-flex gap-2">
+                        <span class="badge bg-danger text-white px-3 py-2 fw-bold">1080P Full HD</span>
+                        <span class="badge bg-light border text-dark px-3 py-2 fw-semibold">30 FPS</span>
+                        <span class="badge bg-light border text-dark px-3 py-2 fw-semibold">MP4 (H.264)</span>
+                    </div>
+                </div>
 
-    <!-- Embedded Initial Data -->
-    <script>
-        window.__CAPCUT_TEMPLATES__ = <%- JSON.stringify(videoTemplates || []) %>;
-        window.__CAPCUT_SOUNDSCAPES__ = <%- JSON.stringify(soundscapes || []) %>;
-    </script>
+                <div class="mb-3.5">
+                    <label class="x-small fw-bold text-muted text-uppercase mb-1.5 d-block">Tên tệp video xuất ra</label>
+                    <input type="text" class="form-control form-control-sm" id="exportFileName" value="binh_loi_studio_video.mp4">
+                    <span class="text-muted x-small mt-1 d-block">Tệp sẽ tự động được tải về thư mục Downloads của máy</span>
+                </div>
 
-    <!-- Core Video Editor Client Engine -->
-    <script src="/js/video-editor.js?v=<%= assetV || Date.now() %>"></script>
-</body>
-</html>
+                <!-- Export Progress Bar -->
+                <div id="exportStatusPanel" class="d-none mb-3.5 p-3 rounded-3 bg-light border">
+                    <div class="d-flex justify-content-between x-small fw-bold mb-1.5">
+                        <span id="exportStatusText" class="text-dark">Đang render khung hình...</span>
+                        <span id="exportPercentText" class="text-danger">0%</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-danger progress-bar-striped progress-bar-animated" id="exportProgressBar" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- Complete Status -->
+                <div id="exportSuccessPanel" class="d-none p-3 rounded-3 bg-success-subtle border border-success mb-3 text-center">
+                    <i class="bi bi-check-circle-fill text-success fs-3 mb-1 d-block"></i>
+                    <div class="fw-bold text-success small">Xuất video thành công!</div>
+                    <span class="text-muted x-small">Tệp MP4 đã được tải xuống máy tính của bạn.</span>
+                    <div class="mt-2.5">
+                        <button type="button" class="btn btn-sm btn-success rounded-pill px-3 py-1 font-size-xs fw-semibold" id="btnDownloadAgain">
+                            <i class="bi bi-download me-1"></i>Tải lại tệp
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <div class="d-grid mt-4" id="exportTriggerWrapper">
+                    <button type="button" class="btn btn-danger py-2.5 rounded-pill fw-bold shadow-sm d-flex align-items-center justify-content-center gap-2" id="startExportProcessBtn">
+                        <i class="bi bi-camera-reels-fill"></i>
+                        <span>Bắt đầu xuất video MP4</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- CSS ĐỘC QUYỀN DÀNH RIÊNG CHO BÌNH LỢI STUDIO (SPACIOUS LIGHT THEME) -->
+<style>
+/* Reset Layout Chung của website để Studio trọn vẹn 100vh không bị đè */
+.navbar, footer, .fab-qr, a.fab-qr, .mobile-bottom-qr-container, .mobile-qr-fab, #pwaInstallBanner, header.sticky-top, .main-footer, .pwa-install-banner, .pwa-ios-instructions {
+    display: none !important;
+}
+
+body, html {
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: #FFFFFF !important;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+}
+
+/* QUAN TRỌNG: Gỡ bỏ triệt để padding-top 107px của thẻ main từ layout chung */
+main {
+    margin: 0 !important;
+    padding: 0 !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    overflow: hidden !important;
+    position: static !important;
+}
+
+:root {
+    --bl-primary: #DC2626;
+    --bl-primary-hover: #B91C1C;
+    --bl-primary-subtle: #FEF2F2;
+    --bl-bg-main: #FFFFFF;
+    --bl-bg-subtle: #F8F9FA;
+    --bl-border: #E5E7EB;
+    --bl-border-subtle: #F1F5F9;
+    --bl-text-main: #111827;
+    --bl-text-muted: #6B7280;
+}
+
+/* 1. Header */
+.bl-studio-workspace {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    background: #FFFFFF !important;
+    overflow: hidden !important;
+    z-index: 1040 !important;
+}
+
+.bl-studio-header {
+    height: 60px;
+    flex-shrink: 0;
+    z-index: 100;
+}
+.bl-badge-pro {
+    background: #FEF2F2;
+    color: var(--bl-primary);
+    border: 1px solid rgba(220, 38, 38, 0.2);
+    font-size: 0.65rem;
+}
+.bl-btn-back {
+    width: 34px;
+    height: 34px;
+    background: var(--bl-bg-subtle);
+    border: 1px solid var(--bl-border);
+    color: var(--bl-text-muted);
+    transition: all 0.15s ease;
+}
+.bl-btn-back:hover {
+    background: var(--bl-primary-subtle);
+    color: var(--bl-primary);
+}
+.bl-project-name-wrapper {
+    background: var(--bl-bg-subtle);
+    border-color: var(--bl-border) !important;
+}
+.bl-project-title-input {
+    border: none;
+    background: transparent;
+    outline: none;
+    color: var(--bl-text-main);
+    width: 240px;
+}
+.bl-project-title-input:focus {
+    border-bottom: 1px solid var(--bl-primary);
+}
+.bl-btn-icon {
+    color: var(--bl-text-muted);
+    border: none;
+    background: transparent;
+    padding: 7px;
+    border-radius: 8px;
+    transition: all 0.15s ease;
+}
+.bl-btn-icon:hover:not(:disabled) {
+    background: var(--bl-bg-subtle);
+    color: var(--bl-text-main);
+}
+.bl-btn-icon:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.bl-btn-secondary {
+    background: var(--bl-bg-subtle);
+    border: 1px solid var(--bl-border);
+    color: var(--bl-text-main);
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+.bl-btn-secondary:hover {
+    background: #E5E7EB;
+}
+.bl-btn-export {
+    background: var(--bl-primary) !important;
+    color: #FFFFFF !important;
+    border: none;
+    transition: all 0.2s ease;
+}
+.bl-btn-export:hover {
+    background: var(--bl-primary-hover) !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(220, 38, 38, 0.35);
+}
+.bl-vr {
+    background: var(--bl-border);
+    opacity: 1;
+    width: 1px;
+}
+
+/* 2. Main Studio Body (Flex 1, never causes overflow) */
+.bl-studio-body {
+    flex: 1 1 0;
+    min-height: 0;
+    display: flex;
+    overflow: hidden;
+}
+
+/* Left Sidebar & Drawer (Width: 460px, tối ưu không gian rộng thoáng) */
+.bl-left-panel {
+    width: 460px;
+    background: #FFFFFF;
+    flex-shrink: 0;
+}
+.bl-nav-rail {
+    width: 74px;
+    background: #FFFFFF;
+    flex-shrink: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 6px 2px !important;
+}
+.bl-rail-btn {
+    width: 66px;
+    height: 44px;
+    background: transparent;
+    border: none;
+    color: var(--bl-text-muted);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1px;
+    padding: 2px;
+    margin-bottom: 2px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    transition: all 0.15s ease;
+}
+.bl-rail-btn i {
+    font-size: 1.05rem !important;
+}
+.bl-rail-btn:hover {
+    background: var(--bl-bg-subtle);
+    color: var(--bl-text-main);
+}
+.bl-rail-btn.active {
+    background: var(--bl-primary-subtle);
+    color: var(--bl-primary);
+}
+
+.bl-drawer-panel {
+    width: 386px;
+    background: #FFFFFF;
+    overflow-y: auto;
+    padding: 16px !important;
+}
+.bl-tab-pane { display: none; }
+.bl-tab-pane.active { display: block; animation: fadeIn 0.15s ease; }
+
+.bl-chip-btn {
+    background: var(--bl-bg-subtle);
+    border: 1px solid var(--bl-border);
+    color: var(--bl-text-muted);
+    font-weight: 600;
+    font-size: 0.74rem;
+    border-radius: 20px;
+    padding: 4px 12px;
+    white-space: nowrap;
+    transition: all 0.15s ease;
+}
+.bl-chip-btn:hover {
+    background: #E5E7EB;
+    color: var(--bl-text-main);
+}
+.bl-chip-btn.active {
+    background: var(--bl-primary);
+    color: #FFFFFF;
+    border-color: var(--bl-primary);
+}
+
+.bl-template-card {
+    border: 1px solid var(--bl-border);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #FFFFFF;
+    transition: all 0.2s ease;
+}
+.bl-template-card:hover {
+    border-color: var(--bl-primary);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+    transform: translateY(-2px);
+}
+.bl-template-cover {
+    height: 140px;
+    position: relative;
+    overflow: hidden;
+}
+
+.bl-subtab-btn {
+    background: transparent;
+    border: none;
+    color: var(--bl-text-muted);
+    font-weight: 600;
+    font-size: 0.75rem;
+    border-radius: 6px;
+    padding: 5px 8px;
+    transition: all 0.15s ease;
+}
+.bl-subtab-btn.active {
+    background: #FFFFFF;
+    color: var(--bl-primary);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+}
+
+.bl-dropzone {
+    background: var(--bl-bg-subtle);
+    border: 2px dashed rgba(220, 38, 38, 0.35);
+    transition: all 0.2s ease;
+}
+.bl-dropzone:hover {
+    border-color: var(--bl-primary);
+    background: var(--bl-primary-subtle);
+}
+
+.bl-audio-card, .bl-effect-card, .bl-filter-card, .bl-transition-card, .bl-ratio-card {
+    border: 1px solid var(--bl-border) !important;
+    transition: all 0.15s ease;
+}
+.bl-audio-card:hover, .bl-effect-card:hover, .bl-filter-card:hover, .bl-transition-card:hover, .bl-ratio-card:hover {
+    border-color: var(--bl-primary) !important;
+    background: var(--bl-primary-subtle) !important;
+}
+.bl-audio-card.active, .bl-effect-card.active, .bl-filter-card.active, .bl-transition-card.active {
+    border-color: var(--bl-primary) !important;
+    background: #FFF5F5 !important;
+}
+.bl-ratio-card.active {
+    border-color: var(--bl-primary) !important;
+    background: #FFF5F5 !important;
+    box-shadow: 0 0 0 1.5px var(--bl-primary);
+}
+.bl-ratio-card.active div[style*="border: 2px solid"] {
+    border-color: var(--bl-primary) !important;
+}
+.bl-audio-icon {
+    width: 36px;
+    height: 36px;
+    background: #FEE2E2;
+    flex-shrink: 0;
+}
+.bl-btn-add-audio {
+    white-space: nowrap !important;
+    font-size: 0.72rem !important;
+    padding: 3px 10px !important;
+    transition: all 0.15s ease;
+}
+.bl-btn-add-audio:hover {
+    background: var(--bl-primary) !important;
+    color: #FFFFFF !important;
+    border-color: var(--bl-primary) !important;
+}
+.bl-speed-btn.active {
+    background: var(--bl-primary) !important;
+    color: #FFFFFF !important;
+    border-color: var(--bl-primary) !important;
+}
+.bl-filter-swatch {
+    height: 44px;
+    border-radius: 8px;
+}
+
+/* Center Panel & Monitor */
+.bl-center-panel {
+    background: #F3F4F6;
+    overflow: hidden;
+}
+.bl-canvas-wrapper {
+    max-height: calc(100% - 62px);
+}
+.bl-monitor-frame {
+    height: 100%;
+    aspect-ratio: 9 / 16;
+    background: #000000;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+    border: 2px solid #E5E7EB;
+}
+.bl-canvas-big-play {
+    display: none;
+    width: 68px;
+    height: 68px;
+    background: rgba(220, 38, 38, 0.9) !important;
+    border: none;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    z-index: 50;
+}
+.bl-canvas-big-play.is-visible {
+    display: flex !important;
+}
+.bl-canvas-big-play:hover {
+    transform: translate(-50%, -50%) scale(1.1) !important;
+    background: #DC2626 !important;
+}
+
+.bl-text-drag-box {
+    position: absolute;
+    border: 2px dashed #DC2626;
+    background: rgba(220, 38, 38, 0.1);
+    cursor: move;
+    z-index: 40;
+    border-radius: 8px;
+}
+.bl-text-drag-handle {
+    position: absolute;
+    top: -12px;
+    right: -12px;
+    width: 24px;
+    height: 24px;
+    background: #DC2626;
+    color: #FFFFFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+}
+
+.bl-monitor-controls {
+    height: 42px;
+    gap: 12px;
+    margin-top: 8px;
+    flex-shrink: 0;
+}
+.bl-ctrl-btn {
+    color: var(--bl-text-main);
+    padding: 4px;
+    transition: color 0.15s ease;
+}
+.bl-ctrl-btn:hover {
+    color: var(--bl-primary);
+}
+
+/* Right Properties Panel (Width: 290px) */
+.bl-properties-panel {
+    width: 290px;
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+/* Bottom Timeline Panel (Height: 190px) */
+.bl-timeline-panel {
+    height: 190px;
+    flex-shrink: 0;
+    padding: 0 16px;
+    background: #FFFFFF;
+    border-top: 1px solid var(--bl-border);
+    z-index: 90;
+}
+.bl-timeline-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 4px 10px 6px !important;
+}
+.bl-track-row {
+    height: 38px;
+    margin-bottom: 6px !important;
+}
+.bl-track-label {
+    width: 110px;
+    height: 34px;
+    flex-shrink: 0;
+    background: var(--bl-bg-subtle);
+    border: 1px solid var(--bl-border);
+    margin-right: 10px;
+    padding: 0 8px;
+}
+.bl-track-slot {
+    height: 34px;
+    padding: 2px 8px;
+    background: #F8F9FA !important;
+    border-color: #E5E7EB !important;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.bl-timeline-clip-item {
+    height: 28px;
+    min-width: 75px;
+    max-width: 140px;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    border: 1.5px solid #CBD5E1;
+    cursor: pointer;
+    flex-shrink: 0;
+    margin-right: 8px;
+    transition: all 0.15s ease;
+}
+.bl-timeline-clip-item.active {
+    border-color: var(--bl-primary) !important;
+    box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.3);
+}
+
+.bl-track-badge {
+    border-radius: 6px;
+    font-size: 0.74rem;
+    height: 28px;
+}
+.bl-badge-text {
+    background: #EDE9FE;
+    color: #6D28D9;
+    border: 1px solid #DDD6FE;
+}
+.bl-badge-audio {
+    background: #DCFCE7;
+    color: #15803D;
+    border: 1px solid #BBF7D0;
+}
+
+/* Playhead */
+.bl-timeline-playhead {
+    top: 20px;
+    bottom: 0;
+    width: 2px;
+    background: #DC2626;
+    pointer-events: none;
+    z-index: 60;
+    transition: left 0.04s linear;
+}
+.bl-playhead-pointer {
+    position: absolute;
+    top: -10px;
+    left: -6px;
+    width: 14px;
+    height: 12px;
+    background: #DC2626;
+    clip-path: polygon(0% 0%, 100% 0%, 50% 100%);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.shadow-2xs { box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
+.custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+.custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+</style>
+
+<!-- Audio Elements for Playback & Previews -->
+<audio id="soundscapeAudio" style="display:none;" crossOrigin="anonymous" loop></audio>
+<audio id="previewAudioElement" style="display:none;" crossOrigin="anonymous"></audio>
+
+<!-- Video Editor Main Engine Script -->
+<script src="/js/video-editor.js?v=<%= typeof assetV !== 'undefined' ? assetV : Date.now() %>"></script>

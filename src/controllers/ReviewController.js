@@ -326,60 +326,35 @@ const ReviewController = {
 
     videoEditor: async (req, res) => {
         try {
+            const user = req.user || req.session?.user || null;
             const [soundscapes] = await db.query(
                 "SELECT * FROM soundscapes WHERE is_active = 1 ORDER BY created_at DESC"
             );
-            const VideoTemplate = require('../models/VideoTemplate');
-            const videoTemplates = await VideoTemplate.getActive();
-
+            const [videoTemplates] = await db.query(
+                "SELECT * FROM video_templates WHERE is_published = true ORDER BY id ASC"
+            );
+            const [destinations] = await db.query(
+                "SELECT id, name, slug, description, short_desc, cover_image, gallery, type FROM destinations WHERE is_active = 1 ORDER BY name ASC"
+            );
+            let userProjects = [];
+            if (user) {
+                const [projects] = await db.query(
+                    "SELECT id, title, aspect_ratio, duration, thumbnail, updated_at FROM studio_projects WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 10",
+                    [user.id]
+                );
+                userProjects = projects;
+            }
             res.render('reviews/video-editor', {
-                title: 'Bình Lợi Studio - Tạo Video Chữa Lành Phong Cách CapCut',
+                title: 'Bình Lợi Studio – Trình Tạo Video Ngắn',
                 soundscapes,
                 videoTemplates,
-                assetV: Date.now(),
-                layout: false
+                destinations,
+                userProjects,
+                currentUser: user
             });
         } catch (error) {
             console.error('Video editor page error:', error);
             res.status(500).send('Lỗi hệ thống');
-        }
-    },
-
-    getVideoTemplates: async (req, res) => {
-        try {
-            const VideoTemplate = require('../models/VideoTemplate');
-            const templates = await VideoTemplate.getActive();
-            res.json({ success: true, templates });
-        } catch (error) {
-            res.status(500).json({ success: false, message: error.message });
-        }
-    },
-
-    createVideoTemplate: async (req, res) => {
-        try {
-            let { title, description, cover_image, audio_url, audio_title, duration_seconds, slots } = req.body;
-            if (!title) {
-                return res.status(400).json({ success: false, message: 'Vui lòng nhập tên mẫu video.' });
-            }
-
-            let slotsJson = slots;
-            if (typeof slots === 'string') {
-                try { slotsJson = JSON.parse(slots); } catch(e) { slotsJson = []; }
-            }
-
-            const VideoTemplate = require('../models/VideoTemplate');
-            const { v4: uuidv4 } = require('uuid');
-            const id = uuidv4();
-            await VideoTemplate.db.query(
-                `INSERT INTO video_templates (id, title, description, cover_image, audio_url, audio_title, duration_seconds, slots, is_active, sort_order, created_at, updated_at)
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, 1, 0, NOW(), NOW())`,
-                [id, title, description || '', cover_image || '/images/Poster 1.jpg', audio_url || '/audio/peaceful_stream.mp3', audio_title || 'Nhạc nền Bình Lợi', parseInt(duration_seconds || '15', 10), JSON.stringify(slotsJson)]
-            );
-
-            res.json({ success: true, message: 'Đã tạo mẫu thành công!', id });
-        } catch (error) {
-            console.error('Create video template error:', error);
-            res.status(500).json({ success: false, message: error.message });
         }
     }
 };
