@@ -30,7 +30,7 @@
                     <div class="card-bl border-0 shadow-sm p-2 mb-3 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" data-lat="<%= dest.lat %>" data-lng="<%= dest.lng %>" onclick="focusMarker(<%= dest.lat %>, <%= dest.lng %>, '<%= dest.name %>')">
                         <div class="d-flex gap-3">
                             <div class="rounded-3 overflow-hidden shadow-sm" style="width: 70px; height: 70px; flex-shrink: 0;">
-                                <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                                <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover" width="70" height="70" loading="lazy" decoding="async" alt="<%= dest.name %>">
                             </div>
                             <div>
                                 <h6 class="fw-bold mb-1 text-dark small"><%= dest.name %></h6>
@@ -85,7 +85,7 @@
                 <div class="card-bl border-0 shadow-sm p-2 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" onclick="focusMarkerMobile(<%= dest.lat %>, <%= dest.lng %>, '<%= dest.name %>')">
                     <div class="d-flex gap-3 align-items-center">
                         <div class="rounded-3 overflow-hidden shadow-sm" style="width: 60px; height: 60px; flex-shrink: 0;">
-                            <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover">
+                            <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover" width="60" height="60" loading="lazy" decoding="async" alt="<%= dest.name %>">
                         </div>
                         <div class="min-w-0 flex-grow-1">
                             <h6 class="fw-bold mb-1 text-dark small text-truncate"><%= dest.name %></h6>
@@ -112,8 +112,8 @@ const cartoVoyagerUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{
     + (cartoBasemapApiKey ? `?key=${encodeURIComponent(cartoBasemapApiKey)}` : '');
 
 function normalizeImageUrl(src) {
-    if (!src || src === 'undefined' || src === 'NULL' || src.includes('placeholder.jpg') || src.includes('Poster 1') || src.includes('hero-1')) return '/images/no-image.svg';
-    if (src.startsWith('http') || src.startsWith('data:')) return src;
+    if (!src || src === 'undefined' || src === 'NULL' || src.startsWith('data:') || src.includes('placeholder.jpg') || src.includes('Poster 1') || src.includes('hero-1')) return '/images/no-image.svg';
+    if (src.startsWith('http')) return src;
 
     const clean = src.replace(/^public[\\/]/, '').replace(/\\/g, '/');
     return clean.startsWith('/') ? clean : '/' + clean;

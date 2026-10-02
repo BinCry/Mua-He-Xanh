@@ -14,6 +14,17 @@ class Destination extends Model {
         return rows;
     }
 
+    /** Lightweight projection used by the interactive map and its sidebar. */
+    async getMapData() {
+        const [rows] = await this.db.query(
+            `SELECT id, slug, name, type, short_desc, lat, lng, cover_image
+             FROM ${this.table}
+             WHERE is_active = 1
+             ORDER BY sort_order ASC, name ASC`
+        );
+        return rows;
+    }
+
     /** Find by slug, name, qr_secret or ID */
     async findBySlug(input) {
         if (!input) return null;

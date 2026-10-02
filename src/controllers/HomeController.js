@@ -2,6 +2,7 @@ const Destination = require('../models/Destination');
 const CheckIn = require('../models/CheckIn');
 const HeroPoster = require('../models/HeroPoster');
 const db = require('../core/database');
+const cache = require('../core/cache');
 
 // In-memory cache: eliminates DB queries for 5 minutes per serverless instance
 let _cache = null;
@@ -35,6 +36,8 @@ class HomeController {
             if (process.env.NODE_ENV === 'production' && _cache && (Date.now() - _cacheTs < CACHE_TTL)) {
                 // Only refresh stats every 60 seconds, not every request
                 if (Date.now() - _statsCacheTs > 60000) {
+                    _statsCacheTs = Date.now();
+                    void (async () => {
                     try {
                         const [[pv], [uv], totalCheckins] = await Promise.all([
                             db.query('SELECT COUNT(*) as total FROM analytics WHERE event = \'page_view\' OR event IS NULL').catch(() => [[{ total: 0 }]]),
@@ -46,8 +49,8 @@ class HomeController {
                             _cache.stats.pageViews = parseInt(pv[0]?.total ?? 0, 10);
                             _cache.stats.visitors = parseInt(uv[0]?.total ?? 0, 10);
                         }
-                        _statsCacheTs = Date.now();
                     } catch (e) {}
+                    })();
                 }
                 return res.render('home/index', _cache);
             }
@@ -170,6 +173,8 @@ class HomeController {
     clearCache() {
         _cache = null;
         _cacheTs = 0;
+        _statsCacheTs = 0;
+        cache.del('map:destinations');
     }
 }
 

@@ -1576,7 +1576,7 @@
         </div>
     </div>
     <!-- Instant.page: Ultra-fast pre-fetching on link hover (sub-100ms instant page loads) -->
-    <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.min.js" type="module"></script>
+    <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.min.js" type="module" data-instant-intensity="mousedown-only"></script>
 
     <!-- Real-time Engagement & Tab-Session Visit Tracker -->
     <script>
@@ -1614,9 +1614,13 @@
 
         let sessionStartTime = parseInt(sessionStorage.getItem('bl_session_start_ts') || now.toString(), 10);
 
+        let lastSentDurationSec = 0;
         function sendHeartbeat(isFinal) {
+            if (!isFinal && document.visibilityState !== 'visible') return;
             sessionStorage.setItem('bl_tab_last_active', Date.now().toString());
             const totalDurationSec = Math.max(1, Math.round((Date.now() - sessionStartTime) / 1000));
+            if (totalDurationSec <= lastSentDurationSec) return;
+            lastSentDurationSec = totalDurationSec;
             const payload = JSON.stringify({
                 path: window.location.pathname,
                 sessionId: tabSession,
@@ -1635,7 +1639,7 @@
             }
         }
 
-        setInterval(function() { sendHeartbeat(false); }, 20000);
+        setInterval(function() { sendHeartbeat(false); }, 60000);
 
         window.addEventListener('visibilitychange', function() {
             if (document.visibilityState === 'hidden') sendHeartbeat(true);

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'binh-loi-healing-v17';
+const CACHE_NAME = 'binh-loi-healing-v18';
 const STATIC_ASSETS = [
     '/css/style-v5.css',
     '/images/logo.png',
@@ -109,7 +109,7 @@ async function resolveOfflineNavigation() {
 async function networkFirst(req) {
     const cache = await caches.open(CACHE_NAME);
     try {
-        const networkResponse = await fetch(req);
+        const networkResponse = await fetchWithTimeout(req, req.mode === 'navigate' ? 5000 : 8000);
         const isStaticAsset = req.url.match(/\.(css|js|png|jpg|jpeg|webp|svg|woff2?|ico)(\?.*)?$/i);
         if (networkResponse.ok && isStaticAsset && !req.url.includes('/api/') && req.url.startsWith('http')) {
             cache.put(req, networkResponse.clone());
@@ -125,5 +125,15 @@ async function networkFirst(req) {
             status: 408,
             headers: { 'Content-Type': 'text/plain' }
         });
+    }
+}
+
+async function fetchWithTimeout(req, timeoutMs) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        return await fetch(req, { signal: controller.signal });
+    } finally {
+        clearTimeout(timeout);
     }
 }

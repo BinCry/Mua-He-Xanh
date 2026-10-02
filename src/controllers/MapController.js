@@ -1,11 +1,17 @@
 const UserSession = require('../models/UserSession');
 const Journey = require('../models/Journey');
+const cache = require('../core/cache');
 
 class MapController {
     async index(req, res) {
         try {
             const Destination = require('../models/Destination');
-            const allDests = await Destination.findAll();
+            const mapCacheKey = 'map:destinations';
+            let allDests = cache.get(mapCacheKey);
+            if (!allDests) {
+                allDests = await Destination.getMapData();
+                cache.set(mapCacheKey, allDests, 180);
+            }
 
             const uuid = req.cookies ? req.cookies.session_uuid : null;
             let journeyWithStops = null;

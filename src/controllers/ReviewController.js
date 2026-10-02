@@ -6,6 +6,10 @@ const { v4: uuidv4 } = require('uuid');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const cache = require('../core/cache');
+
+const REVIEWS_CACHE_KEY = 'reviews:index';
+const invalidateReviewCache = () => cache.del(REVIEWS_CACHE_KEY);
 
 const upload = multer({
     storage: multer.diskStorage({
@@ -26,7 +30,9 @@ const ReviewController = {
 
     index: async (req, res) => {
         try {
-            const [reviews] = await db.query(`
+            let data = cache.get(REVIEWS_CACHE_KEY);
+            if (!data) {
+                const [reviews] = await db.query(`
                 SELECT r.id, r.user_id, r.content, r.rating, r.images, r.created_at,
                        r.likes_count, r.comments_count,
                        u.full_name, u.avatar,
@@ -41,12 +47,15 @@ const ReviewController = {
                 JOIN users u ON r.user_id = u.id
                 LEFT JOIN destinations d ON r.destination_id = d.id
                 ORDER BY r.created_at DESC
-            `);
-            const [destinations] = await db.query("SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY name ASC");
+                `);
+                const [destinations] = await db.query("SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY name ASC");
+                data = { reviews, destinations };
+                cache.set(REVIEWS_CACHE_KEY, data, 90);
+            }
             res.render('reviews/index', {
                 title: 'Cộng đồng Bình Lợi',
-                reviews,
-                destinations
+                reviews: data.reviews,
+                destinations: data.destinations
             });
         } catch (error) {
             console.error('Reviews error:', error);
@@ -97,23 +106,14 @@ const ReviewController = {
                     console.log('Cloudinary upload warning:', e.message);
                 }
 
-                if (!savedPath && file.path && fs.existsSync(file.path)) {
-                    try {
-                        const fileBuf = fs.readFileSync(file.path);
-                        const mime = file.mimetype || 'image/jpeg';
-                        savedPath = `data:${mime};base64,${fileBuf.toString('base64')}`;
-                    } catch(readErr) {
-                        console.error('Base64 fallback error:', readErr);
-                    }
+                if (!savedPath) {
+                    return res.status(503).json({
+                        success: false,
+                        message: 'Không thể lưu ảnh an toàn lúc này. Vui lòng thử lại sau.'
+                    });
                 }
 
-                if (!savedPath && file.filename) {
-                    savedPath = '/uploads/' + file.filename;
-                }
-
-                if (savedPath) {
-                    savedImageUrls.push(savedPath);
-                }
+                savedImageUrls.push(savedPath);
             }
 
             const images = savedImageUrls.length > 0 ? JSON.stringify(savedImageUrls) : null;
@@ -132,6 +132,7 @@ const ReviewController = {
                  VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
                 [id, user.id, destId, content, parseInt(rating || '5', 10), images, locationName]
             );
+            invalidateReviewCache();
 
             res.json({ success: true, message: 'Đã đăng bài!' });
         } catch (error) {
@@ -185,6 +186,7 @@ const ReviewController = {
             }
 
             const [result] = await db.query('SELECT likes_count FROM reviews WHERE id = $1', [review_id]);
+            invalidateReviewCache();
             res.json({ success: true, likes: parseInt(result[0]?.likes_count || 0, 10) });
         } catch (error) {
             console.error('Like error:', error);
@@ -211,6 +213,7 @@ const ReviewController = {
                 [commentId, review_id, userId, null, parent_id || null, comment.trim()]
             );
             await db.query('UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1', [review_id]);
+            invalidateReviewCache();
 
             const [revResult] = await db.query('SELECT comments_count FROM reviews WHERE id = $1', [review_id]);
             
@@ -290,6 +293,7 @@ const ReviewController = {
             const [countRow] = await db.query('SELECT COUNT(*) as cnt FROM review_comments WHERE review_id = $1', [comment.review_id]);
             const newCount = parseInt(countRow[0]?.cnt || 0, 10);
             await db.query('UPDATE reviews SET comments_count = $1 WHERE id = $2', [newCount, comment.review_id]);
+            invalidateReviewCache();
 
             res.json({ success: true, message: 'Đã xóa bình luận!', count: newCount, review_id: comment.review_id });
         } catch (error) {
@@ -316,6 +320,7 @@ const ReviewController = {
             await db.query('DELETE FROM review_comments WHERE review_id = $1', [review_id]);
             await db.query('DELETE FROM review_likes WHERE review_id = $1', [review_id]);
             await db.query('DELETE FROM reviews WHERE id = $1', [review_id]);
+            invalidateReviewCache();
 
             res.json({ success: true, message: 'Đã xóa bài viết thành công!' });
         } catch (error) {
