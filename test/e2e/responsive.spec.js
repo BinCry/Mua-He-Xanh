@@ -16,8 +16,12 @@ for (const viewport of viewports) {
     test(`public pages fit ${viewport.name}`, async ({ page }) => {
         await page.setViewportSize(viewport);
         const consoleErrors = [];
+        const failedResources = [];
         page.on('console', message => {
             if (message.type() === 'error') consoleErrors.push(message.text());
+        });
+        page.on('response', response => {
+            if (response.status() >= 400) failedResources.push(`${response.status()} ${response.url()}`);
         });
 
         for (const route of publicRoutes) {
@@ -39,6 +43,6 @@ for (const viewport of viewports) {
         }
 
         const relevantErrors = consoleErrors.filter(error => !/favicon|ERR_BLOCKED_BY_CLIENT/i.test(error));
-        expect(relevantErrors, 'public routes must not emit console errors').toEqual([]);
+        expect({ consoleErrors: relevantErrors, failedResources }, 'public routes must not emit console errors or load failing resources').toEqual({ consoleErrors: [], failedResources: [] });
     });
 }

@@ -451,7 +451,7 @@
                             <!-- User Header -->
                             <div class="d-flex align-items-start justify-content-between gap-2 p-3 p-sm-4 pb-2">
                                 <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
-                                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);" loading="lazy" decoding="async">
+                                    <img src="<%= r.avatar || '/images/default-avatar.png' %>" alt="Ảnh đại diện của <%= r.full_name %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);" loading="lazy" decoding="async">
                                     <div class="min-w-0 flex-grow-1">
                                         <span class="fw-bold d-block text-truncate" style="font-size: 0.92rem; color: #333;"><%= r.full_name %></span>
                                         <span class="text-muted d-block text-truncate" style="font-size: 0.72rem;">
@@ -493,14 +493,14 @@
                             <div class="px-3 px-sm-4 py-2">
                                 <% if (imgs.length === 1) { %>
                                     <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1; max-height: 540px;" onclick='openImageLightbox("<%= fixImg(imgs[0]) %>", <%= galleryJson %>, 0)' title="Nhấn để xem ảnh phóng to đầy đủ">
-                                        <img src="<%= fixImg(imgs[0]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                        <img src="<%= fixImg(imgs[0]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.jpg';">
                                     </div>
                                 <% } else if (imgs.length === 2) { %>
                                     <div class="row g-2">
                                         <% imgs.forEach((img, idx) => { %>
                                         <div class="col-6">
                                             <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(img) %>", <%= galleryJson %>, <%= idx %>)' title="Nhấn để xem ảnh phóng to đầy đủ">
-                                                <img src="<%= fixImg(img) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                                <img src="<%= fixImg(img) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.jpg';">
                                             </div>
                                         </div>
                                         <% }) %>
@@ -509,17 +509,17 @@
                                     <div class="row g-2">
                                         <div class="col-12">
                                             <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 16 / 9; max-height: 360px;" onclick='openImageLightbox("<%= fixImg(imgs[0]) %>", <%= galleryJson %>, 0)' title="Nhấn để xem ảnh phóng to đầy đủ">
-                                                <img src="<%= fixImg(imgs[0]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                                <img src="<%= fixImg(imgs[0]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.jpg';">
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(imgs[1]) %>", <%= galleryJson %>, 1)' title="Nhấn để xem ảnh phóng to đầy đủ">
-                                                <img src="<%= fixImg(imgs[1]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                                <img src="<%= fixImg(imgs[1]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.jpg';">
                                             </div>
                                         </div>
                                         <div class="col-6">
                                             <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(imgs[2]) %>", <%= galleryJson %>, 2)' title="Nhấn để xem ảnh phóng to đầy đủ">
-                                                <img src="<%= fixImg(imgs[2]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                                <img src="<%= fixImg(imgs[2]) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.jpg';">
                                             </div>
                                         </div>
                                     </div>
@@ -528,7 +528,7 @@
                                         <% imgs.slice(0, 4).forEach((img, idx) => { %>
                                         <div class="col-6">
                                             <div class="rounded-4 overflow-hidden shadow-2xs border bg-light text-center cursor-pointer position-relative" style="width: 100%; aspect-ratio: 1 / 1;" onclick='openImageLightbox("<%= fixImg(img) %>", <%= galleryJson %>, <%= idx %>)' title="Nhấn để xem ảnh phóng to đầy đủ">
-                                                <img src="<%= fixImg(img) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.webp';">
+                                                <img src="<%= fixImg(img) %>" class="w-100 h-100" style="object-fit: cover; object-position: center;" alt="Review image" loading="lazy" decoding="async" onerror="this.onerror=null; this.src='/images/Poster 1.jpg';">
                                                 <% if (idx === 3 && imgs.length > 4) { %>
                                                 <div class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center text-white" style="background: rgba(0,0,0,0.65); backdrop-filter: blur(4px);">
                                                     <i class="bi bi-images fs-3 mb-1"></i>
@@ -601,7 +601,7 @@
                     <div class="modal-content border-0 rounded-4 shadow-premium overflow-hidden">
                         <div class="modal-header bg-dark text-white border-0 p-3">
                             <div class="d-flex align-items-center gap-2">
-                                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" height="30"
+                                <img src="<%= fixImg(settings.brand_logo, '/images/logo.png') %>" alt="Logo <%= settings.brand_name || 'Bình Lợi' %>" height="30"
                                     onerror="this.src='/images/logo.png'">
                                 <div>
                                     <h6 class="modal-title fw-bold mb-0">Hỗ trợ <%= settings.brand_name || 'Bình Lợi' %>

@@ -16,7 +16,7 @@
         <% if (user) { %>
         <div class="card border-0 shadow-sm rounded-4 p-3 mb-4 reveal-up bg-white">
             <div class="d-flex align-items-center gap-3 pb-2.5 border-bottom" style="border-color: #e4e6eb !important;">
-                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid #f0f2f5;">
+                <img src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Ảnh đại diện của <%= user.full_name %>" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid #f0f2f5;">
                 <div class="flex-grow-1 cursor-pointer rounded-pill ps-3.5 pe-4 py-2 text-muted small hover-bg-gray transition-all d-flex align-items-center" onclick="openFbCreatePostModal()" style="font-size: 0.95rem; background: #f0f2f5 !important; user-select: none; min-height: 42px; color: #65676b !important;">
                     <span class="ps-1"><%= user.full_name %> ơi, bạn đang nghĩ gì thế?</span>
                 </div>
@@ -52,7 +52,7 @@
                         <form id="reviewForm" enctype="multipart/form-data">
                             <!-- User Profile Info Row -->
                             <div class="d-flex align-items-center gap-3 mb-3">
-                                <img src="<%= user.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid #f0f2f5;">
+                                <img src="<%= user.avatar || '/images/default-avatar.png' %>" alt="Ảnh đại diện của <%= user.full_name %>" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid #f0f2f5;">
                                 <div>
                                     <div class="fw-bold text-dark" style="font-size: 0.95rem; line-height: 1.2;"><%= user.full_name %></div>
                                     <div class="d-flex flex-wrap gap-1 mt-1">
@@ -193,7 +193,7 @@
                 <!-- User Header -->
                 <div class="d-flex align-items-start justify-content-between gap-2 p-3 p-sm-4 pb-2">
                     <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
-                        <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
+                        <img src="<%= r.avatar || '/images/default-avatar.png' %>" alt="Ảnh đại diện của <%= r.full_name %>" class="rounded-circle flex-shrink-0" style="width: 44px; height: 44px; object-fit: cover; border: 2px solid var(--primary-100);">
                         <div class="min-w-0 flex-grow-1">
                             <span class="fw-bold d-block text-truncate" style="font-size: 0.92rem; color: #333;"><%= r.full_name %></span>
                             <span class="text-muted d-block text-truncate" style="font-size: 0.72rem;">
@@ -852,7 +852,7 @@
 
                         return `
                             <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs mt-1 ms-4 border-start border-3 border-danger">
-                                <img src="${r.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;">
+                                <img src="${r.avatar || '/images/default-avatar.png'}" alt="Ảnh đại diện" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;">
                                 <div class="min-w-0 flex-grow-1" style="font-size: 0.8rem;">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span class="fw-bold text-dark" style="font-size: 0.78rem;">${r.full_name}</span>
@@ -867,7 +867,7 @@
                     return `
                         <div class="d-flex flex-column gap-1">
                             <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs border-start border-3 border-primary">
-                                <img src="${c.avatar || '/images/default-avatar.png'}" class="rounded-circle flex-shrink-0" style="width: 30px; height: 30px; object-fit: cover;">
+                                <img src="${c.avatar || '/images/default-avatar.png'}" alt="Ảnh đại diện" class="rounded-circle flex-shrink-0" style="width: 30px; height: 30px; object-fit: cover;">
                                 <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
                                     <div class="d-flex align-items-center justify-content-between">
                                         <span class="fw-bold text-dark" style="font-size: 0.82rem;">${c.full_name}</span>
