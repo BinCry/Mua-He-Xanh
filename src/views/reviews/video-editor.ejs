@@ -1095,7 +1095,9 @@ main {
 }
 .bl-rail-btn {
     width: 66px;
-    height: 44px;
+    min-height: 58px;
+    height: auto;
+    flex: 0 0 auto;
     background: transparent;
     border: none;
     color: var(--bl-text-muted);
@@ -1104,15 +1106,23 @@ main {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 1px;
+    gap: 2px;
     padding: 2px;
     margin-bottom: 2px;
     font-size: 0.65rem;
     font-weight: 600;
+    line-height: 1.2;
     transition: all 0.15s ease;
 }
 .bl-rail-btn i {
     font-size: 1.05rem !important;
+}
+.bl-rail-btn span {
+    display: block;
+    max-width: 100%;
+    line-height: 1.2;
+    text-align: center;
+    white-space: normal;
 }
 .bl-rail-btn:hover {
     background: var(--bl-bg-subtle);
