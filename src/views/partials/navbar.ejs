@@ -340,37 +340,38 @@
 </div>
 
 <style>
-    /* Hamburger */
-    .nav-hamburger {
-        width: 22px;
-        height: 16px;
+    /* Mobile hamburger: override legacy bar rules so the visual glyph is truly centered. */
+    .navbar-premium .navbar-toggler .nav-hamburger {
+        width: 24px !important;
+        height: 18px !important;
         position: relative;
+        display: block !important;
         cursor: pointer;
     }
 
-    .nav-hamburger span {
+    .navbar-premium .navbar-toggler .nav-hamburger span {
         display: block;
-        height: 2px;
+        height: 3px !important;
         background: var(--primary);
         border-radius: 2px;
         transition: all 0.3s ease;
-        position: absolute;
-        left: 0;
-        width: 100%;
+        position: absolute !important;
+        left: 50% !important;
+        width: 22px !important;
+        margin: 0 !important;
+        transform: translateX(-50%);
     }
 
-    .nav-hamburger span:nth-child(1) {
-        top: 0;
+    .navbar-premium .navbar-toggler .nav-hamburger span:nth-child(1) {
+        top: 0 !important;
     }
 
-    .nav-hamburger span:nth-child(2) {
-        top: 7px;
-        width: 70%;
+    .navbar-premium .navbar-toggler .nav-hamburger span:nth-child(2) {
+        top: 7.5px !important;
     }
 
-    .nav-hamburger span:nth-child(3) {
-        top: 14px;
-        width: 85%;
+    .navbar-premium .navbar-toggler .nav-hamburger span:nth-child(3) {
+        top: 15px !important;
     }
 
     /* Mobile: Center the brand */
