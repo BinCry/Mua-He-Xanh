@@ -855,8 +855,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (videoTrackSlots) {
             if (clips.length === 0) {
                 videoTrackSlots.innerHTML = `
-                    <div class="d-flex align-items-center justify-content-center w-100 h-100 text-muted x-small cursor-pointer py-2" onclick="switchStudioTab('media')">
-                        <i class="bi bi-images me-1.5 text-danger"></i>
+                    <div class="bl-empty-track-hint d-flex align-items-center justify-content-center w-100 h-100 text-muted x-small cursor-pointer py-2" onclick="switchStudioTab('media')">
+                        <i class="bi bi-images text-danger"></i>
                         <span>Chưa có clip nào (Chọn Mẫu Video hoặc bấm tab <strong>Ảnh/Video</strong> để thêm)</span>
                     </div>
                 `;
@@ -892,8 +892,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (!hasText) {
                 textTrackSlots.innerHTML = `
-                    <div class="d-flex align-items-center justify-content-center w-100 h-100 text-muted x-small cursor-pointer py-2" onclick="switchStudioTab('text')">
-                        <i class="bi bi-fonts me-1.5" style="color: #8B5CF6;"></i>
+                    <div class="bl-empty-track-hint d-flex align-items-center justify-content-center w-100 h-100 text-muted x-small cursor-pointer py-2" onclick="switchStudioTab('text')">
+                        <i class="bi bi-fonts" style="color: #8B5CF6;"></i>
                         <span>Chưa có phụ đề (Nhập nội dung ở tab <strong>Văn bản</strong> hoặc chọn Mẫu Video)</span>
                     </div>
                 `;
@@ -914,8 +914,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (audioTrackSlot) {
             if (!selectedAudioUrl) {
                 audioTrackSlot.innerHTML = `
-                    <div class="d-flex align-items-center justify-content-center w-100 h-100 text-muted x-small cursor-pointer py-2" onclick="switchStudioTab('audio')">
-                        <i class="bi bi-music-note-beamed me-1.5 text-success"></i>
+                    <div class="bl-empty-track-hint d-flex align-items-center justify-content-center w-100 h-100 text-muted x-small cursor-pointer py-2" onclick="switchStudioTab('audio')">
+                        <i class="bi bi-music-note-beamed text-success"></i>
                         <span>Chưa có nhạc nền (Bấm tab <strong>Âm thanh</strong> hoặc chọn Mẫu để nghe & chọn)</span>
                     </div>
                 `;
@@ -1103,7 +1103,7 @@ document.addEventListener('DOMContentLoaded', () => {
             propPanelDefault.classList.add('d-none');
             propPanelClip.classList.add('d-none');
             propPanelText.classList.remove('d-none');
-            if (propPanelTitle) propPanelTitle.innerHTML = '<i class="bi bi-fonts text-purple me-1.5"></i>Văn bản';
+            if (propPanelTitle) propPanelTitle.innerHTML = '<i class="bi bi-fonts text-purple"></i><span>Văn bản</span>';
             if (propPanelBadge) propPanelBadge.innerText = 'Chữ';
             if (propTextInput) {
                 propTextInput.value = (textHookInput && textHookInput.value) ||
@@ -1123,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', () => {
             propPanelDefault.classList.add('d-none');
             propPanelText.classList.add('d-none');
             propPanelClip.classList.remove('d-none');
-            if (propPanelTitle) propPanelTitle.innerHTML = '<i class="bi bi-image text-danger me-1.5"></i>Phân cảnh';
+            if (propPanelTitle) propPanelTitle.innerHTML = '<i class="bi bi-image text-danger"></i><span>Phân cảnh</span>';
             if (propPanelBadge) propPanelBadge.innerText = `Clip #${selectedClipIndex + 1}`;
 
             const clip = clips[selectedClipIndex];
@@ -1138,7 +1138,7 @@ document.addEventListener('DOMContentLoaded', () => {
             propPanelText.classList.add('d-none');
             propPanelClip.classList.add('d-none');
             propPanelDefault.classList.remove('d-none');
-            if (propPanelTitle) propPanelTitle.innerHTML = '<i class="bi bi-sliders text-danger me-1.5"></i>Thuộc tính';
+            if (propPanelTitle) propPanelTitle.innerHTML = '<i class="bi bi-sliders text-danger"></i><span>Thuộc tính</span>';
             if (propPanelBadge) propPanelBadge.innerText = 'Tổng quan';
         }
     }
@@ -2097,7 +2097,7 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('binh_loi_studio_title', title);
             if (saveStatusIndicator) {
                 saveStatusIndicator.innerHTML = '<i class="bi bi-check-circle-fill"></i><span>Đã lưu</span>';
-                saveStatusIndicator.className = 'bl-status-saved d-flex align-items-center gap-1.5 text-success font-size-xs fw-semibold ms-2';
+                saveStatusIndicator.className = 'bl-status-saved d-flex align-items-center gap-2 text-success font-size-xs fw-semibold ms-2';
             }
         } catch (e) {
             console.warn('Storage save warning:', e);
@@ -2133,7 +2133,7 @@ document.addEventListener('DOMContentLoaded', () => {
         projectTitleInput.addEventListener('input', () => {
             if (saveStatusIndicator) {
                 saveStatusIndicator.innerHTML = '<i class="bi bi-arrow-repeat"></i><span>Đang lưu...</span>';
-                saveStatusIndicator.className = 'bl-status-saved d-flex align-items-center gap-1.5 text-muted font-size-xs fw-semibold ms-2';
+                saveStatusIndicator.className = 'bl-status-saved d-flex align-items-center gap-2 text-muted font-size-xs fw-semibold ms-2';
             }
             clearTimeout(window._studioSaveTimer);
             window._studioSaveTimer = setTimeout(saveProjectToStorage, 800);

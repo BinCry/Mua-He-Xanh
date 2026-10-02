@@ -23,7 +23,7 @@
         <div class="d-none d-md-flex align-items-center gap-2.5 px-3.5 py-1.5 rounded-pill bl-project-name-wrapper border shadow-2xs">
             <i class="bi bi-pencil-square text-muted font-size-sm"></i>
             <input type="text" class="bl-project-title-input font-size-sm fw-semibold" id="projectTitleInput" value="Video Bình Lợi – Chữa Lành" placeholder="Nhập tên dự án...">
-            <span class="bl-status-saved d-flex align-items-center gap-1.5 text-success font-size-xs fw-semibold ms-2" id="saveStatusIndicator">
+            <span class="bl-status-saved d-flex align-items-center gap-2 text-success font-size-xs fw-semibold ms-2" id="saveStatusIndicator">
                 <i class="bi bi-check-circle-fill"></i>
                 <span>Đã lưu</span>
             </span>
@@ -618,7 +618,7 @@
         <aside class="bl-properties-panel border-start bg-white p-3.5 custom-scrollbar">
             <!-- Header Properties -->
             <div class="d-flex align-items-center justify-content-between mb-3.5 pb-2 border-bottom">
-                <h6 class="fw-bold text-dark mb-0 fs-6" id="propPanelTitle"><i class="bi bi-sliders text-danger me-1.5"></i>Thuộc tính</h6>
+                <h6 class="fw-bold text-dark mb-0 fs-6 d-flex align-items-center gap-2" id="propPanelTitle"><i class="bi bi-sliders text-danger"></i><span>Thuộc tính</span></h6>
                 <span class="badge bg-light border text-muted x-small" id="propPanelBadge">Tổng quan</span>
             </div>
 
@@ -1317,10 +1317,16 @@ main {
 
 .bl-monitor-controls {
     height: 42px;
+    width: min(100%, 480px);
+    min-width: 0;
     gap: 12px;
     margin-top: 8px;
+    margin-inline: auto;
+    padding-inline: 14px !important;
     flex-shrink: 0;
 }
+.bl-monitor-controls > div { flex: 0 0 auto; }
+.bl-monitor-controls .bl-timecode-badge { white-space: nowrap; }
 .bl-ctrl-btn {
     color: var(--bl-text-main);
     padding: 4px;
@@ -1398,6 +1404,27 @@ main {
     font-size: 0.74rem;
     height: 28px;
 }
+.bl-empty-track-hint {
+    gap: 0.5rem;
+    min-width: 0;
+    padding-inline: 0.75rem !important;
+}
+
+    /* Do not rely solely on the utility class: this status is also replaced at runtime. */
+    .bl-status-saved {
+        column-gap: 0.5rem;
+        white-space: nowrap;
+    }
+
+    .bl-status-saved > i {
+        flex: 0 0 auto;
+    }
+
+    .bl-status-saved > i + span {
+        margin-inline-start: 0.125rem;
+    }
+.bl-empty-track-hint > i { flex: 0 0 auto; }
+.bl-empty-track-hint > span { min-width: 0; }
 .bl-badge-text {
     background: #EDE9FE;
     color: #6D28D9;
@@ -1590,9 +1617,9 @@ main {
     }
 
     .bl-monitor-controls {
-        width: min(100%, 360px);
+        width: min(calc(100% - 24px), 360px);
         gap: 4px;
-        padding: 6px 10px !important;
+        padding: 6px 12px !important;
     }
 
     .bl-monitor-controls .btn {

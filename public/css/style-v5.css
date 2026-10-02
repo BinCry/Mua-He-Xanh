@@ -2980,7 +2980,14 @@ img {
     }
 
     .container, .container-fluid {
-        padding-left: 8px !important;
-        padding-right: 8px !important;
+        /* Bootstrap rows retain a 24px gutter.  Keep matching container padding
+           so cards and footer columns never protrude past a narrow viewport. */
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+
+    .footer-main .row {
+        width: 100%;
+        margin-inline: 0;
     }
 }
