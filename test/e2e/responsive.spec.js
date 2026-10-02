@@ -2,13 +2,15 @@ const { test, expect } = require('@playwright/test');
 
 const viewports = [
     { name: 'mobile-320', width: 320, height: 568 },
+    { name: 'mobile-375', width: 375, height: 667 },
     { name: 'mobile-390', width: 390, height: 844 },
     { name: 'mobile-412', width: 412, height: 915 },
     { name: 'tablet', width: 768, height: 1024 },
+    { name: 'tablet-landscape', width: 1024, height: 768 },
     { name: 'laptop', width: 1366, height: 768 },
     { name: 'desktop', width: 1440, height: 900 }
 ];
-const publicRoutes = ['/', '/explore', '/map', '/reviews', '/auth/login'];
+const publicRoutes = ['/', '/explore', '/map', '/reviews', '/reviews/video-editor', '/auth/login'];
 
 for (const viewport of viewports) {
     test(`public pages fit ${viewport.name}`, async ({ page }) => {
