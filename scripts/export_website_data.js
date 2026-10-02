@@ -204,16 +204,7 @@ async function exportAllData() {
         ].join('\n');
         fs.writeFileSync(path.join(exportDir, 'analytics_daily.csv'), dailyCsv, 'utf8');
 
-        // Copy all to public/exports for direct HTTP downloads
-        const publicExports = path.join(__dirname, '../public/exports');
-        if (!fs.existsSync(publicExports)) {
-            fs.mkdirSync(publicExports, { recursive: true });
-        }
-        ['website_summary_kpi.json', 'destinations.json', 'reviews.json', 'analytics_daily.json', 'workshops.json', 'studio_templates.json', 'users.json', 'destinations.csv', 'analytics_daily.csv'].forEach(f => {
-            fs.copyFileSync(path.join(exportDir, f), path.join(publicExports, f));
-        });
-
-        console.log('✅ Đã xuất thành công toàn bộ JSON & CSV vào cả /exports và /public/exports!');
+        console.log('✅ Đã xuất dữ liệu vào thư mục exports riêng tư (không public trên website).');
         process.exit(0);
     } catch (e) {
         console.error('Lỗi xuất file:', e);

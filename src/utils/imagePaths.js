@@ -16,13 +16,10 @@ function normalizeImagePath(imgPath, fallback = DEFAULT_IMAGE) {
         return fallback || DEFAULT_IMAGE;
     }
 
-    // If it's a full image data URI, allow it
+    // Legacy data URIs can be enabled only during a controlled migration.
+    // New uploads use URLs so documents remain small and cacheable.
     if (raw.startsWith('data:image/')) {
-        if (raw.length > MAX_INLINE_DATA_URI_SIZE) {
-            console.warn(`[imagePaths] Blocked excessively large data URI (${(raw.length / 1024 / 1024).toFixed(1)}MB)`);
-            return fallback || DEFAULT_IMAGE;
-        }
-        return raw;
+        return process.env.ALLOW_LEGACY_DATA_URI === 'true' ? raw : (fallback || DEFAULT_IMAGE);
     }
 
     if (raw.startsWith('data:')) {

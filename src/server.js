@@ -16,30 +16,23 @@ const { v4: uuidv4 } = require('uuid');
 const app = express();
 const PORT = config.port;
 
-// Health check route - bypasses DB/session to verify Vercel serverless boot
-app.get('/api/health', async (req, res) => {
-    const info = {
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        env: process.env.NODE_ENV,
-        db_url_set: !!process.env.DATABASE_URL,
-        db_url_prefix: (process.env.DATABASE_URL || '').substring(0, 30) + '...',
-        vercel: !!process.env.VERCEL
-    };
-    
-    // Test actual DB connection
+// Liveness must be fast and must not disclose configuration or wait for the DB.
+app.get('/api/health', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Readiness is intentionally separate so deploy checks can verify the database.
+app.get('/api/ready', async (req, res) => {
     try {
         const db = require('./core/database');
-        const [rows] = await db.query('SELECT NOW() as time');
-        info.db_connected = true;
-        info.db_time = rows[0]?.time;
-    } catch (dbErr) {
-        info.db_connected = false;
-        info.db_error = dbErr.message;
-        info.db_code = dbErr.code;
+        await db.query('SELECT 1');
+        res.set('Cache-Control', 'no-store');
+        res.json({ status: 'ready', timestamp: new Date().toISOString() });
+    } catch (error) {
+        res.set('Cache-Control', 'no-store');
+        res.status(503).json({ status: 'not_ready' });
     }
-    
-    res.json(info);
 });
 
 // Auto-patch DB schema (batched & one-shot per instance for fast cold starts)
@@ -128,6 +121,12 @@ app.get('/sw.js', (req, res) => {
     res.sendFile(path.join(ROOT_DIR, 'public', 'sw.js'));
 });
 
+// Operational exports can contain personal or analytics data and must never be
+// exposed by the public static-file middleware.
+app.use('/exports', (req, res) => {
+    res.status(404).end();
+});
+
 app.use(express.static(path.join(ROOT_DIR, 'public'), {
     maxAge: '365d',
     immutable: true
@@ -205,10 +204,9 @@ app.use((req, res, next) => {
     if (p.match(/\.(css|js|png|jpg|jpeg|gif|webp|svg|ico|woff2?|ttf|eot)$/)) {
         res.setHeader('Cache-Control', 'public, max-age=86400');
     } else {
-        // HTML pages must NEVER be cached by browser so login status and user profile always update immediately
-        res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
+        // Anonymous HTML may be revalidated and restored by browser navigation.
+        // Sensitive responses are tightened again after authentication resolves.
+        res.setHeader('Cache-Control', 'private, max-age=0, must-revalidate');
     }
     next();
 });
@@ -348,6 +346,19 @@ app.use(async (req, res, next) => {
     next();
 });
 
+// Personalized/admin pages stay out of browser history caches. Public pages can
+// still use normal revalidation and BFCache for faster back/forward navigation.
+app.use((req, res, next) => {
+    const sensitivePrefixes = ['/admin', '/manager', '/auth', '/profile', '/passport', '/journey', '/onboarding', '/checkin', '/chat'];
+    const isSensitive = Boolean(req.user || req.session?.user) || sensitivePrefixes.some(prefix => req.path.startsWith(prefix));
+    if (isSensitive) {
+        res.setHeader('Cache-Control', 'private, no-store, max-age=0');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+    }
+    next();
+});
+
 // Analytics middleware - track real page views (fire-and-forget, non-blocking)
 const analyticsMiddleware = require('./middleware/analytics');
 app.use(analyticsMiddleware);
@@ -374,7 +385,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets
-    res.locals.assetV = '113.0.0'; 
+    res.locals.assetV = '114.0.0';
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
@@ -389,7 +400,9 @@ app.use(async (req, res, next) => {
     // Session UUID + DB row — only for non-public routes (requires session)
     res.locals.sessionDbId = null;
     res.locals.sessionDbUuid = null;
-    if (req.session) {
+    const statefulPrefixes = ['/journey', '/onboarding', '/checkin', '/passport', '/profile', '/chat'];
+    const needsSessionRecord = Boolean(req.session?.user) || statefulPrefixes.some(prefix => req.path.startsWith(prefix));
+    if (needsSessionRecord && req.session) {
         try {
             let sessionUuid = req.cookies?.session_uuid;
             if (!sessionUuid) {
@@ -481,6 +494,10 @@ app.use((err, req, res, next) => {
 });
 
 if (process.env.NODE_ENV !== 'production' || !process.env.VERCEL) {
+    if (process.env.NODE_ENV === 'production' && !String(process.env.DATABASE_URL || '').trim()) {
+        console.error('DATABASE_URL is required in production. Refusing to start without database configuration.');
+        process.exit(1);
+    }
     app.listen(PORT, () => {
         console.log(`Server is running at http://localhost:${PORT}`);
     });

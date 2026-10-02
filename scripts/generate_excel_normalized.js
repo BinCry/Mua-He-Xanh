@@ -567,18 +567,7 @@ async function buildNormalizedExcel() {
         await workbook.xlsx.writeFile(excelPath);
         console.log(`✅ File Excel quy tắc chuẩn đã ghi tại: ${excelPath}`);
 
-        // Ghi ra public/exports
-        const publicExports = path.join(__dirname, '../public/exports');
-        fs.copyFileSync(excelPath, path.join(publicExports, outFileName));
-
-        // Ghi ra Downloads
-        const downloadsPath = path.join('C:\\Users\\tuand\\Downloads', outFileName);
-        fs.copyFileSync(excelPath, downloadsPath);
-        console.log(`✅ Đã copy vào Downloads: ${downloadsPath}`);
-
-        // Ghi ra Artifacts
-        const artifactDir = 'C:\\Users\\tuand\\.gemini\\antigravity\\brain\\b7b3eb44-1b2f-4a41-a0c9-c81b51327abb';
-        fs.copyFileSync(excelPath, path.join(artifactDir, outFileName));
+        console.log('🔒 Báo cáo chỉ được giữ trong thư mục exports riêng tư; không sao chép ra ổ C hoặc public web.');
 
         console.log('--- HOÀN TẤT THÀNH CÔNG ---');
         process.exit(0);

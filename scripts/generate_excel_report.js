@@ -550,22 +550,7 @@ async function buildExcelReport() {
         await workbook.xlsx.writeFile(excelPath);
         console.log(`✅ File Excel đã được tạo thành công tại: ${excelPath}`);
 
-        // Đồng thời sao chép sang thư mục Downloads của người dùng
-        const userDownloads = 'C:\\Users\\tuand\\Downloads\\BAO_CAO_SO_LIEU_BINH_LOI_HEALING.xlsx';
-        try {
-            fs.copyFileSync(excelPath, userDownloads);
-            console.log(`✅ Đã tự động sao chép file Excel vào thư mục Downloads: ${userDownloads}`);
-        } catch (e) {
-            console.log('Không copy được vào Downloads:', e.message);
-        }
-
-        // Và sao chép sang thư mục public/exports để tải qua trình duyệt
-        const publicExports = path.join(__dirname, '../public/exports');
-        if (!fs.existsSync(publicExports)) {
-            fs.mkdirSync(publicExports, { recursive: true });
-        }
-        fs.copyFileSync(excelPath, path.join(publicExports, 'BAO_CAO_SO_LIEU_BINH_LOI_HEALING.xlsx'));
-        console.log(`✅ Đã copy vào public/exports để tải trực tiếp qua trình duyệt: /exports/BAO_CAO_SO_LIEU_BINH_LOI_HEALING.xlsx`);
+        console.log('🔒 Báo cáo chỉ được giữ trong thư mục exports riêng tư; không sao chép ra ổ C hoặc public web.');
 
         console.log('--- HOÀN TẤT BÁO CÁO EXCEL THÀNH CÔNG ---');
         process.exit(0);

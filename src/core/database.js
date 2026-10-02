@@ -5,25 +5,29 @@ require('dotenv').config();
 types.setTypeParser(1114, str => str ? new Date(str.replace(' ', 'T') + 'Z') : null);
 types.setTypeParser(1184, str => str ? new Date(str) : null);
 
-let connectionString = process.env.DATABASE_URL || 'postgresql://postgres.dipwbbwedjjmkrmejkjc:Binhloi.travel2026@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
+// Credentials are deployment configuration, never application source code.
+// Fail early and clearly rather than silently connecting to an unintended database.
+const connectionString = String(process.env.DATABASE_URL || '').trim();
+let pgPool = null;
 
-// Auto-fix direct connection strings (which are IPv6 only) to use Supabase IPv4 Pooler
-if (!connectionString || connectionString.includes('db.dipwbbwedjjmkrmejkjc.supabase.co') || !connectionString.includes('pooler.supabase.com')) {
-    connectionString = 'postgresql://postgres.dipwbbwedjjmkrmejkjc:Binhloi.travel2026@aws-0-ap-southeast-1.pooler.supabase.com:6543/postgres';
+function getPool() {
+    if (pgPool) return pgPool;
+    if (!connectionString) {
+        throw new Error('DATABASE_URL is required. Set it in the deployment environment before running database queries.');
+    }
+    pgPool = new Pool({
+        connectionString,
+        ssl: { rejectUnauthorized: false },
+        max: 20,
+        idleTimeoutMillis: 30000,
+        connectionTimeoutMillis: 10000,
+        allowExitOnIdle: true
+    });
+    pgPool.on('error', (err) => {
+        console.error('Unexpected pgPool error:', err.message);
+    });
+    return pgPool;
 }
-
-const pgPool = new Pool({
-    connectionString,
-    ssl: { rejectUnauthorized: false },
-    max: 20,
-    idleTimeoutMillis: 30000,
-    connectionTimeoutMillis: 10000,
-    allowExitOnIdle: true
-});
-
-pgPool.on('error', (err) => {
-    console.error('Unexpected pgPool error:', err.message);
-});
 
 const pool = {
     async query(sql, params = []) {
@@ -32,7 +36,7 @@ const pool = {
 
         for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
-                const res = await pgPool.query(sql, params);
+                const res = await getPool().query(sql, params);
                 const rows = res.rows || [];
                 rows.affectedRows = res.rowCount || 0;
                 rows.rowCount = res.rowCount || 0;
@@ -57,7 +61,15 @@ const pool = {
     async execute(sql, params = []) {
         return this.query(sql, params);
     },
-    pgPool
+    async close() {
+        if (!pgPool) return;
+        const poolToClose = pgPool;
+        pgPool = null;
+        await poolToClose.end();
+    },
+    get pgPool() {
+        return getPool();
+    }
 };
 
 module.exports = pool;

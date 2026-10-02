@@ -20,8 +20,9 @@ if (isCloudinaryConfigured()) {
 }
 
 /**
- * Uploads a file to Cloudinary, local storage, or compressed WebP data URI.
- * Guaranteed 100% failure-proof fallback strategy for Vercel Serverless & Local.
+ * Uploads a file to Cloudinary or durable local storage.
+ * Images must never fall back to data URIs: embedding them in database rows makes
+ * HTML responses very large and bypasses normal browser/CDN image caching.
  */
 const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
     try {
@@ -50,11 +51,16 @@ const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
                 fs.mkdirSync(mediaDir, { recursive: true });
             }
 
-            const ext = path.extname(filePath).toLowerCase();
-            const filename = `media-${Date.now()}-${Math.random().toString(36).substring(2, 8)}${ext}`;
+            const source = await sharp(filePath).rotate();
+            const metadata = await source.metadata();
+            const hasAlpha = Boolean(metadata.hasAlpha);
+            const filename = `media-${Date.now()}-${Math.random().toString(36).substring(2, 8)}.webp`;
             const destPath = path.join(mediaDir, filename);
 
-            fs.copyFileSync(filePath, destPath);
+            await source
+                .resize(2560, 2560, { fit: 'inside', withoutEnlargement: true })
+                .webp(hasAlpha ? { lossless: true } : { quality: 88 })
+                .toFile(destPath);
             try {
                 if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
             } catch (err) {}
@@ -66,43 +72,13 @@ const uploadToCloudinary = async (filePath, folder = 'binh-loi/media') => {
                 public_id: `local-${filename}`
             };
         } catch (fsErr) {
-            console.warn('[UPLOAD] Local FS write error (Vercel read-only), generating compressed Data URI:', fsErr.message);
-            
-            // Tier 3: Compressed High-Res WebP Data URI for Vercel read-only filesystem
-            if (fs.existsSync(filePath)) {
-                try {
-                    const buffer = await sharp(filePath)
-                        .resize(2560, 2560, { fit: 'inside', withoutEnlargement: true })
-                        .webp({ quality: 92 })
-                        .toBuffer();
-                    
-                    try { fs.unlinkSync(filePath); } catch (e) {}
-                    
-                    const dataUri = `data:image/webp;base64,${buffer.toString('base64')}`;
-                    return {
-                        url: dataUri,
-                        public_id: `datauri-${Date.now()}`
-                    };
-                } catch (sharpErr) {
-                    console.warn('[UPLOAD] Sharp conversion failed, using raw Base64 fallback:', sharpErr.message);
-                    const rawBuffer = fs.readFileSync(filePath);
-                    const ext = path.extname(filePath).replace('.', '') || 'jpeg';
-                    try { fs.unlinkSync(filePath); } catch (e) {}
-                    return {
-                        url: `data:image/${ext};base64,${rawBuffer.toString('base64')}`,
-                        public_id: `rawbase64-${Date.now()}`
-                    };
-                }
-            }
+            throw new Error(`Unable to persist uploaded media: ${fsErr.message}`);
         }
     } catch (error) {
         console.error('[UPLOAD FATAL ERROR]:', error);
     }
 
-    return {
-        url: '/uploads/posters/poster-1.webp',
-        public_id: `error-${Date.now()}`
-    };
+    throw new Error('Unable to persist uploaded media. Please retry after storage is available.');
 };
 
 module.exports = {

@@ -13,6 +13,9 @@ const UploadController = {
             }
             
             const result = await uploadToCloudinary(req.file.path, 'binh-loi/media');
+            if (!result?.url) {
+                throw new Error('Storage did not return a media URL');
+            }
             
             res.json({
                 success: true,
@@ -36,6 +39,9 @@ const UploadController = {
             }
 
             const result = await uploadToCloudinary(req.file.path, 'binh-loi/brand');
+            if (!result?.url) {
+                throw new Error('Storage did not return a media URL');
+            }
             const publicUrl = result.url;
 
             const db = require('../core/database');

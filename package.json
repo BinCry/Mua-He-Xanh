@@ -6,7 +6,13 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "node --test"
+    "test": "node --test test/checkin-points.test.js test/map-basemap.test.js test/mobile-navbar.test.js test/performance-security.test.js test/studio-layout.test.js test/studio-mobile-layout.test.js test/studio-rail.test.js test/studio-spacing.test.js",
+    "test:unit": "npm test",
+    "test:responsive": "playwright test test/e2e/responsive.spec.js",
+    "test:a11y": "playwright test test/e2e/accessibility.spec.js",
+    "test:e2e": "playwright test",
+    "db:indexes": "node scripts/ensure_performance_indexes.js",
+    "media:migrate": "node scripts/migrate_base64_media.js --dry-run"
   },
   "keywords": [],
   "author": "",
@@ -35,6 +41,8 @@
     "uuid": "^9.0.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "nodemon": "^3.1.14",
     "sharp": "^0.35.3"
   }

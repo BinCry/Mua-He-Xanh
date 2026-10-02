@@ -13,3 +13,11 @@ src/test_maps.js
 Claude-Kit/
 *.sql
 db_backup*.json
+exports/
+public/exports/
+.tmp/
+test-results/
+playwright-report/
+blob-report/
+lighthouse-report/
+qa-artifacts/
