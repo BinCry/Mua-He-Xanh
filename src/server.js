@@ -115,6 +115,13 @@ app.use(compression());
 // ========================================================================
 // STATIC FILES — served BEFORE session/cookie middleware for zero overhead
 // ========================================================================
+// This screen belongs to the Service Worker recovery flow. A direct request
+// while the server is available should always take visitors back home.
+app.get('/offline.html', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.redirect(302, '/');
+});
+
 app.use(express.static(path.join(ROOT_DIR, 'public'), {
     maxAge: '365d',
     immutable: true

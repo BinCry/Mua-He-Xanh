@@ -1,9 +1,8 @@
-const CACHE_NAME = 'binh-loi-healing-v16';
+const CACHE_NAME = 'binh-loi-healing-v17';
 const STATIC_ASSETS = [
     '/css/style-v5.css',
     '/images/logo.png',
-    '/images/no-image.svg',
-    '/offline.html'
+    '/images/no-image.svg'
 ];
 
 const OFFLINE_FALLBACK_HTML = [
@@ -54,9 +53,10 @@ self.addEventListener('fetch', (event) => {
 
     if (req.method !== 'GET') return;
 
-    // Keep the dedicated fallback available even when the network is unavailable.
+    // The recovery screen is only shown when the server cannot be reached.
+    // A direct visit while online must return visitors to the homepage.
     if (url.pathname === '/offline.html') {
-        event.respondWith(cacheFirst(req));
+        event.respondWith(resolveOfflineNavigation());
         return;
     }
 
@@ -86,6 +86,26 @@ async function cacheFirst(req) {
     return cachedResponse || fetch(req);
 }
 
+function offlineResponse() {
+    return new Response(OFFLINE_FALLBACK_HTML, {
+        status: 503,
+        headers: { 'Content-Type': 'text/html; charset=utf-8' }
+    });
+}
+
+async function resolveOfflineNavigation() {
+    try {
+        const healthResponse = await fetch('/api/health', { cache: 'no-store' });
+        if (healthResponse.ok) {
+            return Response.redirect(new URL('/', self.location.origin).toString(), 302);
+        }
+    } catch (error) {
+        // The server is unreachable, so render the recovery UI below.
+    }
+
+    return offlineResponse();
+}
+
 async function networkFirst(req) {
     const cache = await caches.open(CACHE_NAME);
     try {
@@ -99,16 +119,7 @@ async function networkFirst(req) {
         const cachedResponse = await cache.match(req);
         if (cachedResponse) return cachedResponse;
 
-        if (req.mode === 'navigate') {
-            try {
-                return await fetch('/offline.html');
-            } catch (offlineError) {
-                return new Response(OFFLINE_FALLBACK_HTML, {
-                    status: 503,
-                    headers: { 'Content-Type': 'text/html; charset=utf-8' }
-                });
-            }
-        }
+        if (req.mode === 'navigate') return offlineResponse();
 
         return new Response('Network error happened', {
             status: 408,
