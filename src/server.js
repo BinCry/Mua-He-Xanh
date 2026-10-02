@@ -122,6 +122,12 @@ app.get('/offline.html', (req, res) => {
     res.redirect(302, '/');
 });
 
+// The browser must revalidate this file so PWA recovery behavior updates promptly.
+app.get('/sw.js', (req, res) => {
+    res.set('Cache-Control', 'no-store');
+    res.sendFile(path.join(ROOT_DIR, 'public', 'sw.js'));
+});
+
 app.use(express.static(path.join(ROOT_DIR, 'public'), {
     maxAge: '365d',
     immutable: true
