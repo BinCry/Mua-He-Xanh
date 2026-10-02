@@ -17,8 +17,8 @@ const LEGACY_IMAGE_ALIASES = {
     '/images/xuong-nhang-1.png': '/uploads/destinations/xuong-nhang.jpg',
     '/images/chua-phap-tang-1.png': '/uploads/destinations/chua-phap-tang.png',
     '/images/vuon-mai-1.png': '/uploads/destinations/lang-mai.jpg',
-    '/images/placeholder.png': '/images/hero-1.png',
-    '/images/placeholder.jpg': '/images/hero-1.png'
+    '/images/placeholder.png': '/images/Poster 1.jpg',
+    '/images/placeholder.jpg': '/images/Poster 1.jpg'
 };
 
 function isBareBase64ImagePath(pathname) {
@@ -61,7 +61,7 @@ self.addEventListener('fetch', (event) => {
     }
 
     if (isBareBase64ImagePath(url.pathname)) {
-        event.respondWith(cacheFirst(new Request(new URL('/images/hero-1.png', self.location.origin).toString())));
+        event.respondWith(cacheFirst(new Request(new URL('/images/Poster%201.jpg', self.location.origin).toString())));
         return;
     }
 

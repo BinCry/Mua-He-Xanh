@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     var dest = res.data.destination;
                     document.getElementById('modal-title').innerText = dest.name;
                     
-                    var imgSrc = dest.cover_image || '/images/hero-1.png';
+                    var imgSrc = dest.cover_image || '/images/Poster 1.jpg';
                     if (imgSrc && imgSrc.indexOf('http') !== 0 && imgSrc.indexOf('data:') !== 0 && imgSrc.indexOf('/') !== 0) {
                         imgSrc = '/' + imgSrc;
                     }

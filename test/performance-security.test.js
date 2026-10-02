@@ -30,3 +30,11 @@ test('server separates liveness from readiness and denies public exports', () =>
     assert.match(server, /app\.use\('\/exports'/);
     assert.doesNotMatch(server, /db_url_prefix/);
 });
+
+test('public fallback images refer to an existing asset', () => {
+    const login = fs.readFileSync('src/views/auth/login.ejs', 'utf8');
+    const serviceWorker = fs.readFileSync('public/sw.js', 'utf8');
+    assert.match(login, /\/images\/Poster 1\.jpg/);
+    assert.match(serviceWorker, /Poster(?:%20| )1\.jpg/);
+    assert.ok(fs.existsSync('public/images/Poster 1.jpg'));
+});
