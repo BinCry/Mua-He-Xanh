@@ -3,180 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đang kết nối - Du Lịch Bình Lợi</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#922724">
+    <title>Kết nối đang gián đoạn | Du Lịch Bình Lợi</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            background: linear-gradient(135deg, #fdf6f6 0%, #f0fdf4 50%, #fefce8 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            padding: 20px;
-        }
-        .offline-card {
-            max-width: 420px;
-            width: 100%;
-            text-align: center;
-            background: #ffffff;
-            padding: 2.5rem 2rem 2rem;
-            border-radius: 1.5rem;
-            box-shadow: 0 20px 60px rgba(146, 39, 36, 0.08), 0 4px 16px rgba(0,0,0,0.04);
-            border: 1px solid rgba(146, 39, 36, 0.06);
-        }
-
-        /* Brand Header */
-        .brand-box { margin-bottom: 2rem; }
-        .brand-title {
-            font-family: 'Inter', sans-serif;
-            font-weight: 900;
-            font-size: 1.6rem;
-            color: #922724;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin: 0;
-            line-height: 1.2;
-        }
-        .brand-sub {
-            font-family: 'Dancing Script', cursive;
-            font-size: 1.05rem;
-            color: #15803d;
-            font-weight: 700;
-            margin-top: 4px;
-        }
-
-        /* Status */
-        .status-icon {
-            width: 56px; height: 56px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 1rem;
-        }
-        .status-icon i {
-            font-size: 1.6rem;
-            color: #922724;
-            animation: pulse 2s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-
-        .btn-retry {
-            background: linear-gradient(135deg, #922724 0%, #b83330 100%);
-            color: white;
-            border: none;
-            font-weight: 700;
-            padding: 12px 24px;
-            border-radius: 50px;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-        }
-        .btn-retry:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(146, 39, 36, 0.3);
-            color: white;
-        }
-        .btn-clear {
-            background: transparent;
-            color: #64748b;
-            border: 1.5px solid #e2e8f0;
-            font-weight: 600;
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 0.82rem;
-            transition: all 0.2s;
-        }
-        .btn-clear:hover {
-            background: #f8fafc;
-            border-color: #cbd5e1;
-            color: #334155;
-        }
-        .auto-status {
-            font-size: 0.75rem;
-            color: #94a3b8;
-            margin-top: 1rem;
-        }
-        .auto-status .spinner-border {
-            width: 12px; height: 12px;
-            border-width: 1.5px;
-            vertical-align: middle;
-        }
+        :root { --offline-primary: #922724; --offline-primary-dark: #761f1d; --offline-green: #15803d; --offline-surface: #ffffff; --offline-page: #faf9f7; --offline-text: #262321; --offline-muted: #66615d; --offline-border: #ebe4df; --offline-danger-soft: #fdf0ee; }
+        * { box-sizing: border-box; }
+        html, body { min-height: 100%; }
+        body { min-height: 100vh; min-height: 100dvh; margin: 0; background: var(--offline-page); color: var(--offline-text); font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
+        .offline-page { min-height: 100vh; min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: clamp(24px, 7vh, 72px) clamp(16px, 4vw, 32px); }
+        .offline-shell { width: min(100%, 440px); display: grid; justify-items: center; gap: clamp(20px, 4vh, 32px); text-align: center; }
+        .offline-brand { text-wrap: balance; }
+        .offline-brand__name { margin: 0; color: var(--offline-primary); font-size: clamp(1.5rem, 4.5vw, 2rem); font-weight: 800; letter-spacing: 0.045em; line-height: 1.15; }
+        .offline-brand__tagline { margin: 0.45rem 0 0; color: var(--offline-green); font-family: Georgia, "Times New Roman", serif; font-size: clamp(1rem, 3.5vw, 1.15rem); font-style: italic; font-weight: 700; }
+        .connection-card { width: 100%; padding: clamp(24px, 6vw, 40px); background: var(--offline-surface); border: 1px solid var(--offline-border); border-radius: clamp(18px, 4vw, 24px); box-shadow: 0 12px 30px rgba(74, 45, 35, 0.07); }
+        .connection-icon { width: clamp(52px, 14vw, 64px); aspect-ratio: 1; display: grid; place-items: center; margin: 0 auto clamp(18px, 3vh, 24px); border-radius: 50%; background: var(--offline-danger-soft); color: var(--offline-primary); }
+        .connection-icon svg { width: 55%; height: 55%; }
+        .connection-card h1 { margin: 0; font-size: clamp(1.125rem, 3.8vw, 1.375rem); font-weight: 750; letter-spacing: -0.015em; line-height: 1.3; text-wrap: balance; }
+        .connection-description { max-width: 34ch; margin: 0.85rem auto 0; color: var(--offline-muted); font-size: clamp(0.875rem, 2.8vw, 1rem); line-height: 1.65; text-wrap: pretty; }
+        .retry-status { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin: clamp(18px, 3vh, 24px) 0; color: #766f6a; font-size: 0.875rem; line-height: 1.4; }
+        .retry-spinner { width: 1rem; height: 1rem; flex: 0 0 auto; border: 2px solid #e4d8d3; border-top-color: var(--offline-primary); border-radius: 50%; animation: retry-spin 0.85s linear infinite; }
+        .retry-button { min-width: 160px; min-height: 48px; padding: 0.75rem 1.35rem; border: 1px solid var(--offline-primary); border-radius: 999px; background: var(--offline-primary); color: #ffffff; cursor: pointer; font: inherit; font-size: 0.95rem; font-weight: 700; line-height: 1.2; transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease, box-shadow 180ms ease; }
+        .retry-button:hover { background: var(--offline-primary-dark); border-color: var(--offline-primary-dark); box-shadow: 0 6px 16px rgba(146, 39, 36, 0.2); }
+        .retry-button:active { transform: scale(0.98); }
+        .retry-button:focus-visible { outline: 3px solid rgba(146, 39, 36, 0.32); outline-offset: 3px; }
+        .clear-cache-button { min-height: 44px; margin: 0.75rem auto 0; padding: 0.45rem 0.75rem; border: 0; background: transparent; color: #766f6a; cursor: pointer; font: inherit; font-size: 0.8125rem; font-weight: 600; text-decoration: underline; text-underline-offset: 0.2em; }
+        .clear-cache-button:hover { color: var(--offline-primary-dark); }
+        .clear-cache-button:focus-visible { outline: 3px solid rgba(146, 39, 36, 0.32); outline-offset: 2px; border-radius: 0.4rem; }
+        @keyframes retry-spin { to { transform: rotate(360deg); } }
+        @media (max-height: 600px) { .offline-page { align-items: flex-start; } .offline-shell { gap: 18px; } }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; } }
     </style>
 </head>
 <body>
-    <div class="offline-card">
-        <!-- Brand -->
-        <div class="brand-box">
-            <h1 class="brand-title">DU LỊCH BÌNH LỢI</h1>
-            <div class="brand-sub">Chạm vào bình yên</div>
+    <main class="offline-page" aria-labelledby="connection-title">
+        <div class="offline-shell">
+            <header class="offline-brand">
+                <p class="offline-brand__name">DU LỊCH BÌNH LỢI</p>
+                <p class="offline-brand__tagline">Chạm sắc bản nguyên</p>
+            </header>
+            <section class="connection-card" role="status" aria-live="polite">
+                <div class="connection-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M5.2 10.2a10 10 0 0 1 12.6 0"></path><path d="M8.1 13.2a5.9 5.9 0 0 1 5.1-.8"></path><path d="M12 18.2h.01"></path><path d="M3.5 3.5 20.5 20.5"></path>
+                    </svg>
+                </div>
+                <h1 id="connection-title">Kết nối đang gián đoạn</h1>
+                <p class="connection-description">Không thể kết nối đến hệ thống. Chúng tôi sẽ tự động thử lại khi kết nối được khôi phục.</p>
+                <p class="retry-status"><span class="retry-spinner" aria-hidden="true"></span><span>Đang thử kết nối lại...</span></p>
+                <button class="retry-button" type="button" onclick="window.location.reload()">Thử lại ngay</button>
+                <button class="clear-cache-button" type="button" onclick="clearAllCacheAndReload()">Xóa bộ nhớ đệm và tải lại</button>
+            </section>
         </div>
-
-        <!-- Status -->
-        <div class="status-icon">
-            <i class="bi bi-wifi-off"></i>
-        </div>
-        <h4 class="fw-bold text-dark mb-2">Đang kết nối máy chủ...</h4>
-        <p class="text-secondary small mb-4" style="line-height: 1.7;">
-            Máy chủ đang cập nhật hoặc đường truyền tạm gián đoạn.<br>
-            Trang sẽ <strong>tự động tải lại</strong> khi kết nối thành công.
-        </p>
-
-        <!-- Actions -->
-        <div class="d-flex flex-column gap-2">
-            <button class="btn btn-retry w-100 d-flex align-items-center justify-content-center gap-2" onclick="window.location.reload()">
-                <i class="bi bi-arrow-clockwise"></i> Thử lại ngay
-            </button>
-            <button class="btn btn-clear w-100 d-flex align-items-center justify-content-center gap-2" onclick="clearAllCacheAndReload()">
-                <i class="bi bi-trash3"></i> Xóa bộ nhớ đệm & Tải lại
-            </button>
-        </div>
-
-        <!-- Auto reconnect status -->
-        <div class="auto-status" id="autoStatus">
-            <span class="spinner-border text-secondary"></span>
-            Tự động kiểm tra kết nối mỗi 5 giây...
-        </div>
-    </div>
-
+    </main>
     <script>
-        // Auto-retry every 5 seconds
+        // Preserve the existing automatic retry behavior.
         setInterval(function() {
             fetch('/', { method: 'HEAD', cache: 'no-store', mode: 'no-cors' })
-                .then(function(res) {
-                    if (res.ok || res.type === 'opaque' || res.status < 500) {
-                        window.location.reload();
-                    }
-                })
+                .then(function(res) { if (res.ok || res.type === 'opaque' || res.status < 500) { window.location.reload(); } })
                 .catch(function() {});
         }, 5000);
 
-        // Clear all caches, unregister service workers, and hard reload
+        // Preserve the existing cache-reset recovery action.
         async function clearAllCacheAndReload() {
             try {
-                // Unregister all Service Workers
                 if ('serviceWorker' in navigator) {
                     const registrations = await navigator.serviceWorker.getRegistrations();
-                    for (const reg of registrations) {
-                        await reg.unregister();
-                    }
+                    for (const registration of registrations) await registration.unregister();
                 }
-                // Delete all caches
                 if ('caches' in window) {
                     const cacheNames = await caches.keys();
-                    for (const name of cacheNames) {
-                        await caches.delete(name);
-                    }
+                    for (const cacheName of cacheNames) await caches.delete(cacheName);
                 }
-            } catch (e) {}
-            // Hard reload bypassing cache
+            } catch (error) {}
             window.location.href = '/?cachebust=' + Date.now();
         }
     </script>
