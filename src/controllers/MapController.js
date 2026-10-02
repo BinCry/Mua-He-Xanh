@@ -19,10 +19,13 @@ class MapController {
                 }
             }
 
+            const cartoBasemapApiKey = (process.env.CARTO_BASEMAP_API_KEY || '').trim();
+
             res.render('map/index', {
                 title: 'Bản đồ Tương tác Bình Lợi',
                 allDests: allDests,
-                journey: journeyWithStops
+                journey: journeyWithStops,
+                cartoBasemapApiKey
             });
         } catch (error) {
             console.error("Map index error:", error);
