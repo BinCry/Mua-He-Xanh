@@ -39,7 +39,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
         findByUuid: UserSession.findByUuid,
         addPoints: UserSession.addPoints,
         findBySlug: Destination.findBySlug,
-        existsForStop: CheckIn.existsForStop,
+        existsRecentCheckIn: CheckIn.existsRecentCheckIn,
         create: CheckIn.create,
         getActiveBySession: Journey.getActiveBySession,
         checkAndUnlock: UserBadge.checkAndUnlock,
@@ -58,8 +58,8 @@ test('check-in stores the authenticated user id with the visit', async () => {
         lng: 106,
         radius_meter: 100
     });
-    Model.haversine = () => 20000;
-    CheckIn.existsForStop = async () => false;
+    Model.haversine = () => 2000;
+    CheckIn.existsRecentCheckIn = async () => null;
     CheckIn.create = async data => {
         createdCheckin = data;
         return 'checkin-1';
@@ -95,7 +95,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
         UserSession.findByUuid = originals.findByUuid;
         UserSession.addPoints = originals.addPoints;
         Destination.findBySlug = originals.findBySlug;
-        CheckIn.existsForStop = originals.existsForStop;
+        CheckIn.existsRecentCheckIn = originals.existsRecentCheckIn;
         CheckIn.create = originals.create;
         Journey.getActiveBySession = originals.getActiveBySession;
         UserBadge.checkAndUnlock = originals.checkAndUnlock;
@@ -103,7 +103,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
     }
 });
 
-test('check-in rejects a visitor farther than 20 km from the destination', async () => {
+test('check-in rejects a visitor farther than 2 km from the destination', async () => {
     const originals = {
         findByUuid: UserSession.findByUuid,
         findBySlug: Destination.findBySlug,
@@ -120,7 +120,7 @@ test('check-in rejects a visitor farther than 20 km from the destination', async
         lng: 106,
         radius_meter: 100
     });
-    Model.haversine = () => 20001;
+    Model.haversine = () => 2001;
 
     const req = {
         method: 'POST',
