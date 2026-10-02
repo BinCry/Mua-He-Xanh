@@ -51,18 +51,27 @@
                 <h1 id="connection-title">Kết nối đang gián đoạn</h1>
                 <p class="connection-description">Không thể kết nối đến hệ thống. Chúng tôi sẽ tự động thử lại khi kết nối được khôi phục.</p>
                 <p class="retry-status"><span class="retry-spinner" aria-hidden="true"></span><span>Đang thử kết nối lại...</span></p>
-                <button class="retry-button" type="button" onclick="window.location.reload()">Thử lại ngay</button>
+                <button class="retry-button" type="button" onclick="retryConnection()">Thử lại ngay</button>
                 <button class="clear-cache-button" type="button" onclick="clearAllCacheAndReload()">Xóa bộ nhớ đệm và tải lại</button>
             </section>
         </div>
     </main>
     <script>
-        // Preserve the existing automatic retry behavior.
-        setInterval(function() {
-            fetch('/', { method: 'HEAD', cache: 'no-store', mode: 'no-cors' })
-                .then(function(res) { if (res.ok || res.type === 'opaque' || res.status < 500) { window.location.reload(); } })
-                .catch(function() {});
-        }, 5000);
+        let retryInProgress = false;
+        async function retryConnection() {
+            if (retryInProgress) return;
+            retryInProgress = true;
+            try {
+                const response = await fetch('/api/health', { cache: 'no-store' });
+                if (response.ok) window.location.replace('/');
+            } catch (error) {
+                // Keep the recovery screen visible until the server responds.
+            } finally {
+                retryInProgress = false;
+            }
+        }
+        setInterval(retryConnection, 5000);
+        retryConnection();
 
         // Preserve the existing cache-reset recovery action.
         async function clearAllCacheAndReload() {
