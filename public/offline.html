@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#922724">
     <title>Kết nối đang gián đoạn | Du Lịch Bình Lợi</title>
     <style>
-        :root { --offline-primary: #922724; --offline-primary-dark: #761f1d; --offline-green: #15803d; --offline-surface: #ffffff; --offline-page: #faf9f7; --offline-text: #262321; --offline-muted: #66615d; --offline-border: #ebe4df; --offline-danger-soft: #fdf0ee; }
+        :root { --offline-primary: #922724; --offline-primary-dark: #761f1d; --offline-green: #1e5a3e; --offline-gold: #f0a500; --offline-surface: #ffffff; --offline-page: #faf9f7; --offline-text: #262321; --offline-muted: #66615d; --offline-border: #ebe4df; --offline-danger-soft: #fdf0ee; }
         * { box-sizing: border-box; }
         html, body { min-height: 100%; }
         body { min-height: 100vh; min-height: 100dvh; margin: 0; background: var(--offline-page); color: var(--offline-text); font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif; }
@@ -14,7 +14,8 @@
         .offline-shell { width: min(100%, 440px); display: grid; justify-items: center; gap: clamp(20px, 4vh, 32px); text-align: center; }
         .offline-brand { text-wrap: balance; }
         .offline-brand__name { margin: 0; color: var(--offline-primary); font-size: clamp(1.5rem, 4.5vw, 2rem); font-weight: 800; letter-spacing: 0.045em; line-height: 1.15; }
-        .offline-brand__tagline { margin: 0.45rem 0 0; color: var(--offline-green); font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(1rem, 3.5vw, 1.15rem); font-style: normal; font-weight: 700; letter-spacing: 0; }
+        .offline-brand__tagline { margin: 0.45rem 0 0; color: var(--offline-green); font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, sans-serif; font-size: clamp(1rem, 3.5vw, 1.15rem); font-style: normal; font-weight: 700; letter-spacing: 0; line-height: 1.35; }
+        .offline-brand__tagline::after { content: ""; display: block; width: 3rem; height: 2px; margin: 0.35rem auto 0; border-radius: 999px; background: linear-gradient(90deg, var(--offline-green) 0 68%, var(--offline-gold) 68% 100%); }
         .connection-card { width: 100%; padding: clamp(24px, 6vw, 40px); background: var(--offline-surface); border: 1px solid var(--offline-border); border-radius: clamp(18px, 4vw, 24px); box-shadow: 0 12px 30px rgba(74, 45, 35, 0.07); }
         .connection-icon { width: clamp(52px, 14vw, 64px); aspect-ratio: 1; display: grid; place-items: center; margin: 0 auto clamp(18px, 3vh, 24px); border-radius: 50%; background: var(--offline-danger-soft); color: var(--offline-primary); }
         .connection-icon svg { width: 55%; height: 55%; }
