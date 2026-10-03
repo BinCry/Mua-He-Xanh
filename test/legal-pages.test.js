@@ -15,8 +15,9 @@ test('legal pages have stable routes and login links', () => {
     assert.match(footer, /href="\/dieu-khoan-dich-vu"/);
     assert.match(footer, /href="\/chinh-sach-bao-mat"/);
     const legal = fs.readFileSync('src/views/home/privacy.ejs', 'utf8');
-    assert.match(legal, /href="mailto:binhloi\.travel@gmail\.com"/);
-    assert.match(legal, /mail\.google\.com\/mail\/\?view=cm/);
+    assert.match(legal, /href="https:\/\/mail\.google\.com\/mail\/\?view=cm&amp;fs=1&amp;to=binhloi\.travel%40gmail\.com"/);
+    assert.match(legal, /googlegmail:\/\/\/co\?to=binhloi\.travel%40gmail\.com/);
+    assert.doesNotMatch(legal, /legalEmailFallback|copySupportEmail/);
     assert.doesNotMatch(legal, /admin@dulichbinhloi\.com/);
 });
 
