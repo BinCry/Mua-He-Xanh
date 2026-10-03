@@ -1,59 +1,123 @@
-<section class="py-5" style="background: #f8fafc; min-height: 80vh;">
-    <div class="container py-4" style="max-width: 860px;">
-        <div class="bg-white p-4 p-md-5 rounded-4 shadow-sm border">
-            <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
-                <img src="/images/brand-logo.png" alt="Logo" style="width: 48px; height: 48px; object-fit: cover;" class="rounded-circle" onerror="this.src='/images/logo.png'">
-                <div>
-                    <h3 class="fw-bold text-dark mb-0"><%= typeof isDataDeletion !== 'undefined' && isDataDeletion ? 'Hướng Dẫn Xóa Dữ Liệu Người Dùng' : 'Chính Sách Quyền Riêng Tư & Bảo Mật' %></h3>
-                    <small class="text-muted">Hệ sinh thái Du lịch Chữa lành Bình Lợi</small>
-                </div>
+<% const legalPage = typeof page !== 'undefined' ? page : 'privacy'; %>
+<% const isTerms = legalPage === 'terms'; %>
+<% const isDeletion = legalPage === 'deletion'; %>
+<% const pageTitle = isTerms ? 'Điều khoản dịch vụ' : (isDeletion ? 'Hướng dẫn xóa dữ liệu' : 'Chính sách bảo mật'); %>
+<% const pageIntro = isTerms ? 'Những nguyên tắc giúp cộng đồng cùng chia sẻ và khám phá Bình Lợi một cách an toàn, tôn trọng.' : (isDeletion ? 'Bạn có toàn quyền yêu cầu xóa dữ liệu cá nhân đã cung cấp cho Du Lịch Bình Lợi.' : 'Cách Du Lịch Bình Lợi thu thập, sử dụng và bảo vệ thông tin của bạn.'); %>
+
+<section class="legal-page">
+    <div class="container legal-container">
+        <nav class="legal-breadcrumb" aria-label="Điều hướng trang">
+            <a href="/"><i class="bi bi-house-door-fill" aria-hidden="true"></i><span>Trang chủ</span></a>
+            <i class="bi bi-chevron-right" aria-hidden="true"></i>
+            <span aria-current="page"><%= pageTitle %></span>
+        </nav>
+
+        <header class="legal-hero">
+            <div class="legal-hero__icon" aria-hidden="true"><i class="bi <%= isTerms ? 'bi-file-earmark-check-fill' : (isDeletion ? 'bi-person-x-fill' : 'bi-shield-lock-fill') %>"></i></div>
+            <div>
+                <p class="legal-kicker">DU LỊCH BÌNH LỢI</p>
+                <h1><%= pageTitle %></h1>
+                <p><%= pageIntro %></p>
             </div>
+        </header>
 
-            <% if (typeof isDataDeletion !== 'undefined' && isDataDeletion) { %>
-                <div class="content text-secondary lh-lg">
-                    <h5 class="fw-bold text-dark mt-3">1. Quyền yêu cầu xóa dữ liệu của bạn</h5>
-                    <p>Theo tiêu chuẩn quyền riêng tư và chính sách nền tảng Meta (Facebook), người dùng có toàn quyền yêu cầu xóa bỏ mọi dữ liệu cá nhân liên quan đến tài khoản của mình trên hệ thống <b>Du Lịch Bình Lợi</b>.</p>
-                    
-                    <h5 class="fw-bold text-dark mt-4">2. Các bước xóa dữ liệu liên kết Facebook</h5>
-                    <ol>
-                        <li>Truy cập tài khoản Facebook của bạn và vào mục <b>Cài đặt & Quyền riêng tư</b> &gt; <b>Cài đặt</b>.</li>
-                        <li>Chọn mục <b>Ứng dụng và trang web</b> để xem danh sách các ứng dụng bạn đã cấp quyền.</li>
-                        <li>Tìm ứng dụng <b>Bình Lợi</b> hoặc <b>Du Lịch Bình Lợi</b> và nhấn nút <b>Gỡ (Remove)</b>.</li>
-                    </ol>
-
-                    <h5 class="fw-bold text-dark mt-4">3. Yêu cầu xóa dữ liệu trực tiếp từ máy chủ của chúng tôi</h5>
-                    <p>Nếu bạn muốn xóa toàn bộ lịch sử tương tác, đánh giá, check-in và tài khoản khỏi hệ thống máy chủ, vui lòng gửi email yêu cầu tới:</p>
-                    <ul>
-                        <li><b>Email tiếp nhận:</b> <a href="mailto:admin@dulichbinhloi.com">admin@dulichbinhloi.com</a></li>
-                        <li><b>Tiêu đề:</b> Yêu cầu xóa dữ liệu tài khoản [Tên của bạn]</li>
-                        <li><b>Thời gian xử lý:</b> Dữ liệu của bạn sẽ được xóa vĩnh viễn trong vòng 48 giờ làm việc sau khi xác minh danh tính.</li>
-                    </ul>
-                </div>
-            <% } else { %>
-                <div class="content text-secondary lh-lg">
-                    <h5 class="fw-bold text-dark mt-3">1. Mục đích thu thập thông tin</h5>
-                    <p>Hệ sinh thái Du lịch Bình Lợi cam kết bảo vệ sự riêng tư của du khách. Khi bạn đăng nhập qua Google hoặc Facebook, chúng tôi chỉ thu thập các thông tin công khai cơ bản gồm: Họ tên, Địa chỉ Email, Ảnh đại diện nhằm mục đích:</p>
-                    <ul>
-                        <li>Tạo tài khoản thành viên để lưu trữ lịch sử hành trình khám phá và điểm thưởng check-in.</li>
-                        <li>Đồng bộ bài viết đánh giá cộng đồng và hoạt động tương tác.</li>
-                        <li>Cung cấp hỗ trợ trực tuyến qua tin nhắn tư vấn.</li>
-                    </ul>
-
-                    <h5 class="fw-bold text-dark mt-4">2. Cam kết bảo mật dữ liệu</h5>
-                    <p>Chúng tôi tuyệt đối không bán, chia sẻ hoặc tiết lộ thông tin cá nhân của bạn cho bất kỳ bên thứ ba nào vì mục đích thương mại. Mọi dữ liệu được mã hóa an toàn trên hệ thống máy chủ.</p>
-
-                    <h5 class="fw-bold text-dark mt-4">3. Quyền của người dùng</h5>
-                    <p>Bạn có quyền chỉnh sửa thông tin cá nhân trong mục Hồ sơ hoặc yêu cầu xóa bỏ tài khoản bất cứ lúc nào thông qua trang <a href="/data-deletion">Hướng dẫn xóa dữ liệu</a>.</p>
-
-                    <h5 class="fw-bold text-dark mt-4">4. Thông tin liên hệ</h5>
-                    <p>Mọi thắc mắc về chính sách quyền riêng tư, vui lòng liên hệ Ban Quản Trị Du Lịch Bình Lợi qua email: <b>admin@dulichbinhloi.com</b>.</p>
-                </div>
-            <% } %>
-
-            <div class="mt-4 pt-3 border-top text-center">
-                <a href="/" class="btn btn-outline-secondary rounded-pill px-4 me-2"><i class="bi bi-arrow-left me-1"></i>Về Trang chủ</a>
-                <a href="/auth/login" class="btn btn-primary rounded-pill px-4"><i class="bi bi-person me-1"></i>Trang đăng nhập</a>
-            </div>
+        <div class="legal-actions" aria-label="Thao tác trang">
+            <button type="button" class="legal-back-button" id="legalBackButton"><i class="bi bi-arrow-left" aria-hidden="true"></i><span>Quay lại</span></button>
+            <a class="legal-home-button" href="/"><i class="bi bi-house" aria-hidden="true"></i><span>Về trang chủ</span></a>
         </div>
+
+        <article class="legal-card">
+            <div class="legal-card__meta">
+                <span><i class="bi bi-calendar3" aria-hidden="true"></i> Cập nhật ngày 03/10/2026</span>
+                <span><i class="bi bi-clock-history" aria-hidden="true"></i> Thời gian đọc: <%= isDeletion ? '2' : '4' %> phút</span>
+            </div>
+
+            <% if (isTerms) { %>
+                <div class="legal-summary"><i class="bi bi-heart-pulse-fill" aria-hidden="true"></i><p>Việc tiếp tục sử dụng dịch vụ đồng nghĩa bạn đồng ý với các điều khoản dưới đây. Nếu có điểm nào chưa rõ, hãy liên hệ chúng tôi trước khi sử dụng.</p></div>
+                <section class="legal-section"><h2><span>01</span> Phạm vi áp dụng</h2><p>Điều khoản này áp dụng cho website, ứng dụng cài đặt từ website và các dịch vụ do Du Lịch Bình Lợi cung cấp, gồm khám phá điểm đến, bản đồ, hành trình, cộng đồng và các tiện ích liên quan.</p></section>
+                <section class="legal-section"><h2><span>02</span> Tài khoản và bảo mật</h2><p>Bạn cần cung cấp thông tin chính xác khi đăng ký hoặc đăng nhập. Hãy giữ an toàn phương thức đăng nhập của mình và thông báo cho chúng tôi nếu nghi ngờ có truy cập trái phép.</p></section>
+                <section class="legal-section"><h2><span>03</span> Nội dung cộng đồng</h2><p>Bạn chịu trách nhiệm với nội dung, hình ảnh và bình luận mình đăng. Không đăng nội dung vi phạm pháp luật, xâm phạm quyền riêng tư, bản quyền, danh dự hoặc gây hiểu nhầm cho cộng đồng.</p><p>Chúng tôi có thể ẩn hoặc gỡ nội dung vi phạm để bảo vệ trải nghiệm chung, đồng thời giữ lại thông tin cần thiết theo yêu cầu pháp luật.</p></section>
+                <section class="legal-section"><h2><span>04</span> Thông tin địa điểm và dịch vụ bên thứ ba</h2><p>Thông tin điểm đến, bản đồ và liên kết đối tác được cung cấp nhằm hỗ trợ tham khảo. Thời gian mở cửa, giá, điều kiện dịch vụ hoặc chỉ dẫn có thể thay đổi; bạn nên xác nhận trực tiếp với đơn vị cung cấp trước khi quyết định.</p></section>
+                <section class="legal-section"><h2><span>05</span> Thay đổi điều khoản</h2><p>Chúng tôi có thể cập nhật điều khoản khi cần thiết. Phiên bản mới sẽ được công bố tại trang này với ngày cập nhật rõ ràng; việc tiếp tục sử dụng sau đó được hiểu là bạn đã xem và chấp thuận thay đổi.</p></section>
+            <% } else if (isDeletion) { %>
+                <div class="legal-summary"><i class="bi bi-person-check-fill" aria-hidden="true"></i><p>Bạn có thể yêu cầu xóa dữ liệu cá nhân bất cứ lúc nào. Chúng tôi xác minh yêu cầu để bảo vệ chính bạn trước khi xử lý.</p></div>
+                <section class="legal-section"><h2><span>01</span> Gỡ liên kết Facebook hoặc Google</h2><p>Bạn có thể gỡ Du Lịch Bình Lợi trong phần ứng dụng đã kết nối của Facebook hoặc Google. Việc này ngừng cấp quyền truy cập mới, nhưng không tự xóa dữ liệu đã có trên hệ thống.</p></section>
+                <section class="legal-section"><h2><span>02</span> Gửi yêu cầu xóa dữ liệu</h2><p>Gửi email đến <a href="mailto:admin@dulichbinhloi.com">admin@dulichbinhloi.com</a> với tiêu đề “Yêu cầu xóa dữ liệu tài khoản”, kèm email hoặc thông tin giúp xác minh tài khoản.</p></section>
+                <section class="legal-section"><h2><span>03</span> Thời gian xử lý</h2><p>Sau khi xác minh, chúng tôi sẽ phản hồi và xử lý trong vòng tối đa 48 giờ làm việc, trừ phần dữ liệu phải lưu giữ theo nghĩa vụ pháp lý hoặc để phòng chống gian lận.</p></section>
+            <% } else { %>
+                <div class="legal-summary"><i class="bi bi-shield-check" aria-hidden="true"></i><p>Chúng tôi chỉ sử dụng dữ liệu trong phạm vi cần thiết để vận hành dịch vụ, cải thiện trải nghiệm và bảo vệ cộng đồng Du Lịch Bình Lợi.</p></div>
+                <section class="legal-section"><h2><span>01</span> Dữ liệu chúng tôi có thể thu thập</h2><p>Tùy cách bạn sử dụng dịch vụ, dữ liệu có thể bao gồm thông tin tài khoản như tên, email, ảnh đại diện; nội dung bạn chủ động đăng; dữ liệu phiên đăng nhập; và dữ liệu kỹ thuật cần thiết để vận hành an toàn.</p></section>
+                <section class="legal-section"><h2><span>02</span> Mục đích sử dụng</h2><ul><li>Tạo và duy trì tài khoản, lưu hành trình, check-in và tương tác cộng đồng.</li><li>Hiển thị điểm đến, bản đồ, nội dung phù hợp và hỗ trợ khi bạn cần.</li><li>Phát hiện lỗi, ngăn chặn lạm dụng và cải thiện độ ổn định của dịch vụ.</li></ul></section>
+                <section class="legal-section"><h2><span>03</span> Chia sẻ dữ liệu</h2><p>Chúng tôi không bán dữ liệu cá nhân. Một số dịch vụ kỹ thuật như đăng nhập qua Google/Facebook, bản đồ hoặc lưu trữ ảnh có thể xử lý dữ liệu cần thiết theo chính sách riêng của họ để cung cấp chức năng bạn chọn.</p></section>
+                <section class="legal-section"><h2><span>04</span> Lựa chọn và quyền của bạn</h2><p>Bạn có thể cập nhật thông tin hồ sơ, kiểm soát quyền vị trí trên thiết bị và yêu cầu xóa dữ liệu. Xem <a href="/xoa-du-lieu">hướng dẫn xóa dữ liệu</a> hoặc liên hệ chúng tôi nếu cần hỗ trợ.</p></section>
+                <section class="legal-section"><h2><span>05</span> Liên hệ</h2><p>Nếu có câu hỏi về quyền riêng tư hoặc cách dữ liệu được xử lý, vui lòng gửi về <a href="mailto:admin@dulichbinhloi.com">admin@dulichbinhloi.com</a>. Chúng tôi sẽ phản hồi trong thời gian hợp lý.</p></section>
+            <% } %>
+        </article>
+
+        <aside class="legal-contact" aria-label="Liên hệ hỗ trợ">
+            <div class="legal-contact__icon"><i class="bi bi-envelope-heart-fill" aria-hidden="true"></i></div>
+            <div><strong>Cần hỗ trợ thêm?</strong><p>Đội ngũ Du Lịch Bình Lợi sẵn sàng giải đáp các câu hỏi của bạn.</p></div>
+            <a href="mailto:admin@dulichbinhloi.com">Liên hệ hỗ trợ <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+        </aside>
     </div>
 </section>
+
+<script>
+    document.getElementById('legalBackButton')?.addEventListener('click', function () {
+        try {
+            const referrer = document.referrer ? new URL(document.referrer) : null;
+            if (referrer && referrer.origin === window.location.origin && window.history.length > 1) {
+                window.history.back();
+                return;
+            }
+        } catch (_) {
+            // A malformed referrer safely falls back to the homepage.
+        }
+        window.location.assign('/');
+    });
+</script>
+
+<style>
+    .legal-page { background: linear-gradient(180deg, #fff8f6 0, #f8fafc 42rem, #f8fafc 100%); min-height: 76vh; padding: clamp(1.5rem, 4vw, 4rem) 0 clamp(3.5rem, 8vw, 6rem); }
+    .legal-container { max-width: 960px; }
+    .legal-breadcrumb { display: flex; align-items: center; gap: .55rem; flex-wrap: wrap; color: #64748b; font-size: .88rem; margin-bottom: clamp(1.25rem, 3vw, 2rem); }
+    .legal-breadcrumb a { color: #7f221f; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: .45rem; }
+    .legal-breadcrumb a:hover { color: #b8322e; text-decoration: underline; }
+    .legal-breadcrumb > i { font-size: .7rem; color: #94a3b8; }
+    .legal-hero { display: flex; align-items: center; gap: clamp(1rem, 3vw, 1.5rem); margin-bottom: 1.25rem; }
+    .legal-hero__icon { width: clamp(3.75rem, 8vw, 5rem); height: clamp(3.75rem, 8vw, 5rem); flex: 0 0 auto; border-radius: 1.35rem; display: grid; place-items: center; color: #fff; font-size: clamp(1.5rem, 4vw, 2rem); background: linear-gradient(135deg, #922724, #cc5148); box-shadow: 0 14px 26px rgba(146, 39, 36, .24); }
+    .legal-kicker { color: #9b2d28; font-size: .72rem; letter-spacing: .14em; font-weight: 800; margin: 0 0 .35rem; }
+    .legal-hero h1 { color: #172033; font-family: 'Montserrat', sans-serif; font-size: clamp(1.65rem, 4vw, 2.55rem); font-weight: 800; margin: 0 0 .55rem; line-height: 1.18; }
+    .legal-hero p { color: #526176; max-width: 660px; font-size: clamp(.94rem, 2vw, 1.04rem); line-height: 1.65; margin: 0; }
+    .legal-actions { display: flex; align-items: center; gap: .75rem; margin: 1.5rem 0; }
+    .legal-back-button, .legal-home-button { min-height: 44px; padding: .65rem 1rem; border-radius: 999px; font-weight: 700; font-size: .9rem; display: inline-flex; align-items: center; justify-content: center; gap: .5rem; transition: transform .18s ease, box-shadow .18s ease, background .18s ease; }
+    .legal-back-button { border: 1px solid #e7c4c1; background: #fff; color: #8c2925; }
+    .legal-home-button { background: #922724; color: #fff; text-decoration: none; box-shadow: 0 7px 16px rgba(146, 39, 36, .2); }
+    .legal-back-button:hover, .legal-home-button:hover { transform: translateY(-1px); box-shadow: 0 8px 18px rgba(43, 52, 69, .14); }
+    .legal-back-button:focus-visible, .legal-home-button:focus-visible, .legal-card a:focus-visible { outline: 3px solid #f2a92c; outline-offset: 3px; }
+    .legal-card { background: #fff; border: 1px solid #eee2dd; border-radius: clamp(1.25rem, 4vw, 1.75rem); padding: clamp(1.25rem, 4vw, 3rem); box-shadow: 0 18px 45px rgba(31, 41, 55, .07); }
+    .legal-card__meta { display: flex; gap: 1rem; flex-wrap: wrap; font-size: .8rem; color: #64748b; padding-bottom: 1.2rem; margin-bottom: 1.35rem; border-bottom: 1px solid #edf0f3; }
+    .legal-card__meta span { display: inline-flex; align-items: center; gap: .4rem; }
+    .legal-card__meta i { color: #a9302c; }
+    .legal-summary { display: flex; align-items: flex-start; gap: .85rem; padding: 1rem 1.1rem; color: #214734; background: #edf7f0; border: 1px solid #cce9d4; border-radius: 1rem; margin-bottom: 2rem; }
+    .legal-summary > i { color: #168251; font-size: 1.2rem; margin-top: .1rem; }
+    .legal-summary p { margin: 0; line-height: 1.6; font-size: .94rem; }
+    .legal-section { padding: 0 0 1.7rem; margin-bottom: 1.55rem; border-bottom: 1px solid #edf0f3; }
+    .legal-section:last-child { border-bottom: 0; padding-bottom: 0; margin-bottom: 0; }
+    .legal-section h2 { display: flex; align-items: center; gap: .7rem; color: #202a3c; font-size: clamp(1.08rem, 2.5vw, 1.25rem); line-height: 1.35; font-weight: 800; margin: 0 0 .75rem; }
+    .legal-section h2 span { color: #a9302c; font-size: .75rem; letter-spacing: .08em; }
+    .legal-section p, .legal-section li { color: #526176; line-height: 1.75; font-size: .95rem; }
+    .legal-section p { margin: 0; }
+    .legal-section p + p { margin-top: .75rem; }
+    .legal-section ul { margin: 0; padding-left: 1.25rem; }
+    .legal-section li + li { margin-top: .4rem; }
+    .legal-section a { color: #922724; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+    .legal-contact { margin-top: 1.25rem; padding: clamp(1rem, 3vw, 1.25rem) clamp(1.1rem, 3vw, 1.5rem); border-radius: 1.15rem; background: #fff; border: 1px solid #e7ecef; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; }
+    .legal-contact__icon { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border-radius: 50%; color: #922724; background: #fff0ee; font-size: 1.1rem; }
+    .legal-contact strong { color: #202a3c; font-size: .98rem; }
+    .legal-contact p { color: #64748b; font-size: .85rem; margin: .15rem 0 0; line-height: 1.45; }
+    .legal-contact a { color: #922724; font-size: .86rem; font-weight: 800; text-decoration: none; white-space: nowrap; min-height: 40px; display: inline-flex; align-items: center; gap: .35rem; }
+    .legal-contact a:hover { color: #bd3732; text-decoration: underline; }
+    @media (max-width: 575.98px) { .legal-page { padding-top: 1.15rem; } .legal-container { padding-inline: 16px; } .legal-hero { align-items: flex-start; } .legal-actions { display: grid; grid-template-columns: 1fr 1fr; } .legal-back-button, .legal-home-button { width: 100%; padding-inline: .55rem; font-size: .84rem; } .legal-contact { grid-template-columns: auto 1fr; } .legal-contact a { grid-column: 1 / -1; padding-top: .65rem; border-top: 1px solid #edf0f3; } }
+    @media (max-width: 359.98px) { .legal-actions { grid-template-columns: 1fr; } .legal-hero__icon { width: 3.25rem; height: 3.25rem; border-radius: 1rem; } .legal-card { padding: 1.1rem; } }
+</style>

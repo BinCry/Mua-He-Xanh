@@ -256,18 +256,23 @@ router.get(['/brand-logo.png', '/logo.png'], async (req, res) => {
 });
 
 // ===== LEGAL & META VERIFICATION =====
-router.get(['/privacy', '/privacy-policy', '/chinh-sach-bao-mat', '/policy'], (req, res) => {
-    res.render('home/privacy', {
-        title: 'Chính sách Quyền riêng tư & Bảo mật | Du Lịch Bình Lợi',
-        isDataDeletion: false
-    });
-});
-router.get(['/data-deletion', '/xoa-du-lieu'], (req, res) => {
-    res.render('home/privacy', {
-        title: 'Hướng dẫn Xóa Dữ liệu Người dùng | Du Lịch Bình Lợi',
-        isDataDeletion: true
-    });
-});
+// Keep established aliases available for existing users and OAuth platform settings.
+const renderLegalPage = (page, title) => (req, res) => {
+    res.render('home/privacy', { title, page });
+};
+
+router.get(['/terms', '/terms-of-service', '/dieu-khoan-dich-vu'], renderLegalPage(
+    'terms',
+    'Điều khoản dịch vụ | Du Lịch Bình Lợi'
+));
+router.get(['/privacy', '/privacy-policy', '/chinh-sach-bao-mat', '/policy'], renderLegalPage(
+    'privacy',
+    'Chính sách bảo mật | Du Lịch Bình Lợi'
+));
+router.get(['/data-deletion', '/xoa-du-lieu'], renderLegalPage(
+    'deletion',
+    'Hướng dẫn xóa dữ liệu người dùng | Du Lịch Bình Lợi'
+));
 
 
 router.get('/explore', ExploreController.list);
