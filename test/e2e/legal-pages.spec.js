@@ -24,5 +24,21 @@ for (const viewport of [
         }));
         expect(layout.scrollWidth).toBeLessThanOrEqual(layout.viewport + 1);
         expect(layout.bodyScrollWidth).toBeLessThanOrEqual(layout.viewport + 1);
+
+        for (const [route, heading] of [
+            ['/huong-dan', 'Hướng dẫn sử dụng'],
+            ['/cau-hoi-thuong-gap', 'Câu hỏi thường gặp'],
+            ['/lien-he', 'Liên hệ']
+        ]) {
+            await page.goto(route, { waitUntil: 'domcontentloaded' });
+            await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+            const supportLayout = await page.evaluate(() => ({
+                viewport: window.innerWidth,
+                scrollWidth: document.documentElement.scrollWidth,
+                bodyScrollWidth: document.body.scrollWidth
+            }));
+            expect(supportLayout.scrollWidth).toBeLessThanOrEqual(supportLayout.viewport + 1);
+            expect(supportLayout.bodyScrollWidth).toBeLessThanOrEqual(supportLayout.viewport + 1);
+        }
     });
 }

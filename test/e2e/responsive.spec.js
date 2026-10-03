@@ -10,7 +10,7 @@ const viewports = [
     { name: 'laptop', width: 1366, height: 768 },
     { name: 'desktop', width: 1440, height: 900 }
 ];
-const publicRoutes = ['/', '/explore', '/map', '/reviews', '/reviews/video-editor', '/auth/login', '/dieu-khoan-dich-vu', '/chinh-sach-bao-mat'];
+const publicRoutes = ['/', '/explore', '/map', '/reviews', '/reviews/video-editor', '/auth/login', '/dieu-khoan-dich-vu', '/chinh-sach-bao-mat', '/huong-dan', '/cau-hoi-thuong-gap', '/lien-he'];
 
 for (const viewport of viewports) {
     test(`public pages fit ${viewport.name}`, async ({ page }) => {

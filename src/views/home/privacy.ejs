@@ -1,7 +1,10 @@
 <% const legalPage = typeof page !== 'undefined' ? page : 'privacy'; %>
 <% const isTerms = legalPage === 'terms'; %>
 <% const isDeletion = legalPage === 'deletion'; %>
-<% const pageTitle = isTerms ? 'Điều khoản dịch vụ' : (isDeletion ? 'Hướng dẫn xóa dữ liệu' : 'Chính sách bảo mật'); %>
+<% const isGuide = legalPage === 'guide'; %>
+<% const isFaq = legalPage === 'faq'; %>
+<% const isContact = legalPage === 'contact'; %>
+<% const pageTitle = isTerms ? 'Điều khoản dịch vụ' : (isDeletion ? 'Hướng dẫn xóa dữ liệu' : (isGuide ? 'Hướng dẫn sử dụng' : (isFaq ? 'Câu hỏi thường gặp' : (isContact ? 'Liên hệ' : 'Chính sách bảo mật')))); %>
 
 <section class="legal-page">
     <div class="container legal-container">
@@ -12,7 +15,7 @@
         </nav>
 
         <header class="legal-hero">
-            <div class="legal-hero__icon" aria-hidden="true"><i class="bi <%= isTerms ? 'bi-file-earmark-check-fill' : (isDeletion ? 'bi-person-x-fill' : 'bi-shield-lock-fill') %>"></i></div>
+            <div class="legal-hero__icon" aria-hidden="true"><i class="bi <%= isTerms ? 'bi-file-earmark-check-fill' : (isDeletion ? 'bi-person-x-fill' : (isGuide ? 'bi-compass-fill' : (isFaq ? 'bi-patch-question-fill' : (isContact ? 'bi-envelope-heart-fill' : 'bi-shield-lock-fill')))) %>"></i></div>
             <div class="legal-hero__content">
                 <h1><%= pageTitle %></h1>
             </div>
@@ -26,7 +29,7 @@
         <article class="legal-card">
             <div class="legal-card__meta">
                 <span><i class="bi bi-calendar3" aria-hidden="true"></i> Cập nhật ngày 03/10/2026</span>
-                <span><i class="bi bi-clock-history" aria-hidden="true"></i> Thời gian đọc: <%= isDeletion ? '2' : '4' %> phút</span>
+                <span><i class="bi bi-clock-history" aria-hidden="true"></i> Thời gian đọc: <%= isDeletion || isContact ? '2' : (isFaq ? '3' : '4') %> phút</span>
             </div>
 
             <% if (isTerms) { %>
@@ -41,6 +44,24 @@
                 <section class="legal-section"><h2><span>01</span> Gỡ liên kết Facebook hoặc Google</h2><p>Bạn có thể gỡ Du Lịch Bình Lợi trong phần ứng dụng đã kết nối của Facebook hoặc Google. Việc này ngừng cấp quyền truy cập mới, nhưng không tự xóa dữ liệu đã có trên hệ thống.</p></section>
                 <section class="legal-section"><h2><span>02</span> Gửi yêu cầu xóa dữ liệu</h2><p>Gửi email đến <a href="mailto:binhloi.travel@gmail.com">binhloi.travel@gmail.com</a> với tiêu đề “Yêu cầu xóa dữ liệu tài khoản”, kèm email hoặc thông tin giúp xác minh tài khoản.</p></section>
                 <section class="legal-section"><h2><span>03</span> Thời gian xử lý</h2><p>Sau khi xác minh, chúng tôi sẽ phản hồi và xử lý trong vòng tối đa 48 giờ làm việc, trừ phần dữ liệu phải lưu giữ theo nghĩa vụ pháp lý hoặc để phòng chống gian lận.</p></section>
+            <% } else if (isGuide) { %>
+                <div class="legal-summary"><i class="bi bi-compass-fill" aria-hidden="true"></i><p>Bắt đầu hành trình ở Bình Lợi thật nhẹ nhàng: chọn điểm đến, xem đường đi, lưu hành trình và chia sẻ trải nghiệm của bạn khi sẵn sàng.</p></div>
+                <section class="legal-section"><h2><span>01</span> Khám phá điểm đến</h2><p>Vào <a href="/explore">Khám phá</a> để tìm địa điểm theo sở thích. Mỗi trang địa điểm có thông tin cần thiết, hình ảnh, chỉ dẫn và những trải nghiệm phù hợp để bạn tham khảo trước khi đi.</p></section>
+                <section class="legal-section"><h2><span>02</span> Xem bản đồ và chỉ đường</h2><p>Mở <a href="/map">Bản đồ</a> để xem các điểm đến trên cùng một màn hình. Cho phép vị trí khi bạn muốn kiểm tra khoảng cách; nếu không, bạn vẫn có thể tự xem và chọn địa điểm trên bản đồ.</p></section>
+                <section class="legal-section"><h2><span>03</span> Lưu hành trình của bạn</h2><p>Đăng nhập để lưu những nơi yêu thích và xây dựng <a href="/journey">Hành trình</a> riêng. Bạn có thể quay lại chỉnh sửa, thêm hoặc bớt điểm đến bất cứ lúc nào.</p></section>
+                <section class="legal-section"><h2><span>04</span> Chia sẻ cùng cộng đồng</h2><p>Tại <a href="/reviews">Cộng đồng</a>, bạn có thể đăng ảnh, cảm nhận và bình luận một cách tôn trọng. Không đăng thông tin riêng tư của người khác hoặc nội dung chưa được phép sử dụng.</p></section>
+                <section class="legal-section"><h2><span>05</span> Cần trợ giúp?</h2><p>Nếu gặp khó khăn khi đăng nhập, xem bản đồ hoặc sử dụng một tính năng, hãy mở phần <a href="/lien-he">Liên hệ</a>. Đội ngũ sẽ tiếp nhận qua email.</p></section>
+            <% } else if (isFaq) { %>
+                <div class="legal-summary"><i class="bi bi-chat-square-heart-fill" aria-hidden="true"></i><p>Dưới đây là các câu hỏi thường gặp. Chọn từng câu để xem câu trả lời; nếu vẫn cần hỗ trợ, bạn có thể liên hệ trực tiếp với chúng tôi.</p></div>
+                <section class="legal-section legal-faq"><h2><span>01</span> Sử dụng website có mất phí không?</h2><details open><summary>Website có thu phí người dùng không?</summary><p>Không. Du Lịch Bình Lợi là nền tảng hỗ trợ quảng bá du lịch địa phương; các tính năng khám phá, bản đồ, hành trình và cộng đồng hiện không thu phí người dùng.</p></details></section>
+                <section class="legal-section legal-faq"><h2><span>02</span> Tôi có cần đăng nhập không?</h2><details><summary>Khi nào tôi cần đăng nhập?</summary><p>Bạn vẫn có thể xem điểm đến và bản đồ mà không cần đăng nhập. Đăng nhập chỉ cần thiết khi muốn lưu hành trình, check-in, đăng bài hoặc tương tác cùng cộng đồng.</p></details></section>
+                <section class="legal-section legal-faq"><h2><span>03</span> Vì sao website xin quyền vị trí?</h2><details><summary>Vị trí được dùng vào việc gì?</summary><p>Quyền vị trí chỉ phục vụ các tính năng như xem khoảng cách hoặc check-in. Bạn có thể từ chối; những phần còn lại của website vẫn hoạt động bình thường.</p></details></section>
+                <section class="legal-section legal-faq"><h2><span>04</span> Tôi có thể báo lỗi hoặc góp ý ở đâu?</h2><details><summary>Cách gửi phản hồi cho đội ngũ</summary><p>Hãy vào <a href="/lien-he">Liên hệ</a> và gửi email mô tả vấn đề, kèm ảnh chụp màn hình nếu có. Điều này giúp đội ngũ kiểm tra nhanh hơn.</p></details></section>
+            <% } else if (isContact) { %>
+                <div class="legal-summary"><i class="bi bi-envelope-heart-fill" aria-hidden="true"></i><p>Chúng tôi luôn sẵn sàng lắng nghe ý kiến, tiếp nhận góp ý và hỗ trợ bạn trong quá trình khám phá Bình Lợi.</p></div>
+                <section class="legal-section"><h2><span>01</span> Gửi email cho chúng tôi</h2><p>Nhấn nút dưới đây để mở Gmail với sẵn địa chỉ nhận. Hãy cho biết nội dung bạn cần hỗ trợ và cách đội ngũ có thể phản hồi bạn.</p><p class="legal-section__action"><a class="legal-email-button js-gmail-compose" href="https://mail.google.com/mail/?view=cm&amp;fs=1&amp;to=binhloi.travel%40gmail.com" target="_blank" rel="noopener"><i class="bi bi-envelope-at-fill" aria-hidden="true"></i> Mở Gmail để liên hệ</a></p></section>
+                <section class="legal-section"><h2><span>02</span> Nội dung nên gửi</h2><ul><li>Họ tên hoặc tên hiển thị để đội ngũ tiện xưng hô.</li><li>Vấn đề hoặc góp ý cụ thể; nêu rõ trang hoặc tính năng liên quan nếu có.</li><li>Ảnh chụp màn hình khi cần báo lỗi hiển thị hoặc lỗi thao tác.</li></ul></section>
+                <section class="legal-section"><h2><span>03</span> Thời gian phản hồi</h2><p>Chúng tôi cố gắng phản hồi trong thời gian hợp lý vào ngày làm việc. Các nội dung khẩn cấp hoặc liên quan đến quyền riêng tư sẽ được ưu tiên tiếp nhận.</p></section>
             <% } else { %>
                 <div class="legal-summary"><i class="bi bi-shield-check" aria-hidden="true"></i><p>Chúng tôi chỉ sử dụng dữ liệu trong phạm vi cần thiết để vận hành dịch vụ, cải thiện trải nghiệm và bảo vệ cộng đồng Du Lịch Bình Lợi.</p></div>
                 <section class="legal-section"><h2><span>01</span> Dữ liệu chúng tôi có thể thu thập</h2><p>Tùy cách bạn sử dụng dịch vụ, dữ liệu có thể bao gồm thông tin tài khoản như tên, email, ảnh đại diện; nội dung bạn chủ động đăng; dữ liệu phiên đăng nhập; và dữ liệu kỹ thuật cần thiết để vận hành an toàn.</p></section>
@@ -75,9 +96,8 @@
 
     const gmailComposeUrl = 'https://mail.google.com/mail/?view=cm&fs=1&to=binhloi.travel%40gmail.com';
     const gmailAppUrl = 'googlegmail:///co?to=binhloi.travel%40gmail.com';
-    const supportEmailLink = document.getElementById('legalSupportEmail');
-
-    supportEmailLink?.addEventListener('click', function (event) {
+    document.querySelectorAll('.js-gmail-compose, #legalSupportEmail').forEach(function (supportEmailLink) {
+        supportEmailLink.addEventListener('click', function (event) {
         const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
         if (!isMobile) return;
 
@@ -90,6 +110,7 @@
                 window.location.assign(gmailComposeUrl);
             }
         }, 700);
+        });
     });
 </script>
 
@@ -126,6 +147,12 @@
     .legal-section p + p { margin-top: .75rem; }
     .legal-section ul { margin: 0; padding-left: 1.25rem; }
     .legal-section li + li { margin-top: .4rem; }
+    .legal-section__action { margin-top: 1rem !important; }
+    .legal-email-button { min-height: 44px; padding: .65rem 1rem; border-radius: 999px; display: inline-flex; align-items: center; gap: .5rem; background: #922724; color: #fff !important; text-decoration: none !important; box-shadow: 0 7px 16px rgba(146, 39, 36, .2); }
+    .legal-email-button:hover { background: #b8322e; color: #fff !important; transform: translateY(-1px); }
+    .legal-faq details { border: 1px solid #e7ecef; border-radius: .9rem; padding: .8rem 1rem; background: #fbfcfd; }
+    .legal-faq summary { color: #334155; cursor: pointer; font-weight: 700; line-height: 1.5; }
+    .legal-faq details p { padding-top: .7rem; }
     .legal-section a { color: #922724; font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 2px; }
     .legal-contact { margin-top: 1.25rem; padding: clamp(1rem, 3vw, 1.25rem) clamp(1.1rem, 3vw, 1.5rem); border-radius: 1.15rem; background: #fff; border: 1px solid #e7ecef; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 1rem; }
     .legal-contact__icon { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border-radius: 50%; color: #922724; background: #fff0ee; font-size: 1.1rem; }

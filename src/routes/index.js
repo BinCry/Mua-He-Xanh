@@ -273,6 +273,18 @@ router.get(['/data-deletion', '/xoa-du-lieu'], renderLegalPage(
     'deletion',
     'Hướng dẫn xóa dữ liệu người dùng | Du Lịch Bình Lợi'
 ));
+router.get(['/guide', '/huong-dan'], renderLegalPage(
+    'guide',
+    'Hướng dẫn sử dụng | Du Lịch Bình Lợi'
+));
+router.get(['/faq', '/cau-hoi-thuong-gap'], renderLegalPage(
+    'faq',
+    'Câu hỏi thường gặp | Du Lịch Bình Lợi'
+));
+router.get(['/contact', '/lien-he'], renderLegalPage(
+    'contact',
+    'Liên hệ | Du Lịch Bình Lợi'
+));
 
 
 router.get('/explore', ExploreController.list);
