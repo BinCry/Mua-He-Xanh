@@ -24,6 +24,12 @@ test('uploads and review creation never fall back to data:image storage', () => 
     assert.doesNotMatch(review, /data:\$\{mime\};base64/);
 });
 
+test('runtime image processing dependency is installed in production', () => {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    assert.equal(packageJson.dependencies.sharp, '^0.35.3');
+    assert.equal(packageJson.devDependencies.sharp, undefined);
+});
+
 test('server separates liveness from readiness and denies public exports', () => {
     const server = fs.readFileSync('src/server.js', 'utf8');
     assert.match(server, /app\.get\('\/api\/ready'/);
