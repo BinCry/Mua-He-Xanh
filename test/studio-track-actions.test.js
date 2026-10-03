@@ -7,6 +7,10 @@ test('studio keeps template image actions separated and can remove subtitles', (
     const script = fs.readFileSync('public/js/video-editor.js', 'utf8');
 
     assert.match(view, /d-flex flex-column gap-3[\s\S]*?btnUseTemplateSamplePhotos[\s\S]*?btnUploadOwnPhotosForTemplate/);
+    assert.match(view, /<!-- Resolution & Format Settings -->\s*<div class="mb-4" style="margin-bottom: 1\.25rem !important;">/);
+    assert.match(view, /Tên tệp video xuất ra<\/label>\s*<input/);
+    assert.match(view, /x-small fw-bold text-muted text-uppercase mb-2 d-block">Tên tệp video xuất ra/);
+    assert.match(view, /id="blExportModal"[\s\S]*?d-flex align-items-center gap-3[\s\S]*?Xuất video Bình Lợi Studio/);
     assert.match(script, /onclick="removeSubtitles\(event\)"/);
     assert.match(script, /window\.removeSubtitles = function\(e\)/);
     assert.match(script, /subtitleInputs\.forEach\(input => \{ input\.value = ''; \}\)/);
