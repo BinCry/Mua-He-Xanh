@@ -139,12 +139,16 @@ async function saveManifest(manifest) {
     return manifestFile;
 }
 
+function toDatabaseValue(value) {
+    return value && typeof value === 'object' ? JSON.stringify(value) : value;
+}
+
 async function restore() {
     if (!restoreFile) return false;
     const manifest = JSON.parse(await fs.readFile(restoreFile, 'utf8'));
     if (!Array.isArray(manifest.changes)) throw new Error('Invalid migration manifest');
     for (const change of manifest.changes) {
-        await db.query(`UPDATE ${change.table} SET ${change.column} = $1 WHERE ${change.key} = $2`, [change.before, change.id]);
+        await db.query(`UPDATE ${change.table} SET ${change.column} = $1 WHERE ${change.key} = $2`, [toDatabaseValue(change.before), change.id]);
     }
     console.log(`Restored ${manifest.changes.length} database values from manifest.`);
     return true;
@@ -180,7 +184,7 @@ async function main() {
                     manifest.changes.push({ table: target.table, key: target.key, id: row[target.key], column, before, after });
                     // Persist rollback data before mutating the corresponding DB field.
                     await saveManifest(manifest);
-                    await db.query(`UPDATE ${target.table} SET ${column} = $1 WHERE ${target.key} = $2`, [after, row[target.key]]);
+                    await db.query(`UPDATE ${target.table} SET ${column} = $1 WHERE ${target.key} = $2`, [toDatabaseValue(after), row[target.key]]);
                 }
             }
         }
@@ -201,4 +205,4 @@ if (require.main === module) {
         });
 }
 
-module.exports = { isDataImage, migrateValue };
+module.exports = { isDataImage, migrateValue, toDatabaseValue };

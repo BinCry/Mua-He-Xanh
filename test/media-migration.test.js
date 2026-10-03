@@ -1,7 +1,7 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
 
-const { migrateValue } = require('../scripts/migrate_base64_media');
+const { migrateValue, toDatabaseValue } = require('../scripts/migrate_base64_media');
 
 const dataImage = 'data:image/webp;base64,UklGRg==';
 
@@ -35,4 +35,10 @@ test('media migration accepts whitespace and uppercase data URI schemes', async 
     const output = await migrateValue(['  DATA:IMAGE/WEBP;base64,UklGRg=='], async () => '/uploads/media/migrated/hash.webp');
 
     assert.deepEqual(output, ['/uploads/media/migrated/hash.webp']);
+});
+
+test('media migration serializes native JSON values before PostgreSQL writes or restores', () => {
+    assert.equal(toDatabaseValue(['/uploads/media/migrated/hash.webp']), '["/uploads/media/migrated/hash.webp"]');
+    assert.equal(toDatabaseValue({ cover: '/uploads/media/migrated/hash.webp' }), '{"cover":"/uploads/media/migrated/hash.webp"}');
+    assert.equal(toDatabaseValue('/uploads/media/migrated/hash.webp'), '/uploads/media/migrated/hash.webp');
 });
