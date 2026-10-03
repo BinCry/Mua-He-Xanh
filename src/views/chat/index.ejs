@@ -1,9 +1,9 @@
 <% const currentUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
 <% const currentDest = (typeof dest !== 'undefined' && dest) ? dest : null; %>
-<div class="container py-3 py-md-4 mt-4 mt-md-5 px-2 px-md-3">
+<div class="container tourist-chat-page py-3 py-md-4 mt-4 mt-md-5 px-2 px-md-3">
     <div class="row justify-content-center">
         <div class="col-lg-8 col-md-10 px-1 px-sm-3">
-            <div class="glass-panel d-flex flex-column" style="height: calc(100dvh - 110px); max-height: 700px; min-height: 520px; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06); background: #ffffff; border: 1px solid #e4e6eb;">
+            <div class="glass-panel tourist-chat-panel d-flex flex-column" style="height: calc(100dvh - 110px); max-height: 700px; min-height: 520px; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.06); background: #ffffff; border: 1px solid #e4e6eb;">
                 <!-- Header -->
                 <div class="tourist-chat-header p-3 text-white border-0 d-flex justify-content-between align-items-center" style="background: linear-gradient(135deg, #922724 0%, #b83330 100%);">
                     <div class="d-flex align-items-center gap-3">
@@ -364,6 +364,48 @@
         to { opacity: 1; transform: translateY(0) scale(1); }
     }
     @media (max-width: 767.98px) {
+        body.tourist-chat-page-active {
+            background: #ffffff;
+        }
+        body.tourist-chat-page-active main {
+            min-height: 100dvh;
+        }
+        body.tourist-chat-keyboard-open {
+            overflow: hidden;
+        }
+        body.tourist-chat-keyboard-open main {
+            height: var(--tourist-chat-visual-height, 100dvh);
+            min-height: 0;
+            padding: 0 !important;
+            overflow: hidden;
+        }
+        body.tourist-chat-keyboard-open .tourist-chat-page {
+            position: fixed;
+            top: calc(var(--tourist-chat-visual-offset-top, 0px) + var(--tourist-chat-navbar-height, 56px) + 8px);
+            right: 0;
+            left: 0;
+            width: auto;
+            height: calc(var(--tourist-chat-visual-height, 100dvh) - var(--tourist-chat-navbar-height, 56px) - 8px);
+            margin: 0 !important;
+            padding: 0 2px !important;
+            z-index: 1;
+        }
+        body.tourist-chat-keyboard-open .tourist-chat-page > .row,
+        body.tourist-chat-keyboard-open .tourist-chat-page > .row > [class*="col-"] {
+            height: 100%;
+        }
+        body.tourist-chat-keyboard-open .tourist-chat-page > .row {
+            margin: 0;
+        }
+        body.tourist-chat-keyboard-open .tourist-chat-page > .row > [class*="col-"] {
+            padding-right: 0;
+            padding-left: 0;
+        }
+        body.tourist-chat-keyboard-open .tourist-chat-panel {
+            height: 100% !important;
+            max-height: none !important;
+            min-height: 0 !important;
+        }
         .tourist-chat-header { padding: 0.75rem !important; }
         .tourist-chat-brand-logo { width: 34px !important; height: 34px !important; }
         .tourist-chat-user-avatar { display: none !important; }
@@ -401,6 +443,36 @@
 </script>
 
 <script>
+    let touristChatLargestViewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+
+    function syncTouristChatViewport() {
+        const root = document.documentElement;
+        const viewport = window.visualViewport;
+        const nav = document.querySelector('.navbar-premium');
+        const visualHeight = viewport ? viewport.height : window.innerHeight;
+        const visualOffsetTop = viewport ? viewport.offsetTop : 0;
+        const navbarHeight = nav ? nav.getBoundingClientRect().height : 56;
+        const activeElement = document.activeElement;
+        const activeChatField = activeElement && document.querySelector('.tourist-chat-panel')?.contains(activeElement) && /^(INPUT|TEXTAREA)$/i.test(activeElement.tagName);
+
+        touristChatLargestViewportHeight = Math.max(touristChatLargestViewportHeight, visualHeight);
+
+        root.style.setProperty('--tourist-chat-visual-height', `${Math.round(visualHeight)}px`);
+        root.style.setProperty('--tourist-chat-visual-offset-top', `${Math.round(visualOffsetTop)}px`);
+        root.style.setProperty('--tourist-chat-navbar-height', `${Math.round(navbarHeight)}px`);
+        document.body.classList.toggle('tourist-chat-keyboard-open', Boolean(activeChatField && touristChatLargestViewportHeight - visualHeight > 120));
+    }
+
+    document.body.classList.add('tourist-chat-page-active');
+    syncTouristChatViewport();
+    window.addEventListener('resize', syncTouristChatViewport, { passive: true });
+    document.addEventListener('focusin', syncTouristChatViewport);
+    document.addEventListener('focusout', () => window.setTimeout(syncTouristChatViewport, 0));
+    if (window.visualViewport) {
+        visualViewport.addEventListener('resize', syncTouristChatViewport);
+        visualViewport.addEventListener('scroll', syncTouristChatViewport);
+    }
+
     const destId = '<%= currentDest ? currentDest.id : "" %>';
     const destName = '<%= currentDest ? currentDest.name.replace(/'/g, "\\'") : "" %>';
     const BRAND_LOGO_URL = "<%= fixImg(settings.brand_logo, '/images/logo.png') %>?v=3";
