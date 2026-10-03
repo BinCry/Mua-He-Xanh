@@ -50,14 +50,14 @@
                 <section class="legal-section"><h2><span>02</span> Mục đích sử dụng</h2><ul><li>Tạo và duy trì tài khoản, lưu hành trình, check-in và tương tác cộng đồng.</li><li>Hiển thị điểm đến, bản đồ, nội dung phù hợp và hỗ trợ khi bạn cần.</li><li>Phát hiện lỗi, ngăn chặn lạm dụng và cải thiện độ ổn định của dịch vụ.</li></ul></section>
                 <section class="legal-section"><h2><span>03</span> Chia sẻ dữ liệu</h2><p>Chúng tôi không bán dữ liệu cá nhân. Một số dịch vụ kỹ thuật như đăng nhập qua Google/Facebook, bản đồ hoặc lưu trữ ảnh có thể xử lý dữ liệu cần thiết theo chính sách riêng của họ để cung cấp chức năng bạn chọn.</p></section>
                 <section class="legal-section"><h2><span>04</span> Lựa chọn và quyền của bạn</h2><p>Bạn có thể cập nhật thông tin hồ sơ, kiểm soát quyền vị trí trên thiết bị và yêu cầu xóa dữ liệu. Xem <a href="/xoa-du-lieu">hướng dẫn xóa dữ liệu</a> hoặc liên hệ chúng tôi nếu cần hỗ trợ.</p></section>
-                <section class="legal-section"><h2><span>05</span> Liên hệ</h2><p>Nếu có câu hỏi về quyền riêng tư hoặc cách dữ liệu được xử lý, vui lòng gửi về <a href="mailto:admin@dulichbinhloi.com">admin@dulichbinhloi.com</a>. Chúng tôi sẽ phản hồi trong thời gian hợp lý.</p></section>
+                <section class="legal-section"><h2><span>05</span> Liên hệ</h2><p>Nếu có câu hỏi về quyền riêng tư hoặc cách dữ liệu được xử lý, vui lòng gửi về <a href="mailto:binhloi.travel@gmail.com">binhloi.travel@gmail.com</a>. Chúng tôi sẽ phản hồi trong thời gian hợp lý.</p></section>
             <% } %>
         </article>
 
         <aside class="legal-contact" aria-label="Liên hệ hỗ trợ">
             <div class="legal-contact__icon"><i class="bi bi-envelope-heart-fill" aria-hidden="true"></i></div>
             <div><strong>Cần hỗ trợ thêm?</strong><p>Đội ngũ Du Lịch Bình Lợi sẵn sàng giải đáp các câu hỏi của bạn.</p></div>
-            <a href="mailto:admin@dulichbinhloi.com">Liên hệ hỗ trợ <i class="bi bi-arrow-up-right" aria-hidden="true"></i></a>
+            <a href="mailto:binhloi.travel@gmail.com?subject=<%= encodeURIComponent('Hỗ trợ ' + pageTitle + ' - Du Lịch Bình Lợi') %>" aria-label="Gửi email hỗ trợ về <%= pageTitle %>">Liên hệ hỗ trợ <i class="bi bi-envelope-at-fill" aria-hidden="true"></i></a>
         </aside>
     </div>
 </section>
@@ -85,6 +85,7 @@
     .legal-breadcrumb a:hover { color: #b8322e; text-decoration: underline; }
     .legal-breadcrumb > i { font-size: .7rem; color: #94a3b8; }
     .legal-hero { display: flex; align-items: center; gap: clamp(1rem, 3vw, 1.5rem); margin-bottom: 1.25rem; }
+    .legal-hero > div:last-child { min-width: 0; flex: 1 1 auto; text-align: left; }
     .legal-hero__icon { width: clamp(3.75rem, 8vw, 5rem); height: clamp(3.75rem, 8vw, 5rem); flex: 0 0 auto; border-radius: 1.35rem; display: grid; place-items: center; color: #fff; font-size: clamp(1.5rem, 4vw, 2rem); background: linear-gradient(135deg, #922724, #cc5148); box-shadow: 0 14px 26px rgba(146, 39, 36, .24); }
     .legal-kicker { color: #9b2d28; font-size: .72rem; letter-spacing: .14em; font-weight: 800; margin: 0 0 .35rem; }
     .legal-hero h1 { color: #172033; font-family: 'Montserrat', sans-serif; font-size: clamp(1.65rem, 4vw, 2.55rem); font-weight: 800; margin: 0 0 .55rem; line-height: 1.18; }
@@ -118,6 +119,6 @@
     .legal-contact p { color: #64748b; font-size: .85rem; margin: .15rem 0 0; line-height: 1.45; }
     .legal-contact a { color: #922724; font-size: .86rem; font-weight: 800; text-decoration: none; white-space: nowrap; min-height: 40px; display: inline-flex; align-items: center; gap: .35rem; }
     .legal-contact a:hover { color: #bd3732; text-decoration: underline; }
-    @media (max-width: 575.98px) { .legal-page { padding-top: 1.15rem; } .legal-container { padding-inline: 16px; } .legal-hero { align-items: flex-start; } .legal-actions { display: grid; grid-template-columns: 1fr 1fr; } .legal-back-button, .legal-home-button { width: 100%; padding-inline: .55rem; font-size: .84rem; } .legal-contact { grid-template-columns: auto 1fr; } .legal-contact a { grid-column: 1 / -1; padding-top: .65rem; border-top: 1px solid #edf0f3; } }
+    @media (max-width: 575.98px) { .legal-page { padding-top: 1.15rem; } .legal-container { padding-inline: 16px; } .legal-hero { display: grid; grid-template-columns: 1fr; justify-items: center; gap: .65rem; text-align: center; } .legal-hero > div:last-child { width: 100%; text-align: center; } .legal-hero__icon { width: 3.15rem; height: 3.15rem; border-radius: 1rem; font-size: 1.3rem; } .legal-kicker { margin-bottom: .2rem; font-size: .68rem; } .legal-hero h1 { font-size: clamp(1.3rem, 6vw, 1.55rem); margin-bottom: .45rem; } .legal-hero p { max-width: 30rem; margin-inline: auto; font-size: .87rem; line-height: 1.55; } .legal-actions { display: grid; grid-template-columns: 1fr 1fr; } .legal-back-button, .legal-home-button { width: 100%; padding-inline: .55rem; font-size: .84rem; } .legal-contact { grid-template-columns: auto 1fr; } .legal-contact a { grid-column: 1 / -1; padding-top: .65rem; border-top: 1px solid #edf0f3; } }
     @media (max-width: 359.98px) { .legal-actions { grid-template-columns: 1fr; } .legal-hero__icon { width: 3.25rem; height: 3.25rem; border-radius: 1rem; } .legal-card { padding: 1.1rem; } }
 </style>
