@@ -17,6 +17,9 @@ test('studio keeps safe edge spacing and explicit icon/text gaps', () => {
     assert.match(view, /Kiểu chữ đẹp có sẵn<\/label>[\s\S]*?margin-bottom: \.75rem/);
     assert.match(view, /id="spane-audio"[\s\S]*?class="bl-panel-heading"[\s\S]*?id="soundscapeList"/);
     assert.match(view, /id="soundscapeList"[\s\S]*?bl-audio-card p-3[\s\S]*?gap-3/);
+    assert.match(view, /bl-audio-card__controls d-flex align-items-center gap-2 flex-shrink-0/);
+    assert.match(view, /\.bl-audio-card > :first-child \{ min-width: 0 !important; \}/);
+    assert.match(view, /@media \(max-width: 420px\) \{[\s\S]*?\.bl-btn-add-audio \{ padding-inline: \.6rem !important; \}/);
     assert.match(view, /id="spane-effects"[\s\S]*?class="bl-panel-heading"[\s\S]*?d-flex flex-column gap-3/);
     assert.match(view, /id="spane-transitions"[\s\S]*?class="bl-panel-heading"[\s\S]*?d-flex flex-column gap-3/);
     assert.match(view, /id="spane-canvas"[\s\S]*?class="bl-panel-heading"[\s\S]*?<div class="row g-3">/);

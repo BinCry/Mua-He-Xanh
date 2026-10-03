@@ -306,7 +306,7 @@
                                             <span class="badge bg-light border text-muted mt-1" style="font-size: 0.65rem;"><%= sound.mood || 'Thư giãn' %></span>
                                         </div>
                                     </div>
-                                    <div class="d-flex align-items-center gap-2 flex-shrink-0">
+                                    <div class="bl-audio-card__controls d-flex align-items-center gap-2 flex-shrink-0">
                                         <button type="button" class="btn btn-sm bl-btn-preview-audio p-1 text-muted hover-danger" onclick="previewAudioTrack(event, '<%= sound.audio_url %>')" title="Nghe thử">
                                             <i class="bi bi-play-circle fs-5"></i>
                                         </button>
@@ -1256,11 +1256,19 @@ main {
     background: #FEE2E2;
     flex-shrink: 0;
 }
+.bl-audio-card { min-width: 0; gap: .5rem; }
+.bl-audio-card > :first-child { min-width: 0 !important; }
+.bl-audio-card__controls { min-width: max-content; }
 .bl-btn-add-audio {
     white-space: nowrap !important;
     font-size: 0.72rem !important;
     padding: 3px 10px !important;
     transition: all 0.15s ease;
+}
+@media (max-width: 420px) {
+    .bl-audio-card { padding: .75rem !important; }
+    .bl-audio-card__controls { gap: .4rem !important; }
+    .bl-btn-add-audio { padding-inline: .6rem !important; }
 }
 .bl-btn-add-audio:hover {
     background: var(--bl-primary) !important;
