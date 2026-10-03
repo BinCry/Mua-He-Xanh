@@ -1,5 +1,6 @@
 const UserSession = require('../models/UserSession');
 const { v4: uuidv4 } = require('uuid');
+const db = require('../core/database');
 
 class OnboardingController {
     async index(req, res) {

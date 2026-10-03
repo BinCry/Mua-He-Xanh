@@ -28,7 +28,7 @@ const ProfileController = {
             `, [user.id]);
             const [journeyCount] = await db.query(`
                 SELECT COUNT(*) as total FROM journeys j 
-                JOIN user_sessions us ON j.session_id = us.session_uuid 
+                JOIN user_sessions us ON (j.session_id = us.id::text OR j.session_id = us.uuid)
                 WHERE us.user_id = $1
             `, [user.id]).catch(() => [[{total: 0}]]);
             const [reviewCount] = await db.query('SELECT COUNT(*) as total FROM reviews WHERE user_id = $1', [user.id]);
@@ -41,7 +41,7 @@ const ProfileController = {
             let rewards = [];
             try {
                 const [rRows] = await db.query(`
-                    SELECT ur.*, r.title, r.description, r.type, r.points_required
+                    SELECT ur.*, r.title, r.description, r.points_required
                     FROM user_rewards ur
                     JOIN rewards r ON ur.reward_id = r.id
                     WHERE ur.user_id = $1
@@ -202,7 +202,7 @@ const ProfileController = {
             let userRewards = [];
             try {
                 const [r2] = await db.query(`
-                    SELECT ur.*, r.title, r.type
+                    SELECT ur.*, r.title
                     FROM user_rewards ur JOIN rewards r ON ur.reward_id = r.id
                     WHERE ur.user_id = $1 ORDER BY ur.redeemed_at DESC
                 `, [user.id]);
