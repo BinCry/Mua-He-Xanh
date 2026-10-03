@@ -35,11 +35,11 @@ const targets = [
 ];
 
 function isDataImage(value) {
-    return typeof value === 'string' && /^data:image\/[a-zA-Z0-9.+-]+;base64,/.test(value.trim());
+    return typeof value === 'string' && /^data:image\/[a-zA-Z0-9.+-]+;base64,/i.test(value.trim());
 }
 
 function parseDataImage(value) {
-    const match = String(value).match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([\s\S]+)$/);
+    const match = String(value).trim().match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,([\s\S]+)$/i);
     if (!match) throw new Error('Invalid image data URI');
     return { mime: match[1].toLowerCase(), buffer: Buffer.from(match[2], 'base64') };
 }
@@ -88,33 +88,46 @@ async function writeImage(value) {
     return `/uploads/media/migrated/${filename}`;
 }
 
-async function migrateValue(value) {
-    if (isDataImage(value)) return writeImage(value);
-    if (typeof value !== 'string' || !value.includes('data:image/')) return value;
-
-    const trimmed = value.trim();
-    if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) return value;
-    let parsed;
-    try {
-        parsed = JSON.parse(trimmed);
-    } catch {
-        return value;
-    }
-
+async function migrateStructuredValue(value, convertImage) {
     let changed = false;
     const convert = async item => {
         if (isDataImage(item)) {
             changed = true;
-            return writeImage(item);
+            return convertImage(item);
+        }
+        if (Array.isArray(item)) return Promise.all(item.map(convert));
+        if (item && typeof item === 'object') {
+            const migrated = {};
+            for (const [key, child] of Object.entries(item)) migrated[key] = await convert(child);
+            return migrated;
         }
         return item;
     };
-    if (Array.isArray(parsed)) {
-        parsed = await Promise.all(parsed.map(convert));
-    } else if (parsed && typeof parsed === 'object') {
-        for (const [key, item] of Object.entries(parsed)) parsed[key] = await convert(item);
+    const migratedValue = await convert(value);
+    return { changed, value: migratedValue };
+}
+
+async function migrateValue(value, convertImage = writeImage) {
+    if (isDataImage(value)) return convertImage(value);
+
+    // pg returns json/jsonb columns as native arrays or objects. Keep that type so
+    // parameter binding persists valid JSON instead of silently skipping legacy media.
+    if (Array.isArray(value) || (value && typeof value === 'object')) {
+        const migrated = await migrateStructuredValue(value, convertImage);
+        return migrated.changed ? migrated.value : value;
     }
-    return changed ? JSON.stringify(parsed) : value;
+
+    if (typeof value !== 'string' || !/data:image\//i.test(value)) return value;
+
+    const trimmed = value.trim();
+    if (!trimmed.startsWith('[') && !trimmed.startsWith('{')) return value;
+    try {
+        const parsed = JSON.parse(trimmed);
+        const migrated = await migrateStructuredValue(parsed, convertImage);
+        return migrated.changed ? JSON.stringify(migrated.value) : value;
+    } catch {
+        return value;
+    }
 }
 
 async function saveManifest(manifest) {
@@ -177,11 +190,15 @@ async function main() {
     else console.log(`Dry run complete: ${changed} values would be migrated. No database or media files were changed.`);
 }
 
-main()
-    .catch(error => {
-        console.error('Base64 media migration failed:', error.message);
-        process.exitCode = 1;
-    })
-    .finally(async () => {
-        await db.close().catch(() => {});
-    });
+if (require.main === module) {
+    main()
+        .catch(error => {
+            console.error('Base64 media migration failed:', error.message);
+            process.exitCode = 1;
+        })
+        .finally(async () => {
+            await db.close().catch(() => {});
+        });
+}
+
+module.exports = { isDataImage, migrateValue };

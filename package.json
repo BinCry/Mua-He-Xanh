@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "nodemon src/server.js",
-    "test": "node --test test/checkin-points.test.js test/legal-pages.test.js test/map-basemap.test.js test/mobile-navbar.test.js test/performance-security.test.js test/profile-onboarding.test.js test/studio-layout.test.js test/studio-mobile-layout.test.js test/studio-rail.test.js test/studio-spacing.test.js",
+    "test": "node --test test/checkin-points.test.js test/legal-pages.test.js test/map-basemap.test.js test/media-migration.test.js test/mobile-navbar.test.js test/performance-security.test.js test/profile-onboarding.test.js test/studio-layout.test.js test/studio-mobile-layout.test.js test/studio-rail.test.js test/studio-spacing.test.js",
     "test:unit": "npm test",
     "test:responsive": "playwright test test/e2e/responsive.spec.js",
     "test:a11y": "playwright test test/e2e/accessibility.spec.js",
