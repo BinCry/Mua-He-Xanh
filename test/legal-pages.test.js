@@ -17,6 +17,7 @@ test('legal pages have stable routes and login links', () => {
     const legal = fs.readFileSync('src/views/home/privacy.ejs', 'utf8');
     assert.match(legal, /href="mailto:binhloi\.travel@gmail\.com"/);
     assert.match(legal, /mail\.google\.com\/mail\/\?view=cm/);
+    assert.doesNotMatch(legal, /admin@dulichbinhloi\.com/);
 });
 
 test('legal page uses an in-site back fallback instead of a dead link', () => {
