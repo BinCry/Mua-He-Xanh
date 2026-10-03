@@ -30,5 +30,6 @@ test('all legal page variants compile with their expected content', () => {
         const html = ejs.render(template, { page });
         assert.match(html, /legalBackButton/);
         assert.match(html, /Về trang chủ/);
+        assert.doesNotMatch(html, /DU LỊCH BÌNH LỢI/);
     }
 });
