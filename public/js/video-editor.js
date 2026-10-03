@@ -903,8 +903,13 @@ document.addEventListener('DOMContentLoaded', () => {
                                     (textHighlightInput && textHighlightInput.value) ||
                                     (textOutroInput && textOutroInput.value);
                 textTrackSlots.innerHTML = `
-                    <div class="bl-track-badge bl-badge-text flex-grow-1 text-truncate px-3 py-1 rounded-2 fw-semibold cursor-pointer d-flex align-items-center gap-1.5 shadow-2xs" onclick="selectTextTrackBadge()">
-                        📝 <span class="text-truncate">Phụ đề: ${previewText}</span>
+                    <div class="bl-track-badge bl-badge-text flex-grow-1 text-truncate px-3 py-1 rounded-2 fw-semibold cursor-pointer d-flex align-items-center justify-content-between gap-2 shadow-2xs" onclick="selectTextTrackBadge()">
+                        <div class="d-flex align-items-center gap-2 text-truncate">
+                            <span aria-hidden="true">📝</span><span class="text-truncate">Phụ đề: ${previewText}</span>
+                        </div>
+                        <button type="button" class="btn btn-link text-danger p-0 x-small text-decoration-none fw-bold flex-shrink-0" onclick="removeSubtitles(event)" title="Gỡ tất cả phụ đề">
+                            <i class="bi bi-x-circle-fill"></i> Gỡ
+                        </button>
                     </div>
                 `;
             }
@@ -974,13 +979,13 @@ document.addEventListener('DOMContentLoaded', () => {
         syncPropertiesPanel();
     }
 
-    function selectTextTrackBadge() {
+    window.selectTextTrackBadge = function() {
         isTextSelected = true;
         selectedClipIndex = -1;
         renderTimeline();
         syncPropertiesPanel();
         switchStudioTab('text');
-    }
+    };
 
     // --- TIMELINE PLAYHEAD SCRUBBING ---
     function updatePlayheadPosition() {
@@ -1290,6 +1295,21 @@ document.addEventListener('DOMContentLoaded', () => {
         renderTimeline();
         updateUIFromState();
         showStudioToast('Đã gỡ bỏ bài nhạc nền.', 'info');
+    };
+
+    window.removeSubtitles = function(e) {
+        if (e) e.stopPropagation();
+        const subtitleInputs = [textHookInput, textImmersionInput, textHighlightInput, textOutroInput].filter(Boolean);
+        if (!subtitleInputs.some(input => input.value.trim())) return;
+
+        pushUndoState();
+        subtitleInputs.forEach(input => { input.value = ''; });
+        if (propTextInput) propTextInput.value = '';
+        isTextSelected = false;
+        renderTimeline();
+        drawFrameAt(elapsedPlayTime);
+        syncPropertiesPanel();
+        showStudioToast('Đã gỡ bỏ tất cả phụ đề.', 'info');
     };
 
     window.previewAudioTrack = function(e, url) {
@@ -1993,9 +2013,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const toast = document.createElement('div');
         toast.id = 'blStudioToast';
-        toast.className = `position-fixed bottom-4 start-50 translate-middle-x px-4 py-2.5 rounded-pill shadow-lg text-white font-size-sm fw-semibold z-1090 ${type === 'danger' ? 'bg-danger' : (type === 'success' ? 'bg-success' : 'bg-dark')}`;
+        toast.className = `position-fixed bottom-4 start-50 translate-middle-x px-4 py-2.5 rounded-pill shadow-lg text-white font-size-sm fw-semibold z-1090 d-flex align-items-center gap-2 ${type === 'danger' ? 'bg-danger' : (type === 'success' ? 'bg-success' : 'bg-dark')}`;
         toast.style.cssText = 'bottom: 24px; z-index: 9999; animation: fadeIn 0.2s ease;';
-        toast.innerHTML = `<i class="bi bi-info-circle me-1.5"></i>${msg}`;
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-info-circle flex-shrink-0';
+        icon.setAttribute('aria-hidden', 'true');
+        const message = document.createElement('span');
+        message.textContent = msg;
+        toast.append(icon, message);
         document.body.appendChild(toast);
 
         setTimeout(() => {
