@@ -14,7 +14,9 @@ test('legal pages have stable routes and login links', () => {
     assert.match(login, /href="\/chinh-sach-bao-mat"/);
     assert.match(footer, /href="\/dieu-khoan-dich-vu"/);
     assert.match(footer, /href="\/chinh-sach-bao-mat"/);
-    assert.match(fs.readFileSync('src/views/home/privacy.ejs', 'utf8'), /mailto:binhloi\.travel@gmail\.com/);
+    const legal = fs.readFileSync('src/views/home/privacy.ejs', 'utf8');
+    assert.match(legal, /href="mailto:binhloi\.travel@gmail\.com"/);
+    assert.match(legal, /mail\.google\.com\/mail\/\?view=cm/);
 });
 
 test('legal page uses an in-site back fallback instead of a dead link', () => {

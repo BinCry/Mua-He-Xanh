@@ -16,7 +16,7 @@ for (const viewport of [
 
         await page.goto('/chinh-sach-bao-mat', { waitUntil: 'domcontentloaded' });
         await expect(page.getByRole('heading', { name: 'Chính sách bảo mật' })).toBeVisible();
-        await expect(page.getByRole('link', { name: /Gửi email hỗ trợ/ })).toHaveAttribute('href', /mailto:binhloi\.travel@gmail\.com/);
+        await expect(page.getByRole('link', { name: /Mở ứng dụng email/ })).toHaveAttribute('href', 'mailto:binhloi.travel@gmail.com');
         const layout = await page.evaluate(() => ({
             viewport: window.innerWidth,
             scrollWidth: document.documentElement.scrollWidth,

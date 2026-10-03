@@ -54,7 +54,12 @@
         <aside class="legal-contact" aria-label="Liên hệ hỗ trợ">
             <div class="legal-contact__icon"><i class="bi bi-envelope-heart-fill" aria-hidden="true"></i></div>
             <div><strong>Cần hỗ trợ thêm?</strong><p>Đội ngũ Du Lịch Bình Lợi sẵn sàng giải đáp các câu hỏi của bạn.</p></div>
-            <a href="mailto:binhloi.travel@gmail.com?subject=<%= encodeURIComponent('Hỗ trợ ' + pageTitle + ' - Du Lịch Bình Lợi') %>" aria-label="Gửi email hỗ trợ về <%= pageTitle %>">Liên hệ hỗ trợ <i class="bi bi-envelope-at-fill" aria-hidden="true"></i></a>
+            <a class="legal-contact__email" id="legalSupportEmail" href="mailto:binhloi.travel@gmail.com" aria-label="Mở ứng dụng email để liên hệ hỗ trợ">Liên hệ hỗ trợ <i class="bi bi-envelope-at-fill" aria-hidden="true"></i></a>
+            <div class="legal-contact__fallback" id="legalEmailFallback" hidden aria-live="polite">
+                <span>Không mở được ứng dụng email?</span>
+                <a href="https://mail.google.com/mail/?view=cm&fs=1&to=binhloi.travel%40gmail.com" target="_blank" rel="noopener">Soạn trong Gmail</a>
+                <button type="button" id="copySupportEmail">Sao chép email</button>
+            </div>
         </aside>
     </div>
 </section>
@@ -71,6 +76,30 @@
             // A malformed referrer safely falls back to the homepage.
         }
         window.location.assign('/');
+    });
+
+    const supportEmail = 'binhloi.travel@gmail.com';
+    const supportEmailLink = document.getElementById('legalSupportEmail');
+    const emailFallback = document.getElementById('legalEmailFallback');
+    const copySupportEmail = document.getElementById('copySupportEmail');
+
+    supportEmailLink?.addEventListener('click', function () {
+        // A native mail handler normally switches focus away from this page. If it does not,
+        // show alternatives instead of leaving the visitor with an apparently inactive link.
+        window.setTimeout(function () {
+            if (document.visibilityState === 'visible' && document.hasFocus()) {
+                emailFallback?.removeAttribute('hidden');
+            }
+        }, 900);
+    });
+
+    copySupportEmail?.addEventListener('click', async function () {
+        try {
+            await navigator.clipboard.writeText(supportEmail);
+            copySupportEmail.textContent = 'Đã sao chép';
+        } catch (_) {
+            copySupportEmail.textContent = supportEmail;
+        }
     });
 </script>
 
@@ -112,8 +141,12 @@
     .legal-contact__icon { width: 2.75rem; height: 2.75rem; display: grid; place-items: center; border-radius: 50%; color: #922724; background: #fff0ee; font-size: 1.1rem; }
     .legal-contact strong { color: #202a3c; font-size: .98rem; }
     .legal-contact p { color: #64748b; font-size: .85rem; margin: .15rem 0 0; line-height: 1.45; }
-    .legal-contact a { color: #922724; font-size: .86rem; font-weight: 800; text-decoration: none; white-space: nowrap; min-height: 40px; display: inline-flex; align-items: center; gap: .35rem; }
-    .legal-contact a:hover { color: #bd3732; text-decoration: underline; }
-    @media (max-width: 575.98px) { .legal-page { padding-top: 1.15rem; } .legal-container { padding-inline: 16px; } .legal-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; justify-content: center; column-gap: .75rem; text-align: left; } .legal-hero__content { display: contents; } .legal-hero__icon { grid-column: 1; grid-row: 1; width: 3.15rem; height: 3.15rem; border-radius: 1rem; font-size: 1.3rem; } .legal-hero h1 { grid-column: 2; grid-row: 1; justify-self: start; text-align: left; font-size: clamp(1.3rem, 6vw, 1.55rem); margin: 0; } .legal-actions { display: grid; grid-template-columns: 1fr 1fr; } .legal-back-button, .legal-home-button { width: 100%; padding-inline: .55rem; font-size: .84rem; } .legal-contact { grid-template-columns: auto 1fr; } .legal-contact a { grid-column: 1 / -1; padding-top: .65rem; border-top: 1px solid #edf0f3; } }
+    .legal-contact__email { color: #922724; font-size: .86rem; font-weight: 800; text-decoration: none; white-space: nowrap; min-height: 40px; display: inline-flex; align-items: center; gap: .35rem; }
+    .legal-contact__email:hover { color: #bd3732; text-decoration: underline; }
+    .legal-contact__fallback { grid-column: 2 / -1; display: flex; align-items: center; flex-wrap: wrap; gap: .4rem .7rem; color: #64748b; font-size: .78rem; }
+    .legal-contact__fallback[hidden] { display: none; }
+    .legal-contact__fallback a, .legal-contact__fallback button { color: #922724; font-weight: 800; text-decoration: underline; text-underline-offset: 2px; border: 0; background: transparent; padding: 0; font: inherit; cursor: pointer; }
+    .legal-contact__fallback a:hover, .legal-contact__fallback button:hover { color: #bd3732; }
+    @media (max-width: 575.98px) { .legal-page { padding-top: 1.15rem; } .legal-container { padding-inline: 16px; } .legal-hero { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; justify-content: center; column-gap: .75rem; text-align: left; } .legal-hero__content { display: contents; } .legal-hero__icon { grid-column: 1; grid-row: 1; width: 3.15rem; height: 3.15rem; border-radius: 1rem; font-size: 1.3rem; } .legal-hero h1 { grid-column: 2; grid-row: 1; justify-self: start; text-align: left; font-size: clamp(1.3rem, 6vw, 1.55rem); margin: 0; } .legal-section h2 { margin-bottom: .4rem; } .legal-actions { display: grid; grid-template-columns: 1fr 1fr; } .legal-back-button, .legal-home-button { width: 100%; padding-inline: .55rem; font-size: .84rem; } .legal-contact { grid-template-columns: auto 1fr; } .legal-contact__email { grid-column: 1 / -1; padding-top: .65rem; border-top: 1px solid #edf0f3; } .legal-contact__fallback { grid-column: 1 / -1; } }
     @media (max-width: 359.98px) { .legal-actions { grid-template-columns: 1fr; } .legal-hero__icon { width: 3.25rem; height: 3.25rem; border-radius: 1rem; } .legal-card { padding: 1.1rem; } }
 </style>
