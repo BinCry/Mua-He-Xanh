@@ -261,6 +261,13 @@ document.addEventListener('DOMContentLoaded', () => {
     let transitionDuration = 0.5;
     let activeTemplateId = null;
 
+    const STUDIO_RATIOS = {
+        '9:16': { aspectRatio: '9 / 16', width: 540, height: 960, label: '9:16 Dọc' },
+        '16:9': { aspectRatio: '16 / 9', width: 960, height: 540, label: '16:9 Ngang' },
+        '1:1': { aspectRatio: '1 / 1', width: 720, height: 720, label: '1:1 Vuông' },
+        '4:5': { aspectRatio: '4 / 5', width: 576, height: 720, label: '4:5 Dọc ngắn' }
+    };
+
     // Audio State (Empty by default)
     let selectedAudioUrl = '';
     let selectedAudioName = '';
@@ -384,7 +391,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const s = JSON.parse(stateJson);
         videoDuration = s.videoDuration || 15;
         playbackSpeed = s.playbackSpeed || 1.0;
-        selectedRatio = s.selectedRatio || '9:16';
+        selectedRatio = normalizeStudioRatio(s.selectedRatio);
+        applyRatioToCanvas(selectedRatio);
         currentFilter = s.currentFilter || 'natural';
         currentEffect = s.currentEffect || 'kenburns';
         currentTransition = s.currentTransition || 'crossdissolve';
@@ -464,6 +472,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         syncPropertiesPanel();
+    }
+
+    function normalizeStudioRatio(ratio) {
+        return Object.prototype.hasOwnProperty.call(STUDIO_RATIOS, ratio) ? ratio : '9:16';
+    }
+
+    function applyRatioToCanvas(ratio) {
+        const config = STUDIO_RATIOS[normalizeStudioRatio(ratio)];
+        const monitor = document.getElementById('monitorFrame');
+
+        if (monitor) monitor.style.aspectRatio = config.aspectRatio;
+        canvas.width = config.width;
+        canvas.height = config.height;
+        activeText.x = canvas.width / 2;
+        activeText.y = canvas.height - 120;
+        if (overviewRatioLabel) overviewRatioLabel.innerText = config.label;
     }
 
     // --- INITIALIZE TEMPLATES TAB (MẪU VIDEO BÌNH LỢI) ---
@@ -1766,33 +1790,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- OPTIONS SELECTION HELPERS ---
     window.selectStudioRatio = function(ratio) {
         pushUndoState();
-        selectedRatio = ratio;
-        const monitor = document.getElementById('monitorFrame');
-        if (monitor) {
-            if (ratio === '9:16') {
-                monitor.style.aspectRatio = '9 / 16';
-                canvas.width = 540;
-                canvas.height = 960;
-            } else if (ratio === '16:9') {
-                monitor.style.aspectRatio = '16 / 9';
-                canvas.width = 960;
-                canvas.height = 540;
-            } else if (ratio === '1:1') {
-                monitor.style.aspectRatio = '1 / 1';
-                canvas.width = 720;
-                canvas.height = 720;
-            } else if (ratio === '4:5') {
-                monitor.style.aspectRatio = '4 / 5';
-                canvas.width = 576;
-                canvas.height = 720;
-            }
-        }
-        activeText.x = canvas.width / 2;
-        activeText.y = canvas.height - 120;
-        if (overviewRatioLabel) overviewRatioLabel.innerText = ratio;
+        selectedRatio = normalizeStudioRatio(ratio);
+        applyRatioToCanvas(selectedRatio);
         updateUIFromState();
         drawFrameAt(elapsedPlayTime);
-        showStudioToast(`Đã chọn tỷ lệ: ${ratio}`, 'info');
+        showStudioToast(`Đã chọn tỷ lệ: ${STUDIO_RATIOS[selectedRatio].label}`, 'info');
     };
 
     window.selectStudioFilter = function(filter) {
@@ -1862,6 +1864,28 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
     });
+
+    if (btnAddNewText) {
+        btnAddNewText.addEventListener('click', () => {
+            const subtitleInputs = [textHookInput, textImmersionInput, textHighlightInput, textOutroInput].filter(Boolean);
+            const nextSubtitleInput = subtitleInputs.find(input => !input.value.trim()) || textHookInput;
+            if (!nextSubtitleInput) return;
+
+            if (!nextSubtitleInput.value.trim()) {
+                pushUndoState();
+                nextSubtitleInput.value = 'Phụ đề mới';
+            }
+
+            isTextSelected = true;
+            selectedClipIndex = -1;
+            renderTimeline();
+            drawFrameAt(elapsedPlayTime);
+            syncPropertiesPanel();
+            nextSubtitleInput.focus();
+            nextSubtitleInput.select();
+            showStudioToast('Đã thêm phụ đề mới. Hãy nhập nội dung của bạn.', 'success');
+        });
+    }
 
     // --- VIDEO EXPORT ENGINE (MP4/WEBM + AUDIO) ---
     if (btnOpenExportModal) {

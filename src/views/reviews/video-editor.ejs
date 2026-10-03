@@ -662,11 +662,11 @@
                 </div>
 
                 <div class="row g-2 mb-3">
-                    <div class="col-6">
+                    <div class="col-12">
                         <label class="x-small fw-bold text-muted text-uppercase mb-1.5 d-block">Font chữ</label>
-                        <select class="form-select form-select-sm" id="propFontFamily">
-                            <option value="Inter, sans-serif">Inter (Chuẩn)</option>
-                            <option value="Montserrat, sans-serif">Montserrat (Trẻ)</option>
+                        <select class="form-select form-select-sm" id="propFontFamily" title="Chọn font chữ: Inter, Montserrat, Dancing Script hoặc Arial">
+                            <option value="Inter, sans-serif">Inter</option>
+                            <option value="Montserrat, sans-serif">Montserrat</option>
                             <option value="'Dancing Script', cursive">Dancing Script</option>
                             <option value="Arial, sans-serif">Arial</option>
                         </select>
@@ -1458,6 +1458,17 @@ main {
     background: #EDE9FE;
     color: #6D28D9;
     border: 1px solid #DDD6FE;
+    min-width: 0;
+}
+.bl-badge-text > div {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+.bl-badge-text > button {
+    display: inline-flex !important;
+    align-items: center;
+    flex: 0 0 auto;
+    min-width: max-content;
 }
 .bl-badge-audio {
     background: #DCFCE7;

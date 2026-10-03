@@ -15,6 +15,12 @@ test('studio keeps template image actions separated and can remove subtitles', (
     assert.match(script, /window\.removeSubtitles = function\(e\)/);
     assert.match(script, /subtitleInputs\.forEach\(input => \{ input\.value = ''; \}\)/);
     assert.match(script, /window\.selectTextTrackBadge = function\(\)/);
+    assert.match(script, /btnAddNewText\.addEventListener\('click', \(\) => \{/);
+    assert.match(script, /const nextSubtitleInput = subtitleInputs\.find\(input => !input\.value\.trim\(\)\) \|\| textHookInput;/);
+    assert.match(script, /nextSubtitleInput\.value = 'Phụ đề mới';/);
+    assert.match(script, /nextSubtitleInput\.focus\(\);/);
     assert.match(script, /d-flex align-items-center gap-2/);
     assert.match(script, /toast\.append\(icon, message\)/);
+    assert.match(view, /\.bl-badge-text > div \{[\s\S]*?min-width: 0;[\s\S]*?flex: 1 1 auto;/);
+    assert.match(view, /\.bl-badge-text > button \{[\s\S]*?display: inline-flex !important;[\s\S]*?flex: 0 0 auto;/);
 });
