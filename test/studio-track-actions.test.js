@@ -19,6 +19,7 @@ test('studio keeps template image actions separated and can remove subtitles', (
     assert.match(script, /const nextSubtitleInput = subtitleInputs\.find\(input => !input\.value\.trim\(\)\) \|\| textHookInput;/);
     assert.match(script, /nextSubtitleInput\.value = 'Phụ đề mới';/);
     assert.match(script, /nextSubtitleInput\.focus\(\);/);
+    assert.match(script, /const modal = bootstrap\.Modal\.getOrCreateInstance\(modalEl\);\s*modal\.show\(\);/);
     assert.match(script, /d-flex align-items-center gap-2/);
     assert.match(script, /toast\.append\(icon, message\)/);
     assert.match(view, /\.bl-badge-text > div \{[\s\S]*?min-width: 0;[\s\S]*?flex: 1 1 auto;/);

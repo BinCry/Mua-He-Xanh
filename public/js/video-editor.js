@@ -1908,7 +1908,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const modalEl = document.getElementById('blExportModal');
             if (modalEl && window.bootstrap) {
-                const modal = new bootstrap.Modal(modalEl);
+                const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
                 modal.show();
             }
         });
