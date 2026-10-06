@@ -66,11 +66,11 @@
         </div>
     </div>
     <div class="col-md-4 col-6">
-        <div class="stat-card">
+        <div class="stat-card stat-card--duration">
             <div class="d-flex align-items-center gap-3">
                 <div class="stat-icon" style="background: rgba(251,191,36,0.15); color: #fbbf24;"><i class="bi bi-clock-history"></i></div>
-                <div>
-                    <h3><%= stats.avgDurationFormatted || '45s' %></h3>
+                <div class="stat-card-content">
+                    <h3 class="stat-card-value"><%= stats.avgDurationFormatted || '45s' %></h3>
                     <small>Thời gian TB ở lại</small>
                 </div>
             </div>
