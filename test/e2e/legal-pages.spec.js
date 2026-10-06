@@ -31,7 +31,7 @@ for (const viewport of [
             ['/lien-he', 'Liên hệ']
         ]) {
             await page.goto(route, { waitUntil: 'domcontentloaded' });
-            await expect(page.getByRole('heading', { name: heading })).toBeVisible();
+            await expect(page.getByRole('heading', { name: heading, exact: true })).toBeVisible();
             const supportLayout = await page.evaluate(() => ({
                 viewport: window.innerWidth,
                 scrollWidth: document.documentElement.scrollWidth,

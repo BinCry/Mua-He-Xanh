@@ -226,7 +226,7 @@ const ReviewController = {
                     content: comment.trim(),
                     created_at: new Date().toISOString(),
                     full_name: user.full_name,
-                    avatar: user.avatar || '/images/default-avatar.png'
+                    avatar: user.avatar || '/images/default-avatar.svg'
                 }
             });
         } catch (error) {
@@ -244,7 +244,7 @@ const ReviewController = {
                 SELECT c.id, c.review_id, c.parent_id, c.content, c.created_at, c.user_id, c.guest_uuid,
                        r.user_id as post_user_id,
                        COALESCE(u.full_name, 'Du khách Bình Lợi') as full_name,
-                       COALESCE(u.avatar, '/images/default-avatar.png') as avatar
+                       COALESCE(u.avatar, '/images/default-avatar.svg') as avatar
                 FROM review_comments c
                 JOIN reviews r ON c.review_id = r.id
                 LEFT JOIN users u ON c.user_id = u.id

@@ -84,7 +84,7 @@
                             <% recentCheckins.forEach((check, index) => { %>
                                 <div class="d-flex align-items-start gap-3 mb-3 pb-3 border-bottom border-secondary border-opacity-10 timeline-item">
                                     <div class="position-relative">
-                                        <img src="<%= fixImg(check.avatar, '/images/default-avatar.png') %>" alt="" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover; border: 2px solid rgba(16,185,129,0.3);" onerror="this.onerror=null;this.src='/images/default-avatar.png';">
+                                        <img src="<%= fixImg(check.avatar, '/images/default-avatar.svg') %>" alt="" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover; border: 2px solid rgba(16,185,129,0.3);" onerror="this.onerror=null;this.src='/images/default-avatar.svg';">
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -121,7 +121,7 @@
                                 <div class="review-item p-3 rounded-3 mb-2 border border-secondary border-opacity-10" style="background: rgba(0,0,0,0.02);">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <div class="d-flex align-items-center gap-2">
-                                            <img src="<%= fixImg(r.avatar, '/images/default-avatar.png') %>" alt="" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.png';">
+                                            <img src="<%= fixImg(r.avatar, '/images/default-avatar.svg') %>" alt="" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.svg';">
                                             <div>
                                                 <h6 class="fw-bold mb-0" style="color: var(--admin-text); font-size: 0.75rem;"><%= r.full_name || 'Du khách ẩn danh' %></h6>
                                                 <small class="text-muted" style="font-size: 0.6rem;"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></small>

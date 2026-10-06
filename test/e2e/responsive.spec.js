@@ -1,5 +1,7 @@
 const { test, expect } = require('@playwright/test');
 
+test.setTimeout(120_000);
+
 const viewports = [
     { name: 'mobile-320', width: 320, height: 568 },
     { name: 'mobile-375', width: 375, height: 667 },

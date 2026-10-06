@@ -45,7 +45,7 @@ const ProfileController = {
                     FROM user_rewards ur
                     JOIN rewards r ON ur.reward_id = r.id
                     WHERE ur.user_id = $1
-                    ORDER BY ur.redeemed_at DESC
+                    ORDER BY ur.created_at DESC
                 `, [user.id]);
                 rewards = rRows;
             } catch(e) {}
@@ -204,7 +204,7 @@ const ProfileController = {
                 const [r2] = await db.query(`
                     SELECT ur.*, r.title
                     FROM user_rewards ur JOIN rewards r ON ur.reward_id = r.id
-                    WHERE ur.user_id = $1 ORDER BY ur.redeemed_at DESC
+                    WHERE ur.user_id = $1 ORDER BY ur.created_at DESC
                 `, [user.id]);
                 userRewards = r2;
             } catch(e) {}

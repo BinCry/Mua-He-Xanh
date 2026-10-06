@@ -12,7 +12,7 @@ const MAX_INLINE_DATA_URI_SIZE = 10 * 1024 * 1024;
 
 function normalizeImagePath(imgPath, fallback = DEFAULT_IMAGE) {
     const raw = String(imgPath || '').trim();
-    if (!raw || raw.toLowerCase() === 'undefined' || raw.toLowerCase() === 'null' || raw.includes('placeholder.jpg') || raw.includes('Poster 1.png') || raw.includes('Poster 1.jpg') || raw.includes('hero-1.png')) {
+    if (!raw || raw.toLowerCase() === 'undefined' || raw.toLowerCase() === 'null' || raw.includes('placeholder.jpg') || raw.includes('Poster 1.png') || raw.includes('Poster 1.jpg') || /(?:^|\/)hero-\d+\.png(?:\?|$)/i.test(raw)) {
         return fallback || DEFAULT_IMAGE;
     }
 

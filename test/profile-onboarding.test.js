@@ -53,3 +53,14 @@ test('profile queries use PostgreSQL session columns and do not require a reward
     assert.doesNotMatch(source, /j\.session_id = us\.session_uuid/);
     assert.doesNotMatch(source, /r\.type/);
 });
+
+test('reward history uses the user_rewards created_at schema column', () => {
+    const fs = require('node:fs');
+    const controller = fs.readFileSync('src/controllers/ProfileController.js', 'utf8');
+    const rewardsView = fs.readFileSync('src/views/profile/rewards.ejs', 'utf8');
+
+    assert.match(controller, /ORDER BY ur\.created_at DESC/);
+    assert.doesNotMatch(controller, /ur\.redeemed_at/);
+    assert.match(rewardsView, /r\.created_at/);
+    assert.doesNotMatch(rewardsView, /r\.redeemed_at/);
+});

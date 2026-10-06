@@ -45,6 +45,21 @@ test('public fallback images refer to an existing asset', () => {
     assert.ok(fs.existsSync('public/images/Poster 1.jpg'));
 });
 
+test('avatar and festival fallbacks use durable public assets', () => {
+    const managerDashboard = fs.readFileSync('src/views/manager/dashboard.ejs', 'utf8');
+    const managerWorkshops = fs.readFileSync('src/views/manager/workshops.ejs', 'utf8');
+    const festivals = fs.readFileSync('src/views/festivals/index.ejs', 'utf8');
+    const explore = fs.readFileSync('src/views/explore/show.ejs', 'utf8');
+
+    assert.ok(fs.existsSync('public/images/default-avatar.svg'));
+    assert.match(managerDashboard, /\/images\/default-avatar\.svg/);
+    assert.match(managerWorkshops, /\/images\/default-avatar\.svg/);
+    assert.doesNotMatch(managerDashboard, /\/images\/default-avatar\.png/);
+    assert.match(festivals, /fixImg\(fest\.image, '\/uploads\/destinations\/vuon-mai\.webp'\)/);
+    assert.doesNotMatch(festivals, /\/images\/hero-[123]\.png/);
+    assert.match(explore, /fixImg\(dest\.cover_image, '\/images\/no-image\.svg'\)/);
+});
+
 test('all shop product mutations clear public shop caches', () => {
     const manager = fs.readFileSync('src/controllers/ManagerController.js', 'utf8');
     const admin = fs.readFileSync('src/controllers/AdminController.js', 'utf8');

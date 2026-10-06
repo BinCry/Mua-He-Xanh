@@ -5,7 +5,7 @@
             <div class="row align-items-center">
                 <div class="col-md-8 d-flex align-items-center gap-4">
                     <div class="position-relative">
-                        <img src="<%= fullUser && fullUser.avatar ? fullUser.avatar : '/images/default-avatar.png' %>" class="rounded-circle border border-4 border-white shadow-lg" style="width: 120px; height: 120px; object-fit: cover;">
+                        <img src="<%= fullUser && fullUser.avatar ? fullUser.avatar : '/images/default-avatar.svg' %>" class="rounded-circle border border-4 border-white shadow-lg" style="width: 120px; height: 120px; object-fit: cover;">
                         <% if (fullUser && fullUser.role === 'admin') { %>
                             <span class="position-absolute bottom-0 end-0 bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center border border-2 border-white" style="width: 35px; height: 35px; transform: translate(10%, 10%);" title="Quản trị viên">
                                 <i class="bi bi-star-fill small"></i>

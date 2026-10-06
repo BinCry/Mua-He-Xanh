@@ -2,7 +2,7 @@
     <!-- Featured Festival Hero -->
     <div class="container-fluid px-lg-5 mb-5 reveal-up">
         <div class="card-bl border-0 shadow-lg rounded-5 overflow-hidden position-relative text-white" style="min-height: 500px;">
-            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('/images/vuon-mai-1.png') center/cover; transform: scale(1.05); transition: transform 10s ease;"></div>
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg('/uploads/destinations/vuon-mai.webp', '/images/no-image.svg') %>') center/cover; transform: scale(1.05); transition: transform 10s ease;"></div>
             <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-t-dark"></div>
             
             <div class="position-relative h-100 p-4 p-lg-5 d-flex flex-column justify-content-end" style="z-index: 10;">
@@ -55,7 +55,7 @@
                 <div class="col-lg-4 reveal-up" style="transition-delay: <%= i * 0.1 %>s">
                     <div class="card-bl h-100 border-0 shadow-sm rounded-5 overflow-hidden bg-white group-hover transition-hover d-flex flex-column">
                         <div class="position-relative" style="height: 250px;">
-                            <img src="<%= fest.image %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= fest.name %>">
+                            <img src="<%= fixImg(fest.image, '/uploads/destinations/vuon-mai.webp') %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= fest.name %>" onerror="this.onerror=null;this.src='/images/no-image.svg';">
                             <div class="position-absolute top-0 start-0 m-3">
                                 <span class="badge <%= fest.status === 'Sắp diễn ra' ? 'bg-danger' : (fest.status === 'Đang chuẩn bị' ? 'bg-primary' : 'bg-secondary') %> rounded-pill px-3 py-2 shadow-sm fw-bold">
                                     <%= fest.status %>

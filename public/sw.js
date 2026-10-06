@@ -1,4 +1,4 @@
-const CACHE_NAME = 'binh-loi-healing-v18';
+const CACHE_NAME = 'binh-loi-healing-v19';
 const STATIC_ASSETS = [
     '/css/style-v5.css',
     '/images/logo.png',
@@ -14,9 +14,12 @@ const OFFLINE_FALLBACK_HTML = [
 
 const LEGACY_IMAGE_ALIASES = {
     '/images/cau-chu-z-1.png': '/uploads/destinations/cau-chu-u.jpg',
-    '/images/xuong-nhang-1.png': '/uploads/destinations/xuong-nhang.jpg',
-    '/images/chua-phap-tang-1.png': '/uploads/destinations/chua-phap-tang.png',
-    '/images/vuon-mai-1.png': '/uploads/destinations/lang-mai.jpg',
+    '/images/xuong-nhang-1.png': '/uploads/destinations/xuong-nhang-minh.webp',
+    '/images/chua-phap-tang-1.png': '/uploads/destinations/chua-phap-tang.webp',
+    '/images/vuon-mai-1.png': '/uploads/destinations/vuon-mai.webp',
+    '/images/hero-1.png': '/uploads/destinations/vuon-mai.webp',
+    '/images/hero-2.png': '/uploads/destinations/vuon-mai.webp',
+    '/images/hero-3.png': '/uploads/destinations/vuon-mai.webp',
     '/images/placeholder.png': '/images/Poster 1.jpg',
     '/images/placeholder.jpg': '/images/Poster 1.jpg'
 };
