@@ -129,13 +129,13 @@
             border-color: var(--admin-primary);
         }
 
-        /* Mobile Offcanvas Drawer (From Right) */
+        /* Mobile Offcanvas Drawer (From Left) */
         .admin-offcanvas {
             width: 310px !important;
             max-width: 85vw;
             background: var(--admin-surface) !important;
             color: var(--admin-text);
-            border-left: 1px solid var(--admin-border) !important;
+            border-right: 1px solid var(--admin-border) !important;
         }
         .admin-offcanvas .offcanvas-header {
             border-bottom: 1px solid var(--admin-border);
@@ -261,6 +261,9 @@
                     <a href="/manager/destination" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'destination' ? 'active' : '' %>">
                         <i class="bi bi-geo-alt-fill"></i> Quản lý Địa điểm
                     </a>
+                    <a href="/manager/workshops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'workshops' ? 'active' : '' %>">
+                        <i class="bi bi-shop"></i> Quản lý Shop
+                    </a>
                 <% } %>
             </nav>
             <div class="sb-footer">
@@ -286,9 +289,13 @@
 
         <!-- Main Content -->
         <main class="admin-main">
-            <!-- Mobile Admin Top Bar with Brand, Language Toggle, and Hamburger Button on the Right -->
+            <!-- Mobile Admin Top Bar with a left-aligned menu, brand, and language toggle -->
             <div class="d-lg-none d-flex justify-content-between align-items-center admin-mobile-topbar">
                 <div class="d-flex align-items-center gap-2 min-w-0">
+                    <!-- Nút menu ở bên trái, cùng quy ước với menu website -->
+                    <button type="button" class="btn-admin-hamburger" data-bs-toggle="offcanvas" data-bs-target="#adminMobileOffcanvas" aria-controls="adminMobileOffcanvas" aria-label="Mở danh mục quản trị" title="Mở danh mục quản trị">
+                        <i class="bi bi-list fs-3" aria-hidden="true"></i>
+                    </button>
                     <span class="sb-brand-mark" style="width: 34px; height: 34px;">
                         <i class="bi <%= user.role === 'manager' ? 'bi-geo-alt' : 'bi-buildings' %>"></i>
                     </span>
@@ -304,11 +311,6 @@
                         <button type="button" class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')" style="font-size: 0.7rem; width: 30px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
                         <button type="button" class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.7rem; width: 30px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
                     </div>
-                    
-                    <!-- Nút 3 gạch mở menu bên phải trên điện thoại -->
-                    <button type="button" class="btn-admin-hamburger" data-bs-toggle="offcanvas" data-bs-target="#adminMobileOffcanvas" aria-controls="adminMobileOffcanvas" title="Mở danh mục quản trị">
-                        <i class="bi bi-list fs-3"></i>
-                    </button>
                 </div>
             </div>
 
@@ -316,8 +318,8 @@
         </main>
     </div>
 
-    <!-- Mobile Admin Offcanvas Drawer (Trượt ra từ bên phải) -->
-    <div class="offcanvas offcanvas-end admin-offcanvas" tabindex="-1" id="adminMobileOffcanvas" aria-labelledby="adminMobileOffcanvasLabel">
+    <!-- Mobile Admin Offcanvas Drawer (Trượt ra từ bên trái) -->
+    <div class="offcanvas offcanvas-start admin-offcanvas" tabindex="-1" id="adminMobileOffcanvas" aria-labelledby="adminMobileOffcanvasLabel">
         <div class="offcanvas-header d-flex align-items-center justify-content-between">
             <div class="d-flex align-items-center gap-2">
                 <span class="sb-brand-mark" aria-hidden="true" style="width: 32px; height: 32px;">

@@ -1,107 +1,82 @@
 <!-- Premium Manager Dashboard -->
-<div class="container-fluid p-0 animate__animated animate__fadeIn">
+<div class="manager-dashboard animate__animated animate__fadeIn">
     <!-- Header banner -->
-    <div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="manager-dashboard__header d-flex justify-content-between align-items-center mb-4">
         <div>
             <h3 class="fw-bold mb-1 font-display" style="color: var(--admin-text); font-family: 'Inter', sans-serif;">
-                🏛️ <%= dest.name %> - Bảng điều khiển
+                <i class="bi bi-buildings me-2" aria-hidden="true"></i><%= dest.name %> - Bảng điều khiển
             </h3>
             <p class="mb-0 text-muted small">
                 Theo dõi thời gian thực lượt truy cập, check-in, doanh thu tại địa điểm của bạn.
             </p>
         </div>
-        <div>
+        <div class="manager-dashboard__header-actions">
             <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
                 <i class="bi bi-shield-check me-1"></i>Trạng thái hoạt động
             </span>
+            <% if (user.role === 'admin') { %>
+                <a href="/manager" class="manager-dashboard__switch-destination">
+                    <i class="bi bi-arrow-left-short" aria-hidden="true"></i>Đổi địa điểm
+                </a>
+            <% } %>
         </div>
     </div>
 
-    <!-- Manager Tab Navigation -->
-    <div class="d-flex gap-2 mb-4 border-bottom border-secondary border-opacity-10 pb-3">
-        <a href="/manager<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-primary btn-sm rounded-pill px-3">
-            <i class="bi bi-grid-1x2-fill me-1"></i> Bảng điều khiển
-        </a>
-        <a href="/manager/chat<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-opacity-25">
-            <i class="bi bi-chat-dots-fill me-1"></i> Hộp thư Hỗ trợ
-        </a>
-        <a href="/manager/destination<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-opacity-25">
-            <i class="bi bi-geo-alt-fill me-1"></i> Quản lý Địa điểm
-        </a>
-        <% if (user.role === 'admin') { %>
-            <a href="/manager" class="btn btn-outline-warning btn-sm rounded-pill px-3 ms-auto text-warning border-opacity-25">
-                <i class="bi bi-arrow-left-short me-1"></i> Chọn địa điểm khác
-            </a>
+    <div class="manager-dashboard__overview">
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm mb-0" role="alert" style="background: rgba(16,185,129,0.15); color: #15803d;">
+                <i class="bi bi-check-circle-fill me-2 text-success"></i><%= success %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         <% } %>
-    </div>
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm mb-0" role="alert" style="background: rgba(239,68,68,0.15); color: #b91c1c;">
+                <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i><%= error %>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <% } %>
 
-    <!-- Stats and Timeline Grid -->
-    <div class="row g-4">
-        <!-- Stats Panel -->
-        <div class="col-xl-6 col-lg-6">
-            <div class="d-flex flex-column gap-4">
-                
-                <% if (typeof success !== 'undefined' && success) { %>
-                    <div class="alert alert-success alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert" style="background: rgba(16,185,129,0.15); color: #86efac;">
-                        <i class="bi bi-check-circle-fill me-2 text-success"></i><%= success %>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <% } %>
-                <% if (typeof error !== 'undefined' && error) { %>
-                    <div class="alert alert-danger alert-dismissible fade show rounded-3 border-0 shadow-sm" role="alert" style="background: rgba(239,68,68,0.15); color: #fca5a5;">
-                        <i class="bi bi-exclamation-triangle-fill me-2 text-danger"></i><%= error %>
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                <% } %>
-
-                <!-- Stats Dashboard Grid -->
-                <div class="row g-3">
+        <!-- Stats Dashboard Grid -->
+        <section class="manager-stats-grid" aria-label="Tóm tắt hoạt động">
                     <!-- Total Check-ins -->
-                    <div class="col-6">
-                        <div class="stat-card position-relative overflow-hidden">
-                            <div class="stat-icon mb-3" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
-                                <i class="bi bi-qr-code-scan"></i>
-                            </div>
-                            <small class="text-uppercase tracking-wider text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">Lượt Check-in</small>
-                            <h3 class="fw-black mt-1 mb-0 font-display" style="color: var(--admin-text);"><%= stats.checkins %></h3>
-                            <div class="stat-bg-glow" style="background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);"></div>
+                    <article class="stat-card position-relative overflow-hidden">
+                        <div class="stat-icon mb-3" style="background: rgba(59,130,246,0.12); color: #3b82f6;">
+                            <i class="bi bi-qr-code-scan" aria-hidden="true"></i>
                         </div>
-                    </div>
+                        <small class="text-uppercase tracking-wider text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">Lượt Check-in</small>
+                        <h3 class="fw-black mt-1 mb-0 font-display" style="color: var(--admin-text);"><%= stats.checkins %></h3>
+                        <div class="stat-bg-glow" style="background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);"></div>
+                    </article>
 
                     <!-- Reviews -->
-                    <div class="col-6">
-                        <div class="stat-card position-relative overflow-hidden">
-                            <div class="stat-icon mb-3" style="background: rgba(236,72,153,0.12); color: #ec4899;">
-                                <i class="bi bi-star-fill"></i>
-                            </div>
-                            <small class="text-uppercase tracking-wider text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">Đánh giá địa điểm</small>
-                            <h3 class="fw-black mt-1 mb-0 font-display" style="color: var(--admin-text);"><%= stats.reviews %></h3>
-                            <div class="stat-bg-glow" style="background: radial-gradient(circle, rgba(236,72,153,0.08) 0%, transparent 70%);"></div>
+                    <article class="stat-card position-relative overflow-hidden">
+                        <div class="stat-icon mb-3" style="background: rgba(236,72,153,0.12); color: #ec4899;">
+                            <i class="bi bi-chat-square-heart-fill" aria-hidden="true"></i>
                         </div>
-                    </div>
-                </div>
+                        <small class="text-uppercase tracking-wider text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">Tổng đánh giá</small>
+                        <h3 class="fw-black mt-1 mb-0 font-display" style="color: var(--admin-text);"><%= stats.reviews %></h3>
+                        <div class="stat-bg-glow" style="background: radial-gradient(circle, rgba(236,72,153,0.08) 0%, transparent 70%);"></div>
+                    </article>
+
                     <!-- Average Rating -->
-                    <div class="col-6">
-                        <div class="stat-card position-relative overflow-hidden">
-                            <div class="stat-icon mb-3" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
-                                <i class="bi bi-star-fill"></i>
-                            </div>
+                    <article class="stat-card stat-card--rating-summary position-relative overflow-hidden">
+                        <div class="stat-icon mb-3" style="background: rgba(139,92,246,0.12); color: #8b5cf6;">
+                            <i class="bi bi-star-fill" aria-hidden="true"></i>
+                        </div>
+                        <div>
                             <small class="text-uppercase tracking-wider text-muted fw-bold" style="font-size: 0.68rem; letter-spacing: 0.5px;">Đánh giá địa điểm</small>
                             <h3 class="fw-black mt-1 mb-0 font-display" style="color: var(--admin-text);"><%= stats.avgRating %> <span class="fs-6 text-muted">/ 5.0</span></h3>
-                            <div class="stat-bg-glow" style="background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);"></div>
                         </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        <div class="stat-bg-glow" style="background: radial-gradient(circle, rgba(139,92,246,0.08) 0%, transparent 70%);"></div>
+                    </article>
+        </section>
 
-        <!-- 2nd Column: Timeline and Reviews -->
-        <div class="col-xl-6 col-lg-6">
-            <div class="d-flex flex-column gap-4">
-                <!-- Live Check-in Timeline -->
-                <div class="chart-card">
+        <!-- Live activity -->
+        <section class="manager-activity-grid" aria-label="Hoạt động gần đây">
+            <!-- Live Check-in Timeline -->
+            <div class="chart-card">
                     <h6 class="fw-bold text-uppercase tracking-widest small mb-4" style="color: var(--admin-primary); font-size: 0.72rem; letter-spacing: 1px;">
-                        👣 Lượt Check-in thời gian thực (Real-time Log)
+                        <i class="bi bi-activity me-1" aria-hidden="true"></i>Lượt Check-in thời gian thực (Real-time Log)
                     </h6>
                     
                     <div class="checkin-timeline overflow-y-auto custom-scrollbar" style="max-height: 250px; padding-right: 5px;">
@@ -109,7 +84,7 @@
                             <% recentCheckins.forEach((check, index) => { %>
                                 <div class="d-flex align-items-start gap-3 mb-3 pb-3 border-bottom border-secondary border-opacity-10 timeline-item">
                                     <div class="position-relative">
-                                        <img src="<%= check.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover; border: 2px solid rgba(16,185,129,0.3);">
+                                        <img src="<%= fixImg(check.avatar, '/images/default-avatar.png') %>" alt="" class="rounded-circle" style="width: 38px; height: 38px; object-fit: cover; border: 2px solid rgba(16,185,129,0.3);" onerror="this.onerror=null;this.src='/images/default-avatar.png';">
                                     </div>
                                     <div class="flex-grow-1">
                                         <div class="d-flex justify-content-between align-items-center mb-1">
@@ -132,12 +107,12 @@
                             </div>
                         <% } %>
                     </div>
-                </div>
+            </div>
 
-                <!-- Recent User Reviews -->
-                <div class="chart-card">
+            <!-- Recent User Reviews -->
+            <div class="chart-card">
                     <h6 class="fw-bold text-uppercase tracking-widest small mb-4" style="color: #8b5cf6; font-size: 0.72rem; letter-spacing: 1px;">
-                        ⭐ Ý kiến đóng góp từ Du khách
+                        <i class="bi bi-star-fill me-1" aria-hidden="true"></i>Ý kiến đóng góp từ Du khách
                     </h6>
 
                     <div class="reviews-list overflow-y-auto custom-scrollbar" style="max-height: 250px; padding-right: 5px;">
@@ -146,7 +121,7 @@
                                 <div class="review-item p-3 rounded-3 mb-2 border border-secondary border-opacity-10" style="background: rgba(0,0,0,0.02);">
                                     <div class="d-flex align-items-center justify-content-between mb-2">
                                         <div class="d-flex align-items-center gap-2">
-                                            <img src="<%= r.avatar || '/images/default-avatar.png' %>" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;">
+                                            <img src="<%= fixImg(r.avatar, '/images/default-avatar.png') %>" alt="" class="rounded-circle" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.onerror=null;this.src='/images/default-avatar.png';">
                                             <div>
                                                 <h6 class="fw-bold mb-0" style="color: var(--admin-text); font-size: 0.75rem;"><%= r.full_name || 'Du khách ẩn danh' %></h6>
                                                 <small class="text-muted" style="font-size: 0.6rem;"><%= new Date(r.created_at).toLocaleDateString('vi-VN') %></small>
@@ -170,9 +145,8 @@
                             </div>
                         <% } %>
                     </div>
-                </div>
             </div>
-        </div>
+        </section>
     </div>
 
     <!-- Manager Charts Row -->
@@ -264,6 +238,50 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 
 <style>
+    .manager-dashboard {
+        width: min(100%, 1440px);
+        margin-inline: auto;
+    }
+    .manager-dashboard__header {
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--admin-border);
+    }
+    .manager-dashboard__header h3 {
+        text-wrap: balance;
+    }
+    .manager-dashboard__header-actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    .manager-dashboard__switch-destination {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        min-height: 38px;
+        padding: 7px 12px;
+        border: 1px solid var(--admin-border);
+        border-radius: 999px;
+        color: var(--admin-muted);
+        font-size: 0.82rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease;
+    }
+    .manager-dashboard__switch-destination:hover,
+    .manager-dashboard__switch-destination:focus-visible {
+        border-color: var(--admin-primary);
+        background: var(--admin-bg);
+        color: var(--admin-primary);
+        outline: none;
+    }
+    .manager-dashboard__overview {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
     /* Stat Cards */
     .stat-card {
 
@@ -286,6 +304,25 @@ document.addEventListener('DOMContentLoaded', () => {
         align-items: center;
         justify-content: center;
         font-size: 1.25rem;
+    }
+    .manager-stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 24px;
+    }
+    .manager-stats-grid .stat-card--rating-summary {
+        grid-column: auto;
+    }
+    .stat-card--rating-summary h3 {
+        font-variant-numeric: tabular-nums;
+    }
+    .manager-activity-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 24px;
+    }
+    .manager-activity-grid .chart-card {
+        min-width: 0;
     }
     .stat-bg-glow {
         position: absolute;
@@ -313,5 +350,41 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     .custom-scrollbar::-webkit-scrollbar-thumb:hover {
         background: rgba(0,0,0,0.2);
+    }
+    @media (max-width: 1199.98px) {
+        .manager-stats-grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+        .manager-stats-grid .stat-card--rating-summary {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            min-height: 104px;
+        }
+        .manager-stats-grid .stat-card--rating-summary .stat-icon {
+            flex: 0 0 auto;
+            margin-bottom: 0 !important;
+        }
+        .manager-activity-grid {
+            gap: 16px;
+        }
+    }
+    @media (max-width: 991.98px) {
+        .manager-dashboard__header {
+            align-items: flex-start !important;
+        }
+        .manager-dashboard__header-actions {
+            justify-content: flex-start;
+        }
+        .manager-activity-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
+    }
+    @media (max-width: 359.98px) {
+        .manager-stats-grid {
+            grid-template-columns: minmax(0, 1fr);
+        }
     }
 </style>

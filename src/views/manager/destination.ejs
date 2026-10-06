@@ -10,29 +10,16 @@
                 Cập nhật thông tin chi tiết, giờ mở cửa, chi phí và hình ảnh giới thiệu của địa điểm.
             </p>
         </div>
-        <div>
+        <div class="d-flex align-items-center gap-2 flex-wrap justify-content-lg-end">
             <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
                 <i class="bi bi-gear-fill me-1"></i>Chế độ quản lý hoạt động
             </span>
+            <% if (user.role === 'admin') { %>
+                <a href="/manager" class="btn btn-sm btn-outline-secondary rounded-pill px-3 border-opacity-25">
+                    <i class="bi bi-arrow-left-short me-1" aria-hidden="true"></i>Đổi địa điểm
+                </a>
+            <% } %>
         </div>
-    </div>
-
-    <!-- Manager Tab Navigation -->
-    <div class="d-flex gap-2 mb-4 border-bottom border-secondary border-opacity-10 pb-3">
-        <a href="/manager<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-opacity-25">
-            <i class="bi bi-grid-1x2-fill me-1"></i> Bảng điều khiển
-        </a>
-        <a href="/manager/chat<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-outline-secondary btn-sm rounded-pill px-3 border-opacity-25">
-            <i class="bi bi-chat-dots-fill me-1"></i> Hộp thư Hỗ trợ
-        </a>
-        <a href="/manager/destination<%= (typeof dest !== 'undefined' && user.role === 'admin') ? '?dest_id=' + dest.id : '' %>" class="btn btn-primary btn-sm rounded-pill px-3">
-            <i class="bi bi-geo-alt-fill me-1"></i> Quản lý Địa điểm
-        </a>
-        <% if (user.role === 'admin') { %>
-            <a href="/manager" class="btn btn-outline-warning btn-sm rounded-pill px-3 ms-auto text-warning border-opacity-25">
-                <i class="bi bi-arrow-left-short me-1"></i> Chọn địa điểm khác
-            </a>
-        <% } %>
     </div>
 
     <% if (typeof success !== 'undefined' && success) { %>
