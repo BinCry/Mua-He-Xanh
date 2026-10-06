@@ -140,7 +140,7 @@
         <form class="staff-profile__body" id="staffProfileForm" novalidate>
             <div class="staff-profile__avatar-wrap">
                 <img
-                    src="<%= fixImg(staffUser.avatar || (staffUser.role === 'admin' ? settings.brand_logo : ''), '/images/default-avatar.svg') %>"
+                    src="<%= fixImg(staffUser.avatar || settings.brand_logo, '/images/default-avatar.svg') %>"
                     alt="Ảnh đại diện của <%= staffUser.full_name %>"
                     class="staff-profile__avatar"
                     id="staffAvatarPreview"

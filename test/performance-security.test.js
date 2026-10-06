@@ -127,6 +127,15 @@ test('staff accounts have a minimal profile separate from tourist profiles', () 
     assert.match(staffProfile, /new FormData\(form\)/);
 });
 
+test('staff avatar is preferred over the brand logo in every staff-profile location', () => {
+    const adminLayout = fs.readFileSync('src/views/layouts/admin.ejs', 'utf8');
+    const staffProfile = fs.readFileSync('src/views/profile/staff.ejs', 'utf8');
+
+    assert.equal((adminLayout.match(/fixImg\(user\.avatar \|\| settings\.brand_logo, '\/images\/default-avatar\.svg'\)/g) || []).length, 2);
+    assert.match(staffProfile, /fixImg\(staffUser\.avatar \|\| settings\.brand_logo, '\/images\/default-avatar\.svg'\)/);
+    assert.doesNotMatch(adminLayout, /settings\.brand_logo \|\| user\.avatar/);
+});
+
 async function updateUserWithMockedDatabase(existingUser, body) {
     const db = require('../src/core/database');
     const originalQuery = db.query;

@@ -292,7 +292,7 @@
                     </div>
                 </div>
                 <div class="d-flex align-items-center gap-2 mb-3">
-                    <img src="<%= fixImg(settings.brand_logo || user.avatar, '/brand-logo.png') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='/brand-logo.png'">
+                    <img src="<%= fixImg(user.avatar || settings.brand_logo, '/images/default-avatar.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 36px; height: 36px; object-fit: cover;" onerror="this.src='/images/default-avatar.svg'">
                     <div class="min-w-0">
                         <div class="fw-bold text-truncate notranslate" translate="no" style="font-size: 0.82rem;"><%= user.full_name %></div>
                         <div class="text-truncate" style="font-size: 0.7rem; color: var(--admin-muted);"><%= user.email %></div>
@@ -355,7 +355,7 @@
         <div class="offcanvas-body">
             <!-- User Info Card -->
             <div class="d-flex align-items-center gap-2.5 p-2.5 rounded-3 mb-3 bg-light border" style="border-color: var(--admin-border) !important;">
-                <img src="<%= fixImg(settings.brand_logo || user.avatar, '/brand-logo.png') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='/brand-logo.png'">
+                <img src="<%= fixImg(user.avatar || settings.brand_logo, '/images/default-avatar.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='/images/default-avatar.svg'">
                 <div class="min-w-0 flex-grow-1">
                     <div class="fw-bold text-truncate notranslate" translate="no" style="font-size: 0.85rem;"><%= user.full_name %></div>
                     <div class="text-truncate" style="font-size: 0.72rem; color: var(--admin-muted);"><%= user.email %></div>
