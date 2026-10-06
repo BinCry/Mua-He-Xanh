@@ -36,6 +36,7 @@
         </thead>
         <tbody>
             <% users.forEach(u => { %>
+            <% const isRootAdmin = (u.email || '').trim().toLowerCase() === rootAdminEmail; %>
             <tr id="user-row-<%= u.id %>">
                 <td>
                     <div class="d-flex align-items-center gap-2">
@@ -61,7 +62,7 @@
                     <% } %>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editUser(this)" data-user="<%= encodeURIComponent(JSON.stringify({id: u.id, full_name: u.full_name, email: u.email, phone: u.phone, role: u.role, is_active: u.is_active, managed_destination_id: u.managed_destination_id})) %>">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editUser(this)" data-user="<%= encodeURIComponent(JSON.stringify({id: u.id, full_name: u.full_name, email: u.email, phone: u.phone, role: u.role, is_active: u.is_active, managed_destination_id: u.managed_destination_id, is_root_admin: isRootAdmin})) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteUser('<%= u.id %>', '<%= u.full_name %>')">
@@ -128,6 +129,10 @@
                             </select>
                         </div>
                     </div>
+                    <div id="rootAdminProtectionHint" class="alert alert-warning py-2 px-3 small mb-3 d-none" role="status">
+                        <i class="bi bi-shield-lock me-1" aria-hidden="true"></i>
+                        Tài khoản admin gốc được bảo vệ. Không thể thay đổi email đăng nhập, vai trò hoặc trạng thái.
+                    </div>
                     <div class="mb-3" id="managedDestinationGroup" style="display: none;">
                         <label class="form-label small fw-bold">Địa điểm quản lý (Dành cho Manager)</label>
                         <select class="form-select admin-input" id="u_managed_destination_id" name="managed_destination_id">
@@ -170,6 +175,14 @@ function openUserForm() {
     document.getElementById('u_password').required = true;
     document.getElementById('passwordGroup').style.display = 'block';
     document.getElementById('managedDestinationGroup').style.display = 'none';
+    setRootAdminProtection(false);
+}
+
+function setRootAdminProtection(isRootAdmin) {
+    document.getElementById('u_email').disabled = isRootAdmin;
+    document.getElementById('u_role').disabled = isRootAdmin;
+    document.getElementById('u_is_active').disabled = isRootAdmin;
+    document.getElementById('rootAdminProtectionHint').classList.toggle('d-none', !isRootAdmin);
 }
 
 function editUser(target) {
@@ -189,6 +202,7 @@ function editUser(target) {
     document.getElementById('u_password').placeholder = 'Để trống nếu không muốn đổi';
     document.getElementById('u_password').required = false;
     document.getElementById('passwordGroup').style.display = 'block';
+    setRootAdminProtection(user.is_root_admin === true);
     
     // Toggle managed destination select
     const destGroup = document.getElementById('managedDestinationGroup');

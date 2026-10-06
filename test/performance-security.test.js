@@ -69,3 +69,16 @@ test('all shop product mutations clear public shop caches', () => {
         assert.equal((controller.match(/invalidateShopCache\(\);/g) || []).length, 3);
     }
 });
+
+test('the root administrator cannot have their access controls changed', () => {
+    const controller = fs.readFileSync('src/controllers/AdminController.js', 'utf8');
+    const usersView = fs.readFileSync('src/views/admin/users.ejs', 'utf8');
+
+    assert.match(controller, /ROOT_ADMIN_EMAIL = 'binhloi\.travel@gmail\.com'/);
+    assert.match(controller, /SELECT id, email, role, is_active, managed_destination_id FROM users WHERE id = \$1/);
+    assert.match(controller, /isRootAdmin && \(nextRole !== 'admin' \|\| nextIsActive !== 1/);
+    assert.match(usersView, /is_root_admin: isRootAdmin/);
+    assert.match(usersView, /setRootAdminProtection\(user\.is_root_admin === true\)/);
+    assert.match(usersView, /u_role'\)\.disabled = isRootAdmin/);
+    assert.match(usersView, /u_is_active'\)\.disabled = isRootAdmin/);
+});

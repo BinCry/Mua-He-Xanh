@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const { uploadToCloudinary } = require('../config/cloudinary');
 const HomeController = require('./HomeController');
 const cache = require('../core/cache');
+const ROOT_ADMIN_EMAIL = 'binhloi.travel@gmail.com';
 
 function invalidateShopCache() {
     cache.del('shops:*');
@@ -264,7 +265,8 @@ const AdminController = {
                 adminPage: 'users',
                 users, destinations,
                 currentPage: page, totalPages,
-                searchQuery: search
+                searchQuery: search,
+                rootAdminEmail: ROOT_ADMIN_EMAIL
             });
         } catch (error) {
             console.error('Admin users error:', error);
@@ -432,13 +434,43 @@ const AdminController = {
             const { id, role, is_active, managed_destination_id, full_name, phone, email, password } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID' });
 
+            const [targetUsers] = await db.query(
+                'SELECT id, email, role, is_active, managed_destination_id FROM users WHERE id = $1',
+                [id]
+            );
+            const targetUser = targetUsers[0];
+            if (!targetUser) return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+
+            const hasField = (field) => Object.prototype.hasOwnProperty.call(req.body, field);
+            const nextRole = hasField('role') ? String(role || '').toLowerCase() : targetUser.role;
+            const nextIsActive = hasField('is_active')
+                ? (is_active === true || is_active === 1 || is_active === '1' || is_active === 'true' ? 1 : 0)
+                : targetUser.is_active;
+            const nextEmail = hasField('email') && email ? String(email).trim() : targetUser.email;
+            const isRootAdmin = String(targetUser.email || '').trim().toLowerCase() === ROOT_ADMIN_EMAIL;
+
+            if (!['admin', 'manager', 'user'].includes(nextRole)) {
+                return res.status(400).json({ success: false, message: 'Vai trò không hợp lệ' });
+            }
+
+            if (isRootAdmin && (nextRole !== 'admin' || nextIsActive !== 1 || nextEmail.toLowerCase() !== ROOT_ADMIN_EMAIL)) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Tài khoản admin gốc được bảo vệ: không thể đổi vai trò, trạng thái hoặc email đăng nhập.'
+                });
+            }
+
             let sets = ['role = $1', 'is_active = $2', 'managed_destination_id = $3'];
-            let params = [role || 'user', is_active !== undefined ? is_active : 1, managed_destination_id || null];
+            let params = [
+                nextRole,
+                nextIsActive,
+                hasField('managed_destination_id') ? (managed_destination_id || null) : targetUser.managed_destination_id
+            ];
             let index = 4;
 
             if (full_name) { sets.push(`full_name = $${index++}`); params.push(full_name); }
             if (phone) { sets.push(`phone = $${index++}`); params.push(phone); }
-            if (email) { sets.push(`email = $${index++}`); params.push(email); }
+            if (email) { sets.push(`email = $${index++}`); params.push(nextEmail); }
             if (password && password.trim() !== '') {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(password, salt);
