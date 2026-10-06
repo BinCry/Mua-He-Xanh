@@ -83,16 +83,23 @@ test('the root administrator cannot have their access controls changed', () => {
     assert.match(usersView, /u_is_active'\)\.disabled = isRootAdmin/);
 });
 
-test('admin account identity and every user password are immutable from user management', () => {
+test('all account identities and every user password are immutable from user management', () => {
     const controller = fs.readFileSync('src/controllers/AdminController.js', 'utf8');
     const usersView = fs.readFileSync('src/views/admin/users.ejs', 'utf8');
 
-    assert.match(controller, /const isAdminIdentityLocked = targetUser\.role === 'admin' \|\| nextRole === 'admin'/);
+    assert.match(controller, /hasField\('full_name'\) && hasChanged\(targetUser\.full_name, full_name\)/);
+    assert.match(controller, /hasField\('phone'\) && hasChanged\(targetUser\.phone, phone\)/);
+    assert.match(controller, /hasField\('email'\) && hasChanged\(targetUser\.email, email/);
     assert.match(controller, /Không thể đổi mật khẩu người dùng từ trang quản trị/);
-    assert.match(controller, /Tài khoản có quyền admin chỉ được xem họ tên, số điện thoại và email/);
-    assert.match(usersView, /field\.readOnly = isAdminIdentityLocked/);
+    assert.match(controller, /Họ tên, số điện thoại và email chỉ được xem tại trang quản lý người dùng/);
+    assert.doesNotMatch(controller, /sets\.push\(`full_name =/);
+    assert.doesNotMatch(controller, /sets\.push\(`phone =/);
+    assert.doesNotMatch(controller, /sets\.push\(`email =/);
+    assert.match(usersView, /const isAdminIdentityLocked = editingUser/);
+    assert.match(usersView, /field\.disabled = isAdminIdentityLocked/);
     assert.match(usersView, /passwordGroup'\)\.style\.display = 'none'/);
-    assert.match(usersView, /if \(!editingUser\) data\.password =/);
+    assert.match(usersView, /if \(!editingUser\) \{/);
+    assert.match(usersView, /data\.full_name = document\.getElementById\('u_full_name'\)\.value/);
 });
 
 test('staff accounts have a minimal profile separate from tourist profiles', () => {
@@ -103,13 +110,21 @@ test('staff accounts have a minimal profile separate from tourist profiles', () 
 
     assert.match(routes, /router\.get\('\/admin\/profile', ensureAdmin, ProfileController\.staffProfile\)/);
     assert.match(routes, /router\.get\('\/manager\/profile', ensureManager, ProfileController\.staffProfile\)/);
+    assert.match(routes, /router\.post\('\/api\/staff\/profile', ensureAuthenticated/);
     assert.match(profileController, /staffProfile: async/);
+    assert.match(profileController, /updateStaffProfile: async/);
     assert.match(profileController, /SELECT id, full_name, phone, avatar, role FROM users WHERE id = \$1/);
+    assert.match(profileController, /SELECT id, avatar, role FROM users WHERE id = \$1/);
+    assert.match(profileController, /\['admin', 'manager'\]\.includes\(staffUser\.role\)/);
     assert.match(adminLayout, /href="\/admin\/profile"/);
     assert.match(adminLayout, /href="\/manager\/profile"/);
     assert.match(staffProfile, /staffUser\.full_name/);
     assert.match(staffProfile, /staffUser\.phone/);
     assert.doesNotMatch(staffProfile, /staffUser\.email/);
+    assert.match(staffProfile, /name="avatar" type="file"/);
+    assert.match(staffProfile, /name="full_name"/);
+    assert.match(staffProfile, /name="phone"/);
+    assert.match(staffProfile, /new FormData\(form\)/);
 });
 
 async function updateUserWithMockedDatabase(existingUser, body) {
@@ -217,4 +232,130 @@ test('partial approval preserves an existing manager role and destination assign
 
     assert.equal(response.payload.success, true);
     assert.deepEqual(update.params.slice(0, 3), ['manager', 1, 'destination-a']);
+});
+
+test('user management rejects contact-information changes for every existing role', async () => {
+    for (const role of ['user', 'manager', 'admin']) {
+        const existingUser = {
+            id: `${role}-1`,
+            full_name: 'Original Name',
+            phone: '0900000000',
+            email: `${role}@example.com`,
+            role,
+            is_active: 1,
+            managed_destination_id: role === 'manager' ? 'destination-a' : null
+        };
+        const { calls, response } = await updateUserWithMockedDatabase(existingUser, {
+            id: existingUser.id,
+            full_name: 'Tampered Name',
+            role,
+            is_active: 1
+        });
+
+        assert.equal(response.statusCode, 403, `${role} identity update must be denied`);
+        assert.equal(response.payload.success, false);
+        assert.equal(calls.some(({ sql }) => sql.startsWith('UPDATE users SET')), false);
+    }
+});
+
+async function updateStaffProfileWithMockedDatabase(existingUser, request) {
+    const db = require('../src/core/database');
+    const originalQuery = db.query;
+    const calls = [];
+    const response = {
+        statusCode: 200,
+        status(code) {
+            this.statusCode = code;
+            return this;
+        },
+        json(payload) {
+            this.payload = payload;
+            return this;
+        }
+    };
+    const ProfileController = require('../src/controllers/ProfileController');
+
+    db.query = async (sql, params) => {
+        calls.push({ sql, params });
+        if (sql.includes('SELECT id, avatar, role FROM users WHERE id = $1')) return [[existingUser]];
+        if (sql.includes('UPDATE users')) {
+            return [[{
+                id: existingUser.id,
+                full_name: params[0],
+                phone: params[1],
+                avatar: params[2],
+                role: existingUser.role
+            }]];
+        }
+        throw new Error(`Unexpected query in staff-profile test: ${sql}`);
+    };
+
+    try {
+        await ProfileController.updateStaffProfile(request, response);
+        return { calls, response };
+    } finally {
+        db.query = originalQuery;
+    }
+}
+
+test('staff profiles update only the signed-in admin or manager and allow a blank phone number', async () => {
+    for (const role of ['admin', 'manager']) {
+        const existingUser = { id: `${role}-self`, avatar: '/old-avatar.webp', role };
+        const session = { user: { id: existingUser.id, full_name: 'Before', phone: '0900000000', avatar: existingUser.avatar } };
+        const { calls, response } = await updateStaffProfileWithMockedDatabase(existingUser, {
+            body: { id: 'someone-else', full_name: '  Tên mới  ', phone: '' },
+            session
+        });
+        const update = calls.find(({ sql }) => sql.includes('UPDATE users'));
+
+        assert.equal(response.statusCode, 200, `${role} can edit their own profile`);
+        assert.equal(response.payload.success, true);
+        assert.deepEqual(update.params, ['Tên mới', '', '/old-avatar.webp', existingUser.id]);
+        assert.equal(session.user.full_name, 'Tên mới');
+        assert.equal(session.user.phone, '');
+    }
+});
+
+test('staff profile stores an uploaded avatar instead of accepting a browser-provided URL', async () => {
+    const cloudinary = require('../src/config/cloudinary');
+    const originalUpload = cloudinary.uploadToCloudinary;
+    const existingUser = { id: 'admin-self', avatar: '/old-avatar.webp', role: 'admin' };
+    const session = { user: { id: existingUser.id } };
+    let uploadArgs;
+    cloudinary.uploadToCloudinary = async (...args) => {
+        uploadArgs = args;
+        return { url: '/uploads/media/new-avatar.webp' };
+    };
+
+    try {
+        const { calls, response } = await updateStaffProfileWithMockedDatabase(existingUser, {
+            body: { full_name: 'Admin mới', phone: '' },
+            file: { path: '/temporary/avatar.png', mimetype: 'image/png' },
+            session
+        });
+        const update = calls.find(({ sql }) => sql.includes('UPDATE users'));
+
+        assert.equal(response.payload.success, true);
+        assert.deepEqual(uploadArgs, ['/temporary/avatar.png', 'binh-loi/avatars']);
+        assert.equal(update.params[2], '/uploads/media/new-avatar.webp');
+        assert.equal(session.user.avatar, '/uploads/media/new-avatar.webp');
+    } finally {
+        cloudinary.uploadToCloudinary = originalUpload;
+    }
+});
+
+test('staff profile rejects a blank name and a non-staff account', async () => {
+    const blank = await updateStaffProfileWithMockedDatabase(
+        { id: 'manager-1', avatar: null, role: 'manager' },
+        { body: { full_name: '   ', phone: '' }, session: { user: { id: 'manager-1' } } }
+    );
+    assert.equal(blank.response.statusCode, 400);
+    assert.equal(blank.calls.length, 0);
+
+    const nonStaff = await updateStaffProfileWithMockedDatabase(
+        { id: 'user-1', avatar: null, role: 'user' },
+        { body: { full_name: 'Visitor', phone: '' }, session: { user: { id: 'user-1' } } }
+    );
+    assert.equal(nonStaff.response.statusCode, 403);
+    assert.equal(nonStaff.calls.some(({ sql }) => sql.includes('UPDATE users')), false);
 });

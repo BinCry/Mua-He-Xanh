@@ -446,9 +446,8 @@ const AdminController = {
             const nextIsActive = hasField('is_active')
                 ? (is_active === true || is_active === 1 || is_active === '1' || is_active === 'true' ? 1 : 0)
                 : targetUser.is_active;
-            const nextEmail = hasField('email') && email ? String(email).trim() : targetUser.email;
+            const nextEmail = targetUser.email;
             const isRootAdmin = String(targetUser.email || '').trim().toLowerCase() === ROOT_ADMIN_EMAIL;
-            const isAdminIdentityLocked = targetUser.role === 'admin' || nextRole === 'admin';
             const hasChanged = (currentValue, requestedValue, normalize = (value) => String(value ?? '').trim()) =>
                 normalize(currentValue) !== normalize(requestedValue);
 
@@ -463,14 +462,16 @@ const AdminController = {
                 });
             }
 
-            if (isAdminIdentityLocked && (
+            // Identity data belongs to the account owner. Admin user management may only
+            // change authorization and the destination assignment, never contact details.
+            if (
                 (hasField('full_name') && hasChanged(targetUser.full_name, full_name)) ||
                 (hasField('phone') && hasChanged(targetUser.phone, phone)) ||
-                (hasField('email') && hasChanged(targetUser.email, nextEmail, (value) => String(value ?? '').trim().toLowerCase()))
-            )) {
+                (hasField('email') && hasChanged(targetUser.email, email, (value) => String(value ?? '').trim().toLowerCase()))
+            ) {
                 return res.status(403).json({
                     success: false,
-                    message: 'Tài khoản có quyền admin chỉ được xem họ tên, số điện thoại và email.'
+                    message: 'Họ tên, số điện thoại và email chỉ được xem tại trang quản lý người dùng.'
                 });
             }
 
@@ -489,9 +490,6 @@ const AdminController = {
             ];
             let index = 4;
 
-            if (full_name) { sets.push(`full_name = $${index++}`); params.push(full_name); }
-            if (phone) { sets.push(`phone = $${index++}`); params.push(phone); }
-            if (email) { sets.push(`email = $${index++}`); params.push(nextEmail); }
             params.push(id);
             const query = `UPDATE users SET ${sets.join(', ')} WHERE id = $${index}`;
 

@@ -31,16 +31,35 @@
     .staff-profile__body {
         padding: 0 28px 28px;
     }
+    .staff-profile__avatar-wrap {
+        position: relative;
+        width: 104px;
+        margin: -52px auto 14px;
+    }
     .staff-profile__avatar {
         width: 104px;
         height: 104px;
         display: block;
-        margin: -52px auto 14px;
         border: 4px solid var(--admin-surface);
         border-radius: 50%;
         background: #ffffff;
         object-fit: cover;
         box-shadow: 0 8px 20px rgba(0,0,0,0.14);
+    }
+    .staff-profile__avatar-button {
+        position: absolute;
+        right: -2px;
+        bottom: -2px;
+        width: 34px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        background: var(--admin-primary);
+        border: 3px solid var(--admin-surface);
+        border-radius: 50%;
+        cursor: pointer;
     }
     .staff-profile__name {
         color: var(--admin-text);
@@ -48,6 +67,21 @@
         font-weight: 800;
         text-align: center;
         margin: 0 0 22px;
+    }
+    .staff-profile__field {
+        margin-bottom: 16px;
+    }
+    .staff-profile__field label {
+        display: block;
+        margin-bottom: 7px;
+        color: var(--admin-text);
+        font-size: 0.84rem;
+        font-weight: 700;
+    }
+    .staff-profile__actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 22px;
     }
     .staff-profile__contacts {
         display: grid;
@@ -103,23 +137,75 @@
 
     <section class="staff-profile__card" aria-label="Thông tin hồ sơ">
         <div class="staff-profile__cover" aria-hidden="true"></div>
-        <div class="staff-profile__body">
-            <img
-                src="<%= fixImg(staffUser.avatar || (staffUser.role === 'admin' ? settings.brand_logo : ''), '/images/default-avatar.svg') %>"
-                alt="Ảnh đại diện của <%= staffUser.full_name %>"
-                class="staff-profile__avatar"
-                onerror="this.onerror=null;this.src='/images/default-avatar.svg';">
-            <h1 class="staff-profile__name"><%= staffUser.full_name %></h1>
+        <form class="staff-profile__body" id="staffProfileForm" novalidate>
+            <div class="staff-profile__avatar-wrap">
+                <img
+                    src="<%= fixImg(staffUser.avatar || (staffUser.role === 'admin' ? settings.brand_logo : ''), '/images/default-avatar.svg') %>"
+                    alt="Ảnh đại diện của <%= staffUser.full_name %>"
+                    class="staff-profile__avatar"
+                    id="staffAvatarPreview"
+                    onerror="this.onerror=null;this.src='/images/default-avatar.svg';">
+                <label class="staff-profile__avatar-button" for="staffAvatar" title="Đổi ảnh đại diện">
+                    <i class="bi bi-camera-fill" aria-hidden="true"></i><span class="visually-hidden">Đổi ảnh đại diện</span>
+                </label>
+                <input class="visually-hidden" id="staffAvatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp">
+            </div>
 
-            <dl class="staff-profile__contacts">
-                <div class="staff-profile__contact">
-                    <span class="staff-profile__contact-icon" aria-hidden="true"><i class="bi bi-telephone"></i></span>
-                    <div>
-                        <dt class="staff-profile__contact-label">Liên hệ</dt>
-                        <dd class="staff-profile__contact-value mb-0"><%= staffUser.phone || 'Chưa cập nhật' %></dd>
-                    </div>
-                </div>
-            </dl>
-        </div>
+            <div class="staff-profile__field">
+                <label for="staffFullName">Họ và tên <span aria-hidden="true">*</span></label>
+                <input class="form-control admin-input" id="staffFullName" name="full_name" type="text" maxlength="255" value="<%= staffUser.full_name %>" required autocomplete="name">
+            </div>
+            <div class="staff-profile__field">
+                <label for="staffPhone">Liên hệ <span class="fw-normal" style="color: var(--admin-muted);">(không bắt buộc)</span></label>
+                <input class="form-control admin-input" id="staffPhone" name="phone" type="tel" maxlength="20" value="<%= staffUser.phone || '' %>" autocomplete="tel">
+            </div>
+            <p class="small mb-0" style="color: var(--admin-muted);">Email và quyền tài khoản không thể chỉnh sửa tại đây.</p>
+            <div class="staff-profile__actions">
+                <button class="btn btn-primary rounded-pill px-4" id="staffProfileSubmit" type="submit">
+                    <i class="bi bi-check2 me-1" aria-hidden="true"></i>Lưu thay đổi
+                </button>
+            </div>
+        </form>
     </section>
 </main>
+
+<script>
+(() => {
+    const form = document.getElementById('staffProfileForm');
+    const avatarInput = document.getElementById('staffAvatar');
+    const avatarPreview = document.getElementById('staffAvatarPreview');
+    const submitButton = document.getElementById('staffProfileSubmit');
+
+    avatarInput.addEventListener('change', () => {
+        const [file] = avatarInput.files;
+        if (!file) return;
+        if (!file.type.startsWith('image/')) {
+            alert('Vui lòng chọn một tệp hình ảnh.');
+            avatarInput.value = '';
+            return;
+        }
+        avatarPreview.src = URL.createObjectURL(file);
+    });
+
+    form.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        if (!form.reportValidity()) return;
+
+        submitButton.disabled = true;
+        const originalContent = submitButton.innerHTML;
+        submitButton.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Đang lưu';
+        try {
+            const response = await fetch('/api/staff/profile', { method: 'POST', body: new FormData(form) });
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message || 'Không thể cập nhật hồ sơ.');
+            alert(result.message);
+            window.location.reload();
+        } catch (error) {
+            alert(error.message || 'Không thể cập nhật hồ sơ.');
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerHTML = originalContent;
+        }
+    });
+})();
+</script>

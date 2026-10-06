@@ -36,6 +36,77 @@ const ProfileController = {
         }
     },
 
+    // POST /api/staff/profile - Staff can update only their own public contact details.
+    updateStaffProfile: async (req, res) => {
+        try {
+            const sessionUser = req.user || req.session?.user;
+            if (!sessionUser) {
+                return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
+            }
+
+            const fullName = typeof req.body?.full_name === 'string' ? req.body.full_name.trim() : '';
+            const phone = typeof req.body?.phone === 'string' ? req.body.phone.trim() : '';
+            if (!fullName) {
+                return res.status(400).json({ success: false, message: 'Họ và tên không được để trống.' });
+            }
+
+            // Do not trust a role or user ID supplied by the browser. The current database role
+            // is checked so this endpoint cannot be used after a staff account is downgraded.
+            const [users] = await db.query(
+                'SELECT id, avatar, role FROM users WHERE id = $1',
+                [sessionUser.id]
+            );
+            const staffUser = users[0];
+            if (!staffUser || !['admin', 'manager'].includes(staffUser.role)) {
+                return res.status(403).json({ success: false, message: 'Bạn không có quyền cập nhật hồ sơ này.' });
+            }
+
+            let avatar = staffUser.avatar || null;
+            if (req.file) {
+                if (!req.file.mimetype || !req.file.mimetype.startsWith('image/')) {
+                    return res.status(400).json({ success: false, message: 'Ảnh đại diện phải là tệp hình ảnh.' });
+                }
+
+                const { uploadToCloudinary } = require('../config/cloudinary');
+                const uploaded = await uploadToCloudinary(req.file.path, 'binh-loi/avatars');
+                if (!uploaded?.url) {
+                    throw new Error('Không thể lưu ảnh đại diện');
+                }
+                avatar = uploaded.url;
+            }
+
+            const [updatedUsers] = await db.query(
+                `UPDATE users
+                 SET full_name = $1, phone = $2, avatar = $3
+                 WHERE id = $4
+                 RETURNING id, full_name, phone, avatar, role`,
+                [fullName, phone, avatar, sessionUser.id]
+            );
+            const updatedUser = updatedUsers[0] || {
+                id: sessionUser.id,
+                full_name: fullName,
+                phone,
+                avatar,
+                role: staffUser.role
+            };
+
+            if (req.session?.user) {
+                req.session.user.full_name = updatedUser.full_name;
+                req.session.user.phone = updatedUser.phone;
+                req.session.user.avatar = updatedUser.avatar;
+            }
+
+            res.json({
+                success: true,
+                message: 'Đã cập nhật hồ sơ.',
+                profile: updatedUser
+            });
+        } catch (error) {
+            console.error('Staff profile update error:', error);
+            res.status(500).json({ success: false, message: 'Không thể cập nhật hồ sơ. Vui lòng thử lại.' });
+        }
+    },
+
     // GET /profile - Hồ sơ cá nhân
     index: async (req, res) => {
         try {

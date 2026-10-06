@@ -336,6 +336,17 @@ router.get('/profile/rewards', ensureTourist, ProfileController.rewards);
 // ===== ADMIN =====
 router.get('/admin', ensureAdmin, AdminController.dashboard);
 router.get('/admin/profile', ensureAdmin, ProfileController.staffProfile);
+router.post('/api/staff/profile', ensureAuthenticated, (req, res, next) => {
+    upload.single('avatar')(req, res, (err) => {
+        if (err) {
+            const message = err.code === 'LIMIT_FILE_SIZE'
+                ? 'Ảnh đại diện tối đa 25MB.'
+                : (err.message || 'Không thể tải ảnh đại diện.');
+            return res.status(400).json({ success: false, message });
+        }
+        ProfileController.updateStaffProfile(req, res).catch(next);
+    });
+});
 router.get('/admin/users', ensureAdmin, AdminController.users);
 router.get('/admin/destinations', ensureAdmin, AdminController.destinations);
 router.get('/admin/settings', ensureAdmin, AdminController.siteSettings);
