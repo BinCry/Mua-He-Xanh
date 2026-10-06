@@ -335,6 +335,7 @@ router.get('/profile/rewards', ensureTourist, ProfileController.rewards);
 
 // ===== ADMIN =====
 router.get('/admin', ensureAdmin, AdminController.dashboard);
+router.get('/admin/profile', ensureAdmin, ProfileController.staffProfile);
 router.get('/admin/users', ensureAdmin, AdminController.users);
 router.get('/admin/destinations', ensureAdmin, AdminController.destinations);
 router.get('/admin/settings', ensureAdmin, AdminController.siteSettings);
@@ -371,6 +372,7 @@ router.post(['/api/admin/delete-shop', '/api/admin/delete-workshop', '/api/admin
 
 // ===== MANAGER =====
 router.get('/manager', ensureManager, ManagerController.index);
+router.get('/manager/profile', ensureManager, ProfileController.staffProfile);
 router.get('/manager/chat', ensureManager, ManagerController.chat);
 router.get('/manager/destination', ensureManager, ManagerController.destination);
 router.get('/manager/shops', ensureManager, (req, res) => res.redirect('/manager/workshops'));

@@ -230,6 +230,9 @@
                     <a href="/admin" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'dashboard' ? 'active' : '' %>">
                         <i class="bi bi-grid-1x2-fill"></i> Dashboard
                     </a>
+                    <a href="/admin/profile" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'profile' ? 'active' : '' %>">
+                        <i class="bi bi-person-circle"></i> Hồ sơ của tôi
+                    </a>
                     
                     <div class="sb-label">Quản lý</div>
                     <a href="/admin/users" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'users' ? 'active' : '' %>">
@@ -266,6 +269,9 @@
                     <a href="/manager" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'dashboard' ? 'active' : '' %>">
                         <i class="bi bi-grid-1x2-fill"></i> Bảng điều khiển
                     </a>
+                    <a href="/manager/profile" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'profile' ? 'active' : '' %>">
+                        <i class="bi bi-person-circle"></i> Hồ sơ của tôi
+                    </a>
                     <a href="/manager/chat" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'chat' ? 'active' : '' %>">
                         <i class="bi bi-chat-dots-fill"></i> Hộp thư Hỗ trợ
                     </a>
@@ -279,7 +285,7 @@
             </nav>
             <div class="sb-footer">
                 <div class="d-flex align-items-center justify-content-between mb-3 pb-2 border-bottom">
-                    <span class="small fw-bold text-muted">Ngôn ngữ / Lang</span>
+                    <span class="small fw-bold text-muted">Ngôn ngữ / Language</span>
                     <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-1 shadow-sm notranslate" translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
                         <button type="button" class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">VN</button>
                         <button type="button" class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate" translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.72rem; width: 34px; padding: 2px 0; letter-spacing: 0.5px;">EN</button>
@@ -364,6 +370,9 @@
                     <a href="/admin" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'dashboard' ? 'active' : '' %>">
                         <i class="bi bi-grid-1x2-fill"></i> Dashboard
                     </a>
+                    <a href="/admin/profile" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'profile' ? 'active' : '' %>">
+                        <i class="bi bi-person-circle"></i> Hồ sơ của tôi
+                    </a>
                     
                     <div class="sb-label">Quản lý</div>
                     <a href="/admin/users" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'users' ? 'active' : '' %>">
@@ -399,6 +408,9 @@
                     <div class="sb-label mt-0">QUẢN LÝ ĐỊA ĐIỂM</div>
                     <a href="/manager" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'dashboard' ? 'active' : '' %>">
                         <i class="bi bi-grid-1x2-fill"></i> Bảng điều khiển
+                    </a>
+                    <a href="/manager/profile" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'profile' ? 'active' : '' %>">
+                        <i class="bi bi-person-circle"></i> Hồ sơ của tôi
                     </a>
                     <a href="/manager/chat" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'chat' ? 'active' : '' %>">
                         <i class="bi bi-chat-dots-fill"></i> Hộp thư Hỗ trợ

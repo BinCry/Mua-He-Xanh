@@ -435,7 +435,7 @@ const AdminController = {
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID' });
 
             const [targetUsers] = await db.query(
-                'SELECT id, email, role, is_active, managed_destination_id FROM users WHERE id = $1',
+                'SELECT id, full_name, phone, email, role, is_active, managed_destination_id FROM users WHERE id = $1',
                 [id]
             );
             const targetUser = targetUsers[0];
@@ -448,9 +448,30 @@ const AdminController = {
                 : targetUser.is_active;
             const nextEmail = hasField('email') && email ? String(email).trim() : targetUser.email;
             const isRootAdmin = String(targetUser.email || '').trim().toLowerCase() === ROOT_ADMIN_EMAIL;
+            const isAdminIdentityLocked = targetUser.role === 'admin' || nextRole === 'admin';
+            const hasChanged = (currentValue, requestedValue, normalize = (value) => String(value ?? '').trim()) =>
+                normalize(currentValue) !== normalize(requestedValue);
 
             if (!['admin', 'manager', 'user'].includes(nextRole)) {
                 return res.status(400).json({ success: false, message: 'Vai trò không hợp lệ' });
+            }
+
+            if (hasField('password') && String(password || '').trim() !== '') {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Không thể đổi mật khẩu người dùng từ trang quản trị.'
+                });
+            }
+
+            if (isAdminIdentityLocked && (
+                (hasField('full_name') && hasChanged(targetUser.full_name, full_name)) ||
+                (hasField('phone') && hasChanged(targetUser.phone, phone)) ||
+                (hasField('email') && hasChanged(targetUser.email, nextEmail, (value) => String(value ?? '').trim().toLowerCase()))
+            )) {
+                return res.status(403).json({
+                    success: false,
+                    message: 'Tài khoản có quyền admin chỉ được xem họ tên, số điện thoại và email.'
+                });
             }
 
             if (isRootAdmin && (nextRole !== 'admin' || nextIsActive !== 1 || nextEmail.toLowerCase() !== ROOT_ADMIN_EMAIL)) {
@@ -471,13 +492,6 @@ const AdminController = {
             if (full_name) { sets.push(`full_name = $${index++}`); params.push(full_name); }
             if (phone) { sets.push(`phone = $${index++}`); params.push(phone); }
             if (email) { sets.push(`email = $${index++}`); params.push(nextEmail); }
-            if (password && password.trim() !== '') {
-                const salt = await bcrypt.genSalt(10);
-                const hashedPassword = await bcrypt.hash(password, salt);
-                sets.push(`password = $${index++}`);
-                params.push(hashedPassword);
-            }
-
             params.push(id);
             const query = `UPDATE users SET ${sets.join(', ')} WHERE id = $${index}`;
 

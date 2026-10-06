@@ -9,6 +9,33 @@ const { v4: uuidv4 } = require('uuid');
 
 const ProfileController = {
 
+    // GET /admin/profile or /manager/profile - Minimal staff profile
+    staffProfile: async (req, res) => {
+        try {
+            const user = req.user || req.session?.user;
+            if (!user) return res.redirect('/auth/login');
+
+            const [users] = await db.query(
+                'SELECT id, full_name, phone, avatar, role FROM users WHERE id = $1',
+                [user.id]
+            );
+            const staffUser = users[0];
+            if (!staffUser) return res.status(404).send('Không tìm thấy tài khoản');
+
+            const isAdmin = staffUser.role === 'admin';
+            res.render('profile/staff', {
+                title: isAdmin ? 'Hồ sơ Quản trị' : 'Hồ sơ Quản lý',
+                layout: 'layouts/admin',
+                staffUser,
+                adminPage: isAdmin ? 'profile' : undefined,
+                managerPage: isAdmin ? undefined : 'profile'
+            });
+        } catch (error) {
+            console.error('Staff profile error:', error);
+            res.status(500).send('Lỗi hệ thống');
+        }
+    },
+
     // GET /profile - Hồ sơ cá nhân
     index: async (req, res) => {
         try {

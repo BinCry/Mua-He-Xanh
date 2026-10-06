@@ -1,4 +1,15 @@
 <!-- Admin: Users Management -->
+<style>
+    #u_role {
+        font-size: 0.88rem;
+        letter-spacing: -0.01em;
+    }
+    .admin-identity-locked[readonly] {
+        background-color: rgba(100, 116, 139, 0.08);
+        cursor: not-allowed;
+    }
+</style>
+
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
         <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Người dùng</h4>
@@ -115,7 +126,7 @@
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <label class="form-label small fw-bold">Vai trò</label>
-                            <select class="form-select admin-input" id="u_role" name="role" onchange="toggleManagedDestinationSelect()">
+                            <select class="form-select admin-input" id="u_role" name="role" onchange="toggleManagedDestinationSelect()" title="Manager (Quản lý địa điểm)">
                                 <option value="user">User (Người dùng)</option>
                                 <option value="manager">Manager (Quản lý địa điểm)</option>
                                 <option value="admin">Admin (Quản trị viên)</option>
@@ -132,6 +143,10 @@
                     <div id="rootAdminProtectionHint" class="alert alert-warning py-2 px-3 small mb-3 d-none" role="status">
                         <i class="bi bi-shield-lock me-1" aria-hidden="true"></i>
                         Tài khoản admin gốc được bảo vệ. Không thể thay đổi email đăng nhập, vai trò hoặc trạng thái.
+                    </div>
+                    <div id="adminIdentityProtectionHint" class="alert alert-info py-2 px-3 small mb-3 d-none" role="status">
+                        <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
+                        Tài khoản có quyền admin chỉ xem được họ tên, số điện thoại và email.
                     </div>
                     <div class="mb-3" id="managedDestinationGroup" style="display: none;">
                         <label class="form-label small fw-bold">Địa điểm quản lý (Dành cho Manager)</label>
@@ -154,6 +169,7 @@
 
 <script>
 let editingUser = false;
+let editingOriginalRole = null;
 
 function toggleManagedDestinationSelect() {
     const role = document.getElementById('u_role').value;
@@ -164,10 +180,12 @@ function toggleManagedDestinationSelect() {
         destGroup.style.display = 'none';
         document.getElementById('u_managed_destination_id').value = '';
     }
+    setAdminIdentityProtection();
 }
 
 function openUserForm() {
     editingUser = false;
+    editingOriginalRole = null;
     document.getElementById('userModalTitle').textContent = 'Thêm Người dùng';
     document.getElementById('userForm').reset();
     document.getElementById('u_id').value = '';
@@ -176,6 +194,7 @@ function openUserForm() {
     document.getElementById('passwordGroup').style.display = 'block';
     document.getElementById('managedDestinationGroup').style.display = 'none';
     setRootAdminProtection(false);
+    setAdminIdentityProtection();
 }
 
 function setRootAdminProtection(isRootAdmin) {
@@ -185,12 +204,24 @@ function setRootAdminProtection(isRootAdmin) {
     document.getElementById('rootAdminProtectionHint').classList.toggle('d-none', !isRootAdmin);
 }
 
+function setAdminIdentityProtection() {
+    const nextRole = document.getElementById('u_role').value;
+    const isAdminIdentityLocked = editingUser && (editingOriginalRole === 'admin' || nextRole === 'admin');
+    ['u_full_name', 'u_phone', 'u_email'].forEach((fieldId) => {
+        const field = document.getElementById(fieldId);
+        field.readOnly = isAdminIdentityLocked;
+        field.classList.toggle('admin-identity-locked', isAdminIdentityLocked);
+    });
+    document.getElementById('adminIdentityProtectionHint').classList.toggle('d-none', !isAdminIdentityLocked);
+}
+
 function editUser(target) {
     let user = target;
     if (target instanceof HTMLElement) {
         user = JSON.parse(decodeURIComponent(target.getAttribute('data-user')));
     }
     editingUser = true;
+    editingOriginalRole = user.role;
     document.getElementById('userModalTitle').textContent = 'Sửa Người dùng';
     document.getElementById('u_id').value = user.id;
     document.getElementById('u_full_name').value = user.full_name;
@@ -199,9 +230,8 @@ function editUser(target) {
     document.getElementById('u_role').value = user.role;
     document.getElementById('u_is_active').value = user.is_active !== 0 ? '1' : '0';
     document.getElementById('u_password').value = '';
-    document.getElementById('u_password').placeholder = 'Để trống nếu không muốn đổi';
     document.getElementById('u_password').required = false;
-    document.getElementById('passwordGroup').style.display = 'block';
+    document.getElementById('passwordGroup').style.display = 'none';
     setRootAdminProtection(user.is_root_admin === true);
     
     // Toggle managed destination select
@@ -213,6 +243,7 @@ function editUser(target) {
         destGroup.style.display = 'none';
         document.getElementById('u_managed_destination_id').value = '';
     }
+    setAdminIdentityProtection();
     
     new bootstrap.Modal(document.getElementById('userModal')).show();
 }
@@ -226,9 +257,9 @@ async function saveUser() {
         phone: document.getElementById('u_phone').value,
         role: roleVal,
         is_active: parseInt(document.getElementById('u_is_active').value),
-        password: document.getElementById('u_password')?.value,
         managed_destination_id: roleVal === 'manager' ? document.getElementById('u_managed_destination_id').value : null
     };
+    if (!editingUser) data.password = document.getElementById('u_password')?.value;
     
     const url = editingUser ? '/api/admin/update-user' : '/api/admin/create-user';
     try {
