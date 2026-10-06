@@ -44,3 +44,13 @@ test('public fallback images refer to an existing asset', () => {
     assert.match(serviceWorker, /Poster(?:%20| )1\.jpg/);
     assert.ok(fs.existsSync('public/images/Poster 1.jpg'));
 });
+
+test('all shop product mutations clear public shop caches', () => {
+    const manager = fs.readFileSync('src/controllers/ManagerController.js', 'utf8');
+    const admin = fs.readFileSync('src/controllers/AdminController.js', 'utf8');
+
+    for (const controller of [manager, admin]) {
+        assert.match(controller, /function invalidateShopCache\(\)\s*\{\s*cache\.del\('shops:\*'\);\s*\}/);
+        assert.equal((controller.match(/invalidateShopCache\(\);/g) || []).length, 3);
+    }
+});

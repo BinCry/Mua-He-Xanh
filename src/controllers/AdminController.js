@@ -8,6 +8,10 @@ const { uploadToCloudinary } = require('../config/cloudinary');
 const HomeController = require('./HomeController');
 const cache = require('../core/cache');
 
+function invalidateShopCache() {
+    cache.del('shops:*');
+}
+
 const AdminController = {
 
     // ==================== DASHBOARD ====================
@@ -690,6 +694,7 @@ const AdminController = {
                  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, NOW())`,
                 [uuidv4(), destination_id || null, title, description || '', type || 'ecology', priceInt, maxParticipantsInt, duration || 'Hộp / Chiếc', image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null, isActiveInt]
             );
+            invalidateShopCache();
             res.json({ success: true, message: 'Đã tạo sản phẩm thành công!' });
         } catch (error) {
             console.error('Create product error:', error);
@@ -720,6 +725,7 @@ const AdminController = {
                 `UPDATE workshops SET title = $1, description = $2, type = $3, price = $4, duration = $5, max_participants = $6, image = $7, start_date = $8, end_date = $9, is_active = $10, destination_id = $11 WHERE id = $12`,
                 [title, description || '', type || 'ecology', priceInt, duration || 'Hộp / Chiếc', maxParticipantsInt, image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null, isActiveInt, destination_id || null, id]
             );
+            invalidateShopCache();
             res.json({ success: true, message: 'Đã cập nhật thông tin sản phẩm!' });
         } catch (error) {
             console.error('Update product error:', error);
@@ -730,6 +736,7 @@ const AdminController = {
     deleteWorkshop: async (req, res) => {
         try {
             await db.query('DELETE FROM workshops WHERE id = $1', [req.body.id]);
+            invalidateShopCache();
             res.json({ success: true, message: 'Đã xóa workshop' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });

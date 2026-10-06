@@ -30,6 +30,7 @@ const targets = [
     { table: 'reviews', key: 'id', columns: ['images'] },
     { table: 'hero_posters', key: 'id', columns: ['image_url'] },
     { table: 'events', key: 'id', columns: ['image', 'banner_image'] },
+    { table: 'workshops', key: 'id', columns: ['image'] },
     { table: 'video_templates', key: 'id', columns: ['cover_image'] },
     { table: 'settings', key: 'key_name', columns: ['key_value'], where: "key_name = 'brand_logo'" }
 ];

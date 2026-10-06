@@ -3,6 +3,11 @@ const CheckIn = require('../models/CheckIn');
 const UserSession = require('../models/UserSession');
 const HomeController = require('./HomeController');
 const { v4: uuidv4 } = require('uuid');
+const cache = require('../core/cache');
+
+function invalidateShopCache() {
+    cache.del('shops:*');
+}
 
 class ManagerController {
     async index(req, res) {
@@ -490,6 +495,7 @@ class ManagerController {
                 [uuidv4(), destId, title, description || '', type || 'other', priceInt, maxParticipantsInt, duration || '2 giờ', image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null]
             );
 
+            invalidateShopCache();
             res.json({ success: true, message: 'Đã tạo sản phẩm thành công!' });
         } catch (error) {
             console.error("Manager create shop product error:", error);
@@ -545,6 +551,7 @@ class ManagerController {
                 [title, description || '', type || 'other', priceInt, duration || 'Hộp / Chiếc', maxParticipantsInt, image, start_date || null, end_date || null, isActiveInt, id]
             );
 
+            invalidateShopCache();
             res.json({ success: true, message: 'Cập nhật sản phẩm thành công!' });
         } catch (error) {
             console.error("Manager update shop product error:", error);
@@ -576,6 +583,7 @@ class ManagerController {
             }
 
             await UserSession.db.query("DELETE FROM workshops WHERE id = $1", [id]);
+            invalidateShopCache();
             res.json({ success: true, message: 'Đã xóa sản phẩm.' });
         } catch (error) {
             console.error("Manager delete shop product error:", error);

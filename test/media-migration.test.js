@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const test = require('node:test');
 
 const { migrateValue, toDatabaseValue } = require('../scripts/migrate_base64_media');
@@ -41,4 +42,9 @@ test('media migration serializes native JSON values before PostgreSQL writes or 
     assert.equal(toDatabaseValue(['/uploads/media/migrated/hash.webp']), '["/uploads/media/migrated/hash.webp"]');
     assert.equal(toDatabaseValue({ cover: '/uploads/media/migrated/hash.webp' }), '{"cover":"/uploads/media/migrated/hash.webp"}');
     assert.equal(toDatabaseValue('/uploads/media/migrated/hash.webp'), '/uploads/media/migrated/hash.webp');
+});
+
+test('media migration includes legacy shop product images', () => {
+    const migrationScript = fs.readFileSync('scripts/migrate_base64_media.js', 'utf8');
+    assert.match(migrationScript, /\{ table: 'workshops', key: 'id', columns: \['image'\] \}/);
 });
