@@ -36,6 +36,18 @@ class UserSession extends Model {
         return this.findOrCreate(uuid);
     }
 
+    async update(id, data) {
+        const updated = await super.update(id, data);
+        if (updated) {
+            for (const [uuid, cached] of sessionCache.entries()) {
+                if (cached.data?.id === id) {
+                    sessionCache.set(uuid, { time: Date.now(), data: { ...cached.data, ...data } });
+                }
+            }
+        }
+        return updated;
+    }
+
     async addPoints(id, points) {
         // Keep the guest/session balance and the linked account balance in sync.
         // A single PostgreSQL statement makes both updates atomic.

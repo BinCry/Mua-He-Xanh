@@ -559,9 +559,6 @@ router.post('/api/admin/create-journey-template', ensureAdmin, AdminController.c
 router.post('/api/admin/update-journey-template', ensureAdmin, AdminController.updateJourneyTemplate);
 router.post('/api/admin/delete-journey-template', ensureAdmin, AdminController.deleteJourneyTemplate);
 
-// Delete User Saved Journey API
-router.post('/api/journey/delete', ProfileController.deleteJourney);
-
 // General & Chat Upload API (with multer error handling)
 const handleUpload = (req, res, next) => {
     upload.any()(req, res, (err) => {

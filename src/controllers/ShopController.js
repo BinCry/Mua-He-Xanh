@@ -2,6 +2,7 @@ const Workshop = require('../models/Workshop');
 const db = require('../core/database');
 const NotificationController = require('./NotificationController');
 const cache = require('../core/cache');
+const { v4: uuidv4 } = require('uuid');
 
 const ShopController = {
 
@@ -165,6 +166,7 @@ const ShopController = {
 
     // POST /api/shop/book - Đặt mua sản phẩm
     book: async (req, res) => {
+        let client;
         try {
             const user = req.user || req.session.user;
             if (!user) {
@@ -177,40 +179,53 @@ const ShopController = {
                 return res.status(400).json({ success: false, message: 'Vui lòng chọn ngày tham gia' });
             }
 
-            const workshop = await Workshop.getById(workshop_id);
+            const requestedSeats = Number.parseInt(num_people, 10);
+            if (!/^\d{4}-\d{2}-\d{2}$/.test(String(booking_date)) || !Number.isSafeInteger(requestedSeats) || requestedSeats < 1) {
+                return res.status(400).json({ success: false, message: 'Ngày hoặc số lượng người không hợp lệ.' });
+            }
+
+            client = await db.pgPool.connect();
+            await client.query('BEGIN');
+            const workshopResult = await client.query(
+                'SELECT * FROM workshops WHERE id = $1 AND is_active = 1 FOR UPDATE',
+                [workshop_id]
+            );
+            const workshop = workshopResult.rows[0];
             if (!workshop) {
+                await client.query('ROLLBACK');
                 return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại' });
             }
 
-            // Check capacity
-            const requestedSeats = parseInt(num_people || 1, 10);
-            const bookedSeats = await Workshop.getBookedParticipants(workshop_id, booking_date);
-            const remainingSeats = workshop.max_participants - bookedSeats;
+            // Serialize capacity check and insert using a row lock on workshop.
+            const bookedResult = await client.query(
+                "SELECT COALESCE(SUM(num_people), 0) AS total FROM workshop_bookings WHERE workshop_id = $1 AND booking_date = $2 AND status != 'cancelled'",
+                [workshop_id, booking_date]
+            );
+            const bookedSeats = Number(bookedResult.rows[0]?.total || 0);
+            const remainingSeats = Number(workshop.max_participants) - bookedSeats;
             
-            if (bookedSeats + requestedSeats > workshop.max_participants) {
+            if (requestedSeats > remainingSeats) {
+                await client.query('ROLLBACK');
                 return res.status(400).json({ 
                     success: false, 
                     message: `Xin lỗi, sản phẩm đã hết hàng vào ngày này (chỉ còn ${remainingSeats > 0 ? remainingSeats : 0} sản phẩm)` 
                 });
             }
 
-            const totalPrice = workshop.price * requestedSeats;
-
-            const booking = await Workshop.createBooking({
-                workshop_id,
-                user_id: user.id,
-                booking_date,
-                booking_time: booking_time || '08:00',
-                num_people: num_people || 1,
-                total_price: totalPrice,
-                note
-            });
-
-            // Award points for booking
-            await db.query(
+            const totalPrice = Number(workshop.price) * requestedSeats;
+            const booking = {
+                id: uuidv4(),
+                qr_ticket: `BLH-WS-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+            };
+            await client.query(`
+                INSERT INTO workshop_bookings (id, workshop_id, user_id, booking_date, booking_time, num_people, total_price, qr_ticket, note)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            `, [booking.id, workshop_id, user.id, booking_date, booking_time || '08:00', requestedSeats, totalPrice, booking.qr_ticket, note || null]);
+            await client.query(
                 'UPDATE users SET total_points = COALESCE(total_points, 0) + 50 WHERE id = $1',
                 [user.id]
             );
+            await client.query('COMMIT');
 
             // Send notification to visitor
             await NotificationController.create(
@@ -242,8 +257,11 @@ const ShopController = {
                 booking: booking
             });
         } catch (error) {
+            if (client) await client.query('ROLLBACK').catch(() => {});
             console.error('Shop book error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đặt chỗ' });
+        } finally {
+            client?.release();
         }
     },
 
@@ -316,23 +334,43 @@ const ShopController = {
 
     // POST /api/shop/review - Đánh giá sản phẩm
     review: async (req, res) => {
+        let client;
         try {
             const user = req.user || req.session.user;
             if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
 
             const { booking_id, rating, review } = req.body;
-            await Workshop.addReview(booking_id, rating, review);
+            const numericRating = Number(rating);
+            if (!booking_id || !Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5 || typeof review !== 'string' || review.trim().length > 2000) {
+                return res.status(400).json({ success: false, message: 'Thông tin đánh giá không hợp lệ.' });
+            }
 
-            // Award points for review
-            await db.query(
+            client = await db.pgPool.connect();
+            await client.query('BEGIN');
+            const updated = await client.query(
+                `UPDATE workshop_bookings
+                 SET rating = $1, review = $2
+                 WHERE id = $3 AND user_id = $4 AND status = 'completed' AND rating IS NULL
+                 RETURNING id`,
+                [numericRating, review.trim(), booking_id, user.id]
+            );
+            if (updated.rowCount !== 1) {
+                await client.query('ROLLBACK');
+                return res.status(409).json({ success: false, message: 'Đơn không thuộc tài khoản, chưa thể đánh giá hoặc đã được đánh giá.' });
+            }
+            await client.query(
                 'UPDATE users SET total_points = COALESCE(total_points, 0) + 30 WHERE id = $1',
                 [user.id]
             );
+            await client.query('COMMIT');
 
             res.json({ success: true, message: 'Cảm ơn đánh giá của bạn! +30 điểm' });
         } catch (error) {
+            if (client) await client.query('ROLLBACK').catch(() => {});
             console.error('Shop review error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
+        } finally {
+            client?.release();
         }
     },
 

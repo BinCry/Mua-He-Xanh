@@ -597,13 +597,22 @@ class ManagerController {
             if (!workshop_id) {
                 return res.status(400).json({ success: false, message: 'Thiếu mã sản phẩm' });
             }
+            const user = req.user || req.session?.user;
+            const isAdmin = user?.role === 'admin' || user?.role_id === 1;
+            if (!isAdmin && !user?.managed_destination_id) {
+                return res.status(403).json({ success: false, message: 'Tài khoản chưa được gán địa điểm quản lý.' });
+            }
+            const params = [workshop_id];
+            const scope = isAdmin ? '' : ' AND w.destination_id = $2';
+            if (!isAdmin) params.push(user.managed_destination_id);
             const [bookings] = await UserSession.db.query(`
                 SELECT wb.*, u.full_name, u.email, u.phone, u.avatar
                 FROM workshop_bookings wb
+                INNER JOIN workshops w ON w.id = wb.workshop_id
                 LEFT JOIN users u ON wb.user_id = u.id
-                WHERE wb.workshop_id = $1
+                WHERE wb.workshop_id = $1${scope}
                 ORDER BY wb.created_at DESC
-            `, [workshop_id]);
+            `, params);
             res.json({ success: true, bookings });
         } catch (error) {
             console.error("Manager getWorkshopBookings error:", error);
@@ -617,10 +626,32 @@ class ManagerController {
             if (!booking_id || !status) {
                 return res.status(400).json({ success: false, message: 'Thiếu thông tin' });
             }
-            await UserSession.db.query(
-                "UPDATE workshop_bookings SET status = $1 WHERE id = $2",
-                [status, booking_id]
+            const allowedStatuses = new Set(['pending', 'confirmed', 'completed', 'cancelled']);
+            if (!allowedStatuses.has(status)) {
+                return res.status(400).json({ success: false, message: 'Trạng thái không hợp lệ.' });
+            }
+            const user = req.user || req.session?.user;
+            const isAdmin = user?.role === 'admin' || user?.role_id === 1;
+            if (!isAdmin && !user?.managed_destination_id) {
+                return res.status(403).json({ success: false, message: 'Tài khoản chưa được gán địa điểm quản lý.' });
+            }
+            const params = [status, booking_id];
+            const scope = isAdmin ? '' : ' AND w.destination_id = $3';
+            if (!isAdmin) params.push(user.managed_destination_id);
+            const [updated] = await UserSession.db.query(
+                `UPDATE workshop_bookings wb SET status = $1
+                 FROM workshops w
+                 WHERE wb.id = $2 AND w.id = wb.workshop_id${scope}
+                   AND (
+                     (wb.status = 'pending' AND $1 IN ('confirmed', 'cancelled')) OR
+                     (wb.status = 'confirmed' AND $1 IN ('completed', 'cancelled'))
+                   )
+                 RETURNING wb.id`,
+                params
             );
+            if (updated.length !== 1) {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy đơn trong phạm vi quản lý.' });
+            }
             res.json({ success: true, message: 'Cập nhật trạng thái thành công!' });
         } catch (error) {
             console.error("Manager updateBookingStatus error:", error);

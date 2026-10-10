@@ -99,8 +99,11 @@ app.set('views', path.join(ROOT_DIR, 'src', 'views'));
 app.use(expressLayouts);
 app.set('layout', 'layouts/main');
 
-// Middleware
-app.use(cors());
+// This application serves its API and pages from the same origin. Do not
+// reflect arbitrary origins; cross-site callers must be explicitly enabled
+// through CORS_ORIGIN at deployment time.
+const corsOrigin = process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').map(origin => origin.trim()).filter(Boolean) : false;
+app.use(cors({ origin: corsOrigin }));
 
 const compression = require('compression');
 app.use(compression());
@@ -286,14 +289,19 @@ app.post('/api/analytics/heartbeat', async (req, res) => {
 // ========================================================================
 // SESSION & PASSPORT — initialized globally on all routes for 100% reliable login state
 // ========================================================================
+if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
+    throw new Error('SESSION_SECRET is required in production.');
+}
+
 const sessionMiddleware = session({
     name: 'bl_session',
-    secret: process.env.SESSION_SECRET || 'binh_loi_secret',
+    // The development fallback is deliberately unusable in production.
+    secret: process.env.SESSION_SECRET || 'development-only-session-secret',
     resave: false,
     saveUninitialized: false,
     cookie: {
         maxAge: 604800000, // 7 days
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         httpOnly: true,
         sameSite: 'lax'
     }

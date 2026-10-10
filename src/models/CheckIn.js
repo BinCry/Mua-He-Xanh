@@ -38,6 +38,52 @@ class CheckIn extends Model {
         return recent !== null;
     }
 
+    /**
+     * Atomically claim a 24-hour check-in slot and award its points. The
+     * advisory lock covers both a logged-in user's old/new session UUIDs,
+     * closing the time-of-check/time-of-use window in the controller.
+     */
+    async claimForUser({ sessionId, userId, destinationId, points, method, lat, lng, distance }) {
+        const client = await this.db.pgPool.connect();
+        try {
+            await client.query('BEGIN');
+            await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`checkin:${userId}:${destinationId}`]);
+            const recentResult = await client.query(
+                `SELECT id, created_at FROM ${this.table}
+                 WHERE (session_id = $1 OR user_id = $2)
+                   AND destination_id = $3
+                   AND created_at >= NOW() - INTERVAL '24 hours'
+                 ORDER BY created_at DESC LIMIT 1`,
+                [sessionId, userId, destinationId]
+            );
+            if (recentResult.rowCount > 0) {
+                await client.query('ROLLBACK');
+                return { claimed: false, recent: recentResult.rows[0] };
+            }
+
+            await client.query(
+                `INSERT INTO ${this.table} (id, session_id, user_id, destination_id, points_earned, checkin_method, user_lat, user_lng, distance_meter)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+                [require('uuid').v4(), sessionId, userId, destinationId, points, method, lat, lng, distance]
+            );
+            await client.query(
+                'UPDATE user_sessions SET total_points = COALESCE(total_points, 0) + $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+                [points, sessionId]
+            );
+            await client.query(
+                'UPDATE users SET total_points = COALESCE(total_points, 0) + $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+                [points, userId]
+            );
+            await client.query('COMMIT');
+            return { claimed: true };
+        } catch (error) {
+            await client.query('ROLLBACK').catch(() => {});
+            throw error;
+        } finally {
+            client.release();
+        }
+    }
+
     async getBySession(sessionId) {
         const [rows] = await this.db.query(
             `SELECT ci.*, d.name, d.slug, d.type, d.cover_image, d.points as dest_points

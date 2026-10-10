@@ -39,8 +39,8 @@
 
                     <!-- Interactive Actions (Spacious 4 Buttons) -->
                     <div class="d-flex flex-wrap align-items-center gap-3 gap-md-4 my-3 dest-hero-actions">
-                        <button class="btn btn-outline-danger rounded-pill px-4 py-2.5 fw-bold shadow-2xs d-flex align-items-center gap-2 <%= hasLiked ? 'active bg-danger text-white' : '' %>" onclick="handleLikeToggle(this, '<%= dest.id %>')">
-                            <i class="bi <%= hasLiked ? 'bi-heart-fill' : 'bi-heart' %>"></i> Thích (<span id="likes-count"><%= totalLikes %></span>)
+                        <button class="btn btn-outline-danger rounded-pill px-4 py-2.5 fw-bold shadow-2xs d-flex align-items-center gap-2" onclick="handleLikeToggle(this, '<%= dest.id %>')">
+                            <i class="bi <%= hasLiked ? 'bi-heart-fill text-danger' : 'bi-heart' %>"></i> Thích (<span id="likes-count"><%= totalLikes %></span>)
                         </button>
                         <button class="btn btn-outline-primary rounded-pill px-4 py-2.5 fw-bold shadow-2xs d-flex align-items-center gap-2 <%= hasSaved ? 'active bg-primary text-white' : '' %>" onclick="handleSaveToggle(this, '<%= dest.id %>')">
                             <i class="bi <%= hasSaved ? 'bi-bookmark-fill' : 'bi-bookmark' %>"></i> <%= hasSaved ? 'Đã lưu' : 'Lưu điểm đến' %>
@@ -290,7 +290,7 @@ function handleLikeToggle(btn, destinationId) {
                 if (countSpan) countSpan.innerText = res.data.likesCount;
                 if (res.data.liked) {
                     icon.className = 'bi bi-heart-fill text-danger';
-                    btn.classList.add('active', 'bg-danger', 'text-white');
+                    btn.classList.remove('active', 'bg-danger', 'text-white');
                     showToast('Đã thêm vào danh sách yêu thích!', 'danger');
                 } else {
                     icon.className = 'bi bi-heart';
@@ -383,7 +383,7 @@ function addToJourney(destinationId) {
                 showToast('Vui lòng đăng nhập để sử dụng tính năng này!', 'warning');
                 setTimeout(() => { window.location.href = '/auth/login'; }, 1500);
             } else {
-                showToast('Lỗi: ' + (err.response?.data?.message || err.message), 'warning');
+                showToast(err.response?.data?.message || 'Không thể thêm địa điểm vào hành trình. Vui lòng thử lại.', 'warning');
             }
         });
 }

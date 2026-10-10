@@ -332,7 +332,14 @@ async function viewBookings(wsId, title) {
                 <td><code class="small fw-bold text-primary">${b.qr_ticket || 'N/A'}</code></td>
                 <td>${statusBadge}</td>
                 <td>
-                    ${b.status === 'confirmed' ? `
+                    ${b.status === 'pending' ? `
+                        <button class="btn btn-sm btn-primary rounded-pill px-2 py-0 me-1" onclick="updateBookingStatus('${b.id}', 'confirmed', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Xác nhận đơn">
+                            <i class="bi bi-check-lg"></i> Xác nhận
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" onclick="updateBookingStatus('${b.id}', 'cancelled', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Hủy vé">
+                            <i class="bi bi-x-lg"></i> Hủy
+                        </button>
+                    ` : b.status === 'confirmed' ? `
                         <button class="btn btn-sm btn-success rounded-pill px-2 py-0 me-1" onclick="updateBookingStatus('${b.id}', 'completed', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Xác nhận hoàn thành">
                             <i class="bi bi-check-lg"></i> Tham gia
                         </button>

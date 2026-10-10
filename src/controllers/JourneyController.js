@@ -122,10 +122,19 @@ class JourneyController {
             const userMoodKeys = (session.mood || 'chill').split(',').map(s => s.trim());
             const userMoodLabel = userMoodKeys.map(k => moodMap[k] || k).join(', ');
 
+            const matchesMood = (destination) => {
+                let moods = [];
+                try { moods = Array.isArray(destination.moods) ? destination.moods : JSON.parse(destination.moods); }
+                catch (_) { moods = String(destination.moods || '').split(','); }
+                return moods.map(String).map(value => value.trim()).filter(value => userMoodKeys.includes(value)).length;
+            };
+            const matchingDestinations = dests.filter(destination => matchesMood(destination) > 0)
+                .sort((a, b) => matchesMood(b) - matchesMood(a) || (a.sort_order || 0) - (b.sort_order || 0));
+            const maxStops = session.duration === 'half_day' ? 2 : 3;
             let aiSuggestions = [];
             try {
-                let candidates = dests;
-                let sortedStops = candidates.slice(0, 3);
+                const candidates = matchingDestinations.length ? matchingDestinations : dests;
+                let sortedStops = candidates.slice(0, maxStops);
 
                 let totalMeters = 0;
                 for (let i = 1; i < sortedStops.length; i++) {
@@ -138,7 +147,7 @@ class JourneyController {
                     name: 'Lộ trình AI Tối Ưu Tối Đa',
                     desc: 'AI tự động chọn lọc điểm dừng phù hợp nhất theo gu cá nhân và tối ưu quãng đường ngắn nhất',
                     tags: ['🤖 AI Tối Ưu', '📍 Tuyến ngắn nhất'],
-                    duration: 'Trọn 1 ngày',
+                    duration: session.duration === 'half_day' ? 'Nửa ngày' : 'Trọn 1 ngày',
                     km: totalKm,
                     stops: sortedStops,
                     source: 'ai'
@@ -149,7 +158,7 @@ class JourneyController {
             const seasonLabels = { spring: '🌸 Xuân', summer: '☀️ Hạ', autumn: '🍂 Thu', winter: '❄️ Đông' };
             const interestLabels = { chill: '🕊️ Bình yên', peace: '🛕 Thư giãn', culture: '🎨 Văn hóa', family: '👨‍👩‍👧‍👦 Gắn kết' };
 
-            let templateSuggestions = templates.map((t, idx) => {
+            let templateSuggestions = templates.filter(t => userMoodKeys.includes(t.interest)).map((t, idx) => {
                 let stopIds = [];
                 try { stopIds = typeof t.stops === 'string' ? JSON.parse(t.stops) : t.stops; } catch (e) { }
 
@@ -308,6 +317,7 @@ class JourneyController {
     }
 
     async deleteSavedJourney(req, res) {
+        let client;
         try {
             const session = await this.getOrCreateSession(req, res);
             const user = req.user || req.session?.user;
@@ -317,20 +327,33 @@ class JourneyController {
                 return res.status(400).json({ success: false, message: 'Thiếu ID hành trình' });
             }
 
-            await db.query("DELETE FROM journey_stops WHERE journey_id = $1", [journeyId]);
-            await db.query(
-                `DELETE FROM journeys 
+            client = await db.pgPool.connect();
+            await client.query('BEGIN');
+            const ownedJourney = await client.query(
+                `SELECT id FROM journeys
                  WHERE id = $1 AND (
-                    session_id = $2 
-                    OR session_id IN (SELECT id FROM user_sessions WHERE user_id = $3)
-                 )`,
+                    session_id = $2::text
+                    OR session_id IN (SELECT id::text FROM user_sessions WHERE user_id = $3)
+                    OR session_id IN (SELECT uuid FROM user_sessions WHERE user_id = $3)
+                 )
+                 FOR UPDATE`,
                 [journeyId, session.id, user ? user.id : 'guest']
             );
+            if (ownedJourney.rowCount !== 1) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'Không tìm thấy hành trình thuộc tài khoản của bạn.' });
+            }
+            await client.query('DELETE FROM journey_stops WHERE journey_id = $1', [journeyId]);
+            await client.query('DELETE FROM journeys WHERE id = $1', [journeyId]);
+            await client.query('COMMIT');
 
             return res.json({ success: true, message: 'Đã xóa hành trình khỏi tài khoản!' });
         } catch (e) {
+            if (client) await client.query('ROLLBACK').catch(() => {});
             console.error("Delete journey error:", e);
             return res.status(500).json({ success: false, message: e.message });
+        } finally {
+            client?.release();
         }
     }
 }

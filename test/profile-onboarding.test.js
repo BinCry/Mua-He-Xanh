@@ -1,4 +1,5 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
 const test = require('node:test');
 
 const db = require('../src/core/database');
@@ -44,6 +45,22 @@ test('onboarding re-submission with an existing session keeps its cleanup querie
         UserSession.findByUuid = originalFindByUuid;
         UserSession.update = originalUpdate;
     }
+});
+
+test('onboarding only accepts explicit supported moods instead of silently restoring chill', async () => {
+    const source = fs.readFileSync('src/controllers/OnboardingController.js', 'utf8');
+    const view = fs.readFileSync('src/views/onboarding/index.ejs', 'utf8');
+    const session = fs.readFileSync('src/models/UserSession.js', 'utf8');
+    const suggestions = fs.readFileSync('src/controllers/JourneyController.js', 'utf8');
+
+    assert.match(source, /new Set\(\['chill', 'peace', 'culture', 'family'\]\)/);
+    assert.match(source, /Vui lòng chọn ít nhất một trải nghiệm/);
+    assert.match(view, /let selectedMoods = \[\]/);
+    assert.match(view, /data-mood="culture"/);
+    assert.match(view, /selectedMoods = selectedMoods\.filter/);
+    assert.match(session, /async update\(id, data\)/);
+    assert.match(suggestions, /matchingDestinations/);
+    assert.match(suggestions, /templates\.filter\(t => userMoodKeys\.includes\(t\.interest\)\)/);
 });
 
 test('profile queries use PostgreSQL session columns and do not require a rewards.type column', () => {

@@ -171,9 +171,18 @@ class ApiController {
         }
 
         try {
-            const recentCheckin = await CheckIn.existsRecentCheckIn(session.id, dest.id, userId, 24);
-            if (recentCheckin) {
-                const createdAt = new Date(recentCheckin.created_at).getTime();
+            const checkinClaim = await CheckIn.claimForUser({
+                sessionId: session.id,
+                userId,
+                destinationId: dest.id,
+                points: dest.points,
+                method,
+                lat,
+                lng,
+                distance: Math.round(distance)
+            });
+            if (!checkinClaim.claimed) {
+                const createdAt = new Date(checkinClaim.recent.created_at).getTime();
                 const resetAt = createdAt + (24 * 60 * 60 * 1000);
                 const remainingMs = resetAt - Date.now();
                 const remainingHours = Math.max(0, Math.floor(remainingMs / (1000 * 60 * 60)));
@@ -190,19 +199,6 @@ class ApiController {
                     reset_in: timeText
                 });
             }
-
-            await CheckIn.create({
-                session_id: session.id,
-                user_id: userId,
-                destination_id: dest.id,
-                points_earned: dest.points,
-                checkin_method: method,
-                user_lat: lat,
-                user_lng: lng,
-                distance_meter: Math.round(distance)
-            });
-
-            await UserSession.addPoints(session.id, dest.points);
 
             const journey = await Journey.getActiveBySession(session.id);
             if (journey) {
@@ -537,6 +533,7 @@ class ApiController {
 
     // --- DESTINATION INTERACTIONS API ---
     async like(req, res) {
+        let client;
         const { destinationId } = req.body;
         const user = req.user || req.session?.user;
 
@@ -548,40 +545,54 @@ class ApiController {
         }
 
         try {
-            const [rows] = await db.query(
+            client = await db.pgPool.connect();
+            await client.query('BEGIN');
+            await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`like:${user.id}:${destinationId}`]);
+            const destination = await client.query('SELECT id FROM destinations WHERE id = $1 AND is_active = 1', [destinationId]);
+            if (destination.rowCount !== 1) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'Địa điểm không tồn tại hoặc đã ngừng hoạt động.' });
+            }
+            const rowsResult = await client.query(
                 "SELECT id FROM destination_likes WHERE user_id = $1 AND destination_id = $2",
                 [user.id, destinationId]
             );
+            const rows = rowsResult.rows;
 
             let liked = false;
             if (rows.length > 0) {
-                await db.query(
+                await client.query(
                     "DELETE FROM destination_likes WHERE user_id = $1 AND destination_id = $2",
                     [user.id, destinationId]
                 );
                 liked = false;
             } else {
-                await db.query(
+                await client.query(
                     "INSERT INTO destination_likes (id, user_id, destination_id) VALUES ($1, $2, $3)",
                     [uuidv4(), user.id, destinationId]
                 );
                 liked = true;
             }
 
-            const [countRows] = await db.query(
+            const countResult = await client.query(
                 "SELECT COUNT(*) as count FROM destination_likes WHERE destination_id = $1",
                 [destinationId]
             );
+            const countRows = countResult.rows;
             const likesCount = parseInt(countRows[0]?.count || 0, 10);
-
+            await client.query('COMMIT');
             res.json({ success: true, liked, likesCount });
         } catch (error) {
+            if (client) await client.query('ROLLBACK').catch(() => {});
             console.error("Like destination error:", error);
             res.status(500).json({ success: false, message: error.message });
+        } finally {
+            client?.release();
         }
     }
 
     async save(req, res) {
+        let client;
         const { destinationId } = req.body;
         const user = req.user || req.session?.user;
 
@@ -593,30 +604,43 @@ class ApiController {
         }
 
         try {
-            const [rows] = await db.query(
+            client = await db.pgPool.connect();
+            await client.query('BEGIN');
+            await client.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`favorite:${user.id}:${destinationId}`]);
+            const destination = await client.query('SELECT id FROM destinations WHERE id = $1 AND is_active = 1', [destinationId]);
+            if (destination.rowCount !== 1) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'Địa điểm không tồn tại hoặc đã ngừng hoạt động.' });
+            }
+            const rowsResult = await client.query(
                 "SELECT id FROM user_favorites WHERE user_id = $1 AND destination_id = $2",
                 [user.id, destinationId]
             );
+            const rows = rowsResult.rows;
 
             let saved = false;
             if (rows.length > 0) {
-                await db.query(
+                await client.query(
                     "DELETE FROM user_favorites WHERE user_id = $1 AND destination_id = $2",
                     [user.id, destinationId]
                 );
                 saved = false;
             } else {
-                await db.query(
+                await client.query(
                     "INSERT INTO user_favorites (id, user_id, destination_id) VALUES ($1, $2, $3)",
                     [uuidv4(), user.id, destinationId]
                 );
                 saved = true;
             }
 
+            await client.query('COMMIT');
             res.json({ success: true, saved });
         } catch (error) {
+            if (client) await client.query('ROLLBACK').catch(() => {});
             console.error("Save destination error:", error);
             res.status(500).json({ success: false, message: error.message });
+        } finally {
+            client?.release();
         }
     }
 

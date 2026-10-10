@@ -50,7 +50,12 @@ module.exports = function analyticsMiddleware(req, res, next) {
     let sessionId = req.cookies?.session_uuid;
     if (!sessionId) {
         sessionId = uuidv4();
-        res.cookie('session_uuid', sessionId, { maxAge: 30 * 24 * 3600 * 1000, httpOnly: false, sameSite: 'lax' });
+        res.cookie('session_uuid', sessionId, {
+            maxAge: 30 * 24 * 3600 * 1000,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
+        });
         if (!req.cookies) req.cookies = {};
         req.cookies.session_uuid = sessionId;
     }

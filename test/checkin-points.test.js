@@ -37,10 +37,8 @@ test('adding session points also updates the linked user account', async () => {
 test('check-in stores the authenticated user id with the visit', async () => {
     const originals = {
         findByUuid: UserSession.findByUuid,
-        addPoints: UserSession.addPoints,
         findBySlug: Destination.findBySlug,
-        existsRecentCheckIn: CheckIn.existsRecentCheckIn,
-        create: CheckIn.create,
+        claimForUser: CheckIn.claimForUser,
         getActiveBySession: Journey.getActiveBySession,
         checkAndUnlock: UserBadge.checkAndUnlock,
         haversine: Model.haversine
@@ -49,7 +47,6 @@ test('check-in stores the authenticated user id with the visit', async () => {
     let responseBody = null;
 
     UserSession.findByUuid = async () => ({ id: 'session-1', user_id: 'user-1' });
-    UserSession.addPoints = async () => true;
     Destination.findBySlug = async () => ({
         id: 'destination-1',
         name: 'Điểm thử nghiệm',
@@ -59,10 +56,9 @@ test('check-in stores the authenticated user id with the visit', async () => {
         radius_meter: 100
     });
     Model.haversine = () => 2000;
-    CheckIn.existsRecentCheckIn = async () => null;
-    CheckIn.create = async data => {
+    CheckIn.claimForUser = async data => {
         createdCheckin = data;
-        return 'checkin-1';
+        return { claimed: true };
     };
     Journey.getActiveBySession = async () => null;
     UserBadge.checkAndUnlock = async () => [];
@@ -90,13 +86,11 @@ test('check-in stores the authenticated user id with the visit', async () => {
 
         assert.equal(res.statusCode, 200);
         assert.equal(responseBody.success, true);
-        assert.equal(createdCheckin.user_id, 'user-1');
+        assert.equal(createdCheckin.userId, 'user-1');
     } finally {
         UserSession.findByUuid = originals.findByUuid;
-        UserSession.addPoints = originals.addPoints;
         Destination.findBySlug = originals.findBySlug;
-        CheckIn.existsRecentCheckIn = originals.existsRecentCheckIn;
-        CheckIn.create = originals.create;
+        CheckIn.claimForUser = originals.claimForUser;
         Journey.getActiveBySession = originals.getActiveBySession;
         UserBadge.checkAndUnlock = originals.checkAndUnlock;
         Model.haversine = originals.haversine;

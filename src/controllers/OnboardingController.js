@@ -4,8 +4,12 @@ const db = require('../core/database');
 
 class OnboardingController {
     async index(req, res) {
+        const preferences = req.cookies?.session_uuid
+            ? await UserSession.findByUuid(req.cookies.session_uuid)
+            : null;
         res.render('onboarding/index', {
-            title: 'Thiết Kế Hành Trình Của Bạn'
+            title: 'Thiết Kế Hành Trình Của Bạn',
+            preferences
         });
     }
 
@@ -20,7 +24,13 @@ class OnboardingController {
                 res.cookie('session_uuid', uuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
             }
 
-            const moodStr = Array.isArray(mood) ? mood.join(',') : (mood || 'chill');
+            const validMoods = new Set(['chill', 'peace', 'culture', 'family']);
+            const moods = (Array.isArray(mood) ? mood : [mood])
+                .filter(value => typeof value === 'string' && validMoods.has(value));
+            if (moods.length === 0) {
+                return res.status(400).json({ success: false, message: 'Vui lòng chọn ít nhất một trải nghiệm.' });
+            }
+            const moodStr = [...new Set(moods)].join(',');
             let session = await UserSession.findByUuid(uuid);
 
             let paxVal = 2;
@@ -71,7 +81,7 @@ class OnboardingController {
             console.error("Onboarding submit error:", e);
             const isJson = req.xhr || (req.headers.accept && req.headers.accept.includes('application/json'));
             if (isJson) {
-                return res.json({ success: false, redirect: '/journey/suggestions', message: e.message });
+                return res.status(500).json({ success: false, message: 'Không thể lưu tiêu chí hành trình. Vui lòng thử lại.' });
             }
             return res.redirect('/journey/suggestions');
         }

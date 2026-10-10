@@ -189,18 +189,11 @@ exports.ensureManager = async (req, res, next) => {
 /**
  * Kiểm tra quyền du khách (Tourist - Đã đăng nhập)
  */
-exports.ensureTourist = (req, res, next) => {
-    const user = req.user || req.session?.user;
-    if (user) {
-        return next();
-    }
-    if (req.originalUrl && req.originalUrl.startsWith('/api')) {
-        return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập.' });
-    }
-    if (req.session && req.originalUrl && !req.originalUrl.startsWith('/auth') && !req.originalUrl.startsWith('/admin/login')) {
-        req.session.redirectUrl = req.originalUrl;
-    }
-    res.redirect('/auth/login?error=tourist_required');
+exports.ensureTourist = async (req, res, next) => {
+    // Delegate session restoration to the canonical authenticated middleware.
+    // This prevents a valid session_uuid from being treated as logged out on
+    // profile and passport routes after a serverless instance change.
+    return exports.ensureAuthenticated(req, res, next);
 };
 
 /**

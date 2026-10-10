@@ -290,7 +290,7 @@ body {
                 <div class="row g-3">
                     <!-- Card 1: Sống Chậm (Selected by default) -->
                     <div class="col-6 col-md-3">
-                        <div class="vibe-card-item vibe-card-song-cham selected" onclick="toggleVibeCard(this, 'chill')">
+                        <div class="vibe-card-item vibe-card-song-cham" data-mood="chill" onclick="toggleVibeCard(this, 'chill')">
                             <div class="check-badge"><i class="bi bi-check-lg"></i></div>
                             <div class="vibe-icon">🌿</div>
                             <div class="vibe-title">SỐNG CHẬM</div>
@@ -300,7 +300,7 @@ body {
 
                     <!-- Card 2: Tâm Linh -->
                     <div class="col-6 col-md-3">
-                        <div class="vibe-card-item vibe-card-tam-linh" onclick="toggleVibeCard(this, 'peace')">
+                        <div class="vibe-card-item vibe-card-tam-linh" data-mood="peace" onclick="toggleVibeCard(this, 'peace')">
                             <div class="check-badge"><i class="bi bi-check-lg"></i></div>
                             <div class="vibe-icon">🛕</div>
                             <div class="vibe-title">TÂM LINH</div>
@@ -310,7 +310,7 @@ body {
 
                     <!-- Card 3: Văn Hóa -->
                     <div class="col-6 col-md-3">
-                        <div class="vibe-card-item vibe-card-van-hoa" onclick="toggleVibeCard(this, 'culture')">
+                        <div class="vibe-card-item vibe-card-van-hoa" data-mood="culture" onclick="toggleVibeCard(this, 'culture')">
                             <div class="check-badge"><i class="bi bi-check-lg"></i></div>
                             <div class="vibe-icon">🎨</div>
                             <div class="vibe-title">VĂN HÓA</div>
@@ -320,7 +320,7 @@ body {
 
                     <!-- Card 4: Gắn Kết -->
                     <div class="col-6 col-md-3">
-                        <div class="vibe-card-item vibe-card-gan-ket" onclick="toggleVibeCard(this, 'family')">
+                        <div class="vibe-card-item vibe-card-gan-ket" data-mood="family" onclick="toggleVibeCard(this, 'family')">
                             <div class="check-badge"><i class="bi bi-check-lg"></i></div>
                             <div class="vibe-icon">👨‍👩‍👧‍👦</div>
                             <div class="vibe-title">GẮN KẾT</div>
@@ -403,12 +403,17 @@ body {
 </div>
 
 <script>
-let selectedMoods = ['chill'];
+const savedPreferences = <%- JSON.stringify(preferences || {}) %>;
+let selectedMoods = [];
 let selectedPax = '2';
 let selectedBudget = 'mid';
 let selectedDuration = 'full_day';
 
 document.addEventListener('DOMContentLoaded', () => {
+    selectedMoods = String(savedPreferences.mood || '').split(',').filter(Boolean);
+    document.querySelectorAll('[data-mood]').forEach(card => {
+        card.classList.toggle('selected', selectedMoods.includes(card.dataset.mood));
+    });
     const dateInput = document.getElementById('journeyDateInput');
     if (dateInput) {
         const today = new Date().toISOString().split('T')[0];
@@ -419,10 +424,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function toggleVibeCard(element, moodKey) {
     if (selectedMoods.includes(moodKey)) {
-        if (selectedMoods.length > 1) {
-            selectedMoods = selectedMoods.filter(m => m !== moodKey);
-            element.classList.remove('selected');
-        }
+        selectedMoods = selectedMoods.filter(m => m !== moodKey);
+        element.classList.remove('selected');
     } else {
         selectedMoods.push(moodKey);
         element.classList.add('selected');
@@ -458,6 +461,10 @@ function setQuickDate(type, element) {
 
 function handleOnboardingSubmit(e) {
     e.preventDefault();
+    if (selectedMoods.length === 0) {
+        alert('Vui lòng chọn ít nhất một trải nghiệm.');
+        return;
+    }
     const btn = document.getElementById('btnSubmitForm');
     if (btn) {
         btn.disabled = true;
@@ -476,15 +483,19 @@ function handleOnboardingSubmit(e) {
         headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' }
     })
     .then(res => {
-        if (res.data && res.data.redirect) {
+        if (res.data?.success && res.data.redirect) {
             window.location.href = res.data.redirect;
             return;
         }
-        window.location.href = '/journey/suggestions';
+        throw new Error(res.data?.message || 'Không thể lưu tiêu chí hành trình.');
     })
     .catch(err => {
         console.error("Onboarding submit error:", err);
-        window.location.href = '/journey/suggestions';
+        alert(err.response?.data?.message || err.message || 'Không thể lưu tiêu chí hành trình. Vui lòng thử lại.');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = 'PHÂN TÍCH LỘ TRÌNH TỐI ƯU <i class="bi bi-arrow-right"></i>';
+        }
     });
 }
 </script>

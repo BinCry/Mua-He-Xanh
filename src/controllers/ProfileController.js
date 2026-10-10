@@ -321,30 +321,49 @@ const ProfileController = {
 
     // POST /api/redeem-reward
     redeemReward: async (req, res) => {
+        let client;
         try {
             const user = req.user || req.session.user;
             if (!user) return res.status(401).json({ success: false });
 
             const { reward_id } = req.body;
-            const [rewards] = await db.query('SELECT * FROM rewards WHERE id = $1 AND is_active = 1', [reward_id]);
-            if (rewards.length === 0) return res.status(404).json({ success: false, message: 'Phần thưởng không tồn tại' });
+            if (!reward_id) return res.status(400).json({ success: false, message: 'Thiếu phần thưởng cần đổi.' });
 
-            const reward = rewards[0];
-            const [users] = await db.query('SELECT total_points FROM users WHERE id = $1', [user.id]);
-            const currentPoints = users[0]?.total_points || 0;
-
-            if (currentPoints < reward.points_required) {
-                return res.json({ success: false, message: `Bạn cần ${reward.points_required} điểm, hiện có ${currentPoints} điểm` });
+            client = await db.pgPool.connect();
+            await client.query('BEGIN');
+            const rewardResult = await client.query(
+                'SELECT * FROM rewards WHERE id = $1 AND is_active = 1 FOR UPDATE',
+                [reward_id]
+            );
+            const reward = rewardResult.rows[0];
+            if (!reward) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'Phần thưởng không tồn tại' });
+            }
+            if (Number(reward.quantity) <= 0) {
+                await client.query('ROLLBACK');
+                return res.status(409).json({ success: false, message: 'Phần thưởng này đã hết.' });
             }
 
-            await db.query('INSERT INTO user_rewards (id, user_id, reward_id) VALUES ($1, $2, $3)', [uuidv4(), user.id, reward_id]);
-            await db.query('UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - $1) WHERE id = $2', [reward.points_required, user.id]);
-            await db.query('UPDATE rewards SET quantity = GREATEST(0, quantity - 1) WHERE id = $1', [reward_id]);
+            const userResult = await client.query('SELECT total_points FROM users WHERE id = $1 FOR UPDATE', [user.id]);
+            const currentPoints = Number(userResult.rows[0]?.total_points || 0);
+            if (currentPoints < Number(reward.points_required)) {
+                await client.query('ROLLBACK');
+                return res.status(409).json({ success: false, message: `Bạn cần ${reward.points_required} điểm, hiện có ${currentPoints} điểm` });
+            }
+
+            await client.query('INSERT INTO user_rewards (id, user_id, reward_id) VALUES ($1, $2, $3)', [uuidv4(), user.id, reward_id]);
+            await client.query('UPDATE users SET total_points = total_points - $1 WHERE id = $2', [reward.points_required, user.id]);
+            await client.query('UPDATE rewards SET quantity = quantity - 1 WHERE id = $1', [reward_id]);
+            await client.query('COMMIT');
 
             res.json({ success: true, message: `Đổi thành công "${reward.title}"! 🎁` });
         } catch (error) {
+            if (client) await client.query('ROLLBACK').catch(() => {});
             console.error('Redeem error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
+        } finally {
+            client?.release();
         }
     }
 };
