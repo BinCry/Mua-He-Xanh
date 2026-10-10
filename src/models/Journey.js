@@ -116,16 +116,19 @@ class Journey extends Model {
             if (d) selected.push(d);
         }
 
+        if (selected.length === 0) return null;
+
         await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [sessionId]);
 
         const journeyId = await this.create({
             session_id: sessionId, mood: moodName, duration: 'full_day', status: 'active',
-            total_km: 4.5, total_minutes: 180, interests: JSON.stringify({ preset: theme })
+            total_km: 0, total_minutes: selected.length * 60, interests: JSON.stringify({ preset: theme })
         });
 
         for (let idx = 0; idx < selected.length; idx++) {
             await JourneyStop.create({ journey_id: journeyId, destination_id: selected[idx].id, stop_order: idx, is_completed: 0 });
         }
+        await this.recalculateMetrics(journeyId);
         return this.getWithStops(journeyId);
     }
 
@@ -156,38 +159,50 @@ class Journey extends Model {
     }
 
     async createFromSuggestion(sessionId, data) {
-        await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [sessionId]);
-
         let stopsArray = data.stops || [];
         const cleanStops = [];
         for (const st of stopsArray) {
             const destId = typeof st === 'object' ? st.id : st;
             if (destId) {
                 const dest = await Destination.findById(destId);
-                if (dest) cleanStops.push(dest);
+                if (dest && (dest.is_active === true || dest.is_active === 1)) cleanStops.push(dest);
             }
         }
 
-        if (cleanStops.length === 0) {
-            const [fallbackDests] = await this.db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
-            cleanStops.push(...fallbackDests);
-        }
+        if (cleanStops.length === 0) return null;
+
+        await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [sessionId]);
 
         let totalMeters = 0;
+        let hasAllCoordinates = cleanStops.length > 1;
         for (let i = 1; i < cleanStops.length; i++) {
-            totalMeters += Model.haversine(cleanStops[i - 1].lat, cleanStops[i - 1].lng, cleanStops[i].lat, cleanStops[i].lng);
+            const previous = cleanStops[i - 1];
+            const current = cleanStops[i];
+            const rawCoordinates = [previous.lat, previous.lng, current.lat, current.lng];
+            if (rawCoordinates.some(value => value === null || value === undefined || value === '')) {
+                hasAllCoordinates = false;
+                break;
+            }
+            const coordinates = rawCoordinates.map(Number);
+            if (coordinates.some(value => !Number.isFinite(value))
+                || Math.abs(coordinates[0]) > 90 || Math.abs(coordinates[2]) > 90
+                || Math.abs(coordinates[1]) > 180 || Math.abs(coordinates[3]) > 180) {
+                hasAllCoordinates = false;
+                break;
+            }
+            totalMeters += Model.haversine(...coordinates);
         }
-        const totalKm = cleanStops.length > 1 ? (Math.round((totalMeters / 1000) * 100) / 100) : (parseFloat(data.km) || 4.1);
+        const totalKm = hasAllCoordinates ? Math.round((totalMeters / 1000) * 100) / 100 : 0;
 
         const journeyId = await this.create({
             session_id: sessionId,
-            mood: data.name || 'Hành Trình AI Tối Ưu',
+            mood: data.name || 'Gợi ý hành trình theo sở thích',
             duration: data.duration || 'Nửa ngày',
             total_km: totalKm,
             total_minutes: cleanStops.length * 60 + Math.round(totalKm * 15),
             status: 'active',
             interests: JSON.stringify({
-                source: data.source || 'ai',
+                source: data.source === 'template' ? 'template' : 'personalized',
                 tags: data.tags || []
             })
         });

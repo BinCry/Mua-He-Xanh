@@ -1,0 +1,82 @@
+<section class="container-fluid py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+        <div>
+            <h1 class="h3 fw-bold mb-2">Yêu cầu đăng ký lễ hội</h1>
+            <p class="text-muted mb-0">Xác nhận trạng thái sau khi liên hệ khách. Trạng thái xác nhận tại đây không đồng nghĩa hệ thống đã gửi vé điện tử.</p>
+        </div>
+        <span class="badge text-bg-light border"><%= bookings.length %> yêu cầu gần nhất</span>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div class="table-responsive">
+            <table class="table align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Mã tham chiếu</th>
+                        <th>Sự kiện</th>
+                        <th>Người đăng ký</th>
+                        <th>Điện thoại</th>
+                        <th>Số người</th>
+                        <th>Trạng thái</th>
+                        <th>Thời gian</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (bookings.length === 0) { %>
+                        <tr><td colspan="8" class="text-center text-muted py-5">Chưa có yêu cầu đăng ký.</td></tr>
+                    <% } %>
+                    <% bookings.forEach((booking) => { %>
+                        <tr>
+                            <td class="font-monospace small"><%= booking.reference_code || booking.id %></td>
+                            <td><%= booking.festival_name || 'Sự kiện không còn trong danh sách' %></td>
+                            <td><%= booking.full_name %></td>
+                            <td><a href="tel:<%= booking.phone %>"><%= booking.phone %></a></td>
+                            <td><%= booking.tickets %></td>
+                            <td>
+                                <% if (booking.status === 'pending') { %>
+                                    <span class="badge text-bg-warning">Chờ liên hệ</span>
+                                <% } else if (booking.status === 'confirmed') { %>
+                                    <span class="badge text-bg-success">Đã xác nhận liên hệ</span>
+                                <% } else { %>
+                                    <span class="badge text-bg-secondary">Đã hủy</span>
+                                <% } %>
+                            </td>
+                            <td class="small"><%= new Date(booking.created_at).toLocaleString('vi-VN') %></td>
+                            <td>
+                                <% if (booking.status === 'pending') { %>
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-sm btn-success" onclick="updateFestivalBooking('<%= booking.id %>', 'confirmed')">Đã liên hệ</button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="updateFestivalBooking('<%= booking.id %>', 'cancelled')">Hủy</button>
+                                    </div>
+                                <% } else { %>
+                                    <span class="text-muted small">Đã xử lý</span>
+                                <% } %>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+
+<script>
+    async function updateFestivalBooking(bookingId, status) {
+        const confirmed = window.confirm(status === 'confirmed' ? 'Bạn đã liên hệ khách và muốn ghi nhận xác nhận?' : 'Hủy yêu cầu đăng ký này?');
+        if (!confirmed) return;
+        try {
+            const response = await fetch('/api/admin/festival-bookings/status', {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify({ booking_id: bookingId, status })
+            });
+            const result = await response.json();
+            if (!response.ok || !result.success) throw new Error(result.message || 'Không thể cập nhật trạng thái.');
+            window.location.reload();
+        } catch (error) {
+            window.alert(error.message || 'Không thể cập nhật trạng thái.');
+        }
+    }
+</script>

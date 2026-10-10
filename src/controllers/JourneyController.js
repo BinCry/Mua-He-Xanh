@@ -4,6 +4,31 @@ const Destination = require('../models/Destination');
 const Model = require('../core/Model');
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
+const { setSessionUuidCookie } = require('../utils/sessionCookie');
+
+function estimateStraightLineKm(stops) {
+    if (!Array.isArray(stops) || stops.length < 2) return null;
+
+    let totalMeters = 0;
+    for (let index = 1; index < stops.length; index++) {
+        const previous = stops[index - 1];
+        const current = stops[index];
+        if ([previous?.lat, previous?.lng, current?.lat, current?.lng]
+            .some(value => value === null || value === undefined || value === '')) return null;
+        const previousLat = Number(previous?.lat);
+        const previousLng = Number(previous?.lng);
+        const currentLat = Number(current?.lat);
+        const currentLng = Number(current?.lng);
+        if (![previousLat, previousLng, currentLat, currentLng].every(Number.isFinite)
+            || Math.abs(previousLat) > 90 || Math.abs(currentLat) > 90
+            || Math.abs(previousLng) > 180 || Math.abs(currentLng) > 180) {
+            return null;
+        }
+        totalMeters += Model.haversine(previousLat, previousLng, currentLat, currentLng);
+    }
+
+    return Math.round((totalMeters / 1000) * 100) / 100;
+}
 
 class JourneyController {
     constructor() {
@@ -23,7 +48,7 @@ class JourneyController {
         
         if (!uuid) {
             uuid = uuidv4();
-            res.cookie('session_uuid', uuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+            setSessionUuidCookie(res, uuid);
         }
 
         let session = await UserSession.findByUuid(uuid);
@@ -44,44 +69,11 @@ class JourneyController {
             const session = await this.getOrCreateSession(req, res);
             let journey = await Journey.getActiveBySession(session.id);
 
-            // If no active journey exists yet, create default journey with 3 active destinations
-            if (!journey) {
-                const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
-                const journeyId = await Journey.create({
-                    session_id: session.id,
-                    mood: 'Hành Trình Tối Ưu',
-                    duration: 'Trọn 1 ngày',
-                    total_km: 4.2,
-                    total_minutes: 360,
-                    status: 'active',
-                    interests: JSON.stringify({ source: 'ai', isConfirmed: false })
-                });
-
-                const JourneyStop = require('../models/JourneyStop');
-                for (let idx = 0; idx < dests.length; idx++) {
-                    await JourneyStop.create({
-                        journey_id: journeyId,
-                        destination_id: dests[idx].id,
-                        stop_order: idx,
-                        is_completed: 0
-                    });
-                }
-                journey = await Journey.findById(journeyId);
-            }
+            if (!journey) return res.redirect('/journey/suggestions');
 
             let journeyWithStops = await Journey.getWithStops(journey.id);
             if (!journeyWithStops || !journeyWithStops.stops || journeyWithStops.stops.length === 0) {
-                const [defaultDests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
-                const JourneyStop = require('../models/JourneyStop');
-                for (let idx = 0; idx < defaultDests.length; idx++) {
-                    await JourneyStop.create({
-                        journey_id: journey.id,
-                        destination_id: defaultDests[idx].id,
-                        stop_order: idx,
-                        is_completed: 0
-                    });
-                }
-                journeyWithStops = await Journey.getWithStops(journey.id);
+                return res.redirect('/journey/suggestions');
             }
 
             let journeySource = 'ai';
@@ -136,21 +128,17 @@ class JourneyController {
                 const candidates = matchingDestinations.length ? matchingDestinations : dests;
                 let sortedStops = candidates.slice(0, maxStops);
 
-                let totalMeters = 0;
-                for (let i = 1; i < sortedStops.length; i++) {
-                    totalMeters += Model.haversine(sortedStops[i - 1].lat, sortedStops[i - 1].lng, sortedStops[i].lat, sortedStops[i].lng);
-                }
-                const totalKm = Math.round((totalMeters / 1000) * 100) / 100 || 4.2;
+                const totalKm = estimateStraightLineKm(sortedStops);
 
                 aiSuggestions.push({
-                    id: 'ai-opt-1',
-                    name: 'Lộ trình AI Tối Ưu Tối Đa',
-                    desc: 'AI tự động chọn lọc điểm dừng phù hợp nhất theo gu cá nhân và tối ưu quãng đường ngắn nhất',
-                    tags: ['🤖 AI Tối Ưu', '📍 Tuyến ngắn nhất'],
+                    id: 'personalized-suggestion-1',
+                    name: 'Gợi ý hành trình theo sở thích',
+                    desc: `Chọn tối đa ${maxStops} điểm theo sở thích và thứ tự ưu tiên hiện có. Khoảng cách, nếu có, là ước tính đường chim bay chứ chưa phải chỉ đường đường bộ.`,
+                    tags: ['Theo sở thích', 'Theo thứ tự gợi ý'],
                     duration: session.duration === 'half_day' ? 'Nửa ngày' : 'Trọn 1 ngày',
                     km: totalKm,
                     stops: sortedStops,
-                    source: 'ai'
+                    source: 'personalized'
                 });
             } catch (e) { }
 
@@ -167,7 +155,7 @@ class JourneyController {
                     return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
                 }).filter(Boolean);
 
-                if (stops.length === 0 && dests.length > 0) stops = dests.slice(0, 3);
+                if (stops.length === 0) return null;
 
                 return {
                     id: t.id,
@@ -176,11 +164,11 @@ class JourneyController {
                     desc: t.description || 'Hành trình trải nghiệm độc đáo tại Bình Lợi',
                     tags: [seasonLabels[t.season] || '🌸 Thu', interestLabels[t.interest] || '🕊️ Bình yên'],
                     duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
-                    km: parseFloat(t.km) || (4.1 + idx * 0.8),
+                    km: estimateStraightLineKm(stops),
                     stops: stops,
                     source: 'template'
                 };
-            });
+            }).filter(Boolean);
 
             res.render('journey/suggestions', {
                 title: 'Hành Trình Gợi Ý Cho Bạn',
@@ -197,7 +185,7 @@ class JourneyController {
     async confirm(req, res) {
         try {
             const session = await this.getOrCreateSession(req, res);
-            const { templateId, journeyData, source } = req.body;
+            const { templateId, journeyData } = req.body;
 
             if (templateId) {
                 const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE id = $1", [templateId]);
@@ -212,7 +200,7 @@ class JourneyController {
                         return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
                     }).filter(Boolean);
 
-                    if (stops.length === 0 && dests.length > 0) stops = dests.slice(0, 3);
+                    if (stops.length === 0) return res.redirect('/journey/suggestions');
 
                     await db.query(`
                         DELETE FROM journey_stops WHERE journey_id IN (
@@ -227,7 +215,7 @@ class JourneyController {
                         session_id: session.id,
                         mood: t.name,
                         duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
-                        total_km: parseFloat(t.km) || 5.0,
+                        total_km: 0,
                         total_minutes: t.duration === 'full_day' ? 360 : 180,
                         status: 'active',
                         interests: JSON.stringify({ source: 'template', templateId: t.id, isConfirmed: false })
@@ -256,33 +244,13 @@ class JourneyController {
                     try { data = JSON.parse(journeyData); } catch (e2) { }
                 }
 
-                if (data && data.stops && data.stops.length > 0) {
-                    data.source = 'ai';
-                    await Journey.createFromSuggestion(session.id, data);
-                    return res.redirect('/hanh-trinh-cua-toi');
+                if (data && Array.isArray(data.stops) && data.stops.length > 0) {
+                    data.source = 'personalized';
+                    const journeyId = await Journey.createFromSuggestion(session.id, data);
+                    if (journeyId) return res.redirect('/hanh-trinh-cua-toi');
                 }
             }
-
-            const [fallbackDests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
-            const journeyId = await Journey.create({
-                session_id: session.id,
-                mood: 'Lộ Trình AI Tối Ưu',
-                duration: 'Nửa ngày',
-                total_km: 4.2,
-                total_minutes: 180,
-                status: 'active',
-                interests: JSON.stringify({ source: 'ai', isConfirmed: false })
-            });
-            const JourneyStop = require('../models/JourneyStop');
-            for (let idx = 0; idx < fallbackDests.length; idx++) {
-                await JourneyStop.create({
-                    journey_id: journeyId,
-                    destination_id: fallbackDests[idx].id,
-                    stop_order: idx,
-                    is_completed: 0
-                });
-            }
-            return res.redirect('/hanh-trinh-cua-toi');
+            return res.redirect('/journey/suggestions');
 
         } catch (error) {
             console.error("Confirm error:", error);

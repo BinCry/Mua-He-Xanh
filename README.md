@@ -175,14 +175,16 @@ NODE_ENV=development
 BASE_URL=http://localhost:3000
 
 # Cấu hình Cơ sở dữ liệu PostgreSQL
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=binh_loi_db
-DB_USER=postgres
-DB_PASSWORD=your_password
+DATABASE_URL=postgresql://postgres:your_password@localhost:5432/binh_loi_db
+
+# Chạy migration trước khi deploy booking idempotency (sau khi backup và thử trên staging):
+# psql "$DATABASE_URL" -f scripts/migrations/20261011_booking_idempotency.sql
 
 # Session Secret
 SESSION_SECRET=your_super_secret_session_key
+
+# Secret riêng để ký QR check-in luân phiên (bắt buộc ở production, tối thiểu 32 ký tự)
+CHECKIN_QR_SECRET=replace_with_a_separate_long_random_secret
 
 # Google OAuth (Tùy chọn)
 GOOGLE_CLIENT_ID=your_google_client_id

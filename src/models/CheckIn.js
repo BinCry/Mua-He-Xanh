@@ -1,4 +1,5 @@
 const Model = require('../core/Model');
+const UserSession = require('./UserSession');
 
 class CheckIn extends Model {
     constructor() {
@@ -75,6 +76,7 @@ class CheckIn extends Model {
                 [points, userId]
             );
             await client.query('COMMIT');
+            UserSession.invalidateCacheById(sessionId);
             return { claimed: true };
         } catch (error) {
             await client.query('ROLLBACK').catch(() => {});

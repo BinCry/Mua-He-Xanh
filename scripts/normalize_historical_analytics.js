@@ -1,4 +1,21 @@
-const db = require('C:/Users/tuand/.gemini/antigravity/scratch/binh-loi-healing/src/core/database');
+const path = require('node:path');
+require('dotenv').config({ path: path.resolve(__dirname, '../.env') });
+
+const databaseUrl = String(process.env.DATABASE_URL || '');
+let databaseHost = '';
+try {
+    databaseHost = new URL(databaseUrl).hostname.toLowerCase();
+} catch (_) {}
+
+const isLoopbackDatabase = ['localhost', '127.0.0.1', '::1'].includes(databaseHost);
+const explicitLocalWrite = process.argv.includes('--apply') && process.env.ALLOW_SYNTHETIC_ANALYTICS_NORMALIZATION === 'true';
+if (process.env.NODE_ENV === 'production' || !isLoopbackDatabase || !explicitLocalWrite) {
+    console.error('Blocked: historical analytics normalization is synthetic and may only write to a local development database.');
+    console.error('Use NODE_ENV=development, a loopback DATABASE_URL, ALLOW_SYNTHETIC_ANALYTICS_NORMALIZATION=true, and --apply.');
+    process.exit(1);
+}
+
+const db = require('../src/core/database');
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;

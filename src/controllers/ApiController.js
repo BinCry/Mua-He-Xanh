@@ -6,6 +6,8 @@ const UserBadge = require('../models/UserBadge');
 const Model = require('../core/Model');
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
+const { setSessionUuidCookie } = require('../utils/sessionCookie');
+const { verifyCheckinToken } = require('../utils/checkinQr');
 
 const CHECKIN_RADIUS_METERS = 2000; // 2 km
 
@@ -16,31 +18,33 @@ class ApiController {
         const { uuid } = req.params;
         
         if (req.method === 'POST') {
-            const body = req.body;
-            let currentUuid = req.cookies?.session_uuid || uuid;
-            
-            if (!currentUuid) {
-                currentUuid = uuidv4();
-                res.cookie('session_uuid', currentUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
-            }
-            
-            const data = {
-                mood: body.moods || body.mood || null,
-                duration: body.duration || null,
-                pax: body.pax || 1,
-                budget: body.budget || 'medium',
-                season: body.season || 'now',
-                interests: body.interests ? JSON.stringify(body.interests) : null
-            };
-            
+            const body = req.body || {};
+            const currentUuid = req.cookies?.session_uuid || uuidv4();
+            setSessionUuidCookie(res, currentUuid);
+
             const session = await UserSession.findOrCreate(currentUuid, req);
-            await UserSession.update(session.id, data);
-            
-            res.json({ success: true, data: { ...session, ...data } });
+            if (!session) return res.status(500).json({ success: false, message: 'Không thể khởi tạo phiên.' });
+
+            // A bootstrap request must not erase saved onboarding preferences.
+            const data = {};
+            if (Object.prototype.hasOwnProperty.call(body, 'moods') || Object.prototype.hasOwnProperty.call(body, 'mood')) {
+                data.mood = body.moods ?? body.mood ?? null;
+            }
+            for (const key of ['duration', 'pax', 'budget', 'season']) {
+                if (Object.prototype.hasOwnProperty.call(body, key)) data[key] = body[key];
+            }
+            if (Object.prototype.hasOwnProperty.call(body, 'interests')) {
+                data.interests = body.interests == null ? null : JSON.stringify(body.interests);
+            }
+            if (Object.keys(data).length > 0) await UserSession.update(session.id, data);
+
+            res.json({ success: true, data: { ...session, ...data, uuid: currentUuid } });
         } else {
-            if (!uuid) return res.status(400).json({ success: false, message: 'Missing UUID' });
+            const currentUuid = req.cookies?.session_uuid;
+            if (!currentUuid) return res.status(401).json({ success: false, message: 'Session cookie is required.' });
+            if (uuid && uuid !== currentUuid) return res.status(403).json({ success: false, message: 'Session does not match this browser.' });
             
-            const session = await UserSession.findByUuid(uuid);
+            const session = await UserSession.findByUuid(currentUuid);
             if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
             
             session.badges = await UserBadge.getUnlockedBySession(session.id);
@@ -132,15 +136,20 @@ class ApiController {
     async checkin(req, res) {
         if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed' });
         
-        const body = req.body;
-        const sessionUuid = body.sessionUuid || req.cookies?.session_uuid;
-        const slug = body.slug || null;
-        const lat = parseFloat(body.lat) || null;
-        const lng = parseFloat(body.lng) || null;
-        const method = body.method || 'qr';
+        const body = req.body || {};
+        const sessionUuid = req.cookies?.session_uuid;
+        const qrToken = typeof body.qrToken === 'string' ? body.qrToken : '';
+        const lat = Number(body.lat);
+        const lng = Number(body.lng);
+        const method = body.method;
         
-        if (!sessionUuid || !slug || lat === null || lng === null) {
-            return res.status(400).json({ success: false, message: 'Thiếu thông tin xác thực' });
+        if (!sessionUuid || method !== 'qr' || !qrToken || !Number.isFinite(lat) || !Number.isFinite(lng) || lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+            return res.status(400).json({ success: false, message: 'Thiếu mã check-in hợp lệ hoặc vị trí GPS.' });
+        }
+
+        const verifiedQr = verifyCheckinToken(qrToken);
+        if (!verifiedQr) {
+            return res.status(400).json({ success: false, message: 'Mã QR không hợp lệ hoặc đã hết hạn. Hãy quét mã mới tại địa điểm.', error_type: 'INVALID_QR' });
         }
 
         const session = await UserSession.findByUuid(sessionUuid);
@@ -154,17 +163,25 @@ class ApiController {
                 success: false,
                 message: 'Vui lòng đăng nhập tài khoản để thực hiện quét mã check-in tích điểm!',
                 error_type: 'AUTH_REQUIRED',
-                login_url: '/auth/login?redirect=' + encodeURIComponent('/checkin' + (slug ? `?slug=${slug}` : ''))
+                login_url: '/auth/login?redirect=' + encodeURIComponent('/checkin')
             });
         }
 
-        const dest = await Destination.findBySlug(slug);
+        const dest = await Destination.findById(verifiedQr.destinationId);
         if (!dest) {
-            return res.status(404).json({ success: false, message: 'Địa điểm không hợp lệ' });
+            return res.status(404).json({ success: false, message: 'Địa điểm của mã QR không còn tồn tại.' });
         }
 
-        const distance = Model.haversine(lat, lng, dest.lat, dest.lng);
-        const maxRadius = CHECKIN_RADIUS_METERS;
+        const destinationLat = Number(dest.lat);
+        const destinationLng = Number(dest.lng);
+        if (!Number.isFinite(destinationLat) || !Number.isFinite(destinationLng)) {
+            return res.status(409).json({ success: false, message: 'Địa điểm chưa được cấu hình tọa độ hợp lệ.' });
+        }
+        const distance = Model.haversine(lat, lng, destinationLat, destinationLng);
+        const configuredRadius = Number(dest.radius_meter);
+        const maxRadius = Number.isFinite(configuredRadius) && configuredRadius > 0
+            ? Math.min(configuredRadius, CHECKIN_RADIUS_METERS)
+            : CHECKIN_RADIUS_METERS;
         
         if (distance > maxRadius) {
             return res.status(400).json({ success: false, message: 'Nằm ngoài bán kính địa điểm', error_type: 'OUT_OF_RADIUS' });
@@ -246,7 +263,7 @@ class ApiController {
             
             if (!sessionUuid) {
                 sessionUuid = uuidv4();
-                res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+                setSessionUuidCookie(res, sessionUuid);
             }
 
             if (!message || !message.trim()) {
@@ -260,6 +277,7 @@ class ApiController {
 
             if (user.id && !session.user_id) {
                 await db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
+                UserSession.invalidateCacheById(session.id);
                 session.user_id = user.id;
             }
 
@@ -435,7 +453,7 @@ class ApiController {
         let sessionUuid = req.cookies?.session_uuid;
         if (!sessionUuid) {
             sessionUuid = uuidv4();
-            res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+            setSessionUuidCookie(res, sessionUuid);
         }
 
         const session = await UserSession.findOrCreate(sessionUuid, req);
@@ -446,6 +464,7 @@ class ApiController {
 
         if (user && user.id && !session.user_id) {
             await db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
+            UserSession.invalidateCacheById(session.id);
             session.user_id = user.id;
         }
 
@@ -667,6 +686,7 @@ class ApiController {
                     const newUuid = uuidv4();
                     session = await UserSession.findOrCreate(newUuid, req);
                     await db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
+                    UserSession.invalidateCacheById(session.id);
                 }
             }
 

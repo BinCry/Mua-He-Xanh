@@ -1,6 +1,7 @@
 const UserSession = require('../models/UserSession');
 const { v4: uuidv4 } = require('uuid');
 const db = require('../core/database');
+const { setSessionUuidCookie } = require('../utils/sessionCookie');
 
 class OnboardingController {
     async index(req, res) {
@@ -21,7 +22,7 @@ class OnboardingController {
 
             if (!uuid) {
                 uuid = uuidv4();
-                res.cookie('session_uuid', uuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+                setSessionUuidCookie(res, uuid);
             }
 
             const validMoods = new Set(['chill', 'peace', 'culture', 'family']);

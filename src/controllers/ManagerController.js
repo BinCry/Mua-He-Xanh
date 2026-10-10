@@ -4,9 +4,19 @@ const UserSession = require('../models/UserSession');
 const HomeController = require('./HomeController');
 const { v4: uuidv4 } = require('uuid');
 const cache = require('../core/cache');
+const QRCode = require('qrcode');
+const { TOKEN_WINDOW_SECONDS, createCheckinToken } = require('../utils/checkinQr');
+const NotificationController = require('./NotificationController');
 
 function invalidateShopCache() {
     cache.del('shops:*');
+}
+
+function invalidateDestinationCache() {
+    cache.del('explore:list:*');
+    cache.del('dest:show:*');
+    cache.del('map:*');
+    HomeController.clearCache();
 }
 
 class ManagerController {
@@ -284,6 +294,32 @@ class ManagerController {
         }
     }
 
+    async getCheckinQr(req, res) {
+        try {
+            const user = req.session?.user || req.user;
+            const { destinationId } = req.params;
+            const isAdmin = user?.role === 'admin' || user?.role_id === 1;
+            if (!isAdmin && String(user?.managed_destination_id) !== String(destinationId)) {
+                return res.status(403).json({ success: false, message: 'Bạn chỉ được tạo mã cho địa điểm mình quản lý.' });
+            }
+
+            const destination = await Destination.findById(destinationId);
+            if (!destination) return res.status(404).json({ success: false, message: 'Địa điểm không tồn tại.' });
+
+            const token = createCheckinToken(destination.id);
+            const qrDataUrl = await QRCode.toDataURL(token, { errorCorrectionLevel: 'M', width: 240, margin: 2 });
+            res.set('Cache-Control', 'private, no-store, max-age=0');
+            res.json({
+                success: true,
+                qrDataUrl,
+                expiresAt: (Math.floor(Date.now() / (TOKEN_WINDOW_SECONDS * 1000)) + 1) * TOKEN_WINDOW_SECONDS * 1000
+            });
+        } catch (error) {
+            console.error(`[${req.requestId || 'untracked'}] Manager check-in QR error:`, error);
+            res.status(500).json({ success: false, message: 'Không thể tạo mã check-in lúc này.' });
+        }
+    }
+
     async getChatHistory(req, res) {
         try {
             const { sessionId } = req.query;
@@ -391,7 +427,7 @@ class ManagerController {
             if (typeof short_desc !== 'undefined') updateData.short_desc = short_desc || '';
 
             await Destination.update(targetDestId, updateData);
-            HomeController.clearCache();
+            invalidateDestinationCache();
 
             if (typeof cover_image !== 'undefined' && cover_image && cover_image.trim() !== '') {
                 const db = require('../core/database');
@@ -621,6 +657,7 @@ class ManagerController {
     }
 
     async updateBookingStatus(req, res) {
+        let client;
         try {
             const { booking_id, status } = req.body;
             if (!booking_id || !status) {
@@ -635,27 +672,69 @@ class ManagerController {
             if (!isAdmin && !user?.managed_destination_id) {
                 return res.status(403).json({ success: false, message: 'Tài khoản chưa được gán địa điểm quản lý.' });
             }
-            const params = [status, booking_id];
-            const scope = isAdmin ? '' : ' AND w.destination_id = $3';
-            if (!isAdmin) params.push(user.managed_destination_id);
-            const [updated] = await UserSession.db.query(
-                `UPDATE workshop_bookings wb SET status = $1
-                 FROM workshops w
-                 WHERE wb.id = $2 AND w.id = wb.workshop_id${scope}
-                   AND (
-                     (wb.status = 'pending' AND $1 IN ('confirmed', 'cancelled')) OR
-                     (wb.status = 'confirmed' AND $1 IN ('completed', 'cancelled'))
-                   )
-                 RETURNING wb.id`,
+            client = await UserSession.db.pgPool.connect();
+            await client.query('BEGIN');
+            const scope = isAdmin ? '' : ' AND w.destination_id = $2';
+            const params = isAdmin ? [booking_id] : [booking_id, user.managed_destination_id];
+            const bookingResult = await client.query(
+                `SELECT wb.id, wb.user_id, wb.status, wb.points_awarded
+                 FROM workshop_bookings wb
+                 JOIN workshops w ON w.id = wb.workshop_id
+                 WHERE wb.id = $1${scope}
+                 FOR UPDATE OF wb`,
                 params
             );
-            if (updated.length !== 1) {
+            const booking = bookingResult.rows[0];
+            if (!booking) {
+                await client.query('ROLLBACK');
                 return res.status(404).json({ success: false, message: 'Không tìm thấy đơn trong phạm vi quản lý.' });
             }
+
+            const allowedTransitions = {
+                pending: new Set(['confirmed', 'cancelled']),
+                confirmed: new Set(['completed', 'cancelled'])
+            };
+            if (!allowedTransitions[booking.status]?.has(status)) {
+                await client.query('ROLLBACK');
+                return res.status(409).json({ success: false, message: 'Trạng thái đơn đã thay đổi hoặc không cho phép chuyển như yêu cầu.' });
+            }
+
+            await client.query(
+                `UPDATE workshop_bookings SET status = $1,
+                    points_awarded = CASE WHEN $1 IN ('completed', 'cancelled') THEN CASE WHEN $1 = 'completed' THEN 1 ELSE 0 END ELSE points_awarded END
+                 WHERE id = $2`,
+                [status, booking_id]
+            );
+            if (status === 'completed' && Number(booking.points_awarded) === 0 && booking.user_id) {
+                await client.query(
+                    'UPDATE users SET total_points = COALESCE(total_points, 0) + 50 WHERE id = $1',
+                    [booking.user_id]
+                );
+            }
+            if (status === 'cancelled' && Number(booking.points_awarded) > 0 && booking.user_id) {
+                await client.query(
+                    'UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - 50) WHERE id = $1',
+                    [booking.user_id]
+                );
+            }
+            if (booking.user_id) {
+                const statusMessages = {
+                    confirmed: ['Đặt chỗ đã được xác nhận', 'Quản lý đã xác nhận yêu cầu đặt chỗ của bạn.'],
+                    cancelled: ['Yêu cầu đặt chỗ đã bị hủy', 'Quản lý đã hủy yêu cầu đặt chỗ của bạn.']
+                };
+                const [title, message] = status === 'completed'
+                    ? ['Dịch vụ đã hoàn tất', Number(booking.points_awarded) === 0 ? 'Dịch vụ đã hoàn tất. Bạn được cộng 50 điểm thưởng.' : 'Dịch vụ đã được ghi nhận hoàn tất.']
+                    : statusMessages[status];
+                await NotificationController.insertWithClient(client, booking.user_id, 'shop', title, message, '/my-shops');
+            }
+            await client.query('COMMIT');
             res.json({ success: true, message: 'Cập nhật trạng thái thành công!' });
         } catch (error) {
-            console.error("Manager updateBookingStatus error:", error);
-            res.status(500).json({ success: false, message: error.message });
+            if (client) await client.query('ROLLBACK').catch(() => {});
+            console.error(`[${req.requestId || 'untracked'}] Manager updateBookingStatus error:`, error);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật đơn.' });
+        } finally {
+            client?.release();
         }
     }
 }

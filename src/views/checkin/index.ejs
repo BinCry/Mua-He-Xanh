@@ -111,13 +111,8 @@
                 <h6 class="fw-bold mb-0 text-muted">Định vị GPS</h6>
             </div>
             <p id="location-status" class="small text-muted mb-0">
-                <i class="bi bi-info-circle me-1"></i> Quét mã QR trước, hệ thống sẽ tự động xác minh GPS của bạn sau.
+                <i class="bi bi-info-circle me-1"></i> GPS chỉ là tín hiệu bổ sung. Cần quét mã QR luân phiên đang hiển thị tại địa điểm để nhận điểm.
             </p>
-            <% if (dest) { %>
-            <button id="btn-gps-check" class="btn rounded-pill px-4 py-2 fw-bold text-white mt-3" style="background: var(--primary);" onclick="doGpsCheckin()">
-                <i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí tại "<%= dest.name %>"
-            </button>
-            <% } %>
         </div>
     </div>
 </section>
@@ -328,87 +323,38 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('location-status').innerHTML = 
             '<span class="text-primary"><i class="bi bi-hourglass-split me-1"></i> Đang đối chiếu vị trí...</span>';
 
-        // Parse destination slug from QR data
-        var slug = decodedText.trim();
-        if (slug.indexOf('slug=') !== -1) {
-            var match = slug.match(/slug=([^&]+)/);
-            if (match) slug = match[1];
-        } else if (slug.indexOf('/explore/') !== -1) {
-            slug = slug.split('/explore/').pop().split('?')[0].split('#')[0];
-        } else if (slug.indexOf('/checkin') !== -1) {
-            var match2 = slug.match(/slug=([^&]+)/);
-            if (match2) slug = match2[1];
-        } else if (slug.indexOf('/') !== -1) {
-            var parts = slug.split('/').filter(function(s) { return s; });
-            slug = parts[parts.length - 1] || slug;
+        const qrToken = decodedText.trim();
+        if (!qrToken.startsWith('BLH-CHECKIN:v1:')) {
+            showCheckinError('Mã QR không phải mã check-in đang hoạt động. Hãy quét mã trên màn hình tại địa điểm.');
+            return;
         }
-        try { slug = decodeURIComponent(slug); } catch(e) {}
-        if (slug.endsWith('/')) slug = slug.slice(0, -1);
-        slug = slug.split('?')[0].split('#')[0].trim();
 
         // Re-fetch fresh GPS coordinates right before submitting
-        if (navigator.geolocation && gpsReady) {
+        if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function(pos) {
                     userLat = pos.coords.latitude;
                     userLng = pos.coords.longitude;
-                    doCheckin(slug, 'qr', userLat, userLng);
+                    doCheckin(qrToken, userLat, userLng);
                 },
-                function(err) {
-                    // Use previously acquired GPS coordinates
-                    doCheckin(slug, 'qr', userLat, userLng);
+                function() {
+                    showCheckinError('Không lấy được GPS mới. Hãy cho phép định vị và quét lại mã.');
                 },
-                { enableHighAccuracy: true, timeout: 8000, maximumAge: 0 }
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
             );
         } else {
             showCheckinError('Không thiết lập được GPS');
         }
     }
 
-    // GPS-only Checkin button click handler (for checkin links with slug in URL)
-    <% if (dest) { %>
-    window.doGpsCheckin = function() {
-        var btn = document.getElementById('btn-gps-check');
-        btn.disabled = true;
-        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Đang xác định vị trí GPS...';
-
-        document.getElementById('location-status').innerHTML = 
-            '<span class="text-primary"><i class="bi bi-hourglass-split me-1"></i> Đang lấy tọa độ vị trí của bạn...</span>';
-
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function(pos) {
-                    userLat = pos.coords.latitude;
-                    userLng = pos.coords.longitude;
-                    gpsReady = true;
-                    document.getElementById('location-status').innerHTML = 
-                        '<span class="text-success"><i class="bi bi-check-circle-fill me-1"></i> GPS đã sẵn sàng</span>';
-                    doCheckin('<%= slug %>', 'gps', userLat, userLng);
-                },
-                function(err) {
-                    console.error("GPS manual error:", err);
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
-                    showCheckinError('Không lấy được vị trí GPS');
-                },
-                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
-            );
-        } else {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
-            showCheckinError('Thiết bị không hỗ trợ định vị');
-        }
-    };
-    <% } %>
-
     // Core Checkin API Submission
-    function doCheckin(slug, method, lat, lng) {
-        if (!slug || lat === null || lng === null) {
-            showCheckinError('Thiếu thông tin vị trí hoặc địa điểm');
+    function doCheckin(qrToken, lat, lng) {
+        if (!qrToken || !Number.isFinite(lat) || !Number.isFinite(lng)) {
+            showCheckinError('Thiếu mã check-in hoặc thông tin vị trí');
             return;
         }
 
-        axios.post('/api/checkin', { slug: slug, method: method, lat: lat, lng: lng })
+        axios.post('/api/checkin', { qrToken, method: 'qr', lat, lng })
             .then(function(res) {
                 if (res.data.success) {
                     if (typeof confetti === 'function') {
@@ -462,6 +408,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Display simple error message - only "Xác thực thất bại" + descriptive message
     function showCheckinError(msg, type) {
         msg = msg || 'Xác thực thất bại';
+        scannerStopped = false;
+        document.getElementById('reader').style.display = 'none';
+        document.getElementById('btn-stop-camera').classList.add('d-none');
+        document.getElementById('scanner-laser').classList.add('d-none');
+        document.getElementById('scanner-intro').classList.remove('d-none');
+        document.getElementById('scanner-subtitle').innerText = 'Nhấn nút để quét lại mã đang hoạt động';
 
         if (type === 'AUTH_REQUIRED') {
             document.getElementById('qr-result').innerHTML = 
@@ -498,11 +450,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> ' + msg + '</span>';
         }
         
-        var btn = document.getElementById('btn-gps-check');
-        if (btn) {
-            btn.disabled = false;
-            btn.innerHTML = '<i class="bi bi-pin-map-fill me-1"></i> Xác nhận vị trí';
-        }
     }
 });
 </script>

@@ -42,7 +42,7 @@
                                 <%= b.status === 'confirmed' ? 'Đã xác nhận' : b.status === 'completed' ? 'Hoàn thành' : b.status === 'cancelled' ? 'Đã hủy' : 'Chờ xác nhận' %>
                             </span>
                         </div>
-                        <code class="small text-secondary mb-2 bg-light px-2 py-1 rounded">Vé QR: <%= b.qr_ticket %></code>
+                        <code class="small text-secondary mb-2 bg-light px-2 py-1 rounded">Mã đơn: <%= b.qr_ticket %></code>
                         
                         <!-- Cancel Button -->
                         <% if (b.status === 'pending' || b.status === 'confirmed') { %>
@@ -110,7 +110,7 @@
 
 <script>
     function cancelBooking(bookingId) {
-        showAppConfirm('Bạn có chắc chắn muốn hủy đơn đặt hàng sản phẩm này? (Bạn sẽ bị trừ 50 điểm thưởng)', 'Hủy đơn đặt hàng', async () => {
+        showAppConfirm('Bạn có chắc chắn muốn hủy yêu cầu đặt chỗ này không?', 'Hủy yêu cầu', async () => {
             try {
                 const res = await axios.post('/api/shop/cancel', { bookingId });
                 if (res.data.success) {

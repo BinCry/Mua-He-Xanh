@@ -321,7 +321,7 @@ body {
 
 <% 
     const isTemplate = (journeySource === 'template');
-    const isAI = !isTemplate;
+    const isEditableSuggestion = !isTemplate;
     const isStep4 = (typeof currentStep !== 'undefined' && currentStep === 4);
 
     let calcStopsCount = (journey && journey.stops) ? journey.stops.length : 0;
@@ -344,9 +344,9 @@ body {
             }
         }
     }
-    const calcKmVal = calcStopsCount > 1 ? (Math.round((realMeters / 1000) * 100) / 100) : parseFloat(journey.total_km || 4.1);
-    const calcTimeVal = calcStopsCount > 0 ? (calcStopsCount * 60 + Math.round(calcKmVal * 15)) : 360;
-    const calcPtsVal = (journey && journey.stops) ? journey.stops.reduce((s, x) => s + (parseInt(x.points) || 100), 0) : 570;
+    const calcKmVal = calcStopsCount > 1 ? (Math.round((realMeters / 1000) * 100) / 100) : 0;
+    const calcTimeVal = calcStopsCount > 0 ? (calcStopsCount * 60 + Math.round(calcKmVal * 15)) : 0;
+    const calcPtsVal = (journey && journey.stops) ? journey.stops.reduce((s, x) => s + (parseInt(x.points) || 0), 0) : 0;
 
 
 %>
@@ -361,7 +361,7 @@ body {
             <div class="col-6 col-md-3">
                 <div class="metric-glass-box">
                     <div class="metric-val-num" id="val-time"><%= calcTimeVal %></div>
-                    <div class="metric-lbl-text"><i class="bi bi-clock me-1"></i>THỜI LƯỢNG (PHÚT)</div>
+                    <div class="metric-lbl-text"><i class="bi bi-clock me-1"></i>THỜI LƯỢNG DỰ KIẾN (PHÚT)</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
@@ -373,7 +373,7 @@ body {
             <div class="col-6 col-md-3">
                 <div class="metric-glass-box">
                     <div class="metric-val-num" id="val-km"><%= calcKmVal %></div>
-                    <div class="metric-lbl-text"><i class="bi bi-signpost-split me-1"></i>QUÃNG ĐƯỜNG (KM)</div>
+                    <div class="metric-lbl-text"><i class="bi bi-signpost-split me-1"></i>ƯỚC TÍNH ĐƯỜNG CHIM BAY (KM)</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
@@ -476,11 +476,11 @@ body {
             <!-- ===== BƯỚC 3: EDIT & PREVIEW TIMELINE ===== -->
             <div class="timeline-wrapper-relative">
 
-                <!-- Add Stop Panel (ENABLED ONLY WHEN EDITING AI JOURNEY) -->
-                <% if (isAI) { %>
+                <!-- Add stop panel for editable personalized journeys -->
+                <% if (isEditableSuggestion) { %>
                 <div class="card p-3 mb-4 border-0 shadow-sm rounded-4 d-none" id="edit-control-panel" style="background:#fff5f5; border:1px dashed var(--brand-maroon) !important;">
                     <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="fw-bold text-danger small"><i class="bi bi-sliders me-1"></i> Chế độ chỉnh sửa địa điểm AI:</span>
+                        <span class="fw-bold text-danger small"><i class="bi bi-sliders me-1"></i> Tùy chỉnh các điểm dừng:</span>
                     </div>
                     <div class="d-flex gap-2 flex-wrap">
                         <select id="select-add-dest" class="form-select rounded-pill small" style="flex:1; min-width:200px;">
@@ -508,7 +508,7 @@ body {
                                 <div style="flex:1; position:relative;">
                                     
                                     <!-- Delete Button (Shown only during edit mode) -->
-                                    <% if (isAI) { %>
+                                    <% if (isEditableSuggestion) { %>
                                     <button onclick="removeDestinationStop('<%= stop.destination_id %>')" class="btn btn-danger btn-sm rounded-circle delete-stop-btn d-none" title="Xóa điểm này" style="position:absolute; top:-5px; right:-5px; width:26px; height:26px; padding:0; display:flex; align-items:center; justify-content:center; z-index:10;">
                                         <i class="bi bi-x-lg" style="font-size:0.7rem;"></i>
                                     </button>
@@ -539,8 +539,8 @@ body {
                         <i class="bi bi-check-circle-fill"></i> LƯU LỘ TRÌNH
                     </button>
 
-                    <!-- 2. NÚT CHỈNH SỬA (CHỈ CÓ CHO HÀNH TRÌNH AI) -->
-                    <% if (isAI) { %>
+                    <!-- 2. EDIT ACTIONS FOR PERSONALIZED JOURNEYS -->
+                    <% if (isEditableSuggestion) { %>
                     <button class="btn-action-edit" id="btn-toggle-edit" onclick="toggleEditMode()">
                         <i class="bi bi-pencil-square"></i> Chỉnh sửa
                     </button>
@@ -571,12 +571,12 @@ body {
 
 <script>
 const journeyId = "<%= journey.id %>";
-const isAIJourney = <%= isAI ? 'true' : 'false' %>;
+const isEditableSuggestion = <%= isEditableSuggestion ? 'true' : 'false' %>;
 let isEditMode = false;
 let sortableInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (isAIJourney && document.getElementById('sortable-timeline-list')) {
+    if (isEditableSuggestion && document.getElementById('sortable-timeline-list')) {
         initDragAndDrop();
     }
     <% if (isStep4) { %>
@@ -636,7 +636,7 @@ function recalculateMetricsRealtime() {
     let totalPts = 0;
 
     for (let i = 0; i < rows.length; i++) {
-        const pts = parseInt(rows[i].dataset.pts) || 100;
+        const pts = parseInt(rows[i].dataset.pts) || 0;
         totalPts += pts;
 
         if (i > 0) {
@@ -645,7 +645,9 @@ function recalculateMetricsRealtime() {
             const lat2 = parseFloat(rows[i].dataset.lat);
             const lng2 = parseFloat(rows[i].dataset.lng);
 
-            if (lat1 && lng1 && lat2 && lng2) {
+            if ([lat1, lng1, lat2, lng2].every(Number.isFinite)
+                && Math.abs(lat1) <= 90 && Math.abs(lat2) <= 90
+                && Math.abs(lng1) <= 180 && Math.abs(lng2) <= 180) {
                 const R = 6371000;
                 const dLat = (lat2 - lat1) * Math.PI / 180;
                 const dLon = (lng2 - lng1) * Math.PI / 180;
@@ -658,7 +660,7 @@ function recalculateMetricsRealtime() {
         }
     }
 
-    const totalKm = rows.length > 1 ? (Math.round((totalMeters / 1000) * 100) / 100) : 4.1;
+    const totalKm = rows.length > 1 ? (Math.round((totalMeters / 1000) * 100) / 100) : 0;
     const totalTime = rows.length * 60 + Math.round(totalKm * 15);
 
     // DYNAMICALLY UPDATE TOP METRICS WITHOUT PAGE RELOAD

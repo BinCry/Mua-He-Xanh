@@ -288,12 +288,12 @@ body {
 <main class="sug-card-container">
     <div class="container" style="max-width: 1140px;">
 
-        <!-- 1. AI SUGGESTION ROUTE (IF AVAILABLE) -->
+        <!-- 1. PERSONALIZED SUGGESTION (IF AVAILABLE) -->
         <% if (aiSuggestions && aiSuggestions.length > 0) { %>
         <div class="mb-5">
             <div class="d-flex align-items-center gap-2 mb-3">
-                <span class="badge bg-primary bg-opacity-15 text-primary rounded-circle p-2"><i class="bi bi-robot"></i></span>
-                <h5 class="fw-black text-dark mb-0">Hành trình AI gợi ý (Tối ưu tuyến đường)</h5>
+                <span class="badge bg-primary bg-opacity-15 text-primary rounded-circle p-2"><i class="bi bi-funnel"></i></span>
+                <h5 class="fw-black text-dark mb-0">Gợi ý hành trình theo sở thích</h5>
             </div>
 
             <div class="row g-4 justify-content-center">
@@ -305,11 +305,11 @@ body {
                         <div class="sug-card-header">
                             <div class="d-flex align-items-center justify-content-between">
                                 <div class="d-flex gap-1 flex-wrap">
-                                    <% (sug.tags || []).filter(t => !t.includes('AI Tối')).forEach(t => { %>
+                                    <% (sug.tags || []).forEach(t => { %>
                                         <span class="tag-pill-light"><%= t %></span>
                                     <% }) %>
                                 </div>
-                                <span class="badge-choice-ai">🤖 AI Tối Ưu</span>
+                                <span class="badge-choice-ai">GỢI Ý CÁ NHÂN</span>
                             </div>
                             <h3 class="sug-card-title"><%= sug.name %></h3>
                             <p class="sug-card-desc"><%= sug.desc %></p>
@@ -323,8 +323,13 @@ body {
                                 </div>
                                 <div class="vr opacity-25"></div>
                                 <div>
-                                    <div class="metric-item-val">⚡ ~<%= sug.km %> km</div>
-                                    <div class="metric-item-lbl">Quãng đường</div>
+                                    <% if (sug.km !== null && sug.km !== undefined) { %>
+                                        <div class="metric-item-val">~<%= Number(sug.km).toFixed(2) %> km</div>
+                                        <div class="metric-item-lbl">Ước tính đường chim bay</div>
+                                    <% } else { %>
+                                        <div class="metric-item-val">Chưa đủ dữ liệu</div>
+                                        <div class="metric-item-lbl">Ước tính khoảng cách</div>
+                                    <% } %>
                                 </div>
                                 <div class="vr opacity-25"></div>
                                 <div>
@@ -344,7 +349,6 @@ body {
                             </div>
 
                             <form action="/journey/confirm" method="POST">
-                                <input type="hidden" name="source" value="ai">
                                 <input type="hidden" name="journeyData" value="<%= Buffer.from(JSON.stringify(sug)).toString('base64') %>">
                                 <button type="submit" class="btn-explore-route" style="border-color: #2563eb; color: #2563eb;">
                                     Khám phá lộ trình này <i class="bi bi-arrow-right"></i>
@@ -393,8 +397,13 @@ body {
                                 </div>
                                 <div class="vr opacity-25"></div>
                                 <div>
-                                    <div class="metric-item-val">⚡ ~<%= sug.km %> km</div>
-                                    <div class="metric-item-lbl">Quãng đường</div>
+                                    <% if (sug.km !== null && sug.km !== undefined) { %>
+                                        <div class="metric-item-val">~<%= Number(sug.km).toFixed(2) %> km</div>
+                                        <div class="metric-item-lbl">Ước tính đường chim bay</div>
+                                    <% } else { %>
+                                        <div class="metric-item-val">Chưa đủ dữ liệu</div>
+                                        <div class="metric-item-lbl">Ước tính khoảng cách</div>
+                                    <% } %>
                                 </div>
                                 <div class="vr opacity-25"></div>
                                 <div>

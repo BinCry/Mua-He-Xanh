@@ -1,6 +1,20 @@
 const Model = require('../core/Model');
 const sessionCache = new Map();
 const SESSION_TTL = 300000; // 5 minutes RAM cache
+const MAX_SESSION_CACHE_ENTRIES = 5000;
+
+function pruneSessionCache() {
+    const now = Date.now();
+    for (const [uuid, cached] of sessionCache.entries()) {
+        if (now - cached.time >= SESSION_TTL) sessionCache.delete(uuid);
+    }
+    while (sessionCache.size > MAX_SESSION_CACHE_ENTRIES) {
+        sessionCache.delete(sessionCache.keys().next().value);
+    }
+}
+
+const sessionCacheCleanupTimer = setInterval(pruneSessionCache, 60000);
+if (sessionCacheCleanupTimer.unref) sessionCacheCleanupTimer.unref();
 
 class UserSession extends Model {
     constructor() {
@@ -12,8 +26,11 @@ class UserSession extends Model {
         
         const cached = sessionCache.get(uuid);
         if (cached && (Date.now() - cached.time < SESSION_TTL)) {
+            sessionCache.delete(uuid);
+            sessionCache.set(uuid, cached);
             return cached.data;
         }
+        if (cached) sessionCache.delete(uuid);
 
         let session = await this.findOne({ uuid });
         if (!session) {
@@ -28,6 +45,7 @@ class UserSession extends Model {
 
         if (session) {
             sessionCache.set(uuid, { time: Date.now(), data: session });
+            pruneSessionCache();
         }
         return session;
     }
@@ -41,11 +59,18 @@ class UserSession extends Model {
         if (updated) {
             for (const [uuid, cached] of sessionCache.entries()) {
                 if (cached.data?.id === id) {
+                    sessionCache.delete(uuid);
                     sessionCache.set(uuid, { time: Date.now(), data: { ...cached.data, ...data } });
                 }
             }
         }
         return updated;
+    }
+
+    invalidateCacheById(id) {
+        for (const [uuid, cached] of sessionCache.entries()) {
+            if (cached.data?.id === id) sessionCache.delete(uuid);
+        }
     }
 
     async addPoints(id, points) {
@@ -74,6 +99,7 @@ class UserSession extends Model {
                    (SELECT id FROM updated_user LIMIT 1) AS user_id`,
             [points, id]
         );
+        this.invalidateCacheById(id);
         return rows[0]?.session_updated === true;
     }
 }

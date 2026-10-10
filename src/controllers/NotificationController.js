@@ -6,6 +6,13 @@ const { v4: uuidv4 } = require('uuid');
 
 const NotificationController = {
 
+    insertWithClient: async (client, userId, type, title, message, link = null) => {
+        await client.query(
+            'INSERT INTO notifications (id, user_id, type, title, message, link) VALUES ($1, $2, $3, $4, $5, $6)',
+            [uuidv4(), userId, type, title, message, link]
+        );
+    },
+
     // GET /api/notifications - Lấy thông báo
     getAll: async (req, res) => {
         try {

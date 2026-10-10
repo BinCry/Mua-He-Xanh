@@ -26,7 +26,7 @@ const config = {
             appSecret: process.env.FACEBOOK_APP_SECRET,
             callbackUrl: calculatedBaseUrl + '/auth/facebook/callback'
         },
-        sessionSecret: process.env.SESSION_SECRET || 'binh_loi_healing_default_secret'
+        sessionSecret: process.env.SESSION_SECRET || (process.env.NODE_ENV === 'production' ? undefined : 'development-only-session-secret')
     },
     
     cloudinary: {

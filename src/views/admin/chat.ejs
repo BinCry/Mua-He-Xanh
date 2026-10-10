@@ -661,9 +661,8 @@ function formatMessengerSidebarDate(dateStr) {
                 document.getElementById('recording-timer').innerText = `${mins}:${secs}`;
             }, 1000);
         } catch (err) {
-            console.warn("Microphone not available, using simulated voice note:", err);
-            sendCustomMessage('🎤 [Ghi âm thoại: 0:12]');
-            showAdminToast('Đã gửi tin nhắn ghi chú thoại!', 'success');
+            console.warn("Microphone access unavailable:", err);
+            showAdminToast('Không thể truy cập micro. Tin nhắn thoại chưa được gửi.', 'error');
         }
     }
 
@@ -699,14 +698,14 @@ function formatMessengerSidebarDate(dateStr) {
                     const audioUrl = res.data.url || res.data.path;
                     sendCustomMessage(`[AUDIO: ${audioUrl}|${durationStr}]`);
                 } else {
-                    sendCustomMessage(`🎤 [Ghi âm thoại: ${durationStr}]`);
+                    showAdminToast(res.data.message || 'Tải ghi âm thất bại. Tin nhắn thoại chưa được gửi.', 'error');
                 }
-            } catch(e) {
-                sendCustomMessage(`🎤 [Ghi âm thoại: ${durationStr}]`);
+            } catch (error) {
+                showAdminToast('Tải ghi âm thất bại. Tin nhắn thoại chưa được gửi.', 'error');
+            } finally {
+                document.getElementById('voice-recording-bar').style.display = 'none';
+                document.getElementById('standard-chat-bar').style.display = 'flex';
             }
-
-            document.getElementById('voice-recording-bar').style.display = 'none';
-            document.getElementById('standard-chat-bar').style.display = 'flex';
         };
 
         mediaRecorder.stop();
@@ -902,7 +901,7 @@ function formatMessengerSidebarDate(dateStr) {
             `;
         }
 
-        // 3. Handle Voice / Audio Notes: [AUDIO: url|duration] or 🎤 [Ghi âm thoại: duration]
+        // Audio can only play when the persisted message contains a real uploaded file.
         const audioMatch = text.match(/\[(AUDIO|VOICE):\s*([^\|\]]+)(?:\|([^\]]+))?\]/i);
         if (audioMatch) {
             const audioUrl = audioMatch[2].trim();
@@ -920,12 +919,9 @@ function formatMessengerSidebarDate(dateStr) {
 
         if (text.includes('🎤 [Ghi âm thoại')) {
             return `
-                <div class="d-flex align-items-center gap-2 p-2 px-3 rounded-pill my-1" style="background: rgba(255,255,255,0.22); min-width: 190px;">
-                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; color: #0084ff;" onclick="togglePlayVoice(this, '/sounds/chat-notification.mp3')">
-                        <i class="bi bi-play-fill fs-5"></i>
-                    </button>
-                    <div class="flex-grow-1" style="height: 4px; background: rgba(255,255,255,0.4); border-radius: 2px;"></div>
-                    <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.72rem;">0:15</span>
+                <div class="d-flex align-items-center gap-2 p-2 px-3 rounded-pill my-1" style="background: rgba(255,255,255,0.22);">
+                    <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                    <span class="x-small fw-bold">Bản ghi cũ không có tệp âm thanh</span>
                 </div>
             `;
         }
@@ -1179,7 +1175,7 @@ function formatMessengerSidebarDate(dateStr) {
         const input = document.getElementById('admin-chat-input');
         const responses = {
             welcome: 'Chào mừng bạn đến với hệ sinh thái du lịch chữa lành Bình Lợi! Ban quản trị chúng tôi rất hân hạnh được đồng hành và hỗ trợ bạn.',
-            guide: 'Chào bạn, bạn có thể tạo Hành trình cá nhân hóa bằng AI tại menu "Hành trình", hoặc mở "Bản đồ số" để khám phá các điểm đến nhé!',
+            guide: 'Chào bạn, bạn có thể nhận gợi ý hành trình theo sở thích tại menu "Hành trình", hoặc mở "Bản đồ số" để khám phá các điểm đến nhé!',
             points: 'Chào bạn! Hãy quét mã QR Code tại mỗi điểm đến để Check-in và tích lũy điểm thưởng trong Hồ sơ du khách để đổi quà hấp dẫn!',
             thanks: 'Cảm ơn bạn đã đóng góp ý kiến. Chúc bạn và gia đình có một chuyến đi chữa lành thật nhiều niềm vui tại Bình Lợi!'
         };

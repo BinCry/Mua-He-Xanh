@@ -10,7 +10,7 @@ class MapController {
             let allDests = cache.get(mapCacheKey);
             if (!allDests) {
                 allDests = await Destination.getMapData();
-                cache.set(mapCacheKey, allDests, 180);
+                cache.set(mapCacheKey, allDests, 60);
             }
 
             const uuid = req.cookies ? req.cookies.session_uuid : null;

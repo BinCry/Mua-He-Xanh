@@ -2,7 +2,7 @@
     <!-- Featured Festival Hero -->
     <div class="container-fluid px-lg-5 mb-5 reveal-up">
         <div class="card-bl border-0 shadow-lg rounded-5 overflow-hidden position-relative text-white" style="min-height: 500px;">
-            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg('/uploads/destinations/vuon-mai.webp', '/images/no-image.svg') %>') center/cover; transform: scale(1.05); transition: transform 10s ease;"></div>
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg(featuredFestival?.image || '/uploads/destinations/vuon-mai.webp', '/images/no-image.svg') %>') center/cover; transform: scale(1.05); transition: transform 10s ease;"></div>
             <div class="position-absolute top-0 start-0 w-100 h-100 bg-gradient-to-t-dark"></div>
             
             <div class="position-relative h-100 p-4 p-lg-5 d-flex flex-column justify-content-end" style="z-index: 10;">
@@ -11,14 +11,16 @@
                         <span class="badge bg-danger text-white px-3 py-2 rounded-pill fw-bold mb-3 tracking-widest text-uppercase shadow-sm">
                             <i class="bi bi-fire me-1"></i>Sắp diễn ra
                         </span>
-                        <h1 class="display-3 fw-black mb-3 text-shadow">Hội Hoa Mai Vàng Bình Lợi 2026</h1>
-                        <p class="lead opacity-90 mb-4" style="max-width: 600px;">Sự kiện thường niên lớn nhất khu vực với hàng vạn gốc mai khoe sắc. Trải nghiệm không gian văn hóa Tết cổ truyền Nam Bộ độc đáo.</p>
+                        <h1 class="display-3 fw-black mb-3 text-shadow"><%= featuredFestival?.name || 'Lễ hội và sự kiện Bình Lợi' %></h1>
+                        <p class="lead opacity-90 mb-4" style="max-width: 600px;"><%= featuredFestival?.description || 'Khám phá các hoạt động văn hóa và trải nghiệm tại Bình Lợi.' %></p>
                         
                         <div class="d-flex flex-wrap gap-3 align-items-center">
-                            <button class="btn btn-primary-bl btn-lg rounded-pill px-5 fw-bold shadow-premium" onclick="showBookingModal(1, 'Hội Hoa Mai Vàng Bình Lợi 2026')">
-                                ĐẶT VÉ MIỄN PHÍ <i class="bi bi-ticket-perforated ms-2"></i>
-                            </button>
-                            <span class="text-white-50 small fw-bold tracking-widest text-uppercase"><i class="bi bi-clock me-1"></i>Chỉ còn 12 ngày</span>
+                            <% if (featuredFestival) { %>
+                                <button class="btn btn-primary-bl btn-lg rounded-pill px-5 fw-bold shadow-premium festival-booking-trigger" data-fest-id="<%= featuredFestival.id %>" data-fest-name="<%= featuredFestival.name %>">
+                                    GỬI YÊU CẦU ĐĂNG KÝ <i class="bi bi-ticket-perforated ms-2"></i>
+                                </button>
+                                <span class="text-white-50 small fw-bold tracking-widest text-uppercase"><i class="bi bi-calendar-event me-1"></i><%= featuredFestival.date ? new Date(featuredFestival.date).toLocaleDateString('vi-VN') : 'Ngày sẽ được cập nhật' %></span>
+                            <% } %>
                         </div>
                     </div>
                     
@@ -57,18 +59,18 @@
                         <div class="position-relative" style="height: 250px;">
                             <img src="<%= fixImg(fest.image, '/uploads/destinations/vuon-mai.webp') %>" class="w-100 h-100 object-fit-cover transition-transform duration-500 group-hover-scale" alt="<%= fest.name %>" onerror="this.onerror=null;this.src='/images/no-image.svg';">
                             <div class="position-absolute top-0 start-0 m-3">
-                                <span class="badge <%= fest.status === 'Sắp diễn ra' ? 'bg-danger' : (fest.status === 'Đang chuẩn bị' ? 'bg-primary' : 'bg-secondary') %> rounded-pill px-3 py-2 shadow-sm fw-bold">
-                                    <%= fest.status %>
+                                <span class="badge <%= ['upcoming', 'Sắp diễn ra'].includes(fest.status) ? 'bg-danger' : (['preparing', 'Đang chuẩn bị'].includes(fest.status) ? 'bg-primary' : 'bg-secondary') %> rounded-pill px-3 py-2 shadow-sm fw-bold">
+                                    <%= fest.status === 'upcoming' ? 'Sắp diễn ra' : (fest.status === 'preparing' ? 'Đang chuẩn bị' : (fest.status || 'Đang cập nhật')) %>
                                 </span>
                             </div>
                         </div>
                         <div class="p-4 d-flex flex-column flex-grow-1">
                             <span class="text-primary fw-bold small mb-2"><i class="bi bi-calendar-event me-2"></i><%= fest.date %></span>
                             <h4 class="fw-bold mb-3 text-dark"><%= fest.name %></h4>
-                            <p class="text-muted small mb-4 line-clamp-3"><%= fest.desc %></p>
+                            <p class="text-muted small mb-4 line-clamp-3"><%= fest.description %></p>
                             
                             <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                                <button class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-4" onclick="showBookingModal(<%= fest.id %>, '<%= fest.name %>')">
+                                <button class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-4 festival-booking-trigger" data-fest-id="<%= fest.id %>" data-fest-name="<%= fest.name %>">
                                     <i class="bi bi-bookmark-plus me-1"></i> Đăng ký
                                 </button>
                                 <button class="btn btn-light btn-sm rounded-circle shadow-sm" style="width: 35px; height: 35px; padding: 0;">
@@ -101,15 +103,15 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Số điện thoại</label>
-                        <input type="tel" class="form-control bg-light border-0 rounded-3 p-3 shadow-none" required placeholder="Nhập SĐT nhận vé (Zalo)">
+                        <input type="tel" class="form-control bg-light border-0 rounded-3 p-3 shadow-none" required placeholder="Nhập số điện thoại để ban tổ chức liên hệ">
                     </div>
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Số lượng vé</label>
                         <select class="form-select bg-light border-0 rounded-3 p-3 shadow-none">
-                            <option>1 Người</option>
-                            <option>2 Người</option>
-                            <option>Gia đình (4 người)</option>
-                            <option>Đoàn đông (>5 người)</option>
+                            <option value="1">1 Người</option>
+                            <option value="2">2 Người</option>
+                            <option value="4">Gia đình (4 người)</option>
+                            <option value="6">Đoàn 6 người</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest">XÁC NHẬN ĐĂNG KÝ</button>
@@ -130,30 +132,47 @@
             const festId = btn.getAttribute('data-fest-id');
             const name = e.target.querySelector('input[type="text"]').value;
             const phone = e.target.querySelector('input[type="tel"]').value;
-            const tickets = parseInt(e.target.querySelector('select').value) || 1;
+            const tickets = Number(e.target.querySelector('select').value);
+            const intentStorageKey = `bl:festival-booking:${festId}`;
+            let idempotencyKey;
+            try {
+                idempotencyKey = sessionStorage.getItem(intentStorageKey);
+                if (!idempotencyKey) {
+                    idempotencyKey = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+                    sessionStorage.setItem(intentStorageKey, idempotencyKey);
+                }
+            } catch (_) {
+                idempotencyKey = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+            }
 
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
+            btn.disabled = true;
             btn.classList.replace('btn-primary-bl', 'btn-success');
             
             try {
                 const res = await fetch('/api/festival/book', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
                     body: JSON.stringify({ festivalId: festId, fullName: name, phone: phone, tickets: tickets })
                 });
                 const data = await res.json();
                 
                 if (data.success) {
-                    alert(data.message || 'Đăng ký nhận vé thành công! E-Ticket đã được lưu vào Passport số.');
+                    try { sessionStorage.removeItem(intentStorageKey); } catch (_) {}
+                    alert(data.message || 'Đã tiếp nhận yêu cầu đăng ký. Đây chưa phải vé xác nhận.');
                     bootstrap.Modal.getInstance(document.getElementById('bookingModal')).hide();
                     e.target.reset();
                 } else {
+                    if (res.status < 500) {
+                        try { sessionStorage.removeItem(intentStorageKey); } catch (_) {}
+                    }
                     alert('Lỗi: ' + data.message);
                 }
             } catch (err) {
                 alert('Có lỗi xảy ra. Vui lòng thử lại sau.');
             } finally {
                 btn.innerHTML = 'XÁC NHẬN ĐĂNG KÝ';
+                btn.disabled = false;
                 btn.classList.replace('btn-success', 'btn-primary-bl');
             }
         });
@@ -164,6 +183,10 @@
         document.querySelector('#bookingForm button').setAttribute('data-fest-id', id);
         new bootstrap.Modal(document.getElementById('bookingModal')).show();
     }
+
+    document.querySelectorAll('.festival-booking-trigger').forEach((button) => {
+        button.addEventListener('click', () => showBookingModal(button.dataset.festId, button.dataset.festName));
+    });
 </script>
 
 <style>

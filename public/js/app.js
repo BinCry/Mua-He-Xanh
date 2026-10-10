@@ -15,44 +15,22 @@ const App = {
     // ─── SESSION MANAGEMENT ──────────────────────────────────────────
     
     initSession() {
-        let uuid = this.getCookie('bl_session_uuid');
-        if (!uuid) {
-            uuid = this.generateUuid();
-            this.setCookie('bl_session_uuid', uuid, 7);
-            
-            // Sync with server
-            axios.post(`${this.config.apiUrl}/session`, { uuid })
-                .catch(err => console.error('Session sync failed', err));
-        }
-        this.sessionUuid = uuid;
-    },
-
-    generateUuid() {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-            var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
-    },
-
-    setCookie(name, value, days) {
-        var expires = "";
-        if (days) {
-            var date = new Date();
-            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-            expires = "; expires=" + date.toUTCString();
-        }
-        document.cookie = name + "=" + (value || "") + expires + "; path=/; SameSite=Strict";
-    },
-
-    getCookie(name) {
-        var nameEQ = name + "=";
-        var ca = document.cookie.split(';');
-        for (var i = 0; i < ca.length; i++) {
-            var c = ca[i];
-            while (c.charAt(0) == ' ') c = c.substring(1, c.length);
-            if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
-        }
-        return null;
+        this.sessionUuid = null;
+        const apiUrl = this.config.apiUrl || '/api';
+        fetch(`${apiUrl}/session`, {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: '{}'
+        })
+            .then(response => {
+                if (!response.ok) throw new Error(`Session bootstrap failed (${response.status})`);
+                return response.json();
+            })
+            .then(payload => {
+                this.sessionUuid = payload?.data?.uuid || null;
+            })
+            .catch(err => console.error('Session sync failed', err));
     },
 
     // ─── UI COMPONENTS ───────────────────────────────────────────────

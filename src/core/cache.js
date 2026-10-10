@@ -5,6 +5,7 @@
 class MemoryCache {
     constructor() {
         this.store = new Map();
+        this.maxEntries = 5000;
         // Periodic auto-cleanup every 60 seconds
         if (typeof setInterval !== 'undefined') {
             const timer = setInterval(() => this.cleanup(), 60000);
@@ -24,6 +25,8 @@ class MemoryCache {
             this.store.delete(key);
             return null;
         }
+        this.store.delete(key);
+        this.store.set(key, item);
         return item.value;
     }
 
@@ -35,10 +38,14 @@ class MemoryCache {
      * @returns {any}
      */
     set(key, value, ttlSeconds = 300) {
+        this.store.delete(key);
         this.store.set(key, {
             value,
             expiry: Date.now() + (ttlSeconds * 1000)
         });
+        while (this.store.size > this.maxEntries) {
+            this.store.delete(this.store.keys().next().value);
+        }
         return value;
     }
 

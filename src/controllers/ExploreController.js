@@ -15,7 +15,7 @@ class ExploreController {
             let result = cache.get(cacheKey);
             if (!result) {
                 result = await Destination.paginateActive(page, 6, type, null, search, season);
-                cache.set(cacheKey, result, 180);
+                cache.set(cacheKey, result, 60);
             }
             
             res.render('explore/list', {
@@ -49,7 +49,7 @@ class ExploreController {
                     return res.status(404).render('errors/404', { title: 'Không tìm thấy địa điểm' });
                 }
                 related = await Destination.getRelated(dest.type, dest.id);
-                cache.set(cacheKey, { dest, related }, 300);
+                cache.set(cacheKey, { dest, related }, 60);
             }
 
             if (!dest) {

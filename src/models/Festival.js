@@ -15,24 +15,48 @@ class Festival extends Model {
     }
 
     async createBooking(data) {
-        await this.db.query(`
-            CREATE TABLE IF NOT EXISTS festival_bookings (
-                id VARCHAR(36) PRIMARY KEY,
-                user_id VARCHAR(36),
-                festival_id VARCHAR(36),
-                full_name VARCHAR(255),
-                phone VARCHAR(20),
-                tickets INT,
-                status VARCHAR(50),
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `);
+        const client = await this.db.pgPool.connect();
+        try {
+            await client.query('BEGIN');
+            const inserted = await client.query(
+                `INSERT INTO festival_bookings
+                    (id, user_id, festival_id, full_name, phone, tickets, status, reference_code, idempotency_key)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+                 ON CONFLICT (idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
+                 RETURNING id, reference_code, status`,
+                [data.id, data.user_id, data.festival_id, data.full_name, data.phone, data.tickets, data.status, data.reference_code, data.idempotency_key]
+            );
 
-        const { id, user_id, festival_id, full_name, phone, tickets, status } = data;
-        await this.db.query(
-            "INSERT INTO festival_bookings (id, user_id, festival_id, full_name, phone, tickets, status) VALUES ($1, $2, $3, $4, $5, $6, $7)",
-            [id, user_id, festival_id, full_name, phone, tickets, status]
-        );
+            if (inserted.rowCount > 0) {
+                await client.query('COMMIT');
+                return inserted.rows[0];
+            }
+
+            const existing = await client.query(
+                `SELECT id, reference_code, status, user_id, festival_id, full_name, phone, tickets
+                 FROM festival_bookings WHERE idempotency_key = $1 FOR UPDATE`,
+                [data.idempotency_key]
+            );
+            if (existing.rowCount !== 1) throw new Error('Idempotent festival booking was not found after conflict.');
+            const prior = existing.rows[0];
+            const sameIntent = String(prior.user_id || '') === String(data.user_id || '')
+                && String(prior.festival_id) === String(data.festival_id)
+                && String(prior.full_name) === String(data.full_name)
+                && String(prior.phone) === String(data.phone)
+                && Number(prior.tickets) === Number(data.tickets);
+            if (!sameIntent) {
+                const conflict = new Error('Idempotency key was reused with different festival registration data.');
+                conflict.code = 'IDEMPOTENCY_CONFLICT';
+                throw conflict;
+            }
+            await client.query('COMMIT');
+            return { id: prior.id, reference_code: prior.reference_code, status: prior.status };
+        } catch (error) {
+            await client.query('ROLLBACK').catch(() => {});
+            throw error;
+        } finally {
+            client.release();
+        }
     }
 }
 

@@ -205,11 +205,23 @@
             num_people: 1,
             note: 'Đặt mua sản phẩm từ Shop'
         };
+        const intentStorageKey = `bl:workshop-booking:${workshopId}:${bookingDate}:${bookingTime}`;
+        let idempotencyKey;
+        try {
+            idempotencyKey = sessionStorage.getItem(intentStorageKey);
+            if (!idempotencyKey) {
+                idempotencyKey = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+                sessionStorage.setItem(intentStorageKey, idempotencyKey);
+            }
+        } catch (_) {
+            idempotencyKey = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}-${Math.random().toString(36).slice(2)}`;
+        }
 
         try {
-            const res = await axios.post('/api/shop/book', data);
+            const res = await axios.post('/api/shop/book', data, { headers: { 'Idempotency-Key': idempotencyKey } });
             if (res.data && res.data.success) {
-                submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>ĐẶT MUA THÀNH CÔNG!';
+                try { sessionStorage.removeItem(intentStorageKey); } catch (_) {}
+                submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>YÊU CẦU ĐÃ GỬI!';
                 submitBtn.classList.replace('btn-primary', 'btn-success');
                 setTimeout(() => {
                     window.location.reload();
@@ -221,6 +233,9 @@
             }
         } catch (err) {
             console.error('Lỗi đặt mua:', err);
+            if (err.response?.status && err.response.status < 500) {
+                try { sessionStorage.removeItem(intentStorageKey); } catch (_) {}
+            }
             const errMsg = err.response?.data?.message || err.message || 'Có lỗi xảy ra';
             alert('Lỗi đặt mua: ' + errMsg);
             submitBtn.disabled = false;

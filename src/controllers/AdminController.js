@@ -13,6 +13,13 @@ function invalidateShopCache() {
     cache.del('shops:*');
 }
 
+function invalidateDestinationCache() {
+    cache.del('explore:list:*');
+    cache.del('dest:show:*');
+    cache.del('map:*');
+    HomeController.clearCache();
+}
+
 const AdminController = {
 
     // ==================== DASHBOARD ====================
@@ -401,6 +408,62 @@ const AdminController = {
         }
     },
 
+    festivalBookings: async (req, res) => {
+        try {
+            const [bookings] = await db.query(
+                `SELECT fb.*, f.name AS festival_name
+                 FROM festival_bookings fb
+                 LEFT JOIN festivals f ON f.id = fb.festival_id
+                 ORDER BY fb.created_at DESC
+                 LIMIT 500`
+            );
+            res.render('admin/festival-bookings', {
+                title: 'Đăng ký lễ hội',
+                layout: 'layouts/admin',
+                adminPage: 'festival-bookings',
+                bookings
+            });
+        } catch (error) {
+            console.error(`[${req.requestId || 'untracked'}] Admin festival bookings error:`, error);
+            res.status(500).send('Lỗi hệ thống');
+        }
+    },
+
+    updateFestivalBookingStatus: async (req, res) => {
+        let client;
+        try {
+            const { booking_id, status } = req.body;
+            if (!booking_id || !['confirmed', 'cancelled'].includes(status)) {
+                return res.status(400).json({ success: false, message: 'Trạng thái đăng ký không hợp lệ.' });
+            }
+
+            client = await db.pgPool.connect();
+            await client.query('BEGIN');
+            const current = await client.query(
+                'SELECT status FROM festival_bookings WHERE id = $1 FOR UPDATE',
+                [booking_id]
+            );
+            if (current.rowCount === 0) {
+                await client.query('ROLLBACK');
+                return res.status(404).json({ success: false, message: 'Không tìm thấy yêu cầu đăng ký.' });
+            }
+            if (current.rows[0].status !== 'pending') {
+                await client.query('ROLLBACK');
+                return res.status(409).json({ success: false, message: 'Yêu cầu đã được xử lý trước đó.' });
+            }
+
+            await client.query('UPDATE festival_bookings SET status = $1 WHERE id = $2', [status, booking_id]);
+            await client.query('COMMIT');
+            res.json({ success: true, message: status === 'confirmed' ? 'Đã ghi nhận xác nhận liên hệ.' : 'Đã hủy yêu cầu đăng ký.' });
+        } catch (error) {
+            if (client) await client.query('ROLLBACK').catch(() => {});
+            console.error(`[${req.requestId || 'untracked'}] Update festival booking status error:`, error);
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống khi cập nhật đăng ký.' });
+        } finally {
+            client?.release();
+        }
+    },
+
     // ==================== API: Create User ====================
     createUser: async (req, res) => {
         try {
@@ -522,7 +585,7 @@ const AdminController = {
         try {
             const { id, is_active } = req.body;
             await db.query('UPDATE destinations SET is_active = $1 WHERE id = $2', [is_active ? 1 : 0, id]);
-            HomeController.clearCache();
+            invalidateDestinationCache();
             res.json({ success: true, message: is_active ? 'Đã kích hoạt' : 'Đã ẩn địa điểm' });
         } catch (error) {
             res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
@@ -618,7 +681,7 @@ const AdminController = {
                 [managerId, manager_name || `QL ${name}`, manager_email, hashedManagerPassword, destinationId, finalCover]
             );
             
-            HomeController.clearCache();
+            invalidateDestinationCache();
             res.json({ success: true, message: 'Đã tạo địa điểm và tài khoản quản lý mới thành công!' });
         } catch (error) {
             console.error('Create destination error:', error);
@@ -683,8 +746,7 @@ const AdminController = {
                 );
             }
 
-            cache.flush();
-            HomeController.clearCache();
+            invalidateDestinationCache();
             res.json({ success: true, message: 'Đã cập nhật địa điểm thành công!' });
         } catch (error) {
             console.error('Update destination error:', error);
@@ -705,7 +767,7 @@ const AdminController = {
             await db.query('DELETE FROM user_favorites WHERE destination_id = $1', [id]);
             await db.query('DELETE FROM destinations WHERE id = $1', [id]);
 
-            HomeController.clearCache();
+            invalidateDestinationCache();
             res.json({ success: true, message: 'Đã xóa địa điểm và tất cả dữ liệu liên quan!' });
         } catch (error) {
             console.error('Delete destination error:', error);

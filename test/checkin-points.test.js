@@ -8,6 +8,7 @@ const CheckIn = require('../src/models/CheckIn');
 const Journey = require('../src/models/Journey');
 const UserBadge = require('../src/models/UserBadge');
 const Model = require('../src/core/Model');
+const { createCheckinToken } = require('../src/utils/checkinQr');
 
 test('adding session points also updates the linked user account', async () => {
     const originalDb = UserSession.db;
@@ -37,7 +38,7 @@ test('adding session points also updates the linked user account', async () => {
 test('check-in stores the authenticated user id with the visit', async () => {
     const originals = {
         findByUuid: UserSession.findByUuid,
-        findBySlug: Destination.findBySlug,
+        findById: Destination.findById,
         claimForUser: CheckIn.claimForUser,
         getActiveBySession: Journey.getActiveBySession,
         checkAndUnlock: UserBadge.checkAndUnlock,
@@ -47,7 +48,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
     let responseBody = null;
 
     UserSession.findByUuid = async () => ({ id: 'session-1', user_id: 'user-1' });
-    Destination.findBySlug = async () => ({
+    Destination.findById = async () => ({
         id: 'destination-1',
         name: 'Điểm thử nghiệm',
         points: 20,
@@ -55,7 +56,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
         lng: 106,
         radius_meter: 100
     });
-    Model.haversine = () => 2000;
+    Model.haversine = () => 50;
     CheckIn.claimForUser = async data => {
         createdCheckin = data;
         return { claimed: true };
@@ -65,7 +66,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
 
     const req = {
         method: 'POST',
-        body: { slug: 'diem-thu-nghiem', lat: 10, lng: 106, method: 'qr' },
+        body: { qrToken: createCheckinToken('destination-1'), lat: 10, lng: 106, method: 'qr' },
         cookies: { session_uuid: 'uuid-1' },
         session: { user: { id: 'user-1' } }
     };
@@ -89,7 +90,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
         assert.equal(createdCheckin.userId, 'user-1');
     } finally {
         UserSession.findByUuid = originals.findByUuid;
-        Destination.findBySlug = originals.findBySlug;
+        Destination.findById = originals.findById;
         CheckIn.claimForUser = originals.claimForUser;
         Journey.getActiveBySession = originals.getActiveBySession;
         UserBadge.checkAndUnlock = originals.checkAndUnlock;
@@ -97,16 +98,16 @@ test('check-in stores the authenticated user id with the visit', async () => {
     }
 });
 
-test('check-in rejects a visitor farther than 2 km from the destination', async () => {
+test('check-in rejects a visitor outside the destination radius with a valid signed QR', async () => {
     const originals = {
         findByUuid: UserSession.findByUuid,
-        findBySlug: Destination.findBySlug,
+        findById: Destination.findById,
         haversine: Model.haversine
     };
     let responseBody = null;
 
     UserSession.findByUuid = async () => ({ id: 'session-1', user_id: 'user-1' });
-    Destination.findBySlug = async () => ({
+    Destination.findById = async () => ({
         id: 'destination-1',
         name: 'Điểm thử nghiệm',
         points: 20,
@@ -118,7 +119,7 @@ test('check-in rejects a visitor farther than 2 km from the destination', async 
 
     const req = {
         method: 'POST',
-        body: { slug: 'diem-thu-nghiem', lat: 10, lng: 106, method: 'qr' },
+        body: { qrToken: createCheckinToken('destination-1'), lat: 10, lng: 106, method: 'qr' },
         cookies: { session_uuid: 'uuid-1' },
         session: { user: { id: 'user-1' } }
     };
@@ -142,7 +143,7 @@ test('check-in rejects a visitor farther than 2 km from the destination', async 
         assert.equal(responseBody.error_type, 'OUT_OF_RADIUS');
     } finally {
         UserSession.findByUuid = originals.findByUuid;
-        Destination.findBySlug = originals.findBySlug;
+        Destination.findById = originals.findById;
         Model.haversine = originals.haversine;
     }
 });

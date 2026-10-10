@@ -3,6 +3,7 @@ const CheckIn = require('../models/CheckIn');
 const UserBadge = require('../models/UserBadge');
 const Badge = require('../models/Badge');
 const UserSession = require('../models/UserSession');
+const { setSessionUuidCookie } = require('../utils/sessionCookie');
 
 class PassportController {
     async index(req, res) {
@@ -30,9 +31,10 @@ class PassportController {
                 // Create a temporary/new session if none exists
                 const { v4: uuidv4 } = require('uuid');
                 const newUuid = uuidv4();
-                res.cookie('session_uuid', newUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+                setSessionUuidCookie(res, newUuid);
                 session = await UserSession.findOrCreate(newUuid, req);
                 await UserSession.db.query("UPDATE user_sessions SET user_id = $1 WHERE id = $2", [user.id, session.id]);
+                UserSession.invalidateCacheById(session.id);
             }
 
             // Run check and unlock badges dynamically before displaying

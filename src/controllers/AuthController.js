@@ -1,6 +1,7 @@
 const User = require('../models/User');
 const UserSession = require('../models/UserSession');
 const { v4: uuidv4 } = require('uuid');
+const { setSessionUuidCookie } = require('../utils/sessionCookie');
 const db = require('../core/database');
 
 const AuthController = {
@@ -251,13 +252,14 @@ const AuthController = {
             sessionUuid = uuidv4();
         }
 
-        res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+        setSessionUuidCookie(res, sessionUuid);
 
         const session = await UserSession.findOrCreate(sessionUuid, req);
         await db.query(
             "UPDATE user_sessions SET user_id = $1 WHERE id = $2",
             [user.id, session.id]
         );
+        UserSession.invalidateCacheById(session.id);
 
         req.session.user = {
             id: user.id,

@@ -79,7 +79,7 @@ const ShopController = {
             });
 
             // Cache for 3 minutes
-            cache.set(cacheKey, workshops, 180);
+            cache.set(cacheKey, workshops, 60);
 
             res.render('shop/index', {
                 title: 'Shop & Sản Phẩm',
@@ -112,7 +112,7 @@ const ShopController = {
                 ]);
 
                 cachedItem = { workshop, stats, relatedWorkshops };
-                cache.set(cacheKey, cachedItem, 180);
+                cache.set(cacheKey, cachedItem, 60);
             }
 
             const { workshop, stats, relatedWorkshops } = cachedItem;
@@ -174,12 +174,16 @@ const ShopController = {
             }
 
             const { workshop_id, booking_date, booking_time, num_people, note } = req.body;
+            const idempotencyKey = String(req.get('Idempotency-Key') || req.body.idempotency_key || '').trim();
 
             if (!workshop_id || !booking_date) {
                 return res.status(400).json({ success: false, message: 'Vui lòng chọn ngày tham gia' });
             }
 
             const requestedSeats = Number.parseInt(num_people, 10);
+            if (!/^[A-Za-z0-9_-]{16,128}$/.test(idempotencyKey)) {
+                return res.status(400).json({ success: false, message: 'Thiếu mã chống đặt trùng. Vui lòng tải lại trang và thử lại.' });
+            }
             if (!/^\d{4}-\d{2}-\d{2}$/.test(String(booking_date)) || !Number.isSafeInteger(requestedSeats) || requestedSeats < 1) {
                 return res.status(400).json({ success: false, message: 'Ngày hoặc số lượng người không hợp lệ.' });
             }
@@ -194,6 +198,26 @@ const ShopController = {
             if (!workshop) {
                 await client.query('ROLLBACK');
                 return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại' });
+            }
+
+            const priorBooking = await client.query(
+                `SELECT id, qr_ticket, workshop_id, booking_date, booking_time, num_people, note
+                 FROM workshop_bookings WHERE user_id = $1 AND idempotency_key = $2 FOR UPDATE`,
+                [user.id, idempotencyKey]
+            );
+            if (priorBooking.rowCount > 0) {
+                const prior = priorBooking.rows[0];
+                const sameIntent = String(prior.workshop_id) === String(workshop_id)
+                    && String(prior.booking_date).slice(0, 10) === String(booking_date)
+                    && String(prior.booking_time || '08:00') === String(booking_time || '08:00')
+                    && Number(prior.num_people) === requestedSeats
+                    && String(prior.note || '') === String(note || '');
+                if (!sameIntent) {
+                    await client.query('ROLLBACK');
+                    return res.status(409).json({ success: false, message: 'Mã chống đặt trùng đã được dùng cho thông tin khác. Vui lòng tải lại trang.' });
+                }
+                await client.query('COMMIT');
+                return res.json({ success: true, message: 'Đơn đặt chỗ đã được ghi nhận.', booking: { id: prior.id, qr_ticket: prior.qr_ticket }, replayed: true });
             }
 
             // Serialize capacity check and insert using a row lock on workshop.
@@ -215,50 +239,63 @@ const ShopController = {
             const totalPrice = Number(workshop.price) * requestedSeats;
             const booking = {
                 id: uuidv4(),
-                qr_ticket: `BLH-WS-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
+                qr_ticket: `BLH-WS-${require('crypto').randomBytes(12).toString('hex').toUpperCase()}`
             };
-            await client.query(`
-                INSERT INTO workshop_bookings (id, workshop_id, user_id, booking_date, booking_time, num_people, total_price, qr_ticket, note)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            `, [booking.id, workshop_id, user.id, booking_date, booking_time || '08:00', requestedSeats, totalPrice, booking.qr_ticket, note || null]);
-            await client.query(
-                'UPDATE users SET total_points = COALESCE(total_points, 0) + 50 WHERE id = $1',
-                [user.id]
-            );
-            await client.query('COMMIT');
-
-            // Send notification to visitor
-            await NotificationController.create(
-                user.id, 'shop',
-                `Đặt mua sản phẩm thành công!`,
-                `Bạn đã đặt mua "${workshop.title}". Mã đơn: ${booking.qr_ticket}. +50 điểm`,
+            const inserted = await client.query(`
+                INSERT INTO workshop_bookings (id, workshop_id, user_id, booking_date, booking_time, num_people, total_price, qr_ticket, note, idempotency_key, points_awarded)
+                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 0)
+                ON CONFLICT (user_id, idempotency_key) WHERE idempotency_key IS NOT NULL DO NOTHING
+                RETURNING id, qr_ticket
+            `, [booking.id, workshop_id, user.id, booking_date, booking_time || '08:00', requestedSeats, totalPrice, booking.qr_ticket, note || null, idempotencyKey]);
+            if (inserted.rowCount === 0) {
+                const existing = await client.query(
+                    `SELECT id, qr_ticket, workshop_id, booking_date, booking_time, num_people, note
+                     FROM workshop_bookings WHERE user_id = $1 AND idempotency_key = $2`,
+                    [user.id, idempotencyKey]
+                );
+                const prior = existing.rows[0];
+                const sameIntent = prior && String(prior.workshop_id) === String(workshop_id)
+                    && String(prior.booking_date).slice(0, 10) === String(booking_date)
+                    && String(prior.booking_time || '08:00') === String(booking_time || '08:00')
+                    && Number(prior.num_people) === requestedSeats
+                    && String(prior.note || '') === String(note || '');
+                if (!sameIntent) {
+                    await client.query('ROLLBACK');
+                    return res.status(409).json({ success: false, message: 'Mã chống đặt trùng đã được dùng cho thông tin khác. Vui lòng tải lại trang.' });
+                }
+                await client.query('COMMIT');
+                return res.json({ success: true, message: 'Đơn đặt chỗ đã được ghi nhận.', booking: { id: prior.id, qr_ticket: prior.qr_ticket }, replayed: true });
+            }
+            booking.id = inserted.rows[0].id;
+            booking.qr_ticket = inserted.rows[0].qr_ticket;
+            await NotificationController.insertWithClient(
+                client, user.id, 'shop',
+                'Đã nhận yêu cầu đặt chỗ',
+                `Yêu cầu đặt chỗ "${workshop.title}" đã được ghi nhận. Mã đơn: ${booking.qr_ticket}. Điểm thưởng được cộng sau khi hoàn thành dịch vụ.`,
                 '/my-shops'
             );
-
-            // Send notification to Destination Manager
-            try {
-                const [managers] = await db.query(
-                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = $1",
-                    [workshop.destination_id]
+            const managers = await client.query(
+                "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = $1",
+                [workshop.destination_id]
+            );
+            for (const manager of managers.rows) {
+                await NotificationController.insertWithClient(
+                    client, manager.id, 'shop',
+                    'Yêu cầu đặt chỗ mới',
+                    `${user.full_name || 'Khách hàng'} gửi yêu cầu "${workshop.title}" (${requestedSeats} người). Mã đơn: ${booking.qr_ticket}`,
+                    '/manager/shops'
                 );
-                for (let mgr of managers) {
-                    await NotificationController.create(
-                        mgr.id, 'shop',
-                        `Khách mới đặt mua sản phẩm!`,
-                        `${user.full_name || 'Khách hàng'} vừa đặt mua "${workshop.title}" (${requestedSeats} sản phẩm). Mã đơn: ${booking.qr_ticket}`,
-                        '/manager/shops'
-                    );
-                }
-            } catch (e) { console.error('Notify manager book error:', e); }
+            }
+            await client.query('COMMIT');
 
             res.json({
                 success: true,
-                message: `Đặt chỗ thành công! Mã vé QR: ${booking.qr_ticket}`,
+                message: `Yêu cầu đặt chỗ đã được ghi nhận. Mã đơn: ${booking.qr_ticket}. Điểm thưởng được cộng sau khi hoàn thành dịch vụ.`,
                 booking: booking
             });
         } catch (error) {
             if (client) await client.query('ROLLBACK').catch(() => {});
-            console.error('Shop book error:', error);
+            console.error(`[${req.requestId || 'untracked'}] Shop booking error:`, error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đặt chỗ' });
         } finally {
             client?.release();
@@ -267,6 +304,7 @@ const ShopController = {
 
     // POST /api/shop/cancel - Hủy đơn đặt mua sản phẩm
     cancel: async (req, res) => {
+        let client;
         try {
             const user = req.user || req.session.user;
             if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
@@ -274,61 +312,70 @@ const ShopController = {
             const { bookingId } = req.body;
             if (!bookingId) return res.status(400).json({ success: false, message: 'Thiếu mã đặt chỗ' });
 
-            // Fetch booking
-            const [bookings] = await db.query(
-                "SELECT wb.*, w.title as workshop_title, w.destination_id FROM workshop_bookings wb LEFT JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = $1 AND wb.user_id = $2",
+            client = await db.pgPool.connect();
+            await client.query('BEGIN');
+            const bookingResult = await client.query(
+                `SELECT wb.*, w.title AS workshop_title, w.destination_id
+                 FROM workshop_bookings wb
+                 LEFT JOIN workshops w ON w.id = wb.workshop_id
+                 WHERE wb.id = $1 AND wb.user_id = $2
+                 FOR UPDATE OF wb`,
                 [bookingId, user.id]
             );
 
-            if (bookings.length === 0) {
+            if (bookingResult.rowCount === 0) {
+                await client.query('ROLLBACK');
                 return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin đặt chỗ của bạn' });
             }
 
-            const booking = bookings[0];
+            const booking = bookingResult.rows[0];
             if (booking.status === 'completed' || booking.status === 'cancelled') {
+                await client.query('ROLLBACK');
                 return res.status(400).json({ success: false, message: 'Không thể hủy lịch hẹn ở trạng thái này' });
             }
 
-            // Update status to cancelled
-            await db.query(
-                "UPDATE workshop_bookings SET status = 'cancelled' WHERE id = $1",
-                [bookingId]
+            const cancelled = await client.query(
+                "UPDATE workshop_bookings SET status = 'cancelled', points_awarded = 0 WHERE id = $1 AND user_id = $2 AND status IN ('pending', 'confirmed') RETURNING id",
+                [bookingId, user.id]
             );
+            if (cancelled.rowCount !== 1) {
+                await client.query('ROLLBACK');
+                return res.status(409).json({ success: false, message: 'Đơn đã được cập nhật ở một yêu cầu khác. Vui lòng tải lại.' });
+            }
 
-            // Deduct points
-            await db.query(
-                "UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - 50) WHERE id = $1",
-                [user.id]
-            );
-
-            // Send notification to visitor
-            await NotificationController.create(
-                user.id, 'shop',
-                `Đã hủy đơn đặt mua`,
-                `Bạn đã hủy đơn "${booking.workshop_title || 'sản phẩm'}". Điểm thưởng trừ 50đ.`,
+            if (Number(booking.points_awarded) > 0) {
+                await client.query(
+                    "UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - 50) WHERE id = $1",
+                    [user.id]
+                );
+            }
+            await NotificationController.insertWithClient(
+                client, user.id, 'shop',
+                'Đã hủy yêu cầu đặt chỗ',
+                `Bạn đã hủy yêu cầu "${booking.workshop_title || 'sản phẩm'}".`,
                 '/my-shops'
             );
-
-            // Send notification to Destination Manager
-            try {
-                const [managers] = await db.query(
-                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = $1",
-                    [booking.destination_id]
+            const managers = await client.query(
+                "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = $1",
+                [booking.destination_id]
+            );
+            for (const manager of managers.rows) {
+                await NotificationController.insertWithClient(
+                    client, manager.id, 'shop',
+                    'Khách hàng hủy yêu cầu đặt chỗ',
+                    `${user.full_name || 'Khách hàng'} đã hủy yêu cầu "${booking.workshop_title || 'sản phẩm'}".`,
+                    '/manager/shops'
                 );
-                for (let mgr of managers) {
-                    await NotificationController.create(
-                        mgr.id, 'shop',
-                        `Khách hàng hủy đơn đặt mua`,
-                        `${user.full_name || 'Khách hàng'} đã hủy đơn "${booking.workshop_title || 'sản phẩm'}".`,
-                        '/manager/shops'
-                    );
-                }
-            } catch (e) { console.error('Notify manager cancel error:', e); }
+            }
+            await client.query('COMMIT');
 
             res.json({ success: true, message: 'Đã hủy đặt chỗ thành công.' });
         } catch (error) {
-            console.error('Shop cancel error:', error);
+            if (client) await client.query('ROLLBACK').catch(() => {});
+            console.error(`[${req.requestId || 'untracked'}] Shop cancellation error:`, error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống khi hủy đặt chỗ' });
+        } finally {
+            client?.release();
         }
     },
 

@@ -12,9 +12,60 @@ const UserSession = require('./models/UserSession');
 const CheckIn = require('./models/CheckIn');
 const { LEGACY_IMAGE_ALIASES, DEFAULT_IMAGE, normalizeImagePath } = require('./utils/imagePaths');
 const { v4: uuidv4 } = require('uuid');
+const { randomUUID } = require('crypto');
+const { createHash } = require('crypto');
+const { setSessionUuidCookie } = require('./utils/sessionCookie');
 
 const app = express();
 const PORT = config.port;
+
+function computeAssetVersion() {
+    const deploymentVersion = process.env.VERCEL_GIT_COMMIT_SHA || process.env.SOURCE_VERSION;
+    if (deploymentVersion) return deploymentVersion.slice(0, 16);
+
+    const hash = createHash('sha256');
+    for (const assetPath of [
+        path.join(__dirname, '../public/css/style-v5.css'),
+        path.join(__dirname, '../public/css/capcut-studio.css'),
+        path.join(__dirname, '../public/js/app.js'),
+        path.join(__dirname, '../public/js/i18n-switcher.js'),
+        path.join(__dirname, '../public/js/video-editor.js'),
+        path.join(__dirname, '../public/sw.js')
+    ]) {
+        try { hash.update(fs.readFileSync(assetPath)); } catch (_) {}
+    }
+    return hash.digest('hex').slice(0, 16);
+}
+
+const assetVersion = computeAssetVersion();
+
+app.use((req, res, next) => {
+    req.requestId = randomUUID();
+    res.setHeader('X-Request-ID', req.requestId);
+    const originalJson = res.json.bind(res);
+    const originalSend = res.send.bind(res);
+    res.json = (payload) => {
+        const mayExposeError = payload && typeof payload === 'object'
+            && ('stack' in payload || 'message' in payload || 'error' in payload);
+        if (process.env.NODE_ENV === 'production' && res.statusCode >= 500 && mayExposeError) {
+            return originalJson({
+                success: false,
+                error: 'Internal Server Error',
+                message: 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.',
+                requestId: req.requestId
+            });
+        }
+        return originalJson(payload);
+    };
+    res.send = (body) => {
+        const contentType = String(res.getHeader('Content-Type') || '').toLowerCase();
+        if (process.env.NODE_ENV === 'production' && res.statusCode >= 500 && !contentType.includes('application/json')) {
+            return originalSend('Internal Server Error');
+        }
+        return originalSend(body);
+    };
+    next();
+});
 
 // Liveness must be fast and must not disclose configuration or wait for the DB.
 app.get('/api/health', (req, res) => {
@@ -27,6 +78,19 @@ app.get('/api/ready', async (req, res) => {
     try {
         const db = require('./core/database');
         await db.query('SELECT 1');
+        const [schemaChecks] = await db.query(`
+            SELECT
+                (SELECT COUNT(*) FROM information_schema.columns
+                 WHERE table_schema = current_schema() AND table_name = 'workshop_bookings'
+                   AND column_name IN ('idempotency_key', 'points_awarded')) = 2 AS workshop_ready,
+                (SELECT COUNT(*) FROM information_schema.columns
+                 WHERE table_schema = current_schema() AND table_name = 'festival_bookings'
+                   AND column_name IN ('idempotency_key', 'reference_code')) = 2 AS festival_ready
+        `);
+        if (!schemaChecks[0]?.workshop_ready || !schemaChecks[0]?.festival_ready) {
+            res.set('Cache-Control', 'no-store');
+            return res.status(503).json({ status: 'not_ready', component: 'booking_schema' });
+        }
         res.set('Cache-Control', 'no-store');
         res.json({ status: 'ready', timestamp: new Date().toISOString() });
     } catch (error) {
@@ -292,6 +356,9 @@ app.post('/api/analytics/heartbeat', async (req, res) => {
 if (process.env.NODE_ENV === 'production' && !process.env.SESSION_SECRET) {
     throw new Error('SESSION_SECRET is required in production.');
 }
+if (process.env.NODE_ENV === 'production' && String(process.env.CHECKIN_QR_SECRET || '').length < 32) {
+    throw new Error('CHECKIN_QR_SECRET must contain at least 32 characters in production.');
+}
 
 const sessionMiddleware = session({
     name: 'bl_session',
@@ -393,7 +460,7 @@ app.use(async (req, res, next) => {
     res.locals.currentPath = req.path;
     
     // Cache Buster for assets
-    res.locals.assetV = '114.0.0';
+    res.locals.assetV = assetVersion;
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
@@ -415,7 +482,7 @@ app.use(async (req, res, next) => {
             let sessionUuid = req.cookies?.session_uuid;
             if (!sessionUuid) {
                 sessionUuid = uuidv4();
-                res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
+                setSessionUuidCookie(res, sessionUuid);
                 req.cookies = req.cookies || {};
                 req.cookies.session_uuid = sessionUuid;
             }
@@ -492,12 +559,15 @@ app.use((req, res) => {
 
 // Error handler
 app.use((err, req, res, next) => {
-    console.error('Server Error:', err);
+    console.error(`[${req.requestId || 'untracked'}] Server Error:`, err);
     res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: err.message || String(err),
-        stack: err.stack
+        message: process.env.NODE_ENV === 'production'
+            ? 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.'
+            : (err.message || String(err)),
+        ...(process.env.NODE_ENV === 'production' ? {} : { stack: err.stack }),
+        requestId: req.requestId
     });
 });
 

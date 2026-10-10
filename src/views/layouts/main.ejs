@@ -88,7 +88,7 @@
     <script>
         window.APP_CONFIG = {
             baseUrl: '<%= baseUrl %>',
-            apiUrl: '<%= baseUrl %>/api',
+            apiUrl: '/api',
             fbAppId: '1566975911629251'
         };
         window.CURRENT_SESSION_ID = '<%= typeof sessionDbId !== "undefined" && sessionDbId ? sessionDbId : "" %>';
@@ -267,10 +267,10 @@
         /* Mobile alignment & responsive adjustments */
         @media (max-width: 991.98px) {
             .footer-main { 
-                padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important; 
+                padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)) !important;
             }
             body.is-pwa main {
-                padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important; 
+                padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)) !important;
             }
             .fab-qr { display: none !important; }
             /* Hide floating chat on mobile - use sidebar link instead */
@@ -341,7 +341,7 @@
                 display: none !important;
             }
             main {
-                padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px)) !important;
+                padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px)) !important;
             }
         }
 
@@ -781,7 +781,7 @@
                     document.getElementById('floating-recording-timer').innerText = `${mins}:${secs}`;
                 }, 1000);
             } catch (err) {
-                sendFloatingCustomMessage('🎤 [Ghi âm thoại: 0:12]');
+                alert('Không thể truy cập micro. Tin nhắn thoại chưa được gửi.');
             }
         }
 
@@ -816,14 +816,14 @@
                         const audioUrl = res.data.url || res.data.path;
                         sendFloatingCustomMessage(`[AUDIO: ${audioUrl}|${durationStr}]`);
                     } else {
-                        sendFloatingCustomMessage(`🎤 [Ghi âm thoại: ${durationStr}]`);
+                        alert(res.data.message || 'Tải ghi âm thất bại. Tin nhắn thoại chưa được gửi.');
                     }
-                } catch(e) {
-                    sendFloatingCustomMessage(`🎤 [Ghi âm thoại: ${durationStr}]`);
+                } catch (error) {
+                    alert('Tải ghi âm thất bại. Tin nhắn thoại chưa được gửi.');
+                } finally {
+                    document.getElementById('floating-voice-recording-bar').style.display = 'none';
+                    document.getElementById('floating-standard-input-bar').style.display = 'flex';
                 }
-
-                document.getElementById('floating-voice-recording-bar').style.display = 'none';
-                document.getElementById('floating-standard-input-bar').style.display = 'flex';
             };
 
             floatingMediaRecorder.stop();
@@ -934,12 +934,9 @@
 
             if (text.includes('🎤 [Ghi âm thoại')) {
                 return `
-                    <div class="d-flex align-items-center gap-2 p-1.5 px-2.5 rounded-pill my-1" style="background: rgba(0,0,0,0.06); min-width: 160px;">
-                        <button type="button" class="btn btn-sm btn-white rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 28px; height: 28px; color: #922724;" onclick="togglePlayFloatingVoice(this, '/sounds/chat-notification.mp3')">
-                            <i class="bi bi-play-fill fs-5"></i>
-                        </button>
-                        <div class="flex-grow-1" style="height: 3px; background: rgba(0,0,0,0.15); border-radius: 2px;"></div>
-                        <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.7rem;">0:15</span>
+                    <div class="d-flex align-items-center gap-2 p-1.5 px-2.5 rounded-pill my-1" style="background: rgba(0,0,0,0.06);">
+                        <i class="bi bi-exclamation-circle" aria-hidden="true"></i>
+                        <span class="x-small fw-bold">Bản ghi cũ không có tệp âm thanh</span>
                     </div>
                 `;
             }

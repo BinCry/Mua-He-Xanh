@@ -354,6 +354,8 @@ router.get('/admin/shops', ensureAdmin, AdminController.workshops);
 router.get('/admin/workshops', ensureAdmin, (req, res) => res.redirect('/admin/shops'));
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
+router.get('/admin/festival-bookings', ensureAdmin, AdminController.festivalBookings);
+router.post('/api/admin/festival-bookings/status', ensureAdmin, AdminController.updateFestivalBookingStatus);
 router.get('/admin/posters', ensureAdmin, AdminController.posters);
 router.post('/admin/posters', ensureAdmin, upload.single('image'), AdminController.createPoster);
 router.post('/admin/posters/delete', ensureAdmin, AdminController.deletePoster);
@@ -390,6 +392,7 @@ router.get('/manager/shops', ensureManager, (req, res) => res.redirect('/manager
 router.get('/manager/workshops', ensureManager, ManagerController.workshops);
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
+router.get('/api/manager/checkin-qr/:destinationId', ensureManager, ManagerController.getCheckinQr);
 router.post('/api/reply-message', (req, res, next) => { const user = req.session?.user || req.user; if (user && (user.role === 'admin' || user.role === 'manager')) return next(); return res.status(403).json({ success: false, message: 'Unauthorized' }); }, ApiController.replyMessage);
 router.get('/api/manager/shop-bookings', ensureManager, ManagerController.getWorkshopBookings);
 router.post('/api/manager/update-booking-status', ensureManager, ManagerController.updateBookingStatus);
