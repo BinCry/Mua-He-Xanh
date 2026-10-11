@@ -573,6 +573,35 @@ function formatMessengerSidebarDate(dateStr) {
         return `'${String(value).replace(/\\/g, '\\\\').replace(/'/g, '\\u0027').replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/\r/g, '\\r').replace(/\n/g, '\\n')}'`;
     }
 
+    function renderSafeVisitorAvatar(container, rawUrl, fallbackText) {
+        const url = safeChatMediaUrl(rawUrl);
+        container.replaceChildren();
+        if (!url) {
+            container.textContent = fallbackText;
+            return;
+        }
+        const image = document.createElement('img');
+        image.src = url;
+        image.className = 'w-100 h-100 rounded-circle object-fit-cover';
+        image.alt = '';
+        image.onerror = () => { image.src = '/images/logo.png'; };
+        container.append(image);
+    }
+
+    function renderAdminChatStatus(container, totalPoints) {
+        const points = Number.isFinite(Number(totalPoints)) ? Number(totalPoints) : 0;
+        const online = document.createElement('span');
+        online.className = 'd-inline-block rounded-circle bg-success';
+        online.style.cssText = 'width: 7px; height: 7px;';
+        const label = document.createElement('span');
+        label.className = 'text-success fw-semibold';
+        label.textContent = 'Đang hoạt động';
+        const score = document.createElement('strong');
+        score.className = 'text-dark';
+        score.textContent = `${points} ✨`;
+        container.replaceChildren(online, document.createTextNode(' '), label, document.createTextNode(' • Điểm tích lũy: '), score);
+    }
+
     function toggleSendIcon(input) {
         const icon = document.getElementById('send-icon-graphic');
         if (!icon) return;
@@ -772,11 +801,7 @@ function formatMessengerSidebarDate(dateStr) {
         document.getElementById('modal-visitor-email').innerText = v.email || 'Chưa cung cấp';
         
         const avatarEl = document.getElementById('modal-visitor-avatar');
-        if (v.avatar) {
-            avatarEl.innerHTML = `<img src="${v.avatar}" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.src='/images/logo.png'">`;
-        } else {
-            avatarEl.innerText = vName.split(' ').pop().slice(0,2).toUpperCase();
-        }
+        renderSafeVisitorAvatar(avatarEl, v.avatar, vName.split(' ').pop().slice(0, 2).toUpperCase());
 
         const modalEl = document.getElementById('visitorInfoModal');
         const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
@@ -974,10 +999,7 @@ function formatMessengerSidebarDate(dateStr) {
             : ('Du khách #' + shortId);
 
         headerName.innerText = vName;
-        headerStatus.innerHTML = `
-            <span class="d-inline-block rounded-circle bg-success" style="width: 7px; height: 7px;"></span>
-            <span class="text-success fw-semibold">Đang hoạt động</span> • Điểm tích lũy: <strong class="text-dark">${visitor ? (visitor.total_points || 0) : 0} ✨</strong>
-        `;
+        renderAdminChatStatus(headerStatus, visitor && visitor.total_points);
         
         const avatarInitial = (visitor && visitor.full_name) 
             ? visitor.full_name.split(' ').pop().slice(0,2).toUpperCase() 

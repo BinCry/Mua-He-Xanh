@@ -93,6 +93,19 @@ test('inline script data and chat media use safe serializers rather than raw use
         assert.match(source, /safe.*ChatMediaUrl/i, file);
         assert.doesNotMatch(source, /src="\$\{url\}"/, file);
     }
+
+    const explore = fs.readFileSync('src/views/explore/show.ejs', 'utf8');
+    assert.match(explore, /safeJsonForScript\(fixImg\(settings\.brand_logo/);
+    assert.match(explore, /toast\.append\(icon, document\.createTextNode/);
+    assert.doesNotMatch(explore, /toast\.innerHTML\s*=/);
+
+    for (const file of ['src/views/admin/chat.ejs', 'src/views/manager/chat.ejs']) {
+        const source = fs.readFileSync(file, 'utf8');
+        assert.match(source, /function renderSafeVisitorAvatar/);
+        assert.match(source, /container\.replaceChildren\(\)/);
+        assert.doesNotMatch(source, /avatarEl\.innerHTML\s*=/);
+        assert.doesNotMatch(source, /headerStatus\.innerHTML\s*=/);
+    }
 });
 
 test('legacy booking awards are not granted on booking creation or cancelled booking', () => {
