@@ -250,3 +250,14 @@ test('brand and administration headings use a locally available Vietnamese-safe 
     assert.match(adminLayout, /\.admin-brand-title\s*\{[^}]*font-synthesis:\s*none/);
     assert.match(adminLayout, /admin-brand-title/);
 });
+
+test('public typography has a Vietnamese-safe global override and social links retain identifiable colors', () => {
+    const publicCss = fs.readFileSync('public/css/style-v5.css', 'utf8');
+    const footer = fs.readFileSync('src/views/partials/footer.ejs', 'utf8');
+    assert.match(publicCss, /body :is\(h1, h2, h3/);
+    assert.match(publicCss, /font-synthesis:\s*none/);
+    for (const network of ['facebook', 'instagram', 'tiktok', 'threads']) {
+        assert.match(footer, new RegExp(`footer-social-btn--${network}`));
+    }
+    assert.match(footer, /rel="noopener noreferrer"/);
+});
