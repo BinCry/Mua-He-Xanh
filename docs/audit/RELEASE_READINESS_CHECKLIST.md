@@ -1,7 +1,7 @@
 # Release readiness checklist
 
 - [x] Isolated audit data lives under `D:\Bình-Lợi\.tmp\audit`; no production database writes.
-- [x] Unit/regression (79/79), PostgreSQL integration (12/12), JS syntax, EJS compilation and dependency audit pass.
+- [x] Unit/regression (82/82), PostgreSQL integration (12/12), JS syntax, EJS compilation and dependency audit pass.
 - [x] Product/Workshop reservation, idempotency and race invariants are tested.
 - [x] Festival ticket/ledger/role and public responsive commerce evidence exists.
 - [x] Responsive/UI/a11y/role browser suite has 78/78 Chromium, Firefox and WebKit cases passing without retry.

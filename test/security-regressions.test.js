@@ -27,12 +27,22 @@ test('database uses TLS for remote databases but permits explicit local audit Po
 
     for (const migration of [
         'scripts/apply_operational_schema.js',
-        'scripts/apply_festival_registration_schema.js'
+        'scripts/apply_festival_registration_schema.js',
+        'scripts/reconcile_legacy_commerce.js'
     ]) {
         const migrationSource = fs.readFileSync(migration, 'utf8');
         assert.match(migrationSource, /DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false'/, migration);
         assert.doesNotMatch(migrationSource, /rejectUnauthorized:\s*false/, migration);
     }
+});
+
+test('operational migration refuses incompatible legacy look-alike tables before recording success', () => {
+    const migration = fs.readFileSync('scripts/apply_operational_schema.js', 'utf8');
+    assert.match(migration, /async function schemaGaps/);
+    assert.match(migration, /Incompatible existing operational schema/);
+    assert.match(migration, /Applied migration schema drift/);
+    assert.match(migration, /Migration did not produce required schema/);
+    assert.match(migration, /dryRun: true, existingSchema: 'compatible'/);
 });
 
 test('network proxy and chat input keep TLS verification and bound untrusted content', () => {

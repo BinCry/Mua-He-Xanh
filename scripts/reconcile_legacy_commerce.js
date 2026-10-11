@@ -9,7 +9,10 @@ const { Pool } = require('pg');
 const connectionString = String(process.env.DATABASE_URL || '').trim();
 if (!connectionString) throw new Error('DATABASE_URL is required.');
 const isLocal = /localhost|127\.0\.0\.1|\[::1\]/i.test(connectionString);
-const pool = new Pool({ connectionString, ssl: isLocal ? false : { rejectUnauthorized: false } });
+const pool = new Pool({
+  connectionString,
+  ssl: isLocal ? false : { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false' }
+});
 
 async function exists(client, table) {
   const result = await client.query('SELECT to_regclass($1) AS name', ['public.' + table]);

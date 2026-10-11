@@ -33,23 +33,67 @@ const statements = [
   'CREATE INDEX IF NOT EXISTS idx_point_ledger_user_created ON point_ledger (user_id, created_at DESC)'
 ];
 
+const requiredColumns = {
+  products: ['id', 'destination_id', 'title', 'description', 'price_vnd', 'stock_on_hand', 'reserved_stock', 'is_active'],
+  product_orders: ['id', 'user_id', 'product_id', 'quantity', 'product_title_snapshot', 'unit_price_vnd', 'status', 'idempotency_key'],
+  workshop_sessions: ['id', 'workshop_id', 'starts_at', 'ends_at', 'price_vnd', 'capacity', 'reserved_seats', 'is_active'],
+  workshop_session_bookings: ['id', 'user_id', 'session_id', 'seats', 'title_snapshot', 'price_vnd_snapshot', 'status', 'idempotency_key'],
+  point_ledger: ['id', 'user_id', 'delta', 'reason', 'reference_type', 'reference_id'],
+  idempotency_keys: ['user_id', 'operation', 'key', 'payload_hash'],
+  festival_tickets: ['id', 'user_id', 'festival_id', 'ticket_code', 'status'],
+  legacy_commerce_reconciliation: ['id', 'legacy_table', 'legacy_id', 'state']
+};
+
+async function tableExists(client, table) {
+  const result = await client.query('SELECT to_regclass($1) AS name', ['public.' + table]);
+  return Boolean(result.rows[0]?.name);
+}
+
+async function schemaGaps(client, includeMissingTables) {
+  const gaps = [];
+  for (const [table, columns] of Object.entries(requiredColumns)) {
+    if (!await tableExists(client, table)) {
+      if (includeMissingTables) gaps.push(`${table}: table missing`);
+      continue;
+    }
+    const result = await client.query(
+      'SELECT column_name FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2',
+      ['public', table]
+    );
+    const actual = new Set(result.rows.map(row => row.column_name));
+    const missing = columns.filter(column => !actual.has(column));
+    if (missing.length) gaps.push(`${table}: missing ${missing.join(', ')}`);
+  }
+  return gaps;
+}
+
 async function main() {
   const checksum = crypto.createHash('sha256').update(statements.join('\n')).digest('hex');
   const client = await pool.connect();
   try {
-    await client.query(statements[0]);
-    const result = await client.query('SELECT checksum FROM schema_migrations WHERE id = $1', [migrationId]);
+    // Refuse to stamp a legacy look-alike table as migrated. This preflight is
+    // read-only and therefore safe for both production dry-runs and backups.
+    const legacyGaps = await schemaGaps(client, false);
+    if (legacyGaps.length) throw new Error(`Incompatible existing operational schema: ${legacyGaps.join('; ')}`);
+    const hasMigrationTable = await tableExists(client, 'schema_migrations');
+    const result = hasMigrationTable
+      ? await client.query('SELECT checksum FROM schema_migrations WHERE id = $1', [migrationId])
+      : { rows: [] };
     if (result.rows[0]) {
       if (result.rows[0].checksum !== checksum) throw new Error('Migration checksum mismatch.');
+      const gaps = await schemaGaps(client, true);
+      if (gaps.length) throw new Error(`Applied migration schema drift: ${gaps.join('; ')}`);
       console.log(migrationId + ' already applied.');
       return;
     }
     if (dryRun) {
-      console.log(JSON.stringify({ migrationId, statements: statements.length, checksum, dryRun: true }));
+      console.log(JSON.stringify({ migrationId, statements: statements.length, checksum, dryRun: true, existingSchema: 'compatible' }));
       return;
     }
     await client.query('BEGIN');
-    for (const statement of statements.slice(1)) await client.query(statement);
+    for (const statement of statements) await client.query(statement);
+    const gaps = await schemaGaps(client, true);
+    if (gaps.length) throw new Error(`Migration did not produce required schema: ${gaps.join('; ')}`);
     await client.query('INSERT INTO schema_migrations (id, checksum) VALUES ($1, $2)', [migrationId, checksum]);
     await client.query('COMMIT');
     console.log(migrationId + ' applied.');

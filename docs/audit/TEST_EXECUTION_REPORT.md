@@ -4,7 +4,7 @@ Environment: isolated PostgreSQL 16 at `127.0.0.1:55432`; local app at `127.0.0.
 
 | Check | Result | Evidence |
 | --- | --- | --- |
-| Unit/regression | PASS | `npm test`: 82 passed, 0 failed |
+| Unit/regression | PASS | `npm test`: 83 passed, 0 failed |
 | PostgreSQL integration | PASS | `TEST_DATABASE_URL=...binh_loi_audit npm run test:audit-db`: 12 passed, 0 failed |
 | JavaScript syntax | PASS | `node --check` over 118 project JS files |
 | EJS compilation | PASS | 58 templates compiled by `test/template-compile.test.js` |
@@ -21,6 +21,7 @@ Environment: isolated PostgreSQL 16 at `127.0.0.1:55432`; local app at `127.0.0.
 | Browser hardening headers | PASS | Runtime response: nosniff, SAMEORIGIN frame policy, strict-origin referrer policy, same-origin opener policy |
 | Local small-load smoke | PASS | `/api/health`: 60 requests, concurrency 10, p95 15.1 ms; `/explore`: 30 requests, concurrency 5, p95 45.8 ms; all 200 |
 | CI quality gate hosted execution | PASS | GitHub Actions run 38130954942, commit `c067f3f`: isolated PostgreSQL, security/unit/integration and Chromium browser/a11y/PWA acceptance all pass |
+| Operational migration preflight | PASS | Dry-run against audit DB confirms applied schema; incompatible existing look-alike tables now fail before a migration record is written |
 
 ## Verified invariants
 

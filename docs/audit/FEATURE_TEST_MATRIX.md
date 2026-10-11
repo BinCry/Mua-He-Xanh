@@ -2,9 +2,9 @@
 
 | Area | Status | Evidence |
 | --- | --- | --- |
-| Unit/regression suite | PASS | 82/82 `npm test` |
+| Unit/regression suite | PASS | 83/83 `npm test` |
 | EJS views / JS syntax | PASS | 58 templates; 118 JS files |
-| Journey criteria replacement and no stale chill fallback | PASS | unit + Chromium E2E |
+| Journey criteria replacement and no stale chill fallback | PASS | unit + Chromium/Firefox/WebKit E2E |
 | Journey stop IDOR | PASS | PostgreSQL integration |
 | Locked-account session restore | PASS | PostgreSQL integration |
 | Copied session UUID | PASS | PostgreSQL integration |
@@ -24,8 +24,9 @@
 | PWA offline/reconnect smoke | PASS | Chromium service-worker registration, offline recovery and reconnect health check |
 | Local small-load smoke | PASS | health and explore endpoint checks under bounded local concurrency; production load test remains required |
 | CI quality gate hosted execution | PASS | GitHub Actions run 38130954942 passed on clean Ubuntu/PostgreSQL 16 runner |
+| Operational migration schema preflight | PASS | migration validates legacy tables and post-apply required columns before recording success |
 | Production historical reconciliation | BLOCKED | requires backed-up production extract and mapping approval |
 | Migration rollback rehearsal | NOT TESTED | no production-like backup is in scope yet |
 | OAuth/SMS sandbox | NOT TESTED | provider credentials/sandbox not supplied |
-| PWA/offline/reconnect | NOT TESTED | dedicated suite not yet implemented |
+| PWA/offline/reconnect | PARTIAL | Chromium service-worker offline/reconnect smoke passes; private-flow and cross-browser acceptance remain outstanding |
 | Load/latency and failure recovery | NOT TESTED | requires controlled operational environment |
