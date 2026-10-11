@@ -8,6 +8,14 @@ test('database configuration has no source fallback credential', () => {
     assert.doesNotMatch(database, /pooler\.supabase\.com/);
 });
 
+test('production environment template describes the active PostgreSQL contract, not retired MySQL variables', () => {
+    const example = fs.readFileSync('.env.example', 'utf8');
+    assert.match(example, /^DATABASE_URL=/m);
+    assert.match(example, /^DATABASE_SSL_REJECT_UNAUTHORIZED=true$/m);
+    assert.match(example, /^SESSION_SECRET=/m);
+    assert.doesNotMatch(example, /^DB_(HOST|USER|PASS|NAME|PORT)=/m);
+});
+
 test('map requests a minimal destination projection instead of all columns', () => {
     const model = fs.readFileSync('src/models/Destination.js', 'utf8');
     const controller = fs.readFileSync('src/controllers/MapController.js', 'utf8');
