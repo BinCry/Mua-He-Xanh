@@ -27,7 +27,6 @@ const FestivalController = require('../controllers/FestivalController');
 const EventController = require('../controllers/EventController');
 const CommerceController = require('../controllers/CommerceController');
 const WorkshopController = require('../controllers/WorkshopController');
-const ProductController = require('../controllers/ProductController');
 
 // Middleware
 const { ensureAuthenticated, ensureAdmin, ensureManager, ensureTourist } = require('../middleware/auth');
@@ -295,15 +294,21 @@ router.get('/explore/audio/:slug', ExploreController.audio);
 router.get('/explore/:slug', ExploreController.show);
 
 // ===== SHOP =====
-router.get('/shops', ProductController.index);
-router.get('/shops/:id', ProductController.show);
+// Shop is the established, contact-first product catalogue.  The data that
+// managers maintain lives in the legacy workshop catalogue; it must remain
+// the source of truth until a separately reconciled product migration exists.
+router.get('/shops', ShopController.index);
+router.get('/shops/:id', ShopController.show);
 router.get('/my-shops', ensureAuthenticated, ShopController.myBookings);
-router.get('/api/shop/slots', ShopController.getSlots);
-router.post('/api/shop/book', ensureAuthenticated, ShopController.book);
+router.get('/api/shop/slots', ensureAuthenticated, CommerceController.shopOrdersRetired);
+router.post('/api/shop/book', ensureAuthenticated, CommerceController.shopOrdersRetired);
 router.post('/api/shop/cancel', ensureAuthenticated, ShopController.cancel);
 router.post('/api/shop/review', ensureAuthenticated, ShopController.review);
-router.post('/api/products/orders', ensureAuthenticated, CommerceController.createProductOrder);
-router.post('/api/products/orders/:id/status', ensureAuthenticated, CommerceController.transitionProductOrder);
+// Products are arranged by direct contact, not an online checkout.  Keep the
+// former endpoints explicit and non-mutating so an old browser tab cannot
+// silently create a new order after this policy change.
+router.post('/api/products/orders', ensureAuthenticated, CommerceController.shopOrdersRetired);
+router.post('/api/products/orders/:id/status', ensureAuthenticated, CommerceController.shopOrdersRetired);
 router.post('/api/workshop-sessions/bookings', ensureAuthenticated, CommerceController.createWorkshopBooking);
 router.post('/api/workshop-bookings/:id/status', ensureAuthenticated, CommerceController.transitionWorkshopBooking);
 router.get('/workshops', WorkshopController.index);
@@ -360,7 +365,9 @@ router.get('/admin/workshops', ensureAdmin, (req, res) => res.redirect('/admin/s
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
 router.get('/admin/festival-tickets', ensureAdmin, AdminController.festivalTickets);
-router.get('/admin/product-orders', ensureAdmin, AdminController.productOrders);
+// Compatibility for saved staff links.  There is deliberately no Shop-order
+// operations screen because Shop has no checkout workflow.
+router.get('/admin/product-orders', ensureAdmin, (req, res) => res.redirect('/admin/shops'));
 router.post('/api/admin/festivals/registration', ensureAdmin, AdminController.updateFestivalRegistration);
 router.get('/admin/posters', ensureAdmin, AdminController.posters);
 router.post('/admin/posters', ensureAdmin, upload.single('image'), AdminController.createPoster);

@@ -1,4 +1,3 @@
-const mysql = require('mysql2/promise');
 const { Pool } = require('pg');
 require('dotenv').config();
 const config = require('../src/config/env');
@@ -12,19 +11,24 @@ const mysqlConfig = {
 };
 
 let pgPoolConfig;
+const connectionString = String(process.env.DATABASE_URL || '').trim();
+const isLocalPostgres = /localhost|127\.0\.0\.1|\[::1\]/i.test(connectionString);
 if (process.env.DATABASE_URL) {
     pgPoolConfig = {
         connectionString: process.env.DATABASE_URL,
-        ssl: { rejectUnauthorized: false }
+        ssl: isLocalPostgres ? false : { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false' }
     };
 } else {
+    const configuredPgHost = String(process.env.PG_HOST || 'localhost').toLowerCase();
     pgPoolConfig = {
-        host: process.env.PG_HOST || 'localhost',
+        host: configuredPgHost,
         port: parseInt(process.env.PG_PORT) || 5432,
         user: process.env.PG_USER || 'postgres',
         password: process.env.PG_PASSWORD || '',
         database: process.env.PG_DATABASE || 'binhloi_healing',
-        ssl: { rejectUnauthorized: false }
+        ssl: ['localhost', '127.0.0.1', '::1'].includes(configuredPgHost)
+            ? false
+            : { rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false' }
     };
 }
 
@@ -279,19 +283,107 @@ CREATE TABLE IF NOT EXISTS settings (
     description TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE TABLE IF NOT EXISTS destination_likes (
+    id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100),
+    destination_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS festival_bookings (
+    id VARCHAR(100) PRIMARY KEY,
+    festival_id VARCHAR(100),
+    user_id VARCHAR(100),
+    full_name VARCHAR(255),
+    phone VARCHAR(50),
+    tickets INT DEFAULT 1,
+    status VARCHAR(50) DEFAULT 'confirmed',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS hero_posters (
+    id VARCHAR(36) PRIMARY KEY,
+    title VARCHAR(255),
+    image_url TEXT NOT NULL,
+    sort_order INT DEFAULT 0,
+    is_active INT DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS notifications (
+    id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100),
+    title VARCHAR(255),
+    message TEXT,
+    type VARCHAR(100),
+    is_read INT DEFAULT 0,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS review_likes (
+    id VARCHAR(100) PRIMARY KEY,
+    review_id VARCHAR(100),
+    user_id VARCHAR(100),
+    guest_uuid VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_badges (
+    id VARCHAR(100) PRIMARY KEY,
+    session_id VARCHAR(100),
+    badge_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_favorites (
+    id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100),
+    destination_id VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS user_rewards (
+    id VARCHAR(100) PRIMARY KEY,
+    user_id VARCHAR(100),
+    reward_id VARCHAR(100),
+    code VARCHAR(100),
+    status VARCHAR(50) DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS workshop_bookings (
+    id VARCHAR(100) PRIMARY KEY,
+    workshop_id VARCHAR(100),
+    user_id VARCHAR(100),
+    booking_date DATE,
+    booking_time VARCHAR(50),
+    num_people INT DEFAULT 1,
+    total_price DECIMAL(12,2) DEFAULT 0,
+    qr_ticket VARCHAR(100),
+    status VARCHAR(50) DEFAULT 'confirmed',
+    rating INT,
+    review TEXT,
+    note TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
 `;
 
-async function runMigration() {
+async function runMigration({ schemaOnly = process.argv.includes('--schema-only') } = {}) {
     console.log("🚀 Bắt đầu di chuyển toàn bộ CSDL sang Supabase PostgreSQL...");
 
     let mysqlPool, pgPool;
     try {
-        mysqlPool = mysql.createPool(mysqlConfig);
         pgPool = new Pool(pgPoolConfig);
 
         console.log("📦 Khởi tạo các bảng PostgreSQL trên Supabase...");
         await pgPool.query(createTablesSQL);
         console.log("✅ Cấu trúc tất cả bảng PostgreSQL đã tạo xong!");
+
+        if (schemaOnly) return;
+
+        const mysql = require('mysql2/promise');
+        mysqlPool = mysql.createPool(mysqlConfig);
 
         const tables = [
             'users', 'destinations', 'user_sessions', 'journeys',
@@ -335,4 +427,8 @@ async function runMigration() {
     }
 }
 
-runMigration();
+if (require.main === module) {
+    runMigration();
+}
+
+module.exports = { createTablesSQL, runMigration };

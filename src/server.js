@@ -501,7 +501,12 @@ app.use((req, res, next) => {
     if (user && req.method === 'GET') {
         const path = req.path;
         const isAsset = path.startsWith('/css') || path.startsWith('/js') || path.startsWith('/images') || path.includes('.');
-        const isExcluded = path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/auth') || path.startsWith('/api') || isAsset;
+        // Staff can preview these public catalogue/event pages.  Keep all
+        // operational and mutation routes inside the role-specific panels.
+        const isPublicPreview = path === '/shops' || path.startsWith('/shops/') ||
+            path === '/workshops' || path.startsWith('/workshops/') ||
+            path === '/festivals';
+        const isExcluded = path.startsWith('/admin') || path.startsWith('/manager') || path.startsWith('/auth') || path.startsWith('/api') || isAsset || isPublicPreview;
         
         if (!isExcluded) {
             if (user.role === 'admin') {

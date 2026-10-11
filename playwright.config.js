@@ -11,6 +11,7 @@ if (/^https?:\/\/(?:www\.)?dulichbinhloi\.com/i.test(baseURL) && process.env.E2E
 
 module.exports = defineConfig({
     testDir: './test/e2e',
+    globalSetup: require.resolve('./test/e2e/global-setup'),
     timeout: 45_000,
     forbidOnly: Boolean(process.env.CI),
     fullyParallel: false,

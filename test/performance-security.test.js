@@ -89,6 +89,15 @@ test('audit E2E fixture includes the analytics relation used by global middlewar
     const seed = fs.readFileSync('scripts/seed_audit_e2e.js', 'utf8');
     assert.match(seed, /CREATE TABLE IF NOT EXISTS analytics/i);
     assert.match(seed, /duration_ms INT NOT NULL DEFAULT 0/i);
+    assert.match(seed, /await pool\.query\(createTablesSQL\)/);
+    const migration = fs.readFileSync('scripts/migrate_to_postgres.js', 'utf8');
+    assert.match(migration, /module\.exports = \{ createTablesSQL, runMigration \}/);
+    assert.match(migration, /if \(require\.main === module\)/);
+    assert.match(migration, /const mysql = require\('mysql2\/promise'\)/);
+    assert.doesNotMatch(migration, /^const mysql = require\('mysql2\/promise'\);/m);
+    for (const table of ['check_ins', 'seasonal_experiences', 'workshop_bookings', 'user_rewards', 'notifications']) {
+        assert.match(migration, new RegExp(`CREATE TABLE IF NOT EXISTS ${table}`));
+    }
 });
 
 test('schema rollback commands require an explicit migration confirmation', () => {

@@ -84,10 +84,10 @@
                             const cancelledBooking = (!activeBooking && hasUserBookings) ? userBookings.find(b => b.status === 'cancelled') : null;
                         %>
 
-                        <!-- Purchase & Booking Box Section -->
+                        <!-- Direct-contact section: Shop does not create online orders. -->
                         <div class="mt-4 p-4 rounded-4 bg-light border">
                             <h5 class="fw-bold mb-3" style="color: var(--primary);">
-                                <i class="bi bi-bag-check-fill me-2"></i> Đặt mua & Trải nghiệm sản phẩm
+                                <i class="bi bi-chat-dots-fill me-2"></i> Liên hệ sản phẩm
                             </h5>
 
                             <div class="row g-3 mb-3">
@@ -101,18 +101,10 @@
                                 </div>
                             </div>
 
-                            <div class="d-flex align-items-center mb-4">
-                                <span id="slots-badge" class="badge rounded-pill bg-success px-3 py-2">CÒN HÀNG</span>
-                                <span id="slots-text" class="small text-muted ms-2">Sẵn sàng phục vụ</span>
-                            </div>
-
-                            <button onclick="showClosedFeatureModal()" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" id="bookSubmitBtn" style="background: var(--primary);">
-                                <% if (!workshop.price || workshop.price <= 0) { %>
-                                    <i class="bi bi-telephone-fill me-2"></i>LIÊN HỆ ĐẶT HÀNG / BÁO GIÁ
-                                <% } else { %>
-                                    <i class="bi bi-cart-check-fill me-2"></i>ĐẶT MUA NGAY
-                                <% } %>
-                            </button>
+                            <p class="small text-muted mb-4">Sản phẩm được trao đổi trực tiếp với điểm cung cấp để xác nhận giá, số lượng và cách nhận.</p>
+                            <a href="https://zalo.me/0395529890" target="_blank" rel="noopener" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" style="background: var(--primary);">
+                                <i class="bi bi-chat-dots-fill me-2"></i>LIÊN HỆ ZALO ĐỂ ĐẶT / BÁO GIÁ
+                            </a>
                         </div>
                     </div>
                 </div>

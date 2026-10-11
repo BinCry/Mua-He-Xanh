@@ -36,6 +36,14 @@ function errorResponse(res, error) {
 }
 
 class CommerceController {
+    async shopOrdersRetired(req, res) {
+        return res.status(410).json({
+            success: false,
+            code: 'SHOP_CONTACT_ONLY',
+            message: 'Shop chỉ hỗ trợ liên hệ trực tiếp; hệ thống không nhận đơn hàng trực tuyến.'
+        });
+    }
+
     async createProductOrder(req, res) {
         try {
             const result = await ProductOrderService.create({

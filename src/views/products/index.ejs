@@ -1,12 +1,10 @@
 <section class="py-4 py-md-5 bg-light min-vh-100">
   <div class="container py-3">
     <header class="text-center mb-4 mb-md-5">
-      <p class="text-uppercase text-success fw-bold small mb-2">Đặc sản và quà Bình Lợi</p>
       <h1 class="display-6 fw-bold">Shop hàng hóa</h1>
-      <p class="text-secondary mb-0">Sản phẩm và tồn kho được quản lý riêng với các ca Workshop.</p>
     </header>
-    <form class="card border-0 shadow-sm rounded-4 p-2 mb-4" action="/shops" method="get">
-      <div class="input-group"><input class="form-control border-0 shadow-none" name="q" value="<%= searchQuery %>" maxlength="100" placeholder="Tìm sản phẩm hoặc địa điểm"><button class="btn btn-success rounded-3 px-4" type="submit">Tìm</button></div>
+    <form class="card border-0 shadow-sm rounded-4 p-2 mb-5 product-search" action="/shops" method="get">
+      <div class="input-group"><input class="form-control border-0 shadow-none" name="q" value="<%= searchQuery %>" maxlength="100" placeholder="Tìm sản phẩm hoặc địa điểm"><button class="btn product-search-button rounded-pill px-4" type="submit">Tìm kiếm</button></div>
     </form>
     <div class="row g-4">
       <% products.forEach(product => { const available = Math.max(0, Number(product.stock_on_hand) - Number(product.reserved_stock)); %>
@@ -23,6 +21,11 @@
         </article>
       <% }) %>
     </div>
-    <% if (!products.length) { %><div class="text-center bg-white rounded-4 p-5 shadow-sm"><h2 class="h5">Chưa có sản phẩm phù hợp</h2><p class="text-secondary mb-0">Dữ liệu hàng hóa sẽ chỉ xuất hiện sau khi được đối soát và công khai.</p></div><% } %>
+    <% if (!products.length) { %><div class="text-center bg-white rounded-4 p-5 shadow-sm"><h2 class="h5 mb-0">Chưa có sản phẩm phù hợp</h2></div><% } %>
   </div>
 </section>
+<style>
+  .product-search-button{background:#a22926;border-color:#a22926;color:#fff;min-height:46px;font-weight:700}
+  .product-search-button:hover,.product-search-button:focus{background:#86211f;border-color:#86211f;color:#fff}
+  @media(max-width:575.98px){.product-search{margin-bottom:2rem!important}.product-search-button{padding-inline:1rem!important}}
+</style>

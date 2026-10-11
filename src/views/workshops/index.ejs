@@ -1,14 +1,12 @@
 <section class="py-4 py-md-5 bg-light min-vh-100">
   <div class="container py-3">
     <header class="text-center mb-4 mb-md-5">
-      <p class="text-uppercase text-success fw-bold small mb-2">Trải nghiệm tại Bình Lợi</p>
       <h1 class="display-6 fw-bold">Workshop theo từng ca</h1>
-      <p class="text-secondary mb-0">Mỗi ca có thời gian, giá và số chỗ riêng; chỉ chọn ca còn chỗ.</p>
     </header>
-    <form class="card border-0 shadow-sm rounded-4 p-2 mb-4" action="/workshops" method="get">
+    <form class="card border-0 shadow-sm rounded-4 p-2 mb-5 workshop-search" action="/workshops" method="get">
       <div class="input-group">
         <input class="form-control border-0 shadow-none" name="q" value="<%= searchQuery %>" maxlength="100" placeholder="Tìm Workshop hoặc địa điểm" aria-label="Tìm Workshop">
-        <button class="btn btn-success rounded-3 px-4" type="submit">Tìm</button>
+        <button class="btn workshop-search-button rounded-pill px-4" type="submit">Tìm kiếm</button>
       </div>
     </form>
     <div class="row g-4">
@@ -32,8 +30,13 @@
       <% }) %>
     </div>
     <% if (!sessions.length) { %>
-      <div class="text-center bg-white rounded-4 p-5 shadow-sm"><h2 class="h5">Chưa có ca Workshop phù hợp</h2><p class="text-secondary mb-0">Hãy thử lại sau hoặc đổi từ khóa tìm kiếm.</p></div>
+      <div class="text-center bg-white rounded-4 p-5 shadow-sm"><h2 class="h5 mb-0">Chưa có ca Workshop phù hợp</h2></div>
     <% } %>
   </div>
 </section>
-<style>.workshop-image{height:190px;object-fit:cover}@media(max-width:575.98px){.workshop-image{height:170px}}</style>
+<style>
+  .workshop-image{height:190px;object-fit:cover}
+  .workshop-search-button{background:#a22926;border-color:#a22926;color:#fff;min-height:46px;font-weight:700}
+  .workshop-search-button:hover,.workshop-search-button:focus{background:#86211f;border-color:#86211f;color:#fff}
+  @media(max-width:575.98px){.workshop-image{height:170px}.workshop-search{margin-bottom:2rem!important}.workshop-search-button{padding-inline:1rem!important}}
+</style>

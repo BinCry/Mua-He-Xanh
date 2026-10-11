@@ -164,24 +164,43 @@ test('festival ticket operations have protected customer and admin routes with a
     assert.match(adminView, /Idempotency-Key/);
 });
 
-test('Shop routes use the dedicated product domain and product order API', () => {
+test('Shop remains a direct-contact catalogue and cannot create online product orders', () => {
     const routes = fs.readFileSync('src/routes/index.js', 'utf8');
-    const view = fs.readFileSync('src/views/products/show.ejs', 'utf8');
-    assert.match(routes, /router\.get\('\/shops', ProductController\.index\)/);
-    assert.match(routes, /router\.get\('\/shops\/:id', ProductController\.show\)/);
-    assert.match(view, /\/api\/products\/orders/);
-    assert.match(view, /Idempotency-Key/);
-    assert.doesNotMatch(view, /productId:'<%= product\.id %>'/);
+    const view = fs.readFileSync('src/views/shop/show.ejs', 'utf8');
+    assert.match(routes, /router\.get\('\/shops', ShopController\.index\)/);
+    assert.match(routes, /router\.get\('\/shops\/:id', ShopController\.show\)/);
+    assert.match(routes, /router\.post\('\/api\/products\/orders', ensureAuthenticated, CommerceController\.shopOrdersRetired\)/);
+    assert.match(view, /Liên hệ Zalo/);
+    assert.doesNotMatch(view, /\/api\/products\/orders/);
 });
 
-test('admin product order operations use protected state-transition API with idempotency', () => {
+test('the retired Shop-order URL returns staff to Shop management and is absent from navigation', () => {
     const routes = fs.readFileSync('src/routes/index.js', 'utf8');
-    const view = fs.readFileSync('src/views/admin/product_orders.ejs', 'utf8');
-    assert.match(routes, /router\.get\('\/admin\/product-orders', ensureAdmin,/);
-    assert.match(view, /\/api\/products\/orders\//);
-    assert.match(view, /Idempotency-Key/);
-    assert.match(view, /data-status="completed"/);
-    assert.match(view, /data-order-id="<%= order\.id %>"/);
+    const layout = fs.readFileSync('src/views/layouts/admin.ejs', 'utf8');
+    assert.match(routes, /router\.get\('\/admin\/product-orders', ensureAdmin, \(req, res\) => res\.redirect\('\/admin\/shops'\)\)/);
+    assert.doesNotMatch(layout, /Đơn hàng Shop/);
+});
+
+test('staff can preview public Shop, Workshop and festival pages without losing their admin session', () => {
+    const server = fs.readFileSync('src/server.js', 'utf8');
+    assert.match(server, /const isPublicPreview = path === '\/shops'/);
+    assert.match(server, /path === '\/workshops'/);
+    assert.match(server, /path === '\/festivals'/);
+});
+
+test('Shop and Workshop search, manager actions and festival cards retain the agreed responsive UI', () => {
+    const shop = fs.readFileSync('src/views/shop/index.ejs', 'utf8');
+    const workshop = fs.readFileSync('src/views/workshops/index.ejs', 'utf8');
+    const manager = fs.readFileSync('src/views/manager/workshops.ejs', 'utf8');
+    const tickets = fs.readFileSync('src/views/admin/festival_tickets.ejs', 'utf8');
+    assert.match(shop, />\s*Tìm kiếm\s*</);
+    assert.match(workshop, /Tìm kiếm/);
+    assert.match(workshop, /workshop-search-button/);
+    assert.doesNotMatch(workshop, /Trải nghiệm tại Bình Lợi|Mỗi ca có thời gian|Hãy thử lại sau/);
+    assert.match(manager, /class="workshop-actions"/);
+    assert.match(manager, /flex-wrap: nowrap/);
+    assert.match(tickets, /col-12 col-md-6 col-xl-4/);
+    assert.match(tickets, /href="\/festivals" target="_blank"/);
 });
 
 test('admin access and login redirects derive authority from role data, not an email substring', () => {

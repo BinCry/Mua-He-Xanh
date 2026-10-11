@@ -5,6 +5,7 @@
  */
 const bcrypt = require('bcryptjs');
 const { Pool } = require('pg');
+const { createTablesSQL } = require('./migrate_to_postgres');
 
 const connectionString = String(process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || '').trim();
 if (!/(?:localhost|127\.0\.0\.1).*binh_loi_audit/i.test(connectionString)) {
@@ -29,11 +30,16 @@ async function main() {
     const passwordHash = await bcrypt.hash('AuditE2E-only-2026', 10);
     const accountIds = [ids.tourist, ids.journeyTourist, ids.managerOne, ids.managerTwo, ids.admin];
     try {
+        // Construct the complete application baseline before adding disposable
+        // fixtures. The connection guard above prevents this from reaching a
+        // production database.
+        await pool.query(createTablesSQL);
         await pool.query(`
             ALTER TABLE users ADD COLUMN IF NOT EXISTS password TEXT;
             ALTER TABLE users ADD COLUMN IF NOT EXISTS phone TEXT;
             ALTER TABLE users ADD COLUMN IF NOT EXISTS avatar TEXT;
             ALTER TABLE users ADD COLUMN IF NOT EXISTS managed_destination_id VARCHAR(36);
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
             ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS total_points INT NOT NULL DEFAULT 0;
             ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS ip_address TEXT;
             ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS user_agent TEXT;
@@ -43,6 +49,18 @@ async function main() {
             ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
             ALTER TABLE workshops ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT '';
             ALTER TABLE workshops ADD COLUMN IF NOT EXISTS image TEXT;
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS type VARCHAR(100) NOT NULL DEFAULT 'other';
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS price INT NOT NULL DEFAULT 0;
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS max_participants INT NOT NULL DEFAULT 20;
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS duration_minutes INT NOT NULL DEFAULT 60;
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS duration VARCHAR(100) NOT NULL DEFAULT '2 giờ';
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS schedule_note VARCHAR(500);
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS sort_order INT NOT NULL DEFAULT 0;
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS start_date TIMESTAMPTZ;
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS end_date TIMESTAMPTZ;
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+            ALTER TABLE events ADD COLUMN IF NOT EXISTS event_date TIMESTAMPTZ;
             -- This is a baseline column used by every public destination
             -- query.  It belongs in the production bootstrap schema as well;
             -- the audit fixture declares it explicitly so browser tests do

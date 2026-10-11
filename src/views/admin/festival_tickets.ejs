@@ -3,14 +3,14 @@
     <h4 class="fw-bold mb-1">Vé lễ hội</h4>
     <p class="mb-0 text-muted">Kiểm tra vé, trạng thái và xác nhận sử dụng một lần tại cổng.</p>
   </div>
-  <a class="btn btn-outline-primary rounded-pill" href="/festivals"><i class="bi bi-box-arrow-up-right me-1"></i>Xem trang lễ hội</a>
+  <a class="btn btn-outline-primary rounded-pill" href="/festivals" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right me-1"></i>Xem trang lễ hội</a>
 </div>
 
 <div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
   <h5 class="fw-bold mb-3">Cấu hình đăng ký</h5>
-  <div class="row g-3">
+  <div class="row g-3 festival-registration-grid">
     <% festivals.forEach(festival => { %>
-      <div class="col-12 col-lg-6">
+      <div class="col-12 col-md-6 col-xl-4">
         <form class="border rounded-4 p-3 festival-registration-form" data-festival-id="<%= festival.id %>">
           <div class="fw-bold"><%= festival.name %></div>
           <div class="small text-muted mb-3"><%= festival.date ? new Date(festival.date).toLocaleDateString('vi-VN') : 'Chưa có ngày' %></div>
@@ -24,6 +24,13 @@
     <% if (!festivals.length) { %><p class="text-muted mb-0">Chưa có lễ hội công khai để cấu hình.</p><% } %>
   </div>
 </div>
+
+<style>
+  .festival-registration-form { height: 100%; }
+  @media (max-width: 575.98px) {
+    .festival-registration-form { padding: 1rem !important; }
+  }
+</style>
 
 <div class="admin-table">
   <div class="table-responsive">
