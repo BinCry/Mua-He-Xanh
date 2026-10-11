@@ -261,3 +261,9 @@ test('public typography has a Vietnamese-safe global override and social links r
     }
     assert.match(footer, /rel="noopener noreferrer"/);
 });
+
+test('empty Explore results use the same concise all-results control as Shop', () => {
+    const explore = fs.readFileSync('src/views/explore/list.ejs', 'utf8');
+    assert.match(explore, /class="btn btn-primary rounded-pill px-4 py-2 fw-bold small">XEM TẤT CẢ</);
+    assert.doesNotMatch(explore, /XÓA BỘ LỌC & XEM TẤT CẢ/);
+});
