@@ -92,8 +92,13 @@ test('audit E2E fixture includes the analytics relation used by global middlewar
 });
 
 test('schema rollback commands require an explicit migration confirmation', () => {
+    const forwardOperational = fs.readFileSync('scripts/apply_operational_schema.js', 'utf8');
+    const forwardFestival = fs.readFileSync('scripts/apply_festival_registration_schema.js', 'utf8');
     const operational = fs.readFileSync('scripts/rollback_operational_schema.js', 'utf8');
     const festival = fs.readFileSync('scripts/rollback_festival_registration_schema.js', 'utf8');
+    for (const script of [forwardOperational, forwardFestival, operational, festival]) {
+        assert.match(script, /SET search_path TO public/);
+    }
     for (const script of [operational, festival]) {
         assert.match(script, /--confirm-migration-id=/);
         assert.match(script, /Refusing rollback without/);

@@ -22,6 +22,7 @@ const pool = new Pool({
 async function main() {
     const client = await pool.connect();
     try {
+        await client.query('SET search_path TO public');
         const migration = await client.query('SELECT id FROM schema_migrations WHERE id = $1', [migrationId]);
         if (!migration.rows[0]) {
             console.log(JSON.stringify({ migrationId, rollback: 'not_applied' }));

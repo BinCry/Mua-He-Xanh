@@ -30,6 +30,7 @@ const tables = [
 async function main() {
     const client = await pool.connect();
     try {
+        await client.query('SET search_path TO public');
         const migration = await client.query(
             'SELECT id FROM schema_migrations WHERE id = $1', [migrationId]
         );

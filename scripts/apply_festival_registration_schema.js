@@ -28,6 +28,8 @@ async function main() {
   const checksum = crypto.createHash('sha256').update(statements.join('\n')).digest('hex');
   const client = await pool.connect();
   try {
+    // Do not depend on the database/pooler default search_path.
+    await client.query('SET search_path TO public');
     await client.query(statements[0]);
     const applied = await client.query('SELECT checksum FROM schema_migrations WHERE id = $1', [migrationId]);
     if (applied.rows[0]) {

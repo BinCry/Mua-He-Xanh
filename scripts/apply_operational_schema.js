@@ -71,6 +71,10 @@ async function main() {
   const checksum = crypto.createHash('sha256').update(statements.join('\n')).digest('hex');
   const client = await pool.connect();
   try {
+    // Supabase poolers can start a connection with an empty search_path.
+    // Migrations must target the application schema explicitly rather than
+    // depending on a provider-specific database default.
+    await client.query('SET search_path TO public');
     // Refuse to stamp a legacy look-alike table as migrated. This preflight is
     // read-only and therefore safe for both production dry-runs and backups.
     const legacyGaps = await schemaGaps(client, false);
