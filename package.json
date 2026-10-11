@@ -12,6 +12,8 @@
     "db:seed:audit-e2e": "node scripts/seed_audit_e2e.js",
     "db:migrate:operational": "node scripts/apply_operational_schema.js",
     "db:migrate:festival-registration": "node scripts/apply_festival_registration_schema.js",
+    "db:rollback:operational": "node scripts/rollback_operational_schema.js",
+    "db:rollback:festival-registration": "node scripts/rollback_festival_registration_schema.js",
     "db:reconcile:legacy-commerce": "node scripts/reconcile_legacy_commerce.js",
     "test:responsive": "playwright test test/e2e/responsive.spec.js",
     "test:a11y": "playwright test test/e2e/accessibility.spec.js",

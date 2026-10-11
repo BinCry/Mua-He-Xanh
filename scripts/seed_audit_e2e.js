@@ -73,6 +73,21 @@ async function main() {
                 is_active INT NOT NULL DEFAULT 1,
                 created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
+            -- Analytics is written by global middleware on every browser
+            -- request. Keep this fixture complete so a green UI suite cannot
+            -- conceal a server-side missing-relation error.
+            CREATE TABLE IF NOT EXISTS analytics (
+                id VARCHAR(36) PRIMARY KEY,
+                session_id TEXT,
+                event TEXT,
+                page_url TEXT,
+                user_agent TEXT,
+                duration_ms INT NOT NULL DEFAULT 0,
+                ip_address TEXT,
+                metadata TEXT,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+            );
             CREATE TABLE IF NOT EXISTS video_templates (
                 id VARCHAR(36) PRIMARY KEY,
                 title TEXT NOT NULL,

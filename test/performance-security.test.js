@@ -85,6 +85,25 @@ test('CI quality gate uses an isolated PostgreSQL database and explicit browser 
     assert.match(workflow, /npm audit --omit=dev --audit-level=high/);
 });
 
+test('audit E2E fixture includes the analytics relation used by global middleware', () => {
+    const seed = fs.readFileSync('scripts/seed_audit_e2e.js', 'utf8');
+    assert.match(seed, /CREATE TABLE IF NOT EXISTS analytics/i);
+    assert.match(seed, /duration_ms INT NOT NULL DEFAULT 0/i);
+});
+
+test('schema rollback commands require an explicit migration confirmation', () => {
+    const operational = fs.readFileSync('scripts/rollback_operational_schema.js', 'utf8');
+    const festival = fs.readFileSync('scripts/rollback_festival_registration_schema.js', 'utf8');
+    for (const script of [operational, festival]) {
+        assert.match(script, /--confirm-migration-id=/);
+        assert.match(script, /Refusing rollback without/);
+        assert.match(script, /BEGIN/);
+        assert.match(script, /ROLLBACK/);
+    }
+    assert.match(operational, /Refusing in-place rollback with operational data/);
+    assert.match(festival, /Refusing in-place rollback because festival registration data changed/);
+});
+
 test('avatar and festival fallbacks use durable public assets', () => {
     const managerDashboard = fs.readFileSync('src/views/manager/dashboard.ejs', 'utf8');
     const managerWorkshops = fs.readFileSync('src/views/manager/workshops.ejs', 'utf8');
