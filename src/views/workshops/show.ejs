@@ -1,0 +1,49 @@
+<section class="py-4 py-md-5 bg-light min-vh-100">
+  <div class="container py-3" style="max-width:900px">
+    <a href="/workshops" class="btn btn-link px-0 text-success">&larr; Tất cả Workshop</a>
+    <article class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <% if (workshop.image) { %><img class="detail-image" src="<%= fixImg(workshop.image, '/uploads/posters/poster-1.webp') %>" alt="" loading="lazy"><% } %>
+      <div class="card-body p-4 p-md-5">
+        <p class="text-success fw-bold mb-2"><%= workshop.destination_name || 'Bình Lợi' %></p>
+        <h1 class="h2 fw-bold"><%= workshop.title %></h1>
+        <p class="text-secondary" style="white-space:pre-line"><%= workshop.description || '' %></p>
+        <h2 class="h4 mt-4">Chọn ca trải nghiệm</h2>
+        <div id="bookingFeedback" class="visually-hidden" role="status" aria-live="polite"></div>
+        <div class="vstack gap-3">
+          <% sessions.forEach(session => { const remaining = Math.max(0, Number(session.capacity) - Number(session.reserved_seats)); %>
+          <div class="border rounded-4 p-3 d-flex flex-column flex-md-row align-items-md-center gap-3">
+            <div class="flex-grow-1">
+              <strong><%= new Date(session.starts_at).toLocaleString('vi-VN') %></strong>
+              <div class="small text-secondary">Kết thúc <%= new Date(session.ends_at).toLocaleString('vi-VN') %> · <%= remaining %> chỗ còn lại · <%= new Intl.NumberFormat('vi-VN').format(session.price_vnd) %>đ/người</div>
+            </div>
+            <button class="btn btn-success rounded-pill book-workshop" data-session-id="<%= session.id %>" <%= remaining ? '' : 'disabled' %>>Đăng ký</button>
+          </div>
+          <% }) %>
+        </div>
+        <% if (!sessions.length) { %><p class="text-secondary mb-0">Hiện không có ca nào còn mở đăng ký.</p><% } %>
+      </div>
+    </article>
+  </div>
+</section>
+<style>.detail-image{width:100%;max-height:360px;object-fit:cover}</style>
+<script>
+document.querySelectorAll('.book-workshop').forEach(button => button.addEventListener('click', async () => {
+  const original = button.textContent; const feedback = document.getElementById('bookingFeedback');
+  button.disabled = true; button.textContent = 'Đang gửi…';
+  try {
+    const key = crypto.randomUUID();
+    const response = await fetch('/api/workshop-sessions/bookings', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Idempotency-Key':key},
+      body: JSON.stringify({sessionId: button.dataset.sessionId, seats: 1})
+    });
+    const payload = await response.json();
+    if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể đăng ký');
+    feedback.className = 'alert alert-success mt-3'; feedback.textContent = 'Đăng ký đã được ghi nhận.';
+    button.textContent = 'Đã đăng ký';
+  } catch (error) {
+    feedback.className = 'alert alert-danger mt-3'; feedback.textContent = error.message || 'Không thể đăng ký.';
+    button.disabled = false; button.textContent = original;
+  }
+}));
+</script>

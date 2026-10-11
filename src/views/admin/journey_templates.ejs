@@ -165,7 +165,7 @@
 </div>
 
 <script id="destinations-json-data" type="application/json">
-<%- JSON.stringify(destinations || []) %>
+<%- safeJsonForScript(destinations || []) %>
 </script>
 
 <script>

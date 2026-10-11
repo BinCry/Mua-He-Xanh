@@ -638,17 +638,26 @@ class ManagerController {
             const params = [status, booking_id];
             const scope = isAdmin ? '' : ' AND w.destination_id = $3';
             if (!isAdmin) params.push(user.managed_destination_id);
-            const [updated] = await UserSession.db.query(
-                `UPDATE workshop_bookings wb SET status = $1
-                 FROM workshops w
-                 WHERE wb.id = $2 AND w.id = wb.workshop_id${scope}
-                   AND (
-                     (wb.status = 'pending' AND $1 IN ('confirmed', 'cancelled')) OR
-                     (wb.status = 'confirmed' AND $1 IN ('completed', 'cancelled'))
-                   )
-                 RETURNING wb.id`,
-                params
-            );
+            const updated = await UserSession.db.transaction(async (tx) => {
+                const [rows] = await tx.query(
+                    `UPDATE workshop_bookings wb SET status = $1
+                     FROM workshops w
+                     WHERE wb.id = $2 AND w.id = wb.workshop_id${scope}
+                       AND (
+                         (wb.status = 'pending' AND $1 IN ('confirmed', 'cancelled')) OR
+                         (wb.status = 'confirmed' AND $1 IN ('completed', 'cancelled'))
+                       )
+                     RETURNING wb.id, wb.user_id`,
+                    params
+                );
+                if (rows.length === 1 && status === 'completed') {
+                    await tx.query(
+                        'UPDATE users SET total_points = COALESCE(total_points, 0) + 50 WHERE id = $1',
+                        [rows[0].user_id]
+                    );
+                }
+                return rows;
+            });
             if (updated.length !== 1) {
                 return res.status(404).json({ success: false, message: 'Không tìm thấy đơn trong phạm vi quản lý.' });
             }

@@ -397,13 +397,13 @@
 </style>
 
 <script id="current-user-json-data" type="application/json">
-<%- JSON.stringify(currentUser ? { id: currentUser.id, full_name: currentUser.full_name, avatar: currentUser.avatar } : null) %>
+<%- safeJsonForScript(currentUser ? { id: currentUser.id, full_name: currentUser.full_name, avatar: currentUser.avatar } : null) %>
 </script>
 
 <script>
-    const destId = '<%= currentDest ? currentDest.id : "" %>';
-    const destName = '<%= currentDest ? currentDest.name.replace(/'/g, "\\'") : "" %>';
-    const BRAND_LOGO_URL = "<%= fixImg(settings.brand_logo, '/images/logo.png') %>?v=3";
+    const destId = <%- safeJsonForScript(currentDest ? currentDest.id : '') %>;
+    const destName = <%- safeJsonForScript(currentDest ? currentDest.name : '') %>;
+    const BRAND_LOGO_URL = <%- safeJsonForScript(`${fixImg(settings.brand_logo, '/images/logo.png')}?v=3`) %>;
     let chatInterval = null;
     let currentGlobalMessages = [];
     let lastGlobalChatCount = -1;
@@ -665,20 +665,22 @@
         // 1. Images
         const imgMatch = text.match(/\[(HÌNH ẢNH|IMAGE):\s*([^\]]+)\]/i);
         if (imgMatch) {
-            const url = imgMatch[2].trim();
+            const url = safeChatMediaUrl(imgMatch[2]);
+            if (!url) return escapeHtml(text);
             return `
                 <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
-                    <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openTouristLightbox('${url}')" loading="lazy" onerror="this.outerHTML='<span class=\\'small\\'>📷 Không thể tải ảnh</span>'">
+                    <img src="${escapeHtml(url)}" class="img-fluid rounded-3" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" loading="lazy">
                 </div>
             `;
         }
 
         const directImgMatch = text.match(/^(\/[^\s]+\.(jpg|jpeg|png|webp|gif)|https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif))$/i);
         if (directImgMatch) {
-            const url = directImgMatch[1].trim();
+            const url = safeChatMediaUrl(directImgMatch[1]);
+            if (!url) return escapeHtml(text);
             return `
                 <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
-                    <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openTouristLightbox('${url}')" loading="lazy">
+                    <img src="${escapeHtml(url)}" class="img-fluid rounded-3" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" loading="lazy">
                 </div>
             `;
         }
@@ -686,10 +688,11 @@
         // 2. GIFs
         const gifMatch = text.match(/\[GIF:\s*([^\]]+)\]/i);
         if (gifMatch) {
-            const url = gifMatch[1].trim();
+            const url = safeChatMediaUrl(gifMatch[1]);
+            if (!url) return escapeHtml(text);
             return `
                 <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
-                    <img src="${url}" class="rounded-3 shadow-xs" style="max-height: 180px; max-width: 240px; object-fit: contain; display: block;" loading="lazy">
+                    <img src="${escapeHtml(url)}" class="rounded-3 shadow-xs" style="max-height: 180px; max-width: 240px; object-fit: contain; display: block;" loading="lazy">
                 </div>
             `;
         }
@@ -697,14 +700,12 @@
         // 3. Audio / Voice notes
         const audioMatch = text.match(/\[(AUDIO|VOICE):\s*([^\|\]]+)(?:\|([^\]]+))?\]/i);
         if (audioMatch) {
-            const audioUrl = audioMatch[2].trim();
-            const duration = audioMatch[3] || '0:15';
+            const audioUrl = safeChatMediaUrl(audioMatch[2]);
+            if (!audioUrl) return escapeHtml(text);
+            const duration = escapeHtml(String(audioMatch[3] || '0:15').slice(0, 20));
             return `
                 <div class="d-flex align-items-center gap-2 p-1.5 px-3 rounded-pill my-1" style="background: rgba(0,0,0,0.06); min-width: 180px;">
-                    <button type="button" class="btn btn-sm btn-white rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 30px; height: 30px; color: #922724;" onclick="togglePlayTouristVoice(this, '${audioUrl}')">
-                        <i class="bi bi-play-fill fs-5"></i>
-                    </button>
-                    <div class="flex-grow-1" style="height: 3px; background: rgba(0,0,0,0.15); border-radius: 2px;"></div>
+                    <audio controls preload="metadata" src="${escapeHtml(audioUrl)}" style="max-width: 180px;"></audio>
                     <span class="x-small fw-bold opacity-90 text-nowrap" style="font-size: 0.72rem;">${duration}</span>
                 </div>
             `;
@@ -791,7 +792,7 @@
                     html += `
                         <div class="d-flex flex-column mb-1 align-items-end">
                             <div class="group-hover-parent d-flex align-items-center gap-1.5 justify-content-end" style="max-width: 82%;">
-                                <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openTouristRecallAction('${msg.id}', true)" title="Tùy chọn tin nhắn">
+                                <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openTouristRecallAction('${safeChatMessageId(msg.id)}', true)" title="Tùy chọn tin nhắn">
                                     <i class="bi bi-three-dots"></i>
                                 </button>
                                 <div class="shadow-2xs text-white text-start" style="font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; background: ${isLikeEmoji || isMedia ? 'transparent' : 'linear-gradient(135deg, #922724 0%, #b83330 100%)'} !important; border-radius: 18px !important; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
@@ -827,10 +828,10 @@
                                 <img src="${BRAND_LOGO_URL}" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.src='/images/logo.png'">
                                 <div class="group-hover-parent d-flex align-items-center gap-1.5 justify-content-start flex-grow-1">
                                     <div class="shadow-2xs text-start" style="font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; border-radius: 18px !important; background: ${isLikeEmoji || isMedia ? 'transparent' : bubbleBg}; border: ${isLikeEmoji || isMedia ? 'none' : bubbleBorder}; color: #050505; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
-                                        <div class="x-small fw-bold text-muted mb-0.5" style="font-size: 0.65rem;">${senderLabel}</div>
+                                        <div class="x-small fw-bold text-muted mb-0.5" style="font-size: 0.65rem;">${escapeHtml(senderLabel)}</div>
                                         ${formatBubbleContentTourist(msg.message)}
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openTouristRecallAction('${msg.id}', false)" title="Tùy chọn tin nhắn">
+                                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openTouristRecallAction('${safeChatMessageId(msg.id)}', false)" title="Tùy chọn tin nhắn">
                                         <i class="bi bi-three-dots"></i>
                                     </button>
                                 </div>
@@ -929,6 +930,22 @@
         const div = document.createElement('div');
         div.innerText = text;
         return div.innerHTML;
+    }
+
+    function safeChatMediaUrl(rawValue) {
+        try {
+            const url = new URL(String(rawValue || '').trim(), window.location.origin);
+            if (!['http:', 'https:'].includes(url.protocol)) return null;
+            if (url.origin !== window.location.origin && url.protocol !== 'https:') return null;
+            return url.href;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function safeChatMessageId(value) {
+        const id = String(value || '');
+        return /^[a-zA-Z0-9-]{1,64}$/.test(id) ? id : '';
     }
 
     document.addEventListener('DOMContentLoaded', () => {

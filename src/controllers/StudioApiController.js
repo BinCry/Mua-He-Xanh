@@ -314,7 +314,9 @@ const StudioApiController = {
             res.render('admin/studio_templates', {
                 title: 'Quản lý Mẫu Video - Bình Lợi Studio',
                 user: req.user,
-                templates
+                templates,
+                layout: 'layouts/admin',
+                adminPage: 'studio-templates'
             });
         } catch (err) {
             console.error('adminListTemplates error:', err);

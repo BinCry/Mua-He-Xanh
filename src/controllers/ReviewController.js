@@ -10,6 +10,19 @@ const cache = require('../core/cache');
 
 const REVIEWS_CACHE_KEY = 'reviews:index';
 const invalidateReviewCache = () => cache.del(REVIEWS_CACHE_KEY);
+const ALLOWED_UPLOADS = new Map([
+    ['image/jpeg', new Set(['.jpg', '.jpeg'])],
+    ['image/png', new Set(['.png'])],
+    ['image/webp', new Set(['.webp'])],
+    ['image/gif', new Set(['.gif'])],
+    ['video/mp4', new Set(['.mp4'])],
+    ['video/webm', new Set(['.webm'])]
+]);
+
+function isAllowedUpload(file) {
+    const extension = path.extname(file.originalname || '').toLowerCase();
+    return ALLOWED_UPLOADS.get(file.mimetype)?.has(extension) === true;
+}
 
 const upload = multer({
     storage: multer.diskStorage({
@@ -23,7 +36,11 @@ const upload = multer({
         },
         filename: (req, file, cb) => cb(null, 'review_' + Date.now() + '_' + Math.round(Math.random() * 1e9) + path.extname(file.originalname))
     }),
-    limits: { fileSize: 15 * 1024 * 1024, files: 30 }
+    limits: { fileSize: 15 * 1024 * 1024, files: 30 },
+    fileFilter: (req, file, callback) => {
+        if (!isAllowedUpload(file)) return callback(new multer.MulterError('LIMIT_UNEXPECTED_FILE', file.fieldname));
+        callback(null, true);
+    }
 });
 
 const ReviewController = {
@@ -70,6 +87,13 @@ const ReviewController = {
 
             const { rating, destination_id } = req.body;
             let content = req.body.content ? req.body.content.trim() : '';
+            const parsedRating = Number(rating ?? 5);
+            if (!Number.isInteger(parsedRating) || parsedRating < 1 || parsedRating > 5) {
+                return res.status(400).json({ success: false, message: 'Đánh giá phải là số nguyên từ 1 đến 5.' });
+            }
+            if (content.length > 3000) {
+                return res.status(400).json({ success: false, message: 'Nội dung bài viết tối đa 3.000 ký tự.' });
+            }
 
             // Collect all uploaded files from req.files and/or req.file
             let uploadedFiles = [];
@@ -121,16 +145,18 @@ const ReviewController = {
             let locationName = null;
             let destId = destination_id || null;
             if (destId) {
-                const [destRow] = await db.query('SELECT name FROM destinations WHERE id = $1', [destId]);
+                const [destRow] = await db.query('SELECT name FROM destinations WHERE id = $1 AND is_active = 1', [destId]);
                 if (destRow.length > 0) {
                     locationName = destRow[0].name;
+                } else {
+                    return res.status(409).json({ success: false, message: 'Điểm đến này hiện không khả dụng.' });
                 }
             }
 
             await db.query(
                 `INSERT INTO reviews (id, user_id, destination_id, content, rating, images, location_name, created_at)
                  VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`,
-                [id, user.id, destId, content, parseInt(rating || '5', 10), images, locationName]
+                [id, user.id, destId, content, parsedRating, images, locationName]
             );
             invalidateReviewCache();
 
@@ -190,7 +216,7 @@ const ReviewController = {
             res.json({ success: true, likes: parseInt(result[0]?.likes_count || 0, 10) });
         } catch (error) {
             console.error('Like error:', error);
-            res.status(500).json({ success: false, message: error.message });
+            res.status(500).json({ success: false, message: 'Không thể cập nhật lượt thích lúc này.' });
         }
     },
 
@@ -203,35 +229,64 @@ const ReviewController = {
 
             const userId = user.id;
             const { review_id, comment, parent_id } = req.body;
-            if (!comment || !comment.trim()) {
+            const normalizedComment = typeof comment === 'string' ? comment.trim() : '';
+            if (!review_id || !normalizedComment) {
                 return res.status(400).json({ success: false, message: 'Nội dung bình luận không được để trống.' });
             }
 
-            const commentId = uuidv4();
-            await db.query(
-                'INSERT INTO review_comments (id, review_id, user_id, guest_uuid, parent_id, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
-                [commentId, review_id, userId, null, parent_id || null, comment.trim()]
-            );
-            await db.query('UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1', [review_id]);
-            invalidateReviewCache();
+            if (normalizedComment.length > 1000) {
+                return res.status(400).json({ success: false, message: 'Bình luận tối đa 1.000 ký tự.' });
+            }
 
-            const [revResult] = await db.query('SELECT comments_count FROM reviews WHERE id = $1', [review_id]);
+            const commentId = uuidv4();
+            const newCount = await db.transaction(async (tx) => {
+                const [reviews] = await tx.query('SELECT id FROM reviews WHERE id = $1 FOR UPDATE', [review_id]);
+                if (!reviews.length) {
+                    const error = new Error('REVIEW_NOT_FOUND');
+                    error.code = 'REVIEW_NOT_FOUND';
+                    throw error;
+                }
+                if (parent_id) {
+                    const [parents] = await tx.query(
+                        'SELECT id FROM review_comments WHERE id = $1 AND review_id = $2 LIMIT 1',
+                        [parent_id, review_id]
+                    );
+                    if (!parents.length) {
+                        const error = new Error('PARENT_NOT_IN_REVIEW');
+                        error.code = 'PARENT_NOT_IN_REVIEW';
+                        throw error;
+                    }
+                }
+                await tx.query(
+                    'INSERT INTO review_comments (id, review_id, user_id, guest_uuid, parent_id, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, NOW())',
+                    [commentId, review_id, userId, null, parent_id || null, normalizedComment]
+                );
+                const [updated] = await tx.query(
+                    'UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1 RETURNING comments_count',
+                    [review_id]
+                );
+                return parseInt(updated[0]?.comments_count || 0, 10);
+            });
+            invalidateReviewCache();
             
             res.json({ 
                 success: true, 
-                count: parseInt(revResult[0]?.comments_count || 0, 10),
+                count: newCount,
                 comment: {
                     id: commentId,
                     parent_id: parent_id || null,
-                    content: comment.trim(),
+                    content: normalizedComment,
                     created_at: new Date().toISOString(),
                     full_name: user.full_name,
                     avatar: user.avatar || '/images/default-avatar.svg'
                 }
             });
         } catch (error) {
+            if (['REVIEW_NOT_FOUND', 'PARENT_NOT_IN_REVIEW'].includes(error.code)) {
+                return res.status(409).json({ success: false, message: 'Bình luận trả lời không hợp lệ.' });
+            }
             console.error('Comment error:', error);
-            res.status(500).json({ success: false, message: error.message });
+            res.status(500).json({ success: false, message: 'Không thể gửi bình luận lúc này.' });
         }
     },
 
@@ -288,17 +343,19 @@ const ReviewController = {
                 return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa bình luận này.' });
             }
 
-            await db.query('DELETE FROM review_comments WHERE id = $1 OR parent_id = $1', [comment_id]);
-
-            const [countRow] = await db.query('SELECT COUNT(*) as cnt FROM review_comments WHERE review_id = $1', [comment.review_id]);
-            const newCount = parseInt(countRow[0]?.cnt || 0, 10);
-            await db.query('UPDATE reviews SET comments_count = $1 WHERE id = $2', [newCount, comment.review_id]);
+            const newCount = await db.transaction(async (tx) => {
+                await tx.query('DELETE FROM review_comments WHERE id = $1 OR parent_id = $1', [comment_id]);
+                const [countRow] = await tx.query('SELECT COUNT(*) as cnt FROM review_comments WHERE review_id = $1', [comment.review_id]);
+                const count = parseInt(countRow[0]?.cnt || 0, 10);
+                await tx.query('UPDATE reviews SET comments_count = $1 WHERE id = $2', [count, comment.review_id]);
+                return count;
+            });
             invalidateReviewCache();
 
             res.json({ success: true, message: 'Đã xóa bình luận!', count: newCount, review_id: comment.review_id });
         } catch (error) {
             console.error('Delete comment error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
+            res.status(500).json({ success: false, message: 'Không thể xóa bình luận lúc này.' });
         }
     },
 
@@ -325,7 +382,7 @@ const ReviewController = {
             res.json({ success: true, message: 'Đã xóa bài viết thành công!' });
         } catch (error) {
             console.error('Delete review error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
+            res.status(500).json({ success: false, message: 'Không thể xóa bài viết lúc này.' });
         }
     },
 

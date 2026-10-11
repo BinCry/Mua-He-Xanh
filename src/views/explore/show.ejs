@@ -72,8 +72,8 @@
                 <h3 class="fw-black text-danger mb-3 border-bottom pb-2 font-display">
                     <i class="bi bi-book-half me-2"></i>Câu chuyện Văn hóa
                 </h3>
-                <div class="story-text-rich" style="font-size: 1.05rem; line-height: 1.85; color: #334155; text-align: justify;">
-                    <%- (dest.story || dest.description || '').replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer" class="text-primary text-decoration-underline">$1</a>').replace(/\n/g, '<br><br>') %>
+                <div class="story-text-rich" style="font-size: 1.05rem; line-height: 1.85; color: #334155; text-align: justify; white-space: pre-line;">
+                    <%= dest.story || dest.description || '' %>
                 </div>
 
                 <!-- Highlight Box -->

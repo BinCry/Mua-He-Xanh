@@ -553,6 +553,26 @@ function formatMessengerSidebarDate(dateStr) {
         return div.innerHTML;
     }
 
+    function safeChatMediaUrl(rawValue) {
+        try {
+            const url = new URL(String(rawValue || '').trim(), window.location.origin);
+            if (!['http:', 'https:'].includes(url.protocol)) return null;
+            if (url.origin !== window.location.origin && url.protocol !== 'https:') return null;
+            return url.href;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function safeChatMessageId(value) {
+        const id = String(value || '');
+        return /^[a-zA-Z0-9-]{1,64}$/.test(id) ? id : '';
+    }
+
+    function safeInlineJsString(value) {
+        return `'${String(value).replace(/\\/g, '\\\\').replace(/'/g, '\\u0027').replace(/</g, '\\u003c').replace(/>/g, '\\u003e').replace(/&/g, '\\u0026').replace(/\r/g, '\\r').replace(/\n/g, '\\n')}'`;
+    }
+
     function toggleSendIcon(input) {
         const icon = document.getElementById('send-icon-graphic');
         if (!icon) return;
@@ -872,10 +892,11 @@ function formatMessengerSidebarDate(dateStr) {
         // 1. Handle images: [HÌNH ẢNH: url] or [IMAGE: url] or plain /uploads/... or http... (jpg|png|webp|jpeg)
         const imgTagMatch = text.match(/\[(HÌNH ẢNH|IMAGE):\s*([^\]]+)\]/i);
         if (imgTagMatch) {
-            const url = imgTagMatch[2].trim();
+            const url = safeChatMediaUrl(imgTagMatch[2]);
+            if (!url) return escapeHtmlAdmin(text);
             return `
                 <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
-                    <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openImageLightbox('${url}')" loading="lazy" onerror="this.outerHTML='<span class=\\'small text-white\\'>📷 Không thể tải ảnh</span>'">
+                    <img src="${escapeHtmlAdmin(url)}" class="img-fluid rounded-3" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" loading="lazy">
                 </div>
             `;
         }
@@ -883,10 +904,11 @@ function formatMessengerSidebarDate(dateStr) {
         // Direct standalone image URL
         const directImgMatch = text.match(/^(\/[^\s]+\.(jpg|jpeg|png|webp|gif)|https?:\/\/[^\s]+\.(jpg|jpeg|png|webp|gif))$/i);
         if (directImgMatch) {
-            const url = directImgMatch[1].trim();
+            const url = safeChatMediaUrl(directImgMatch[1]);
+            if (!url) return escapeHtmlAdmin(text);
             return `
                 <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
-                    <img src="${url}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openImageLightbox('${url}')" loading="lazy">
+                    <img src="${escapeHtmlAdmin(url)}" class="img-fluid rounded-3 cursor-pointer" style="max-height: 220px; max-width: 100%; object-fit: cover; display: block;" onclick="openImageLightbox(${escapeHtmlAdmin(safeInlineJsString(url))})" loading="lazy">
                 </div>
             `;
         }
@@ -894,10 +916,11 @@ function formatMessengerSidebarDate(dateStr) {
         // 2. Handle GIFs [GIF: url]
         const gifMatch = text.match(/\[GIF:\s*([^\]]+)\]/i);
         if (gifMatch) {
-            const url = gifMatch[1].trim();
+            const url = safeChatMediaUrl(gifMatch[1]);
+            if (!url) return escapeHtmlAdmin(text);
             return `
                 <div class="my-1 position-relative overflow-hidden rounded-3 shadow-xs">
-                    <img src="${url}" class="rounded-3 shadow-xs" style="max-height: 180px; max-width: 240px; object-fit: contain; display: block;" loading="lazy">
+                    <img src="${escapeHtmlAdmin(url)}" class="rounded-3 shadow-xs" style="max-height: 180px; max-width: 240px; object-fit: contain; display: block;" loading="lazy">
                 </div>
             `;
         }
@@ -905,11 +928,12 @@ function formatMessengerSidebarDate(dateStr) {
         // 3. Handle Voice / Audio Notes: [AUDIO: url|duration] or 🎤 [Ghi âm thoại: duration]
         const audioMatch = text.match(/\[(AUDIO|VOICE):\s*([^\|\]]+)(?:\|([^\]]+))?\]/i);
         if (audioMatch) {
-            const audioUrl = audioMatch[2].trim();
-            const duration = audioMatch[3] || '0:15';
+            const audioUrl = safeChatMediaUrl(audioMatch[2]);
+            if (!audioUrl) return escapeHtmlAdmin(text);
+            const duration = escapeHtmlAdmin(String(audioMatch[3] || '0:15').slice(0, 20));
             return `
                 <div class="d-flex align-items-center gap-2 p-2 px-3 rounded-pill my-1" style="background: rgba(255,255,255,0.22); min-width: 190px;">
-                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; color: #0084ff;" onclick="togglePlayVoice(this, '${audioUrl}')">
+                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-2xs flex-shrink-0" style="width: 32px; height: 32px; color: #0084ff;" onclick="togglePlayVoice(this, ${escapeHtmlAdmin(safeInlineJsString(audioUrl))})">
                         <i class="bi bi-play-fill fs-5"></i>
                     </button>
                     <div class="flex-grow-1" style="height: 4px; background: rgba(255,255,255,0.4); border-radius: 2px;"></div>
@@ -965,13 +989,19 @@ function formatMessengerSidebarDate(dateStr) {
         const avatarBg = bgColors[charCode % bgColors.length];
 
         let visitorAvatarHtml = '';
-        if (visitor && visitor.avatar) {
-            avatarBox.innerHTML = `<img src="${visitor.avatar}" class="w-100 h-100 rounded-circle object-fit-cover" onerror="this.src='/images/logo.png'">`;
-            visitorAvatarHtml = `<img src="${visitor.avatar}" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.outerHTML='<div class=\\'rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-2xs\\' style=\\'width:28px;height:28px;font-size:0.7rem;background:${avatarBg};\\'>${avatarInitial}</div>'">`;
+        const avatarUrl = safeChatMediaUrl(visitor && visitor.avatar);
+        if (avatarUrl) {
+            const avatarImage = document.createElement('img');
+            avatarImage.src = avatarUrl;
+            avatarImage.className = 'w-100 h-100 rounded-circle object-fit-cover';
+            avatarImage.alt = '';
+            avatarImage.onerror = () => { avatarImage.src = '/images/logo.png'; };
+            avatarBox.replaceChildren(avatarImage);
+            visitorAvatarHtml = `<img src="${escapeHtmlAdmin(avatarUrl)}" class="rounded-circle flex-shrink-0 shadow-2xs" style="width: 28px; height: 28px; object-fit: cover;" onerror="this.src='/images/logo.png'">`;
         } else {
             avatarBox.innerText = avatarInitial;
             avatarBox.style.background = avatarBg;
-            visitorAvatarHtml = `<div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-2xs" style="width: 28px; height: 28px; font-size: 0.7rem; background: ${avatarBg};">${avatarInitial}</div>`;
+            visitorAvatarHtml = `<div class="rounded-circle d-flex align-items-center justify-content-center text-white flex-shrink-0 shadow-2xs" style="width: 28px; height: 28px; font-size: 0.7rem; background: ${avatarBg};">${escapeHtmlAdmin(avatarInitial)}</div>`;
         }
 
         let html = '';
@@ -989,7 +1019,7 @@ function formatMessengerSidebarDate(dateStr) {
                     html += `
                         <div class="text-center my-3">
                             <span class="text-muted fw-medium" style="font-size: 0.75rem; color: #65676b !important;">
-                                ${formatMessengerDividerTime(msg.created_at)}
+                                ${escapeHtmlAdmin(formatMessengerDividerTime(msg.created_at))}
                             </span>
                         </div>
                     `;
@@ -1027,7 +1057,7 @@ function formatMessengerSidebarDate(dateStr) {
                     html += `
                         <div class="d-flex flex-column align-items-end" style="margin-bottom: 3px;">
                             <div class="group-hover-parent d-flex align-items-center gap-1.5 justify-content-end" style="max-width: 82%;">
-                                <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openRecallAction('${msg.id}', true)" title="Tùy chọn tin nhắn">
+                                <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openRecallAction('${safeChatMessageId(msg.id)}', true)" title="Tùy chọn tin nhắn">
                                     <i class="bi bi-three-dots"></i>
                                 </button>
                                 <div class="text-white text-start shadow-2xs" style="font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; background: ${isLikeEmoji || isMedia ? 'transparent' : '#0084ff'} !important; border-radius: 18px !important; word-break: break-word; overflow-wrap: anywhere;" title="${exactTime}">
@@ -1060,7 +1090,7 @@ function formatMessengerSidebarDate(dateStr) {
                                     <div class="text-dark text-start shadow-2xs" style="font-size: ${isLikeEmoji ? '2.2rem' : '0.93rem'}; line-height: 1.38; padding: ${isLikeEmoji || isMedia ? '2px 4px' : '9px 14px'}; border-radius: 18px !important; word-break: break-word; overflow-wrap: anywhere; background: ${isLikeEmoji || isMedia ? 'transparent' : '#f0f2f5'} !important;" title="${exactTime}">
                                         ${formatBubbleContent(msg.message)}
                                     </div>
-                                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openRecallAction('${msg.id}', false)" title="Tùy chọn tin nhắn">
+                                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-muted group-hover-visible flex-shrink-0" style="width: 26px; height: 26px;" onclick="openRecallAction('${safeChatMessageId(msg.id)}', false)" title="Tùy chọn tin nhắn">
                                         <i class="bi bi-three-dots"></i>
                                     </button>
                                 </div>

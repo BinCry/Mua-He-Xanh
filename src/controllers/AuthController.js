@@ -200,8 +200,10 @@ const AuthController = {
             const user = await User.createFromSocial(data);
             await AuthController.establishSession(req, res, user);
             
-            const userEmail = (user.email || '').toLowerCase();
-            const isBinhLoiAdmin = user.role === 'admin' || userEmail === 'binhloi.travel@gmail.com' || userEmail.includes('binhloi');
+            // Privileges are assigned by an administrator, never inferred from
+            // an email address.  Inferring a role from an address lets any
+            // account with a matching string bypass RBAC after OAuth login.
+            const isBinhLoiAdmin = user.role === 'admin' || Number(user.role_id) === 1;
             
             let redirectUrl = '/';
             if (isBinhLoiAdmin) {
@@ -219,8 +221,7 @@ const AuthController = {
     oauthCallback: async (req, res) => {
         if (req.user) {
             await AuthController.establishSession(req, res, req.user);
-            const userEmail = (req.user.email || '').toLowerCase();
-            if (req.user.role === 'admin' || userEmail === 'binhloi.travel@gmail.com' || userEmail.includes('binhloi')) {
+            if (req.user.role === 'admin' || Number(req.user.role_id) === 1) {
                 return res.redirect('/admin');
             }
             if (req.user.role === 'manager') {
@@ -238,26 +239,16 @@ const AuthController = {
     },
 
     establishSession: async (req, res, user) => {
-        let sessionUuid = req.cookies?.session_uuid;
-
-        const [existingSessions] = await db.query(
-            "SELECT uuid FROM user_sessions WHERE user_id = $1 ORDER BY updated_at DESC LIMIT 1",
-            [user.id]
-        );
-
-        if (existingSessions.length > 0) {
-            sessionUuid = existingSessions[0].uuid;
-        } else if (!sessionUuid) {
-            sessionUuid = uuidv4();
-        }
+        // Authentication must never promote a pre-login (or copied) visitor
+        // UUID.  Rotate it on every login and detach any previous auth UUID so
+        // a value captured before logout/login cannot restore the account.
+        const sessionUuid = uuidv4();
 
         res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
 
         const session = await UserSession.findOrCreate(sessionUuid, req);
-        await db.query(
-            "UPDATE user_sessions SET user_id = $1 WHERE id = $2",
-            [user.id, session.id]
-        );
+        await db.query('UPDATE user_sessions SET user_id = NULL WHERE user_id = $1 AND id <> $2', [user.id, session.id]);
+        await UserSession.update(session.id, { user_id: user.id });
 
         req.session.user = {
             id: user.id,
@@ -282,7 +273,19 @@ const AuthController = {
         });
     },
 
-    logout: (req, res) => {
+    logout: async (req, res) => {
+        const currentUserId = req.user?.id || req.session?.user?.id;
+        const currentUuid = req.cookies?.session_uuid;
+        // Clearing the browser cookie alone does not invalidate a copied UUID.
+        // Revoke only the authenticated caller's current row to avoid a
+        // cross-account logout if an attacker submits someone else's UUID.
+        if (currentUserId && currentUuid) {
+            try {
+                await db.query('UPDATE user_sessions SET user_id = NULL WHERE uuid = $1 AND user_id = $2', [currentUuid, currentUserId]);
+            } catch (error) {
+                console.error('Logout session revocation error:', error.message);
+            }
+        }
         if (typeof req.logout === 'function') {
             req.logout((err) => {
                 if (req.session) {
@@ -345,8 +348,7 @@ const AuthController = {
                 }
                 await AuthController.establishSession(req, res, user);
 
-                const userEmail = (user.email || '').toLowerCase();
-                const isBinhLoiAdmin = user.role === 'admin' || userEmail === 'binhloi.travel@gmail.com' || userEmail.includes('binhloi');
+                const isBinhLoiAdmin = user.role === 'admin' || Number(user.role_id) === 1;
 
                 let targetUrl = '/';
                 if (isBinhLoiAdmin) targetUrl = '/admin';

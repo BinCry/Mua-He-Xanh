@@ -231,7 +231,7 @@
 </div>
 
 <script id="admin-chart-data" type="application/json">
-<%- JSON.stringify(chartData || {}) %>
+<%- safeJsonForScript(chartData || {}) %>
 </script>
 
 <script>

@@ -3,10 +3,15 @@ const path = require('path');
 const fs = require('fs');
 const os = require('os');
 
+const allowedMimeTypes = new Set([
+    'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+    'audio/mpeg', 'audio/wav', 'audio/ogg', 'audio/webm'
+]);
+
 // Configure storage with dynamic writability check
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        let uploadPath = os.tmpdir();
+        let uploadPath = process.env.UPLOAD_TMP_DIR || os.tmpdir();
         try {
             const localPath = path.join(__dirname, '../../public/uploads/media');
             if (!fs.existsSync(localPath)) {
@@ -17,7 +22,7 @@ const storage = multer.diskStorage({
             fs.unlinkSync(testFile);
             uploadPath = localPath;
         } catch (e) {
-            uploadPath = os.tmpdir();
+            uploadPath = process.env.UPLOAD_TMP_DIR || os.tmpdir();
         }
 
         if (!fs.existsSync(uploadPath)) {
@@ -33,11 +38,7 @@ const storage = multer.diskStorage({
 
 // File filter (images and audio)
 const fileFilter = (req, file, cb) => {
-    if (
-        file.mimetype.startsWith('image/') ||
-        file.mimetype.startsWith('audio/') ||
-        file.mimetype === 'application/octet-stream'
-    ) {
+    if (allowedMimeTypes.has(file.mimetype)) {
         cb(null, true);
     } else {
         cb(new Error('Chỉ được phép tải lên hình ảnh hoặc âm thanh!'), false);

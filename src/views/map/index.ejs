@@ -101,13 +101,13 @@
 </div>
 
 <script id="all-dests-json-data" type="application/json">
-<%- JSON.stringify(allDests || []) %>
+<%- safeJsonForScript(allDests || []) %>
 </script>
 
 <script>
 let map, markers = [];
 const destData = JSON.parse(document.getElementById('all-dests-json-data')?.textContent || '[]');
-const cartoBasemapApiKey = <%- JSON.stringify(cartoBasemapApiKey || '') %>;
+const cartoBasemapApiKey = <%- safeJsonForScript(cartoBasemapApiKey || '') %>;
 const cartoVoyagerUrl = 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png'
     + (cartoBasemapApiKey ? `?key=${encodeURIComponent(cartoBasemapApiKey)}` : '');
 

@@ -403,7 +403,7 @@ body {
 </div>
 
 <script>
-const savedPreferences = <%- JSON.stringify(preferences || {}) %>;
+const savedPreferences = <%- safeJsonForScript(preferences || {}) %>;
 let selectedMoods = [];
 let selectedPax = '2';
 let selectedBudget = 'mid';

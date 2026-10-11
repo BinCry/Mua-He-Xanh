@@ -566,7 +566,7 @@ body {
 <% } %>
 
 <script id="journey-stops-json-data" type="application/json">
-<%- JSON.stringify(journey.stops || []) %>
+<%- safeJsonForScript(journey.stops || []) %>
 </script>
 
 <script>

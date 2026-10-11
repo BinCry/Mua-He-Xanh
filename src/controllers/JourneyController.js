@@ -31,7 +31,7 @@ class JourneyController {
             const sessionId = await UserSession.create({
                 uuid: uuid,
                 user_id: user ? user.id : null,
-                mood: 'chill'
+                mood: null
             });
             session = await UserSession.findById(sessionId);
         }
@@ -44,44 +44,15 @@ class JourneyController {
             const session = await this.getOrCreateSession(req, res);
             let journey = await Journey.getActiveBySession(session.id);
 
-            // If no active journey exists yet, create default journey with 3 active destinations
+            // Never manufacture a generic route: it hides a changed onboarding
+            // preference and makes unrelated suggestions look cached.
             if (!journey) {
-                const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
-                const journeyId = await Journey.create({
-                    session_id: session.id,
-                    mood: 'Hành Trình Tối Ưu',
-                    duration: 'Trọn 1 ngày',
-                    total_km: 4.2,
-                    total_minutes: 360,
-                    status: 'active',
-                    interests: JSON.stringify({ source: 'ai', isConfirmed: false })
-                });
-
-                const JourneyStop = require('../models/JourneyStop');
-                for (let idx = 0; idx < dests.length; idx++) {
-                    await JourneyStop.create({
-                        journey_id: journeyId,
-                        destination_id: dests[idx].id,
-                        stop_order: idx,
-                        is_completed: 0
-                    });
-                }
-                journey = await Journey.findById(journeyId);
+                return res.redirect('/journey/suggestions?error=no_confirmed_journey');
             }
 
             let journeyWithStops = await Journey.getWithStops(journey.id);
             if (!journeyWithStops || !journeyWithStops.stops || journeyWithStops.stops.length === 0) {
-                const [defaultDests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
-                const JourneyStop = require('../models/JourneyStop');
-                for (let idx = 0; idx < defaultDests.length; idx++) {
-                    await JourneyStop.create({
-                        journey_id: journey.id,
-                        destination_id: defaultDests[idx].id,
-                        stop_order: idx,
-                        is_completed: 0
-                    });
-                }
-                journeyWithStops = await Journey.getWithStops(journey.id);
+                return res.redirect('/journey/suggestions?error=invalid_journey');
             }
 
             let journeySource = 'ai';
@@ -119,8 +90,11 @@ class JourneyController {
             const [dests] = await db.query("SELECT * FROM destinations WHERE is_active = 1");
 
             const moodMap = { chill: '🌿 Sống Chậm', peace: '🛕 Tâm Linh', culture: '🎨 Văn Hóa', family: '👨‍👩‍👧‍👦 Gắn Kết' };
-            const userMoodKeys = (session.mood || 'chill').split(',').map(s => s.trim());
+            const userMoodKeys = String(session.mood || '').split(',').map(s => s.trim()).filter(Boolean);
             const userMoodLabel = userMoodKeys.map(k => moodMap[k] || k).join(', ');
+            if (!userMoodKeys.length) {
+                return res.redirect('/onboarding?error=criteria_required');
+            }
 
             const matchesMood = (destination) => {
                 let moods = [];
@@ -133,20 +107,23 @@ class JourneyController {
             const maxStops = session.duration === 'half_day' ? 2 : 3;
             let aiSuggestions = [];
             try {
-                const candidates = matchingDestinations.length ? matchingDestinations : dests;
+                const candidates = matchingDestinations;
                 let sortedStops = candidates.slice(0, maxStops);
+
+                if (sortedStops.length === 0) throw new Error('NO_MATCHING_DESTINATIONS');
 
                 let totalMeters = 0;
                 for (let i = 1; i < sortedStops.length; i++) {
                     totalMeters += Model.haversine(sortedStops[i - 1].lat, sortedStops[i - 1].lng, sortedStops[i].lat, sortedStops[i].lng);
                 }
-                const totalKm = Math.round((totalMeters / 1000) * 100) / 100 || 4.2;
+                const hasCoordinates = sortedStops.length > 1 && sortedStops.every(stop => Number.isFinite(Number(stop.lat)) && Number.isFinite(Number(stop.lng)));
+                const totalKm = hasCoordinates ? Math.round((totalMeters / 1000) * 100) / 100 : null;
 
                 aiSuggestions.push({
                     id: 'ai-opt-1',
-                    name: 'Lộ trình AI Tối Ưu Tối Đa',
-                    desc: 'AI tự động chọn lọc điểm dừng phù hợp nhất theo gu cá nhân và tối ưu quãng đường ngắn nhất',
-                    tags: ['🤖 AI Tối Ưu', '📍 Tuyến ngắn nhất'],
+                    name: 'Gợi ý theo tiêu chí của bạn',
+                    desc: 'Các điểm dừng được xếp theo mức độ phù hợp với trải nghiệm bạn đã chọn.',
+                    tags: ['🤖 Theo tiêu chí', '📍 Điểm phù hợp'],
                     duration: session.duration === 'half_day' ? 'Nửa ngày' : 'Trọn 1 ngày',
                     km: totalKm,
                     stops: sortedStops,
@@ -167,7 +144,7 @@ class JourneyController {
                     return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
                 }).filter(Boolean);
 
-                if (stops.length === 0 && dests.length > 0) stops = dests.slice(0, 3);
+                if (stops.length === 0) return null;
 
                 return {
                     id: t.id,
@@ -176,15 +153,15 @@ class JourneyController {
                     desc: t.description || 'Hành trình trải nghiệm độc đáo tại Bình Lợi',
                     tags: [seasonLabels[t.season] || '🌸 Thu', interestLabels[t.interest] || '🕊️ Bình yên'],
                     duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
-                    km: parseFloat(t.km) || (4.1 + idx * 0.8),
+                    km: Number.isFinite(Number(t.km)) && Number(t.km) > 0 ? Number(t.km) : null,
                     stops: stops,
                     source: 'template'
                 };
-            });
+            }).filter(Boolean);
 
             res.render('journey/suggestions', {
                 title: 'Hành Trình Gợi Ý Cho Bạn',
-                userMoodLabel: userMoodLabel || '🌿 Sống Chậm',
+                userMoodLabel,
                 aiSuggestions: aiSuggestions || [],
                 templateSuggestions: templateSuggestions || []
             });
@@ -212,7 +189,7 @@ class JourneyController {
                         return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
                     }).filter(Boolean);
 
-                    if (stops.length === 0 && dests.length > 0) stops = dests.slice(0, 3);
+                    if (stops.length === 0) return res.redirect('/journey/suggestions?error=template_unavailable');
 
                     await db.query(`
                         DELETE FROM journey_stops WHERE journey_id IN (
@@ -227,7 +204,7 @@ class JourneyController {
                         session_id: session.id,
                         mood: t.name,
                         duration: t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
-                        total_km: parseFloat(t.km) || 5.0,
+                        total_km: Number.isFinite(Number(t.km)) && Number(t.km) > 0 ? Number(t.km) : 0,
                         total_minutes: t.duration === 'full_day' ? 360 : 180,
                         status: 'active',
                         interests: JSON.stringify({ source: 'template', templateId: t.id, isConfirmed: false })
@@ -263,26 +240,7 @@ class JourneyController {
                 }
             }
 
-            const [fallbackDests] = await db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
-            const journeyId = await Journey.create({
-                session_id: session.id,
-                mood: 'Lộ Trình AI Tối Ưu',
-                duration: 'Nửa ngày',
-                total_km: 4.2,
-                total_minutes: 180,
-                status: 'active',
-                interests: JSON.stringify({ source: 'ai', isConfirmed: false })
-            });
-            const JourneyStop = require('../models/JourneyStop');
-            for (let idx = 0; idx < fallbackDests.length; idx++) {
-                await JourneyStop.create({
-                    journey_id: journeyId,
-                    destination_id: fallbackDests[idx].id,
-                    stop_order: idx,
-                    is_completed: 0
-                });
-            }
-            return res.redirect('/hanh-trinh-cua-toi');
+            return res.redirect('/journey/suggestions?error=selection_required');
 
         } catch (error) {
             console.error("Confirm error:", error);

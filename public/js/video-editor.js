@@ -815,14 +815,23 @@ document.addEventListener('DOMContentLoaded', () => {
         userUploadedItems.forEach(item => {
             const col = document.createElement('div');
             col.className = 'col-6';
-            col.innerHTML = `
-                <div class="rounded-3 border overflow-hidden position-relative shadow-2xs cursor-pointer" style="height: 100px;" onclick="addUploadItemToTimeline('${item.id}')">
-                    <img src="${item.url}" class="w-100 h-100 object-fit-cover" alt="${item.name}">
-                    <div class="position-absolute bottom-0 start-0 end-0 p-1.5 text-white bg-dark bg-opacity-75">
-                        <div class="x-small text-truncate">${item.name}</div>
-                    </div>
-                </div>
-            `;
+            const card = document.createElement('button');
+            card.type = 'button';
+            card.className = 'rounded-3 border overflow-hidden position-relative shadow-2xs cursor-pointer w-100 p-0 bg-transparent';
+            card.style.height = '100px';
+            card.addEventListener('click', () => window.addUploadItemToTimeline(item.id));
+            const image = document.createElement('img');
+            image.src = item.url;
+            image.className = 'w-100 h-100 object-fit-cover';
+            image.alt = item.name || 'Tệp đã tải lên';
+            const caption = document.createElement('div');
+            caption.className = 'position-absolute bottom-0 start-0 end-0 p-1.5 text-white bg-dark bg-opacity-75';
+            const captionText = document.createElement('div');
+            captionText.className = 'x-small text-truncate';
+            captionText.textContent = item.name || 'Tệp đã tải lên';
+            caption.appendChild(captionText);
+            card.append(image, caption);
+            col.appendChild(card);
             myUploadedMediaGrid.appendChild(col);
         });
     }
@@ -891,11 +900,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.className = `bl-timeline-clip-item d-flex align-items-center justify-content-between p-1.5 ${selectedClipIndex === idx ? 'active' : ''}`;
                     item.title = clip.name;
                     item.style.flex = `${clip.durationSec || 3.75} 0 auto`;
-                    item.innerHTML = `
-                        <img src="${clip.src}" class="h-100 rounded-1 object-fit-cover me-1" style="width: 32px;" alt="">
-                        <div class="text-truncate x-small fw-semibold text-dark flex-grow-1">${clip.name}</div>
-                        <span class="badge bg-light border text-muted font-size-xs ms-1">${(clip.durationSec || 3.75).toFixed(1)}s</span>
-                    `;
+                    const image = document.createElement('img');
+                    image.src = clip.src;
+                    image.className = 'h-100 rounded-1 object-fit-cover me-1';
+                    image.style.width = '32px';
+                    image.alt = '';
+                    const name = document.createElement('div');
+                    name.className = 'text-truncate x-small fw-semibold text-dark flex-grow-1';
+                    name.textContent = clip.name || 'Phân cảnh';
+                    const duration = document.createElement('span');
+                    duration.className = 'badge bg-light border text-muted font-size-xs ms-1';
+                    duration.textContent = `${(clip.durationSec || 3.75).toFixed(1)}s`;
+                    item.append(image, name, duration);
                     item.onclick = (e) => {
                         e.stopPropagation();
                         selectTimelineClip(idx);
@@ -929,13 +945,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 textTrackSlots.innerHTML = `
                     <div class="bl-track-badge bl-badge-text flex-grow-1 text-truncate px-3 py-1 rounded-2 fw-semibold cursor-pointer d-flex align-items-center justify-content-between gap-2 shadow-2xs" onclick="selectTextTrackBadge()">
                         <div class="d-flex align-items-center gap-2 text-truncate">
-                            <span aria-hidden="true">📝</span><span class="text-truncate">Phụ đề: ${previewText}</span>
+                            <span aria-hidden="true">📝</span><span class="text-truncate" data-studio-preview-text></span>
                         </div>
                         <button type="button" class="btn btn-link text-danger p-0 x-small text-decoration-none fw-bold flex-shrink-0" onclick="removeSubtitles(event)" title="Gỡ tất cả phụ đề">
                             <i class="bi bi-x-circle-fill"></i> Gỡ
                         </button>
                     </div>
                 `;
+                const previewNode = textTrackSlots.querySelector('[data-studio-preview-text]');
+                if (previewNode) previewNode.textContent = `Phụ đề: ${previewText}`;
             }
         }
 
@@ -953,13 +971,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="bl-track-badge bl-badge-audio flex-grow-1 text-truncate px-3 py-1 rounded-2 fw-semibold d-flex align-items-center justify-content-between shadow-2xs cursor-pointer">
                         <div class="d-flex align-items-center gap-2 text-truncate">
                             <i class="bi bi-music-note fs-6"></i>
-                            <span class="text-truncate">Nhạc nền: ${selectedAudioName}</span>
+                            <span class="text-truncate" data-studio-audio-name></span>
                         </div>
                         <button type="button" class="btn btn-link text-danger p-0 x-small text-decoration-none fw-bold" onclick="removeAudio(event)" title="Gỡ bài nhạc này">
                             <i class="bi bi-x-circle-fill"></i> Gỡ
                         </button>
                     </div>
                 `;
+                const audioNameNode = audioTrackSlot.querySelector('[data-studio-audio-name]');
+                if (audioNameNode) audioNameNode.textContent = `Nhạc nền: ${selectedAudioName}`;
             }
         }
 

@@ -17,7 +17,7 @@ passport.serializeUser((user, done) => {
 // Deserialization: How to get user from session
 passport.deserializeUser(async (id, done) => {
     try {
-        const [rows] = await db.query('SELECT * FROM users WHERE id = $1', [id]);
+        const [rows] = await db.query('SELECT * FROM users WHERE id = $1 AND is_active = 1', [id]);
         if (rows.length > 0) {
             done(null, rows[0]);
         } else {

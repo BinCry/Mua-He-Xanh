@@ -221,10 +221,6 @@ const ShopController = {
                 INSERT INTO workshop_bookings (id, workshop_id, user_id, booking_date, booking_time, num_people, total_price, qr_ticket, note)
                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `, [booking.id, workshop_id, user.id, booking_date, booking_time || '08:00', requestedSeats, totalPrice, booking.qr_ticket, note || null]);
-            await client.query(
-                'UPDATE users SET total_points = COALESCE(total_points, 0) + 50 WHERE id = $1',
-                [user.id]
-            );
             await client.query('COMMIT');
 
             // Send notification to visitor
@@ -293,12 +289,6 @@ const ShopController = {
             await db.query(
                 "UPDATE workshop_bookings SET status = 'cancelled' WHERE id = $1",
                 [bookingId]
-            );
-
-            // Deduct points
-            await db.query(
-                "UPDATE users SET total_points = GREATEST(0, COALESCE(total_points, 0) - 50) WHERE id = $1",
-                [user.id]
             );
 
             // Send notification to visitor

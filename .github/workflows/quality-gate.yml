@@ -1,0 +1,82 @@
+name: Quality gate
+
+on:
+  pull_request:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: binh_loi_audit
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d binh_loi_audit"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+    env:
+      NODE_ENV: test
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/binh_loi_audit
+      DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/binh_loi_audit
+      E2E_BASE_URL: http://127.0.0.1:4311
+      PORT: 4311
+      PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.tmp/audit/playwright-browsers
+      TEMP: ${{ github.workspace }}/.tmp/audit/tmp
+      TMP: ${{ github.workspace }}/.tmp/audit/tmp
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Security and source checks
+        run: |
+          npm audit --omit=dev --audit-level=high
+          npm test
+
+      - name: PostgreSQL business and concurrency tests
+        run: npm run test:audit-db
+
+      - name: Install Chromium for browser acceptance
+        run: npx playwright install --with-deps chromium
+
+      - name: Seed isolated browser data and start audit app
+        run: |
+          node scripts/seed_audit_e2e.js
+          node src/server.js > .tmp/audit/server.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            curl --fail --silent http://127.0.0.1:4311/api/ready && exit 0
+            sleep 1
+          done
+          cat .tmp/audit/server.log
+          exit 1
+
+      - name: Chromium browser, a11y and PWA acceptance
+        run: npx playwright test --project=chromium --workers=1 --retries=0
+
+      - name: Upload failed browser evidence
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-artifacts
+          path: .tmp/audit/playwright-results
+          if-no-files-found: ignore
+          retention-days: 7

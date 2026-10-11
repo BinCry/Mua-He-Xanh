@@ -11,10 +11,26 @@ const config = require('./config/env');
 const UserSession = require('./models/UserSession');
 const CheckIn = require('./models/CheckIn');
 const { LEGACY_IMAGE_ALIASES, DEFAULT_IMAGE, normalizeImagePath } = require('./utils/imagePaths');
+const { safeJsonForScript } = require('./utils/safeJson');
 const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = config.port;
+
+// Baseline browser hardening that does not require a third-party middleware.
+// Keep CSP out of this minimal layer until every legacy CDN dependency is
+// migrated, rather than shipping a policy that silently breaks key screens.
+app.disable('x-powered-by');
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+    if (process.env.NODE_ENV === 'production' && req.secure) {
+        res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+    }
+    next();
+});
 
 // Liveness must be fast and must not disclose configuration or wait for the DB.
 app.get('/api/health', (req, res) => {
@@ -35,8 +51,12 @@ app.get('/api/ready', async (req, res) => {
     }
 });
 
-// Auto-patch DB schema (batched & one-shot per instance for fast cold starts)
-if (!global._dbPatched) {
+// Legacy schema patches must never mutate a production database merely because
+// an instance starts. Use an explicit migration command for deployment; this
+// compatibility path is opt-in for local development only.
+const allowLegacySchemaAutopatch = process.env.NODE_ENV !== 'production' &&
+    process.env.ALLOW_LEGACY_SCHEMA_AUTOPATCH === 'true';
+if (allowLegacySchemaAutopatch && !global._dbPatched) {
     global._dbPatched = true;
     (async () => {
         try {
@@ -130,6 +150,14 @@ app.use('/exports', (req, res) => {
     res.status(404).end();
 });
 
+// Icon fonts are a production dependency, not a runtime CDN dependency. This
+// also keeps navigation labels and action icons available during a degraded
+// internet connection.
+app.use('/vendor/bootstrap-icons', express.static(path.join(ROOT_DIR, 'node_modules', 'bootstrap-icons', 'font'), {
+    maxAge: '365d',
+    immutable: true
+}));
+
 app.use(express.static(path.join(ROOT_DIR, 'public'), {
     maxAge: '365d',
     immutable: true
@@ -157,7 +185,10 @@ app.use('/uploads', (req, res, next) => {
     const host = req.get('host') || '';
     if (!host.includes('dulichbinhloi.com')) {
         const liveUrl = `https://www.dulichbinhloi.com/uploads${req.path}`;
-        const proxyReq = https.get(liveUrl, { rejectUnauthorized: false }, (proxyRes) => {
+        // Keep Node's certificate verification enabled.  This fallback reads
+        // public media from the canonical host, but must not turn a TLS error
+        // into an opportunity for a man-in-the-middle response.
+        const proxyReq = https.get(liveUrl, (proxyRes) => {
             if (proxyRes.statusCode === 200) {
                 res.setHeader('Content-Type', proxyRes.headers['content-type'] || 'image/png');
                 res.setHeader('Cache-Control', 'public, max-age=86400');
@@ -310,6 +341,8 @@ const sessionMiddleware = session({
 app.use(sessionMiddleware);
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(require('./middleware/sameOrigin'));
+app.use(require('./middleware/sanitizeServerErrors'));
 
 // Session auto-restoration: recovers session from DB if express-session is lost
 // Only runs when session middleware was activated (non-public routes)
@@ -391,6 +424,7 @@ app.use(async (req, res, next) => {
     res.locals.session = req.session || {};
     res.locals.user = req.user || req.session?.user || null;
     res.locals.currentPath = req.path;
+    res.locals.safeJsonForScript = safeJsonForScript;
     
     // Cache Buster for assets
     res.locals.assetV = '114.0.0';
@@ -496,8 +530,7 @@ app.use((err, req, res, next) => {
     res.status(500).json({
         success: false,
         error: 'Internal Server Error',
-        message: err.message || String(err),
-        stack: err.stack
+        message: 'Hệ thống đang gặp sự cố. Vui lòng thử lại sau.'
     });
 });
 

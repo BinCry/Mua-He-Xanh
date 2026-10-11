@@ -25,6 +25,9 @@ const UploadController = require('../controllers/UploadController');
 const upload = require('../middleware/upload');
 const FestivalController = require('../controllers/FestivalController');
 const EventController = require('../controllers/EventController');
+const CommerceController = require('../controllers/CommerceController');
+const WorkshopController = require('../controllers/WorkshopController');
+const ProductController = require('../controllers/ProductController');
 
 // Middleware
 const { ensureAuthenticated, ensureAdmin, ensureManager, ensureTourist } = require('../middleware/auth');
@@ -292,17 +295,19 @@ router.get('/explore/audio/:slug', ExploreController.audio);
 router.get('/explore/:slug', ExploreController.show);
 
 // ===== SHOP =====
-router.get('/shops', ShopController.index);
-router.get('/shops/:id', ShopController.show);
+router.get('/shops', ProductController.index);
+router.get('/shops/:id', ProductController.show);
 router.get('/my-shops', ensureAuthenticated, ShopController.myBookings);
 router.get('/api/shop/slots', ShopController.getSlots);
 router.post('/api/shop/book', ensureAuthenticated, ShopController.book);
 router.post('/api/shop/cancel', ensureAuthenticated, ShopController.cancel);
 router.post('/api/shop/review', ensureAuthenticated, ShopController.review);
-// Legacy workshop redirects
-router.get('/workshops', (req, res) => res.redirect(301, '/shops'));
-router.get('/workshops/:id', (req, res) => res.redirect(301, '/shops/' + req.params.id));
-router.get('/my-workshops', ensureAuthenticated, (req, res) => res.redirect(301, '/my-shops'));
+router.post('/api/products/orders', ensureAuthenticated, CommerceController.createProductOrder);
+router.post('/api/products/orders/:id/status', ensureAuthenticated, CommerceController.transitionProductOrder);
+router.post('/api/workshop-sessions/bookings', ensureAuthenticated, CommerceController.createWorkshopBooking);
+router.post('/api/workshop-bookings/:id/status', ensureAuthenticated, CommerceController.transitionWorkshopBooking);
+router.get('/workshops', WorkshopController.index);
+router.get('/workshops/:id', WorkshopController.show);
 
 // ===== COMMUNITY (Reviews) =====
 router.get('/reviews', ReviewController.index);
@@ -354,6 +359,9 @@ router.get('/admin/shops', ensureAdmin, AdminController.workshops);
 router.get('/admin/workshops', ensureAdmin, (req, res) => res.redirect('/admin/shops'));
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
+router.get('/admin/festival-tickets', ensureAdmin, AdminController.festivalTickets);
+router.get('/admin/product-orders', ensureAdmin, AdminController.productOrders);
+router.post('/api/admin/festivals/registration', ensureAdmin, AdminController.updateFestivalRegistration);
 router.get('/admin/posters', ensureAdmin, AdminController.posters);
 router.post('/admin/posters', ensureAdmin, upload.single('image'), AdminController.createPoster);
 router.post('/admin/posters/delete', ensureAdmin, AdminController.deletePoster);
@@ -364,8 +372,8 @@ router.get('/admin/chat', ensureAdmin, AdminController.chat);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
 router.post('/api/admin/reply-message', ensureAdmin, ApiController.replyMessage);
 router.post('/api/delete-conversation', ensureAuthenticated, ApiController.deleteConversation);
-router.post('/api/chat/recall-message', ApiController.recallMessage);
-router.post('/api/recall-message', ApiController.recallMessage);
+router.post('/api/chat/recall-message', ensureAuthenticated, ApiController.recallMessage);
+router.post('/api/recall-message', ensureAuthenticated, ApiController.recallMessage);
 // ===== SHOP & WORKSHOP PRODUCT API (Admin & Manager) =====
 const handleShopProductUpload = (req, res, next) => {
     upload.single('image')(req, res, (err) => {
@@ -390,7 +398,7 @@ router.get('/manager/shops', ensureManager, (req, res) => res.redirect('/manager
 router.get('/manager/workshops', ensureManager, ManagerController.workshops);
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
-router.post('/api/reply-message', (req, res, next) => { const user = req.session?.user || req.user; if (user && (user.role === 'admin' || user.role === 'manager')) return next(); return res.status(403).json({ success: false, message: 'Unauthorized' }); }, ApiController.replyMessage);
+router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
 router.get('/api/manager/shop-bookings', ensureManager, ManagerController.getWorkshopBookings);
 router.post('/api/manager/update-booking-status', ensureManager, ManagerController.updateBookingStatus);
 
@@ -487,10 +495,12 @@ router.all('/api/session/:uuid', ApiController.session);
 router.get('/api/destinations', ApiController.destinations);
 router.post('/api/journey', ensureAuthenticated, ApiController.journey);
 router.post('/api/journey/update-stop', ensureAuthenticated, ApiController.updateJourneyStop);
-router.post('/api/checkin', ApiController.checkin);
-router.post('/api/send-message', ApiController.sendMessage);
+router.post('/api/checkin', ensureAuthenticated, ApiController.checkin);
+router.post('/api/send-message', ensureAuthenticated, ApiController.sendMessage);
 router.get('/api/get-messages', ApiController.getMessages);
-router.post('/api/festival/book', FestivalController.book);
+router.post('/api/festival/book', ensureAuthenticated, FestivalController.book);
+router.post('/api/festival/tickets/:id/cancel', ensureAuthenticated, FestivalController.cancelTicket);
+router.post('/api/admin/festival-tickets/:id/use', ensureAdmin, FestivalController.useTicket);
 router.get('/api/soundscapes', ApiController.getSoundscapes);
 
 // Destination interactions
@@ -503,7 +513,7 @@ router.post('/api/reviews', ensureAuthenticated, ReviewController.create);
 router.post('/api/reviews/like', ReviewController.toggleLike);
 router.post('/api/reviews/comment', ensureAuthenticated, ReviewController.comment);
 router.get('/api/reviews/comments', ReviewController.getComments);
-router.post('/api/reviews/delete-comment', ReviewController.deleteComment);
+router.post('/api/reviews/delete-comment', ensureAuthenticated, ReviewController.deleteComment);
 router.post('/api/reviews/delete', ensureAuthenticated, ReviewController.delete);
 
 // Bình Lợi Studio APIs
@@ -576,8 +586,8 @@ const handleUpload = (req, res, next) => {
     });
 };
 
-router.post('/api/upload', handleUpload);
-router.post('/api/chat/upload', handleUpload);
+router.post('/api/upload', ensureAuthenticated, handleUpload);
+router.post('/api/chat/upload', ensureAuthenticated, handleUpload);
 router.post('/api/admin/upload', ensureManager, handleUpload);
 
 // Logo Upload API (Admin only, with multer error handling)

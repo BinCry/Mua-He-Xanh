@@ -9,15 +9,31 @@ const { v4: uuidv4 } = require('uuid');
 
 const CHECKIN_RADIUS_METERS = 2000; // 2 km
 
+function isAdminUser(user) {
+    return Boolean(user) && (user.role === 'admin' || Number(user.role_id) === 1);
+}
+
+function isManagerUser(user) {
+    return isAdminUser(user) || (Boolean(user) && (user.role === 'manager' || Number(user.role_id) === 2));
+}
+
 class ApiController {
     
     // --- SESSION API ---
     async session(req, res) {
         const { uuid } = req.params;
+        const cookieUuid = req.cookies?.session_uuid;
+
+        // A URL parameter is a selector, not a bearer credential.  Session
+        // data may only be read or written through the visitor's HttpOnly
+        // cookie, otherwise a copied UUID can be used across accounts.
+        if (uuid && (!cookieUuid || String(uuid) !== String(cookieUuid))) {
+            return res.status(403).json({ success: false, message: 'Phiên không thuộc trình duyệt hiện tại.' });
+        }
         
         if (req.method === 'POST') {
             const body = req.body;
-            let currentUuid = req.cookies?.session_uuid || uuid;
+            let currentUuid = cookieUuid;
             
             if (!currentUuid) {
                 currentUuid = uuidv4();
@@ -63,13 +79,22 @@ class ApiController {
     // --- JOURNEY API ---
     async journey(req, res) {
         const body = req.body;
-        const sessionUuid = body.sessionUuid || req.cookies?.session_uuid;
+        const sessionUuid = req.cookies?.session_uuid;
         const mood = body.mood || 'an_nhien';
+        const user = req.user || req.session?.user;
         
         if (!sessionUuid) return res.status(400).json({ success: false, message: 'Missing sessionUuid' });
+        if (!user?.id) return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để tạo hành trình.' });
+        if (body.sessionUuid && body.sessionUuid !== sessionUuid) {
+            return res.status(403).json({ success: false, message: 'Phiên hành trình không hợp lệ.' });
+        }
         
-        const session = await UserSession.findByUuid(sessionUuid);
-        if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
+        const [sessions] = await db.query(
+            'SELECT * FROM user_sessions WHERE uuid = $1 AND user_id = $2 LIMIT 1',
+            [sessionUuid, user.id]
+        );
+        const session = sessions[0];
+        if (!session) return res.status(403).json({ success: false, message: 'Phiên hành trình không thuộc tài khoản hiện tại.' });
         
         try {
             const interests = session.interests ? JSON.parse(session.interests) : [];
@@ -84,47 +109,117 @@ class ApiController {
 
             res.json({ success: true, data: journey });
         } catch (e) {
-            res.status(500).json({ success: false, message: e.message });
+            console.error('Journey creation error:', e);
+            res.status(500).json({ success: false, message: 'Không thể tạo hành trình lúc này.' });
         }
     }
 
     /** Update journey stop (reorder, remove, or add) */
     async updateJourneyStop(req, res) {
         const { journeyId, action, order, destinationId } = req.body;
-        const JourneyStop = require('../models/JourneyStop');
+        const user = req.user || req.session?.user;
         
         try {
-            if (action === 'reorder' && order) {
-                for (let i = 0; i < order.length; i++) {
-                    await JourneyStop.updateByJourneyAndDest(journeyId, order[i], { stop_order: i });
-                }
-            } else if (action === 'remove' && destinationId) {
-                await Journey.removeStop(journeyId, destinationId);
-            } else if (action === 'add' && destinationId) {
-                const [existing] = await db.query(
-                    "SELECT id FROM journey_stops WHERE journey_id = $1 AND destination_id = $2",
-                    [journeyId, destinationId]
-                );
-                if (existing.length === 0) {
-                    const [rows] = await db.query(
-                        "SELECT MAX(stop_order) as max_order FROM journey_stops WHERE journey_id = $1",
-                        [journeyId]
-                    );
-                    const nextOrder = (rows[0] && rows[0].max_order !== null) ? rows[0].max_order + 1 : 0;
-                    await JourneyStop.create({
-                        journey_id: journeyId,
-                        destination_id: destinationId,
-                        stop_order: nextOrder,
-                        is_completed: 0
-                    });
-                }
+            if (!user?.id || !journeyId || !['reorder', 'remove', 'add'].includes(action)) {
+                return res.status(400).json({ success: false, message: 'Yêu cầu cập nhật hành trình không hợp lệ.' });
             }
 
-            await Journey.recalculateMetrics(journeyId);
+            await db.transaction(async (tx) => {
+                const [owned] = await tx.query(
+                    `SELECT j.id FROM journeys j
+                     JOIN user_sessions s ON s.id::text = j.session_id::text
+                     WHERE j.id = $1 AND s.user_id = $2 FOR UPDATE`,
+                    [journeyId, user.id]
+                );
+                if (!owned.length) {
+                    const error = new Error('JOURNEY_NOT_OWNED');
+                    error.code = 'JOURNEY_NOT_OWNED';
+                    throw error;
+                }
+
+                const [currentStops] = await tx.query(
+                    'SELECT destination_id, stop_order FROM journey_stops WHERE journey_id = $1 ORDER BY stop_order FOR UPDATE',
+                    [journeyId]
+                );
+
+                if (action === 'reorder') {
+                    if (!Array.isArray(order) || order.length !== currentStops.length || new Set(order).size !== order.length) {
+                        const error = new Error('INVALID_STOP_ORDER');
+                        error.code = 'INVALID_STOP_ORDER';
+                        throw error;
+                    }
+                    const existingIds = new Set(currentStops.map(stop => String(stop.destination_id)));
+                    if (order.some(id => !existingIds.has(String(id)))) {
+                        const error = new Error('INVALID_STOP_ORDER');
+                        error.code = 'INVALID_STOP_ORDER';
+                        throw error;
+                    }
+                    // Avoid transient duplicate positions where deployments add a
+                    // unique (journey_id, stop_order) constraint.
+                    await tx.query('UPDATE journey_stops SET stop_order = stop_order + 1000 WHERE journey_id = $1', [journeyId]);
+                    for (let index = 0; index < order.length; index += 1) {
+                        await tx.query(
+                            'UPDATE journey_stops SET stop_order = $1 WHERE journey_id = $2 AND destination_id = $3',
+                            [index, journeyId, order[index]]
+                        );
+                    }
+                } else if (action === 'remove') {
+                    if (!destinationId || !currentStops.some(stop => String(stop.destination_id) === String(destinationId))) {
+                        const error = new Error('STOP_NOT_FOUND');
+                        error.code = 'STOP_NOT_FOUND';
+                        throw error;
+                    }
+                    await tx.query('DELETE FROM journey_stops WHERE journey_id = $1 AND destination_id = $2', [journeyId, destinationId]);
+                    const [remaining] = await tx.query('SELECT id FROM journey_stops WHERE journey_id = $1 ORDER BY stop_order FOR UPDATE', [journeyId]);
+                    for (let index = 0; index < remaining.length; index += 1) {
+                        await tx.query('UPDATE journey_stops SET stop_order = $1 WHERE id = $2', [index, remaining[index].id]);
+                    }
+                } else {
+                    if (!destinationId) {
+                        const error = new Error('DESTINATION_REQUIRED');
+                        error.code = 'DESTINATION_REQUIRED';
+                        throw error;
+                    }
+                    const [destinations] = await tx.query('SELECT id FROM destinations WHERE id = $1 AND is_active = 1 LIMIT 1', [destinationId]);
+                    if (!destinations.length) {
+                        const error = new Error('DESTINATION_UNAVAILABLE');
+                        error.code = 'DESTINATION_UNAVAILABLE';
+                        throw error;
+                    }
+                    if (!currentStops.some(stop => String(stop.destination_id) === String(destinationId))) {
+                        await tx.query(
+                            'INSERT INTO journey_stops (id, journey_id, destination_id, stop_order, is_completed) VALUES ($1, $2, $3, $4, 0)',
+                            [uuidv4(), journeyId, destinationId, currentStops.length]
+                        );
+                    }
+                }
+
+                const [stops] = await tx.query(
+                    `SELECT d.lat, d.lng FROM journey_stops js
+                     JOIN destinations d ON d.id = js.destination_id
+                     WHERE js.journey_id = $1 ORDER BY js.stop_order`,
+                    [journeyId]
+                );
+                let totalMeters = 0;
+                for (let index = 1; index < stops.length; index += 1) {
+                    totalMeters += Model.haversine(stops[index - 1].lat, stops[index - 1].lng, stops[index].lat, stops[index].lng);
+                }
+                const totalKm = Math.round((totalMeters / 1000) * 100) / 100;
+                await tx.query(
+                    'UPDATE journeys SET total_km = $1, total_minutes = $2 WHERE id = $3',
+                    [totalKm, stops.length * 60 + Math.round(totalKm * 15), journeyId]
+                );
+            });
             res.json({ success: true });
         } catch (error) {
+            if (['JOURNEY_NOT_OWNED', 'STOP_NOT_FOUND', 'DESTINATION_UNAVAILABLE'].includes(error.code)) {
+                return res.status(error.code === 'JOURNEY_NOT_OWNED' ? 404 : 409).json({ success: false, message: 'Không thể cập nhật hành trình này.' });
+            }
+            if (['INVALID_STOP_ORDER', 'DESTINATION_REQUIRED'].includes(error.code)) {
+                return res.status(400).json({ success: false, message: 'Dữ liệu điểm dừng không hợp lệ.' });
+            }
             console.error("Update stop error:", error);
-            res.status(500).json({ success: false, error: error.message });
+            res.status(500).json({ success: false, message: 'Không thể cập nhật hành trình lúc này.' });
         }
     }
 
@@ -133,7 +228,7 @@ class ApiController {
         if (req.method !== 'POST') return res.status(405).json({ success: false, message: 'Method not allowed' });
         
         const body = req.body;
-        const sessionUuid = body.sessionUuid || req.cookies?.session_uuid;
+        const sessionUuid = req.cookies?.session_uuid;
         const slug = body.slug || null;
         const lat = parseFloat(body.lat) || null;
         const lng = parseFloat(body.lng) || null;
@@ -147,7 +242,7 @@ class ApiController {
         if (!session) return res.status(404).json({ success: false, message: 'Session not found' });
 
         const authenticatedUser = req.user || req.session?.user || null;
-        const userId = authenticatedUser?.id || session.user_id || null;
+        const userId = authenticatedUser?.id || null;
 
         if (!userId) {
             return res.status(401).json({
@@ -156,6 +251,9 @@ class ApiController {
                 error_type: 'AUTH_REQUIRED',
                 login_url: '/auth/login?redirect=' + encodeURIComponent('/checkin' + (slug ? `?slug=${slug}` : ''))
             });
+        }
+        if (String(session.user_id || '') !== String(userId)) {
+            return res.status(403).json({ success: false, message: 'Phiên check-in không thuộc tài khoản hiện tại.' });
         }
 
         const dest = await Destination.findBySlug(slug);
@@ -249,8 +347,12 @@ class ApiController {
                 res.cookie('session_uuid', sessionUuid, { maxAge: 86400 * 30 * 1000, httpOnly: true });
             }
 
-            if (!message || !message.trim()) {
+            if (typeof message !== 'string' || !message.trim()) {
                 return res.status(400).json({ success: false, message: 'Nội dung tin nhắn không được để trống.' });
+            }
+            const normalizedMessage = message.trim();
+            if (normalizedMessage.length > 2000 || /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(normalizedMessage)) {
+                return res.status(400).json({ success: false, message: 'Nội dung tin nhắn không hợp lệ hoặc vượt quá 2.000 ký tự.' });
             }
 
             const session = await UserSession.findOrCreate(sessionUuid, req);
@@ -281,7 +383,7 @@ class ApiController {
 
             await db.query(
                 "INSERT INTO messages (id, sender_id, sender_uuid, receiver_uuid, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, $6, NOW())",
-                [uuidv4(), currentUserId, session.id, receiverUuid, destinationId || null, message.trim()]
+                [uuidv4(), currentUserId, session.id, receiverUuid, destinationId || null, normalizedMessage]
             );
 
             res.json({ success: true, message: 'Tin nhắn đã được gửi thành công.' });
@@ -296,7 +398,7 @@ class ApiController {
             const { messageId, sessionId, replyText, destinationId } = req.body;
             const manager = req.session?.user || req.user;
 
-            if (!manager || (manager.role !== 'manager' && manager.role !== 'admin')) {
+            if (!isManagerUser(manager)) {
                 return res.status(403).json({ success: false, message: 'Unauthorized' });
             }
 
@@ -304,15 +406,27 @@ class ApiController {
                 return res.status(400).json({ success: false, message: 'Nội dung phản hồi không được để trống.' });
             }
 
+            const managerIsAdmin = isAdminUser(manager);
+            const managerDestinationId = manager.managed_destination_id || null;
+            if (!managerIsAdmin && !managerDestinationId) {
+                return res.status(403).json({ success: false, message: 'Tài khoản quản lý chưa được gán địa điểm.' });
+            }
+
             let receiverUuid = null;
-            let finalDestId = destinationId || manager.managed_destination_id || null;
+            let finalDestId = managerIsAdmin ? (destinationId || null) : managerDestinationId;
 
             if (sessionId) {
                 receiverUuid = sessionId;
+                if (!managerIsAdmin && destinationId && String(destinationId) !== String(managerDestinationId)) {
+                    return res.status(403).json({ success: false, message: 'Không thể phản hồi ngoài địa điểm được phân công.' });
+                }
             } else if (messageId) {
                 const [rows] = await db.query("SELECT * FROM messages WHERE id = $1", [messageId]);
                 if (rows.length === 0) return res.status(404).json({ success: false, message: 'Message not found' });
                 const originalMsg = rows[0];
+                if (!managerIsAdmin && (!originalMsg.destination_id || String(originalMsg.destination_id) !== String(managerDestinationId))) {
+                    return res.status(403).json({ success: false, message: 'Không thể phản hồi hội thoại ngoài địa điểm được phân công.' });
+                }
                 receiverUuid = originalMsg.sender_uuid;
                 finalDestId = originalMsg.destination_id || finalDestId;
             } else {
@@ -334,7 +448,7 @@ class ApiController {
     async deleteConversation(req, res) {
         try {
             const user = req.user || req.session?.user;
-            if (!user || (user.role !== 'admin' && user.role !== 'manager')) {
+            if (!isManagerUser(user)) {
                 return res.status(403).json({ success: false, message: 'Bạn không có quyền thực hiện thao tác này.' });
             }
 
@@ -343,7 +457,11 @@ class ApiController {
                 return res.status(400).json({ success: false, message: 'Thiếu ID hội thoại.' });
             }
 
-            const targetDestId = destination_id || (user.role === 'manager' ? user.managed_destination_id : null);
+            const userIsAdmin = isAdminUser(user);
+            const targetDestId = userIsAdmin ? (destination_id || null) : user.managed_destination_id;
+            if (!userIsAdmin && !targetDestId) {
+                return res.status(403).json({ success: false, message: 'Tài khoản quản lý chưa được gán địa điểm.' });
+            }
 
             if (targetDestId) {
                 await db.query(
@@ -370,6 +488,9 @@ class ApiController {
             if (!messageId) {
                 return res.status(400).json({ success: false, message: 'Thiếu ID tin nhắn.' });
             }
+            if (!['all', 'self'].includes(type)) {
+                return res.status(400).json({ success: false, message: 'Kiểu thu hồi không hợp lệ.' });
+            }
 
             const sessionUuid = req.cookies?.session_uuid;
             const user = req.user || req.session?.user;
@@ -390,8 +511,8 @@ class ApiController {
 
             if (type === 'all') {
                 let canRecall = false;
-                if (currentRole === 'admin') canRecall = true;
-                else if (currentRole === 'manager' && (!msg.destination_id || msg.destination_id === user?.managed_destination_id)) canRecall = true;
+                if (isAdminUser(user)) canRecall = true;
+                else if (isManagerUser(user) && user?.managed_destination_id && String(msg.destination_id) === String(user.managed_destination_id)) canRecall = true;
                 else if (currentUserId && String(msg.sender_id) === String(currentUserId)) canRecall = true;
                 else if (session && (String(msg.sender_uuid) === String(session.id) || String(msg.sender_uuid) === String(session.uuid))) canRecall = true;
                 else if (sessionUuid && (String(msg.sender_uuid) === String(sessionUuid))) canRecall = true;

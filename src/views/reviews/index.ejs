@@ -813,83 +813,94 @@
     const currentUserId = '<%= currentUser ? currentUser.id : "" %>';
     const currentUserRole = '<%= currentUser ? currentUser.role : "" %>';
 
+    function safeAvatarUrl(value) {
+        const source = String(value || '/images/default-avatar.svg');
+        return (/^(?:\/|https:\/\/)/i.test(source)) ? source : '/images/default-avatar.svg';
+    }
+
+    function createCommentNode(comment, reviewId, isReply) {
+        const isOwn = currentUserId && String(comment.user_id) === String(currentUserId);
+        const isPostOwner = currentUserId && String(comment.post_user_id) === String(currentUserId);
+        const isStaff = currentUserRole === 'admin' || currentUserRole === 'manager';
+        const canDelete = isOwn || isPostOwner || isStaff;
+        const item = document.createElement('div');
+        item.className = `d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs ${isReply ? 'mt-1 ms-4 border-start border-3 border-danger' : 'border-start border-3 border-primary'}`;
+        const avatar = document.createElement('img');
+        avatar.src = safeAvatarUrl(comment.avatar);
+        avatar.alt = 'Ảnh đại diện';
+        avatar.className = 'rounded-circle flex-shrink-0';
+        avatar.style.cssText = `width:${isReply ? 24 : 30}px;height:${isReply ? 24 : 30}px;object-fit:cover;`;
+        const content = document.createElement('div');
+        content.className = 'min-w-0 flex-grow-1';
+        content.style.fontSize = isReply ? '0.8rem' : '0.82rem';
+        const heading = document.createElement('div');
+        heading.className = 'd-flex align-items-center justify-content-between';
+        const name = document.createElement('span');
+        name.className = 'fw-bold text-dark';
+        name.textContent = comment.full_name || 'Du khách Bình Lợi';
+        heading.appendChild(name);
+        const actions = document.createElement('div');
+        actions.className = 'd-flex align-items-center gap-1';
+        if (!isReply) {
+            const reply = document.createElement('button');
+            reply.type = 'button';
+            reply.className = 'btn btn-link btn-sm p-0 text-danger text-decoration-none fw-bold';
+            reply.style.fontSize = '0.72rem';
+            reply.textContent = 'Trả lời';
+            reply.addEventListener('click', () => setReplyTarget(reviewId, comment.id, comment.full_name || 'Du khách Bình Lợi'));
+            actions.appendChild(reply);
+        }
+        if (canDelete) {
+            const remove = document.createElement('button');
+            remove.type = 'button';
+            remove.className = 'btn btn-link btn-sm p-0 text-danger text-decoration-none';
+            remove.style.fontSize = '0.72rem';
+            remove.textContent = 'Xóa';
+            remove.addEventListener('click', () => deleteComment(comment.id, reviewId));
+            actions.appendChild(remove);
+        }
+        heading.appendChild(actions);
+        const body = document.createElement('span');
+        body.className = isReply ? 'text-secondary' : 'text-secondary d-block mt-0.5';
+        body.textContent = comment.content || '';
+        content.append(heading, body);
+        item.append(avatar, content);
+        return item;
+    }
+
     async function loadComments(reviewId) {
         const list = document.getElementById(`comments-list-${reviewId}`);
         if (!list) return;
         try {
-            const res = await axios.get(`/api/reviews/comments?review_id=${reviewId}`);
-            if (res.data.success && res.data.data.length > 0) {
-                const allComments = res.data.data;
-                const topComments = allComments.filter(c => !c.parent_id);
-                const replyMap = {};
-                allComments.filter(c => c.parent_id).forEach(r => {
-                    if (!replyMap[r.parent_id]) replyMap[r.parent_id] = [];
-                    replyMap[r.parent_id].push(r);
-                });
-
-                list.innerHTML = topComments.map(c => {
-                    const isMyComment = (currentUserId && String(c.user_id) === String(currentUserId));
-                    const isMyPost = (currentUserId && String(c.post_user_id) === String(currentUserId));
-                    const isAdminUser = (currentUserRole === 'admin' || currentUserRole === 'manager');
-                    const canDeleteC = isMyComment || isMyPost || isAdminUser;
-
-                    const deleteBtnC = canDeleteC ? `
-                        <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none ms-2" style="font-size: 0.72rem; font-weight: 600;" onclick="deleteComment('${c.id}', '${reviewId}')" title="Xóa bình luận">
-                            <i class="bi bi-trash3-fill me-1"></i>Xóa
-                        </button>
-                    ` : '';
-
-                    const replies = replyMap[c.id] || [];
-                    const repliesHtml = replies.map(r => {
-                        const isMyReply = (currentUserId && String(r.user_id) === String(currentUserId));
-                        const isMyPostReply = (currentUserId && String(r.post_user_id) === String(currentUserId));
-                        const canDeleteR = isMyReply || isMyPostReply || isAdminUser;
-                        const deleteBtnR = canDeleteR ? `
-                            <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none ms-2" style="font-size: 0.72rem; font-weight: 600;" onclick="deleteComment('${r.id}', '${reviewId}')" title="Xóa bình luận">
-                                <i class="bi bi-trash3-fill me-1"></i>Xóa
-                            </button>
-                        ` : '';
-
-                        return `
-                            <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs mt-1 ms-4 border-start border-3 border-danger">
-                                <img src="${r.avatar || '/images/default-avatar.svg'}" alt="Ảnh đại diện" class="rounded-circle flex-shrink-0" style="width: 24px; height: 24px; object-fit: cover;">
-                                <div class="min-w-0 flex-grow-1" style="font-size: 0.8rem;">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <span class="fw-bold text-dark" style="font-size: 0.78rem;">${r.full_name}</span>
-                                        <div>${deleteBtnR}</div>
-                                    </div>
-                                    <span class="text-secondary">${r.content}</span>
-                                </div>
-                            </div>
-                        `;
-                    }).join('');
-
-                    return `
-                        <div class="d-flex flex-column gap-1">
-                            <div class="d-flex gap-2 align-items-start bg-white p-2 rounded-3 shadow-2xs border-start border-3 border-primary">
-                                <img src="${c.avatar || '/images/default-avatar.svg'}" alt="Ảnh đại diện" class="rounded-circle flex-shrink-0" style="width: 30px; height: 30px; object-fit: cover;">
-                                <div class="min-w-0 flex-grow-1" style="font-size: 0.82rem;">
-                                    <div class="d-flex align-items-center justify-content-between">
-                                        <span class="fw-bold text-dark" style="font-size: 0.82rem;">${c.full_name}</span>
-                                        <div class="d-flex align-items-center gap-1">
-                                            <button class="btn btn-link btn-sm p-0 text-danger text-decoration-none fw-bold" style="font-size: 0.72rem;" onclick="setReplyTarget('${reviewId}', '${c.id}', '${c.full_name}')">
-                                                <i class="bi bi-reply-fill me-1"></i>Trả lời
-                                            </button>
-                                            ${deleteBtnC}
-                                        </div>
-                                    </div>
-                                    <span class="text-secondary d-block mt-0.5">${c.content}</span>
-                                </div>
-                            </div>
-                            ${repliesHtml}
-                        </div>
-                    `;
-                }).join('');
-            } else {
-                list.innerHTML = `<div class="text-muted small text-center py-1">Chưa có bình luận nào. Hãy là người đầu tiên!</div>`;
+            const res = await axios.get(`/api/reviews/comments?review_id=${encodeURIComponent(reviewId)}`);
+            list.replaceChildren();
+            const allComments = res.data.success ? res.data.data : [];
+            if (!allComments.length) {
+                const empty = document.createElement('div');
+                empty.className = 'text-muted small text-center py-1';
+                empty.textContent = 'Chưa có bình luận nào. Hãy là người đầu tiên!';
+                list.appendChild(empty);
+                return;
             }
-        } catch(e) {
-            list.innerHTML = `<div class="text-danger small text-center">Không thể tải bình luận.</div>`;
+            const replies = new Map();
+            allComments.filter(comment => comment.parent_id).forEach(comment => {
+                const children = replies.get(comment.parent_id) || [];
+                children.push(comment);
+                replies.set(comment.parent_id, children);
+            });
+            allComments.filter(comment => !comment.parent_id).forEach(comment => {
+                const group = document.createElement('div');
+                group.className = 'd-flex flex-column gap-1';
+                group.appendChild(createCommentNode(comment, reviewId, false));
+                (replies.get(comment.id) || []).forEach(reply => group.appendChild(createCommentNode(reply, reviewId, true)));
+                list.appendChild(group);
+            });
+        } catch (e) {
+            list.replaceChildren();
+            const failed = document.createElement('div');
+            failed.className = 'text-danger small text-center';
+            failed.textContent = 'Không thể tải bình luận.';
+            list.appendChild(failed);
         }
     }
 
@@ -915,7 +926,16 @@
         const targetBadge = document.getElementById(`reply-target-${reviewId}`);
         const input = document.getElementById(`comment-input-${reviewId}`);
         if (targetBadge) {
-            targetBadge.innerHTML = `<span>Đang trả lời <b>@${authorName}</b></span> <button type="button" class="btn-close ms-2" style="font-size:0.65rem;" onclick="cancelReply('${reviewId}')"></button>`;
+            targetBadge.replaceChildren();
+            const label = document.createElement('span');
+            label.textContent = `Đang trả lời @${authorName}`;
+            const cancel = document.createElement('button');
+            cancel.type = 'button';
+            cancel.className = 'btn-close ms-2';
+            cancel.style.fontSize = '0.65rem';
+            cancel.setAttribute('aria-label', 'Hủy trả lời');
+            cancel.addEventListener('click', () => cancelReply(reviewId));
+            targetBadge.append(label, cancel);
             targetBadge.classList.remove('d-none');
             targetBadge.classList.add('d-flex');
         }

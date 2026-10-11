@@ -87,6 +87,31 @@
                     </div>
                 </div>
  
+                <section class="mb-5">
+                    <h4 class="fw-black mb-4 px-3">VÉ LỄ HỘI CỦA BẠN</h4>
+                    <div class="card-bl p-4 p-md-5 rounded-5 shadow-sm bg-white border-0">
+                        <% if (festivalTickets.length) { %>
+                            <div class="row g-3">
+                                <% festivalTickets.forEach(ticket => { %>
+                                    <div class="col-12 col-md-6">
+                                        <div class="border rounded-4 p-3 h-100">
+                                            <div class="d-flex justify-content-between gap-2">
+                                                <strong><%= ticket.festival_name || 'Lễ hội Bình Lợi' %></strong>
+                                                <span class="badge <%= ticket.status === 'active' ? 'bg-success' : 'bg-secondary' %>"><%= ticket.status === 'active' ? 'Còn hiệu lực' : ticket.status %></span>
+                                            </div>
+                                            <div class="small text-muted mt-2">Mã vé: <code><%= ticket.ticket_code %></code></div>
+                                            <% if (ticket.festival_date) { %><div class="small text-muted">Ngày: <%= new Date(ticket.festival_date).toLocaleDateString('vi-VN') %></div><% } %>
+                                            <% if (ticket.status === 'active') { %><button type="button" class="btn btn-sm btn-outline-danger mt-3 cancel-festival-ticket" data-ticket-id="<%= ticket.id %>">Hủy vé</button><% } %>
+                                        </div>
+                                    </div>
+                                <% }) %>
+                            </div>
+                        <% } else { %>
+                            <p class="text-muted mb-0">Bạn chưa có vé lễ hội. <a href="/festivals">Xem các lễ hội đang mở đăng ký</a>.</p>
+                        <% } %>
+                    </div>
+                </section>
+
                 <!-- Activity Timeline -->
                 <div class="timeline-section">
                     <h4 class="fw-black mb-4 px-3">LỊCH SỬ HÀNH TRÌNH</h4>
@@ -126,6 +151,27 @@
         </div>
     </div>
 </section>
+
+<script>
+document.querySelectorAll('.cancel-festival-ticket').forEach(button => button.addEventListener('click', async () => {
+    if (!window.confirm('Bạn có chắc muốn hủy vé này?')) return;
+    const original = button.textContent;
+    button.disabled = true; button.textContent = 'Đang hủy…';
+    try {
+        const response = await fetch('/api/festival/tickets/' + encodeURIComponent(button.dataset.ticketId) + '/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Idempotency-Key': crypto.randomUUID() },
+            body: '{}'
+        });
+        const payload = await response.json();
+        if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể hủy vé.');
+        window.location.reload();
+    } catch (error) {
+        button.disabled = false; button.textContent = original;
+        window.alert(error.message || 'Không thể hủy vé.');
+    }
+}));
+</script>
 
 <style>
     .passport-page { background: #f0f2f5; }

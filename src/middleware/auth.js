@@ -23,40 +23,48 @@ const ROLE_NAMES = {
     4: 'guest'
 };
 
+function setSessionUser(req, user) {
+    const safeUser = {
+        id: user.id, email: user.email, full_name: user.full_name,
+        role: user.role, avatar: user.avatar, phone: user.phone,
+        managed_destination_id: user.managed_destination_id, role_id: user.role_id
+    };
+    req.user = user;
+    if (req.session) req.session.user = safeUser;
+    return user;
+}
+
+/** Resolve against the database on protected requests so deactivation and a
+ * revoked session take effect immediately, including in long-lived Express
+ * sessions. */
+async function resolveActiveUser(req) {
+    const db = require('../core/database');
+    const candidate = req.user || req.session?.user;
+    try {
+        if (candidate?.id) {
+            const [users] = await db.query('SELECT * FROM users WHERE id = $1 AND is_active = 1', [candidate.id]);
+            return users.length ? setSessionUser(req, users[0]) : null;
+        }
+        if (!req.cookies?.session_uuid) return null;
+        const [users] = await db.query(
+            `SELECT u.* FROM user_sessions s
+             JOIN users u ON u.id = s.user_id
+             WHERE s.uuid = $1 AND u.is_active = 1
+             ORDER BY s.updated_at DESC LIMIT 1`,
+            [req.cookies.session_uuid]
+        );
+        return users.length ? setSessionUser(req, users[0]) : null;
+    } catch (error) {
+        console.error('Active-user resolution error:', error.message);
+        return null;
+    }
+}
+
 /**
  * Kiểm tra đã đăng nhập chưa (Tương tự checkAuth() trong Relioo)
  */
 exports.ensureAuthenticated = async (req, res, next) => {
-    let user = req.user || req.session?.user;
-    
-    // Vercel serverless fallback: if session lost, try to restore from session_uuid cookie
-    if (!user && req.cookies?.session_uuid) {
-        try {
-            const db = require('../core/database');
-            const [sessions] = await db.query(
-                "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
-                [req.cookies.session_uuid]
-            );
-            if (sessions.length > 0 && sessions[0].user_id) {
-                const [users] = await db.query(
-                    "SELECT * FROM users WHERE id = $1 AND is_active = 1",
-                    [sessions[0].user_id]
-                );
-                if (users.length > 0) {
-                    user = users[0];
-                    if (req.session) {
-                        req.session.user = {
-                            id: user.id, email: user.email, full_name: user.full_name,
-                            role: user.role, avatar: user.avatar, phone: user.phone,
-                            managed_destination_id: user.managed_destination_id
-                        };
-                    }
-                }
-            }
-        } catch (e) {
-            console.error("ensureAuthenticated DB fallback error:", e.message);
-        }
-    }
+    const user = await resolveActiveUser(req);
 
     if (user) {
         req.user = user;
@@ -77,7 +85,7 @@ exports.ensureAuthenticated = async (req, res, next) => {
  * On Vercel serverless: includes DB fallback if session was lost between instances
  */
 exports.ensureAdmin = async (req, res, next) => {
-    let user = req.user || req.session?.user;
+    let user = await resolveActiveUser(req);
     
     // Vercel serverless fallback: if session lost, try to restore from session_uuid cookie
     if (!user && req.cookies?.session_uuid) {
@@ -106,8 +114,7 @@ exports.ensureAdmin = async (req, res, next) => {
         }
     }
 
-    const email = (user?.email || '').toLowerCase();
-    if (user && (user.role === 'admin' || user.role_id === ROLES.ADMIN || email === 'binhloi.travel@gmail.com' || email.includes('binhloi'))) {
+    if (user && (user.role === 'admin' || Number(user.role_id) === ROLES.ADMIN)) {
         return next();
     }
 
@@ -134,7 +141,7 @@ exports.ensureAdmin = async (req, res, next) => {
  * On Vercel serverless: includes DB fallback if session was lost between instances
  */
 exports.ensureManager = async (req, res, next) => {
-    let user = req.user || req.session?.user;
+    let user = await resolveActiveUser(req);
     
     // Vercel serverless fallback
     if (!user && req.cookies?.session_uuid) {
@@ -241,3 +248,4 @@ exports.requireRole = (...allowedRoleIds) => {
 // Export constants
 exports.ROLES = ROLES;
 exports.ROLE_NAMES = ROLE_NAMES;
+exports.resolveActiveUser = resolveActiveUser;

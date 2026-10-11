@@ -3,6 +3,12 @@
  * Completely eliminates layout shifts, jumping, and redundant reloads.
  */
 (function () {
+    function hasCookieDomain(host) {
+        // Browsers reject Domain attributes for localhost and numeric IP hosts.
+        // A host-only cookie is sufficient there and avoids console errors.
+        return Boolean(host && host !== 'localhost' && !/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host) && host.includes('.'));
+    }
+
     function setCookie(name, value, days) {
         var expires = "";
         if (days) {
@@ -12,8 +18,8 @@
         }
         var host = window.location.hostname;
         document.cookie = name + "=" + (value || "") + expires + "; path=/;";
-        document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + host;
-        if (host.includes('.')) {
+        if (hasCookieDomain(host)) {
+            document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + host;
             var domainPart = '.' + host.split('.').slice(-2).join('.');
             document.cookie = name + "=" + (value || "") + expires + "; path=/; domain=" + domainPart;
         }
@@ -21,8 +27,9 @@
 
     function eraseCookie(name) {
         var host = window.location.hostname;
-        var domains = ['', host, '.' + host];
-        if (host.includes('.')) {
+        var domains = [''];
+        if (hasCookieDomain(host)) {
+            domains.push(host, '.' + host);
             domains.push('.' + host.split('.').slice(-2).join('.'));
         }
         var paths = ['/', '/auth', '/journey', '/onboarding', '/explore', '/admin', '/manager', '/profile', '/shops', '/reviews'];
@@ -125,6 +132,21 @@
         }
     };
 
+    // Machine translation is optional. Loading it on every Vietnamese page made
+    // the primary journey depend on an external script and caused avoidable 429
+    // errors. Load it only after the visitor has explicitly selected English.
+    function loadGoogleTranslateForEnglish() {
+        if (document.getElementById('google-translate-element-script') ||
+            (window.google && window.google.translate)) {
+            return;
+        }
+        var script = document.createElement('script');
+        script.id = 'google-translate-element-script';
+        script.async = true;
+        script.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit';
+        document.head.appendChild(script);
+    }
+
     function init() {
         var lang = localStorage.getItem('app_lang') || 'vi';
         
@@ -132,6 +154,7 @@
             if (getCookie('googtrans') !== '/vi/en') {
                 setCookie('googtrans', '/vi/en', 30);
             }
+            loadGoogleTranslateForEnglish();
         } else {
             eraseCookie('googtrans');
         }

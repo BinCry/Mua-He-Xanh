@@ -7,7 +7,9 @@ class Festival extends Model {
 
     async findAll() {
         try {
-            const [rows] = await this.db.query('SELECT * FROM festivals ORDER BY date ASC');
+            const [rows] = await this.db.query(
+                "SELECT * FROM festivals WHERE COALESCE(status, 'upcoming') <> 'draft' ORDER BY date ASC"
+            );
             return rows;
         } catch (e) {
             return [];

@@ -37,12 +37,44 @@ test('server separates liveness from readiness and denies public exports', () =>
     assert.doesNotMatch(server, /db_url_prefix/);
 });
 
+test('Bootstrap icons are installed and served locally instead of requiring a CDN at runtime', () => {
+    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const server = fs.readFileSync('src/server.js', 'utf8');
+    const main = fs.readFileSync('src/views/layouts/main.ejs', 'utf8');
+    const admin = fs.readFileSync('src/views/layouts/admin.ejs', 'utf8');
+    assert.equal(packageJson.dependencies['bootstrap-icons'], '^1.11.3');
+    assert.match(server, /app\.use\('\/vendor\/bootstrap-icons'/);
+    assert.match(main, /\/vendor\/bootstrap-icons\/bootstrap-icons\.min\.css/);
+    assert.match(admin, /\/vendor\/bootstrap-icons\/bootstrap-icons\.min\.css/);
+    assert.doesNotMatch(main, /cdn\.jsdelivr\.net\/npm\/bootstrap-icons/);
+    assert.doesNotMatch(admin, /cdn\.jsdelivr\.net\/npm\/bootstrap-icons/);
+});
+
 test('public fallback images refer to an existing asset', () => {
     const login = fs.readFileSync('src/views/auth/login.ejs', 'utf8');
     const serviceWorker = fs.readFileSync('public/sw.js', 'utf8');
     assert.match(login, /\/images\/Poster 1\.jpg/);
     assert.match(serviceWorker, /Poster(?:%20| )1\.jpg/);
     assert.ok(fs.existsSync('public/images/Poster 1.jpg'));
+});
+
+test('service worker limits its persistent cache to static assets and has an explicit recovery response', () => {
+    const serviceWorker = fs.readFileSync('public/sw.js', 'utf8');
+    assert.match(serviceWorker, /const STATIC_ASSETS/);
+    assert.match(serviceWorker, /if \(req\.mode === 'navigate'\) return offlineResponse\(\)/);
+    assert.match(serviceWorker, /!req\.url\.includes\('\/api\/'\)/);
+    assert.match(serviceWorker, /function offlineResponse\(\)/);
+    assert.match(serviceWorker, /cache\.put\(req, networkResponse\.clone\(\)\)/);
+});
+
+test('CI quality gate uses an isolated PostgreSQL database and explicit browser environment', () => {
+    const workflow = fs.readFileSync('.github/workflows/quality-gate.yml', 'utf8');
+    assert.match(workflow, /image: postgres:16/);
+    assert.match(workflow, /TEST_DATABASE_URL: postgresql:\/\/postgres:postgres@127\.0\.0\.1:5432\/binh_loi_audit/);
+    assert.match(workflow, /npm run test:audit-db/);
+    assert.match(workflow, /node scripts\/seed_audit_e2e\.js/);
+    assert.match(workflow, /playwright test --project=chromium --workers=1 --retries=0/);
+    assert.match(workflow, /npm audit --omit=dev --audit-level=high/);
 });
 
 test('avatar and festival fallbacks use durable public assets', () => {

@@ -1,0 +1,42 @@
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+  <div><h4 class="fw-bold mb-1">Đơn hàng Shop</h4><p class="mb-0 text-muted">Xác nhận, hoàn thành hoặc hủy đơn hàng theo đúng trạng thái.</p></div>
+  <a class="btn btn-outline-primary rounded-pill" href="/shops">Xem Shop</a>
+</div>
+<div class="admin-table"><div class="table-responsive">
+  <table class="table table-borderless align-middle mb-0">
+    <thead><tr><th>Sản phẩm</th><th>Khách</th><th>Số lượng</th><th>Giá trị</th><th>Trạng thái</th><th></th></tr></thead>
+    <tbody>
+      <% orders.forEach(order => { %>
+        <tr data-order-id="<%= order.id %>">
+          <td><strong><%= order.product_title_snapshot %></strong><div class="small text-muted"><%= order.destination_name || '' %></div></td>
+          <td><%= order.customer_name || 'Không xác định' %><div class="small text-muted"><%= order.customer_email || '' %></div></td>
+          <td><%= order.quantity %></td>
+          <td><%= new Intl.NumberFormat('vi-VN').format(Number(order.unit_price_vnd) * Number(order.quantity)) %>đ</td>
+          <td><span class="badge <%= order.status === 'completed' ? 'bg-success' : (order.status === 'cancelled' ? 'bg-secondary' : 'bg-warning text-dark') %>"><%= order.status %></span></td>
+          <td class="text-nowrap">
+            <% if (order.status === 'pending') { %><button class="btn btn-sm btn-primary order-action" data-order-id="<%= order.id %>" data-status="confirmed">Xác nhận</button><button class="btn btn-sm btn-outline-danger order-action" data-order-id="<%= order.id %>" data-status="cancelled">Hủy</button><% } %>
+            <% if (order.status === 'confirmed') { %><button class="btn btn-sm btn-success order-action" data-order-id="<%= order.id %>" data-status="completed">Hoàn tất</button><button class="btn btn-sm btn-outline-danger order-action" data-order-id="<%= order.id %>" data-status="cancelled">Hủy</button><% } %>
+          </td>
+        </tr>
+      <% }) %>
+      <% if (!orders.length) { %><tr><td colspan="6" class="text-center py-5 text-muted">Chưa có đơn hàng mới.</td></tr><% } %>
+    </tbody>
+  </table>
+</div></div>
+<script>
+document.querySelectorAll('.order-action').forEach(button => button.addEventListener('click', async () => {
+  if (!window.confirm('Xác nhận chuyển trạng thái đơn hàng?')) return;
+  const original = button.textContent; button.disabled = true; button.textContent = 'Đang xử lý…';
+  try {
+    const response = await fetch('/api/products/orders/' + encodeURIComponent(button.dataset.orderId) + '/status', {
+      method: 'POST', headers: {'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},
+      body: JSON.stringify({status:button.dataset.status})
+    });
+    const payload = await response.json();
+    if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể cập nhật đơn.');
+    window.location.reload();
+  } catch (error) {
+    button.disabled = false; button.textContent = original; window.alert(error.message || 'Không thể cập nhật đơn.');
+  }
+}));
+</script>

@@ -1,0 +1,87 @@
+<div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-4">
+  <div>
+    <h4 class="fw-bold mb-1">Vé lễ hội</h4>
+    <p class="mb-0 text-muted">Kiểm tra vé, trạng thái và xác nhận sử dụng một lần tại cổng.</p>
+  </div>
+  <a class="btn btn-outline-primary rounded-pill" href="/festivals"><i class="bi bi-box-arrow-up-right me-1"></i>Xem trang lễ hội</a>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-3 p-md-4 mb-4">
+  <h5 class="fw-bold mb-3">Cấu hình đăng ký</h5>
+  <div class="row g-3">
+    <% festivals.forEach(festival => { %>
+      <div class="col-12 col-lg-6">
+        <form class="border rounded-4 p-3 festival-registration-form" data-festival-id="<%= festival.id %>">
+          <div class="fw-bold"><%= festival.name %></div>
+          <div class="small text-muted mb-3"><%= festival.date ? new Date(festival.date).toLocaleDateString('vi-VN') : 'Chưa có ngày' %></div>
+          <label class="form-label small">Sức chứa (để trống = chưa giới hạn)</label>
+          <input class="form-control mb-2" type="number" min="0" max="100000" name="capacity" value="<%= festival.capacity ?? '' %>">
+          <div class="form-check mb-3"><input class="form-check-input" type="checkbox" name="registration_open" id="festival-open-<%= festival.id %>" <%= festival.registration_open ? 'checked' : '' %>><label class="form-check-label" for="festival-open-<%= festival.id %>">Mở đăng ký</label></div>
+          <button class="btn btn-outline-primary btn-sm rounded-pill save-registration" type="submit">Lưu cấu hình</button>
+        </form>
+      </div>
+    <% }) %>
+    <% if (!festivals.length) { %><p class="text-muted mb-0">Chưa có lễ hội công khai để cấu hình.</p><% } %>
+  </div>
+</div>
+
+<div class="admin-table">
+  <div class="table-responsive">
+    <table class="table table-borderless align-middle mb-0">
+      <thead><tr><th>Sự kiện</th><th>Khách</th><th>Mã vé</th><th>Trạng thái</th><th>Ngày tạo</th><th></th></tr></thead>
+      <tbody>
+        <% tickets.forEach(ticket => { %>
+        <tr>
+          <td><strong><%= ticket.festival_name || 'Lễ hội đã xóa' %></strong><div class="small text-muted"><%= ticket.festival_date ? new Date(ticket.festival_date).toLocaleDateString('vi-VN') : '' %></div></td>
+          <td><%= ticket.visitor_name || 'Không xác định' %><div class="small text-muted"><%= ticket.visitor_email || '' %></div></td>
+          <td><code><%= ticket.ticket_code %></code></td>
+          <td><span class="badge <%= ticket.status === 'active' ? 'bg-success' : 'bg-secondary' %>"><%= ticket.status === 'active' ? 'Còn hiệu lực' : ticket.status %></span></td>
+          <td class="small"><%= new Date(ticket.created_at).toLocaleString('vi-VN') %></td>
+          <td>
+            <% if (ticket.status === 'active') { %>
+              <button class="btn btn-sm btn-success rounded-pill use-ticket" data-ticket-id="<%= ticket.id %>">Xác nhận dùng</button>
+            <% } else if (ticket.used_at) { %><span class="small text-muted">Đã dùng <%= new Date(ticket.used_at).toLocaleString('vi-VN') %></span><% } %>
+          </td>
+        </tr>
+        <% }) %>
+        <% if (!tickets.length) { %><tr><td colspan="6" class="text-center py-5 text-muted">Chưa có vé nào.</td></tr><% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+<script>
+document.querySelectorAll('.use-ticket').forEach(button => button.addEventListener('click', async () => {
+  if (!window.confirm('Xác nhận sử dụng vé này? Thao tác không thể hoàn tác.')) return;
+  const original = button.textContent; button.disabled = true; button.textContent = 'Đang xác nhận…';
+  try {
+    const response = await fetch('/api/admin/festival-tickets/' + encodeURIComponent(button.dataset.ticketId) + '/use', {
+      method: 'POST', headers: {'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()}, body: '{}'
+    });
+    const payload = await response.json();
+    if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể xác nhận vé.');
+    window.location.reload();
+  } catch (error) {
+    button.disabled = false; button.textContent = original; window.alert(error.message || 'Không thể xác nhận vé.');
+  }
+}));
+document.querySelectorAll('.festival-registration-form').forEach(form => form.addEventListener('submit', async event => {
+  event.preventDefault();
+  const button = form.querySelector('.save-registration'); const original = button.textContent;
+  button.disabled = true; button.textContent = 'Đang lưu…';
+  try {
+    const response = await fetch('/api/admin/festivals/registration', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        id: form.dataset.festivalId,
+        capacity: form.elements.capacity.value,
+        registration_open: form.elements.registration_open.checked
+      })
+    });
+    const payload = await response.json();
+    if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể lưu cấu hình.');
+    window.location.reload();
+  } catch (error) {
+    button.disabled = false; button.textContent = original; window.alert(error.message || 'Không thể lưu cấu hình.');
+  }
+}));
+</script>

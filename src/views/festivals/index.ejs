@@ -15,7 +15,7 @@
                         <p class="lead opacity-90 mb-4" style="max-width: 600px;">Sự kiện thường niên lớn nhất khu vực với hàng vạn gốc mai khoe sắc. Trải nghiệm không gian văn hóa Tết cổ truyền Nam Bộ độc đáo.</p>
                         
                         <div class="d-flex flex-wrap gap-3 align-items-center">
-                            <button class="btn btn-primary-bl btn-lg rounded-pill px-5 fw-bold shadow-premium" onclick="showBookingModal(1, 'Hội Hoa Mai Vàng Bình Lợi 2026')">
+                            <button class="btn btn-primary-bl btn-lg rounded-pill px-5 fw-bold shadow-premium" <%= festivals[0] ? '' : 'disabled' %> data-festival-id="<%= festivals[0]?.id || '' %>" data-festival-name="<%= festivals[0]?.name || '' %>" onclick="showBookingModal(this.dataset.festivalId, this.dataset.festivalName)">
                                 ĐẶT VÉ MIỄN PHÍ <i class="bi bi-ticket-perforated ms-2"></i>
                             </button>
                             <span class="text-white-50 small fw-bold tracking-widest text-uppercase"><i class="bi bi-clock me-1"></i>Chỉ còn 12 ngày</span>
@@ -68,7 +68,7 @@
                             <p class="text-muted small mb-4 line-clamp-3"><%= fest.desc %></p>
                             
                             <div class="mt-auto pt-3 border-top d-flex justify-content-between align-items-center">
-                                <button class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-4" onclick="showBookingModal(<%= fest.id %>, '<%= fest.name %>')">
+                                <button class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-4" data-festival-id="<%= fest.id %>" data-festival-name="<%= fest.name %>" onclick="showBookingModal(this.dataset.festivalId, this.dataset.festivalName)">
                                     <i class="bi bi-bookmark-plus me-1"></i> Đăng ký
                                 </button>
                                 <button class="btn btn-light btn-sm rounded-circle shadow-sm" style="width: 35px; height: 35px; padding: 0;">
@@ -106,10 +106,10 @@
                     <div class="mb-4">
                         <label class="form-label small fw-bold text-muted text-uppercase tracking-widest x-small">Số lượng vé</label>
                         <select class="form-select bg-light border-0 rounded-3 p-3 shadow-none">
-                            <option>1 Người</option>
-                            <option>2 Người</option>
-                            <option>Gia đình (4 người)</option>
-                            <option>Đoàn đông (>5 người)</option>
+                            <option value="1">1 Người</option>
+                            <option value="2">2 Người</option>
+                            <option value="4">Gia đình (4 người)</option>
+                            <option value="6">Đoàn đông (6 người)</option>
                         </select>
                     </div>
                     <button type="submit" class="btn btn-primary-bl w-100 rounded-pill py-3 fw-bold shadow-sm text-uppercase tracking-widest">XÁC NHẬN ĐĂNG KÝ</button>
@@ -130,7 +130,8 @@
             const festId = btn.getAttribute('data-fest-id');
             const name = e.target.querySelector('input[type="text"]').value;
             const phone = e.target.querySelector('input[type="tel"]').value;
-            const tickets = parseInt(e.target.querySelector('select').value) || 1;
+            const tickets = parseInt(e.target.querySelector('select').value, 10) || 1;
+            const idempotencyKey = crypto.randomUUID();
 
             btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
             btn.classList.replace('btn-primary-bl', 'btn-success');
@@ -138,7 +139,7 @@
             try {
                 const res = await fetch('/api/festival/book', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 'Content-Type': 'application/json', 'Idempotency-Key': idempotencyKey },
                     body: JSON.stringify({ festivalId: festId, fullName: name, phone: phone, tickets: tickets })
                 });
                 const data = await res.json();

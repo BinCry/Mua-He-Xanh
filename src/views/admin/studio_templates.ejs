@@ -1,0 +1,67 @@
+<div class="container-fluid py-4">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+        <div>
+            <h1 class="h3 mb-1">Mẫu Studio</h1>
+            <p class="text-muted mb-0">Quản lý mẫu video được xuất bản cho du khách.</p>
+        </div>
+        <button class="btn btn-primary" type="button" data-bs-toggle="modal" data-bs-target="#templateModal" onclick="openTemplateForm()">
+            <i class="bi bi-plus-lg me-1"></i> Thêm mẫu
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Tên mẫu</th><th>Danh mục</th><th>Tỷ lệ</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+                <tbody>
+                    <% (templates || []).forEach(template => { %>
+                    <tr>
+                        <td><strong><%= template.title || template.template_id || 'Chưa đặt tên' %></strong><div class="small text-muted"><%= template.template_id || '' %></div></td>
+                        <td><%= template.category || '—' %></td>
+                        <td><%= template.aspect_ratio || '—' %></td>
+                        <td><span class="badge <%= template.is_published || template.is_active ? 'text-bg-success' : 'text-bg-secondary' %>"><%= template.is_published || template.is_active ? 'Đã xuất bản' : 'Bản nháp' %></span></td>
+                        <td class="text-end"><button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#templateModal" data-template="<%= encodeURIComponent(JSON.stringify(template)) %>" onclick="openTemplateForm(this)">Sửa</button></td>
+                    </tr>
+                    <% }) %>
+                    <% if (!(templates || []).length) { %><tr><td colspan="5" class="text-center text-muted py-5">Chưa có mẫu Studio.</td></tr><% } %>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="templateModal" tabindex="-1" aria-labelledby="templateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable"><form class="modal-content" id="templateForm">
+        <div class="modal-header"><h2 class="modal-title fs-5" id="templateModalLabel">Mẫu Studio</h2><button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Đóng"></button></div>
+        <div class="modal-body">
+            <input type="hidden" name="id">
+            <div class="mb-3"><label class="form-label" for="template_id">Mã mẫu</label><input class="form-control" id="template_id" name="template_id" required maxlength="100"></div>
+            <div class="mb-3"><label class="form-label" for="title">Tên mẫu</label><input class="form-control" id="title" name="title" required maxlength="200"></div>
+            <div class="row g-3"><div class="col"><label class="form-label" for="category">Danh mục</label><input class="form-control" id="category" name="category" maxlength="100"></div><div class="col"><label class="form-label" for="aspect_ratio">Tỷ lệ</label><input class="form-control" id="aspect_ratio" name="aspect_ratio" placeholder="9:16"></div></div>
+            <div class="form-check form-switch mt-3"><input class="form-check-input" type="checkbox" id="is_published" name="is_published"><label class="form-check-label" for="is_published">Xuất bản</label></div>
+        </div>
+        <div class="modal-footer"><button type="button" class="btn btn-light" data-bs-dismiss="modal">Hủy</button><button class="btn btn-primary" type="submit">Lưu mẫu</button></div>
+    </form></div>
+</div>
+
+<script>
+function openTemplateForm(button) {
+    const form = document.getElementById('templateForm');
+    form.reset();
+    const value = button?.dataset?.template;
+    if (!value) return;
+    const template = JSON.parse(decodeURIComponent(value));
+    ['id', 'template_id', 'title', 'category', 'aspect_ratio'].forEach(key => { if (form.elements[key]) form.elements[key].value = template[key] || ''; });
+    form.elements.is_published.checked = Boolean(template.is_published || template.is_active);
+}
+document.getElementById('templateForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const payload = Object.fromEntries(new FormData(form));
+    payload.is_published = form.elements.is_published.checked;
+    const response = await fetch('/api/admin/save-studio-template', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const result = await response.json();
+    if (!response.ok || !result.success) return alert(result.message || 'Không thể lưu mẫu.');
+    window.location.reload();
+});
+</script>

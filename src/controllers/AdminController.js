@@ -401,6 +401,79 @@ const AdminController = {
         }
     },
 
+    festivalTickets: async (req, res) => {
+        try {
+            const [festivals] = await db.query(
+                "SELECT id, name, date, capacity, registration_open FROM festivals WHERE COALESCE(status, 'upcoming') <> 'draft' ORDER BY date ASC"
+            );
+            const [tickets] = await db.query(
+                'SELECT ft.id, ft.ticket_code, ft.status, ft.used_at, ft.created_at, ' +
+                'u.full_name AS visitor_name, u.email AS visitor_email, f.name AS festival_name, f.date AS festival_date ' +
+                'FROM festival_tickets ft ' +
+                'LEFT JOIN users u ON u.id = ft.user_id ' +
+                'LEFT JOIN festivals f ON f.id = ft.festival_id ' +
+                'ORDER BY ft.created_at DESC LIMIT 500'
+            );
+            res.render('admin/festival_tickets', {
+                title: 'Vé lễ hội',
+                layout: 'layouts/admin',
+                adminPage: 'festival-tickets',
+                festivals,
+                tickets
+            });
+        } catch (error) {
+            console.error('Admin festival tickets error:', error);
+            res.status(500).send('Lỗi hệ thống');
+        }
+    },
+
+    productOrders: async (req, res) => {
+        try {
+            const [orders] = await db.query(
+                'SELECT o.id, o.quantity, o.product_title_snapshot, o.unit_price_vnd, o.status, o.created_at, ' +
+                'u.full_name AS customer_name, u.email AS customer_email, d.name AS destination_name ' +
+                'FROM product_orders o JOIN products p ON p.id = o.product_id ' +
+                'LEFT JOIN users u ON u.id = o.user_id LEFT JOIN destinations d ON d.id = p.destination_id ' +
+                'ORDER BY o.created_at DESC LIMIT 500'
+            );
+            res.render('admin/product_orders', {
+                title: 'Đơn hàng Shop',
+                layout: 'layouts/admin',
+                adminPage: 'product-orders',
+                orders
+            });
+        } catch (error) {
+            console.error('Admin product orders error:', error);
+            res.status(500).send('Lỗi hệ thống');
+        }
+    },
+
+    updateFestivalRegistration: async (req, res) => {
+        try {
+            const id = String(req.body?.id || '');
+            const rawCapacity = String(req.body?.capacity ?? '').trim();
+            const registrationOpen = req.body?.registration_open === true || req.body?.registration_open === 'true';
+            if (!id) return res.status(400).json({ success: false, message: 'Thiếu mã lễ hội.' });
+            let capacity = null;
+            if (rawCapacity !== '') {
+                capacity = Number(rawCapacity);
+                if (!Number.isSafeInteger(capacity) || capacity < 0 || capacity > 100000) {
+                    return res.status(400).json({ success: false, message: 'Sức chứa không hợp lệ.' });
+                }
+            }
+            const [updated] = await db.query(
+                'UPDATE festivals SET capacity = $1, registration_open = $2 WHERE id = $3 RETURNING id',
+                [capacity, registrationOpen, id]
+            );
+            if (!updated.length) return res.status(404).json({ success: false, message: 'Không tìm thấy lễ hội.' });
+            cache.del('festivals:list');
+            return res.json({ success: true, message: 'Đã cập nhật cấu hình đăng ký.' });
+        } catch (error) {
+            console.error('Update festival registration error:', error);
+            return res.status(500).json({ success: false, message: 'Không thể cập nhật cấu hình.' });
+        }
+    },
+
     // ==================== API: Create User ====================
     createUser: async (req, res) => {
         try {
@@ -798,17 +871,17 @@ const AdminController = {
 
     createEvent: async (req, res) => {
         try {
-            const { title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown } = req.body;
-            if (is_countdown) {
-                await db.query('UPDATE events SET is_countdown = 0');
-            }
+            const { title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active } = req.body;
             const finalImg = (image && image.trim()) ? image : '/uploads/posters/poster-1.webp';
             const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalImg;
-            await db.query(
-                `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1)`,
-                [uuidv4(), title, description, season || 'all', event_date, end_date || null, location, finalImg, finalBanner, is_featured ? 1 : 0, is_countdown ? 1 : 0]
-            );
+            await db.transaction(async (tx) => {
+                if (is_countdown) await tx.query('UPDATE events SET is_countdown = 0');
+                await tx.query(
+                    `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active)
+                     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
+                    [uuidv4(), title, description, season || 'all', event_date, end_date || null, location, finalImg, finalBanner, is_featured ? 1 : 0, is_countdown ? 1 : 0, is_active ? 1 : 0]
+                );
+            });
             if (HomeController.clearCache) HomeController.clearCache();
             res.json({ success: true, message: 'Đã tạo sự kiện!' });
         } catch (error) {
@@ -819,15 +892,15 @@ const AdminController = {
     updateEvent: async (req, res) => {
         try {
             const { id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active } = req.body;
-            if (is_countdown) {
-                await db.query('UPDATE events SET is_countdown = 0');
-            }
             const finalImg = (image && image.trim()) ? image : '/uploads/posters/poster-1.webp';
             const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalImg;
-            await db.query(
-                `UPDATE events SET title = $1, description = $2, season = $3, event_date = $4, end_date = $5, location = $6, image = $7, banner_image = $8, is_featured = $9, is_countdown = $10, is_active = $11 WHERE id = $12`,
-                [title, description, season, event_date, end_date, location, finalImg, finalBanner, is_featured ? 1 : 0, is_countdown ? 1 : 0, is_active ? 1 : 0, id]
-            );
+            await db.transaction(async (tx) => {
+                if (is_countdown) await tx.query('UPDATE events SET is_countdown = 0');
+                await tx.query(
+                    `UPDATE events SET title = $1, description = $2, season = $3, event_date = $4, end_date = $5, location = $6, image = $7, banner_image = $8, is_featured = $9, is_countdown = $10, is_active = $11 WHERE id = $12`,
+                    [title, description, season, event_date, end_date, location, finalImg, finalBanner, is_featured ? 1 : 0, is_countdown ? 1 : 0, is_active ? 1 : 0, id]
+                );
+            });
             if (HomeController.clearCache) HomeController.clearCache();
             res.json({ success: true, message: 'Đã cập nhật sự kiện!' });
         } catch (error) {

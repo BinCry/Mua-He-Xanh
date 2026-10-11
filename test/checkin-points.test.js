@@ -147,6 +147,30 @@ test('check-in rejects a visitor farther than 2 km from the destination', async 
     }
 });
 
+test('check-in rejects a cookie session belonging to another account', async () => {
+    const originalFindByUuid = UserSession.findByUuid;
+    let responseBody = null;
+    UserSession.findByUuid = async () => ({ id: 'session-1', user_id: 'other-user' });
+    const req = {
+        method: 'POST',
+        body: { slug: 'diem-thu-nghiem', lat: 10, lng: 106, method: 'qr', sessionUuid: 'other-session' },
+        cookies: { session_uuid: 'cookie-session' },
+        session: { user: { id: 'user-1' } }
+    };
+    const res = {
+        statusCode: 200,
+        status(code) { this.statusCode = code; return this; },
+        json(body) { responseBody = body; return body; }
+    };
+    try {
+        await ApiController.checkin(req, res);
+        assert.equal(res.statusCode, 403);
+        assert.equal(responseBody.success, false);
+    } finally {
+        UserSession.findByUuid = originalFindByUuid;
+    }
+});
+
 test('legacy check-ins are linked and credited only while user_id is missing', async () => {
     const originalDb = CheckIn.db;
     let query = null;

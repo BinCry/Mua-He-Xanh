@@ -2,6 +2,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const test = require('node:test');
 const ejs = require('ejs');
+const { safeJsonForScript } = require('../src/utils/safeJson');
 
 test('map renders a keyed CARTO layer with required attribution', () => {
     const view = fs.readFileSync('src/views/map/index.ejs', 'utf8');
@@ -9,7 +10,8 @@ test('map renders a keyed CARTO layer with required attribution', () => {
         allDests: [],
         journey: null,
         cartoBasemapApiKey: 'test_key_123',
-        fixImg: () => '/images/no-image.svg'
+        fixImg: () => '/images/no-image.svg',
+        safeJsonForScript
     });
 
     assert.match(html, /const cartoBasemapApiKey = "test_key_123";/);

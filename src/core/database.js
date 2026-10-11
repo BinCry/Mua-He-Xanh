@@ -10,6 +10,26 @@ types.setTypeParser(1184, str => str ? new Date(str) : null);
 const connectionString = String(process.env.DATABASE_URL || '').trim();
 let pgPool = null;
 
+function shouldUseSsl(url) {
+    try {
+        const host = new URL(url).hostname.toLowerCase();
+        return !['localhost', '127.0.0.1', '::1'].includes(host);
+    } catch (_) {
+        // Invalid URLs are rejected by pg itself; do not silently downgrade a
+        // remote connection while surfacing that configuration error.
+        return true;
+    }
+}
+
+function remoteSslOptions() {
+    // Certificate validation is the safe production default.  A private CA or
+    // a deliberately self-signed deployment has to opt out explicitly in its
+    // deployment configuration; it is never silently disabled by the app.
+    return {
+        rejectUnauthorized: process.env.DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false'
+    };
+}
+
 function getPool() {
     if (pgPool) return pgPool;
     if (!connectionString) {
@@ -17,7 +37,7 @@ function getPool() {
     }
     pgPool = new Pool({
         connectionString,
-        ssl: { rejectUnauthorized: false },
+        ssl: shouldUseSsl(connectionString) ? remoteSslOptions() : false,
         max: 20,
         idleTimeoutMillis: 30000,
         connectionTimeoutMillis: 10000,
@@ -60,6 +80,39 @@ const pool = {
     },
     async execute(sql, params = []) {
         return this.query(sql, params);
+    },
+    /**
+     * Execute a group of writes on one PostgreSQL connection.  Callers receive
+     * the same `[rows, fields]` result shape as `db.query`, so transactions do
+     * not need to know about the pg driver.
+     */
+    async transaction(work) {
+        const client = await getPool().connect();
+        const transaction = {
+            async query(sql, params = []) {
+                const result = await client.query(sql, params);
+                const rows = result.rows || [];
+                rows.affectedRows = result.rowCount || 0;
+                rows.rowCount = result.rowCount || 0;
+                rows.insertId = rows[0]?.id || null;
+                return [rows, result.fields];
+            },
+            async execute(sql, params = []) {
+                return this.query(sql, params);
+            }
+        };
+
+        try {
+            await client.query('BEGIN');
+            const result = await work(transaction);
+            await client.query('COMMIT');
+            return result;
+        } catch (error) {
+            try { await client.query('ROLLBACK'); } catch (_) { /* original error wins */ }
+            throw error;
+        } finally {
+            client.release();
+        }
     },
     async close() {
         if (!pgPool) return;
