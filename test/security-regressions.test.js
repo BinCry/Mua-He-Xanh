@@ -239,3 +239,14 @@ test('journey suggestions do not resurrect Sống Chậm or claim route optimiza
     assert.doesNotMatch(journey, /tối ưu quãng đường ngắn nhất/);
     assert.doesNotMatch(journey, /parseFloat\(t\.km\) \|\| 5\.0/);
 });
+
+test('brand and administration headings use a locally available Vietnamese-safe font stack', () => {
+    const publicCss = fs.readFileSync('public/css/style-v5.css', 'utf8');
+    const navbar = fs.readFileSync('src/views/partials/navbar.ejs', 'utf8');
+    const adminLayout = fs.readFileSync('src/views/layouts/admin.ejs', 'utf8');
+
+    assert.match(publicCss, /--font-display:\s*"Segoe UI", Arial/);
+    assert.match(navbar, /brand-title-text[\s\S]*font-synthesis:\s*none/);
+    assert.match(adminLayout, /\.admin-brand-title\s*\{[^}]*font-synthesis:\s*none/);
+    assert.match(adminLayout, /admin-brand-title/);
+});

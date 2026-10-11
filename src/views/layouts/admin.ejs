@@ -35,7 +35,7 @@
                 --admin-primary: #922724;
             <% } %>
         }
-        * { box-sizing: border-box; font-family: 'Inter', sans-serif !important; }
+        * { box-sizing: border-box; font-family: "Segoe UI", Arial, sans-serif !important; }
         body { background: var(--admin-bg); color: var(--admin-text); margin: 0; }
         .admin-wrap { display: flex; min-height: 100vh; }
         
@@ -45,7 +45,8 @@
         .sb-brand-title { display: flex; align-items: center; gap: 10px; }
         .sb-brand-mark { width: 32px; height: 32px; border: 1px solid var(--admin-border); border-radius: 9px; background: var(--admin-bg); color: var(--admin-primary); display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; }
         .sb-brand-mark i { font-size: 1rem; line-height: 1; }
-        .sb-brand h5 { font-family: 'Inter', sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--admin-primary); margin: 0; letter-spacing: 1px; }
+        .admin-brand-title { font-family: "Segoe UI", Arial, sans-serif !important; font-synthesis: none; }
+        .sb-brand h5 { font-family: "Segoe UI", Arial, sans-serif; font-weight: 800; font-size: 1.15rem; color: var(--admin-primary); margin: 0; letter-spacing: 1px; }
         .sb-brand small { color: var(--admin-muted); font-size: 0.72rem; display: block; margin-top: 6px; }
         .sb-nav { padding: 16px 12px; flex-grow: 1; overflow-y: auto; }
         .sb-label { font-size: 0.65rem; font-weight: 700; color: var(--admin-muted); text-transform: uppercase; letter-spacing: 2px; padding: 8px 12px; margin-top: 16px; }
@@ -213,11 +214,11 @@
                         <i class="bi <%= user.role === 'manager' ? 'bi-geo-alt' : 'bi-buildings' %>"></i>
                     </span>
                 <% if (user.role === 'manager') { %>
-                    <h5>QUẢN LÝ PANEL</h5>
+                    <h5 class="admin-brand-title">QUẢN LÝ PANEL</h5>
                 </div>
                     <small>Hệ thống Quản lý Địa điểm</small>
                 <% } else { %>
-                    <h5>BÌNH LỢI ADMIN</h5>
+                    <h5 class="admin-brand-title">BÌNH LỢI ADMIN</h5>
                 </div>
                     <small>Hệ thống Quản trị cấp Xã</small>
                 <% } %>
@@ -318,7 +319,7 @@
                         <i class="bi <%= user.role === 'manager' ? 'bi-geo-alt' : 'bi-buildings' %>"></i>
                     </span>
                     <div class="min-w-0">
-                        <span class="fw-black text-truncate d-block" style="color: var(--admin-primary); font-size: 0.95rem; letter-spacing: 0.3px;">
+                        <span class="fw-black text-truncate d-block admin-brand-title" style="color: var(--admin-primary); font-size: 0.95rem; letter-spacing: 0.3px;">
                             <%= user.role === 'manager' ? 'QUẢN LÝ PANEL' : 'BÌNH LỢI ADMIN' %>
                         </span>
                     </div>
@@ -344,7 +345,7 @@
                     <i class="bi <%= user.role === 'manager' ? 'bi-geo-alt' : 'bi-buildings' %>"></i>
                 </span>
                 <div>
-                    <h6 class="mb-0 fw-bold" id="adminMobileOffcanvasLabel" style="color: var(--admin-primary); letter-spacing: 0.5px;">
+                    <h6 class="mb-0 fw-bold admin-brand-title" id="adminMobileOffcanvasLabel" style="color: var(--admin-primary); letter-spacing: 0.5px;">
                         <%= user.role === 'manager' ? 'QUẢN LÝ PANEL' : 'BÌNH LỢI ADMIN' %>
                     </h6>
                     <small class="text-muted" style="font-size: 0.68rem;"><%= user.role === 'manager' ? 'Quản lý Địa điểm' : 'Hệ thống Quản trị cấp Xã' %></small>
