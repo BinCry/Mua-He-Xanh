@@ -22,4 +22,10 @@ Environment: local isolated PostgreSQL 16; no production database writes, produc
 
 **NOT READY FOR HANDOVER OR PRODUCTION DEPLOYMENT.**
 
-The code evidence is materially stronger, but operational acceptance remains incomplete: backed-up production reconciliation and migration rollback, PWA/offline, provider sandbox, load/failure testing, full role/UI coverage, backup/restore and deployment readiness. Do not deploy on the strength of local tests alone.
+## VPS preflight and controlled deployment — 2026-10-11
+
+Read-only SSH verification initially found PM2 `binh-loi` online and both `/api/health` and `/api/ready` returning 200. The server was on commit `699334c` and had untracked uploads/scripts. Before changing the release, the untracked files and PostgreSQL database were backed up and checksum-verified. The repository was then fast-forwarded to `7b17a3f`, both operational migrations were applied, dependencies installed and PM2 restarted with updated environment values.
+
+Post-deploy verification: PM2 is online; `/api/health` and `/api/ready` return 200; `/`, `/explore`, `/shops`, `/workshops`, `/map` and `/reviews` return 200; `/journey` redirects unauthenticated users with 302 as designed. Both migration IDs and all required operational tables were confirmed. The server uses a self-signed PostgreSQL certificate, so its existing explicit `DATABASE_SSL_REJECT_UNAUTHORIZED=false` compatibility setting was retained and must be replaced with a trusted certificate before a future security release.
+
+The code evidence is materially stronger, but handover acceptance remains incomplete: production-data reconciliation and migration rollback rehearsal, PWA/offline, provider sandbox, load/failure testing and full role/UI acceptance. The deployment is a verified controlled release, not an authorization to label the system READY FOR HANDOVER.

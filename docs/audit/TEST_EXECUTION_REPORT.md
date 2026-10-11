@@ -34,7 +34,8 @@ Environment: isolated PostgreSQL 16 at `127.0.0.1:55432`; local app at `127.0.0.
 
 ## Not yet accepted
 
-- Production-data reconciliation, migration rollback rehearsal, backup/restore, deploy health check, PWA/offline and load/latency testing.
+- Production-data reconciliation, migration rollback rehearsal, PWA/offline and load/latency testing. Pre-deploy application/database backups and post-deploy health/readiness checks are complete.
 - Full role E2E for every legacy feature, OAuth/SMS provider sandbox tests, and production-like operational failure testing.
+- VPS preflight found commit `699334c` and an untracked working tree. The files were archived and checksum-verified; the server was upgraded to `7b17a3f`, migrations were confirmed, PM2 restarted, and health/readiness and public-route smoke checks passed.
 
 These are release blockers. This report does not authorize deployment.

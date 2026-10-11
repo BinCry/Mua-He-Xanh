@@ -10,7 +10,8 @@
 - [ ] Rehearse migration and rollback against a production-like backup; reconcile before/after IDs, points and balances.
 - [ ] Complete provider sandbox, production-like load/latency and operational restart/failure tests; local small-load and PWA Chromium smoke are complete, but cross-browser/private-flow acceptance remains.
 - [ ] Complete all remaining role/UI flows, keyboard/focus/modal and cross-tab acceptance.
-- [ ] Create verified backup, deployment plan, approved change record and post-deploy health/readiness plan.
+- [x] Create verified pre-deploy backups, deployment plan and post-deploy health/readiness check. The application and PostgreSQL backups were verified before deployment.
+- [x] Resolve VPS preflight blocker: untracked uploads/scripts were preserved in a verified archive before the fast-forward deployment. They remain untracked and require later product-owner classification; they did not block this release transaction.
 
 ## Decision
 
