@@ -20,7 +20,7 @@ Environment: isolated PostgreSQL 16 at `127.0.0.1:55432`; local app at `127.0.0.
 | PWA offline/reconnect smoke | PASS | Chromium: registered service worker, offline navigation returns recovery UI (503), reconnect health returns 200 |
 | Browser hardening headers | PASS | Runtime response: nosniff, SAMEORIGIN frame policy, strict-origin referrer policy, same-origin opener policy |
 | Local small-load smoke | PASS | `/api/health`: 60 requests, concurrency 10, p95 15.1 ms; `/explore`: 30 requests, concurrency 5, p95 45.8 ms; all 200 |
-| CI quality gate definition | PASS (static) | workflow validates isolated PostgreSQL, security/unit/integration and Chromium browser acceptance; hosted run pending first GitHub push |
+| CI quality gate hosted execution | PASS | GitHub Actions run 38130954942, commit `c067f3f`: isolated PostgreSQL, security/unit/integration and Chromium browser/a11y/PWA acceptance all pass |
 
 ## Verified invariants
 

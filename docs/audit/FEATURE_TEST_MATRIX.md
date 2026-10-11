@@ -23,7 +23,7 @@
 | Translation/font/cookie resilience | PASS | translation opt-in, local icon font and host-only cookies for IP/localhost |
 | PWA offline/reconnect smoke | PASS | Chromium service-worker registration, offline recovery and reconnect health check |
 | Local small-load smoke | PASS | health and explore endpoint checks under bounded local concurrency; production load test remains required |
-| CI quality gate hosted execution | NOT TESTED | workflow added; requires first GitHub push/PR run |
+| CI quality gate hosted execution | PASS | GitHub Actions run 38130954942 passed on clean Ubuntu/PostgreSQL 16 runner |
 | Production historical reconciliation | BLOCKED | requires backed-up production extract and mapping approval |
 | Migration rollback rehearsal | NOT TESTED | no production-like backup is in scope yet |
 | OAuth/SMS sandbox | NOT TESTED | provider credentials/sandbox not supplied |

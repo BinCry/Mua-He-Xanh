@@ -16,7 +16,7 @@ Environment: local isolated PostgreSQL 16; no production database writes, produc
 - Dependency audit is clean after UUID 11.1.1 remediation.
 - Inline script values and chat media are serialized/validated safely; chat text is bounded server-side.
 - Translation is opt-in, cookie domain handling supports localhost/IP hosts, and Bootstrap Icons are served locally rather than from a runtime CDN.
-- Final local evidence: 82/82 unit/regression, 12/12 PostgreSQL integration and 78/78 cross-browser E2E cases pass; Chromium PWA offline/reconnect smoke passes. A CI gate is present but has not yet had hosted execution evidence.
+- Final local evidence: 82/82 unit/regression, 12/12 PostgreSQL integration and 78/78 cross-browser E2E cases pass; Chromium PWA offline/reconnect smoke passes. GitHub Actions run 38130954942 independently passed the CI quality gate on a clean PostgreSQL 16 runner.
 
 ## Release decision
 
