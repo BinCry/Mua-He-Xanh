@@ -1,4 +1,4 @@
-const CACHE_NAME = 'binh-loi-healing-v19';
+const CACHE_NAME = 'binh-loi-healing-v20';
 const STATIC_ASSETS = [
     '/css/style-v5.css',
     '/images/logo.png',
