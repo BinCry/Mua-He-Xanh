@@ -26,8 +26,13 @@ test('studio keeps safe edge spacing and explicit icon/text gaps', () => {
     assert.match(view, /data-ratio="9:16"[\s\S]*?border: 2px solid #CBD5E1/);
     assert.match(view, /\.bl-ratio-card\.active div\[style\*="border: 2px solid"\] \{[\s\S]*?border-color: var\(--bl-primary\) !important/);
     assert.match(view, /<div class="col-12">\s*<label[^>]*>Font chữ<\/label>\s*<select[^>]*id="propFontFamily"/);
-    assert.match(view, /<option value="Inter, sans-serif">Inter<\/option>/);
-    assert.match(view, /<option value="Montserrat, sans-serif">Montserrat<\/option>/);
+    assert.match(view, /<option value="&quot;Segoe UI&quot;, sans-serif">Hiện đại<\/option>/);
+    assert.match(view, /<option value="Georgia, serif">Cổ điển<\/option>/);
+    assert.match(view, /<option value="&quot;BinhLoi Script&quot;, sans-serif">Nét viết tay Bình Lợi<\/option>/);
+    assert.match(script, /const STUDIO_FONT_SYSTEM = '"Segoe UI", sans-serif';/);
+    assert.match(script, /const STUDIO_FONT_SCRIPT = '"BinhLoi Script", sans-serif';/);
+    assert.match(script, /normalizeStudioFont\(s\.activeText\.font\)/);
+    assert.doesNotMatch(script, /font:\s*'Inter, sans-serif'|activeText\.font = 'Inter, sans-serif'|activeText\.font = 'Montserrat, sans-serif'|activeText\.font = "'Dancing Script', cursive"/);
     assert.match(view, /id="spane-speed"[\s\S]*?class="bl-panel-heading"[\s\S]*?bg-light border mb-4" style="margin-bottom: 1\.25rem !important;"/);
     assert.match(view, /\.bl-studio-workspace \.gap-2\\\.5 \{ gap: \.75rem !important; \}/);
     assert.match(view, /\.bl-studio-workspace \.mb-3\\\.5 \{ margin-bottom: 1\.25rem !important; \}/);

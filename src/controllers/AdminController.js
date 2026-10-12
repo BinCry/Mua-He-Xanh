@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const { uploadToCloudinary } = require('../config/cloudinary');
 const HomeController = require('./HomeController');
 const cache = require('../core/cache');
+const { normalizeSearchText, buildTokenSearchClause } = require('../utils/search');
 const ROOT_ADMIN_EMAIL = 'binhloi.travel@gmail.com';
 
 function invalidateShopCache() {
@@ -241,13 +242,15 @@ const AdminController = {
             const page = parseInt(req.query.page) || 1;
             const limit = 15;
             const offset = (page - 1) * limit;
-            const search = req.query.q || '';
+            const searchQuery = String(req.query.q || '').trim().replace(/\s+/g, ' ').slice(0, 100);
+            const search = normalizeSearchText(searchQuery);
 
             let query, countQuery, params;
             if (search) {
-                query = `SELECT * FROM users WHERE full_name LIKE $1 OR email LIKE $2 OR phone LIKE $3 ORDER BY created_at DESC LIMIT $4 OFFSET $5`;
-                countQuery = `SELECT COUNT(*) as total FROM users WHERE full_name LIKE $1 OR email LIKE $2 OR phone LIKE $3`;
-                params = [`%${search}%`, `%${search}%`, `%${search}%`, limit, offset];
+                const searchClause = buildTokenSearchClause(['full_name', 'email', 'phone'], search, 1);
+                query = `SELECT * FROM users WHERE ${searchClause.clause} ORDER BY created_at DESC LIMIT $${searchClause.nextIndex} OFFSET $${searchClause.nextIndex + 1}`;
+                countQuery = `SELECT COUNT(*) as total FROM users WHERE ${searchClause.clause}`;
+                params = [...searchClause.params, limit, offset];
             } else {
                 query = `SELECT * FROM users ORDER BY created_at DESC LIMIT $1 OFFSET $2`;
                 countQuery = `SELECT COUNT(*) as total FROM users`;
@@ -255,7 +258,8 @@ const AdminController = {
             }
 
             const [users] = await db.query(query, params);
-            const [countResult] = await db.query(countQuery, search ? [`%${search}%`, `%${search}%`, `%${search}%`] : []);
+            const countParams = search ? buildTokenSearchClause(['full_name', 'email', 'phone'], search, 1).params : [];
+            const [countResult] = await db.query(countQuery, countParams);
             const totalPages = Math.ceil(parseInt(countResult[0]?.total || 0, 10) / limit);
             const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY sort_order');
 
@@ -265,7 +269,7 @@ const AdminController = {
                 adminPage: 'users',
                 users, destinations,
                 currentPage: page, totalPages,
-                searchQuery: search,
+                searchQuery,
                 rootAdminEmail: ROOT_ADMIN_EMAIL
             });
         } catch (error) {
@@ -321,6 +325,7 @@ const AdminController = {
             const [workshops] = await db.query(`
                 SELECT w.*, d.name as destination_name
                 FROM workshops w LEFT JOIN destinations d ON w.destination_id = d.id
+                WHERE w.catalog_kind = 'shop'
                 ORDER BY w.created_at DESC
             `);
             const [destinations] = await db.query('SELECT id, name FROM destinations WHERE is_active = 1');

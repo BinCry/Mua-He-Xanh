@@ -118,6 +118,17 @@ test('schema rollback commands require an explicit migration confirmation', () =
     assert.match(festival, /Refusing in-place rollback because festival registration data changed/);
 });
 
+test('authentication session expiry has an explicit, forward-only migration', () => {
+    const migration = fs.readFileSync('scripts/apply_auth_session_schema.js', 'utf8');
+    const packageJson = fs.readFileSync('package.json', 'utf8');
+    assert.match(packageJson, /db:migrate:auth-sessions/);
+    assert.match(migration, /20261012_auth_session_expiry_v1/);
+    assert.match(migration, /ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS created_at/);
+    assert.match(migration, /UPDATE user_sessions SET created_at = COALESCE\(created_at, updated_at, NOW\(\)\)/);
+    assert.match(migration, /--dry-run/);
+    assert.match(migration, /DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false'/);
+});
+
 test('avatar and festival fallbacks use durable public assets', () => {
     const managerDashboard = fs.readFileSync('src/views/manager/dashboard.ejs', 'utf8');
     const managerWorkshops = fs.readFileSync('src/views/manager/workshops.ejs', 'utf8');

@@ -23,6 +23,10 @@ const ROLE_NAMES = {
     4: 'guest'
 };
 
+// A database-backed UUID is only a recovery handle for the browser session,
+// never a permanent bearer credential. Its lifetime matches the auth cookie.
+const AUTH_SESSION_MAX_AGE = "INTERVAL '30 days'";
+
 function setSessionUser(req, user) {
     const safeUser = {
         id: user.id, email: user.email, full_name: user.full_name,
@@ -49,7 +53,9 @@ async function resolveActiveUser(req) {
         const [users] = await db.query(
             `SELECT u.* FROM user_sessions s
              JOIN users u ON u.id = s.user_id
-             WHERE s.uuid = $1 AND u.is_active = 1
+             WHERE s.uuid = $1
+               AND s.created_at >= CURRENT_TIMESTAMP - ${AUTH_SESSION_MAX_AGE}
+               AND u.is_active = 1
              ORDER BY s.updated_at DESC LIMIT 1`,
             [req.cookies.session_uuid]
         );
@@ -92,7 +98,9 @@ exports.ensureAdmin = async (req, res, next) => {
         try {
             const db = require('../core/database');
             const [sessions] = await db.query(
-                "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
+                `SELECT user_id FROM user_sessions
+                 WHERE uuid = $1 AND created_at >= CURRENT_TIMESTAMP - ${AUTH_SESSION_MAX_AGE}
+                 ORDER BY updated_at DESC LIMIT 1`,
                 [req.cookies.session_uuid]
             );
             if (sessions.length > 0 && sessions[0].user_id) {
@@ -148,7 +156,9 @@ exports.ensureManager = async (req, res, next) => {
         try {
             const db = require('../core/database');
             const [sessions] = await db.query(
-                "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
+                `SELECT user_id FROM user_sessions
+                 WHERE uuid = $1 AND created_at >= CURRENT_TIMESTAMP - ${AUTH_SESSION_MAX_AGE}
+                 ORDER BY updated_at DESC LIMIT 1`,
                 [req.cookies.session_uuid]
             );
             if (sessions.length > 0 && sessions[0].user_id) {

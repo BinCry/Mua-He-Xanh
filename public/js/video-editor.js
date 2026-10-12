@@ -279,9 +279,22 @@ document.addEventListener('DOMContentLoaded', () => {
     studioLogoImg.crossOrigin = 'anonymous';
     studioLogoImg.src = '/images/logo.png';
 
+    // Text Properties.  These names are available on every supported device;
+    // the script face is bundled by style-v5.css.  Never persist a browser-
+    // specific Inter/Montserrat/Dancing Script fallback into a project.
+    const STUDIO_FONT_SYSTEM = '"Segoe UI", sans-serif';
+    const STUDIO_FONT_SERIF = 'Georgia, serif';
+    const STUDIO_FONT_SCRIPT = '"BinhLoi Script", sans-serif';
+    const normalizeStudioFont = (font) => {
+        const candidate = String(font || '').trim();
+        if (/binhloi script|dancing script/i.test(candidate)) return STUDIO_FONT_SCRIPT;
+        if (/georgia|serif/i.test(candidate) && !/sans-serif/i.test(candidate)) return STUDIO_FONT_SERIF;
+        return STUDIO_FONT_SYSTEM;
+    };
+
     // Text Properties
     let activeText = {
-        font: 'Inter, sans-serif',
+        font: STUDIO_FONT_SYSTEM,
         size: 32,
         color: '#FFFFFF',
         isBold: true,
@@ -410,7 +423,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        if (s.activeText) activeText = { ...s.activeText };
+        if (s.activeText) {
+            activeText = { ...activeText, ...s.activeText, font: normalizeStudioFont(s.activeText.font) };
+        }
         if (s.subtitles) {
             if (textHookInput) textHookInput.value = s.subtitles.hook || '';
             if (textImmersionInput) textImmersionInput.value = s.subtitles.immersion || '';
@@ -1160,7 +1175,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                       (textHighlightInput && textHighlightInput.value) ||
                                       (textOutroInput && textOutroInput.value) || '';
             }
-            if (propFontFamily) propFontFamily.value = activeText.font || 'Inter, sans-serif';
+            if (propFontFamily) propFontFamily.value = normalizeStudioFont(activeText.font);
             if (propFontSize) propFontSize.value = activeText.size || 32;
             if (propTextColor) propTextColor.value = activeText.color || '#FFFFFF';
             if (btnPropBold) btnPropBold.classList.toggle('active', Boolean(activeText.isBold));
@@ -1204,7 +1219,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (propFontFamily) {
         propFontFamily.addEventListener('change', (e) => {
             pushUndoState();
-            activeText.font = e.target.value;
+            activeText.font = normalizeStudioFont(e.target.value);
             drawFrameAt(elapsedPlayTime);
         });
     }
@@ -1850,22 +1865,22 @@ document.addEventListener('DOMContentLoaded', () => {
     window.applyTextStylePreset = function(type) {
         pushUndoState();
         if (type === 'modern') {
-            activeText.font = 'Inter, sans-serif';
+            activeText.font = STUDIO_FONT_SYSTEM;
             activeText.size = 32;
             activeText.color = '#FFFFFF';
             activeText.isBold = true;
         } else if (type === 'cinematic') {
-            activeText.font = 'Montserrat, sans-serif';
+            activeText.font = STUDIO_FONT_SERIF;
             activeText.size = 34;
             activeText.color = '#F59E0B';
             activeText.isBold = true;
         } else if (type === 'handwrite') {
-            activeText.font = "'Dancing Script', cursive";
+            activeText.font = STUDIO_FONT_SCRIPT;
             activeText.size = 40;
             activeText.color = '#FFFFFF';
             activeText.isBold = true;
         } else if (type === 'subtitle') {
-            activeText.font = 'Arial, sans-serif';
+            activeText.font = STUDIO_FONT_SYSTEM;
             activeText.size = 28;
             activeText.color = '#FFFFFF';
             activeText.isBold = false;

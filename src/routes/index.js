@@ -27,6 +27,7 @@ const FestivalController = require('../controllers/FestivalController');
 const EventController = require('../controllers/EventController');
 const CommerceController = require('../controllers/CommerceController');
 const WorkshopController = require('../controllers/WorkshopController');
+const WorkshopManagementController = require('../controllers/WorkshopManagementController');
 
 // Middleware
 const { ensureAuthenticated, ensureAdmin, ensureManager, ensureTourist } = require('../middleware/auth');
@@ -115,7 +116,12 @@ router.get('/sitemap.xml', async (req, res) => {
         const db = require('../core/database');
         
         const [dests] = await db.query('SELECT slug, updated_at FROM destinations WHERE is_active = 1');
-        const [workshops] = await db.query('SELECT id, updated_at FROM workshops WHERE is_active = 1');
+        const [shops] = await db.query(
+            "SELECT id, updated_at FROM workshops WHERE is_active = 1 AND catalog_kind = 'shop'"
+        );
+        const [workshops] = await db.query(
+            "SELECT id, updated_at FROM workshops WHERE is_active = 1 AND catalog_kind = 'workshop'"
+        );
         
         const now = new Date().toISOString().split('T')[0];
         
@@ -137,9 +143,18 @@ router.get('/sitemap.xml', async (req, res) => {
             });
         });
 
-        workshops.forEach(w => {
+        shops.forEach(w => {
             urls.push({
                 loc: `${baseUrl}/shops/${w.id}`,
+                priority: '0.7',
+                changefreq: 'monthly',
+                lastmod: w.updated_at ? new Date(w.updated_at).toISOString().split('T')[0] : now
+            });
+        });
+
+        workshops.forEach(w => {
+            urls.push({
+                loc: `${baseUrl}/workshops/${w.id}`,
                 priority: '0.7',
                 changefreq: 'monthly',
                 lastmod: w.updated_at ? new Date(w.updated_at).toISOString().split('T')[0] : now
@@ -162,6 +177,13 @@ router.get('/sitemap.xml', async (req, res) => {
 });
 
 // Test QR page - shows all destination QR codes for testing
+// This diagnostic is deliberately unavailable in production. It is useful on
+// a development workstation, but must not publish an operational test surface
+// to visitors.
+router.get('/test-qr', (req, res, next) => {
+    if (process.env.NODE_ENV === 'production') return res.status(404).end();
+    return next();
+});
 router.get('/test-qr', async (req, res) => {
     try {
         const db = require('../core/database');
@@ -177,11 +199,14 @@ router.get('/test-qr', async (req, res) => {
         <body><h1>🔍 Test QR Codes</h1>
         <p>Quét các mã QR bên dưới để test check-in. Mỗi mã chứa slug của địa điểm.</p>
         <div class="grid">`;
+        const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[char]));
         for (const d of dests) {
             html += `<div class="card">
                 <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(d.slug)}" width="180" height="180">
-                <h3>${d.name}</h3>
-                <code>${d.slug}</code>
+                <h3>${escapeHtml(d.name)}</h3>
+                <code>${escapeHtml(d.slug)}</code>
             </div>`;
         }
         html += `</div></body></html>`;
@@ -299,11 +324,11 @@ router.get('/explore/:slug', ExploreController.show);
 // the source of truth until a separately reconciled product migration exists.
 router.get('/shops', ShopController.index);
 router.get('/shops/:id', ShopController.show);
-router.get('/my-shops', ensureAuthenticated, ShopController.myBookings);
+// Legacy Shop bookings are archived for reconciliation only.  Shop products
+// are contact-first, so no customer or staff route may mutate a booking.
+router.get('/my-shops', ensureAuthenticated, (req, res) => res.redirect('/shops'));
 router.get('/api/shop/slots', ensureAuthenticated, CommerceController.shopOrdersRetired);
-router.post('/api/shop/book', ensureAuthenticated, CommerceController.shopOrdersRetired);
-router.post('/api/shop/cancel', ensureAuthenticated, ShopController.cancel);
-router.post('/api/shop/review', ensureAuthenticated, ShopController.review);
+router.post(['/api/shop/book', '/api/shop/cancel', '/api/shop/review'], ensureAuthenticated, CommerceController.shopOrdersRetired);
 // Products are arranged by direct contact, not an online checkout.  Keep the
 // former endpoints explicit and non-mutating so an old browser tab cannot
 // silently create a new order after this policy change.
@@ -312,6 +337,7 @@ router.post('/api/products/orders/:id/status', ensureAuthenticated, CommerceCont
 router.post('/api/workshop-sessions/bookings', ensureAuthenticated, CommerceController.createWorkshopBooking);
 router.post('/api/workshop-bookings/:id/status', ensureAuthenticated, CommerceController.transitionWorkshopBooking);
 router.get('/workshops', WorkshopController.index);
+router.get('/my-workshops', ensureAuthenticated, WorkshopController.myBookings);
 router.get('/workshops/:id', WorkshopController.show);
 
 // ===== COMMUNITY (Reviews) =====
@@ -361,7 +387,7 @@ router.get('/admin/users', ensureAdmin, AdminController.users);
 router.get('/admin/destinations', ensureAdmin, AdminController.destinations);
 router.get('/admin/settings', ensureAdmin, AdminController.siteSettings);
 router.get('/admin/shops', ensureAdmin, AdminController.workshops);
-router.get('/admin/workshops', ensureAdmin, (req, res) => res.redirect('/admin/shops'));
+router.get('/admin/workshops', ensureAdmin, WorkshopManagementController.index);
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
 router.get('/admin/festival-tickets', ensureAdmin, AdminController.festivalTickets);
@@ -392,22 +418,32 @@ const handleShopProductUpload = (req, res, next) => {
     });
 };
 
-router.post(['/api/admin/create-shop', '/api/admin/create-workshop', '/api/admin/create-shop-product', '/api/manager/create-shop', '/api/manager/create-workshop'], ensureManager, handleShopProductUpload, ManagerController.createWorkshop);
-router.post(['/api/admin/update-shop', '/api/admin/update-workshop', '/api/admin/update-shop-product', '/api/manager/update-shop', '/api/manager/update-workshop'], ensureManager, handleShopProductUpload, ManagerController.updateWorkshop);
-router.post(['/api/admin/delete-shop', '/api/admin/delete-workshop', '/api/admin/delete-shop-product', '/api/manager/delete-shop', '/api/manager/delete-workshop'], ensureManager, ManagerController.deleteWorkshop);
+router.post(['/api/admin/create-shop', '/api/admin/create-shop-product', '/api/manager/create-shop'], ensureManager, handleShopProductUpload, ManagerController.createWorkshop);
+router.post(['/api/admin/update-shop', '/api/admin/update-shop-product', '/api/manager/update-shop'], ensureManager, handleShopProductUpload, ManagerController.updateWorkshop);
+router.post(['/api/admin/delete-shop', '/api/admin/delete-shop-product', '/api/manager/delete-shop'], ensureManager, ManagerController.deleteWorkshop);
+// These legacy names used to write into the Shop catalogue. They cannot map
+// exactly to Workshop sessions after the split, so reject them explicitly
+// rather than silently creating the wrong data type.
+router.post(['/api/admin/create-workshop', '/api/manager/create-workshop', '/api/admin/update-workshop', '/api/manager/update-workshop', '/api/admin/delete-workshop', '/api/manager/delete-workshop'], ensureManager, (req, res) => {
+    return res.status(410).json({ success: false, code: 'WORKSHOP_LEGACY_ENDPOINT_RETIRED', message: 'Workshop đã có màn hình và API quản lý riêng.' });
+});
+router.post('/api/workshop-management/workshops', ensureManager, WorkshopManagementController.createWorkshop);
+router.post('/api/workshop-management/workshops/:id', ensureManager, WorkshopManagementController.updateWorkshop);
+router.post('/api/workshop-management/sessions', ensureManager, WorkshopManagementController.createSession);
+router.post('/api/workshop-management/sessions/:id', ensureManager, WorkshopManagementController.updateSession);
 
 // ===== MANAGER =====
 router.get('/manager', ensureManager, ManagerController.index);
 router.get('/manager/profile', ensureManager, ProfileController.staffProfile);
 router.get('/manager/chat', ensureManager, ManagerController.chat);
 router.get('/manager/destination', ensureManager, ManagerController.destination);
-router.get('/manager/shops', ensureManager, (req, res) => res.redirect('/manager/workshops'));
-router.get('/manager/workshops', ensureManager, ManagerController.workshops);
+router.get('/manager/shops', ensureManager, ManagerController.workshops);
+router.get('/manager/workshops', ensureManager, WorkshopManagementController.index);
 router.post('/manager/update', ensureManager, ManagerController.updateDestination);
 router.get('/api/manager/chat-history', ensureManager, ManagerController.getChatHistory);
 router.post('/api/reply-message', ensureManager, ApiController.replyMessage);
-router.get('/api/manager/shop-bookings', ensureManager, ManagerController.getWorkshopBookings);
-router.post('/api/manager/update-booking-status', ensureManager, ManagerController.updateBookingStatus);
+router.get('/api/manager/shop-bookings', ensureManager, CommerceController.shopOrdersRetired);
+router.post('/api/manager/update-booking-status', ensureManager, CommerceController.shopOrdersRetired);
 
 // ===== AUTH ROUTES =====
 router.get('/auth/login', AuthController.loginPage);
@@ -552,11 +588,6 @@ router.post('/api/admin/create-destination', ensureAdmin, AdminController.create
 router.post('/api/admin/update-destination', ensureAdmin, AdminController.updateDestination);
 router.post('/api/admin/delete-destination', ensureAdmin, AdminController.deleteDestination);
 router.post('/api/admin/toggle-destination', ensureAdmin, AdminController.toggleDestination);
-
-// Admin API - Shop Products
-router.post('/api/admin/create-shop-product', ensureAdmin, AdminController.createWorkshop);
-router.post('/api/admin/update-shop-product', ensureAdmin, AdminController.updateWorkshop);
-router.post('/api/admin/delete-shop-product', ensureAdmin, AdminController.deleteWorkshop);
 
 // Admin API - Reviews
 router.post('/api/admin/delete-review', ensureAdmin, AdminController.deleteReview);

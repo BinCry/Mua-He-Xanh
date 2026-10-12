@@ -202,7 +202,7 @@
                         <%= settings.brand_name || 'BÌNH LỢI' %>
                     </span>
                     <span class="d-block brand-sub-text"
-                        style="font-family: 'Dancing Script', cursive; color: var(--primary-green); font-weight: 700; margin-top: 1px; line-height: 1.25; padding-bottom: 2px;">
+                        style="color: var(--primary-green); font-weight: 700; margin-top: 1px; line-height: 1.25; padding-bottom: 2px;">
                         <%= settings.brand_subtext || 'Chạm sắc bản nguyên' %>
                     </span>
                 </div>
@@ -269,6 +269,7 @@
                     <% } %>
                     <% if (navUser.role === 'user') { %>
                         <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
+                        <li><a class="dropdown-item py-2 rounded-2" href="/my-workshops"><i class="bi bi-calendar2-week me-2 text-muted"></i>Booking Workshop</a></li>
                         <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
                     <% } %>
                     <li><hr class="dropdown-divider my-1"></li>

@@ -7,7 +7,7 @@ Environment: local isolated PostgreSQL 16; no production database writes, produc
 - Journey stop IDOR, copied session UUID access and locked-account restoration are rejected.
 - Login UUID rotation and logout DB revocation are enforced.
 - RBAC uses persisted role/role ID, never an email substring.
-- Product and Workshop are distinct public domains with reservations, idempotency, state machines and a point ledger.
+- Shop is a direct-contact catalogue; Workshop is a distinct session-reservation domain with idempotency, state transitions and a point ledger.
 - Festival tickets are account-owned and capacity-safe; drafts are not public.
 - Chat upload/recall/moderation routes are authenticated; managers are constrained to their assigned destination.
 - Stored review content/comments use escaped or text-node output; unsafe upload MIME is rejected.
@@ -16,6 +16,8 @@ Environment: local isolated PostgreSQL 16; no production database writes, produc
 - Dependency audit is clean after UUID 11.1.1 remediation.
 - Inline script values and chat media are serialized/validated safely; chat text is bounded server-side.
 - Translation is opt-in, cookie domain handling supports localhost/IP hosts, and Bootstrap Icons are served locally rather than from a runtime CDN.
+- Shop/Workshop split now uses an explicit `catalog_kind`; legacy Workshop write aliases return 410 rather than silently creating Shop records. Invalid Workshop status values are rejected.
+- Dynamic check-in, administrator toast, manager booking and Studio slot values use escaped text/attributes rather than inserting untrusted values as markup.
 - Final local evidence: 83/83 unit/regression, 12/12 PostgreSQL integration and 78/78 cross-browser E2E cases pass; Chromium PWA offline/reconnect smoke passes. GitHub Actions run 38130954942 independently passed the CI quality gate on a clean PostgreSQL 16 runner. Operational migration now rejects incompatible legacy schema before recording success.
 
 ## Release decision

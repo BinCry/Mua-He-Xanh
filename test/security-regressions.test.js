@@ -10,12 +10,48 @@ test('public rich descriptions are escaped instead of emitting stored HTML', () 
     }
 });
 
+test('check-in and administrator toasts keep response messages as text, not HTML', () => {
+    const checkin = fs.readFileSync('src/views/checkin/index.ejs', 'utf8');
+    const adminLayout = fs.readFileSync('src/views/layouts/admin.ejs', 'utf8');
+    assert.match(checkin, /function escapeHtml\(value\)/);
+    assert.match(checkin, /var safeMessage = escapeHtml\(msg\)/);
+    assert.match(checkin, /escapeHtml\(destinationName\)/);
+    assert.match(adminLayout, /admin-toast-message/);
+    assert.match(adminLayout, /\.textContent = String\(message == null \? '' : message\)/);
+});
+
 test('review comments are built with DOM text nodes rather than interpolated user content', () => {
     const source = fs.readFileSync('src/views/reviews/index.ejs', 'utf8');
     assert.match(source, /function createCommentNode/);
     assert.match(source, /body\.textContent = comment\.content/);
     assert.match(source, /name\.textContent = comment\.full_name/);
     assert.doesNotMatch(source, /\$\{c\.content\}|\$\{r\.content\}|innerHTML = .*authorName/);
+});
+
+test('manager Shop booking rows use DOM text and event listeners for visitor data', () => {
+    const source = fs.readFileSync('src/views/manager/workshops.ejs', 'utf8');
+    assert.match(source, /tbody\.replaceChildren\(\)/);
+    assert.match(source, /customerName\.textContent = b\.full_name/);
+    assert.match(source, /email\.textContent = b\.email/);
+    assert.match(source, /button\.addEventListener\('click'/);
+    assert.doesNotMatch(source, /tr\.innerHTML = `\s*<td>/);
+});
+
+test('Studio template slot attributes escape stored title and subtitle text', () => {
+    const source = fs.readFileSync('src/views/admin/reviews.ejs', 'utf8');
+    assert.match(source, /function escapeAttribute\(value\)/);
+    assert.match(source, /value="\$\{escapeAttribute\(title\)\}"/);
+    assert.match(source, /value="\$\{escapeAttribute\(subtitle\)\}"/);
+    assert.match(source, /title="\$\{escapeAttribute\(title\)\}/);
+});
+
+test('admin review media never interpolates a stored URL into HTML or an inline handler', () => {
+    const source = fs.readFileSync('src/views/admin/reviews.ejs', 'utf8');
+    assert.match(source, /const safeMediaUrl = \(value, fallback = ''\)/);
+    assert.match(source, /imgWrap\.replaceChildren\(grid\)/);
+    assert.match(source, /frame\.addEventListener\('click'/);
+    assert.doesNotMatch(source, /onclick="window\.open\('\$\{img\}/);
+    assert.doesNotMatch(source, /<img src="\$\{img\}/);
 });
 
 test('database uses TLS for remote databases but permits explicit local audit PostgreSQL', () => {
@@ -106,6 +142,8 @@ test('inline script data and chat media use safe serializers rather than raw use
         assert.doesNotMatch(source, /avatarEl\.innerHTML\s*=/);
         assert.doesNotMatch(source, /headerStatus\.innerHTML\s*=/);
     }
+    const map = fs.readFileSync('src/views/map/index.ejs', 'utf8');
+    assert.match(map, /queryTokens\.every\(token => name\.includes\(token\)\)/);
 });
 
 test('legacy booking awards are not granted on booking creation or cancelled booking', () => {
@@ -140,6 +178,32 @@ test('Workshop has its own public routes and session-reservation service instead
     assert.match(service, /reserved_seats = reserved_seats \+ \$1/);
 });
 
+test('sitemap keeps direct-contact Shop and Workshop catalogue URLs separated', () => {
+    const routes = fs.readFileSync('src/routes/index.js', 'utf8');
+    assert.match(routes, /catalog_kind = 'shop'/);
+    assert.match(routes, /catalog_kind = 'workshop'/);
+    assert.match(routes, /\$\{baseUrl\}\/shops\/\$\{w\.id\}/);
+    assert.match(routes, /\$\{baseUrl\}\/workshops\/\$\{w\.id\}/);
+});
+
+test('diagnostic QR page is unavailable in production and escapes stored destination text', () => {
+    const routes = fs.readFileSync('src/routes/index.js', 'utf8');
+    assert.match(routes, /router\.get\('\/test-qr', \(req, res, next\) =>/);
+    assert.match(routes, /NODE_ENV === 'production'.*status\(404\)\.end\(\)/);
+    assert.match(routes, /const escapeHtml = \(value\)/);
+    assert.match(routes, /\$\{escapeHtml\(d\.name\)\}/);
+    assert.match(routes, /\$\{escapeHtml\(d\.slug\)\}/);
+});
+
+test('legacy Workshop write aliases cannot silently create Shop catalogue entries', () => {
+    const routes = fs.readFileSync('src/routes/index.js', 'utf8');
+    const controller = fs.readFileSync('src/controllers/WorkshopManagementController.js', 'utf8');
+    assert.match(routes, /WORKSHOP_LEGACY_ENDPOINT_RETIRED/);
+    assert.match(routes, /status\(410\)/);
+    assert.match(controller, /function strictBoolean\(value\)/);
+    assert.match(controller, /isActive: strictBoolean\(req\.body\?\.isActive\)/);
+});
+
 test('draft festivals are absent from public listing and unauthenticated festival booking is blocked at routing', () => {
     const model = fs.readFileSync('src/models/Festival.js', 'utf8');
     const routes = fs.readFileSync('src/routes/index.js', 'utf8');
@@ -167,11 +231,20 @@ test('festival ticket operations have protected customer and admin routes with a
 test('Shop remains a direct-contact catalogue and cannot create online product orders', () => {
     const routes = fs.readFileSync('src/routes/index.js', 'utf8');
     const view = fs.readFileSync('src/views/shop/show.ejs', 'utf8');
+    const managerView = fs.readFileSync('src/views/manager/workshops.ejs', 'utf8');
+    const managerController = fs.readFileSync('src/controllers/ManagerController.js', 'utf8');
     assert.match(routes, /router\.get\('\/shops', ShopController\.index\)/);
     assert.match(routes, /router\.get\('\/shops\/:id', ShopController\.show\)/);
     assert.match(routes, /router\.post\('\/api\/products\/orders', ensureAuthenticated, CommerceController\.shopOrdersRetired\)/);
-    assert.match(view, /Liên hệ Zalo/);
-    assert.doesNotMatch(view, /\/api\/products\/orders/);
+    assert.match(routes, /\['\/api\/shop\/book', '\/api\/shop\/cancel', '\/api\/shop\/review'\]/);
+    assert.match(routes, /router\.get\('\/my-shops', ensureAuthenticated, \(req, res\) => res\.redirect\('\/shops'\)\)/);
+    assert.match(view, /LIÊN HỆ ZALO/i);
+    assert.doesNotMatch(view, /\/api\/products\/orders|\/api\/shop\/(?:book|cancel|review)|userBookings/);
+    assert.doesNotMatch(managerView, /onclick="viewBookings|Đăng ký \(<%= ws\.booking_count/);
+    assert.match(managerView, /\/api\/manager\/update-shop/);
+    assert.match(managerView, /\/api\/manager\/delete-shop/);
+    assert.match(managerController, /SHOP_HISTORY_RECONCILIATION_REQUIRED/);
+    assert.match(managerController, /SELECT id FROM workshop_bookings WHERE workshop_id = \$1 LIMIT 1/);
 });
 
 test('the retired Shop-order URL returns staff to Shop management and is absent from navigation', () => {
@@ -203,6 +276,30 @@ test('Shop and Workshop search, manager actions and festival cards retain the ag
     assert.match(tickets, /href="\/festivals" target="_blank"/);
 });
 
+test('all server catalogue searches share tokenized Vietnamese-safe matching', () => {
+    for (const file of [
+        'src/controllers/ShopController.js',
+        'src/controllers/ProductController.js',
+        'src/controllers/WorkshopController.js',
+        'src/controllers/AdminController.js',
+        'src/models/Destination.js'
+    ]) {
+        const source = fs.readFileSync(file, 'utf8');
+        assert.match(source, /buildTokenSearchClause/, file);
+    }
+    for (const file of ['src/views/admin/chat.ejs', 'src/views/manager/chat.ejs']) {
+        const source = fs.readFileSync(file, 'utf8');
+        assert.match(source, /queryTokens\.every\(token => text\.includes\(token\)\)/, file);
+    }
+});
+
+test('manager Shop table preserves category labels instead of wrapping them into a narrow column', () => {
+    const managerShop = fs.readFileSync('src/views/manager/workshops.ejs', 'utf8');
+    assert.match(managerShop, /manager-shop-table/);
+    assert.match(managerShop, /min-width: 920px !important/);
+    assert.match(managerShop, /\.role-badge \{ display: inline-flex; align-items: center; white-space: nowrap;/);
+});
+
 test('admin access and login redirects derive authority from role data, not an email substring', () => {
     const auth = fs.readFileSync('src/middleware/auth.js', 'utf8');
     const controller = fs.readFileSync('src/controllers/AuthController.js', 'utf8');
@@ -232,6 +329,16 @@ test('session UUIDs are bound to the HttpOnly cookie rather than treated as URL 
     assert.doesNotMatch(api, /let currentUuid = req\.cookies\?\.session_uuid \|\| uuid/);
 });
 
+test('database-backed session UUID recovery expires after the browser session lifetime', () => {
+    const auth = fs.readFileSync('src/middleware/auth.js', 'utf8');
+    const server = fs.readFileSync('src/server.js', 'utf8');
+    const api = fs.readFileSync('src/controllers/ApiController.js', 'utf8');
+    assert.match(auth, /AUTH_SESSION_MAX_AGE = "INTERVAL '30 days'"/);
+    assert.match(auth, /created_at >= CURRENT_TIMESTAMP - \$\{AUTH_SESSION_MAX_AGE\}/);
+    assert.match(server, /created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'/);
+    assert.match(api, /created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'/);
+});
+
 test('journey suggestions do not resurrect Sống Chậm or claim route optimization without route computation', () => {
     const journey = fs.readFileSync('src/controllers/JourneyController.js', 'utf8');
     assert.match(journey, /criteria_required/);
@@ -254,8 +361,20 @@ test('brand and administration headings use a locally available Vietnamese-safe 
 test('public typography has a Vietnamese-safe global override and social links retain identifiable colors', () => {
     const publicCss = fs.readFileSync('public/css/style-v5.css', 'utf8');
     const footer = fs.readFileSync('src/views/partials/footer.ejs', 'utf8');
+    const login = fs.readFileSync('src/views/auth/login.ejs', 'utf8');
     assert.match(publicCss, /body :is\(h1, h2, h3/);
+    assert.match(publicCss, /body :is\(h1, h2, h3[^\n]*\)\[class\]/);
     assert.match(publicCss, /font-synthesis:\s*none/);
+    assert.match(publicCss, /font-family: "BinhLoi Script"/);
+    assert.match(publicCss, /dancing-script-vietnamese-700\.ttf/);
+    assert.match(publicCss, /body \.brand-sub-text,/);
+    assert.match(publicCss, /body \.brand-sub-text\[style\]/);
+    assert.match(publicCss, /body \.footer-brand-subtext/);
+    assert.doesNotMatch(footer, /Dancing Script/);
+    assert.doesNotMatch(login, /Dancing Script/);
+    assert.match(login, /brand-sub-text/);
+    assert.match(publicCss, /\.stats-heading\s*\{\s*font-family: var\(--font-display\) !important;/);
+    assert.match(publicCss, /\.stat-number\s*\{\s*font-family: var\(--font-display\) !important;/);
     for (const network of ['facebook', 'instagram', 'tiktok', 'threads']) {
         assert.match(footer, new RegExp(`footer-social-btn--${network}`));
     }

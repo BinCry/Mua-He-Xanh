@@ -1,6 +1,7 @@
 const Destination = require('../models/Destination');
 const UserSession = require('../models/UserSession');
 const cache = require('../core/cache');
+const { normalizeSearchText } = require('../utils/search');
 
 class ExploreController {
     /** List all destinations */
@@ -9,7 +10,8 @@ class ExploreController {
             const page = parseInt(req.query.page) || 1;
             const type = req.query.type || null;
             const season = req.query.season || null;
-            const search = req.query.q || null;
+            const searchQuery = String(req.query.q || '').trim().replace(/\s+/g, ' ').slice(0, 100);
+            const search = normalizeSearchText(searchQuery);
             const cacheKey = `explore:list:${page}:${type || 'all'}:${season || 'all'}:${search || 'none'}`;
             
             let result = cache.get(cacheKey);
@@ -24,7 +26,7 @@ class ExploreController {
                 pagination: result.pagination,
                 currentType: type,
                 currentSeason: season,
-                searchQuery: search
+                searchQuery
             });
         } catch (error) {
             console.error("Explore list error:", error);

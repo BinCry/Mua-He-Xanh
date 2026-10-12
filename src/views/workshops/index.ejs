@@ -3,12 +3,15 @@
     <header class="text-center mb-4 mb-md-5">
       <h1 class="display-6 fw-bold">Workshop theo từng ca</h1>
     </header>
-    <form class="card border-0 shadow-sm rounded-4 p-2 mb-5 workshop-search" action="/workshops" method="get">
+    <form class="card border-0 shadow-sm rounded-4 p-2 mb-4 workshop-search" action="/workshops" method="get" role="search">
       <div class="input-group">
         <input class="form-control border-0 shadow-none" name="q" value="<%= searchQuery %>" maxlength="100" placeholder="Tìm Workshop hoặc địa điểm" aria-label="Tìm Workshop">
         <button class="btn workshop-search-button rounded-pill px-4" type="submit">Tìm kiếm</button>
       </div>
     </form>
+    <% if (searchQuery) { %>
+      <div class="d-flex justify-content-end mb-4"><a class="btn btn-outline-secondary rounded-pill px-4" href="/workshops">Xem tất cả</a></div>
+    <% } %>
     <div class="row g-4">
       <% sessions.forEach(session => { const remaining = Math.max(0, Number(session.capacity) - Number(session.reserved_seats)); %>
       <article class="col-12 col-md-6 col-xl-4">
@@ -30,7 +33,10 @@
       <% }) %>
     </div>
     <% if (!sessions.length) { %>
-      <div class="text-center bg-white rounded-4 p-5 shadow-sm"><h2 class="h5 mb-0">Chưa có ca Workshop phù hợp</h2></div>
+      <div class="text-center bg-white rounded-4 p-5 shadow-sm">
+        <h2 class="h5 mb-2">Chưa có ca Workshop phù hợp</h2>
+        <% if (searchQuery) { %><p class="text-secondary mb-0">Thử đổi từ khóa hoặc xem toàn bộ các ca đang mở.</p><% } %>
+      </div>
     <% } %>
   </div>
 </section>

@@ -3,6 +3,16 @@
    "Tropical Healing" - Nature Green + Golden Accent
    ========================================================================== */
 
+/* Bundled locally: Vietnamese glyphs are identical on every supported
+   device, including the hand-written brand subtitle. */
+@font-face {
+    font-family: "BinhLoi Script";
+    src: url("/fonts/dancing-script-vietnamese-700.ttf") format("truetype");
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+}
+
 :root {
     --navbar-height: 107px;
 
@@ -66,6 +76,7 @@
     --font-display: "Segoe UI", Arial, system-ui, -apple-system, sans-serif;
     --font-body: "Segoe UI", Arial, system-ui, -apple-system, sans-serif;
     --font-accent: "Segoe UI", Arial, system-ui, -apple-system, sans-serif;
+    --font-script: "BinhLoi Script", "Segoe UI", system-ui, sans-serif;
 
     /* Radius */
     --radius-sm: 8px;
@@ -150,9 +161,30 @@ body {
    font with incomplete Vietnamese glyphs.  The selector deliberately wins
    over old component-level Inter/Montserrat/serif declarations, while icon
    glyphs continue to use Bootstrap Icons on their ::before pseudo-element. */
-body :is(h1, h2, h3, h4, h5, h6, p, span, div, a, button, label, input, textarea, select, option, li, td, th, dt, dd, small, strong, em) {
+body :is(h1, h2, h3, h4, h5, h6, p, span, div, a, button, label, input, textarea, select, option, li, td, th, dt, dd, small, strong, em),
+body :is(h1, h2, h3, h4, h5, h6, p, span, div, a, button, label, input, textarea, select, option, li, td, th, dt, dd, small, strong, em)[class],
+body :is(h1, h2, h3, h4, h5, h6, p, span, div, a, button, label, input, textarea, select, option, li, td, th, dt, dd, small, strong, em)[style] {
     font-family: var(--font-body) !important;
     font-synthesis: none;
+}
+
+/* The brand subtitle keeps its handwritten character but uses our bundled
+   Vietnamese font, never an operating-system-specific cursive fallback. */
+/* [class]/[style] variants deliberately outrank the broad typography
+   invariant above, whose attribute selectors would otherwise reset this
+   brand treatment back to the body face. */
+body .brand-sub-text,
+body .brand-sub-text[class],
+body .brand-sub-text[style],
+body .footer-brand-subtext,
+body .footer-brand-subtext[class],
+body .footer-brand-subtext[style] {
+    font-family: var(--font-script) !important;
+    font-style: normal !important;
+    font-weight: 700 !important;
+    font-synthesis: none !important;
+    letter-spacing: 0.01em;
+    line-height: 1.16 !important;
 }
 
 @media (max-width: 1199.98px) {
@@ -1218,7 +1250,7 @@ img {
 }
 
 .stats-heading {
-    font-family: 'Inter', sans-serif !important;
+    font-family: var(--font-display) !important;
     font-weight: 900 !important;
     font-size: clamp(2rem, 5vw, 3.2rem);
     color: #ffffff;
@@ -1249,7 +1281,7 @@ img {
 }
 
 .stat-number {
-    font-family: 'Inter', sans-serif !important;
+    font-family: var(--font-display) !important;
     font-weight: 900 !important;
     font-size: clamp(2rem, 3.8vw, 3.4rem);
     color: #ffffff;
@@ -1263,7 +1295,7 @@ img {
 }
 
 .stat-text {
-    font-family: 'Inter', sans-serif !important;
+    font-family: var(--font-display) !important;
     font-weight: 800 !important;
     font-size: clamp(0.7rem, 1vw, 0.82rem);
     letter-spacing: 1.2px;

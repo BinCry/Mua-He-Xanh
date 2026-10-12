@@ -5,7 +5,9 @@ const users = {
     admin: 'e2e-admin@example.test'
 };
 const password = 'AuditE2E-only-2026';
-const shopItemId = 'e2000000-0000-4000-8000-000000000301';
+// Shop is a direct-contact catalogue backed by products; Workshops have a
+// separate catalogue and session identifier after the commerce split.
+const shopItemId = 'e2000000-0000-4000-8000-000000000201';
 
 test.describe.configure({ mode: 'serial' });
 

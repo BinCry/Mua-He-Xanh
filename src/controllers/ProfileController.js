@@ -2,7 +2,6 @@
  * Profile Controller - Pure PostgreSQL
  */
 const db = require('../core/database');
-const Workshop = require('../models/Workshop');
 const CheckIn = require('../models/CheckIn');
 const UserBadge = require('../models/UserBadge');
 const { v4: uuidv4 } = require('uuid');
@@ -133,7 +132,16 @@ const ProfileController = {
             let badges = [];
             try { badges = await UserBadge.getUserBadges(user.id); } catch(e) {}
             let workshopBookings = [];
-            try { workshopBookings = await Workshop.getBookingsByUser(user.id); } catch(e) {}
+            try {
+                const [rows] = await db.query(`
+                    SELECT b.id, b.status, b.completed_at
+                    FROM workshop_session_bookings b
+                    JOIN workshop_sessions ws ON ws.id = b.session_id
+                    JOIN workshops w ON w.id = ws.workshop_id
+                    WHERE b.user_id = $1 AND w.catalog_kind = 'workshop'
+                    ORDER BY b.created_at DESC`, [user.id]);
+                workshopBookings = rows;
+            } catch (e) {}
 
             // Rewards
             let rewards = [];

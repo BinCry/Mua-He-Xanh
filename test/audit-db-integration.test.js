@@ -18,8 +18,10 @@ if (!canRun) {
     const { CommerceIntegrityService, IdempotencyConflictError } = require('../src/services/CommerceIntegrityService');
     const ProductOrderService = require('../src/services/ProductOrderService');
     const WorkshopBookingService = require('../src/services/WorkshopBookingService');
+    const { WorkshopManagementService } = require('../src/services/WorkshopManagementService');
     const CommerceTransitionService = require('../src/services/CommerceTransitionService');
     const FestivalTicketService = require('../src/services/FestivalTicketService');
+    const Destination = require('../src/models/Destination');
 
     const ownerId = '00000000-0000-4000-8000-000000000001';
     const otherId = '00000000-0000-4000-8000-000000000002';
@@ -108,6 +110,9 @@ if (!canRun) {
                 id VARCHAR(36) PRIMARY KEY, title TEXT NOT NULL, destination_id VARCHAR(36),
                 is_active INT NOT NULL DEFAULT 1
             );
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS catalog_kind TEXT NOT NULL DEFAULT 'shop';
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS description TEXT NOT NULL DEFAULT '';
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
             CREATE TABLE IF NOT EXISTS festivals (
                 id VARCHAR(36) PRIMARY KEY, name TEXT NOT NULL, date DATE, status TEXT DEFAULT 'upcoming',
                 capacity INT, registration_open BOOLEAN NOT NULL DEFAULT TRUE
@@ -192,6 +197,21 @@ if (!canRun) {
 
     test('a locked account cannot authenticate from an otherwise valid session UUID', async () => {
         const req = { originalUrl: '/api/private', cookies: { session_uuid: 'blocked-session' }, session: {} };
+        const res = response();
+        let called = false;
+        await ensureAuthenticated(req, res, () => { called = true; });
+        assert.equal(called, false);
+        assert.equal(res.statusCode, 401);
+    });
+
+    test('an expired UUID cannot recover an otherwise active account', async () => {
+        const expiredUuid = 'expired-owner-session';
+        await db.query(
+            `INSERT INTO user_sessions (id, uuid, user_id, created_at)
+             VALUES ($1, $2, $3, NOW() - INTERVAL '31 days')`,
+            ['00000000-0000-4000-8000-000000000104', expiredUuid, ownerId]
+        );
+        const req = { originalUrl: '/api/private', cookies: { session_uuid: expiredUuid }, session: {} };
         const res = response();
         let called = false;
         await ensureAuthenticated(req, res, () => { called = true; });
@@ -300,7 +320,7 @@ if (!canRun) {
         const startsAt = new Date(Date.now() + 24 * 60 * 60 * 1000);
         const endsAt = new Date(Date.now() + 26 * 60 * 60 * 1000);
         await db.query(
-            'INSERT INTO workshops (id, title, destination_id, is_active) VALUES ($1, $2, $3, 1)',
+            "INSERT INTO workshops (id, title, destination_id, is_active, catalog_kind) VALUES ($1, $2, $3, 1, 'workshop')",
             [workshopId, 'Workshop one', destinationId]
         );
         await db.query(
@@ -320,6 +340,87 @@ if (!canRun) {
         );
         const [bookings] = await db.query('SELECT id FROM workshop_session_bookings WHERE session_id = $1', [sessionId]);
         assert.equal(bookings.length, 1);
+    });
+
+    test('Workshop management keeps managers in scope and locks schedules after booking', async () => {
+        const manager = { id: 'manager-workshop-owner', role: 'manager', role_id: 2, managed_destination_id: destinationId };
+        const otherManager = { id: 'manager-workshop-other', role: 'manager', role_id: 2, managed_destination_id: inactiveDestinationId };
+        const createdWorkshop = await WorkshopManagementService.createWorkshop({
+            actor: manager, destinationId: inactiveDestinationId, title: 'Managed workshop', description: 'Scoped',
+            idempotencyKey: 'manager-create-workshop-1'
+        });
+        assert.equal(createdWorkshop.workshop.destinationId, destinationId);
+        const startsAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+        const endsAt = new Date(Date.now() + 50 * 60 * 60 * 1000);
+        const createdSession = await WorkshopManagementService.createSession({
+            actor: manager, workshopId: createdWorkshop.workshop.id, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString(),
+            priceVnd: 120000, capacity: 2, idempotencyKey: 'manager-create-session-1'
+        });
+        await assert.rejects(
+            WorkshopManagementService.createSession({
+                actor: otherManager, workshopId: createdWorkshop.workshop.id, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString(),
+                priceVnd: 120000, capacity: 2, idempotencyKey: 'other-manager-create-session-1'
+            }),
+            error => error.code === 'WORKSHOP_MANAGEMENT_FORBIDDEN'
+        );
+        const admin = { id: 'admin-workshop', role: 'admin', role_id: 1 };
+        const adminEdit = await WorkshopManagementService.updateWorkshop({
+            actor: admin, workshopId: createdWorkshop.workshop.id, title: 'Admin revised workshop', description: 'All locations', isActive: true
+        });
+        assert.equal(adminEdit.workshop.title, 'Admin revised workshop');
+        await assert.rejects(
+            WorkshopManagementService.updateWorkshop({
+                actor: otherManager, workshopId: createdWorkshop.workshop.id, title: 'Forbidden edit', description: '', isActive: true
+            }),
+            error => error.code === 'WORKSHOP_MANAGEMENT_FORBIDDEN'
+        );
+        await WorkshopBookingService.create({
+            userId: ownerId, sessionId: createdSession.session.id, seats: 1, idempotencyKey: 'managed-session-booking-1'
+        });
+        await assert.rejects(
+            WorkshopManagementService.updateWorkshop({
+                actor: manager, workshopId: createdWorkshop.workshop.id, title: 'Cannot close booked workshop', description: '', isActive: false
+            }),
+            error => error.code === 'WORKSHOP_HAS_OPEN_BOOKINGS'
+        );
+        await assert.rejects(
+            CommerceTransitionService.transitionWorkshop({
+                actor: { id: ownerId, role: 'user', role_id: 3 }, bookingId: (await db.query('SELECT id FROM workshop_session_bookings WHERE session_id = $1', [createdSession.session.id]))[0][0].id,
+                targetStatus: 'confirmed', idempotencyKey: 'tourist-cannot-confirm-workshop'
+            }),
+            error => error.code === 'COMMERCE_RECORD_FORBIDDEN'
+        );
+        const [managedBookings] = await db.query('SELECT id FROM workshop_session_bookings WHERE session_id = $1', [createdSession.session.id]);
+        const confirmedBooking = await CommerceTransitionService.transitionWorkshop({
+            actor: manager, bookingId: managedBookings[0].id, targetStatus: 'confirmed', idempotencyKey: 'manager-confirms-workshop'
+        });
+        assert.equal(confirmedBooking.status, 'confirmed');
+        await assert.rejects(
+            CommerceTransitionService.transitionWorkshop({
+                actor: manager, bookingId: managedBookings[0].id, targetStatus: 'completed', idempotencyKey: 'cannot-complete-before-session-ends'
+            }),
+            error => error.code === 'WORKSHOP_SESSION_NOT_FINISHED'
+        );
+        const cancelledByTourist = await CommerceTransitionService.transitionWorkshop({
+            actor: { id: ownerId, role: 'user', role_id: 3 }, bookingId: managedBookings[0].id,
+            targetStatus: 'cancelled', idempotencyKey: 'tourist-cancels-own-workshop'
+        });
+        assert.equal(cancelledByTourist.status, 'cancelled');
+        await assert.rejects(
+            WorkshopManagementService.updateSession({
+                actor: manager, sessionId: createdSession.session.id,
+                startsAt: new Date(startsAt.getTime() + 60 * 60 * 1000).toISOString(), endsAt: endsAt.toISOString(),
+                priceVnd: 120000, capacity: 2, isActive: true
+            }),
+            error => error.code === 'WORKSHOP_SCHEDULE_LOCKED'
+        );
+        await assert.rejects(
+            WorkshopManagementService.updateSession({
+                actor: manager, sessionId: createdSession.session.id, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString(),
+                priceVnd: 120000, capacity: 0, isActive: true
+            }),
+            error => error.code === 'INVALID_WORKSHOP_CAPACITY'
+        );
     });
 
     test('completion and cancellation race leaves one committed product state and an exact point ledger', async () => {
@@ -440,5 +541,17 @@ if (!canRun) {
         assert.equal(outcomes.filter(item => item.status === 'rejected' && item.reason.code === 'FESTIVAL_CAPACITY_FULL').length, 1);
         const [tickets] = await db.query('SELECT id FROM festival_tickets WHERE festival_id = $1 AND status = $2', [festivalId, 'active']);
         assert.equal(tickets.length, 1);
+    });
+
+    test('typed destination search matches Vietnamese text without diacritics or case sensitivity', async () => {
+        const searchableDestinationId = '00000000-0000-4000-8000-000000000b01';
+        await db.query('DELETE FROM destinations WHERE id = $1', [searchableDestinationId]);
+        await db.query(
+            'INSERT INTO destinations (id, name, short_desc, story, type, is_active, sort_order) VALUES ($1, $2, $3, $4, $5, 1, 999)',
+            [searchableDestinationId, 'Làng Mai Vàng', 'Không gian mùa xuân', 'Mai vàng Bình Lợi', 'craft']
+        );
+
+        const result = await Destination.paginateActive(1, 50, null, null, 'LANG mai vang');
+        assert.ok(result.data.some(row => row.id === searchableDestinationId));
     });
 }

@@ -429,11 +429,10 @@ class ManagerController {
             if (!dest) return res.status(404).send("Địa điểm không tồn tại");
 
             const [workshops] = await UserSession.db.query(`
-                SELECT w.*, d.name as destination_name,
-                       (SELECT COUNT(*) FROM workshop_bookings wb WHERE wb.workshop_id = w.id AND wb.status != 'cancelled') as booking_count
+                SELECT w.*, d.name as destination_name
                 FROM workshops w 
                 LEFT JOIN destinations d ON w.destination_id = d.id
-                WHERE w.destination_id = $1
+                WHERE w.destination_id = $1 AND w.catalog_kind = 'shop'
                 ORDER BY w.created_at DESC
             `, [dest.id]);
 
@@ -442,7 +441,7 @@ class ManagerController {
                 dest,
                 workshops,
                 layout: 'layouts/admin',
-                managerPage: 'workshops',
+                managerPage: 'shops',
                 adminPage: 'manager'
             });
         } catch (error) {
@@ -490,8 +489,8 @@ class ManagerController {
             const maxParticipantsInt = parseInt(max_participants, 10) || 20;
 
             await UserSession.db.query(
-                `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, created_at) 
-                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, NOW())`,
+                `INSERT INTO workshops (id, destination_id, title, description, type, price, max_participants, duration, image, start_date, end_date, is_active, catalog_kind, created_at)
+                 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, 1, 'shop', NOW())`,
                 [uuidv4(), destId, title, description || '', type || 'other', priceInt, maxParticipantsInt, duration || '2 giờ', image || '/uploads/posters/poster-1.webp', start_date || null, end_date || null]
             );
 
@@ -514,7 +513,7 @@ class ManagerController {
             }
 
             const [check] = await UserSession.db.query(
-                "SELECT destination_id, image FROM workshops WHERE id = $1",
+                "SELECT destination_id, image FROM workshops WHERE id = $1 AND catalog_kind = 'shop'",
                 [id]
             );
 
@@ -547,7 +546,7 @@ class ManagerController {
             await UserSession.db.query(
                 `UPDATE workshops 
                  SET title = $1, description = $2, type = $3, price = $4, duration = $5, max_participants = $6, image = $7, start_date = $8, end_date = $9, is_active = $10 
-                 WHERE id = $11`,
+                 WHERE id = $11 AND catalog_kind = 'shop'`,
                 [title, description || '', type || 'other', priceInt, duration || 'Hộp / Chiếc', maxParticipantsInt, image, start_date || null, end_date || null, isActiveInt, id]
             );
 
@@ -570,7 +569,7 @@ class ManagerController {
             }
 
             const [check] = await UserSession.db.query(
-                "SELECT destination_id FROM workshops WHERE id = $1",
+                "SELECT destination_id FROM workshops WHERE id = $1 AND catalog_kind = 'shop'",
                 [id]
             );
 
@@ -582,7 +581,25 @@ class ManagerController {
                 return res.status(403).json({ success: false, message: 'Bạn không có quyền xóa sản phẩm này.' });
             }
 
-            await UserSession.db.query("DELETE FROM workshops WHERE id = $1", [id]);
+            // Legacy contact records are deliberately retained until the
+            // reconciliation process has verified their mapping.  Deleting
+            // their catalogue item would orphan history and make a later
+            // audit impossible, so staff must deactivate it instead.
+            const [legacyBookings] = await UserSession.db.query(
+                'SELECT id FROM workshop_bookings WHERE workshop_id = $1 LIMIT 1', [id]
+            ).catch(error => {
+                if (error?.code === '42P01') return [[]];
+                throw error;
+            });
+            if (legacyBookings.length) {
+                return res.status(409).json({
+                    success: false,
+                    code: 'SHOP_HISTORY_RECONCILIATION_REQUIRED',
+                    message: 'Sản phẩm có lịch sử cần đối soát. Hãy chuyển sang trạng thái ẩn thay vì xóa.'
+                });
+            }
+
+            await UserSession.db.query("DELETE FROM workshops WHERE id = $1 AND catalog_kind = 'shop'", [id]);
             invalidateShopCache();
             res.json({ success: true, message: 'Đã xóa sản phẩm.' });
         } catch (error) {

@@ -90,7 +90,10 @@ class ApiController {
         }
         
         const [sessions] = await db.query(
-            'SELECT * FROM user_sessions WHERE uuid = $1 AND user_id = $2 LIMIT 1',
+            `SELECT * FROM user_sessions
+             WHERE uuid = $1 AND user_id = $2
+               AND created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+             LIMIT 1`,
             [sessionUuid, user.id]
         );
         const session = sessions[0];
