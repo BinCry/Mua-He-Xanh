@@ -61,6 +61,8 @@ test('Workshop management UI scopes a manager to the assigned destination and le
     await expect(page.getByText('Dia diem E2E 2', { exact: true })).toHaveCount(0);
     await expect(page.locator('select#destination')).toHaveCount(0);
 
+    // A new actor must not inherit the manager's server-side session.
+    await page.context().clearCookies();
     await login(page, users.admin, true);
     await page.goto('/admin/workshops', { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Workshop E2E', exact: true })).toBeVisible();
