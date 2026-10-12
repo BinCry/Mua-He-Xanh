@@ -1,4 +1,5 @@
 const Model = require('../core/Model');
+const { searchTokens, buildTokenSearchClause } = require('../utils/search');
 
 class Destination extends Model {
     constructor() {
@@ -129,30 +130,33 @@ class Destination extends Model {
             params.push(`%${season}%`);
         }
         if (search) {
-            const searchLower = search.toLowerCase().trim();
+            const tokens = searchTokens(search);
+            const searchClause = buildTokenSearchClause(['name', 'short_desc', 'story'], search, index);
+            if (!searchClause.clause) return this.paginate(page, limit, where, params, 'sort_order ASC');
             let typeMatch = null;
-            if (searchLower.includes('tâm linh') || searchLower.includes('tam linh') || searchLower.includes('chữa lành') || searchLower.includes('chua lanh')) {
+            const isOnly = (...words) => tokens.length === words.length && words.every(word => tokens.includes(word));
+            if (isOnly('tam', 'linh') || isOnly('chua', 'lanh')) {
                 typeMatch = 'temple';
-            } else if (searchLower.includes('sinh thái') || searchLower.includes('sinh thai') || searchLower.includes('sông nước') || searchLower.includes('song nuoc')) {
+            } else if (isOnly('sinh', 'thai') || isOnly('song', 'nuoc')) {
                 typeMatch = 'park_or_nature';
-            } else if (searchLower.includes('làng nghề') || searchLower.includes('lang nghe') || searchLower.includes('bản sắc') || searchLower.includes('ban sac')) {
+            } else if (isOnly('lang', 'nghe') || isOnly('ban', 'sac')) {
                 typeMatch = 'craft';
             }
 
             if (typeMatch) {
                 if (typeMatch === 'park_or_nature') {
-                    const p1 = index++, p2 = index++, p3 = index++;
-                    where += ` AND (name LIKE $${p1} OR short_desc LIKE $${p2} OR story LIKE $${p3} OR type = 'park' OR type = 'nature')`;
-                    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+                    where += ` AND ((${searchClause.clause}) OR type = 'park' OR type = 'nature')`;
+                    params.push(...searchClause.params);
+                    index = searchClause.nextIndex;
                 } else {
-                    const p1 = index++, p2 = index++, p3 = index++, p4 = index++;
-                    where += ` AND (name LIKE $${p1} OR short_desc LIKE $${p2} OR story LIKE $${p3} OR type = $${p4})`;
-                    params.push(`%${search}%`, `%${search}%`, `%${search}%`, typeMatch);
+                    where += ` AND ((${searchClause.clause}) OR type = $${searchClause.nextIndex})`;
+                    params.push(...searchClause.params, typeMatch);
+                    index = searchClause.nextIndex + 1;
                 }
             } else {
-                const p1 = index++, p2 = index++, p3 = index++;
-                where += ` AND (name LIKE $${p1} OR short_desc LIKE $${p2} OR story LIKE $${p3})`;
-                params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+                where += ` AND (${searchClause.clause})`;
+                params.push(...searchClause.params);
+                index = searchClause.nextIndex;
             }
         }
 

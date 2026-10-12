@@ -243,6 +243,9 @@
                     <a href="/admin/shops" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'shops' ? 'active' : '' %>">
                         <i class="bi bi-shop"></i> Shop
                     </a>
+                    <a href="/admin/workshops" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'workshops' ? 'active' : '' %>">
+                        <i class="bi bi-calendar2-week"></i> Workshop
+                    </a>
                     <a href="/admin/reviews" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'reviews' ? 'active' : '' %>">
                         <i class="bi bi-chat-heart-fill"></i> Cộng đồng
                     </a>
@@ -280,8 +283,11 @@
                     <a href="/manager/destination" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'destination' ? 'active' : '' %>">
                         <i class="bi bi-geo-alt-fill"></i> Quản lý Địa điểm
                     </a>
-                    <a href="/manager/workshops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'workshops' ? 'active' : '' %>">
+                    <a href="/manager/shops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'shops' ? 'active' : '' %>">
                         <i class="bi bi-shop"></i> Quản lý Shop
+                    </a>
+                    <a href="/manager/workshops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'workshops' ? 'active' : '' %>">
+                        <i class="bi bi-calendar2-week"></i> Workshop
                     </a>
                 <% } %>
             </nav>
@@ -386,6 +392,9 @@
                     <a href="/admin/shops" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'shops' ? 'active' : '' %>">
                         <i class="bi bi-shop"></i> Shop
                     </a>
+                    <a href="/admin/workshops" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'workshops' ? 'active' : '' %>">
+                        <i class="bi bi-calendar2-week"></i> Workshop
+                    </a>
                     <a href="/admin/reviews" class="sb-link <%= typeof adminPage !== 'undefined' && adminPage === 'reviews' ? 'active' : '' %>">
                         <i class="bi bi-chat-heart-fill"></i> Cộng đồng
                     </a>
@@ -423,8 +432,11 @@
                     <a href="/manager/destination" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'destination' ? 'active' : '' %>">
                         <i class="bi bi-geo-alt-fill"></i> Quản lý Địa điểm
                     </a>
-                    <a href="/manager/workshops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'workshops' ? 'active' : '' %>">
+                    <a href="/manager/shops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'shops' ? 'active' : '' %>">
                         <i class="bi bi-shop"></i> Quản lý Shop
+                    </a>
+                    <a href="/manager/workshops" class="sb-link <%= typeof managerPage !== 'undefined' && managerPage === 'workshops' ? 'active' : '' %>">
+                        <i class="bi bi-calendar2-week"></i> Workshop
                     </a>
                 <% } %>
             </nav>
@@ -480,7 +492,8 @@
         `;
         
         const icon = isErr ? '<i class="bi bi-exclamation-triangle-fill fs-5"></i>' : '<i class="bi bi-check-circle-fill fs-5"></i>';
-        toast.innerHTML = `<div class="d-flex align-items-center">${icon}</div><div class="flex-grow-1">${message}</div><button type="button" class="btn-close btn-close-white ms-auto" style="font-size: 0.75rem; cursor: pointer;"></button>`;
+        toast.innerHTML = `<div class="d-flex align-items-center">${icon}</div><div class="flex-grow-1 admin-toast-message"></div><button type="button" class="btn-close btn-close-white ms-auto" style="font-size: 0.75rem; cursor: pointer;"></button>`;
+        toast.querySelector('.admin-toast-message').textContent = String(message == null ? '' : message);
         
         const closeBtn = toast.querySelector('.btn-close');
         closeBtn.onclick = () => {

@@ -60,6 +60,7 @@ async function main() {
             ALTER TABLE workshops ADD COLUMN IF NOT EXISTS end_date TIMESTAMPTZ;
             ALTER TABLE workshops ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
             ALTER TABLE workshops ADD COLUMN IF NOT EXISTS updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW();
+            ALTER TABLE workshops ADD COLUMN IF NOT EXISTS catalog_kind TEXT NOT NULL DEFAULT 'shop';
             ALTER TABLE events ADD COLUMN IF NOT EXISTS event_date TIMESTAMPTZ;
             -- This is a baseline column used by every public destination
             -- query.  It belongs in the production bootstrap schema as well;
@@ -165,11 +166,23 @@ async function main() {
                 reserved_stock = 0, is_active = TRUE, updated_at = NOW()`,
             [ids.product, ids.destinationOne]
         );
+        // The public Shop remains a direct-contact catalogue stored in the
+        // established manager-owned catalogue.  Seed it separately from the
+        // product inventory table so browser tests prove the live Shop route
+        // and do not accidentally exercise Workshop data after the split.
         await pool.query(
-            `INSERT INTO workshops (id, title, destination_id, is_active, description, image)
-             VALUES ($1, 'Workshop E2E', $2, 1, 'Du lieu kiem thu co lap.', NULL)
+            `INSERT INTO workshops (id, title, destination_id, is_active, description, image, type, price, max_participants, catalog_kind)
+             VALUES ($1, 'Sản phẩm Shop E2E', $2, 1, 'Liên hệ trực tiếp để đặt sản phẩm kiểm thử.', NULL, 'other', 50000, 20, 'shop')
              ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, destination_id = EXCLUDED.destination_id,
-                is_active = 1, description = EXCLUDED.description`,
+                is_active = 1, description = EXCLUDED.description, type = EXCLUDED.type,
+                price = EXCLUDED.price, max_participants = EXCLUDED.max_participants, catalog_kind = 'shop'`,
+            [ids.product, ids.destinationOne]
+        );
+        await pool.query(
+            `INSERT INTO workshops (id, title, destination_id, is_active, description, image, catalog_kind)
+             VALUES ($1, 'Workshop E2E', $2, 1, 'Du lieu kiem thu co lap.', NULL, 'workshop')
+             ON CONFLICT (id) DO UPDATE SET title = EXCLUDED.title, destination_id = EXCLUDED.destination_id,
+                is_active = 1, description = EXCLUDED.description, catalog_kind = 'workshop'`,
             [ids.workshop, ids.destinationOne]
         );
         await pool.query(

@@ -270,7 +270,12 @@ document.getElementById('editProfileForm').addEventListener('submit', async (e) 
 
         const resultEl = document.getElementById('saveResult');
         resultEl.classList.remove('d-none');
-        resultEl.innerHTML = `<div class="alert alert-success rounded-4 border-0 shadow-sm"><i class="bi bi-check-circle-fill me-2 text-success"></i>${res.data.message}</div>`;
+        const alertEl = document.createElement('div');
+        alertEl.className = 'alert alert-success rounded-4 border-0 shadow-sm';
+        const icon = document.createElement('i');
+        icon.className = 'bi bi-check-circle-fill me-2 text-success';
+        alertEl.append(icon, document.createTextNode(res.data.message || 'Đã lưu thay đổi hồ sơ.'));
+        resultEl.replaceChildren(alertEl);
         btn.innerHTML = '<i class="bi bi-check-circle me-2"></i>Đã lưu thành công!';
 
         setTimeout(() => {

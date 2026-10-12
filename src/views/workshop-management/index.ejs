@@ -1,0 +1,143 @@
+<section class="workshop-management-page">
+  <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-start gap-3 mb-4">
+    <div>
+      <p class="text-uppercase small fw-bold mb-1 workshop-eyebrow">Vận hành trải nghiệm</p>
+      <h1 class="h3 fw-bold mb-1">Quản lý Workshop và ca trải nghiệm</h1>
+      <p class="mb-0 text-secondary">Tạo Workshop, mở ca theo thời gian thực và xử lý booking theo đúng trạng thái.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+      <button class="btn btn-outline-primary rounded-pill" type="button" data-bs-toggle="modal" data-bs-target="#workshopModal">Thêm Workshop</button>
+      <button class="btn btn-primary rounded-pill" type="button" data-bs-toggle="modal" data-bs-target="#sessionModal" <%= workshops.length ? '' : 'disabled' %>>Thêm ca Workshop</button>
+    </div>
+  </div>
+
+  <% if (canChooseDestination) { %>
+    <form method="get" class="card border-0 shadow-sm rounded-4 p-3 mb-4 workshop-filter">
+      <label class="form-label fw-semibold" for="destination">Địa điểm</label>
+      <div class="d-flex flex-column flex-sm-row gap-2">
+        <select class="form-select" id="destination" name="destination" onchange="this.form.submit()">
+          <% destinations.forEach(destination => { %>
+            <option value="<%= destination.id %>" <%= String(destination.id) === String(selectedDestinationId) ? 'selected' : '' %>><%= destination.name %></option>
+          <% }) %>
+        </select>
+        <button class="btn btn-outline-secondary rounded-pill px-4" type="submit">Lọc</button>
+      </div>
+    </form>
+  <% } %>
+
+  <div id="workshopFeedback" class="visually-hidden" role="status" aria-live="polite"></div>
+
+  <div class="row g-3 mb-4">
+    <% workshops.forEach(workshop => { %>
+      <article class="col-12 col-md-6 col-xxl-4">
+        <div class="card h-100 border-0 shadow-sm rounded-4 workshop-card">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between gap-3 mb-3">
+              <div>
+                <p class="small text-secondary mb-1"><%= workshop.destination_name %></p>
+                <h2 class="h5 fw-bold mb-1"><%= workshop.title %></h2>
+              </div>
+              <span class="badge rounded-pill align-self-start <%= workshop.is_active ? 'text-bg-success' : 'text-bg-secondary' %>"><%= workshop.is_active ? 'Đang mở' : 'Đã tắt' %></span>
+            </div>
+            <% if (workshop.description) { %><p class="small text-secondary mb-3"><%= workshop.description %></p><% } %>
+            <div class="d-flex gap-3 small text-secondary"><span><strong class="text-dark"><%= workshop.upcoming_session_count %></strong> ca sắp tới</span><span><strong class="text-dark"><%= workshop.session_count %></strong> tổng ca</span></div>
+            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill mt-3 edit-workshop" data-workshop="<%= encodeURIComponent(JSON.stringify({ id: workshop.id, title: workshop.title, description: workshop.description || '', isActive: workshop.is_active })) %>">Sửa Workshop</button>
+          </div>
+        </div>
+      </article>
+    <% }) %>
+    <% if (!workshops.length) { %>
+      <div class="col-12"><div class="card border-0 shadow-sm rounded-4 p-5 text-center"><h2 class="h5">Chưa có Workshop tại địa điểm này</h2><p class="text-secondary mb-0">Tạo Workshop trước, sau đó mới mở các ca trải nghiệm.</p></div></div>
+    <% } %>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+    <div class="card-body p-4 border-bottom"><h2 class="h5 fw-bold mb-1">Ca Workshop</h2><p class="small text-secondary mb-0">Không thể đổi lịch khi đã có booking; không thể giảm sức chứa thấp hơn số chỗ đang giữ.</p></div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0 workshop-table">
+        <thead><tr><th>Workshop</th><th>Thời gian</th><th>Giá</th><th>Chỗ</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+        <tbody>
+        <% sessions.forEach(session => { %>
+          <tr>
+            <td><strong><%= session.workshop_title %></strong><small class="d-block text-secondary"><%= session.destination_name %></small></td>
+            <td><%= new Date(session.starts_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %><small class="d-block text-secondary">đến <%= new Date(session.ends_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %></small></td>
+            <td><%= new Intl.NumberFormat('vi-VN').format(session.price_vnd) %>đ</td>
+            <td><strong><%= session.reserved_seats %>/<%= session.capacity %></strong><small class="d-block text-secondary"><%= session.open_booking_count %> booking mở</small></td>
+            <td><span class="badge rounded-pill <%= session.is_active ? 'text-bg-success' : 'text-bg-secondary' %>"><%= session.is_active ? 'Đang mở' : 'Đã tắt' %></span></td>
+            <td class="text-end"><button type="button" class="btn btn-sm btn-outline-primary rounded-pill edit-session" data-session="<%= encodeURIComponent(JSON.stringify({ id: session.id, workshopId: session.workshop_id, startsAt: new Date(session.starts_at).toISOString(), endsAt: new Date(session.ends_at).toISOString(), priceVnd: session.price_vnd, capacity: session.capacity, isActive: session.is_active })) %>">Sửa ca</button></td>
+          </tr>
+        <% }) %>
+        <% if (!sessions.length) { %><tr><td colspan="6" class="text-center text-secondary py-5">Chưa có ca Workshop nào.</td></tr><% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
+    <div class="card-body p-4 border-bottom"><h2 class="h5 fw-bold mb-1">Booking Workshop</h2><p class="small text-secondary mb-0">Manager chỉ thấy booking của địa điểm mình quản lý; hoàn thành chỉ được thực hiện sau khi ca kết thúc.</p></div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0 workshop-table">
+        <thead><tr><th>Khách</th><th>Workshop / ca</th><th>Số chỗ</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+        <tbody>
+        <% bookings.forEach(booking => { %>
+          <tr>
+            <td><strong><%= booking.full_name || 'Khách' %></strong><small class="d-block text-secondary"><%= booking.email || '' %></small></td>
+            <td><strong><%= booking.workshop_title %></strong><small class="d-block text-secondary"><%= new Date(booking.starts_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %></small></td>
+            <td><%= booking.seats %></td>
+            <td><span class="badge rounded-pill text-bg-<%= booking.status === 'completed' ? 'success' : booking.status === 'cancelled' ? 'secondary' : booking.status === 'confirmed' ? 'primary' : 'warning' %>"><%= booking.status %></span></td>
+            <td class="text-end"><div class="d-inline-flex gap-1 flex-wrap justify-content-end">
+              <% if (booking.status === 'pending') { %><button type="button" class="btn btn-sm btn-outline-primary rounded-pill booking-action" data-id="<%= booking.id %>" data-status="confirmed">Xác nhận</button><% } %>
+              <% if (booking.status === 'confirmed') { %><button type="button" class="btn btn-sm btn-outline-success rounded-pill booking-action" data-id="<%= booking.id %>" data-status="completed">Hoàn thành</button><% } %>
+              <% if (booking.status === 'pending' || booking.status === 'confirmed') { %><button type="button" class="btn btn-sm btn-outline-danger rounded-pill booking-action" data-id="<%= booking.id %>" data-status="cancelled">Hủy</button><% } %>
+            </div></td>
+          </tr>
+        <% }) %>
+        <% if (!bookings.length) { %><tr><td colspan="5" class="text-center text-secondary py-5">Chưa có booking Workshop.</td></tr><% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<div class="modal fade" id="workshopModal" tabindex="-1" aria-labelledby="workshopModalLabel" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 rounded-4"><form id="workshopForm"><div class="modal-header border-0"><h2 class="modal-title h5" id="workshopModalLabel">Thêm Workshop</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="workshopId"><% if (canChooseDestination) { %><div id="workshopDestinationField"><label class="form-label" for="workshopDestination">Địa điểm</label><select class="form-select mb-3" id="workshopDestination" required><% destinations.forEach(destination => { %><option value="<%= destination.id %>" <%= String(destination.id) === String(selectedDestinationId) ? 'selected' : '' %>><%= destination.name %></option><% }) %></select></div><% } %><label class="form-label" for="workshopTitle">Tên Workshop</label><input class="form-control mb-3" id="workshopTitle" maxlength="200" required><label class="form-label" for="workshopDescription">Mô tả</label><textarea class="form-control" id="workshopDescription" maxlength="10000" rows="4"></textarea><div class="form-check form-switch mt-3 d-none" id="workshopActiveField"><input class="form-check-input" type="checkbox" id="workshopActive" checked><label class="form-check-label" for="workshopActive">Công khai Workshop</label></div></div><div class="modal-footer border-0"><button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button><button type="submit" class="btn btn-primary rounded-pill" id="workshopSubmit">Tạo Workshop</button></div></form></div></div></div>
+
+<div class="modal fade" id="sessionModal" tabindex="-1" aria-labelledby="sessionModalLabel" aria-hidden="true"><div class="modal-dialog modal-dialog-centered"><div class="modal-content border-0 rounded-4"><form id="sessionForm"><div class="modal-header border-0"><h2 class="modal-title h5" id="sessionModalLabel">Thêm ca Workshop</h2><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><input type="hidden" id="sessionId"><label class="form-label" for="sessionWorkshop">Workshop</label><select class="form-select mb-3" id="sessionWorkshop" required><% workshops.filter(workshop => workshop.is_active).forEach(workshop => { %><option value="<%= workshop.id %>"><%= workshop.title %></option><% }) %></select><div class="row g-3"><div class="col-12"><label class="form-label" for="sessionStart">Bắt đầu</label><input type="datetime-local" class="form-control" id="sessionStart" required></div><div class="col-12"><label class="form-label" for="sessionEnd">Kết thúc</label><input type="datetime-local" class="form-control" id="sessionEnd" required></div><div class="col-sm-6"><label class="form-label" for="sessionPrice">Giá (VNĐ)</label><input type="number" min="0" step="1000" class="form-control" id="sessionPrice" required></div><div class="col-sm-6"><label class="form-label" for="sessionCapacity">Sức chứa</label><input type="number" min="1" max="10000" class="form-control" id="sessionCapacity" required></div></div><div class="form-check form-switch mt-3"><input class="form-check-input" type="checkbox" id="sessionActive" checked><label class="form-check-label" for="sessionActive">Mở đăng ký</label></div></div><div class="modal-footer border-0"><button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Hủy</button><button type="submit" class="btn btn-primary rounded-pill" id="sessionSubmit">Lưu ca</button></div></form></div></div></div>
+
+<style>
+  .workshop-management-page{max-width:1440px;margin:auto}.workshop-eyebrow{color:var(--admin-primary);letter-spacing:.08em}.workshop-card{border:1px solid var(--admin-border)!important}.workshop-table th{font-size:.73rem;text-transform:uppercase;letter-spacing:.05em;color:var(--admin-muted);white-space:nowrap}.workshop-table td,.workshop-table th{padding:1rem}.workshop-filter{max-width:620px}@media(max-width:767.98px){.workshop-management-page .btn{min-height:42px}.workshop-table td,.workshop-table th{padding:.8rem}.workshop-table{min-width:760px}}
+</style>
+<script>
+(() => {
+  const feedback = document.getElementById('workshopFeedback');
+  const showFeedback = (message, success) => { feedback.className = `alert alert-${success ? 'success' : 'danger'} mt-3`; feedback.textContent = message; };
+  const localValue = iso => new Date(iso).toLocaleString('sv-SE', { timeZone: 'Asia/Ho_Chi_Minh', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }).replace(' ', 'T');
+  const request = async (url, options) => { const response = await fetch(url, options); const payload = await response.json().catch(() => ({})); if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể hoàn tất thao tác.'); return payload; };
+  const newKey = () => crypto.randomUUID();
+  const workshopModal = document.getElementById('workshopModal');
+  document.querySelectorAll('.edit-workshop').forEach(button => button.addEventListener('click', () => {
+    const workshop = JSON.parse(decodeURIComponent(button.dataset.workshop));
+    document.getElementById('workshopModalLabel').textContent = 'Sửa Workshop';
+    document.getElementById('workshopSubmit').textContent = 'Lưu thay đổi';
+    document.getElementById('workshopId').value = workshop.id;
+    document.getElementById('workshopTitle').value = workshop.title;
+    document.getElementById('workshopDescription').value = workshop.description;
+    document.getElementById('workshopActive').checked = Boolean(workshop.isActive);
+    document.getElementById('workshopActiveField').classList.remove('d-none');
+    document.getElementById('workshopDestinationField')?.classList.add('d-none');
+    bootstrap.Modal.getOrCreateInstance(workshopModal).show();
+  }));
+  workshopModal.addEventListener('hidden.bs.modal', () => {
+    document.getElementById('workshopForm').reset();
+    document.getElementById('workshopId').value = '';
+    document.getElementById('workshopModalLabel').textContent = 'Thêm Workshop';
+    document.getElementById('workshopSubmit').textContent = 'Tạo Workshop';
+    document.getElementById('workshopActiveField').classList.add('d-none');
+    document.getElementById('workshopDestinationField')?.classList.remove('d-none');
+  });
+  document.getElementById('workshopForm').addEventListener('submit', async event => { event.preventDefault(); const submit = event.submitter; const id = document.getElementById('workshopId').value; submit.disabled = true; try { await request(id ? `/api/workshop-management/workshops/${encodeURIComponent(id)}` : '/api/workshop-management/workshops', { method: 'POST', headers: {'Content-Type':'application/json', ...(id ? {} : {'Idempotency-Key':newKey()})}, body: JSON.stringify({ destinationId: document.getElementById('workshopDestination')?.value, title: document.getElementById('workshopTitle').value, description: document.getElementById('workshopDescription').value, isActive: document.getElementById('workshopActive').checked }) }); location.reload(); } catch (error) { showFeedback(error.message, false); submit.disabled = false; } });
+  document.querySelectorAll('.edit-session').forEach(button => button.addEventListener('click', () => { const session = JSON.parse(decodeURIComponent(button.dataset.session)); document.getElementById('sessionModalLabel').textContent = 'Sửa ca Workshop'; document.getElementById('sessionId').value = session.id; document.getElementById('sessionWorkshop').value = session.workshopId; document.getElementById('sessionWorkshop').disabled = true; document.getElementById('sessionStart').value = localValue(session.startsAt); document.getElementById('sessionEnd').value = localValue(session.endsAt); document.getElementById('sessionPrice').value = session.priceVnd; document.getElementById('sessionCapacity').value = session.capacity; document.getElementById('sessionActive').checked = session.isActive; bootstrap.Modal.getOrCreateInstance(document.getElementById('sessionModal')).show(); }));
+  document.getElementById('sessionModal').addEventListener('hidden.bs.modal', () => { document.getElementById('sessionForm').reset(); document.getElementById('sessionId').value = ''; document.getElementById('sessionWorkshop').disabled = false; document.getElementById('sessionModalLabel').textContent = 'Thêm ca Workshop'; });
+  document.getElementById('sessionForm').addEventListener('submit', async event => { event.preventDefault(); const submit = event.submitter; submit.disabled = true; const id = document.getElementById('sessionId').value; const body = { workshopId: document.getElementById('sessionWorkshop').value, startsAt: document.getElementById('sessionStart').value, endsAt: document.getElementById('sessionEnd').value, priceVnd: Number(document.getElementById('sessionPrice').value), capacity: Number(document.getElementById('sessionCapacity').value), isActive: document.getElementById('sessionActive').checked }; try { await request(id ? `/api/workshop-management/sessions/${encodeURIComponent(id)}` : '/api/workshop-management/sessions', { method: 'POST', headers: {'Content-Type':'application/json', ...(id ? {} : {'Idempotency-Key':newKey()})}, body: JSON.stringify(body) }); location.reload(); } catch (error) { showFeedback(error.message, false); submit.disabled = false; } });
+  document.querySelectorAll('.booking-action').forEach(button => button.addEventListener('click', async () => { button.disabled = true; try { await request(`/api/workshop-bookings/${encodeURIComponent(button.dataset.id)}/status`, { method:'POST', headers:{'Content-Type':'application/json','Idempotency-Key':newKey()}, body:JSON.stringify({status:button.dataset.status}) }); location.reload(); } catch (error) { showFeedback(error.message, false); button.disabled = false; } }));
+})();
+</script>

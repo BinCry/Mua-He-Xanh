@@ -1,268 +1,71 @@
-<!-- Shop Product Detail Page - Matching Event Detail Design 100% -->
+<!-- Shop product detail: direct contact only, never an online order. -->
 <section class="py-4 py-md-5" style="background: #f8faf9;">
     <div class="container py-3">
         <div class="row justify-content-center">
             <div class="col-lg-8">
-                <!-- Breadcrumb Navigation -->
                 <nav aria-label="breadcrumb" class="mb-4">
                     <ol class="breadcrumb mb-0">
                         <li class="breadcrumb-item"><a href="/" class="text-decoration-none text-muted">Trang chủ</a></li>
-                        <li class="breadcrumb-item"><a href="/shops" class="text-decoration-none text-muted">Shop & Sản phẩm</a></li>
+                        <li class="breadcrumb-item"><a href="/shops" class="text-decoration-none text-muted">Shop hàng hóa</a></li>
                         <li class="breadcrumb-item active" aria-current="page"><%= workshop.title %></li>
                     </ol>
                 </nav>
 
-                <!-- Product Detail Card (Matching Event Detail Layout) -->
-                <div class="card border-0 shadow-premium rounded-4 overflow-hidden mb-5 bg-white reveal-up">
-                    <!-- Top Full Poster Image Display (Contain Mode / Dark Poster Background - Identical to Event Detail) -->
+                <article class="card border-0 shadow-premium rounded-4 overflow-hidden mb-5 bg-white reveal-up">
                     <div class="w-100 bg-dark p-2 text-center position-relative">
                         <img src="<%= fixImg(workshop.image, '/uploads/posters/poster-1.webp') %>" class="img-fluid rounded-3 shadow" style="max-height: 540px; width: 100%; object-fit: contain; background: #0f172a;" alt="<%= workshop.title %>">
                     </div>
-                    
                     <div class="p-4 p-md-5">
-                        <!-- Top Badge & Header Section -->
-                        <div class="mb-4 pb-3 border-bottom">
-                            <span class="badge bg-dark bg-opacity-75 text-white mb-2 px-3 py-1.5 rounded-pill fw-bold text-uppercase notranslate" translate="no" style="font-size: 0.75rem; background: rgba(15, 23, 42, 0.85) !important;">
-                                ✨ <%= workshop.destination_name || 'Bình Lợi' %>
+                        <header class="mb-4 pb-3 border-bottom">
+                            <span class="badge bg-dark bg-opacity-75 text-white mb-2 px-3 py-1.5 rounded-pill fw-bold text-uppercase notranslate" translate="no" style="font-size: .75rem; background: rgba(15, 23, 42, .85) !important;">
+                                <i class="bi bi-shop me-1"></i><%= workshop.destination_name || 'Bình Lợi' %>
                             </span>
                             <h1 class="display-6 fw-black text-dark mb-3 font-display notranslate" translate="no"><%= workshop.title %></h1>
-                            
-                            <div class="d-flex flex-wrap align-items-center gap-3 text-muted" style="font-size: 0.95rem;">
-                                <!-- Price -->
+                            <div class="d-flex flex-wrap align-items-center gap-3 text-muted" style="font-size: .95rem;">
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-tag-fill text-warning fs-5"></i> 
+                                    <i class="bi bi-tag-fill text-warning fs-5"></i>
                                     <span class="fw-black <%= (!workshop.price || workshop.price <= 0) ? 'text-primary' : 'text-dark' %> fs-5">
                                         <%= (!workshop.price || workshop.price <= 0) ? 'Liên hệ' : new Intl.NumberFormat('vi-VN').format(workshop.price) + 'đ' %>
                                     </span>
                                 </div>
-                                <span>·</span>
-                                <!-- Duration / Spec -->
+                                <span aria-hidden="true">·</span>
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-clock text-primary fs-5"></i> 
+                                    <i class="bi bi-box-seam text-primary fs-5"></i>
                                     <span class="fw-semibold"><%= workshop.duration || workshop.duration_minutes || 'Quy cách chuẩn' %></span>
                                 </div>
-                                <span>·</span>
-                                <!-- Location -->
+                                <span aria-hidden="true">·</span>
                                 <div class="d-flex align-items-center gap-2">
-                                    <i class="bi bi-geo-alt-fill text-danger fs-5"></i> 
+                                    <i class="bi bi-geo-alt-fill text-danger fs-5"></i>
                                     <% if (workshop.destination_slug) { %>
-                                        <a href="/explore/<%= workshop.destination_slug %>" class="text-decoration-none text-dark fw-bold hover-underline" title="Xem địa điểm bán">
-                                            <%= workshop.destination_name || 'Bình Lợi' %> <i class="bi bi-arrow-up-right-circle text-primary ms-1" style="font-size: 0.85rem;"></i>
-                                        </a>
+                                        <a href="/explore/<%= workshop.destination_slug %>" class="text-decoration-none text-dark fw-bold hover-underline" title="Xem địa điểm cung cấp"><%= workshop.destination_name || 'Bình Lợi' %></a>
                                     <% } else { %>
                                         <span class="fw-semibold"><%= workshop.destination_name || 'Bình Lợi' %></span>
                                     <% } %>
                                 </div>
                             </div>
-                        </div>
+                        </header>
 
-                        <!-- Product Description Section -->
-                        <h4 class="fw-bold mb-3 text-primary font-display">Thông tin sản phẩm</h4>
-                        <div class="story-text-rich text-secondary mb-5" style="font-size: 1.1rem; line-height: 1.8; text-align: justify; white-space: pre-line;">
-                            <%= workshop.description || '' %>
-                        </div>
-                        
-                        <%
-                            let bookingDate = '';
-                            let bookingTime = '08:00';
-                            if (workshop.start_date) {
-                                const d = new Date(workshop.start_date);
-                                const year = d.getFullYear();
-                                const month = String(d.getMonth() + 1).padStart(2, '0');
-                                const day = String(d.getDate()).padStart(2, '0');
-                                bookingDate = `${year}-${month}-${day}`;
-                                bookingTime = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
-                            } else {
-                                const d = new Date();
-                                const year = d.getFullYear();
-                                const month = String(d.getMonth() + 1).padStart(2, '0');
-                                const day = String(d.getDate()).padStart(2, '0');
-                                bookingDate = `${year}-${month}-${day}`;
-                            }
-                            const hasUserBookings = typeof userBookings !== 'undefined' && userBookings.length > 0;
-                            const activeBooking = hasUserBookings ? userBookings.find(b => b.status === 'confirmed' || b.status === 'pending') : null;
-                            const cancelledBooking = (!activeBooking && hasUserBookings) ? userBookings.find(b => b.status === 'cancelled') : null;
-                        %>
+                        <h2 class="h4 fw-bold mb-3 text-primary font-display">Thông tin sản phẩm</h2>
+                        <div class="story-text-rich text-secondary mb-5" style="font-size: 1.1rem; line-height: 1.8; text-align: justify; white-space: pre-line;"><%= workshop.description || '' %></div>
 
-                        <!-- Direct-contact section: Shop does not create online orders. -->
-                        <div class="mt-4 p-4 rounded-4 bg-light border">
-                            <h5 class="fw-bold mb-3" style="color: var(--primary);">
-                                <i class="bi bi-chat-dots-fill me-2"></i> Liên hệ sản phẩm
-                            </h5>
-
+                        <section class="p-4 rounded-4 bg-light border" aria-labelledby="shop-contact-title">
+                            <h2 class="h5 fw-bold mb-3" id="shop-contact-title" style="color: var(--primary);"><i class="bi bi-chat-dots-fill me-2"></i>Liên hệ sản phẩm</h2>
                             <div class="row g-3 mb-3">
                                 <div class="col-sm-6">
-                                    <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>Thời gian / Phục vụ:</div>
-                                    <div class="fw-bold text-dark"><%= workshop.start_date ? new Date(workshop.start_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hàng ngày' %></div>
+                                    <div class="small text-muted mb-1"><i class="bi bi-calendar-event me-1"></i>Thời gian phục vụ</div>
+                                    <div class="fw-bold text-dark"><%= workshop.start_date ? new Date(workshop.start_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) : 'Hằng ngày' %></div>
                                 </div>
                                 <div class="col-sm-6">
-                                    <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Địa điểm phục vụ:</div>
+                                    <div class="small text-muted mb-1"><i class="bi bi-geo-alt me-1"></i>Điểm cung cấp</div>
                                     <div class="fw-bold text-dark"><%= workshop.destination_name || 'Bình Lợi' %></div>
                                 </div>
                             </div>
-
-                            <p class="small text-muted mb-4">Sản phẩm được trao đổi trực tiếp với điểm cung cấp để xác nhận giá, số lượng và cách nhận.</p>
-                            <a href="https://zalo.me/0395529890" target="_blank" rel="noopener" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" style="background: var(--primary);">
-                                <i class="bi bi-chat-dots-fill me-2"></i>LIÊN HỆ ZALO ĐỂ ĐẶT / BÁO GIÁ
-                            </a>
-                        </div>
+                            <p class="small text-muted mb-4">Sản phẩm được trao đổi trực tiếp với điểm cung cấp để xác nhận giá, số lượng và cách nhận. Shop không nhận đơn trực tuyến.</p>
+                            <a href="https://zalo.me/0395529890" target="_blank" rel="noopener" class="btn btn-primary w-100 rounded-pill py-3 fw-bold btn-premium" style="background: var(--primary);"><i class="bi bi-chat-dots-fill me-2"></i>LIÊN HỆ ZALO ĐỂ ĐƯỢC TƯ VẤN</a>
+                        </section>
                     </div>
-                </div>
+                </article>
             </div>
         </div>
     </div>
 </section>
-
-<!-- Closed Feature Popup Modal -->
-<div class="modal fade" id="closedFeatureModal" tabindex="-1" aria-hidden="true" style="z-index: 100000;">
-    <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 400px;">
-        <div class="modal-content border-0 rounded-4 shadow-lg text-center p-3" style="background: #ffffff;">
-            <div class="modal-body p-3">
-                <div class="mb-3 d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 60px; height: 60px; background: rgba(245, 158, 11, 0.15) !important;">
-                    <i class="bi bi-exclamation-triangle-fill fs-2" style="color: #d97706;"></i>
-                </div>
-                <h5 class="fw-bold mb-2" style="font-family: 'Inter', sans-serif; color: #1a202c; font-size: 1.15rem;">Thông báo</h5>
-                <p class="text-secondary small mb-4" style="font-size: 0.95rem; line-height: 1.5;">
-                    Tính năng này đang đóng hãy liên hệ zalo <strong>0395529890</strong> để biết thêm!
-                </p>
-                
-                <div class="d-flex flex-column gap-2">
-                    <a href="https://zalo.me/0395529890" target="_blank" class="btn btn-primary rounded-pill py-2.5 fw-bold w-100" style="background: #0068ff; border: none;">
-                        <i class="bi bi-chat-dots-fill me-1.5"></i> Liên hệ Zalo (0395529890)
-                    </a>
-                    <button type="button" class="btn btn-light rounded-pill py-2 small fw-semibold border" data-bs-dismiss="modal">Đóng</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Cancel Confirmation Modal Popup -->
-<div class="modal fade" id="cancelConfirmModal" tabindex="-1" aria-hidden="true" style="z-index: 100000;">
-    <div class="modal-dialog modal-dialog-centered modal-sm" style="max-width: 380px;">
-        <div class="modal-content border-0 rounded-4 shadow-lg text-center p-3" style="background: #ffffff;">
-            <div class="modal-body p-2">
-                <div class="mb-3 d-inline-flex align-items-center justify-content-center bg-danger bg-opacity-10 text-danger rounded-circle" style="width: 56px; height: 56px;">
-                    <i class="bi bi-exclamation-triangle-fill fs-3"></i>
-                </div>
-                <h5 class="fw-bold mb-2" style="font-family: 'Inter', sans-serif; color: #1a202c; font-size: 1.1rem;">Xác nhận hủy đơn đặt</h5>
-                <p class="text-muted small mb-4" style="font-size: 0.85rem; line-height: 1.4;">Bạn có chắc chắn muốn hủy đặt mua sản phẩm này không?</p>
-                
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-light rounded-pill flex-fill py-2 small fw-semibold border" data-bs-dismiss="modal">Giữ đơn lại</button>
-                    <button type="button" class="btn btn-danger rounded-pill flex-fill py-2 small fw-bold" id="confirmCancelBtn" onclick="executeCancelBooking()">Hủy đơn ngay</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script>
-    const maxParticipants = <%= workshop.max_participants || 20 %>;
-    const workshopId = '<%= workshop.id %>';
-    const bookingDate = '<%= bookingDate %>';
-    const bookingTime = '<%= bookingTime %>';
-    let pendingBookingIdToCancel = null;
-
-    function showClosedFeatureModal() {
-        const modalEl = document.getElementById('closedFeatureModal');
-        if (modalEl) {
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        } else {
-            alert('Tính năng này đang đóng hãy liên hệ zalo 0395529890 để biết thêm!');
-        }
-    }
-
-    async function checkSlots() {
-        const badge = document.getElementById('slots-badge');
-        const text = document.getElementById('slots-text');
-        if (!badge || !text) return;
-        badge.className = 'badge rounded-pill bg-success px-3 py-2';
-        badge.innerText = 'CÒN HÀNG';
-        text.innerText = 'Sẵn sàng phục vụ';
-    }
-
-    async function registerWorkshop() {
-        const submitBtn = document.getElementById('bookSubmitBtn');
-        if (!submitBtn) return;
-        const oldHtml = submitBtn.innerHTML;
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
-
-        const data = {
-            workshop_id: workshopId,
-            booking_date: bookingDate,
-            booking_time: bookingTime,
-            num_people: 1,
-            note: 'Đặt mua sản phẩm từ Shop'
-        };
-
-        try {
-            const res = await axios.post('/api/shop/book', data);
-            if (res.data && res.data.success) {
-                submitBtn.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i>ĐẶT MUA THÀNH CÔNG!';
-                submitBtn.classList.replace('btn-primary', 'btn-success');
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1000);
-            } else {
-                alert(res.data?.message || 'Không thể đặt mua.');
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = oldHtml;
-            }
-        } catch (err) {
-            console.error('Lỗi đặt mua:', err);
-            const errMsg = err.response?.data?.message || err.message || 'Có lỗi xảy ra';
-            alert('Lỗi đặt mua: ' + errMsg);
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = oldHtml;
-        }
-    }
-
-    function confirmCancelBooking(bookingId) {
-        pendingBookingIdToCancel = bookingId;
-        const modalEl = document.getElementById('cancelConfirmModal');
-        if (modalEl) {
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
-        }
-    }
-
-    async function executeCancelBooking() {
-        if (!pendingBookingIdToCancel) return;
-        
-        const modalEl = document.getElementById('cancelConfirmModal');
-        if (modalEl) {
-            const modalInstance = bootstrap.Modal.getInstance(modalEl);
-            if (modalInstance) modalInstance.hide();
-        }
-
-        const cancelBtn = document.getElementById('cancelSubmitBtn');
-        if (!cancelBtn) return;
-        const oldHtml = cancelBtn.innerHTML;
-        cancelBtn.disabled = true;
-        cancelBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Đang xử lý...';
-
-        try {
-            const res = await axios.post('/api/shop/cancel', { bookingId: pendingBookingIdToCancel });
-            if (res.data && res.data.success) {
-                window.location.reload();
-            } else {
-                alert(res.data?.message || 'Không thể hủy vé.');
-                cancelBtn.disabled = false;
-                cancelBtn.innerHTML = oldHtml;
-            }
-        } catch (err) {
-            console.error('Lỗi hủy đăng ký:', err);
-            const errMsg = err.response?.data?.message || err.message || 'Có lỗi xảy ra';
-            alert('Lỗi hủy đăng ký: ' + errMsg);
-            cancelBtn.disabled = false;
-            cancelBtn.innerHTML = oldHtml;
-        }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        checkSlots();
-    });
-</script>

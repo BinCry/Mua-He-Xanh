@@ -11,11 +11,11 @@
 
 <!-- Workshops Table -->
 <div class="admin-table">
-    <table class="table table-borderless mb-0">
+    <table class="table table-borderless mb-0 manager-shop-table">
         <thead>
             <tr>
                 <th>Tên sản phẩm</th>
-                <th>Loại</th>
+                <th class="manager-shop-type">Loại</th>
                 <th>Giá</th>
                 <th>Thời gian / Quy cách</th>
                 <th>Sức chứa / Kho</th>
@@ -26,7 +26,7 @@
         <tbody>
             <% workshops.forEach(ws => { %>
             <tr id="ws-row-<%= ws.id %>">
-                <td>
+                <td class="manager-shop-type">
                     <div class="d-flex align-items-center gap-2">
                         <img src="<%= fixImg(ws.image, '/uploads/posters/poster-1.webp') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
                         <div>
@@ -62,9 +62,6 @@
                 </td>
                 <td class="workshop-actions-cell">
                     <div class="workshop-actions" role="group" aria-label="Thao tác với <%= ws.title %>">
-                    <button class="btn btn-sm btn-outline-info rounded-pill px-3" onclick="viewBookings('<%= ws.id %>', '<%= ws.title.replace(/'/g, "\\'") %>')">
-                        <i class="bi bi-people me-1"></i>Đăng ký (<%= ws.booking_count || 0 %>)
-                    </button>
                     <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="editWs(this)" data-workshop="<%= encodeURIComponent(JSON.stringify(ws)) %>" aria-label="Sửa <%= ws.title %>" title="Sửa">
                         <i class="bi bi-pencil"></i>
                     </button>
@@ -83,6 +80,9 @@
 </div>
 
 <style>
+  .manager-shop-table { min-width: 920px !important; }
+  .manager-shop-table .manager-shop-type { min-width: 132px; width: 132px; }
+  .manager-shop-table .role-badge { display: inline-flex; align-items: center; white-space: nowrap; line-height: 1.25; }
   .workshop-actions { display: flex; flex-wrap: nowrap; align-items: center; gap: .5rem; min-width: max-content; }
   .workshop-actions .btn { min-height: 38px; }
   @media (max-width: 767.98px) {
@@ -272,7 +272,7 @@ async function saveWs() {
         is_active: document.getElementById('ws_is_active').checked
     };
     
-    const url = editingWs ? '/api/manager/update-workshop' : '/api/manager/create-workshop';
+    const url = editingWs ? '/api/manager/update-shop' : '/api/manager/create-shop';
     try {
         const res = await axios.post(url, data);
         if (res.data.success) { alert(res.data.message); location.reload(); }
@@ -283,7 +283,7 @@ async function saveWs() {
 function deleteWs(id) {
     showAdminConfirm('Bạn có chắc chắn muốn xóa sản phẩm này?', async () => {
         try {
-            const res = await axios.post('/api/manager/delete-workshop', { id });
+            const res = await axios.post('/api/manager/delete-shop', { id });
             if (res.data.success) {
                 const row = document.getElementById('ws-row-' + id);
                 if (row) {
@@ -312,54 +312,69 @@ async function viewBookings(wsId, title) {
         document.getElementById('bookingsContent').style.display = 'block';
         
         const tbody = document.getElementById('bookingsTableBody');
-        tbody.innerHTML = '';
+        tbody.replaceChildren();
         
         if (!res.data.bookings || res.data.bookings.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">Chưa có lượt đăng ký nào.</td></tr>';
+            const row = document.createElement('tr');
+            const cell = document.createElement('td');
+            cell.colSpan = 6;
+            cell.className = 'text-center py-4 text-muted';
+            cell.textContent = 'Chưa có lượt đăng ký nào.';
+            row.appendChild(cell);
+            tbody.appendChild(row);
             return;
         }
 
         res.data.bookings.forEach(b => {
             const tr = document.createElement('tr');
-            let statusBadge = '<span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Đã xác nhận</span>';
-            if (b.status === 'cancelled') statusBadge = '<span class="badge bg-danger bg-opacity-25 text-danger rounded-pill px-3">Đã hủy</span>';
-            else if (b.status === 'completed') statusBadge = '<span class="badge bg-info bg-opacity-25 text-info rounded-pill px-3">Hoàn thành</span>';
+            const addCell = (className) => {
+                const cell = document.createElement('td');
+                if (className) cell.className = className;
+                tr.appendChild(cell);
+                return cell;
+            };
+            const customer = document.createElement('div');
+            customer.className = 'd-flex align-items-center gap-2';
+            const avatar = document.createElement('img');
+            avatar.src = b.avatar || '/images/default-avatar.svg';
+            avatar.alt = '';
+            avatar.className = 'rounded-circle';
+            avatar.style.cssText = 'width:32px;height:32px;object-fit:cover;';
+            avatar.onerror = () => { avatar.src = '/images/default-avatar.svg'; };
+            const customerName = document.createElement('span');
+            customerName.className = 'fw-bold small';
+            customerName.textContent = b.full_name || 'Khách vãng lai';
+            customer.append(avatar, customerName);
+            addCell().appendChild(customer);
 
-            tr.innerHTML = `
-                <td>
-                    <div class="d-flex align-items-center gap-2">
-                        <img src="${b.avatar || '/images/default-avatar.svg'}" class="rounded-circle" style="width: 32px; height: 32px; object-fit: cover;">
-                        <span class="fw-bold small">${b.full_name || 'Khách vãng lai'}</span>
-                    </div>
-                </td>
-                <td class="small">
-                    <div>${b.phone || 'N/A'}</div>
-                    <div style="font-size: 0.75rem; color: var(--admin-muted);">${b.email || ''}</div>
-                </td>
-                <td class="small">
-                    <div>${new Date(b.booking_date).toLocaleDateString('vi-VN')}</div>
-                    <div style="font-size: 0.75rem; color: var(--admin-muted);">${b.booking_time || '08:00'} (${b.num_people} người)</div>
-                </td>
-                <td><code class="small fw-bold text-primary">${b.qr_ticket || 'N/A'}</code></td>
-                <td>${statusBadge}</td>
-                <td>
-                    ${b.status === 'pending' ? `
-                        <button class="btn btn-sm btn-primary rounded-pill px-2 py-0 me-1" onclick="updateBookingStatus('${b.id}', 'confirmed', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Xác nhận đơn">
-                            <i class="bi bi-check-lg"></i> Xác nhận
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" onclick="updateBookingStatus('${b.id}', 'cancelled', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Hủy vé">
-                            <i class="bi bi-x-lg"></i> Hủy
-                        </button>
-                    ` : b.status === 'confirmed' ? `
-                        <button class="btn btn-sm btn-success rounded-pill px-2 py-0 me-1" onclick="updateBookingStatus('${b.id}', 'completed', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Xác nhận hoàn thành">
-                            <i class="bi bi-check-lg"></i> Tham gia
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger rounded-pill px-2 py-0" onclick="updateBookingStatus('${b.id}', 'cancelled', '${wsId}', '${title.replace(/'/g, "\\'")}')" title="Hủy vé">
-                            <i class="bi bi-x-lg"></i> Hủy
-                        </button>
-                    ` : '<span class="text-muted small">-</span>'}
-                </td>
-            `;
+            const contact = addCell('small');
+            const phone = document.createElement('div'); phone.textContent = b.phone || 'N/A';
+            const email = document.createElement('div'); email.style.cssText = 'font-size:.75rem;color:var(--admin-muted);'; email.textContent = b.email || '';
+            contact.append(phone, email);
+
+            const when = addCell('small');
+            const date = document.createElement('div');
+            const bookingDate = new Date(b.booking_date);
+            date.textContent = Number.isNaN(bookingDate.valueOf()) ? 'Không xác định' : bookingDate.toLocaleDateString('vi-VN');
+            const bookingTime = document.createElement('div'); bookingTime.style.cssText = 'font-size:.75rem;color:var(--admin-muted);'; bookingTime.textContent = `${b.booking_time || '08:00'} (${Number(b.num_people) || 0} người)`;
+            when.append(date, bookingTime);
+
+            const ticket = document.createElement('code'); ticket.className = 'small fw-bold text-primary'; ticket.textContent = b.qr_ticket || 'N/A'; addCell().appendChild(ticket);
+            const badge = document.createElement('span');
+            const statusMap = { pending: ['bg-success bg-opacity-25 text-success', 'Đã xác nhận'], cancelled: ['bg-danger bg-opacity-25 text-danger', 'Đã hủy'], completed: ['bg-info bg-opacity-25 text-info', 'Hoàn thành'] };
+            const [statusClass, statusText] = statusMap[b.status] || ['bg-secondary bg-opacity-25 text-secondary', 'Không xác định'];
+            badge.className = `badge ${statusClass} rounded-pill px-3`; badge.textContent = statusText; addCell().appendChild(badge);
+            const actions = addCell();
+            const addAction = (status, label, className) => {
+                const button = document.createElement('button');
+                button.type = 'button'; button.className = `btn btn-sm ${className} rounded-pill px-2 py-0 me-1`;
+                button.textContent = label;
+                button.addEventListener('click', () => updateBookingStatus(b.id, status, wsId, title));
+                actions.appendChild(button);
+            };
+            if (b.status === 'pending') { addAction('confirmed', 'Xác nhận', 'btn-primary'); addAction('cancelled', 'Hủy', 'btn-outline-danger'); }
+            else if (b.status === 'confirmed') { addAction('completed', 'Tham gia', 'btn-success'); addAction('cancelled', 'Hủy', 'btn-outline-danger'); }
+            else actions.textContent = '-';
             tbody.appendChild(tr);
         });
     } catch(e) {

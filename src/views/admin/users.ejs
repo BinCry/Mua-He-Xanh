@@ -90,7 +90,7 @@
 <% if (totalPages > 1) { %>
 <div class="d-flex justify-content-center mt-4 gap-2">
     <% for (let p = 1; p <= totalPages; p++) { %>
-        <a href="/admin/users?page=<%= p %><%= searchQuery ? '&q=' + searchQuery : '' %>" 
+        <a href="/admin/users?page=<%= p %><%= searchQuery ? '&q=' + encodeURIComponent(searchQuery) : '' %>"
            class="btn btn-sm <%= p === currentPage ? 'btn-primary' : 'btn-outline-secondary' %> rounded-pill px-3"><%= p %></a>
     <% } %>
 </div>

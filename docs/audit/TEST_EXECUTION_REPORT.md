@@ -2,6 +2,23 @@
 
 Environment: isolated PostgreSQL 16 at `127.0.0.1:55432`; local app at `127.0.0.1:4311`; all generated data, browsers, npm cache and artifacts under `D:\Bình-Lợi\.tmp\audit`.
 
+## Latest local regression update — 2026-10-12
+
+| Check | Result | Evidence |
+| --- | --- | --- |
+| Unit/regression + template compile | PASS | `npm test`: 107 passed, 0 failed; includes tokenized search, Studio legacy-font normalization, bundled Vietnamese-script-font checks, UUID-expiry recovery/migration, separated sitemap URLs and production diagnostic-route hardening |
+| JavaScript syntax | PASS | `node --check` succeeded for all 125 current project JS files (2026-10-12) |
+| Runtime brand-font check | PASS | Existing Chrome, isolated app with audit DB unreachable: local font returned 200 `font/ttf`; `document.fonts` ready; computed tagline font was `BinhLoi Script`; no horizontal overflow at 1366px. |
+| PostgreSQL integration after latest search changes | BLOCKED | Fresh `npm run test:audit-db` attempted all 15 PostgreSQL integration cases (including expired-UUID recovery) and could not connect to `127.0.0.1:55432` (`ECONNREFUSED`). It cannot be restarted under the elevated runner because PostgreSQL refuses administrator execution; no production database was substituted. |
+| Production dependency audit | PASS | `npm audit --omit=dev --json`: 0 vulnerabilities |
+| Chromium / Firefox / WebKit UI suite | PASS | 25 tests per browser; Chromium includes PWA smoke, Firefox/WebKit intentionally skip the Chromium-only service-worker case |
+| Workshop API guards | PASS | authenticated browser smoke: legacy aliases return 410; invalid boolean status returns 400 |
+| Responsive rerun | CONDITIONAL | 25 Chromium cases were rerun in bounded groups. One tablet run failed before passing when isolated; treat this as flaky until a repeatable root cause is removed. |
+| Browser verification after latest search/font changes | BLOCKED | Requires the isolated PostgreSQL audit instance to be restored; historical browser results are retained as evidence only, not used to approve this change. |
+| PostgreSQL UUID-expiry and catalogue sitemap verification | BLOCKED | Requires the isolated PostgreSQL audit instance; no production database was used as a substitute. |
+
+Firefox and WebKit browser binaries were installed only below `.tmp\audit\ms-playwright`; no browser assets were placed on the system drive.
+
 | Check | Result | Evidence |
 | --- | --- | --- |
 | Unit/regression | PASS | `npm test`: 83 passed, 0 failed |

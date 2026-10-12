@@ -462,7 +462,9 @@
     }
 
     function filterTouristPicker(query) {
-        query = (query || '').toLowerCase().trim();
+        const normalizePickerSearch = value => String(value || '').normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().trim();
+        const tokens = normalizePickerSearch(query).split(/\s+/).filter(Boolean);
         const clearBtn = document.getElementById('tourist-picker-search-clear');
         if (clearBtn) {
             clearBtn.classList.toggle('d-none', !query);
@@ -481,7 +483,7 @@
 
         emojiItems.forEach(el => {
             const char = el.innerText.trim();
-            const match = char.includes(query);
+            const match = tokens.every(token => normalizePickerSearch(char).includes(token));
             el.style.display = match ? 'inline-flex' : 'none';
         });
 

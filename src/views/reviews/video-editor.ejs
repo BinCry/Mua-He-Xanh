@@ -233,7 +233,7 @@
                             <div class="col-6">
                                 <button type="button" class="btn btn-sm btn-outline-secondary w-100 py-2 rounded-3 text-start d-flex align-items-center justify-content-between" onclick="applyTextStylePreset('modern')">
                                     <span class="fw-bold small">Hiện đại</span>
-                                    <span class="badge bg-dark text-white">Inter</span>
+                                    <span class="badge bg-dark text-white">Rõ nét</span>
                                 </button>
                             </div>
                             <div class="col-6">
@@ -664,11 +664,10 @@
                 <div class="row g-2 mb-3">
                     <div class="col-12">
                         <label class="x-small fw-bold text-muted text-uppercase mb-1.5 d-block">Font chữ</label>
-                        <select class="form-select form-select-sm" id="propFontFamily" title="Chọn font chữ: Inter, Montserrat, Dancing Script hoặc Arial">
-                            <option value="Inter, sans-serif">Inter</option>
-                            <option value="Montserrat, sans-serif">Montserrat</option>
-                            <option value="'Dancing Script', cursive">Dancing Script</option>
-                            <option value="Arial, sans-serif">Arial</option>
+                        <select class="form-select form-select-sm" id="propFontFamily" title="Chọn font chữ hiển thị ổn định trên mọi thiết bị">
+                            <option value="&quot;Segoe UI&quot;, sans-serif">Hiện đại</option>
+                            <option value="Georgia, serif">Cổ điển</option>
+                            <option value="&quot;BinhLoi Script&quot;, sans-serif">Nét viết tay Bình Lợi</option>
                         </select>
                     </div>
                     <div class="col-6">
@@ -950,7 +949,7 @@ body, html {
     width: 100vw !important;
     height: 100vh !important;
     background: #FFFFFF !important;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    font-family: "Segoe UI", Arial, system-ui, sans-serif !important;
 }
 
 /* QUAN TRỌNG: Gỡ bỏ triệt để padding-top 107px của thẻ main từ layout chung */

@@ -55,8 +55,8 @@ jobs:
       - name: PostgreSQL business and concurrency tests
         run: npm run test:audit-db
 
-      - name: Install Chromium for browser acceptance
-        run: npx playwright install --with-deps chromium
+      - name: Install browser engines for cross-browser acceptance
+        run: npx playwright install --with-deps chromium firefox webkit
 
       - name: Seed isolated browser data and start audit app
         run: |
@@ -69,8 +69,10 @@ jobs:
           cat .tmp/audit/server.log
           exit 1
 
-      - name: Chromium browser, a11y and PWA acceptance
-        run: npx playwright test --project=chromium --workers=1 --retries=0
+      - name: Cross-browser, a11y and PWA acceptance
+        # Retries are intentionally disabled: a flaky first attempt cannot
+        # turn into a passing release gate merely by retrying it.
+        run: npx playwright test --project=chromium --project=firefox --project=webkit --workers=1 --retries=0
 
       - name: Upload failed browser evidence
         if: failure()

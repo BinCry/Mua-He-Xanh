@@ -1,384 +1,102 @@
-const Workshop = require('../models/Workshop');
 const db = require('../core/database');
-const NotificationController = require('./NotificationController');
 const cache = require('../core/cache');
-const { v4: uuidv4 } = require('uuid');
+const { normalizeSearchText, searchTokens, buildTokenSearchClause } = require('../utils/search');
 
+// Shop is a public, contact-first catalogue. It deliberately has no booking,
+// capacity or reward side effects; those belong only to Workshop sessions.
 const ShopController = {
-
-    // GET /shops - Danh sách sản phẩm Shop
-    index: async (req, res) => {
+    async index(req, res) {
         try {
-            const typeFilter = req.query.type || null;
-            const searchQuery = req.query.q || '';
-            const cacheKey = `shops:list:${typeFilter || 'all'}:${searchQuery || 'none'}`;
-
+            const typeFilter = typeof req.query.type === 'string' ? req.query.type.trim() : '';
+            const searchQuery = String(req.query.q || '').trim().replace(/\s+/g, ' ').slice(0, 100);
+            const normalizedSearch = normalizeSearchText(searchQuery);
+            const cacheKey = `shops:list:${typeFilter || 'all'}:${normalizedSearch || 'none'}`;
             const typeLabels = {
-                nhang: '🪔 Làm Nhang', mai: '🌸 Chăm Mai', thien: '🧘 Thiền Healing',
-                banh: '🍰 Bánh Dân Gian', ecology: '🌿 Sinh Thái', culture: '🎭 Văn Hóa', other: '✨ Khác'
+                nhang: 'Làm nhang', mai: 'Chăm mai', thien: 'Thiền healing',
+                banh: 'Bánh dân gian', ecology: 'Sinh thái', culture: 'Văn hóa', other: 'Khác'
             };
-
-            // Check in-memory cache
-            const cachedData = cache.get(cacheKey);
-            if (cachedData) {
+            const cached = cache.get(cacheKey);
+            if (cached) {
                 return res.render('shop/index', {
-                    title: 'Shop & Sản Phẩm',
-                    workshops: cachedData,
-                    typeFilter,
-                    typeLabels,
-                    searchQuery
+                    title: 'Shop hàng hóa', workshops: cached, typeFilter, typeLabels, searchQuery
                 });
             }
-            
-            let workshops;
+
             let query = `
-                SELECT w.*, d.name as destination_name, d.slug as destination_slug
+                SELECT w.*, d.name AS destination_name, d.slug AS destination_slug
                 FROM workshops w
                 LEFT JOIN destinations d ON w.destination_id = d.id
-                WHERE w.is_active = 1
-            `;
+                WHERE w.is_active = 1 AND w.catalog_kind = 'shop'`;
             const params = [];
             let index = 1;
-
             if (typeFilter) {
                 query += ` AND w.type = $${index++}`;
                 params.push(typeFilter);
             }
+            if (normalizedSearch) {
+                const tokens = searchTokens(normalizedSearch);
+                const clause = buildTokenSearchClause(['w.title', 'w.description', 'd.name', 'w.type'], normalizedSearch, index);
+                const isOnly = (...words) => tokens.length === words.length && words.every(word => tokens.includes(word));
+                let matchedType = null;
+                if (isOnly('nhang')) matchedType = 'nhang';
+                else if (isOnly('mai')) matchedType = 'mai';
+                else if (isOnly('thien') || isOnly('healing')) matchedType = 'thien';
+                else if (isOnly('banh')) matchedType = 'banh';
+                else if (isOnly('sinh', 'thai') || isOnly('ecology')) matchedType = 'ecology';
+                else if (isOnly('van', 'hoa') || isOnly('culture')) matchedType = 'culture';
 
-            if (searchQuery) {
-                const searchLower = searchQuery.toLowerCase().trim();
-                let typeMatch = null;
-                if (searchLower.includes('nhang')) typeMatch = 'nhang';
-                else if (searchLower.includes('mai')) typeMatch = 'mai';
-                else if (searchLower.includes('thiền') || searchLower.includes('thien') || searchLower.includes('healing')) typeMatch = 'thien';
-                else if (searchLower.includes('bánh') || searchLower.includes('banh')) typeMatch = 'banh';
-                else if (searchLower.includes('sinh thái') || searchLower.includes('sinh thai') || searchLower.includes('ecology')) typeMatch = 'ecology';
-                else if (searchLower.includes('văn hóa') || searchLower.includes('van hoa') || searchLower.includes('culture')) typeMatch = 'culture';
-
-                if (typeMatch) {
-                    const p1 = index++, p2 = index++, p3 = index++;
-                    query += ` AND (w.title LIKE $${p1} OR w.description LIKE $${p2} OR w.type = $${p3})`;
-                    params.push(`%${searchQuery}%`, `%${searchQuery}%`, typeMatch);
+                if (matchedType) {
+                    query += ` AND ((${clause.clause}) OR w.type = $${clause.nextIndex})`;
+                    params.push(...clause.params, matchedType);
+                    index = clause.nextIndex + 1;
                 } else {
-                    const p1 = index++, p2 = index++;
-                    query += ` AND (w.title LIKE $${p1} OR w.description LIKE $${p2})`;
-                    params.push(`%${searchQuery}%`, `%${searchQuery}%`);
+                    query += ` AND (${clause.clause})`;
+                    params.push(...clause.params);
+                    index = clause.nextIndex;
                 }
             }
-
             query += ' ORDER BY w.sort_order ASC, w.created_at DESC LIMIT 50';
-
-            const [rows] = await db.query(query, params);
-            workshops = rows || [];
-
-            // Parallelize stats queries for fast execution
-            const statsPromises = workshops.map(ws => Workshop.getStats(ws.id).catch(() => ({ total_bookings: 0, completed: 0, avg_rating: null, total_participants: 0 })));
-            const allStats = await Promise.all(statsPromises);
-            workshops.forEach((ws, i) => {
-                ws.stats = allStats[i];
-            });
-
-            // Cache for 3 minutes
-            cache.set(cacheKey, workshops, 180);
-
-            res.render('shop/index', {
-                title: 'Shop & Sản Phẩm',
-                workshops,
-                typeFilter,
-                typeLabels,
-                searchQuery
+            const [workshops] = await db.query(query, params);
+            cache.set(cacheKey, workshops || [], 180);
+            return res.render('shop/index', {
+                title: 'Shop hàng hóa', workshops: workshops || [], typeFilter, typeLabels, searchQuery
             });
         } catch (error) {
             console.error('Shop index error:', error);
-            res.status(500).send('Lỗi hệ thống');
+            return res.status(500).send('Lỗi hệ thống');
         }
     },
 
-    // GET /shops/:id - Chi tiết sản phẩm + form đặt mua
-    show: async (req, res) => {
+    async show(req, res) {
         try {
             const cacheKey = `shops:item:${req.params.id}`;
-            let cachedItem = cache.get(cacheKey);
-
-            if (!cachedItem) {
-                const workshop = await Workshop.getById(req.params.id);
+            let item = cache.get(cacheKey);
+            if (!item) {
+                const [shopRows] = await db.query(`
+                    SELECT w.*, d.name AS destination_name, d.slug AS destination_slug, d.lat, d.lng
+                    FROM workshops w
+                    LEFT JOIN destinations d ON d.id = w.destination_id
+                    WHERE w.id = $1 AND w.catalog_kind = 'shop' AND w.is_active = 1`, [req.params.id]);
+                const workshop = shopRows[0];
                 if (!workshop) {
                     return res.status(404).render('errors/404', { title: 'Sản phẩm không tồn tại' });
                 }
-
-                const [stats, relatedWorkshops] = await Promise.all([
-                    Workshop.getStats(workshop.id).catch(() => null),
-                    Workshop.getByDestination(workshop.destination_id).catch(() => [])
-                ]);
-
-                cachedItem = { workshop, stats, relatedWorkshops };
-                cache.set(cacheKey, cachedItem, 180);
+                const [relatedRows] = await db.query(
+                    `SELECT * FROM workshops
+                     WHERE destination_id = $1 AND is_active = 1 AND catalog_kind = 'shop'
+                     ORDER BY sort_order ASC, created_at DESC`, [workshop.destination_id]
+                );
+                item = { workshop, relatedWorkshops: relatedRows || [] };
+                cache.set(cacheKey, item, 180);
             }
-
-            const { workshop, stats, relatedWorkshops } = cachedItem;
-
-            // Get user's bookings for this workshop if logged in (dynamic per user)
-            let userBookings = [];
-            const currentUser = req.user || req.session?.user;
-            if (currentUser) {
-                const allBookings = await Workshop.getBookingsByUser(currentUser.id).catch(() => []);
-                userBookings = allBookings.filter(b => b.workshop_id === workshop.id);
-            }
-
-            res.render('shop/show', {
-                title: workshop.title,
-                workshop,
-                stats,
-                relatedWorkshops: (relatedWorkshops || []).filter(w => w.id !== workshop.id),
-                userBookings
+            return res.render('shop/show', {
+                title: item.workshop.title,
+                workshop: item.workshop,
+                relatedWorkshops: item.relatedWorkshops.filter(row => row.id !== item.workshop.id)
             });
         } catch (error) {
             console.error('Shop show error:', error);
-            res.status(500).send('Lỗi hệ thống');
-        }
-    },
-
-    // GET /api/shop/slots - Kiểm tra số lượng tồn kho
-    getSlots: async (req, res) => {
-        try {
-            const { workshopId, date } = req.query;
-            if (!workshopId || !date) {
-                return res.status(400).json({ success: false, message: 'Thiếu thông tin sản phẩm hoặc ngày.' });
-            }
-            const workshop = await Workshop.getById(workshopId);
-            if (!workshop) {
-                return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại.' });
-            }
-            const bookedSeats = await Workshop.getBookedParticipants(workshopId, date);
-            const remaining = Math.max(0, workshop.max_participants - bookedSeats);
-            
-            res.json({
-                success: true,
-                total: workshop.max_participants,
-                booked: bookedSeats,
-                remaining: remaining
-            });
-        } catch (error) {
-            console.error('Shop slots error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống khi kiểm tra số chỗ trống.' });
-        }
-    },
-
-    // POST /api/shop/book - Đặt mua sản phẩm
-    book: async (req, res) => {
-        let client;
-        try {
-            const user = req.user || req.session.user;
-            if (!user) {
-                return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để đặt mua sản phẩm' });
-            }
-
-            const { workshop_id, booking_date, booking_time, num_people, note } = req.body;
-
-            if (!workshop_id || !booking_date) {
-                return res.status(400).json({ success: false, message: 'Vui lòng chọn ngày tham gia' });
-            }
-
-            const requestedSeats = Number.parseInt(num_people, 10);
-            if (!/^\d{4}-\d{2}-\d{2}$/.test(String(booking_date)) || !Number.isSafeInteger(requestedSeats) || requestedSeats < 1) {
-                return res.status(400).json({ success: false, message: 'Ngày hoặc số lượng người không hợp lệ.' });
-            }
-
-            client = await db.pgPool.connect();
-            await client.query('BEGIN');
-            const workshopResult = await client.query(
-                'SELECT * FROM workshops WHERE id = $1 AND is_active = 1 FOR UPDATE',
-                [workshop_id]
-            );
-            const workshop = workshopResult.rows[0];
-            if (!workshop) {
-                await client.query('ROLLBACK');
-                return res.status(404).json({ success: false, message: 'Sản phẩm không tồn tại' });
-            }
-
-            // Serialize capacity check and insert using a row lock on workshop.
-            const bookedResult = await client.query(
-                "SELECT COALESCE(SUM(num_people), 0) AS total FROM workshop_bookings WHERE workshop_id = $1 AND booking_date = $2 AND status != 'cancelled'",
-                [workshop_id, booking_date]
-            );
-            const bookedSeats = Number(bookedResult.rows[0]?.total || 0);
-            const remainingSeats = Number(workshop.max_participants) - bookedSeats;
-            
-            if (requestedSeats > remainingSeats) {
-                await client.query('ROLLBACK');
-                return res.status(400).json({ 
-                    success: false, 
-                    message: `Xin lỗi, sản phẩm đã hết hàng vào ngày này (chỉ còn ${remainingSeats > 0 ? remainingSeats : 0} sản phẩm)` 
-                });
-            }
-
-            const totalPrice = Number(workshop.price) * requestedSeats;
-            const booking = {
-                id: uuidv4(),
-                qr_ticket: `BLH-WS-${Date.now()}-${Math.random().toString(36).slice(2, 8).toUpperCase()}`
-            };
-            await client.query(`
-                INSERT INTO workshop_bookings (id, workshop_id, user_id, booking_date, booking_time, num_people, total_price, qr_ticket, note)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-            `, [booking.id, workshop_id, user.id, booking_date, booking_time || '08:00', requestedSeats, totalPrice, booking.qr_ticket, note || null]);
-            await client.query('COMMIT');
-
-            // Send notification to visitor
-            await NotificationController.create(
-                user.id, 'shop',
-                `Đặt mua sản phẩm thành công!`,
-                `Bạn đã đặt mua "${workshop.title}". Mã đơn: ${booking.qr_ticket}. +50 điểm`,
-                '/my-shops'
-            );
-
-            // Send notification to Destination Manager
-            try {
-                const [managers] = await db.query(
-                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = $1",
-                    [workshop.destination_id]
-                );
-                for (let mgr of managers) {
-                    await NotificationController.create(
-                        mgr.id, 'shop',
-                        `Khách mới đặt mua sản phẩm!`,
-                        `${user.full_name || 'Khách hàng'} vừa đặt mua "${workshop.title}" (${requestedSeats} sản phẩm). Mã đơn: ${booking.qr_ticket}`,
-                        '/manager/shops'
-                    );
-                }
-            } catch (e) { console.error('Notify manager book error:', e); }
-
-            res.json({
-                success: true,
-                message: `Đặt chỗ thành công! Mã vé QR: ${booking.qr_ticket}`,
-                booking: booking
-            });
-        } catch (error) {
-            if (client) await client.query('ROLLBACK').catch(() => {});
-            console.error('Shop book error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống khi đặt chỗ' });
-        } finally {
-            client?.release();
-        }
-    },
-
-    // POST /api/shop/cancel - Hủy đơn đặt mua sản phẩm
-    cancel: async (req, res) => {
-        try {
-            const user = req.user || req.session.user;
-            if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
-
-            const { bookingId } = req.body;
-            if (!bookingId) return res.status(400).json({ success: false, message: 'Thiếu mã đặt chỗ' });
-
-            // Fetch booking
-            const [bookings] = await db.query(
-                "SELECT wb.*, w.title as workshop_title, w.destination_id FROM workshop_bookings wb LEFT JOIN workshops w ON wb.workshop_id = w.id WHERE wb.id = $1 AND wb.user_id = $2",
-                [bookingId, user.id]
-            );
-
-            if (bookings.length === 0) {
-                return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin đặt chỗ của bạn' });
-            }
-
-            const booking = bookings[0];
-            if (booking.status === 'completed' || booking.status === 'cancelled') {
-                return res.status(400).json({ success: false, message: 'Không thể hủy lịch hẹn ở trạng thái này' });
-            }
-
-            // Update status to cancelled
-            await db.query(
-                "UPDATE workshop_bookings SET status = 'cancelled' WHERE id = $1",
-                [bookingId]
-            );
-
-            // Send notification to visitor
-            await NotificationController.create(
-                user.id, 'shop',
-                `Đã hủy đơn đặt mua`,
-                `Bạn đã hủy đơn "${booking.workshop_title || 'sản phẩm'}". Điểm thưởng trừ 50đ.`,
-                '/my-shops'
-            );
-
-            // Send notification to Destination Manager
-            try {
-                const [managers] = await db.query(
-                    "SELECT id FROM users WHERE role = 'manager' AND managed_destination_id = $1",
-                    [booking.destination_id]
-                );
-                for (let mgr of managers) {
-                    await NotificationController.create(
-                        mgr.id, 'shop',
-                        `Khách hàng hủy đơn đặt mua`,
-                        `${user.full_name || 'Khách hàng'} đã hủy đơn "${booking.workshop_title || 'sản phẩm'}".`,
-                        '/manager/shops'
-                    );
-                }
-            } catch (e) { console.error('Notify manager cancel error:', e); }
-
-            res.json({ success: true, message: 'Đã hủy đặt chỗ thành công.' });
-        } catch (error) {
-            console.error('Shop cancel error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống khi hủy đặt chỗ' });
-        }
-    },
-
-    // POST /api/shop/review - Đánh giá sản phẩm
-    review: async (req, res) => {
-        let client;
-        try {
-            const user = req.user || req.session.user;
-            if (!user) return res.status(401).json({ success: false, message: 'Chưa đăng nhập' });
-
-            const { booking_id, rating, review } = req.body;
-            const numericRating = Number(rating);
-            if (!booking_id || !Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5 || typeof review !== 'string' || review.trim().length > 2000) {
-                return res.status(400).json({ success: false, message: 'Thông tin đánh giá không hợp lệ.' });
-            }
-
-            client = await db.pgPool.connect();
-            await client.query('BEGIN');
-            const updated = await client.query(
-                `UPDATE workshop_bookings
-                 SET rating = $1, review = $2
-                 WHERE id = $3 AND user_id = $4 AND status = 'completed' AND rating IS NULL
-                 RETURNING id`,
-                [numericRating, review.trim(), booking_id, user.id]
-            );
-            if (updated.rowCount !== 1) {
-                await client.query('ROLLBACK');
-                return res.status(409).json({ success: false, message: 'Đơn không thuộc tài khoản, chưa thể đánh giá hoặc đã được đánh giá.' });
-            }
-            await client.query(
-                'UPDATE users SET total_points = COALESCE(total_points, 0) + 30 WHERE id = $1',
-                [user.id]
-            );
-            await client.query('COMMIT');
-
-            res.json({ success: true, message: 'Cảm ơn đánh giá của bạn! +30 điểm' });
-        } catch (error) {
-            if (client) await client.query('ROLLBACK').catch(() => {});
-            console.error('Shop review error:', error);
-            res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
-        } finally {
-            client?.release();
-        }
-    },
-
-    // GET /my-shops - Lịch sử đơn hàng của du khách
-    myBookings: async (req, res) => {
-        try {
-            const user = req.user || req.session.user;
-            if (!user) return res.redirect('/auth/login');
-
-            const bookings = await Workshop.getBookingsByUser(user.id);
-
-            res.render('shop/my-bookings', {
-                title: 'Đơn hàng Shop của tôi',
-                bookings
-            });
-        } catch (error) {
-            console.error('My bookings error:', error);
-            res.status(500).send('Lỗi hệ thống');
+            return res.status(500).send('Lỗi hệ thống');
         }
     }
 };

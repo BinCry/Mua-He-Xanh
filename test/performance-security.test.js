@@ -81,7 +81,7 @@ test('CI quality gate uses an isolated PostgreSQL database and explicit browser 
     assert.match(workflow, /TEST_DATABASE_URL: postgresql:\/\/postgres:postgres@127\.0\.0\.1:5432\/binh_loi_audit/);
     assert.match(workflow, /npm run test:audit-db/);
     assert.match(workflow, /node scripts\/seed_audit_e2e\.js/);
-    assert.match(workflow, /playwright test --project=chromium --workers=1 --retries=0/);
+    assert.match(workflow, /playwright test --project=chromium --project=firefox --project=webkit --workers=1 --retries=0/);
     assert.match(workflow, /npm audit --omit=dev --audit-level=high/);
 });
 
@@ -116,6 +116,17 @@ test('schema rollback commands require an explicit migration confirmation', () =
     }
     assert.match(operational, /Refusing in-place rollback with operational data/);
     assert.match(festival, /Refusing in-place rollback because festival registration data changed/);
+});
+
+test('authentication session expiry has an explicit, forward-only migration', () => {
+    const migration = fs.readFileSync('scripts/apply_auth_session_schema.js', 'utf8');
+    const packageJson = fs.readFileSync('package.json', 'utf8');
+    assert.match(packageJson, /db:migrate:auth-sessions/);
+    assert.match(migration, /20261012_auth_session_expiry_v1/);
+    assert.match(migration, /ALTER TABLE user_sessions ADD COLUMN IF NOT EXISTS created_at/);
+    assert.match(migration, /UPDATE user_sessions SET created_at = COALESCE\(created_at, updated_at, NOW\(\)\)/);
+    assert.match(migration, /--dry-run/);
+    assert.match(migration, /DATABASE_SSL_REJECT_UNAUTHORIZED !== 'false'/);
 });
 
 test('avatar and festival fallbacks use durable public assets', () => {

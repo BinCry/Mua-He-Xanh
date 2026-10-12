@@ -477,7 +477,10 @@ function getMyCoords() {
             alert('Lỗi lấy vị trí: ' + err.message + '. Vui lòng cấp quyền truy cập vị trí cho trình duyệt.');
             if (feedback) {
                 feedback.className = "form-text small mt-1 text-danger";
-                feedback.innerHTML = '<i class="bi bi-exclamation-circle-fill me-1"></i>Lỗi lấy định vị GPS: ' + err.message;
+                feedback.replaceChildren();
+                const icon = document.createElement('i');
+                icon.className = 'bi bi-exclamation-circle-fill me-1';
+                feedback.append(icon, document.createTextNode('Lỗi lấy định vị GPS: ' + (err.message || 'Không xác định')));
             }
         },
         { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }

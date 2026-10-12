@@ -1,22 +1,25 @@
 const db = require('../core/database');
+const { normalizeSearchText, buildTokenSearchClause } = require('../utils/search');
 
 class ProductController {
     async index(req, res) {
         try {
-            const search = String(req.query.q || '').trim();
+            const searchQuery = String(req.query.q || '').trim().replace(/\s+/g, ' ').slice(0, 100);
+            const search = normalizeSearchText(searchQuery);
             const params = [];
             let sql = 'SELECT p.id, p.title, p.description, p.price_vnd, p.stock_on_hand, p.reserved_stock, d.name AS destination_name ' +
                 'FROM products p LEFT JOIN destinations d ON d.id = p.destination_id WHERE p.is_active = TRUE';
             if (search) {
-                params.push('%' + search + '%');
-                sql += ' AND (p.title ILIKE $1 OR p.description ILIKE $1 OR d.name ILIKE $1)';
+                const searchClause = buildTokenSearchClause(['p.title', 'p.description', 'd.name'], search, 1);
+                sql += ` AND (${searchClause.clause})`;
+                params.push(...searchClause.params);
             }
             sql += ' ORDER BY p.created_at DESC LIMIT 100';
             const [products] = await db.query(sql, params);
             return res.render('products/index', {
                 title: 'Shop hàng hóa',
                 products,
-                searchQuery: search
+                searchQuery
             });
         } catch (error) {
             console.error('Product index error:', error);

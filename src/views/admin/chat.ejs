@@ -824,19 +824,24 @@ function formatMessengerSidebarDate(dateStr) {
         filterConversations();
     }
 
+    function normalizeChatSearch(value) {
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'd').toLowerCase().trim();
+    }
+
     function filterConversations() {
-        const query = document.getElementById('chat-search').value.toLowerCase();
+        const query = normalizeChatSearch(document.getElementById('chat-search').value);
+        const queryTokens = query.split(/\s+/).filter(Boolean);
         const items = document.querySelectorAll('.convo-item-card');
         items.forEach(item => {
-            const text = item.innerText.toLowerCase();
-            const matchesQuery = text.includes(query);
+            const text = normalizeChatSearch(item.innerText);
+            const matchesQuery = queryTokens.every(token => text.includes(token));
             let matchesTab = true;
 
             if (currentFilterTab === 'unread') {
-                const isSentByYou = text.includes('bạn:');
+                const isSentByYou = text.includes(normalizeChatSearch('Bạn:'));
                 matchesTab = !isSentByYou;
             } else if (currentFilterTab === 'replied') {
-                const isSentByYou = text.includes('bạn:');
+                const isSentByYou = text.includes(normalizeChatSearch('Bạn:'));
                 matchesTab = isSentByYou;
             }
 

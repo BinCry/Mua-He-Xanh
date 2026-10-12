@@ -162,6 +162,15 @@ document.addEventListener('DOMContentLoaded', function() {
     let html5QrCode = null;
     let scannerStopped = false;
 
+    // API error text and destination labels are data, never markup.  This
+    // keeps a malformed response or an administrator-entered destination
+    // name from becoming executable HTML in the check-in flow.
+    function escapeHtml(value) {
+        const node = document.createElement('div');
+        node.textContent = String(value == null ? '' : value);
+        return node.innerHTML;
+    }
+
     // Custom Camera Error handling
     function showCameraError(errorMsg) {
         document.getElementById('camera-loading').classList.add('d-none');
@@ -415,8 +424,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         confetti({ particleCount: 200, spread: 120, origin: { y: 0.6 } });
                     }
 
-                    var dest = res.data.destination;
-                    document.getElementById('modal-title').innerText = dest.name;
+                    var dest = res.data.destination || {};
+                    var destinationName = String(dest.name || 'Bình Lợi');
+                    document.getElementById('modal-title').innerText = destinationName;
                     
                     var imgSrc = dest.cover_image || '/images/Poster 1.jpg';
                     if (imgSrc && imgSrc.indexOf('http') !== 0 && imgSrc.indexOf('data:') !== 0 && imgSrc.indexOf('/') !== 0) {
@@ -427,7 +437,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('modal-points').innerHTML = 
                         '<div class="d-inline-flex align-items-center gap-2 px-4 py-2 rounded-pill" style="background: rgba(146,39,36,0.08); border: 1px solid rgba(146,39,36,0.15);">' +
                             '<i class="bi bi-star-fill text-warning animate__animated animate__bounceIn"></i>' +
-                            '<span class="fw-bold text-danger">+' + res.data.points_earned + ' điểm thưởng</span>' +
+                            '<span class="fw-bold text-danger">+' + Math.max(0, Number(res.data.points_earned) || 0) + ' điểm thưởng</span>' +
                         '</div>';
 
                     document.getElementById('qr-result').innerHTML = 
@@ -435,7 +445,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             '<i class="bi bi-check-circle-fill text-success fs-4"></i>' +
                             '<div>' +
                                 '<span class="fw-bold text-success d-block">Xác thực vị trí thành công!</span>' +
-                                '<small class="text-muted">Điểm đến: ' + dest.name + '</small>' +
+                            '<small class="text-muted">Điểm đến: ' + escapeHtml(destinationName) + '</small>' +
                             '</div>' +
                         '</div>';
 
@@ -461,14 +471,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Display simple error message - only "Xác thực thất bại" + descriptive message
     function showCheckinError(msg, type) {
-        msg = msg || 'Xác thực thất bại';
+        msg = String(msg || 'Xác thực thất bại');
+        var safeMessage = escapeHtml(msg);
 
         if (type === 'AUTH_REQUIRED') {
             document.getElementById('qr-result').innerHTML = 
                 '<div class="alert alert-warning rounded-3 mt-2 p-3 text-center shadow-xs">' +
                     '<i class="bi bi-person-lock fs-3 d-block mb-2 text-danger"></i>' +
                     '<strong class="fs-6 d-block mb-1 text-dark">Yêu cầu đăng nhập</strong>' +
-                    '<span class="small text-muted d-block mb-3">' + msg + '</span>' +
+                    '<span class="small text-muted d-block mb-3">' + safeMessage + '</span>' +
                     '<a href="/auth/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search) + '" class="btn btn-sm text-white rounded-pill px-4 py-2 fw-bold shadow" style="background: var(--primary);">' +
                         '<i class="bi bi-box-arrow-in-right me-1"></i> Đăng nhập ngay</a>' +
                 '</div>';
@@ -481,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function() {
             '<div class="alert alert-danger rounded-3 mt-2 p-3 text-center">' +
                 '<i class="bi bi-exclamation-triangle-fill fs-4 d-block mb-2"></i>' +
                 '<strong class="fs-6 d-block mb-1">Xác thực thất bại</strong>' +
-                '<span class="small opacity-90">' + msg + '</span>' +
+                '<span class="small opacity-90">' + safeMessage + '</span>' +
             '</div>' +
             '<button class="btn btn-sm btn-outline-danger rounded-pill mt-2" onclick="location.reload()">' +
                 '<i class="bi bi-arrow-clockwise me-1"></i> Quét lại</button>';
@@ -495,7 +506,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 '<span class="text-warning"><i class="bi bi-clock-history me-1"></i> Đã check-in (Đang chờ 24h)</span>';
         } else {
             document.getElementById('location-status').innerHTML = 
-                '<span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> ' + msg + '</span>';
+                '<span class="text-danger"><i class="bi bi-exclamation-triangle-fill me-1"></i> ' + safeMessage + '</span>';
         }
         
         var btn = document.getElementById('btn-gps-check');

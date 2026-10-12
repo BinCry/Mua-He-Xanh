@@ -1,0 +1,28 @@
+<section class="py-4 py-md-5 bg-light min-vh-100">
+  <div class="container py-3" style="max-width:1000px">
+    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-3 mb-4">
+      <div><h1 class="h3 fw-bold mb-1">Booking Workshop của tôi</h1><p class="text-secondary mb-0">Theo dõi trạng thái, hủy booking trước khi hoàn thành và xem lịch sử trải nghiệm.</p></div>
+      <a href="/workshops" class="btn btn-outline-primary rounded-pill">Xem Workshop</a>
+    </div>
+    <div id="bookingFeedback" class="visually-hidden" role="status" aria-live="polite"></div>
+    <div class="vstack gap-3">
+      <% bookings.forEach(booking => { const canCancel = booking.status === 'pending' || booking.status === 'confirmed'; %>
+        <article class="card border-0 shadow-sm rounded-4"><div class="card-body p-4 d-flex flex-column flex-md-row gap-3 justify-content-between align-items-md-center"><div><p class="small text-success fw-semibold mb-1"><%= booking.destination_name || 'Bình Lợi' %></p><h2 class="h5 fw-bold mb-1"><%= booking.workshop_title || booking.title_snapshot %></h2><p class="small text-secondary mb-0"><%= new Date(booking.starts_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %> · <%= booking.seats %> chỗ · <%= new Intl.NumberFormat('vi-VN').format(Number(booking.price_vnd_snapshot) * Number(booking.seats)) %>đ</p></div><div class="d-flex align-items-center gap-2 flex-wrap"><span class="badge rounded-pill text-bg-<%= booking.status === 'completed' ? 'success' : booking.status === 'cancelled' ? 'secondary' : booking.status === 'confirmed' ? 'primary' : 'warning' %>"><%= booking.status %></span><% if (canCancel) { %><button class="btn btn-outline-danger rounded-pill cancel-workshop-booking" data-id="<%= booking.id %>">Hủy booking</button><% } %></div></div></article>
+      <% }) %>
+      <% if (!bookings.length) { %><div class="card border-0 shadow-sm rounded-4 p-5 text-center"><h2 class="h5">Bạn chưa có booking Workshop</h2><p class="text-secondary mb-3">Chọn một ca trải nghiệm phù hợp để bắt đầu.</p><a href="/workshops" class="btn btn-primary rounded-pill mx-auto">Khám phá Workshop</a></div><% } %>
+    </div>
+  </div>
+</section>
+<script>
+document.querySelectorAll('.cancel-workshop-booking').forEach(button => button.addEventListener('click', async () => {
+  if (!window.confirm('Bạn có chắc muốn hủy booking này?')) return;
+  button.disabled = true;
+  const feedback = document.getElementById('bookingFeedback');
+  try {
+    const response = await fetch(`/api/workshop-bookings/${encodeURIComponent(button.dataset.id)}/status`, {method:'POST', headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()}, body:JSON.stringify({status:'cancelled'})});
+    const payload = await response.json().catch(() => ({}));
+    if (!response.ok || !payload.success) throw new Error(payload.message || 'Không thể hủy booking.');
+    window.location.reload();
+  } catch (error) { feedback.className = 'alert alert-danger'; feedback.textContent = error.message; button.disabled = false; }
+}));
+</script>

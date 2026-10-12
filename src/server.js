@@ -353,7 +353,9 @@ app.use(async (req, res, next) => {
             req.session.sessionChecked = true;
             const db = require('./core/database');
             const [sessions] = await db.query(
-                "SELECT user_id FROM user_sessions WHERE uuid = $1 ORDER BY updated_at DESC LIMIT 1",
+                `SELECT user_id FROM user_sessions
+                 WHERE uuid = $1 AND created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
+                 ORDER BY updated_at DESC LIMIT 1`,
                 [req.cookies.session_uuid]
             );
             if (sessions.length > 0 && sessions[0].user_id) {
@@ -427,7 +429,9 @@ app.use(async (req, res, next) => {
     res.locals.safeJsonForScript = safeJsonForScript;
     
     // Cache Buster for assets
-    res.locals.assetV = '114.0.0';
+    // Bump together with visual/font releases so browser and PWA caches never
+    // keep an older stylesheet with incomplete Vietnamese glyph coverage.
+    res.locals.assetV = '115.0.0';
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);

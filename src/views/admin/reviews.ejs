@@ -597,7 +597,18 @@ function viewReviewModal(id, userName, avatar, content, location, images, rating
     }
 
     document.getElementById('modal_review_user').innerText = userName || 'Du khách';
-    document.getElementById('modal_review_avatar').src = avatar || '/images/default-avatar.svg';
+    const safeMediaUrl = (value, fallback = '') => {
+        if (typeof value !== 'string' || !value.trim()) return fallback;
+        try {
+            const parsed = new URL(value, window.location.origin);
+            if (!['http:', 'https:'].includes(parsed.protocol)) return fallback;
+            return parsed.href;
+        } catch (_) {
+            return fallback;
+        }
+    };
+
+    document.getElementById('modal_review_avatar').src = safeMediaUrl(avatar, '/images/default-avatar.svg');
     document.getElementById('modal_review_meta').innerText = (location ? location + ' • ' : '') + (dateStr || '');
     document.getElementById('modal_review_content').innerText = content || '';
     
@@ -611,24 +622,33 @@ function viewReviewModal(id, userName, avatar, content, location, images, rating
     const imgs = Array.isArray(images) ? images.filter(Boolean) : (images ? [images] : []);
     
     if (imgs.length === 1) {
-        imgEl.src = imgs[0];
+        imgEl.src = safeMediaUrl(imgs[0], '/images/default-placeholder.svg');
         imgWrap.className = 'text-center rounded-4 overflow-hidden shadow-2xs border bg-black mb-2';
         imgEl.classList.remove('d-none');
         imgWrap.classList.remove('d-none');
     } else if (imgs.length > 1) {
-        let gridHtml = '<div class="row g-2 p-2 bg-light rounded-4 border">';
-        imgs.forEach(img => {
-            gridHtml += `
-                <div class="col-6 col-md-4">
-                    <div class="rounded-3 overflow-hidden shadow-2xs border bg-white cursor-pointer" style="aspect-ratio: 1/1;">
-                        <img src="${img}" class="w-100 h-100" style="object-fit: cover;" onclick="window.open('${img}', '_blank')">
-                    </div>
-                </div>
-            `;
+        const grid = document.createElement('div');
+        grid.className = 'row g-2 p-2 bg-light rounded-4 border';
+        imgs.map(img => safeMediaUrl(img)).filter(Boolean).forEach(img => {
+            const column = document.createElement('div');
+            column.className = 'col-6 col-md-4';
+            const frame = document.createElement('button');
+            frame.type = 'button';
+            frame.className = 'rounded-3 overflow-hidden shadow-2xs border bg-white cursor-pointer p-0 w-100';
+            frame.style.aspectRatio = '1/1';
+            frame.setAttribute('aria-label', 'Mở ảnh đánh giá');
+            frame.addEventListener('click', () => window.open(img, '_blank', 'noopener,noreferrer'));
+            const image = document.createElement('img');
+            image.src = img;
+            image.alt = 'Ảnh đánh giá';
+            image.className = 'w-100 h-100';
+            image.style.objectFit = 'cover';
+            frame.appendChild(image);
+            column.appendChild(frame);
+            grid.appendChild(column);
         });
-        gridHtml += '</div>';
         imgWrap.className = 'd-block mb-2';
-        imgWrap.innerHTML = gridHtml;
+        imgWrap.replaceChildren(grid);
         imgWrap.classList.remove('d-none');
     } else {
         imgWrap.classList.add('d-none');
@@ -835,6 +855,15 @@ function goToTemplateStep(stepNum) {
     }
 }
 
+function escapeAttribute(value) {
+    return String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+}
+
 function addSlotRow(slotData = null) {
     const container = document.getElementById('slotsBuilderContainer');
     const rowIdx = container.querySelectorAll('.slot-builder-row').length + 1;
@@ -855,7 +884,7 @@ function addSlotRow(slotData = null) {
         <div class="d-flex align-items-center justify-content-between mb-2 pb-2 border-bottom">
             <div class="d-flex align-items-center gap-2 flex-grow-1 min-w-0 me-2">
                 <span class="badge rounded-pill px-2.5 py-1 fw-bold slot-badge-idx text-white" style="background: ${color}; font-size: 0.74rem;">Cảnh #${rowIdx}</span>
-                <input type="text" class="form-control form-control-sm admin-input slot-title-input py-1 px-2.5 fw-bold flex-grow-1" value="${title}" placeholder="Tên phân cảnh (vd: Check-in vườn mai)..." style="font-size: 0.84rem;">
+                <input type="text" class="form-control form-control-sm admin-input slot-title-input py-1 px-2.5 fw-bold flex-grow-1" value="${escapeAttribute(title)}" placeholder="Tên phân cảnh (vd: Check-in vườn mai)..." style="font-size: 0.84rem;">
             </div>
             <div class="d-flex align-items-center gap-2">
                 <span class="badge bg-light text-dark border font-monospace slot-time-range-badge" style="font-size: 0.72rem;">${start}s → ${end}s (${duration}s)</span>
@@ -907,7 +936,7 @@ function addSlotRow(slotData = null) {
             <div class="col-12 mt-1">
                 <div class="input-group input-group-sm">
                     <span class="input-group-text bg-light text-muted x-small py-0.5"><i class="bi bi-chat-left-quote me-1"></i>Lời dẫn:</span>
-                    <input type="text" class="form-control form-control-sm admin-input slot-sub-input py-1 px-2.5 x-small" value="${subtitle}" placeholder="Gợi ý phụ đề hiển thị cho cảnh này...">
+                    <input type="text" class="form-control form-control-sm admin-input slot-sub-input py-1 px-2.5 x-small" value="${escapeAttribute(subtitle)}" placeholder="Gợi ý phụ đề hiển thị cho cảnh này...">
                 </div>
             </div>
         </div>
@@ -1015,7 +1044,7 @@ function updateSlotDurationSum() {
         progressHtml += `
             <div class="rounded-1 text-white fw-bold d-flex align-items-center justify-content-center text-truncate px-1"
                  style="width: ${widthPct}%; background: ${color}; font-size: 0.65rem; height: 100%; transition: all 0.2s;"
-                 title="${title}: ${st}s - ${et}s (${diff.toFixed(1)}s)">
+                 title="${escapeAttribute(title)}: ${st}s - ${et}s (${diff.toFixed(1)}s)">
                 #${idx + 1} (${diff.toFixed(1)}s)
             </div>
         `;

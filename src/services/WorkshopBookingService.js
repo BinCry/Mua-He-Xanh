@@ -25,7 +25,7 @@ class WorkshopBookingService {
             const [sessions] = await tx.query(
                 'SELECT ws.id, ws.starts_at, ws.ends_at, ws.price_vnd, ws.capacity, ws.reserved_seats, w.title ' +
                 'FROM workshop_sessions ws JOIN workshops w ON w.id = ws.workshop_id ' +
-                'WHERE ws.id = $1 AND ws.is_active = TRUE AND w.is_active = 1 FOR UPDATE',
+                "WHERE ws.id = $1 AND ws.is_active = TRUE AND w.is_active = 1 AND w.catalog_kind = 'workshop' FOR UPDATE",
                 [sessionId]
             );
             const session = sessions[0];

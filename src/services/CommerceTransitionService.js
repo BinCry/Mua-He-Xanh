@@ -46,7 +46,7 @@ class CommerceTransitionService {
             operation: 'workshop-booking.transition',
             select: 'SELECT b.id, b.user_id, b.session_id, b.seats AS quantity, b.status, w.destination_id, ws.ends_at, ws.reserved_seats ' +
                 'FROM workshop_session_bookings b JOIN workshop_sessions ws ON ws.id = b.session_id ' +
-                'JOIN workshops w ON w.id = ws.workshop_id WHERE b.id = $1 FOR UPDATE',
+                "JOIN workshops w ON w.id = ws.workshop_id WHERE b.id = $1 AND w.catalog_kind = 'workshop' FOR UPDATE",
             complete: async (tx, record) => {
                 if (new Date(record.ends_at) > now) throw domainError('WORKSHOP_SESSION_NOT_FINISHED');
                 return tx.query(
