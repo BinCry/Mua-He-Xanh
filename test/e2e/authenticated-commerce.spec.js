@@ -57,7 +57,7 @@ test('Workshop management UI scopes a manager to the assigned destination and le
     // scope. The fixture has a Workshop only at destination 1.
     await page.goto(`/manager/workshops?destination=${otherDestinationId}`, { waitUntil: 'domcontentloaded' });
     await expect(page.getByRole('heading', { name: 'Workshop E2E', exact: true })).toBeVisible();
-    await expect(page.getByText('Dia diem E2E 1', { exact: true })).toBeVisible();
+    await expect(page.getByRole('article').getByText('Dia diem E2E 1', { exact: true })).toBeVisible();
     await expect(page.getByText('Dia diem E2E 2', { exact: true })).toHaveCount(0);
     await expect(page.locator('select#destination')).toHaveCount(0);
 

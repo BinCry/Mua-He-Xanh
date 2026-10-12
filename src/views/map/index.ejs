@@ -35,7 +35,7 @@
                             <div>
                                 <h6 class="fw-bold mb-1 text-dark small"><%= dest.name %></h6>
                                 <p class="x-small text-muted mb-2 line-clamp-1"><%= dest.short_desc %></p>
-                                <span class="badge bg-light text-primary border"><%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm')))) %></span>
+                                <span class="badge bg-light border map-type-badge"><%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm')))) %></span>
                             </div>
                         </div>
                     </div>
@@ -94,7 +94,7 @@
                         <div class="min-w-0 flex-grow-1">
                             <h6 class="fw-bold mb-1 text-dark small text-truncate"><%= dest.name %></h6>
                             <p class="x-small text-muted mb-1 line-clamp-1"><%= dest.short_desc %></p>
-                            <span class="badge bg-light text-primary border" style="font-size: 0.65rem;"><%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm')))) %></span>
+                            <span class="badge bg-light border map-type-badge" style="font-size: 0.65rem;"><%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm')))) %></span>
                         </div>
                         <i class="bi bi-chevron-right text-muted me-2"></i>
                     </div>
@@ -262,6 +262,8 @@ function locateMe() {
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .z-index-10 { z-index: 10; }
+    /* #0d6efd on Bootstrap's light badge misses WCAG AA in WebKit. */
+    .map-type-badge { color: #0a58ca !important; }
     .map-control-btn { transition: all 0.2s; }
     .map-control-btn:hover { transform: scale(1.1); }
     #map { background-color: #d5f2e3 !important; } /* Thiết lập màu nền xanh ngọc giống sơ đồ */
