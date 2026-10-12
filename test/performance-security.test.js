@@ -81,7 +81,7 @@ test('CI quality gate uses an isolated PostgreSQL database and explicit browser 
     assert.match(workflow, /TEST_DATABASE_URL: postgresql:\/\/postgres:postgres@127\.0\.0\.1:5432\/binh_loi_audit/);
     assert.match(workflow, /npm run test:audit-db/);
     assert.match(workflow, /node scripts\/seed_audit_e2e\.js/);
-    assert.match(workflow, /playwright test --project=chromium --workers=1 --retries=0/);
+    assert.match(workflow, /playwright test --project=chromium --project=firefox --project=webkit --workers=1 --retries=0/);
     assert.match(workflow, /npm audit --omit=dev --audit-level=high/);
 });
 
