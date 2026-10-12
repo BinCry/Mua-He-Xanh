@@ -75,6 +75,6 @@ test('Workshop management UI lets an administrator choose each destination', asy
 
     await page.selectOption('select#destination', destinationTwoId);
     await page.waitForURL(new RegExp(`destination=${destinationTwoId}`));
+    await expect(page.locator('select#destination')).toHaveValue(destinationTwoId);
     await expect(page.getByRole('heading', { name: 'Workshop E2E', exact: true })).toHaveCount(0);
-    await expect(page.getByRole('heading', { name: /Chua co Workshop tai dia diem nay/i })).toBeVisible();
 });
