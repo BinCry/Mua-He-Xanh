@@ -58,11 +58,12 @@ test('Bootstrap icons are installed and served locally instead of requiring a CD
     assert.doesNotMatch(admin, /cdn\.jsdelivr\.net\/npm\/bootstrap-icons/);
 });
 
-test('public fallback images refer to an existing asset', () => {
+test('login banner and public fallback images refer to existing assets', () => {
     const login = fs.readFileSync('src/views/auth/login.ejs', 'utf8');
     const serviceWorker = fs.readFileSync('public/sw.js', 'utf8');
-    assert.match(login, /\/images\/Poster 1\.jpg/);
+    assert.match(login, /\/uploads\/media\/media-1786956792675-ze1xv1\.png/);
     assert.match(serviceWorker, /Poster(?:%20| )1\.jpg/);
+    assert.ok(fs.existsSync('public/uploads/media/media-1786956792675-ze1xv1.png'));
     assert.ok(fs.existsSync('public/images/Poster 1.jpg'));
 });
 
