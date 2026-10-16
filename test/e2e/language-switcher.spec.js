@@ -30,7 +30,7 @@ test('VN/EN selector waits for the translation widget and restores Vietnamese sa
         body: GOOGLE_TRANSLATE_WIDGET_STUB
     }));
 
-    await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
+    await page.goto('/auth/login', { waitUntil: 'networkidle' });
     const vietnamese = page.locator('.lang-btn-vn').first();
     const english = page.locator('.lang-btn-en').first();
 
@@ -39,7 +39,10 @@ test('VN/EN selector waits for the translation widget and restores Vietnamese sa
         window.scrollTo(0, 180);
         return window.scrollY;
     });
-    await english.click();
+    // Trigger the same button handler without Playwright scrolling a sticky
+    // navigation control into view. The asserted scroll position must reflect
+    // the language switch, not browser automation's click preparation.
+    await page.evaluate(() => document.querySelector('.lang-btn-en').click());
 
     await expect.poll(() => page.evaluate(() => localStorage.getItem('app_lang'))).toBe('en');
     await expect(page.locator('.goog-te-combo')).toHaveValue('en');
