@@ -128,6 +128,7 @@
         });
     })();
 </script>
+<script src="/js/community-engagement.js?v=<%= typeof assetV !== 'undefined' ? assetV : '1' %>" defer></script>
 
 <!-- STATS: Dark Section with Impressive Numbers and Wave Separators -->
 <section class="stats-dark position-relative" style="border-top: 4px solid var(--primary); border-bottom: 4px solid var(--primary);">
@@ -447,7 +448,7 @@
                 <div class="col-lg-8">
                     <div class="d-flex flex-column gap-4">
                         <% reviews.slice(0, 5).forEach((r, i) => { %>
-                        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white reveal-up">
+                    <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white reveal-up" data-review-id="<%= r.id %>">
                             <!-- User Header -->
                             <div class="d-flex align-items-start justify-content-between gap-2 p-3 p-sm-4 pb-2">
                                 <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
@@ -548,12 +549,12 @@
                             <div class="d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
                                 <span class="d-flex align-items-center gap-1 text-dark fw-bold">
                                     <i class="bi bi-heart-fill text-danger fs-5"></i>
-                                    <span><%= parseInt(r.likes_count || 0, 10) %> tim</span>
+                                    <span><span data-engagement-count="likes"><%= parseInt(r.likes_count || 0, 10) %></span> tim</span>
                                 </span>
                                 
                                 <span class="d-flex align-items-center gap-1 text-dark fw-bold me-auto">
                                     <i class="bi bi-chat-fill text-primary fs-5"></i>
-                                    <span><%= parseInt(r.comments_count || 0, 10) %> bình luận</span>
+                                    <span><span data-engagement-count="comments"><%= parseInt(r.comments_count || 0, 10) %></span> bình luận</span>
                                 </span>
                                 
                                 <a href="/reviews" class="btn btn-sm btn-light rounded-pill px-3 py-1 text-danger fw-bold shadow-2xs" style="font-size: 0.78rem;">

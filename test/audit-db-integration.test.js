@@ -103,6 +103,9 @@ if (!canRun) {
                 id VARCHAR(36) PRIMARY KEY, review_id VARCHAR(36), user_id VARCHAR(36), guest_uuid VARCHAR(36),
                 parent_id VARCHAR(36), content TEXT, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS review_likes (
+                id VARCHAR(36) PRIMARY KEY, review_id VARCHAR(36) NOT NULL, user_id VARCHAR(36), guest_uuid VARCHAR(36)
+            );
             CREATE TABLE IF NOT EXISTS events (
                 id VARCHAR(36) PRIMARY KEY, title TEXT, is_active INT NOT NULL DEFAULT 1
             );
@@ -166,7 +169,7 @@ if (!canRun) {
                 deleted_for TEXT DEFAULT ''
             );
         `);
-        await db.query('TRUNCATE festival_tickets, festivals, workshop_session_bookings, workshop_sessions, workshops, product_orders, products, review_comments, reviews, journey_stops, journeys, destinations, user_sessions, users, events, messages, point_ledger, idempotency_keys');
+        await db.query('TRUNCATE festival_tickets, festivals, workshop_session_bookings, workshop_sessions, workshops, product_orders, products, review_likes, review_comments, reviews, journey_stops, journeys, destinations, user_sessions, users, events, messages, point_ledger, idempotency_keys');
         await db.query(
             `INSERT INTO users (id, email, full_name, role, role_id, is_active) VALUES
              ($1, 'owner@example.test', 'Owner', 'user', 3, 1),
@@ -264,6 +267,41 @@ if (!canRun) {
         assert.equal(res.statusCode, 409);
         const [rows] = await db.query('SELECT comments_count FROM reviews WHERE id = $1', ['00000000-0000-4000-8000-000000000501']);
         assert.equal(Number(rows[0].comments_count), 0);
+    });
+
+    test('community likes require an account and preserve exact totals under concurrent requests', async () => {
+        const reviewId = '00000000-0000-4000-8000-000000000503';
+        await db.query('INSERT INTO reviews (id, user_id) VALUES ($1, $2)', [reviewId, ownerId]);
+
+        const anonymous = response();
+        await ReviewController.toggleLike({ body: { review_id: reviewId }, session: {} }, anonymous);
+        assert.equal(anonymous.statusCode, 401);
+        const [afterAnonymous] = await db.query('SELECT COUNT(*)::int AS count FROM review_likes WHERE review_id = $1', [reviewId]);
+        assert.equal(Number(afterAnonymous[0].count), 0);
+
+        const owner = response();
+        const other = response();
+        await Promise.all([
+            ReviewController.toggleLike({ body: { review_id: reviewId }, user: { id: ownerId }, session: { user: { id: ownerId } } }, owner),
+            ReviewController.toggleLike({ body: { review_id: reviewId }, user: { id: otherId }, session: { user: { id: otherId } } }, other)
+        ]);
+        assert.equal(owner.payload.success, true);
+        assert.equal(other.payload.success, true);
+        const [afterLikes] = await db.query(
+            'SELECT r.likes_count, COUNT(l.id)::int AS relation_count FROM reviews r LEFT JOIN review_likes l ON l.review_id = r.id WHERE r.id = $1 GROUP BY r.id',
+            [reviewId]
+        );
+        assert.deepEqual(
+            { stored: Number(afterLikes[0].likes_count), relation: Number(afterLikes[0].relation_count) },
+            { stored: 2, relation: 2 }
+        );
+
+        const unlike = response();
+        await ReviewController.toggleLike({ body: { review_id: reviewId }, user: { id: ownerId }, session: { user: { id: ownerId } } }, unlike);
+        assert.equal(unlike.payload.liked, false);
+        assert.equal(Number(unlike.payload.likes), 1);
+        const [finalRows] = await db.query('SELECT likes_count FROM reviews WHERE id = $1', [reviewId]);
+        assert.equal(Number(finalRows[0].likes_count), 1);
     });
 
     test('inactive event is hidden on direct public URL but visible to staff', async () => {

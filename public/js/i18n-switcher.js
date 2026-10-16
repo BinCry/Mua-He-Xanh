@@ -6,7 +6,7 @@
  * and hoping that a translation cookie is noticed after navigation.
  */
 (function () {
-    var TRANSLATE_TIMEOUT_MS = 25000;
+    var TRANSLATE_TIMEOUT_MS = 5000;
     var translateReadyPromise = null;
     var resolveTranslateReady = null;
     var rejectTranslateReady = null;
@@ -99,6 +99,7 @@
                         keepTranslateChromeOutOfLayout();
                         window.scrollTo(viewport.x, viewport.y);
                         document.documentElement.classList.remove('language-switching');
+                        document.documentElement.classList.remove('language-restoring');
                         resolve();
                     });
                 });
@@ -320,6 +321,7 @@
         } else {
             eraseCookie('googtrans');
             updateLanguageUI('vi');
+            document.documentElement.classList.remove('language-restoring');
         }
     }
 

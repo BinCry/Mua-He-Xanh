@@ -22,7 +22,8 @@ const ids = {
     admin: 'e2000000-0000-4000-8000-000000000104',
     product: 'e2000000-0000-4000-8000-000000000201',
     workshop: 'e2000000-0000-4000-8000-000000000301',
-    workshopSession: 'e2000000-0000-4000-8000-000000000302'
+    workshopSession: 'e2000000-0000-4000-8000-000000000302',
+    review: 'e2000000-0000-4000-8000-000000000401'
 };
 
 async function main() {
@@ -158,6 +159,15 @@ async function main() {
                 [id, email, fullName, role, roleId, passwordHash, destinationId]
             );
         }
+        await pool.query('DELETE FROM review_likes WHERE review_id = $1', [ids.review]);
+        await pool.query('DELETE FROM review_comments WHERE review_id = $1', [ids.review]);
+        await pool.query(
+            `INSERT INTO reviews (id, user_id, destination_id, content, rating, likes_count, comments_count, created_at)
+             VALUES ($1, $2, $3, 'Bai viet Cong dong E2E', 5, 0, 0, NOW())
+             ON CONFLICT (id) DO UPDATE SET user_id = EXCLUDED.user_id, destination_id = EXCLUDED.destination_id,
+                content = EXCLUDED.content, rating = 5, likes_count = 0, comments_count = 0, created_at = NOW()`,
+            [ids.review, ids.tourist, ids.destinationOne]
+        );
         await pool.query(
             `INSERT INTO products (id, destination_id, title, description, price_vnd, stock_on_hand, reserved_stock, is_active)
              VALUES ($1, $2, 'San pham E2E', 'Du lieu kiem thu co lap.', 50000, 50, 0, TRUE)

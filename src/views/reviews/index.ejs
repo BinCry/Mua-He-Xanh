@@ -189,7 +189,7 @@
         <!-- Feed List -->
         <div class="d-flex flex-column gap-4 mb-5 pb-5" id="communityFeed">
             <% reviews.forEach((r, i) => { %>
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white reveal-up">
+            <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white reveal-up" data-review-id="<%= r.id %>">
                 <!-- User Header -->
                 <div class="d-flex align-items-start justify-content-between gap-2 p-3 p-sm-4 pb-2">
                     <div class="d-flex align-items-center gap-3 flex-grow-1 min-w-0">
@@ -301,14 +301,14 @@
                 
                 <!-- Footer Action Buttons -->
                 <div class="d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
-                    <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="likeReview('<%= r.id %>', this)">
+                    <button type="button" class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="likeReview('<%= r.id %>', this)" aria-label="Thả tim bài viết" aria-pressed="false">
                         <i class="bi bi-heart fs-5"></i>
-                        <span class="fw-bold"><%= r.likes_count || 0 %></span>
+                        <span class="fw-bold" data-engagement-count="likes"><%= r.likes_count || 0 %></span>
                     </button>
                     
                     <button class="btn btn-sm p-0 border-0 bg-transparent d-flex align-items-center gap-1 text-muted" onclick="toggleComments('<%= r.id %>')">
                         <i class="bi bi-chat fs-5"></i>
-                        <span class="fw-bold comment-count-<%= r.id %>"><%= r.comments_count || 0 %></span>
+                        <span class="fw-bold comment-count-<%= r.id %>" data-engagement-count="comments"><%= r.comments_count || 0 %></span>
                     </button>
                     
                     <div class="d-flex gap-2 ms-auto">
@@ -780,21 +780,52 @@
         });
     }
 
-    // Handle Likes via API
+    function promptLikeLogin() {
+        showAppConfirm('Bạn cần đăng nhập để thả tim bài viết.', 'Đăng nhập', () => {
+            window.location.href = '/auth/login?redirect=' + encodeURIComponent(window.location.pathname + window.location.search);
+        });
+    }
+
+    // Server state is authoritative. The disabled state prevents a fast
+    // double click from accidentally toggling the same reaction twice.
     async function likeReview(id, btn) {
+        if (!currentUserId) {
+            promptLikeLogin();
+            return;
+        }
+        if (!btn || btn.dataset.busy === 'true') return;
+
+        btn.dataset.busy = 'true';
+        btn.disabled = true;
         try {
             const res = await axios.post('/api/reviews/like', { review_id: id });
-            if (res.data.success) {
-                const icon = btn.querySelector('i');
-                const count = btn.querySelector('span');
-                if (icon) {
-                    icon.classList.toggle('bi-heart');
-                    icon.classList.toggle('bi-heart-fill');
-                    btn.style.color = icon.classList.contains('bi-heart-fill') ? '#dc3545' : 'inherit';
-                }
-                if (count) count.textContent = res.data.likes;
+            if (!res.data || !res.data.success) {
+                showAppAlert(res.data?.message || 'Không thể cập nhật lượt thích.', 'Thông báo');
+                return;
             }
-        } catch(e) { console.error(e); }
+            const icon = btn.querySelector('i');
+            const liked = Boolean(res.data.liked);
+            if (icon) {
+                icon.classList.toggle('bi-heart', !liked);
+                icon.classList.toggle('bi-heart-fill', liked);
+            }
+            btn.classList.toggle('text-danger', liked);
+            btn.classList.toggle('text-muted', !liked);
+            btn.setAttribute('aria-pressed', String(liked));
+            if (window.BinhLoiCommunityEngagement) {
+                window.BinhLoiCommunityEngagement.apply({
+                    reviewId: id,
+                    likes: res.data.likes,
+                    comments: res.data.comments
+                });
+            }
+        } catch (error) {
+            if (error.response?.status === 401) promptLikeLogin();
+            else showAppAlert(error.response?.data?.message || 'Không thể cập nhật lượt thích.', 'Thông báo');
+        } finally {
+            delete btn.dataset.busy;
+            btn.disabled = false;
+        }
     }
 
     // Toggle Comments Section
@@ -1091,3 +1122,4 @@
         });
     }
 </script>
+<script src="/js/community-engagement.js?v=<%= typeof assetV !== 'undefined' ? assetV : '1' %>" defer></script>

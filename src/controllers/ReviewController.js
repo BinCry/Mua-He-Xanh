@@ -7,9 +7,14 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const cache = require('../core/cache');
+const HomeController = require('./HomeController');
+const CommunityEngagement = require('../services/CommunityEngagement');
 
 const REVIEWS_CACHE_KEY = 'reviews:index';
-const invalidateReviewCache = () => cache.del(REVIEWS_CACHE_KEY);
+const invalidateReviewCache = () => {
+    cache.del(REVIEWS_CACHE_KEY);
+    HomeController.clearCache();
+};
 const ALLOWED_UPLOADS = new Map([
     ['image/jpeg', new Set(['.jpg', '.jpeg'])],
     ['image/png', new Set(['.png'])],
@@ -167,7 +172,7 @@ const ReviewController = {
         }
     }],
 
-    toggleLike: async (req, res) => {
+    toggleLikeLegacy: async (req, res) => {
         try {
             const user = req.user || req.session?.user;
             const sessionUuid = req.cookies?.session_uuid;
@@ -220,6 +225,121 @@ const ReviewController = {
         }
     },
 
+    toggleLike: async (req, res) => {
+        try {
+            const user = req.user || req.session?.user;
+            if (!user?.id) {
+                return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để thả tim.' });
+            }
+
+            const reviewId = typeof req.body?.review_id === 'string' ? req.body.review_id.trim() : '';
+            if (!reviewId) {
+                return res.status(400).json({ success: false, message: 'Thiếu ID bài viết.' });
+            }
+
+            const result = await db.transaction(async (tx) => {
+                // Serialize every reaction to one post. This prevents double
+                // clicks and concurrent requests from drifting the counter.
+                const [reviews] = await tx.query(
+                    'SELECT id, comments_count FROM reviews WHERE id = $1 FOR UPDATE',
+                    [reviewId]
+                );
+                if (!reviews.length) {
+                    const error = new Error('REVIEW_NOT_FOUND');
+                    error.code = 'REVIEW_NOT_FOUND';
+                    throw error;
+                }
+
+                const [existing] = await tx.query(
+                    'SELECT id FROM review_likes WHERE review_id = $1 AND user_id = $2',
+                    [reviewId, user.id]
+                );
+                const liked = existing.length === 0;
+                if (liked) {
+                    await tx.query(
+                        'INSERT INTO review_likes (id, review_id, user_id, guest_uuid) VALUES ($1, $2, $3, NULL)',
+                        [uuidv4(), reviewId, user.id]
+                    );
+                } else {
+                    // Clear any historical duplicate rows, then calculate the
+                    // public number from the relation that owns it.
+                    await tx.query('DELETE FROM review_likes WHERE review_id = $1 AND user_id = $2', [reviewId, user.id]);
+                }
+
+                const [totals] = await tx.query(
+                    'SELECT COUNT(*)::int AS likes FROM review_likes WHERE review_id = $1',
+                    [reviewId]
+                );
+                const [updated] = await tx.query(
+                    'UPDATE reviews SET likes_count = $1 WHERE id = $2 RETURNING likes_count, comments_count',
+                    [Number(totals[0]?.likes || 0), reviewId]
+                );
+                return {
+                    reviewId,
+                    liked,
+                    likes: Number(updated[0]?.likes_count || 0),
+                    comments: Number(updated[0]?.comments_count || 0)
+                };
+            });
+
+            invalidateReviewCache();
+            CommunityEngagement.publish(result);
+            res.json({ success: true, review_id: result.reviewId, liked: result.liked, likes: result.likes, comments: result.comments });
+        } catch (error) {
+            if (error.code === 'REVIEW_NOT_FOUND') {
+                return res.status(404).json({ success: false, message: 'Không tìm thấy bài viết.' });
+            }
+            console.error('Like error:', error);
+            res.status(500).json({ success: false, message: 'Không thể cập nhật lượt thích lúc này.' });
+        }
+    },
+
+    engagement: async (req, res) => {
+        const requested = String(req.query?.ids || '').split(',').map(id => id.trim()).filter(Boolean);
+        const ids = [...new Set(requested)].slice(0, 50);
+        if (!ids.length) return res.json({ success: true, data: [] });
+        if (ids.some(id => !/^[a-zA-Z0-9-]{1,100}$/.test(id))) {
+            return res.status(400).json({ success: false, message: 'Danh sách bài viết không hợp lệ.' });
+        }
+        try {
+            const [reviews] = await db.query(
+                'SELECT id, likes_count, comments_count FROM reviews WHERE id = ANY($1::varchar[])',
+                [ids]
+            );
+            res.set('Cache-Control', 'no-store, private');
+            res.json({
+                success: true,
+                data: reviews.map(review => ({
+                    reviewId: review.id,
+                    likes: Number(review.likes_count || 0),
+                    comments: Number(review.comments_count || 0)
+                }))
+            });
+        } catch (error) {
+            console.error('Review engagement query error:', error);
+            res.status(500).json({ success: false, message: 'Không thể đồng bộ tương tác.' });
+        }
+    },
+
+    engagementStream: (req, res) => {
+        res.status(200);
+        res.set({
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-store, no-cache, must-revalidate, private',
+            // Event streams must not be buffered by the global compression
+            // middleware, otherwise other tabs receive a connection but not
+            // the committed counter event until its buffer happens to fill.
+            'Content-Encoding': 'identity',
+            Connection: 'keep-alive',
+            'X-Accel-Buffering': 'no'
+        });
+        res.flushHeaders();
+        res.write(': connected\n\n');
+        if (typeof res.flush === 'function') res.flush();
+        const unsubscribe = CommunityEngagement.subscribe(res);
+        req.on('close', unsubscribe);
+    },
+
     comment: async (req, res) => {
         try {
             const user = req.user || req.session?.user;
@@ -262,16 +382,20 @@ const ReviewController = {
                     [commentId, review_id, userId, null, parent_id || null, normalizedComment]
                 );
                 const [updated] = await tx.query(
-                    'UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1 RETURNING comments_count',
+                    'UPDATE reviews SET comments_count = comments_count + 1 WHERE id = $1 RETURNING comments_count, likes_count',
                     [review_id]
                 );
-                return parseInt(updated[0]?.comments_count || 0, 10);
+                return {
+                    comments: parseInt(updated[0]?.comments_count || 0, 10),
+                    likes: parseInt(updated[0]?.likes_count || 0, 10)
+                };
             });
             invalidateReviewCache();
+            CommunityEngagement.publish({ reviewId: review_id, likes: newCount.likes, comments: newCount.comments });
             
             res.json({ 
                 success: true, 
-                count: newCount,
+                count: newCount.comments,
                 comment: {
                     id: commentId,
                     parent_id: parent_id || null,
@@ -344,6 +468,9 @@ const ReviewController = {
             }
 
             const newCount = await db.transaction(async (tx) => {
+                // The comment count and its relation must be changed under
+                // the same post lock used by comment creation.
+                await tx.query('SELECT id FROM reviews WHERE id = $1 FOR UPDATE', [comment.review_id]);
                 await tx.query('DELETE FROM review_comments WHERE id = $1 OR parent_id = $1', [comment_id]);
                 const [countRow] = await tx.query('SELECT COUNT(*) as cnt FROM review_comments WHERE review_id = $1', [comment.review_id]);
                 const count = parseInt(countRow[0]?.cnt || 0, 10);
@@ -351,6 +478,8 @@ const ReviewController = {
                 return count;
             });
             invalidateReviewCache();
+            const [totals] = await db.query('SELECT likes_count FROM reviews WHERE id = $1', [comment.review_id]);
+            CommunityEngagement.publish({ reviewId: comment.review_id, likes: Number(totals[0]?.likes_count || 0), comments: newCount });
 
             res.json({ success: true, message: 'Đã xóa bình luận!', count: newCount, review_id: comment.review_id });
         } catch (error) {

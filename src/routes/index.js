@@ -553,9 +553,11 @@ router.post('/api/destination/add-to-journey', ensureAuthenticated, ApiControlle
 
 // Review API
 router.post('/api/reviews', ensureAuthenticated, ReviewController.create);
-router.post('/api/reviews/like', ReviewController.toggleLike);
+router.post('/api/reviews/like', ensureAuthenticated, ReviewController.toggleLike);
 router.post('/api/reviews/comment', ensureAuthenticated, ReviewController.comment);
 router.get('/api/reviews/comments', ReviewController.getComments);
+router.get('/api/reviews/engagement', ReviewController.engagement);
+router.get('/api/reviews/engagement/stream', ReviewController.engagementStream);
 router.post('/api/reviews/delete-comment', ensureAuthenticated, ReviewController.deleteComment);
 router.post('/api/reviews/delete', ensureAuthenticated, ReviewController.delete);
 

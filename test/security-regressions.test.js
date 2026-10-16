@@ -113,12 +113,16 @@ test('machine translation is opt-in and does not load a third-party script on ev
     assert.match(switcher, /function hasCookieDomain/);
     assert.match(switcher, /function settleLanguageLayout/);
     assert.match(switcher, /function persistViewportForReload/);
+    assert.match(switcher, /language-restoring/);
     assert.match(switcher, /attributeFilter: \['style'\]/);
     assert.doesNotMatch(switcher, /childList: true, subtree: true/);
     assert.match(navbar, /i18n-switcher\.js\?v=/);
     assert.match(adminLayout, /i18n-switcher\.js\?v=/);
     assert.doesNotMatch(navbar, /fonts\.googleapis\.com/);
     assert.doesNotMatch(adminLayout, /fonts\.googleapis\.com/);
+    const mainLayout = fs.readFileSync('src/views/layouts/main.ejs', 'utf8');
+    assert.match(mainLayout, /localStorage\.getItem\('app_lang'\) === 'en'/);
+    assert.match(mainLayout, /language-restoring/);
 });
 
 test('inline script data and chat media use safe serializers rather than raw user strings', () => {
@@ -166,6 +170,24 @@ test('state-changing attendance, festival and commerce routes require an authent
     assert.match(source, /router\.post\('\/api\/festival\/book', ensureAuthenticated,/);
     assert.match(source, /router\.post\('\/api\/products\/orders', ensureAuthenticated,/);
     assert.match(source, /router\.post\('\/api\/workshop-sessions\/bookings', ensureAuthenticated,/);
+});
+
+test('community reactions require a signed-in account and counters share an invalidation path', () => {
+    const routes = fs.readFileSync('src/routes/index.js', 'utf8');
+    const controller = fs.readFileSync('src/controllers/ReviewController.js', 'utf8');
+    const home = fs.readFileSync('src/views/home/index.ejs', 'utf8');
+    const reviews = fs.readFileSync('src/views/reviews/index.ejs', 'utf8');
+    assert.match(routes, /router\.post\('\/api\/reviews\/like', ensureAuthenticated, ReviewController\.toggleLike\)/);
+    assert.match(controller, /SELECT id, comments_count FROM reviews WHERE id = \$1 FOR UPDATE/);
+    assert.match(controller, /COUNT\(\*\)::int AS likes FROM review_likes/);
+    assert.match(controller, /HomeController\.clearCache\(\)/);
+    assert.match(controller, /CommunityEngagement\.publish/);
+    assert.match(controller, /Content-Encoding': 'identity'/);
+    assert.match(home, /data-engagement-count="likes"/);
+    assert.match(home, /data-engagement-count="comments"/);
+    assert.match(reviews, /data-engagement-count="likes"/);
+    assert.match(reviews, /promptLikeLogin/);
+    assert.match(reviews, /currentUserId/);
 });
 
 test('check-in binds the cookie session to the authenticated account and upload middleware rejects generic binary MIME', () => {
@@ -387,6 +409,14 @@ test('public typography has a Vietnamese-safe global override and social links r
         assert.match(footer, new RegExp(`footer-social-btn--${network}`));
     }
     assert.match(footer, /rel="noopener noreferrer"/);
+});
+
+test('mobile footer keeps the newsletter phrase together without forcing the paragraph onto one line', () => {
+    const footer = fs.readFileSync('src/views/partials/footer.ejs', 'utf8');
+    assert.match(footer, /footer-newsletter-copy/);
+    assert.match(footer, /hấp&nbsp;dẫn\./);
+    assert.match(footer, /text-wrap:\s*pretty/);
+    assert.doesNotMatch(footer, /footer-newsletter-copy[^}]*white-space:\s*nowrap/s);
 });
 
 test('empty Explore results use the same concise all-results control as Shop', () => {

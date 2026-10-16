@@ -70,8 +70,8 @@
             <!-- Newsletter -->
             <div class="col-md-6 col-lg-2">
                 <h6 class="fw-bold mb-3 text-uppercase tracking-widest text-white" style="font-size: 0.8rem; color: #ffffff !important;">Đăng kí nhận tin</h6>
-                <p class="mb-3" style="color: rgba(255,255,255,0.92); line-height: 1.6; font-size: 0.8rem;">
-                    Cập nhật thông tin mới nhất về Bình Lợi và các trải nghiệm hấp dẫn.
+                <p class="mb-3 footer-newsletter-copy" style="color: rgba(255,255,255,0.92); line-height: 1.6; font-size: 0.8rem;">
+                    Cập nhật thông tin mới nhất về Bình Lợi và các trải nghiệm hấp&nbsp;dẫn.
                 </p>
                 <form onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận tin!');">
                     <div class="input-group" style="max-width: 240px;">
@@ -147,4 +147,15 @@
         padding-left: 4px;
     }
     .tracking-widest { letter-spacing: 1.5px !important; }
+    .footer-newsletter-copy {
+        max-width: 28rem;
+        text-wrap: pretty;
+    }
+    @media (max-width: 575.98px) {
+        .footer-newsletter-copy {
+            max-width: 100%;
+            font-size: 0.82rem !important;
+            line-height: 1.55 !important;
+        }
+    }
 </style>

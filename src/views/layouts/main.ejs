@@ -4,6 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>
+        // Prevent the Vietnamese source document flashing before a persisted
+        // English translation is restored on a newly navigated page.
+        try {
+            if (localStorage.getItem('app_lang') === 'en') {
+                document.documentElement.classList.add('language-restoring');
+            }
+        } catch (_) {}
+    </script>
+    <style>html.language-restoring body { visibility: hidden; }</style>
     <title>
         <%= (typeof title !== 'undefined' && title && title !== appName) ? (title + " | " + appName) : (typeof title !== 'undefined' && title ? title : appName) %>
     </title>
