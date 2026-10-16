@@ -485,4 +485,5 @@
 
 <!-- Hidden Google Translate container for auto-translation fallback -->
 <div id="google_translate_element" style="display:none !important;"></div>
-<script src="/js/i18n-switcher.js" defer></script>
+<span class="visually-hidden" data-language-switch-status aria-live="polite" aria-atomic="true"></span>
+<script src="/js/i18n-switcher.js?v=<%= typeof assetV !== 'undefined' ? assetV : '1' %>" defer></script>

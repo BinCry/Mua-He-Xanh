@@ -106,9 +106,13 @@ test('machine translation is opt-in and does not load a third-party script on ev
     const switcher = fs.readFileSync('public/js/i18n-switcher.js', 'utf8');
     assert.doesNotMatch(navbar, /translate\.google\.com\/translate_a\/element\.js/);
     assert.doesNotMatch(adminLayout, /translate\.google\.com\/translate_a\/element\.js/);
-    assert.match(switcher, /function loadGoogleTranslateForEnglish/);
-    assert.match(switcher, /if \(lang === 'en'\)[\s\S]*loadGoogleTranslateForEnglish\(\)/);
+    assert.match(switcher, /function ensureGoogleTranslate/);
+    assert.match(switcher, /function chooseGoogleLanguage/);
+    assert.match(switcher, /combo\.dispatchEvent\(new Event\('change', \{ bubbles: true \}\)\)/);
+    assert.match(switcher, /TRANSLATE_TIMEOUT_MS/);
     assert.match(switcher, /function hasCookieDomain/);
+    assert.match(navbar, /i18n-switcher\.js\?v=/);
+    assert.match(adminLayout, /i18n-switcher\.js\?v=/);
     assert.doesNotMatch(navbar, /fonts\.googleapis\.com/);
     assert.doesNotMatch(adminLayout, /fonts\.googleapis\.com/);
 });
