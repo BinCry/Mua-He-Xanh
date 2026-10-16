@@ -12,6 +12,8 @@
     var rejectTranslateReady = null;
     var translateElementMounted = false;
     var translateTimeoutId = null;
+    var languageSwitchInProgress = false;
+    var LANGUAGE_SCROLL_RESTORE_KEY = 'language_scroll_restore';
 
     function hasCookieDomain(host) {
         return Boolean(host && host !== 'localhost' && !/^(?:\d{1,3}\.){3}\d{1,3}$/.test(host) && host.includes('.'));
@@ -58,6 +60,82 @@
         document.querySelectorAll('.lang-btn-vn, .lang-btn-en').forEach(function (button) {
             button.disabled = Boolean(isBusy);
         });
+    }
+
+    function getViewportPosition() {
+        return {
+            x: window.scrollX || window.pageXOffset || 0,
+            y: window.scrollY || window.pageYOffset || 0
+        };
+    }
+
+    // Google Translate briefly writes a top offset to <body> while it mounts
+    // its toolbar. Keep that chrome out of the layout before translation is
+    // requested rather than correcting the resulting layout shift later.
+    function keepTranslateChromeOutOfLayout() {
+        if (!document.body) return;
+        if (document.body.style.getPropertyValue('top') !== '0px' || document.body.style.getPropertyPriority('top') !== 'important') {
+            document.body.style.setProperty('top', '0px', 'important');
+        }
+        if (document.body.style.getPropertyValue('margin-top') !== '0px' || document.body.style.getPropertyPriority('margin-top') !== 'important') {
+            document.body.style.setProperty('margin-top', '0px', 'important');
+        }
+    }
+
+    function beginLanguageLayoutTransition() {
+        document.documentElement.classList.add('language-switching');
+        keepTranslateChromeOutOfLayout();
+        return getViewportPosition();
+    }
+
+    function settleLanguageLayout(viewport) {
+        return new Promise(function (resolve) {
+            // The widget changes text and body styles asynchronously after its
+            // select change event. Settling across two frames preserves the
+            // current reading position without animating a layout correction.
+            window.setTimeout(function () {
+                window.requestAnimationFrame(function () {
+                    window.requestAnimationFrame(function () {
+                        keepTranslateChromeOutOfLayout();
+                        window.scrollTo(viewport.x, viewport.y);
+                        document.documentElement.classList.remove('language-switching');
+                        resolve();
+                    });
+                });
+            }, 150);
+        });
+    }
+
+    function persistViewportForReload() {
+        try {
+            sessionStorage.setItem(LANGUAGE_SCROLL_RESTORE_KEY, JSON.stringify(getViewportPosition()));
+        } catch (error) {
+            // Storage can be disabled. Native browser scroll restoration is a
+            // safe fallback, so a storage failure must not block language use.
+        }
+    }
+
+    function restoreViewportAfterReload() {
+        var serialized;
+        try {
+            serialized = sessionStorage.getItem(LANGUAGE_SCROLL_RESTORE_KEY);
+            sessionStorage.removeItem(LANGUAGE_SCROLL_RESTORE_KEY);
+        } catch (error) {
+            return;
+        }
+        if (!serialized) return;
+
+        try {
+            var viewport = JSON.parse(serialized);
+            if (!Number.isFinite(viewport.x) || !Number.isFinite(viewport.y)) return;
+            window.requestAnimationFrame(function () {
+                window.requestAnimationFrame(function () {
+                    window.scrollTo(viewport.x, viewport.y);
+                });
+            });
+        } catch (error) {
+            // Ignore malformed stale storage rather than impacting navigation.
+        }
     }
 
     function updateLanguageUI(lang) {
@@ -154,6 +232,9 @@
     }
 
     function switchToEnglish() {
+        if (languageSwitchInProgress) return;
+        languageSwitchInProgress = true;
+        var viewport = beginLanguageLayoutTransition();
         setSwitchBusy(true);
         setSwitchStatus('Đang chuyển sang English…');
         setCookie('googtrans', '/vi/en', 30);
@@ -168,12 +249,19 @@
             localStorage.setItem('app_lang', 'vi');
             updateLanguageUI('vi');
             setSwitchStatus('Không thể tải bản dịch English. Vui lòng thử lại.');
+        }).then(function () {
+            return settleLanguageLayout(viewport);
         }).finally(function () {
+            languageSwitchInProgress = false;
             setSwitchBusy(false);
         });
     }
 
     function switchToVietnamese() {
+        if (languageSwitchInProgress) return;
+        languageSwitchInProgress = true;
+        keepTranslateChromeOutOfLayout();
+        persistViewportForReload();
         eraseCookie('googtrans');
         localStorage.setItem('app_lang', 'vi');
         updateLanguageUI('vi');
@@ -187,6 +275,7 @@
         if (targetLang !== 'vi' && targetLang !== 'en') return;
         var currentLang = localStorage.getItem('app_lang') || 'vi';
         if (targetLang === 'vi' && currentLang === 'vi') return;
+        if (targetLang === 'en' && currentLang === 'en') return;
         if (targetLang === 'en') {
             // Retry if an earlier English attempt failed, rather than treating
             // a persisted visual state as proof that translation succeeded.
@@ -215,6 +304,7 @@
     function initializePersistedLanguage() {
         var language = localStorage.getItem('app_lang') || 'vi';
         if (language === 'en') {
+            var viewport = beginLanguageLayoutTransition();
             setCookie('googtrans', '/vi/en', 30);
             chooseGoogleLanguage('en').then(function () {
                 updateLanguageUI('en');
@@ -224,6 +314,8 @@
                 localStorage.setItem('app_lang', 'vi');
                 updateLanguageUI('vi');
                 setSwitchStatus('Không thể tải bản dịch English. Vui lòng thử lại.');
+            }).then(function () {
+                return settleLanguageLayout(viewport);
             });
         } else {
             eraseCookie('googtrans');
@@ -231,25 +323,19 @@
         }
     }
 
-    function removeTranslateBanners() {
-        document.querySelectorAll('iframe.goog-te-banner-frame, .VIpgJd-ZVi9od-ORHb-OEVmcd').forEach(function (frame) {
-            frame.style.setProperty('display', 'none', 'important');
-            frame.style.setProperty('visibility', 'hidden', 'important');
-            frame.style.setProperty('height', '0px', 'important');
-        });
-        if (document.body && document.body.style.top && document.body.style.top !== '0px') {
-            document.body.style.setProperty('top', '0px', 'important');
-        }
-    }
-
+    // Do not observe the whole document: Google Translate mutates many text
+    // nodes, and a subtree observer turns a language change into needless
+    // repeated DOM scans. CSS already hides all toolbar nodes; only guard the
+    // inline body style that could move the page.
     if (typeof MutationObserver !== 'undefined') {
-        var observer = new MutationObserver(removeTranslateBanners);
-        if (document.body) observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+        var observer = new MutationObserver(keepTranslateChromeOutOfLayout);
+        if (document.body) observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
         else document.addEventListener('DOMContentLoaded', function () {
-            if (document.body) observer.observe(document.body, { attributes: true, childList: true, subtree: true });
+            if (document.body) observer.observe(document.body, { attributes: true, attributeFilter: ['style'] });
         });
     }
 
+    restoreViewportAfterReload();
     initializePersistedLanguage();
     window.addEventListener('pageshow', function (event) {
         if (event.persisted) initializePersistedLanguage();

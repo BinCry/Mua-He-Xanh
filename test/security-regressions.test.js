@@ -111,6 +111,10 @@ test('machine translation is opt-in and does not load a third-party script on ev
     assert.match(switcher, /combo\.dispatchEvent\(new Event\('change', \{ bubbles: true \}\)\)/);
     assert.match(switcher, /TRANSLATE_TIMEOUT_MS/);
     assert.match(switcher, /function hasCookieDomain/);
+    assert.match(switcher, /function settleLanguageLayout/);
+    assert.match(switcher, /function persistViewportForReload/);
+    assert.match(switcher, /attributeFilter: \['style'\]/);
+    assert.doesNotMatch(switcher, /childList: true, subtree: true/);
     assert.match(navbar, /i18n-switcher\.js\?v=/);
     assert.match(adminLayout, /i18n-switcher\.js\?v=/);
     assert.doesNotMatch(navbar, /fonts\.googleapis\.com/);

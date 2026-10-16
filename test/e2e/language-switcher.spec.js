@@ -7,6 +7,16 @@ const GOOGLE_TRANSLATE_WIDGET_STUB = `
                 const select = document.createElement('select');
                 select.className = 'goog-te-combo';
                 select.innerHTML = '<option value="vi">Vietnamese</option><option value="en">English</option>';
+                select.addEventListener('change', function () {
+                    // Simulate the layout-affecting behavior of the real
+                    // widget. The application must neutralize it without
+                    // scanning every translated text-node mutation.
+                    document.body.style.top = '40px';
+                    document.documentElement.scrollTop = 0;
+                    const banner = document.createElement('iframe');
+                    banner.className = 'goog-te-banner-frame';
+                    document.body.appendChild(banner);
+                });
                 document.getElementById(targetId).appendChild(select);
             }
         }
@@ -25,6 +35,10 @@ test('VN/EN selector waits for the translation widget and restores Vietnamese sa
     const english = page.locator('.lang-btn-en').first();
 
     await expect(vietnamese).toHaveAttribute('aria-pressed', 'true');
+    const viewportBeforeSwitch = await page.evaluate(() => {
+        window.scrollTo(0, 180);
+        return window.scrollY;
+    });
     await english.click();
 
     await expect.poll(() => page.evaluate(() => localStorage.getItem('app_lang'))).toBe('en');
@@ -32,6 +46,9 @@ test('VN/EN selector waits for the translation widget and restores Vietnamese sa
     await expect(english).toHaveAttribute('aria-pressed', 'true');
     await expect(vietnamese).toHaveAttribute('aria-pressed', 'false');
     await expect(english).toBeEnabled();
+    await expect.poll(() => page.evaluate(() => document.body.style.top)).toBe('0px');
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(viewportBeforeSwitch);
+    await expect(page.locator('html')).not.toHaveClass(/language-switching/);
 
     await vietnamese.click();
     await expect.poll(() => page.evaluate(() => localStorage.getItem('app_lang'))).toBe('vi');

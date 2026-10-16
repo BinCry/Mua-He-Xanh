@@ -118,6 +118,19 @@ body {
     position: static !important;
 }
 
+/* Keep the viewport fixed while the opt-in Google Translate widget updates
+   text. This prevents scroll anchoring from turning those text changes into a
+   visible jump. */
+html.language-switching {
+    overflow-anchor: none !important;
+    scroll-behavior: auto !important;
+}
+
+html.language-switching,
+html.language-switching body {
+    transition: none !important;
+}
+
 .goog-tooltip, .goog-tooltip:hover {
     display: none !important;
 }
