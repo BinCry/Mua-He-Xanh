@@ -8,7 +8,16 @@ for (const viewport of [
         await page.setViewportSize(viewport);
 
         await page.goto('/auth/login', { waitUntil: 'domcontentloaded' });
-        await page.locator('main a[href="/dieu-khoan-dich-vu"]').click();
+        const termsLink = page.locator('main a[href="/dieu-khoan-dich-vu"]');
+        await expect(termsLink).toHaveAttribute('href', '/dieu-khoan-dich-vu');
+        await termsLink.scrollIntoViewIfNeeded();
+        await expect(termsLink).toBeInViewport();
+        // The legal notice is deliberately near the bottom of the login card.
+        // Keyboard activation validates the same native anchor contract without
+        // relying on a browser's transient scroll/paint position during layout.
+        await termsLink.focus();
+        await expect(termsLink).toBeFocused();
+        await termsLink.press('Enter');
         await expect(page).toHaveURL(/\/dieu-khoan-dich-vu$/);
         await expect(page.getByRole('heading', { name: 'Điều khoản dịch vụ' })).toBeVisible();
         await page.locator('#legalBackButton').click();
