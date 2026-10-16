@@ -5,7 +5,7 @@ const password = 'AuditE2E-only-2026';
 const accountByProject = {
     chromium: 'e2e-tourist@example.test',
     firefox: 'e2e-journey@example.test',
-    webkit: 'e2e-manager-one@example.test'
+    webkit: 'e2e-community@example.test'
 };
 
 async function login(page, email) {

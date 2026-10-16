@@ -17,6 +17,7 @@ const ids = {
     destinationTwo: 'e2000000-0000-4000-8000-000000000002',
     tourist: 'e2000000-0000-4000-8000-000000000101',
     journeyTourist: 'e2000000-0000-4000-8000-000000000105',
+    communityTourist: 'e2000000-0000-4000-8000-000000000106',
     managerOne: 'e2000000-0000-4000-8000-000000000102',
     managerTwo: 'e2000000-0000-4000-8000-000000000103',
     admin: 'e2000000-0000-4000-8000-000000000104',
@@ -29,7 +30,7 @@ const ids = {
 async function main() {
     const pool = new Pool({ connectionString, ssl: false });
     const passwordHash = await bcrypt.hash('AuditE2E-only-2026', 10);
-    const accountIds = [ids.tourist, ids.journeyTourist, ids.managerOne, ids.managerTwo, ids.admin];
+    const accountIds = [ids.tourist, ids.journeyTourist, ids.communityTourist, ids.managerOne, ids.managerTwo, ids.admin];
     try {
         // Construct the complete application baseline before adding disposable
         // fixtures. The connection guard above prevents this from reaching a
@@ -145,6 +146,7 @@ async function main() {
         const users = [
             [ids.tourist, 'e2e-tourist@example.test', 'Khach kiem thu E2E', 'user', 3, null],
             [ids.journeyTourist, 'e2e-journey@example.test', 'Khach hanh trinh E2E', 'user', 3, null],
+            [ids.communityTourist, 'e2e-community@example.test', 'Khach cong dong E2E', 'user', 3, null],
             [ids.managerOne, 'e2e-manager-one@example.test', 'Quan ly E2E 1', 'manager', 2, ids.destinationOne],
             [ids.managerTwo, 'e2e-manager-two@example.test', 'Quan ly E2E 2', 'manager', 2, ids.destinationTwo],
             [ids.admin, 'e2e-admin@example.test', 'Quan tri E2E', 'admin', 1, null]
