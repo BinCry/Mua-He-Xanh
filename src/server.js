@@ -431,7 +431,7 @@ app.use(async (req, res, next) => {
     // Cache Buster for assets
     // Bump together with visual/font releases so browser and PWA caches never
     // keep an older stylesheet with incomplete Vietnamese glyph coverage.
-    res.locals.assetV = '117.0.0';
+    res.locals.assetV = '118.0.0';
 
     res.locals.fixImg = (imgPath, fallback) => {
         const clean = normalizeImagePath(imgPath, fallback || DEFAULT_IMAGE);
