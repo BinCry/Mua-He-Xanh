@@ -29,6 +29,6 @@ test('Explore, Shop and Workshop refresh search results while a visitor types an
 
 test('Explore, Shop and Workshop restore the full catalogue when the query is cleared', async ({ page }) => {
     await clearSearchAndRestoreCatalogue(page, '/explore', 'Dia diem E2E 1');
-    await clearSearchAndRestoreCatalogue(page, '/shops', 'Sáº£n pháº©m Shop E2E');
+    await clearSearchAndRestoreCatalogue(page, '/shops', 'Sản phẩm Shop E2E');
     await clearSearchAndRestoreCatalogue(page, '/workshops', 'Workshop E2E');
 });
