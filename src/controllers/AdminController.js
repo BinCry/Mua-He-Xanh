@@ -887,26 +887,20 @@ const AdminController = {
 
     createEvent: async (req, res) => {
         try {
-            const { title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active } = req.body;
+            const { title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_active } = req.body;
             const normalizedTitle = String(title || '').trim();
             const featured = toBoolean(is_featured);
-            const countdown = toBoolean(is_countdown);
             const active = toBoolean(is_active);
             if (!normalizedTitle) return res.status(400).json({ success: false, message: 'Tên sự kiện là bắt buộc.' });
             if (invalidEventDate(event_date) || invalidEventDate(end_date)) return res.status(400).json({ success: false, message: 'Ngày giờ sự kiện không hợp lệ.' });
             if (event_date && end_date && new Date(end_date) <= new Date(event_date)) return res.status(400).json({ success: false, message: 'Ngày kết thúc phải sau ngày bắt đầu.' });
-            if (countdown && (!active || !event_date)) return res.status(400).json({ success: false, message: 'Countdown chỉ áp dụng cho sự kiện đang hoạt động và có ngày bắt đầu.' });
             const finalImg = (image && image.trim()) ? image : '/uploads/posters/poster-1.webp';
             const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalImg;
             await db.transaction(async (tx) => {
-                if (countdown) {
-                    await tx.query("SELECT pg_advisory_xact_lock(hashtext('events:countdown'))");
-                    await tx.query('UPDATE events SET is_countdown = 0 WHERE is_countdown = 1');
-                }
                 await tx.query(
                     `INSERT INTO events (id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active)
                      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`,
-                    [uuidv4(), normalizedTitle, description, season || 'all', event_date, end_date || null, location, finalImg, finalBanner, featured ? 1 : 0, countdown ? 1 : 0, active ? 1 : 0]
+                    [uuidv4(), normalizedTitle, description, season || 'all', event_date, end_date || null, location, finalImg, finalBanner, featured ? 1 : 0, 0, active ? 1 : 0]
                 );
             });
             if (HomeController.clearCache) HomeController.clearCache();
@@ -918,27 +912,21 @@ const AdminController = {
 
     updateEvent: async (req, res) => {
         try {
-            const { id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_countdown, is_active } = req.body;
+            const { id, title, description, season, event_date, end_date, location, image, banner_image, is_featured, is_active } = req.body;
             const normalizedId = String(id || '').trim();
             const normalizedTitle = String(title || '').trim();
             const featured = toBoolean(is_featured);
-            const countdown = toBoolean(is_countdown);
             const active = toBoolean(is_active);
             if (!normalizedId) return res.status(400).json({ success: false, message: 'Thiếu mã sự kiện.' });
             if (!normalizedTitle) return res.status(400).json({ success: false, message: 'Tên sự kiện là bắt buộc.' });
             if (invalidEventDate(event_date) || invalidEventDate(end_date)) return res.status(400).json({ success: false, message: 'Ngày giờ sự kiện không hợp lệ.' });
             if (event_date && end_date && new Date(end_date) <= new Date(event_date)) return res.status(400).json({ success: false, message: 'Ngày kết thúc phải sau ngày bắt đầu.' });
-            if (countdown && (!active || !event_date)) return res.status(400).json({ success: false, message: 'Countdown chỉ áp dụng cho sự kiện đang hoạt động và có ngày bắt đầu.' });
             const finalImg = (image && image.trim()) ? image : '/uploads/posters/poster-1.webp';
             const finalBanner = (banner_image && banner_image.trim()) ? banner_image : finalImg;
             await db.transaction(async (tx) => {
-                if (countdown) {
-                    await tx.query("SELECT pg_advisory_xact_lock(hashtext('events:countdown'))");
-                    await tx.query('UPDATE events SET is_countdown = 0 WHERE is_countdown = 1 AND id <> $1', [normalizedId]);
-                }
                 const [updatedRows] = await tx.query(
                     `UPDATE events SET title = $1, description = $2, season = $3, event_date = $4, end_date = $5, location = $6, image = $7, banner_image = $8, is_featured = $9, is_countdown = $10, is_active = $11 WHERE id = $12`,
-                    [normalizedTitle, description, season, event_date, end_date || null, location, finalImg, finalBanner, featured ? 1 : 0, countdown ? 1 : 0, active ? 1 : 0, normalizedId]
+                    [normalizedTitle, description, season, event_date, end_date || null, location, finalImg, finalBanner, featured ? 1 : 0, 0, active ? 1 : 0, normalizedId]
                 );
                 if (updatedRows.rowCount !== 1) {
                     const error = new Error('Không tìm thấy sự kiện cần cập nhật.');

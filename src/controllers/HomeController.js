@@ -14,6 +14,11 @@ function isEnabledFlag(value) {
     return value === true || value === 1 || value === '1';
 }
 
+function isUpcomingEvent(event, now = Date.now()) {
+    const eventTime = new Date(event?.event_date).getTime();
+    return Number.isFinite(eventTime) && eventTime > now;
+}
+
 const DEFAULT_HOME_DATA = {
     title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
     heroPosters: [
@@ -30,8 +35,7 @@ const DEFAULT_HOME_DATA = {
     reviews: [],
     seasonalExperiences: [],
     featuredEvents: [],
-    countdownEvent: null,
-    otherEvents: []
+    upcomingEvents: []
 };
 
 class HomeController {
@@ -133,19 +137,13 @@ class HomeController {
 
             const safeEvents = Array.isArray(events) ? events : [];
             const featuredEvents = safeEvents.filter(event => isEnabledFlag(event.is_featured));
-            const countdownEvent = safeEvents.find(event => (
-                isEnabledFlag(event.is_countdown) &&
-                event.event_date &&
-                new Date(event.event_date).getTime() > Date.now()
-            )) || null;
-            const primaryEvent = featuredEvents[0] || countdownEvent;
+            const upcomingEvents = safeEvents.filter(event => isUpcomingEvent(event));
+            const primaryEvent = featuredEvents[0];
             const nextFestival = {
                 name: primaryEvent?.title || "Chưa có sự kiện",
                 date: primaryEvent?.event_date || new Date(Date.now() + 86400000 * 30).toISOString(),
                 location: primaryEvent?.location || "Bình Lợi"
             };
-
-            const otherEvents = safeEvents.filter(event => !isEnabledFlag(event.is_featured));
 
             const renderData = {
                 title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
@@ -164,8 +162,7 @@ class HomeController {
                 reviews: Array.isArray(realReviews) ? realReviews : [],
                 seasonalExperiences: Array.isArray(seasonalExperiences) ? seasonalExperiences : [],
                 featuredEvents,
-                countdownEvent,
-                otherEvents
+                upcomingEvents
             };
 
             // Only cache if featured has destinations

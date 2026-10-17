@@ -19,7 +19,6 @@
                 <th>Ngày</th>
                 <th>Địa điểm</th>
                 <th>Nổi bật</th>
-                <th>Countdown</th>
                 <th>Trạng thái</th>
                 <th>Thao tác</th>
             </tr>
@@ -45,10 +44,6 @@
                     <% } else { %><span class="text-muted">-</span><% } %>
                 </td>
                 <td>
-                    <% if (evt.is_countdown === true || Number(evt.is_countdown) === 1) { %><span class="text-danger"><i class="bi bi-alarm-fill"></i></span>
-                    <% } else { %><span class="text-muted">-</span><% } %>
-                </td>
-                <td>
                     <% if (evt.is_active === true || Number(evt.is_active) === 1) { %>
                         <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Hoạt động</span>
                     <% } else { %>
@@ -56,7 +51,7 @@
                     <% } %>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editEvent(this)" data-event="<%= encodeURIComponent(JSON.stringify({id: evt.id, title: evt.title, description: evt.description, season: evt.season, event_date: evt.event_date, end_date: evt.end_date, location: evt.location, image: evt.image, banner_image: evt.banner_image || evt.image, is_featured: evt.is_featured, is_countdown: evt.is_countdown, is_active: evt.is_active})) %>">
+                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-1" onclick="editEvent(this)" data-event="<%= encodeURIComponent(JSON.stringify({id: evt.id, title: evt.title, description: evt.description, season: evt.season, event_date: evt.event_date, end_date: evt.end_date, location: evt.location, image: evt.image, banner_image: evt.banner_image || evt.image, is_featured: evt.is_featured, is_active: evt.is_active})) %>">
                         <i class="bi bi-pencil"></i>
                     </button>
                     <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteEvent('<%= evt.id %>')">
@@ -66,7 +61,7 @@
             </tr>
             <% }) %>
             <% if (events.length === 0) { %>
-            <tr><td colspan="8" class="text-center py-5 text-muted">Chưa có sự kiện nào.</td></tr>
+            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có sự kiện nào.</td></tr>
             <% } %>
         </tbody>
     </table>
@@ -141,13 +136,6 @@
                                 <input class="form-check-input" type="checkbox" id="evt_is_featured" name="is_featured">
                                 <label class="form-check-label small" for="evt_is_featured">Nổi bật trên trang chủ</label>
                                 <div class="form-text">Có thể chọn nhiều sự kiện.</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-check form-switch mt-3">
-                                <input class="form-check-input" type="checkbox" id="evt_is_countdown" name="is_countdown">
-                                <label class="form-check-label small" for="evt_is_countdown">Hiện Countdown trang chủ</label>
-                                <div class="form-text">Chỉ một sự kiện đang hoạt động.</div>
                             </div>
                         </div>
                         <div class="col-md-4">
@@ -228,7 +216,6 @@ function openEventForm() {
     document.getElementById('evt_banner_image').value = '/uploads/posters/poster-1.webp';
     document.getElementById('evt_banner_preview').src = '/uploads/posters/poster-1.webp';
     document.getElementById('evt_is_featured').checked = false;
-    document.getElementById('evt_is_countdown').checked = false;
     document.getElementById('evt_is_active').checked = true;
 }
 
@@ -254,7 +241,6 @@ function editEvent(target) {
     document.getElementById('evt_banner_preview').src = bannerUrl;
 
     document.getElementById('evt_is_featured').checked = evt.is_featured === true || Number(evt.is_featured) === 1;
-    document.getElementById('evt_is_countdown').checked = evt.is_countdown === true || Number(evt.is_countdown) === 1;
     document.getElementById('evt_is_active').checked = evt.is_active === true || Number(evt.is_active) === 1;
     if (evt.event_date) {
         document.getElementById('evt_event_date').value = new Date(new Date(evt.event_date).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 16);
@@ -281,7 +267,6 @@ async function saveEvent() {
         image: document.getElementById('evt_image').value,
         banner_image: document.getElementById('evt_banner_image').value,
         is_featured: document.getElementById('evt_is_featured').checked,
-        is_countdown: document.getElementById('evt_is_countdown').checked,
         is_active: document.getElementById('evt_is_active').checked
     };
     

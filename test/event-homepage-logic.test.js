@@ -19,6 +19,10 @@ function response() {
     };
 }
 
+function eventDate(offsetMs) {
+    return new Date(Date.now() + offsetMs).toISOString();
+}
+
 async function renderHome(events) {
     const originalQuery = db.query;
     const originalEnvironment = process.env.NODE_ENV;
@@ -48,51 +52,41 @@ async function renderHome(events) {
     }
 }
 
-test('homepage only promotes featured events and keeps ordinary active events in the schedule', async () => {
-    const regularEvent = { id: 'regular', title: 'Lịch thường', is_featured: 0, is_countdown: 0, event_date: '2026-10-20T08:00:00Z' };
+test('an active future event that is not featured appears only in the upcoming schedule', async () => {
+    const regularEvent = { id: 'regular', title: 'Lịch thường', is_featured: 0, event_date: eventDate(3600000) };
     const rendered = await renderHome([regularEvent]);
 
     assert.equal(rendered.view, 'home/index');
     assert.deepEqual(rendered.data.featuredEvents, []);
-    assert.equal(rendered.data.countdownEvent, null);
-    assert.deepEqual(rendered.data.otherEvents, [regularEvent]);
+    assert.deepEqual(rendered.data.upcomingEvents, [regularEvent]);
 });
 
-test('homepage exposes every featured event for the featured scroller and does not duplicate them in the schedule', async () => {
-    const firstFeatured = { id: 'featured-1', title: 'Nổi bật 1', is_featured: 1, is_countdown: 0, event_date: '2026-10-20T08:00:00Z' };
-    const secondFeatured = { id: 'featured-2', title: 'Nổi bật 2', is_featured: true, is_countdown: 0, event_date: '2026-10-21T08:00:00Z' };
-    const regularEvent = { id: 'regular', title: 'Lịch thường', is_featured: 0, is_countdown: 0, event_date: '2026-10-22T08:00:00Z' };
+test('an active future featured event appears in both the featured scroller and upcoming schedule', async () => {
+    const firstFeatured = { id: 'featured-1', title: 'Nổi bật 1', is_featured: 1, event_date: eventDate(3600000) };
+    const secondFeatured = { id: 'featured-2', title: 'Nổi bật 2', is_featured: true, event_date: eventDate(7200000) };
+    const regularEvent = { id: 'regular', title: 'Lịch thường', is_featured: 0, event_date: eventDate(10800000) };
     const rendered = await renderHome([firstFeatured, secondFeatured, regularEvent]);
 
     assert.deepEqual(rendered.data.featuredEvents, [firstFeatured, secondFeatured]);
-    assert.deepEqual(rendered.data.otherEvents, [regularEvent]);
+    assert.deepEqual(rendered.data.upcomingEvents, [firstFeatured, secondFeatured, regularEvent]);
 });
 
-test('homepage countdown is selected independently from featured events', async () => {
-    const featuredEvent = { id: 'featured', title: 'Nổi bật', is_featured: 1, is_countdown: 0, event_date: '2026-10-20T08:00:00Z' };
-    const countdownEvent = { id: 'countdown', title: 'Đếm ngược', is_featured: 0, is_countdown: 1, event_date: '2026-10-21T08:00:00Z' };
-    const rendered = await renderHome([featuredEvent, countdownEvent]);
+test('past events are excluded from upcoming, but active featured past events stay featured', async () => {
+    const pastFeatured = { id: 'past-featured', title: 'Nổi bật đã qua', is_featured: 1, event_date: eventDate(-3600000) };
+    const pastRegular = { id: 'past-regular', title: 'Thường đã qua', is_featured: 0, event_date: eventDate(-7200000) };
+    const invalidDate = { id: 'invalid-date', title: 'Ngày lỗi', is_featured: 0, event_date: 'không phải ngày' };
+    const rendered = await renderHome([pastFeatured, pastRegular, invalidDate]);
 
-    assert.deepEqual(rendered.data.featuredEvents, [featuredEvent]);
-    assert.deepEqual(rendered.data.countdownEvent, countdownEvent);
+    assert.deepEqual(rendered.data.featuredEvents, [pastFeatured]);
+    assert.deepEqual(rendered.data.upcomingEvents, []);
 });
 
-test('homepage never renders a countdown for an event that has already started', async () => {
-    const pastCountdown = { id: 'past-countdown', title: 'Đã bắt đầu', is_featured: 0, is_countdown: 1, event_date: '2020-01-01T08:00:00Z' };
-    const rendered = await renderHome([pastCountdown]);
-
-    assert.equal(rendered.data.countdownEvent, null);
-    assert.deepEqual(rendered.data.otherEvents, [pastCountdown]);
+test('homepage source queries only active events', () => {
+    const controller = fs.readFileSync('src/controllers/HomeController.js', 'utf8');
+    assert.match(controller, /SELECT \* FROM events WHERE is_active = 1 ORDER BY event_date ASC/);
 });
 
-test('event mutations normalize switch values and reject an inactive countdown', async () => {
-    const inactiveCountdownResponse = response();
-    await AdminController.createEvent({ body: {
-        title: 'Không hợp lệ', event_date: '2026-10-21T08:00', is_countdown: 'true', is_active: 'false'
-    } }, inactiveCountdownResponse);
-    assert.equal(inactiveCountdownResponse.statusCode, 400);
-    assert.match(inactiveCountdownResponse.payload.message, /Countdown/);
-
+test('event mutations preserve active and featured switches while disabling the retired countdown field', async () => {
     const originalTransaction = db.transaction;
     const calls = [];
     db.transaction = async (work) => work({
@@ -104,27 +98,21 @@ test('event mutations normalize switch values and reject an inactive countdown',
     try {
         const createResponse = response();
         await AdminController.createEvent({ body: {
-            title: '  Cờ chuẩn hóa  ', event_date: '2026-10-21T08:00', is_featured: 'false', is_countdown: '0', is_active: '1'
+            title: '  Cờ chuẩn hóa  ', event_date: eventDate(3600000), is_featured: 'false', is_countdown: 'true', is_active: '1'
         } }, createResponse);
         const insert = calls.find(call => call.sql.includes('INSERT INTO events'));
         assert.equal(createResponse.payload.success, true);
         assert.deepEqual(insert.params.slice(-3), [0, 0, 1]);
         assert.equal(insert.params[1], 'Cờ chuẩn hóa');
-
-        const countdownResponse = response();
-        await AdminController.createEvent({ body: {
-            title: 'Countdown hợp lệ', event_date: '2026-10-21T08:00', is_countdown: true, is_active: true
-        } }, countdownResponse);
-        assert.equal(countdownResponse.payload.success, true);
-        assert.ok(calls.some(call => call.sql.includes('pg_advisory_xact_lock')));
+        assert.ok(!calls.some(call => call.sql.includes('pg_advisory_xact_lock')));
 
         const updateResponse = response();
         await AdminController.updateEvent({ body: {
-            id: 'event-1', title: 'Tắt nổi bật', event_date: '2026-10-21T08:00', is_featured: 'false', is_countdown: '0', is_active: 'true'
+            id: 'event-1', title: 'Tắt nổi bật', event_date: eventDate(7200000), is_featured: 'false', is_countdown: 'true', is_active: 'false'
         } }, updateResponse);
         const update = calls.find(call => call.sql.startsWith('UPDATE events SET title'));
         assert.equal(updateResponse.payload.success, true);
-        assert.deepEqual(update.params.slice(-4), [0, 0, 1, 'event-1']);
+        assert.deepEqual(update.params.slice(-4), [0, 0, 0, 'event-1']);
 
         db.transaction = async (work) => work({
             async query() {
@@ -133,7 +121,7 @@ test('event mutations normalize switch values and reject an inactive countdown',
         });
         const missingResponse = response();
         await AdminController.updateEvent({ body: {
-            id: 'missing-event', title: 'Không tồn tại', event_date: '2026-10-21T08:00', is_active: true
+            id: 'missing-event', title: 'Không tồn tại', event_date: eventDate(7200000), is_active: true
         } }, missingResponse);
         assert.equal(missingResponse.statusCode, 404);
         assert.match(missingResponse.payload.message, /Không tìm thấy/);
@@ -142,11 +130,15 @@ test('event mutations normalize switch values and reject an inactive countdown',
     }
 });
 
-test('event homepage view contains a featured-event scroller and a dedicated countdown target', () => {
+test('event views keep the featured scroller but remove countdown UI and upcoming-card descriptions', () => {
     const home = fs.readFileSync('src/views/home/index.ejs', 'utf8');
+    const admin = fs.readFileSync('src/views/admin/events.ejs', 'utf8');
+    const detail = fs.readFileSync('src/views/events/show.ejs', 'utf8');
+
     assert.match(home, /featuredEvents\.forEach/);
+    assert.match(home, /upcomingEvents\.forEach/);
     assert.match(home, /scroll-snap-type: x mandatory/);
-    assert.match(home, /data-countdown-date/);
-    assert.match(home, /data-countdown-days/);
-    assert.doesNotMatch(home, /nextEvent/);
+    assert.doesNotMatch(home, /data-countdown-date|Vuốt hoặc cuộn ngang|otherEvents/);
+    assert.doesNotMatch(admin, /evt_is_countdown|Hiện Countdown|<th>Countdown<\/th>/);
+    assert.doesNotMatch(detail, /Đang đếm ngược/);
 });
