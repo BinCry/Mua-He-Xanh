@@ -11,6 +11,26 @@
   const input = form.querySelector('input[name="q"]');
   if (!input) return;
 
+  const focusStorageKey = 'binh-loi:catalogue-search-focus';
+
+  const restoreSearchFocus = () => {
+    try {
+      const currentLocation = `${window.location.pathname}${window.location.search}`;
+      if (window.sessionStorage.getItem(focusStorageKey) !== currentLocation) return;
+
+      window.sessionStorage.removeItem(focusStorageKey);
+      window.requestAnimationFrame(() => {
+        input.focus({ preventScroll: true });
+        const cursorPosition = input.value.length;
+        input.setSelectionRange(cursorPosition, cursorPosition);
+      });
+    } catch (_) {
+      // Search remains fully usable when storage is unavailable.
+    }
+  };
+
+  restoreSearchFocus();
+
   let timer;
   const createUrl = () => {
     const url = new URL(form.action, window.location.origin);
@@ -34,6 +54,11 @@
       return;
     }
 
+    try {
+      window.sessionStorage.setItem(focusStorageKey, destination);
+    } catch (_) {
+      // Native navigation still performs the search if storage is unavailable.
+    }
     input.setAttribute('aria-busy', 'true');
     window.location.assign(destination);
   };
@@ -42,5 +67,15 @@
     window.clearTimeout(timer);
     timer = window.setTimeout(refreshResults, 300);
   });
-  form.addEventListener('submit', () => window.clearTimeout(timer));
+  form.addEventListener('submit', () => {
+    window.clearTimeout(timer);
+    if (document.activeElement !== input) return;
+
+    try {
+      const url = createUrl();
+      window.sessionStorage.setItem(focusStorageKey, `${url.pathname}${url.search}`);
+    } catch (_) {
+      // Native submit is the safe fallback.
+    }
+  });
 })();

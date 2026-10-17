@@ -6,6 +6,7 @@ async function searchAsYouType(page, path, query) {
     await input.fill(query);
     await expect.poll(() => new URL(page.url()).searchParams.get('q')).toBe(query);
     await expect(input).toHaveValue(query);
+    await expect(input).toBeFocused();
 }
 
 async function clearSearchAndRestoreCatalogue(page, path, expectedResult) {
@@ -13,6 +14,7 @@ async function clearSearchAndRestoreCatalogue(page, path, expectedResult) {
     const input = page.locator('form[data-live-catalog-search] input[name="q"]');
     await input.fill('');
     await expect.poll(() => new URL(page.url()).searchParams.has('q')).toBe(false);
+    await expect(input).toBeFocused();
     await expect(page.locator('[data-catalog-results]')).toContainText(expectedResult);
 }
 
