@@ -366,6 +366,14 @@
                                         </div>
                                         <div class="p-4 d-flex flex-column justify-content-between flex-grow-1 text-start">
                                             <h3 class="text-dark font-black mb-3 font-display" style="font-size: 1.35rem;"><%= evt.title %></h3>
+                                            <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 py-3 text-center" data-auto-countdown-date="<%= evt.event_date instanceof Date ? evt.event_date.toISOString() : evt.event_date %>">
+                                                <span class="x-small text-uppercase fw-bold mb-2" style="letter-spacing: 1px; color: var(--primary);"><i class="bi bi-alarm me-1"></i>Đếm ngược sự kiện</span>
+                                                <div class="d-flex gap-2" aria-live="polite">
+                                                    <div class="rounded-3 px-3 py-2 text-white" style="background: var(--primary); min-width: 68px;"><strong class="d-block fs-5" data-auto-countdown-days>00</strong><small>ngày</small></div>
+                                                    <div class="rounded-3 px-3 py-2 text-white" style="background: var(--primary); min-width: 68px;"><strong class="d-block fs-5" data-auto-countdown-hours>00</strong><small>giờ</small></div>
+                                                    <div class="rounded-3 px-3 py-2 text-white" style="background: var(--primary); min-width: 68px;"><strong class="d-block fs-5" data-auto-countdown-minutes>00</strong><small>phút</small></div>
+                                                </div>
+                                            </div>
                                             <div class="pt-3 border-top border-light" style="font-size: .9rem;">
                                                 <div class="d-flex align-items-center gap-2 text-dark"><i class="bi bi-geo-alt-fill text-danger fs-6"></i><span class="fw-bold"><%= evt.location || 'Bình Lợi' %></span></div>
                                                 <div class="d-flex align-items-center gap-2 text-muted mt-2"><i class="bi bi-calendar-event text-primary fs-6"></i><span><%= new Date(evt.event_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></span></div>
@@ -673,6 +681,27 @@
 
                         <!-- carousel init already handled in unified script above -->
 <script>
+    document.querySelectorAll('[data-auto-countdown-date]').forEach((countdownRoot) => {
+        const countdownDate = new Date(countdownRoot.dataset.autoCountdownDate).getTime();
+        const updateCountdown = () => {
+            const distance = countdownDate - Date.now();
+            if (!Number.isFinite(countdownDate) || distance <= 0) {
+                countdownRoot.hidden = true;
+                return false;
+            }
+            const days = countdownRoot.querySelector('[data-auto-countdown-days]');
+            const hours = countdownRoot.querySelector('[data-auto-countdown-hours]');
+            const minutes = countdownRoot.querySelector('[data-auto-countdown-minutes]');
+            if (days) days.textContent = String(Math.floor(distance / 86400000)).padStart(2, '0');
+            if (hours) hours.textContent = String(Math.floor((distance % 86400000) / 3600000)).padStart(2, '0');
+            if (minutes) minutes.textContent = String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0');
+            return true;
+        };
+        if (updateCountdown()) {
+            const timer = window.setInterval(() => { if (!updateCountdown()) window.clearInterval(timer); }, 1000);
+        }
+    });
+
     // Real-time Visitor & Stat Auto-Refresh Every 5 Seconds
     async function updateRealtimeStats() {
         try {

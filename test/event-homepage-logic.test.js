@@ -130,7 +130,7 @@ test('event mutations preserve active and featured switches while disabling the 
     }
 });
 
-test('event views keep the featured scroller but remove countdown UI and upcoming-card descriptions', () => {
+test('event views keep the featured scroller, use automatic upcoming countdowns, and remove countdown admin controls', () => {
     const home = fs.readFileSync('src/views/home/index.ejs', 'utf8');
     const admin = fs.readFileSync('src/views/admin/events.ejs', 'utf8');
     const detail = fs.readFileSync('src/views/events/show.ejs', 'utf8');
@@ -139,6 +139,8 @@ test('event views keep the featured scroller but remove countdown UI and upcomin
     assert.match(home, /upcomingEvents\.forEach/);
     assert.match(home, /upcoming-events-card/);
     assert.match(home, /isSingleUpcomingEvent = upcomingEvents\.length === 1/);
+    assert.match(home, /data-auto-countdown-date/);
+    assert.match(home, /data-auto-countdown-days/);
     assert.match(home, /scroll-snap-type: x mandatory/);
     assert.match(home, /object-fit: cover; object-position: center; z-index: 2/);
     assert.doesNotMatch(home, /data-countdown-date|Vuốt hoặc cuộn ngang|Lịch sự kiện sắp diễn ra|otherEvents/);
