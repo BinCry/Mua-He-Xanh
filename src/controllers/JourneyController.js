@@ -124,7 +124,7 @@ class JourneyController {
 
             const currentStep = (req.query.step === '4' || isConfirmed) ? 4 : 3;
             const allDestinations = await Destination.getActive();
-            const [templates] = await db.query("SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC");
+            const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE is_active = 1 ORDER BY created_at DESC");
 
             res.render('journey/story_mode', {
                 title: currentStep === 4 ? 'Timeline & Bản Đồ Hành Trình' : 'Tinh Chỉnh Hành Trình',
@@ -188,7 +188,7 @@ class JourneyController {
                 });
             } catch (e) { }
 
-            const [templates] = await db.query("SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC");
+            const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE is_active = 1 ORDER BY created_at DESC");
             const seasonLabels = { spring: '🌸 Xuân', summer: '☀️ Hạ', autumn: '🍂 Thu', winter: '❄️ Đông' };
             const interestLabels = { chill: '🕊️ Bình yên', peace: '🛕 Thư giãn', culture: '🎨 Văn hóa', family: '👨‍👩‍👧‍👦 Gắn kết' };
 

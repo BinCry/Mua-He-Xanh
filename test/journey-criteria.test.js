@@ -46,6 +46,48 @@ test('journey catalogue lists every visible administrator-managed tour without o
     }
 });
 
+test('a hidden tour is absent from the public journey editor and recommendations', async () => {
+    const originalQuery = db.query;
+    const originalGetOrCreateSession = JourneyController.getOrCreateSession;
+    const originalGetCurrentBySession = Journey.getCurrentBySession;
+    const originalGetWithStops = Journey.getWithStops;
+    const originalGetActive = require('../src/models/Destination').getActive;
+    const visibleTemplate = { id: 'tour-visible', name: 'Tour đang hiện', is_active: 1, interest: 'peace', stops: JSON.stringify(['stop-1']) };
+    const hiddenTemplate = { id: 'tour-hidden', name: 'Tour đã ẩn', is_active: 0, interest: 'peace', stops: JSON.stringify(['stop-1']) };
+    const activeDestination = { id: 'stop-1', name: 'Điểm dừng', slug: 'diem-dung', moods: JSON.stringify(['peace']) };
+    const destinationModel = require('../src/models/Destination');
+
+    db.query = async sql => {
+        if (/seasonal_journey_templates/.test(sql)) {
+            assert.match(sql, /WHERE is_active = 1/);
+            return [[visibleTemplate]];
+        }
+        return [[activeDestination]];
+    };
+    JourneyController.getOrCreateSession = async () => ({ id: 'session-1', mood: 'peace', duration: 'half_day' });
+    Journey.getCurrentBySession = async () => ({ id: 'journey-1' });
+    Journey.getWithStops = async () => ({ id: 'journey-1', stops: [activeDestination], interests: JSON.stringify({ source: 'template' }) });
+    destinationModel.getActive = async () => [activeDestination];
+
+    try {
+        const editor = response();
+        await JourneyController.index({ query: {} }, editor);
+        assert.equal(editor.view, 'journey/story_mode');
+        assert.deepEqual(editor.payload.templates.map(template => template.id), ['tour-visible']);
+
+        const suggestions = response();
+        await JourneyController.suggestions({}, suggestions);
+        assert.equal(suggestions.view, 'journey/suggestions');
+        assert.deepEqual(suggestions.payload.templateSuggestions.map(template => template.id), ['tour-visible']);
+    } finally {
+        db.query = originalQuery;
+        JourneyController.getOrCreateSession = originalGetOrCreateSession;
+        Journey.getCurrentBySession = originalGetCurrentBySession;
+        Journey.getWithStops = originalGetWithStops;
+        destinationModel.getActive = originalGetActive;
+    }
+});
+
 test('an administrator can atomically hide or show a journey template', async () => {
     const originalQuery = db.query;
     let captured;
