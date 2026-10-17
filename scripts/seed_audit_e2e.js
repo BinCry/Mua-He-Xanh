@@ -15,6 +15,7 @@ if (!/(?:localhost|127\.0\.0\.1).*binh_loi_audit/i.test(connectionString)) {
 const ids = {
     destinationOne: 'e2000000-0000-4000-8000-000000000001',
     destinationTwo: 'e2000000-0000-4000-8000-000000000002',
+    journeyTemplate: 'e2000000-0000-4000-8000-000000000003',
     tourist: 'e2000000-0000-4000-8000-000000000101',
     journeyTourist: 'e2000000-0000-4000-8000-000000000105',
     communityTourist: 'e2000000-0000-4000-8000-000000000106',
@@ -142,6 +143,18 @@ async function main() {
              ON CONFLICT (id) DO UPDATE SET slug = EXCLUDED.slug, name = EXCLUDED.name, type = EXCLUDED.type,
                 short_desc = EXCLUDED.short_desc, story = EXCLUDED.story, is_active = 1, sort_order = EXCLUDED.sort_order`,
             [ids.destinationOne, ids.destinationTwo]
+        );
+        // The public Journey catalogue only exposes tours administered through
+        // seasonal_journey_templates and whose configured stops are active.
+        // Seed one complete tour so browser acceptance tests exercise the same
+        // list -> detail flow used by visitors, rather than an empty-state.
+        await pool.query(
+            `INSERT INTO seasonal_journey_templates (id, name, description, season, interest, stops, duration, km)
+             VALUES ($1, 'Tour Hành trình E2E', 'Tour mẫu do quản trị viên tạo để kiểm thử danh sách và trang chi tiết.', 'summer', 'culture', $2, 'full_day', 4.5)
+             ON CONFLICT (id) DO UPDATE SET name = EXCLUDED.name, description = EXCLUDED.description,
+                season = EXCLUDED.season, interest = EXCLUDED.interest, stops = EXCLUDED.stops,
+                duration = EXCLUDED.duration, km = EXCLUDED.km, updated_at = NOW()`,
+            [ids.journeyTemplate, JSON.stringify([ids.destinationOne, ids.destinationTwo])]
         );
         const users = [
             [ids.tourist, 'e2e-tourist@example.test', 'Khach kiem thu E2E', 'user', 3, null],

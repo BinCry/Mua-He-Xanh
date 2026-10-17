@@ -11,12 +11,12 @@
 
         <!-- Filter & Search Capsules Bar (Single line search input + right button) -->
         <div class="card border-0 shadow-sm rounded-4 p-2.5 mb-5 bg-white reveal-up">
-            <form action="/shops" method="GET" id="shopSearchForm" role="search">
+            <form action="/shops" method="GET" id="shopSearchForm" role="search" data-live-catalog-search>
                 <div class="input-group rounded-pill overflow-hidden bg-light border p-1.5 w-100">
                     <span class="input-group-text bg-transparent border-0 ps-3 pe-2 text-muted">
                         <i class="bi bi-search fs-5"></i>
                     </span>
-                    <input type="search" name="q" class="form-control border-0 bg-transparent shadow-none px-2" aria-label="Tìm kiếm sản phẩm"
+                    <input type="search" name="q" class="form-control border-0 bg-transparent shadow-none px-2" aria-label="Tìm kiếm sản phẩm" autocomplete="off"
                         placeholder="Tìm kiếm sản phẩm, yến sào, quà tặng..." 
                         value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>" style="font-size: 0.95rem; height: 44px;">
                     <button type="submit" class="btn btn-primary rounded-pill px-4 px-md-5 fw-bold text-white flex-shrink-0" style="background: var(--primary); font-size: 0.9rem; height: 44px;">
@@ -33,6 +33,7 @@
         </div>
 
         <!-- 4-Column Product Grid (Matching Screenshot 100%) -->
+        <div data-catalog-results aria-live="polite">
         <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4 shop-grid-container">
             <% workshops.forEach((ws, i) => { %>
             <div class="col reveal-up">
@@ -100,6 +101,7 @@
             <a href="/shops" class="btn btn-primary rounded-pill px-4 mt-2">Xem tất cả sản phẩm</a>
         </div>
         <% } %>
+        </div>
 
     </div>
 </section>
@@ -179,3 +181,4 @@
         border-color: var(--primary);
     }
 </style>
+<script src="/js/live-catalog-search.js?v=<%= assetV %>" defer></script>

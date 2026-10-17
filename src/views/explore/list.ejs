@@ -10,13 +10,13 @@
 
         <!-- Redesigned Search & Category Filter Bar -->
         <div class="card border-0 shadow-premium rounded-4 p-4 mb-5 bg-white reveal-up">
-            <form action="/explore" method="GET" id="exploreSearchForm">
+            <form action="/explore" method="GET" id="exploreSearchForm" data-live-catalog-search>
                 <!-- Search bar -->
                 <div class="position-relative mb-4">
                     <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 20px;"></i>
-                    <input type="text" name="q" class="form-control border-0 bg-light rounded-pill py-3 ps-5 pe-4 shadow-none" 
+                    <input type="search" name="q" class="form-control border-0 bg-light rounded-pill py-3 ps-5 pe-4 shadow-none"
                         placeholder="" aria-label="Tìm kiếm địa điểm"
-                        value="<%= searchQuery || '' %>" style="font-size: 0.95rem; height: 52px;">
+                        value="<%= searchQuery || '' %>" autocomplete="off" style="font-size: 0.95rem; height: 52px;">
                     <button type="submit" class="btn btn-primary rounded-pill fw-bold text-white btn-premium search-submit-btn position-absolute end-0 top-50 translate-middle-y me-2" style="background: var(--primary); font-size: 0.88rem;">
                         Tìm kiếm
                     </button>
@@ -56,6 +56,7 @@
 
 
 <!-- Destination Cards Catalog -->
+<div data-catalog-results aria-live="polite">
 <div class="row g-2 g-md-4">
     <% destinations.forEach(dest => { %>
     <div class="col-4 col-md-6 col-lg-4 reveal-up px-1 px-sm-2 mb-2 mb-md-3">
@@ -113,6 +114,7 @@
             <%- include('../partials/pagination', { pagination: pagination, paginationUrl: paginationUrl }) %>
         </div>
         <% } %>
+        </div>
     </div>
 </section>
 
@@ -232,3 +234,4 @@
         }
     }
 </style>
+<script src="/js/live-catalog-search.js?v=<%= assetV %>" defer></script>
