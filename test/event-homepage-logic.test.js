@@ -138,7 +138,9 @@ test('event views keep the featured scroller, use automatic upcoming countdowns,
     assert.match(home, /featuredEvents\.forEach/);
     assert.match(home, /upcomingEvents\.forEach/);
     assert.match(home, /upcoming-events-card/);
-    assert.match(home, /isSingleUpcomingEvent = upcomingEvents\.length === 1/);
+    assert.match(home, /scrollable-events-container h-100 overflow-auto/);
+    assert.match(home, /index === 0/);
+    assert.match(home, /ms-auto text-center/);
     assert.match(home, /data-auto-countdown-date/);
     assert.match(home, /data-auto-countdown-days/);
     assert.match(home, /scroll-snap-type: x mandatory/);

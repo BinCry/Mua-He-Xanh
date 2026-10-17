@@ -354,33 +354,11 @@
                     style="min-height: 250px; border-color: rgba(0,0,0,0.08) !important;">
                     <div class="scrollable-events-container h-100 overflow-auto">
                         <% if (hasUpcomingEvents) { %>
-                            <% const isSingleUpcomingEvent = upcomingEvents.length === 1; %>
-                            <div class="d-flex flex-column h-100">
+                            <div class="d-flex flex-column">
                             <% upcomingEvents.forEach((evt, index)=> { %>
                                 <a href="/events/<%= evt.id %>"
-                                    class="home-event-card text-decoration-none <%= isSingleUpcomingEvent ? 'd-flex flex-column h-100' : 'd-flex gap-3 align-items-center p-3' %> <%= index < upcomingEvents.length - 1 ? 'border-bottom' : '' %>"
+                                    class="home-event-card text-decoration-none d-flex gap-3 align-items-center p-3 <%= index < upcomingEvents.length - 1 ? 'border-bottom' : '' %>"
                                     style="transition: all 0.3s;">
-                                    <% if (isSingleUpcomingEvent) { %>
-                                        <div class="w-100 overflow-hidden" style="aspect-ratio: 16 / 9; background: #0f172a;">
-                                            <img src="<%= fixImg(evt.image, '/uploads/posters/poster-1.webp') %>" class="w-100 h-100" style="object-fit: cover;" alt="<%= evt.title %>" loading="lazy" decoding="async">
-                                        </div>
-                                        <div class="p-4 d-flex flex-column justify-content-between flex-grow-1 text-start">
-                                            <h3 class="text-dark font-black mb-3 font-display" style="font-size: 1.35rem;"><%= evt.title %></h3>
-                                            <div class="d-flex flex-column align-items-center justify-content-center flex-grow-1 py-3 text-center" data-auto-countdown-date="<%= evt.event_date instanceof Date ? evt.event_date.toISOString() : evt.event_date %>">
-                                                <span class="x-small text-uppercase fw-bold mb-2" style="letter-spacing: 1px; color: var(--primary);"><i class="bi bi-alarm me-1"></i>Đếm ngược sự kiện</span>
-                                                <div class="d-flex gap-2" aria-live="polite">
-                                                    <div class="rounded-3 px-3 py-2 text-white" style="background: var(--primary); min-width: 68px;"><strong class="d-block fs-5" data-auto-countdown-days>00</strong><small>ngày</small></div>
-                                                    <div class="rounded-3 px-3 py-2 text-white" style="background: var(--primary); min-width: 68px;"><strong class="d-block fs-5" data-auto-countdown-hours>00</strong><small>giờ</small></div>
-                                                    <div class="rounded-3 px-3 py-2 text-white" style="background: var(--primary); min-width: 68px;"><strong class="d-block fs-5" data-auto-countdown-minutes>00</strong><small>phút</small></div>
-                                                </div>
-                                            </div>
-                                            <div class="pt-3 border-top border-light" style="font-size: .9rem;">
-                                                <div class="d-flex align-items-center gap-2 text-dark"><i class="bi bi-geo-alt-fill text-danger fs-6"></i><span class="fw-bold"><%= evt.location || 'Bình Lợi' %></span></div>
-                                                <div class="d-flex align-items-center gap-2 text-muted mt-2"><i class="bi bi-calendar-event text-primary fs-6"></i><span><%= new Date(evt.event_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }) %></span></div>
-                                            </div>
-                                        </div>
-                                    <% } else { %>
-                                    <!-- Event Image Thumbnail instead of calendar icon -->
                                     <div class="home-event-icon rounded-3 overflow-hidden flex-shrink-0"
                                         style="width: 54px; height: 54px; border: 1px solid rgba(0,0,0,0.08);">
                                         <img src="<%= fixImg(evt.image, '/uploads/posters/poster-1.webp') %>" class="w-100 h-100 object-fit-cover" alt="<%= evt.title %>" loading="lazy" decoding="async">
@@ -402,6 +380,12 @@
                                             </span>
                                         </div>
                                     </div>
+                                    <% if (index === 0) { %>
+                                        <div class="d-flex gap-1 flex-shrink-0 ms-auto text-center" data-auto-countdown-date="<%= evt.event_date instanceof Date ? evt.event_date.toISOString() : evt.event_date %>">
+                                            <div class="rounded-3 px-2 py-1 text-white" style="background: var(--primary); min-width: 48px;"><strong class="d-block" style="font-size: .95rem; line-height: 1.1;" data-auto-countdown-days>00</strong><small style="font-size: .65rem;">ngày</small></div>
+                                            <div class="rounded-3 px-2 py-1 text-white" style="background: var(--primary); min-width: 48px;"><strong class="d-block" style="font-size: .95rem; line-height: 1.1;" data-auto-countdown-hours>00</strong><small style="font-size: .65rem;">giờ</small></div>
+                                            <div class="rounded-3 px-2 py-1 text-white" style="background: var(--primary); min-width: 48px;"><strong class="d-block" style="font-size: .95rem; line-height: 1.1;" data-auto-countdown-minutes>00</strong><small style="font-size: .65rem;">phút</small></div>
+                                        </div>
                                     <% } %>
                                 </a>
                                 <% }) %>
