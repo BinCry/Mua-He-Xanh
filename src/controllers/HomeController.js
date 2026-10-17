@@ -10,6 +10,10 @@ let _cacheTs = 0;
 let _statsCacheTs = 0;
 const CACHE_TTL = 300000; // 5 minutes
 
+function isEnabledFlag(value) {
+    return value === true || value === 1 || value === '1';
+}
+
 const DEFAULT_HOME_DATA = {
     title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
     heroPosters: [
@@ -25,7 +29,8 @@ const DEFAULT_HOME_DATA = {
     stats: { checkins: 0, pageViews: 0, visitors: 0, destinations: 10, workshopCount: 12, avgRating: 5.0 },
     reviews: [],
     seasonalExperiences: [],
-    nextEvent: null,
+    featuredEvents: [],
+    countdownEvent: null,
     otherEvents: []
 };
 
@@ -127,16 +132,20 @@ class HomeController {
             }
 
             const safeEvents = Array.isArray(events) ? events : [];
-            const featuredEvent = safeEvents.find(e => e.is_featured == 1 || e.is_featured === true || e.is_featured === '1') || 
-                                  safeEvents.find(e => e.is_countdown == 1 || e.is_countdown === true || e.is_countdown === '1') || 
-                                  safeEvents[0] || null;
+            const featuredEvents = safeEvents.filter(event => isEnabledFlag(event.is_featured));
+            const countdownEvent = safeEvents.find(event => (
+                isEnabledFlag(event.is_countdown) &&
+                event.event_date &&
+                new Date(event.event_date).getTime() > Date.now()
+            )) || null;
+            const primaryEvent = featuredEvents[0] || countdownEvent;
             const nextFestival = {
-                name: featuredEvent?.title || "Chưa có sự kiện",
-                date: featuredEvent?.event_date || new Date(Date.now() + 86400000 * 30).toISOString(),
-                location: featuredEvent?.location || "Bình Lợi"
+                name: primaryEvent?.title || "Chưa có sự kiện",
+                date: primaryEvent?.event_date || new Date(Date.now() + 86400000 * 30).toISOString(),
+                location: primaryEvent?.location || "Bình Lợi"
             };
 
-            const otherEvents = featuredEvent ? safeEvents.filter(e => e.id !== featuredEvent.id) : safeEvents;
+            const otherEvents = safeEvents.filter(event => !isEnabledFlag(event.is_featured));
 
             const renderData = {
                 title: 'Bình Lợi - Miền Tây giữa lòng Sài Gòn',
@@ -154,7 +163,8 @@ class HomeController {
                 },
                 reviews: Array.isArray(realReviews) ? realReviews : [],
                 seasonalExperiences: Array.isArray(seasonalExperiences) ? seasonalExperiences : [],
-                nextEvent: featuredEvent,
+                featuredEvents,
+                countdownEvent,
                 otherEvents
             };
 

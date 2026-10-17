@@ -324,69 +324,51 @@
 <section class="py-section position-relative"
     style="background-color: #f1f9f6; border-top: 1px solid rgba(0,0,0,0.03); border-bottom: 1px solid rgba(0,0,0,0.03); overflow: hidden;">
     <div class="container py-4 py-md-5 position-relative" style="z-index: 2;">
-        <div class="row align-items-stretch g-4 g-md-5">
-            <div class="col-lg-6 reveal-up d-flex flex-column gap-3">
-                <% if (nextEvent) { %>
-                    <!-- Badge Outside Event Card Header Margin -->
-                    <div>
-                        <span class="badge rounded-pill px-3 py-2 text-uppercase fw-bold x-small shadow-sm"
-                            style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
-                            <i class="bi bi-star-fill me-1" style="color: #ffc847;"></i> Sự kiện nổi bật
-                        </span>
+        <% const hasFeaturedEvents = Array.isArray(featuredEvents) && featuredEvents.length > 0; %>
+        <% const hasOtherEvents = Array.isArray(otherEvents) && otherEvents.length > 0; %>
+
+        <% if (countdownEvent && countdownEvent.event_date) { %>
+            <div class="mb-4 p-3 p-md-4 rounded-4 shadow-sm text-white" data-countdown-date="<%= countdownEvent.event_date instanceof Date ? countdownEvent.event_date.toISOString() : countdownEvent.event_date %>" style="background: linear-gradient(135deg, #922724, #b5483a);">
+                <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                    <a href="/events/<%= countdownEvent.id %>" class="text-white text-decoration-none"><div class="small text-uppercase fw-bold opacity-75 mb-1"><i class="bi bi-alarm-fill me-1"></i> Đếm ngược sự kiện</div><div class="fw-bold fs-5"><%= countdownEvent.title %></div></a>
+                    <div class="d-flex align-items-center gap-2 text-center" data-countdown-values aria-live="polite">
+                        <div class="rounded-3 px-3 py-2" style="background: rgba(255,255,255,.16); min-width: 64px;"><strong class="d-block fs-5" data-countdown-days>00</strong><small>ngày</small></div>
+                        <div class="rounded-3 px-3 py-2" style="background: rgba(255,255,255,.16); min-width: 64px;"><strong class="d-block fs-5" data-countdown-hours>00</strong><small>giờ</small></div>
+                        <div class="rounded-3 px-3 py-2" style="background: rgba(255,255,255,.16); min-width: 64px;"><strong class="d-block fs-5" data-countdown-minutes>00</strong><small>phút</small></div>
                     </div>
-
-                    <div class="card border-0 rounded-4 overflow-hidden position-relative shadow-sm hover-lift w-100 d-flex flex-column bg-white border">
-                        <!-- Top Image Poster: 100% FULL UNCROPPED POSTER with blurred background fill -->
-                        <div class="w-100 position-relative overflow-hidden" style="aspect-ratio: 16 / 9; width: 100%; background: #0f172a; flex-shrink: 0;">
-                            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg(nextEvent.image, '/uploads/posters/poster-1.webp') %>') center/cover; filter: blur(16px) brightness(0.65); transform: scale(1.2);"></div>
-                            <img src="<%= fixImg(nextEvent.image, '/uploads/posters/poster-1.webp') %>" class="position-relative w-100 h-100" style="object-fit: contain; object-position: center; z-index: 2;" loading="lazy" decoding="async" alt="<%= nextEvent.title %>">
-                        </div>
-
-                        <!-- Bottom 50% Information Body -->
-                        <a href="/events/<%= nextEvent.id %>" class="card-body p-4 d-flex flex-column justify-content-between text-decoration-none text-start bg-white">
-                            <div>
-                                <h3 class="text-dark font-black mb-2 font-display text-start notranslate" translate="no" style="font-size: 1.35rem; line-height: 1.3;">
-                                    <%= nextEvent.title %>
-                                </h3>
-                                <p class="text-muted mb-3 line-clamp-3" style="font-size: 0.88rem; line-height: 1.6;">
-                                    <%= nextEvent.description %>
-                                </p>
-                            </div>
-
-                            <div class="pt-3 border-top border-light">
-                                <div class="d-flex flex-column gap-1.5 text-start" style="font-size: 0.85rem;">
-                                    <div class="d-flex align-items-center gap-2 text-dark">
-                                        <i class="bi bi-geo-alt-fill text-danger fs-6"></i>
-                                        <span class="fw-bold"><%= nextEvent.location %></span>
-                                    </div>
-                                    <div class="d-flex align-items-center gap-2 text-muted">
-                                        <i class="bi bi-calendar-event text-primary fs-6"></i>
-                                        <span class="text-capitalize">
-                                            <%= new Date(nextEvent.event_date).toLocaleDateString('vi-VN', {
-                                                weekday: 'long' , year: 'numeric' , month: 'long' , day: 'numeric' ,
-                                                hour: '2-digit' , minute: '2-digit' }) %>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                <% } %>
+                </div>
             </div>
+        <% } %>
 
-            <div class="<%= nextEvent ? 'col-lg-6' : 'col-lg-8 mx-auto' %> reveal-up d-flex flex-column">
-                <div class="<%= nextEvent ? '' : 'text-center d-flex flex-column align-items-center' %>">
+        <div class="row align-items-stretch g-4 g-md-5">
+            <% if (hasFeaturedEvents) { %>
+                <div class="col-lg-6 reveal-up d-flex flex-column gap-3">
+                    <div><span class="badge rounded-pill px-3 py-2 text-uppercase fw-bold x-small shadow-sm" style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;"><i class="bi bi-star-fill me-1" style="color: #ffc847;"></i> Sự kiện nổi bật</span></div>
+                    <div class="d-flex gap-3 overflow-auto pb-2" aria-label="Danh sách sự kiện nổi bật" style="scroll-snap-type: x mandatory; scrollbar-gutter: stable;">
+                        <% featuredEvents.forEach(evt => { %>
+                            <article class="card border-0 rounded-4 overflow-hidden position-relative shadow-sm hover-lift bg-white border flex-shrink-0" style="width: min(100%, 460px); scroll-snap-align: start;">
+                                <div class="w-100 position-relative overflow-hidden" style="aspect-ratio: 16 / 9; background: #0f172a;"><div class="position-absolute top-0 start-0 w-100 h-100" style="background: url('<%= fixImg(evt.image, '/uploads/posters/poster-1.webp') %>') center/cover; filter: blur(16px) brightness(.65); transform: scale(1.2);"></div><img src="<%= fixImg(evt.image, '/uploads/posters/poster-1.webp') %>" class="position-relative w-100 h-100" style="object-fit: contain; object-position: center; z-index: 2;" loading="lazy" decoding="async" alt="<%= evt.title %>"></div>
+                                <a href="/events/<%= evt.id %>" class="card-body p-4 d-flex flex-column justify-content-between text-decoration-none text-start bg-white"><div><h3 class="text-dark font-black mb-2 font-display notranslate" translate="no" style="font-size: 1.35rem; line-height: 1.3;"><%= evt.title %></h3><p class="text-muted mb-3 line-clamp-3" style="font-size: .88rem; line-height: 1.6;"><%= evt.description %></p></div><div class="pt-3 border-top border-light" style="font-size: .85rem;"><div class="d-flex align-items-center gap-2 text-dark"><i class="bi bi-geo-alt-fill text-danger fs-6"></i><span class="fw-bold"><%= evt.location || 'Bình Lợi' %></span></div><% if (evt.event_date) { %><div class="d-flex align-items-center gap-2 text-muted mt-1"><i class="bi bi-calendar-event text-primary fs-6"></i><span><%= new Date(evt.event_date).toLocaleDateString('vi-VN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span></div><% } %></div></a>
+                            </article>
+                        <% }) %>
+                    </div>
+                    <% if (featuredEvents.length > 1) { %><small class="text-muted"><i class="bi bi-arrow-left-right me-1"></i>Vuốt hoặc cuộn ngang để xem <%= featuredEvents.length %> sự kiện nổi bật.</small><% } %>
+                </div>
+            <% } %>
+
+            <div class="<%= hasFeaturedEvents ? 'col-lg-6' : 'col-lg-8 mx-auto' %> reveal-up d-flex flex-column">
+                <div class="<%= hasFeaturedEvents ? '' : 'text-center d-flex flex-column align-items-center' %>">
                     <span class="badge rounded-pill px-3 py-2 mb-3 text-uppercase fw-bold x-small"
                         style="background: var(--primary-100); color: var(--primary); border: 1px solid var(--primary-200); letter-spacing: 1px;">
-                        <i class="bi bi-calendar3 me-1"></i> <%= nextEvent ? 'Sự kiện khác' : 'Sự kiện' %>
+                        <i class="bi bi-calendar3 me-1"></i> <%= hasFeaturedEvents ? 'Sự kiện khác' : 'Sự kiện' %>
                     </span>
                     <h2 class="text-dark font-black mb-4 font-display" style="font-size: 2rem; line-height: 1.2;">Lịch
                         sự kiện sắp diễn ra</h2>
                 </div>
 
-                <div class="scrollable-events-container flex-grow-1 <%= nextEvent ? '' : 'mx-auto w-100' %>"
+                <div class="scrollable-events-container flex-grow-1 <%= hasFeaturedEvents ? '' : 'mx-auto w-100' %>"
                     style="max-height: 480px; overflow-y: auto; padding-right: 8px;">
-                    <% if (typeof otherEvents !=='undefined' && otherEvents.length> 0) { %>
+                    <% if (hasOtherEvents) { %>
                         <div class="d-flex flex-column gap-3">
                             <% otherEvents.forEach((evt, index)=> { %>
                                 <a href="/events/<%= evt.id %>"
@@ -425,7 +407,7 @@
                             <div class="text-center py-5 text-muted border rounded-4 bg-white border-dashed h-100 d-flex flex-column align-items-center justify-content-center"
                                 style="min-height: 250px;">
                                 <i class="bi bi-calendar-x fs-2 d-block mb-2 text-secondary opacity-50"></i>
-                                <span class="small"><%= nextEvent ? 'Chưa có sự kiện nào khác sắp diễn ra' : 'Chưa có sự kiện nào sắp diễn ra' %></span>
+                                <span class="small"><%= hasFeaturedEvents ? 'Chưa có sự kiện nào khác sắp diễn ra' : 'Chưa có sự kiện nào sắp diễn ra' %></span>
                             </div>
                             <% } %>
                 </div>
@@ -694,27 +676,30 @@
             </script>
             <% } %>
 
-                <% if (nextEvent && (nextEvent.event_date || (typeof festival !== 'undefined' && festival && festival.date))) { %>
-                    <script>
-                        const festivalDate = new Date("<%= nextEvent.event_date ? (nextEvent.event_date instanceof Date ? nextEvent.event_date.toISOString() : nextEvent.event_date) : (typeof festival !== 'undefined' && festival.date ? festival.date : '') %>").getTime();
-                        const timer = setInterval(function () {
-                            const now = new Date().getTime();
-                            const distance = festivalDate - now;
-                            const elCountdown = document.getElementById("countdown");
-                            if (distance < 0) {
-                                clearInterval(timer);
-                                if (elCountdown) elCountdown.innerHTML = '<span class="fw-bold fs-5" style="color: #ffc847 !important; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">SỰ KIỆN ĐANG DIỄN RA!</span>';
-                                return;
+                <script>
+                    const countdownRoot = document.querySelector('[data-countdown-date]');
+                    if (countdownRoot) {
+                        const countdownDate = new Date(countdownRoot.dataset.countdownDate).getTime();
+                        const countdownValues = countdownRoot.querySelector('[data-countdown-values]');
+                        const updateCountdown = () => {
+                            const distance = countdownDate - Date.now();
+                            if (!Number.isFinite(countdownDate) || distance <= 0) {
+                                countdownRoot.hidden = true;
+                                return false;
                             }
-                            const elDays = document.getElementById("days");
-                            const elHours = document.getElementById("hours");
-                            const elMins = document.getElementById("mins");
-                            if (elDays) elDays.innerHTML = String(Math.floor(distance / (1000 * 60 * 60 * 24))).padStart(2, '0');
-                            if (elHours) elHours.innerHTML = String(Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).padStart(2, '0');
-                            if (elMins) elMins.innerHTML = String(Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).padStart(2, '0');
-                        }, 1000);
-                    </script>
-                    <% } %>
+                            const days = countdownRoot.querySelector('[data-countdown-days]');
+                            const hours = countdownRoot.querySelector('[data-countdown-hours]');
+                            const minutes = countdownRoot.querySelector('[data-countdown-minutes]');
+                            if (days) days.textContent = String(Math.floor(distance / 86400000)).padStart(2, '0');
+                            if (hours) hours.textContent = String(Math.floor((distance % 86400000) / 3600000)).padStart(2, '0');
+                            if (minutes) minutes.textContent = String(Math.floor((distance % 3600000) / 60000)).padStart(2, '0');
+                            return true;
+                        };
+                        if (updateCountdown()) {
+                            const timer = window.setInterval(() => { if (!updateCountdown()) window.clearInterval(timer); }, 1000);
+                        }
+                    }
+                </script>
 
                         <!-- carousel init already handled in unified script above -->
 <script>
