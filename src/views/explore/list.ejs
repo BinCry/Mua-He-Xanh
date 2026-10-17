@@ -59,7 +59,7 @@
 <div data-catalog-results aria-live="polite">
 <div class="row g-2 g-md-4">
     <% destinations.forEach(dest => { %>
-    <div class="col-4 col-md-6 col-lg-4 reveal-up px-1 px-sm-2 mb-2 mb-md-3">
+    <div class="col-4 col-md-6 col-lg-4 px-1 px-sm-2 mb-2 mb-md-3">
         <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
             <!-- Equal Bento Card: identical to homepage cards -->
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift home-dest-card" style="transition: all 0.3s ease;">
@@ -94,7 +94,7 @@
 
         <!-- Empty Result Fallback -->
         <% if (destinations.length === 0) { %>
-        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white reveal-up">
+        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
             <i class="bi bi-compass-fill display-1 text-muted opacity-25 mb-3 d-block"></i>
             <h4 class="fw-bold text-dark">Không tìm thấy địa điểm nào phù hợp</h4>
             <p class="text-muted small mb-4">Vui lòng thử lại với từ khóa khác hoặc xóa bớt các tiêu chí lọc.</p>

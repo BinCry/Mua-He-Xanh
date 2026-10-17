@@ -16,6 +16,13 @@ async function clearSearchAndRestoreCatalogue(page, path, expectedResult) {
     await expect(page.locator('[data-catalog-results]')).toContainText(expectedResult);
 }
 
+async function expectCatalogueCardsVisible(page, path, cardSelector) {
+    await page.goto(path, { waitUntil: 'domcontentloaded' });
+    const firstCard = page.locator(cardSelector).first();
+    await expect(firstCard).toBeVisible();
+    await expect(firstCard).toHaveCSS('opacity', '1');
+}
+
 test('Explore, Shop and Workshop refresh search results while a visitor types an incomplete query', async ({ page }) => {
     await searchAsYouType(page, '/explore', 'diem e');
     await expect(page.locator('[data-catalog-results]')).toContainText('Dia diem E2E 1');
@@ -31,4 +38,10 @@ test('Explore, Shop and Workshop restore the full catalogue when the query is cl
     await clearSearchAndRestoreCatalogue(page, '/explore', 'Dia diem E2E 1');
     await clearSearchAndRestoreCatalogue(page, '/shops', 'Sản phẩm Shop E2E');
     await clearSearchAndRestoreCatalogue(page, '/workshops', 'Workshop E2E');
+});
+
+test('catalogue cards stay visible instead of depending on their scroll animation', async ({ page }) => {
+    await expectCatalogueCardsVisible(page, '/explore', '[data-catalog-results] .row > .col-4');
+    await expectCatalogueCardsVisible(page, '/shops', '[data-catalog-results] .shop-grid-container > .col');
+    await expectCatalogueCardsVisible(page, '/workshops', '[data-catalog-results] article');
 });
