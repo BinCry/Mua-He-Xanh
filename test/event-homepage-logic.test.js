@@ -138,6 +138,7 @@ test('event views keep the featured scroller but remove countdown UI and upcomin
     assert.match(home, /featuredEvents\.forEach/);
     assert.match(home, /upcomingEvents\.forEach/);
     assert.match(home, /upcoming-events-card/);
+    assert.match(home, /isSingleUpcomingEvent = upcomingEvents\.length === 1/);
     assert.match(home, /scroll-snap-type: x mandatory/);
     assert.match(home, /object-fit: cover; object-position: center; z-index: 2/);
     assert.doesNotMatch(home, /data-countdown-date|Vuốt hoặc cuộn ngang|Lịch sự kiện sắp diễn ra|otherEvents/);
