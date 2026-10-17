@@ -143,4 +143,6 @@ test('event views keep the featured scroller but remove countdown UI and upcomin
     assert.doesNotMatch(home, /data-countdown-date|Vuốt hoặc cuộn ngang|Lịch sự kiện sắp diễn ra|otherEvents/);
     assert.doesNotMatch(admin, /evt_is_countdown|Hiện Countdown|<th>Countdown<\/th>/);
     assert.doesNotMatch(detail, /Đang đếm ngược/);
+    assert.match(detail, /aspect-ratio: 16 \/ 9; background: #0f172a/);
+    assert.match(detail, /object-fit: cover; object-position: center/);
 });
