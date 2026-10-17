@@ -39,7 +39,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
         findByUuid: UserSession.findByUuid,
         findBySlug: Destination.findBySlug,
         claimForUser: CheckIn.claimForUser,
-        getActiveBySession: Journey.getActiveBySession,
+        getCurrentBySession: Journey.getCurrentBySession,
         checkAndUnlock: UserBadge.checkAndUnlock,
         haversine: Model.haversine
     };
@@ -60,7 +60,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
         createdCheckin = data;
         return { claimed: true };
     };
-    Journey.getActiveBySession = async () => null;
+    Journey.getCurrentBySession = async () => null;
     UserBadge.checkAndUnlock = async () => [];
 
     const req = {
@@ -91,7 +91,7 @@ test('check-in stores the authenticated user id with the visit', async () => {
         UserSession.findByUuid = originals.findByUuid;
         Destination.findBySlug = originals.findBySlug;
         CheckIn.claimForUser = originals.claimForUser;
-        Journey.getActiveBySession = originals.getActiveBySession;
+        Journey.getCurrentBySession = originals.getCurrentBySession;
         UserBadge.checkAndUnlock = originals.checkAndUnlock;
         Model.haversine = originals.haversine;
     }

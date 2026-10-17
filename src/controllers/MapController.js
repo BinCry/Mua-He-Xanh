@@ -18,7 +18,7 @@ class MapController {
             if (uuid) {
                 const session = await UserSession.findByUuid(uuid);
                 if (session) {
-                    const journey = await Journey.getActiveBySession(session.id);
+                    const journey = await Journey.getCurrentBySession(session.id);
                     if (journey) {
                         journeyWithStops = await Journey.getWithStops(journey.id);
                     }

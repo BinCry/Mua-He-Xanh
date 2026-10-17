@@ -9,7 +9,6 @@ const HomeController = require('../controllers/HomeController');
 const ApiController = require('../controllers/ApiController');
 const ExploreController = require('../controllers/ExploreController');
 const JourneyController = require('../controllers/JourneyController');
-const OnboardingController = require('../controllers/OnboardingController');
 const CheckinController = require('../controllers/CheckinController');
 const SummaryController = require('../controllers/SummaryController');
 const MapController = require('../controllers/MapController');
@@ -35,8 +34,8 @@ const ManagerController = require('../controllers/ManagerController');
 
 // ===== PUBLIC PAGES =====
 router.get('/', HomeController.index);
-router.get(['/onboarding', '/journey/onboarding'], ensureAuthenticated, OnboardingController.index);
-router.post(['/onboarding', '/journey/onboarding', '/api/journey/onboarding'], ensureAuthenticated, OnboardingController.submit);
+// Journey preferences were retired in favor of a directly browsable tour catalogue.
+router.all(['/onboarding', '/journey/onboarding', '/api/journey/onboarding'], ensureAuthenticated, (req, res) => res.redirect('/journey/tours'));
 router.get('/checkin', ensureAuthenticated, CheckinController.index);
 
 // Dynamic manifest.json endpoint to keep PWA name and logo synchronized with Admin Settings
@@ -348,9 +347,11 @@ router.get('/reviews/video-editor', ReviewController.videoEditor);
 router.get('/map', MapController.index);
 
 // ===== JOURNEY (Requires Login) =====
-router.all(['/journey', '/journey/', '/hanh-trinh', '/hanh-trinh/'], ensureAuthenticated, (req, res) => res.redirect('/onboarding'));
+router.all(['/journey', '/journey/', '/hanh-trinh', '/hanh-trinh/'], ensureAuthenticated, (req, res) => res.redirect('/journey/tours'));
+router.get(['/journey/tours', '/journey/tours/'], ensureAuthenticated, JourneyController.tours);
+router.get('/journey/tours/:id', ensureAuthenticated, JourneyController.tourDetail);
 router.all(['/hanh-trinh-cua-toi', '/hanh-trinh-cua-toi/', '/journey/story', '/journey/story/', '/journey/view', '/journey/my-journey', '/journey/create', '/journey/show', '/journey/detail'], ensureAuthenticated, JourneyController.index);
-router.all(['/journey/suggestions', '/journey/suggestions/', '/journey/de-xuat', '/journey/de-xuat/'], ensureAuthenticated, JourneyController.suggestions);
+router.all(['/journey/suggestions', '/journey/suggestions/', '/journey/de-xuat', '/journey/de-xuat/'], ensureAuthenticated, (req, res) => res.redirect('/journey/tours'));
 router.all(['/journey/confirm', '/journey/confirm/', '/journey/xac-nhan', '/journey/xac-nhan/'], ensureAuthenticated, JourneyController.confirm);
 router.all(['/api/journey/lock-toggle', '/journey/lock-toggle'], ensureAuthenticated, JourneyController.lockJourney);
 router.all(['/api/journey/delete', '/journey/delete'], ensureAuthenticated, JourneyController.deleteSavedJourney);
@@ -390,7 +391,6 @@ router.get('/admin/shops', ensureAdmin, AdminController.workshops);
 router.get('/admin/workshops', ensureAdmin, WorkshopManagementController.index);
 router.get('/admin/reviews', ensureAdmin, AdminController.reviews);
 router.get('/admin/events', ensureAdmin, AdminController.events);
-router.get('/admin/festival-tickets', ensureAdmin, AdminController.festivalTickets);
 // Compatibility for saved staff links.  There is deliberately no Shop-order
 // operations screen because Shop has no checkout workflow.
 router.get('/admin/product-orders', ensureAdmin, (req, res) => res.redirect('/admin/shops'));
@@ -541,9 +541,6 @@ router.post('/api/journey/update-stop', ensureAuthenticated, ApiController.updat
 router.post('/api/checkin', ensureAuthenticated, ApiController.checkin);
 router.post('/api/send-message', ensureAuthenticated, ApiController.sendMessage);
 router.get('/api/get-messages', ApiController.getMessages);
-router.post('/api/festival/book', ensureAuthenticated, FestivalController.book);
-router.post('/api/festival/tickets/:id/cancel', ensureAuthenticated, FestivalController.cancelTicket);
-router.post('/api/admin/festival-tickets/:id/use', ensureAdmin, FestivalController.useTicket);
 router.get('/api/soundscapes', ApiController.getSoundscapes);
 
 // Destination interactions

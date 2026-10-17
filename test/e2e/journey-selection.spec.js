@@ -11,17 +11,13 @@ async function login(page) {
     await page.waitForURL(url => !url.pathname.startsWith('/auth/login'));
 }
 
-test('changing journey mood visibly clears Sống Chậm before selecting a different criterion', async ({ page }) => {
+test('journey opens the tour catalogue and each tour exposes a detail page', async ({ page }) => {
     await login(page);
-    await page.goto('/onboarding', { waitUntil: 'domcontentloaded' });
-    const chill = page.locator('[data-mood="chill"]');
-    const culture = page.locator('[data-mood="culture"]');
-    await chill.click();
-    await expect(chill).toHaveClass(/selected/);
-    await chill.click();
-    await expect(chill).not.toHaveClass(/selected/);
-    await culture.click();
-    await expect(culture).toHaveClass(/selected/);
-    await expect(chill).not.toHaveClass(/selected/);
+    await page.goto('/journey', { waitUntil: 'domcontentloaded' });
+    await expect(page).toHaveURL(/\/journey\/tours/);
+    const firstTour = page.locator('.tour-card').first();
+    await expect(firstTour).toBeVisible();
+    await firstTour.click();
+    await expect(page).toHaveURL(/\/journey\/tours\//);
+    await expect(page.locator('h2', { hasText: 'Nội dung hành trình' })).toBeVisible();
 });
-

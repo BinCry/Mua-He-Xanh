@@ -2,80 +2,28 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const test = require('node:test');
 
-const db = require('../src/core/database');
-const UserSession = require('../src/models/UserSession');
-const OnboardingController = require('../src/controllers/OnboardingController');
-const ProfileController = require('../src/controllers/ProfileController');
+test('journey routes retire the preference form in favor of the tour catalogue', () => {
+    const routes = fs.readFileSync('src/routes/index.js', 'utf8');
+    const tourList = fs.readFileSync('src/views/journey/tours.ejs', 'utf8');
+    const tourDetail = fs.readFileSync('src/views/journey/tour_detail.ejs', 'utf8');
 
-test('onboarding re-submission with an existing session keeps its cleanup queries available', async () => {
-    const originalQuery = db.query;
-    const originalFindByUuid = UserSession.findByUuid;
-    const originalUpdate = UserSession.update;
-    const queries = [];
-    let responseBody = null;
-
-    db.query = async (sql) => {
-        queries.push(sql);
-        return [[]];
-    };
-    UserSession.findByUuid = async () => ({ id: 'session-1' });
-    UserSession.update = async () => true;
-
-    const req = {
-        body: { mood: 'chill', pax: 'couple', budget: 'mid', duration: 'full_day' },
-        cookies: { session_uuid: 'session-uuid' },
-        headers: { accept: 'application/json', 'content-type': 'application/json' },
-        session: { user: { id: 'user-1' } }
-    };
-    const res = {
-        json(body) {
-            responseBody = body;
-            return body;
-        }
-    };
-
-    try {
-        await OnboardingController.submit(req, res);
-        assert.deepEqual(responseBody, { success: true, redirect: '/journey/suggestions' });
-        assert.equal(queries.length, 2);
-        assert.match(queries[0], /DELETE FROM journey_stops/i);
-        assert.match(queries[1], /DELETE FROM journeys/i);
-    } finally {
-        db.query = originalQuery;
-        UserSession.findByUuid = originalFindByUuid;
-        UserSession.update = originalUpdate;
-    }
-});
-
-test('onboarding only accepts explicit supported moods instead of silently restoring chill', async () => {
-    const source = fs.readFileSync('src/controllers/OnboardingController.js', 'utf8');
-    const view = fs.readFileSync('src/views/onboarding/index.ejs', 'utf8');
-    const session = fs.readFileSync('src/models/UserSession.js', 'utf8');
-    const suggestions = fs.readFileSync('src/controllers/JourneyController.js', 'utf8');
-
-    assert.match(source, /new Set\(\['chill', 'peace', 'culture', 'family'\]\)/);
-    assert.match(source, /Vui lòng chọn ít nhất một trải nghiệm/);
-    assert.match(view, /let selectedMoods = \[\]/);
-    assert.match(view, /data-mood="culture"/);
-    assert.match(view, /selectedMoods = selectedMoods\.filter/);
-    assert.match(session, /async update\(id, data\)/);
-    assert.match(suggestions, /matchingDestinations/);
-    assert.match(suggestions, /templates\.filter\(t => userMoodKeys\.includes\(t\.interest\)\)/);
+    assert.match(routes, /res\.redirect\('\/journey\/tours'\)/);
+    assert.match(routes, /router\.get\(\['\/journey\/tours', '\/journey\/tours\/'\], ensureAuthenticated, JourneyController\.tours\)/);
+    assert.match(routes, /router\.get\('\/journey\/tours\/:id', ensureAuthenticated, JourneyController\.tourDetail\)/);
+    assert.match(tourList, /href="\/journey\/tours\/<%= tour\.id %>"/);
+    assert.match(tourDetail, /name="templateId" value="<%= tour\.id %>"/);
 });
 
 test('profile queries use PostgreSQL session columns and do not require a rewards.type column', () => {
-    const source = require('node:fs').readFileSync('src/controllers/ProfileController.js', 'utf8');
-
+    const source = fs.readFileSync('src/controllers/ProfileController.js', 'utf8');
     assert.match(source, /j\.session_id = us\.id::text OR j\.session_id = us\.uuid/);
     assert.doesNotMatch(source, /j\.session_id = us\.session_uuid/);
     assert.doesNotMatch(source, /r\.type/);
 });
 
 test('reward history uses the user_rewards created_at schema column', () => {
-    const fs = require('node:fs');
     const controller = fs.readFileSync('src/controllers/ProfileController.js', 'utf8');
     const rewardsView = fs.readFileSync('src/views/profile/rewards.ejs', 'utf8');
-
     assert.match(controller, /ORDER BY ur\.created_at DESC/);
     assert.doesNotMatch(controller, /ur\.redeemed_at/);
     assert.match(rewardsView, /r\.created_at/);

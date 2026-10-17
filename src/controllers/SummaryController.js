@@ -7,10 +7,10 @@ class SummaryController {
     async index(req, res) {
         try {
             const uuid = req.cookies.session_uuid;
-            if (!uuid) return res.redirect('/onboarding');
+            if (!uuid) return res.redirect('/journey/tours');
 
             const session = await UserSession.findByUuid(uuid);
-            if (!session) return res.redirect('/onboarding');
+            if (!session) return res.redirect('/journey/tours');
 
             // Load full user if logged in
             let fullUser = null;

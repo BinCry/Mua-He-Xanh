@@ -8,6 +8,8 @@ const { v4: uuidv4 } = require('uuid');
 class JourneyController {
     constructor() {
         this.index = this.index.bind(this);
+        this.tours = this.tours.bind(this);
+        this.tourDetail = this.tourDetail.bind(this);
         this.suggestions = this.suggestions.bind(this);
         this.confirm = this.confirm.bind(this);
         this.lockJourney = this.lockJourney.bind(this);
@@ -38,11 +40,66 @@ class JourneyController {
         return session;
     }
 
+    buildTour(template, destinations) {
+        let configuredStops = [];
+        try {
+            configuredStops = typeof template.stops === 'string' ? JSON.parse(template.stops) : template.stops;
+        } catch (_) { }
+
+        const activeById = new Map((destinations || []).map(destination => [String(destination.id), destination]));
+        const stops = (Array.isArray(configuredStops) ? configuredStops : [])
+            .map(stop => typeof stop === 'object' ? (stop.id || stop.slug) : stop)
+            .map(id => activeById.get(String(id)))
+            .filter(Boolean);
+
+        return {
+            id: template.id,
+            name: template.name,
+            description: template.description || 'Khám phá những điểm đến đặc sắc tại Bình Lợi.',
+            season: template.season || 'all',
+            interest: template.interest || 'all',
+            duration: template.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày',
+            km: Number.isFinite(Number(template.km)) && Number(template.km) > 0 ? Number(template.km) : null,
+            stops
+        };
+    }
+
+    // Public journey catalogue. Tour content is curated by administrators;
+    // visitors choose a tour first instead of completing a preference form.
+    async tours(req, res) {
+        try {
+            const [templates] = await db.query('SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC');
+            const [destinations] = await db.query('SELECT * FROM destinations WHERE is_active = 1');
+            const tours = (templates || [])
+                .map(template => this.buildTour(template, destinations))
+                .filter(tour => tour.stops.length > 0);
+            return res.render('journey/tours', { title: 'Tour Bình Lợi', tours });
+        } catch (error) {
+            console.error('Journey tours error:', error);
+            return res.status(500).render('errors/500', { title: 'Không thể tải tour' });
+        }
+    }
+
+    async tourDetail(req, res) {
+        try {
+            const [templates] = await db.query('SELECT * FROM seasonal_journey_templates WHERE id = $1', [req.params.id]);
+            if (!templates.length) return res.status(404).render('errors/404', { title: 'Tour không tồn tại' });
+
+            const [destinations] = await db.query('SELECT * FROM destinations WHERE is_active = 1');
+            const tour = this.buildTour(templates[0], destinations);
+            if (!tour.stops.length) return res.status(404).render('errors/404', { title: 'Tour hiện chưa khả dụng' });
+            return res.render('journey/tour_detail', { title: tour.name, tour });
+        } catch (error) {
+            console.error('Journey tour detail error:', error);
+            return res.status(500).render('errors/500', { title: 'Không thể tải tour' });
+        }
+    }
+
     // STEP 3 & 4: /hanh-trinh-cua-toi
     async index(req, res) {
         try {
             const session = await this.getOrCreateSession(req, res);
-            let journey = await Journey.getActiveBySession(session.id);
+            let journey = await Journey.getCurrentBySession(session.id);
 
             // Never manufacture a generic route: it hides a changed onboarding
             // preference and makes unrelated suggestions look cached.
@@ -79,7 +136,7 @@ class JourneyController {
             });
         } catch (error) {
             console.error("Journey index error:", error);
-            res.redirect('/onboarding');
+            res.redirect('/journey/tours');
         }
     }
 
@@ -174,7 +231,7 @@ class JourneyController {
     async confirm(req, res) {
         try {
             const session = await this.getOrCreateSession(req, res);
-            const { templateId, journeyData, source } = req.body;
+            const { templateId } = req.body;
 
             if (templateId) {
                 const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE id = $1", [templateId]);
@@ -189,7 +246,7 @@ class JourneyController {
                         return dests.find(d => String(d.id) === String(stId) || d.slug === String(stId));
                     }).filter(Boolean);
 
-                    if (stops.length === 0) return res.redirect('/journey/suggestions?error=template_unavailable');
+                    if (stops.length === 0) return res.redirect('/journey/tours?error=template_unavailable');
 
                     await db.query(`
                         DELETE FROM journey_stops WHERE journey_id IN (
@@ -224,27 +281,13 @@ class JourneyController {
                 }
             }
 
-            if (journeyData) {
-                let data = null;
-                try {
-                    const decoded = Buffer.from(journeyData, 'base64').toString('utf-8');
-                    data = JSON.parse(decoded);
-                } catch (e) {
-                    try { data = JSON.parse(journeyData); } catch (e2) { }
-                }
-
-                if (data && data.stops && data.stops.length > 0) {
-                    data.source = 'ai';
-                    await Journey.createFromSuggestion(session.id, data);
-                    return res.redirect('/hanh-trinh-cua-toi');
-                }
-            }
-
-            return res.redirect('/journey/suggestions?error=selection_required');
+            // Only administrator-managed templates can now create a journey.
+            // Ignore legacy client-supplied suggestion payloads.
+            return res.redirect('/journey/tours?error=selection_required');
 
         } catch (error) {
             console.error("Confirm error:", error);
-            return res.redirect('/hanh-trinh-cua-toi');
+            return res.redirect('/journey/tours?error=selection_unavailable');
         }
     }
 

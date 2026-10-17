@@ -2,82 +2,94 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const db = require('../src/core/database');
-const UserSession = require('../src/models/UserSession');
-const OnboardingController = require('../src/controllers/OnboardingController');
 const JourneyController = require('../src/controllers/JourneyController');
+const Journey = require('../src/models/Journey');
+const ApiController = require('../src/controllers/ApiController');
 
 function response() {
     return {
         statusCode: 200,
         status(code) { this.statusCode = code; return this; },
-        json(payload) { this.payload = payload; return payload; },
-        redirect(url) { this.redirectedTo = url; return url; },
         render(view, payload) { this.view = view; this.payload = payload; return payload; }
     };
 }
 
-test('changing moods replaces journey criteria and never falls back to a previous mood route', async () => {
-    const originals = {
-        query: db.query,
-        findByUuid: UserSession.findByUuid,
-        update: UserSession.update
-    };
-    const session = { id: 'session-criteria', uuid: 'criteria-uuid', mood: 'culture', duration: 'full_day' };
-    const updates = [];
-    const destinations = [
-        { id: 'culture-1', name: 'Làng nghề', moods: JSON.stringify(['culture']), lat: 10, lng: 106, sort_order: 1 },
-        { id: 'chill-1', name: 'Vườn yên', moods: JSON.stringify(['chill']), lat: 10.1, lng: 106.1, sort_order: 1 }
+test('journey catalogue lists every administrator-managed tour without onboarding criteria', async () => {
+    const originalQuery = db.query;
+    const templates = [
+        { id: 'tour-culture', name: 'Tour văn hóa', description: 'Khám phá làng nghề', season: 'summer', interest: 'culture', duration: 'full_day', km: 5.2, stops: JSON.stringify(['dest-culture']) },
+        { id: 'tour-peace', name: 'Tour bình yên', description: 'Không gian xanh', season: 'winter', interest: 'peace', duration: 'half_day', km: 2.4, stops: JSON.stringify(['dest-peace']) }
     ];
+    const destinations = [
+        { id: 'dest-culture', name: 'Làng nghề', slug: 'lang-nghe', cover_image: '/culture.jpg' },
+        { id: 'dest-peace', name: 'Vườn yên', slug: 'vuon-yen', cover_image: '/peace.jpg' }
+    ];
+    db.query = async (sql) => /seasonal_journey_templates/.test(sql) ? [templates] : [destinations];
 
-    db.query = async (sql) => {
-        if (/SELECT \* FROM destinations WHERE is_active = 1/.test(sql)) return [destinations];
-        if (/seasonal_journey_templates/.test(sql)) return [[]];
-        return [[]];
-    };
-    UserSession.findByUuid = async () => session;
-    UserSession.update = async (id, data) => {
-        updates.push({ id, data });
-        Object.assign(session, data);
-        return true;
+    try {
+        const res = response();
+        await JourneyController.tours({}, res);
+        assert.equal(res.view, 'journey/tours');
+        assert.equal(res.payload.tours.length, 2);
+        assert.deepEqual(res.payload.tours.map(tour => tour.id), ['tour-culture', 'tour-peace']);
+        assert.equal(res.payload.tours[0].stops[0].name, 'Làng nghề');
+    } finally {
+        db.query = originalQuery;
+    }
+});
+
+test('tour detail preserves configured stop order and excludes inactive destinations', async () => {
+    const originalQuery = db.query;
+    const template = { id: 'tour-1', name: 'Tour mẫu', description: '', duration: 'half_day', km: 0, stops: JSON.stringify(['visible-2', 'hidden', 'visible-1']) };
+    const destinations = [
+        { id: 'visible-1', name: 'Điểm một', slug: 'mot' },
+        { id: 'visible-2', name: 'Điểm hai', slug: 'hai' }
+    ];
+    db.query = async (sql) => /WHERE id = \$1/.test(sql) ? [[template]] : [destinations];
+
+    try {
+        const res = response();
+        await JourneyController.tourDetail({ params: { id: 'tour-1' } }, res);
+        assert.equal(res.view, 'journey/tour_detail');
+        assert.deepEqual(res.payload.tour.stops.map(stop => stop.id), ['visible-2', 'visible-1']);
+    } finally {
+        db.query = originalQuery;
+    }
+});
+
+test('a confirmed itinerary remains readable but cannot be edited through the draft endpoint', async () => {
+    const originalQuery = Journey.db.query;
+    let currentQuery = null;
+    Journey.db.query = async (sql, params) => {
+        currentQuery = { sql, params };
+        return [[{ id: 'confirmed-journey', status: 'confirmed' }]];
     };
 
     try {
-        const firstSubmit = response();
-        await OnboardingController.submit({
-            body: { mood: ['culture'], pax: 'couple', budget: 'mid', duration: 'full_day' },
-            cookies: { session_uuid: 'criteria-uuid' },
-            headers: { accept: 'application/json', 'content-type': 'application/json' },
-            session: { user: { id: 'user-criteria' } }
-        }, firstSubmit);
-        assert.equal(firstSubmit.payload.success, true);
-        assert.equal(updates.at(-1).data.mood, 'culture');
-
-        const cultureSuggestions = response();
-        await JourneyController.suggestions({ cookies: { session_uuid: 'criteria-uuid' }, session: { user: { id: 'user-criteria' } }, query: {} }, cultureSuggestions);
-        assert.deepEqual(cultureSuggestions.payload.aiSuggestions[0].stops.map(stop => stop.id), ['culture-1']);
-
-        const secondSubmit = response();
-        await OnboardingController.submit({
-            body: { mood: ['peace'], pax: 'couple', budget: 'mid', duration: 'full_day' },
-            cookies: { session_uuid: 'criteria-uuid' },
-            headers: { accept: 'application/json', 'content-type': 'application/json' },
-            session: { user: { id: 'user-criteria' } }
-        }, secondSubmit);
-        assert.equal(updates.at(-1).data.mood, 'peace');
-
-        const noMatchSuggestions = response();
-        await JourneyController.suggestions({ cookies: { session_uuid: 'criteria-uuid' }, session: { user: { id: 'user-criteria' } }, query: {} }, noMatchSuggestions);
-        assert.deepEqual(noMatchSuggestions.payload.aiSuggestions, []);
-        assert.deepEqual(noMatchSuggestions.payload.templateSuggestions, []);
-        assert.equal(noMatchSuggestions.payload.userMoodLabel, '🛕 Tâm Linh');
-
-        Object.assign(session, { mood: null });
-        const missingCriteria = response();
-        await JourneyController.suggestions({ cookies: { session_uuid: 'criteria-uuid' }, session: { user: { id: 'user-criteria' } }, query: {} }, missingCriteria);
-        assert.equal(missingCriteria.redirectedTo, '/onboarding?error=criteria_required');
+        const journey = await Journey.getCurrentBySession('session-1');
+        assert.equal(journey.id, 'confirmed-journey');
+        assert.match(currentQuery.sql, /status IN \('active', 'confirmed'\)/);
     } finally {
-        db.query = originals.query;
-        UserSession.findByUuid = originals.findByUuid;
-        UserSession.update = originals.update;
+        Journey.db.query = originalQuery;
+    }
+
+    const originalTransaction = db.transaction;
+    db.transaction = async callback => callback({
+        query: async sql => /SELECT j\.id, j\.status/.test(sql) ? [[{ id: 'confirmed-journey', status: 'confirmed' }]] : [[]]
+    });
+    const res = {
+        statusCode: 200,
+        status(code) { this.statusCode = code; return this; },
+        json(payload) { this.payload = payload; return payload; }
+    };
+    try {
+        await ApiController.updateJourneyStop({
+            body: { journeyId: 'confirmed-journey', action: 'remove', destinationId: 'stop-1' },
+            user: { id: 'user-1' }
+        }, res);
+        assert.equal(res.statusCode, 409);
+        assert.equal(res.payload.success, false);
+    } finally {
+        db.transaction = originalTransaction;
     }
 });

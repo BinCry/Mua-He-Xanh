@@ -46,19 +46,6 @@ class PassportController {
             
             // 3. Get all available badges
             const allBadges = await Badge.getAll();
-            let festivalTickets = [];
-            try {
-                const [tickets] = await UserSession.db.query(
-                    'SELECT ft.id, ft.ticket_code, ft.status, ft.used_at, ft.created_at, f.name AS festival_name, f.date AS festival_date ' +
-                    'FROM festival_tickets ft LEFT JOIN festivals f ON f.id = ft.festival_id ' +
-                    'WHERE ft.user_id = $1 ORDER BY ft.created_at DESC',
-                    [user.id]
-                );
-                festivalTickets = tickets;
-            } catch (ticketError) {
-                console.error('Passport festival ticket read error:', ticketError.message);
-            }
-
             // 4. Calculate Level & XP from the account balance, never from a
             // browser/session snapshot. Ledger reconciliation will maintain
             // this balance in the same transaction as future point changes.
@@ -81,7 +68,6 @@ class PassportController {
                 history: history,
                 unlockedBadges: unlockedBadges,
                 allBadges: allBadges,
-                festivalTickets,
                 level: level,
                 xp: xp,
                 nextLevelXp: nextLevelXp,

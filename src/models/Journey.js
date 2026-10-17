@@ -16,6 +16,19 @@ class Journey extends Model {
         return rows[0] || null;
     }
 
+    // The editable draft and a saved itinerary have distinct lifecycles.
+    // Readers (timeline, map and check-in) must retain access to either one.
+    async getCurrentBySession(sessionId) {
+        const [rows] = await this.db.query(
+            `SELECT * FROM journeys
+             WHERE session_id = $1 AND status IN ('active', 'confirmed')
+             ORDER BY CASE WHEN status = 'active' THEN 0 ELSE 1 END, created_at DESC
+             LIMIT 1`,
+            [sessionId]
+        );
+        return rows[0] || null;
+    }
+
     /** Get journey with stops and destinations */
     async getWithStops(journeyId) {
         const journey = await this.findById(journeyId);
@@ -156,22 +169,29 @@ class Journey extends Model {
     }
 
     async createFromSuggestion(sessionId, data) {
-        await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [sessionId]);
-
-        let stopsArray = data.stops || [];
+        const stopsArray = Array.isArray(data?.stops) ? data.stops : [];
+        const activeDestinations = await Destination.getActive();
+        const activeById = new Map((activeDestinations || []).map(destination => [String(destination.id), destination]));
         const cleanStops = [];
+        const selectedIds = new Set();
         for (const st of stopsArray) {
             const destId = typeof st === 'object' ? st.id : st;
-            if (destId) {
-                const dest = await Destination.findById(destId);
-                if (dest) cleanStops.push(dest);
+            const id = String(destId || '');
+            const dest = activeById.get(id);
+            if (dest && !selectedIds.has(id)) {
+                cleanStops.push(dest);
+                selectedIds.add(id);
             }
+            if (cleanStops.length === 5) break;
         }
 
         if (cleanStops.length === 0) {
-            const [fallbackDests] = await this.db.query("SELECT * FROM destinations WHERE is_active = 1 LIMIT 3");
-            cleanStops.push(...fallbackDests);
+            const error = new Error('JOURNEY_SUGGESTION_UNAVAILABLE');
+            error.code = 'JOURNEY_SUGGESTION_UNAVAILABLE';
+            throw error;
         }
+
+        await this.db.query("UPDATE journeys SET status = 'replaced' WHERE session_id = $1 AND status = 'active'", [sessionId]);
 
         let totalMeters = 0;
         for (let i = 1; i < cleanStops.length; i++) {

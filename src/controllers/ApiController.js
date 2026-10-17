@@ -129,7 +129,7 @@ class ApiController {
 
             await db.transaction(async (tx) => {
                 const [owned] = await tx.query(
-                    `SELECT j.id FROM journeys j
+                    `SELECT j.id, j.status FROM journeys j
                      JOIN user_sessions s ON s.id::text = j.session_id::text
                      WHERE j.id = $1 AND s.user_id = $2 FOR UPDATE`,
                     [journeyId, user.id]
@@ -137,6 +137,11 @@ class ApiController {
                 if (!owned.length) {
                     const error = new Error('JOURNEY_NOT_OWNED');
                     error.code = 'JOURNEY_NOT_OWNED';
+                    throw error;
+                }
+                if (owned[0].status !== 'active') {
+                    const error = new Error('JOURNEY_LOCKED');
+                    error.code = 'JOURNEY_LOCKED';
                     throw error;
                 }
 
@@ -215,7 +220,7 @@ class ApiController {
             });
             res.json({ success: true });
         } catch (error) {
-            if (['JOURNEY_NOT_OWNED', 'STOP_NOT_FOUND', 'DESTINATION_UNAVAILABLE'].includes(error.code)) {
+            if (['JOURNEY_NOT_OWNED', 'STOP_NOT_FOUND', 'DESTINATION_UNAVAILABLE', 'JOURNEY_LOCKED'].includes(error.code)) {
                 return res.status(error.code === 'JOURNEY_NOT_OWNED' ? 404 : 409).json({ success: false, message: 'Không thể cập nhật hành trình này.' });
             }
             if (['INVALID_STOP_ORDER', 'DESTINATION_REQUIRED'].includes(error.code)) {
@@ -301,7 +306,7 @@ class ApiController {
                 });
             }
 
-            const journey = await Journey.getActiveBySession(session.id);
+            const journey = await Journey.getCurrentBySession(session.id);
             if (journey) {
                 await db.query(
                     "UPDATE journey_stops SET is_completed = 1, completed_at = NOW() WHERE journey_id = $1 AND destination_id = $2",

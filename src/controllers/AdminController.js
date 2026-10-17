@@ -417,32 +417,6 @@ const AdminController = {
         }
     },
 
-    festivalTickets: async (req, res) => {
-        try {
-            const [festivals] = await db.query(
-                "SELECT id, name, date, capacity, registration_open FROM festivals WHERE COALESCE(status, 'upcoming') <> 'draft' ORDER BY date ASC"
-            );
-            const [tickets] = await db.query(
-                'SELECT ft.id, ft.ticket_code, ft.status, ft.used_at, ft.created_at, ' +
-                'u.full_name AS visitor_name, u.email AS visitor_email, f.name AS festival_name, f.date AS festival_date ' +
-                'FROM festival_tickets ft ' +
-                'LEFT JOIN users u ON u.id = ft.user_id ' +
-                'LEFT JOIN festivals f ON f.id = ft.festival_id ' +
-                'ORDER BY ft.created_at DESC LIMIT 500'
-            );
-            res.render('admin/festival_tickets', {
-                title: 'Vé lễ hội',
-                layout: 'layouts/admin',
-                adminPage: 'festival-tickets',
-                festivals,
-                tickets
-            });
-        } catch (error) {
-            console.error('Admin festival tickets error:', error);
-            res.status(500).send('Lỗi hệ thống');
-        }
-    },
-
     productOrders: async (req, res) => {
         try {
             const [orders] = await db.query(

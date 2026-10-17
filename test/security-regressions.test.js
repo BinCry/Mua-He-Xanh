@@ -164,10 +164,10 @@ test('legacy booking awards are not granted on booking creation or cancelled boo
     assert.doesNotMatch(source, /total_points = GREATEST\(0, COALESCE\(total_points, 0\) - 50\)/);
 });
 
-test('state-changing attendance, festival and commerce routes require an authenticated account', () => {
+test('state-changing attendance and commerce routes require an authenticated account', () => {
     const source = fs.readFileSync('src/routes/index.js', 'utf8');
     assert.match(source, /router\.post\('\/api\/checkin', ensureAuthenticated,/);
-    assert.match(source, /router\.post\('\/api\/festival\/book', ensureAuthenticated,/);
+    assert.doesNotMatch(source, /\/api\/festival\/book/);
     assert.match(source, /router\.post\('\/api\/products\/orders', ensureAuthenticated,/);
     assert.match(source, /router\.post\('\/api\/workshop-sessions\/bookings', ensureAuthenticated,/);
 });
@@ -234,28 +234,27 @@ test('legacy Workshop write aliases cannot silently create Shop catalogue entrie
     assert.match(controller, /isActive: strictBoolean\(req\.body\?\.isActive\)/);
 });
 
-test('draft festivals are absent from public listing and unauthenticated festival booking is blocked at routing', () => {
+test('draft festivals are absent from the public listing and festival ticket APIs are retired', () => {
     const model = fs.readFileSync('src/models/Festival.js', 'utf8');
     const routes = fs.readFileSync('src/routes/index.js', 'utf8');
     assert.match(model, /COALESCE\(status, 'upcoming'\) <> 'draft'/);
-    assert.match(routes, /router\.post\('\/api\/festival\/book', ensureAuthenticated,/);
+    assert.doesNotMatch(routes, /\/api\/festival\/book|\/api\/festival\/tickets\/|\/api\/admin\/festival-tickets/);
 });
 
-test('festival registration UI uses stored values as DOM data rather than interpolated JavaScript arguments', () => {
+test('festival pages do not expose ticket registration controls', () => {
     const source = fs.readFileSync('src/views/festivals/index.ejs', 'utf8');
-    assert.match(source, /data-festival-id="<%= fest\.id %>"/);
-    assert.match(source, /data-festival-name="<%= fest\.name %>"/);
-    assert.doesNotMatch(source, /showBookingModal\(<%= fest\.id %>,\s*'<%= fest\.name %>'\)/);
+    assert.doesNotMatch(source, /bookingModal|bookingForm|showBookingModal|data-festival-id/);
 });
 
-test('festival ticket operations have protected customer and admin routes with an admin operations screen', () => {
+test('festival ticket administration and customer ticket displays are retired', () => {
     const routes = fs.readFileSync('src/routes/index.js', 'utf8');
+    const adminLayout = fs.readFileSync('src/views/layouts/admin.ejs', 'utf8');
+    const passport = fs.readFileSync('src/views/passport/index.ejs', 'utf8');
     const adminView = fs.readFileSync('src/views/admin/festival_tickets.ejs', 'utf8');
-    assert.match(routes, /router\.post\('\/api\/festival\/tickets\/:id\/cancel', ensureAuthenticated,/);
-    assert.match(routes, /router\.post\('\/api\/admin\/festival-tickets\/:id\/use', ensureAdmin,/);
-    assert.match(routes, /router\.get\('\/admin\/festival-tickets', ensureAdmin,/);
+    assert.doesNotMatch(routes, /festival-tickets/);
+    assert.doesNotMatch(adminLayout, /festival-tickets/);
+    assert.doesNotMatch(passport, /festivalTickets|cancel-festival-ticket/);
     assert.match(adminView, /Xác nhận dùng/);
-    assert.match(adminView, /Idempotency-Key/);
 });
 
 test('Shop remains a direct-contact catalogue and cannot create online product orders', () => {
@@ -299,6 +298,7 @@ test('Shop and Workshop search, manager actions and festival cards retain the ag
     assert.match(shop, />\s*Tìm kiếm\s*</);
     assert.match(workshop, /Tìm kiếm/);
     assert.match(workshop, /workshop-search-button/);
+    assert.match(workshop, /mb-5 workshop-search/);
     assert.doesNotMatch(workshop, /Trải nghiệm tại Bình Lợi|Mỗi ca có thời gian|Hãy thử lại sau/);
     assert.match(manager, /class="workshop-actions"/);
     assert.match(manager, /flex-wrap: nowrap/);

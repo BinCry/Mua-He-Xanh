@@ -1,0 +1,52 @@
+<section class="tour-detail py-5">
+  <div class="container" style="max-width: 980px;">
+    <a href="/journey/tours" class="btn btn-light border rounded-pill px-3 mb-4"><i class="bi bi-arrow-left me-1"></i> Tất cả tour</a>
+    <article class="card border-0 shadow-sm rounded-4 overflow-hidden">
+      <header class="tour-detail-header p-4 p-md-5 text-white">
+        <span class="tour-detail-badge">TOUR BÌNH LỢI</span>
+        <h1 class="display-6 fw-bold mt-3 mb-3"><%= tour.name %></h1>
+        <p class="mb-0 opacity-75"><%= tour.description %></p>
+      </header>
+      <div class="card-body p-4 p-md-5">
+        <div class="row g-3 mb-5">
+          <div class="col-12 col-md-4"><div class="tour-meta"><i class="bi bi-clock text-danger"></i><div><small>Thời lượng</small><strong><%= tour.duration %></strong></div></div></div>
+          <div class="col-12 col-md-4"><div class="tour-meta"><i class="bi bi-signpost-2 text-danger"></i><div><small>Khoảng cách</small><strong><%= tour.km ? tour.km + ' km' : 'Đang cập nhật' %></strong></div></div></div>
+          <div class="col-12 col-md-4"><div class="tour-meta"><i class="bi bi-geo-alt text-danger"></i><div><small>Điểm dừng</small><strong><%= tour.stops.length %> địa điểm</strong></div></div></div>
+        </div>
+
+        <h2 class="h4 fw-bold mb-4">Nội dung hành trình</h2>
+        <div class="tour-stops">
+          <% tour.stops.forEach((stop, index) => { %>
+            <article class="tour-stop row g-3 align-items-center">
+              <div class="col-12 col-sm-auto"><span class="tour-stop-number"><%= index + 1 %></span></div>
+              <% if (stop.cover_image) { %><div class="col-12 col-sm-auto"><img class="tour-stop-image" src="<%= fixImg(stop.cover_image) %>" alt="<%= stop.name %>" loading="lazy"></div><% } %>
+              <div class="col">
+                <h3 class="h5 fw-bold mb-1"><%= stop.name %></h3>
+                <p class="text-secondary mb-2"><%= stop.short_desc || stop.highlight || 'Khám phá điểm dừng đặc sắc của Bình Lợi.' %></p>
+                <a href="/explore/<%= stop.slug %>" class="small fw-bold text-decoration-none text-danger">Xem địa điểm <i class="bi bi-arrow-up-right"></i></a>
+              </div>
+            </article>
+          <% }) %>
+        </div>
+
+        <form action="/journey/confirm" method="POST" class="mt-5 pt-4 border-top text-center">
+          <input type="hidden" name="templateId" value="<%= tour.id %>">
+          <button type="submit" class="btn btn-danger rounded-pill px-5 py-3 fw-bold">Lưu hành trình này <i class="bi bi-arrow-right ms-1"></i></button>
+        </form>
+      </div>
+    </article>
+  </div>
+</section>
+
+<style>
+  .tour-detail { min-height: 70vh; background: #f6faf7; }
+  .tour-detail-header { background: linear-gradient(135deg, #7c201e, #a42d29 60%, #26734d); }
+  .tour-detail-badge { font-size: .75rem; font-weight: 800; letter-spacing: .08em; opacity: .86; }
+  .tour-meta { display: flex; gap: .75rem; align-items: center; padding: 1rem; height: 100%; border-radius: 1rem; background: #f9fafb; }
+  .tour-meta > i { font-size: 1.35rem; }
+  .tour-meta small, .tour-meta strong { display: block; } .tour-meta small { color: #6b7280; font-size: .75rem; } .tour-meta strong { color: #1f2937; }
+  .tour-stop { position: relative; padding: 1rem 0; border-bottom: 1px solid #edf0ee; } .tour-stop:last-child { border-bottom: 0; }
+  .tour-stop-number { display: inline-grid; place-items: center; width: 2.25rem; height: 2.25rem; border-radius: 50%; background: #982624; color: #fff; font-weight: 800; }
+  .tour-stop-image { width: 84px; height: 72px; object-fit: cover; border-radius: .8rem; }
+  @media (max-width: 575.98px) { .tour-detail { padding-top: 2rem!important; } .tour-detail-header { padding: 2rem!important; } .tour-stop-image { width: 100%; height: 185px; } }
+</style>

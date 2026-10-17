@@ -1,0 +1,57 @@
+<section class="tour-catalogue py-5">
+  <div class="container">
+    <header class="text-center mx-auto mb-5" style="max-width: 720px;">
+      <span class="tour-eyebrow"><i class="bi bi-signpost-split-fill me-2"></i>TOUR BÌNH LỢI</span>
+      <h1 class="display-5 fw-bold mt-3 mb-3">Chọn tour phù hợp với bạn</h1>
+      <p class="text-secondary mb-0">Khám phá các tour do Bình Lợi tuyển chọn. Bấm vào tour để xem đầy đủ nội dung và các điểm dừng.</p>
+    </header>
+
+    <% if (tours.length) { %>
+      <div class="row g-4">
+        <% tours.forEach(tour => { const cover = tour.stops[0]?.cover_image; %>
+          <article class="col-12 col-md-6 col-xl-4">
+            <a class="tour-card card h-100 border-0 shadow-sm rounded-4 overflow-hidden text-decoration-none" href="/journey/tours/<%= tour.id %>">
+              <div class="tour-cover">
+                <% if (cover) { %>
+                  <img src="<%= fixImg(cover) %>" alt="<%= tour.name %>" loading="lazy">
+                <% } else { %>
+                  <div class="tour-cover-fallback"><i class="bi bi-map-fill"></i></div>
+                <% } %>
+                <span class="tour-season"><%= tour.season %></span>
+              </div>
+              <div class="card-body p-4 d-flex flex-column">
+                <h2 class="h4 fw-bold text-dark mb-2"><%= tour.name %></h2>
+                <p class="text-secondary small flex-grow-1 mb-3"><%= tour.description %></p>
+                <div class="d-flex flex-wrap gap-2 small text-secondary mb-3">
+                  <span><i class="bi bi-clock me-1 text-danger"></i><%= tour.duration %></span>
+                  <% if (tour.km) { %><span><i class="bi bi-signpost-2 me-1 text-danger"></i><%= tour.km %> km</span><% } %>
+                  <span><i class="bi bi-geo-alt me-1 text-danger"></i><%= tour.stops.length %> điểm dừng</span>
+                </div>
+                <span class="tour-detail-link">Xem chi tiết tour <i class="bi bi-arrow-right ms-1"></i></span>
+              </div>
+            </a>
+          </article>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div class="card border-0 shadow-sm rounded-4 p-5 text-center">
+        <i class="bi bi-map text-secondary fs-1 mb-3"></i>
+        <h2 class="h5 fw-bold">Chưa có tour khả dụng</h2>
+        <p class="text-secondary mb-0">Các tour sẽ xuất hiện tại đây ngay khi được quản trị viên cập nhật.</p>
+      </div>
+    <% } %>
+  </div>
+</section>
+
+<style>
+  .tour-catalogue { min-height: 70vh; background: #f6faf7; }
+  .tour-eyebrow { display: inline-block; padding: .45rem .9rem; border-radius: 999px; background: #fbe5e4; color: #982624; font-size: .8rem; font-weight: 800; letter-spacing: .04em; }
+  .tour-card { color: inherit; transition: transform .2s ease, box-shadow .2s ease; }
+  .tour-card:hover { transform: translateY(-5px); box-shadow: 0 .85rem 1.8rem rgba(31, 41, 55, .12)!important; }
+  .tour-cover { position: relative; height: 210px; background: #e8eee9; overflow: hidden; }
+  .tour-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .tour-cover-fallback { height: 100%; display: grid; place-items: center; font-size: 3rem; color: #7b9b7d; }
+  .tour-season { position: absolute; top: 1rem; right: 1rem; border-radius: 999px; padding: .38rem .7rem; background: rgba(255,255,255,.94); color: #5e2624; font-size: .75rem; font-weight: 800; text-transform: uppercase; }
+  .tour-detail-link { color: #982624; font-size: .9rem; font-weight: 800; }
+  @media (max-width: 575.98px) { .tour-catalogue { padding-top: 2rem!important; } .tour-cover { height: 185px; } }
+</style>
