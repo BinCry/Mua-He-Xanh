@@ -31,3 +31,10 @@ test('reward history uses the user_rewards created_at schema column', () => {
     assert.match(rewardsView, /r\.created_at/);
     assert.doesNotMatch(rewardsView, /r\.redeemed_at/);
 });
+
+test('saved journey cards retain a standard inner gutter for their creation date', () => {
+    const profileView = fs.readFileSync('src/views/profile/index.ejs', 'utf8');
+
+    assert.match(profileView, /saved-journey-card-[\s\S]*?rounded-4 p-3 bg-white/);
+    assert.doesNotMatch(profileView, /rounded-4 p-3\.5 bg-white/);
+});

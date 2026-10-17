@@ -680,7 +680,7 @@
                 <div class="row g-3">
                     <% myJourneys.forEach(j => { %>
                     <div class="col-12 col-md-6" id="saved-journey-card-<%= j.id %>">
-                        <div class="card border-0 shadow-sm rounded-4 p-3.5 bg-white position-relative hover-shadow transition-all">
+                        <div class="card border-0 shadow-sm rounded-4 p-3 bg-white position-relative hover-shadow transition-all">
                             <div class="d-flex align-items-center justify-content-between mb-2">
                                 <span class="badge bg-danger-subtle text-danger rounded-pill px-3 py-1.5 fw-bold x-small">
                                     🌸 <%= j.mood ? j.mood.replace(/_/g, ' ') : 'Hành trình tự chọn' %>
