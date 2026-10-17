@@ -11,6 +11,7 @@
 
 <!-- Templates Table -->
 <div class="admin-table bg-white rounded-4 shadow-sm p-3">
+    <div class="table-responsive">
     <table class="table table-borderless mb-0">
         <thead>
             <tr style="border-bottom: 2px solid #f1f5f9;">
@@ -20,14 +21,27 @@
                 <th>Số điểm dừng</th>
                 <th>Thời lượng</th>
                 <th>Khoảng cách</th>
-                <th style="width: 120px;">Thao tác</th>
+                <th>Hiển thị</th>
+                <th style="width: 156px;">Thao tác</th>
             </tr>
         </thead>
         <tbody>
             <% templates.forEach(t => { %>
-            <tr id="tpl-row-<%= t.id %>" class="align-middle" style="border-bottom: 1px solid #f8fafc;">
+            <% const isVisible = t.is_active !== 0 && t.is_active !== false && t.is_active !== '0'; %>
+            <tr id="tpl-row-<%= t.id %>" class="align-middle <%= isVisible ? '' : 'template-row-hidden' %>" style="border-bottom: 1px solid #f8fafc;">
                 <td class="fw-bold text-dark">
                     <%= t.name %>
+                    <%
+                        let stopsArr = [];
+                        try { stopsArr = JSON.parse(t.stops); } catch(e) {}
+                        const unavailableStops = stopsArr.filter(stop => {
+                            const stopId = typeof stop === 'object' ? (stop.id || stop.slug) : stop;
+                            return !destinations.some(destination => String(destination.id) === String(stopId) || destination.slug === String(stopId));
+                        }).length;
+                    %>
+                    <% if (unavailableStops > 0) { %>
+                        <div class="small text-warning-emphasis fw-normal mt-1"><i class="bi bi-exclamation-triangle me-1"></i><%= unavailableStops %> điểm dừng không còn khả dụng</div>
+                    <% } %>
                 </td>
                 <td>
                     <span class="badge rounded-pill px-3 py-1 text-uppercase fw-bold fs-7 mb-1 d-inline-block
@@ -57,15 +71,19 @@
                     </span>
                 </td>
                 <td>
-                    <% 
-                        let stopsArr = [];
-                        try { stopsArr = JSON.parse(t.stops); } catch(e) {}
-                    %>
                     <span class="badge bg-secondary bg-opacity-10 text-secondary rounded-pill px-2.5"><%= stopsArr.length %> điểm</span>
                 </td>
                 <td class="small text-muted"><%= t.duration === 'full_day' ? 'Cả ngày' : 'Nửa ngày' %></td>
                 <td class="small fw-semibold text-primary"><%= t.km %> km</td>
                 <td>
+                    <span class="badge rounded-pill px-3 py-2 <%= isVisible ? 'text-bg-success' : 'text-bg-secondary' %>" data-template-visibility>
+                        <i class="bi <%= isVisible ? 'bi-eye-fill' : 'bi-eye-slash-fill' %> me-1"></i><%= isVisible ? 'Đang hiện' : 'Đã ẩn' %>
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm <%= isVisible ? 'btn-outline-secondary' : 'btn-outline-success' %> rounded-circle p-1.5 me-1" style="width: 32px; height: 32px;" onclick="toggleTemplateVisibility('<%= t.id %>', this)" title="<%= isVisible ? 'Ẩn Tour' : 'Hiện Tour' %>" aria-label="<%= isVisible ? 'Ẩn Tour' : 'Hiện Tour' %>">
+                        <i class="bi <%= isVisible ? 'bi-eye-slash' : 'bi-eye' %> fs-6"></i>
+                    </button>
                     <button class="btn btn-sm btn-outline-primary rounded-circle p-1.5 me-1" style="width: 32px; height: 32px;" onclick="editTemplate(this)" data-template="<%= encodeURIComponent(JSON.stringify(t)) %>">
                         <i class="bi bi-pencil fs-6"></i>
                     </button>
@@ -76,11 +94,19 @@
             </tr>
             <% }) %>
             <% if (templates.length === 0) { %>
-            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có hành trình mẫu nào.</td></tr>
+            <tr><td colspan="8" class="text-center py-5 text-muted">Chưa có hành trình mẫu nào.</td></tr>
             <% } %>
         </tbody>
     </table>
+    </div>
 </div>
+
+<style>
+    .template-row-hidden { opacity: .6; }
+    @media (max-width: 767.98px) {
+        .admin-table .table { min-width: 960px; }
+    }
+</style>
 
 <!-- Template Modal -->
 <div class="modal fade" id="templateModal" tabindex="-1">
@@ -268,6 +294,32 @@
                 showAdminToast('Lỗi xóa: ' + (error.response?.data?.message || error.message), 'error');
             }
         });
+    }
+
+    async function toggleTemplateVisibility(id, button) {
+        button.disabled = true;
+        try {
+            const res = await axios.post('/api/admin/toggle-journey-template', { id });
+            if (!res.data.success) throw new Error(res.data.message || 'Không thể cập nhật trạng thái Tour');
+
+            const row = document.getElementById('tpl-row-' + id);
+            const isVisible = Boolean(res.data.is_active);
+            const badge = row?.querySelector('[data-template-visibility]');
+            if (row) row.classList.toggle('template-row-hidden', !isVisible);
+            if (badge) {
+                badge.className = `badge rounded-pill px-3 py-2 ${isVisible ? 'text-bg-success' : 'text-bg-secondary'}`;
+                badge.innerHTML = `<i class="bi ${isVisible ? 'bi-eye-fill' : 'bi-eye-slash-fill'} me-1"></i>${isVisible ? 'Đang hiện' : 'Đã ẩn'}`;
+            }
+            button.className = `btn btn-sm ${isVisible ? 'btn-outline-secondary' : 'btn-outline-success'} rounded-circle p-1.5 me-1`;
+            button.title = isVisible ? 'Ẩn Tour' : 'Hiện Tour';
+            button.setAttribute('aria-label', button.title);
+            button.innerHTML = `<i class="bi ${isVisible ? 'bi-eye-slash' : 'bi-eye'} fs-6"></i>`;
+            showAdminToast(res.data.message, 'success');
+        } catch (error) {
+            showAdminToast(error.response?.data?.message || error.message || 'Không thể cập nhật trạng thái Tour', 'error');
+        } finally {
+            button.disabled = false;
+        }
     }
 
     document.getElementById('templateForm').addEventListener('submit', async (e) => {

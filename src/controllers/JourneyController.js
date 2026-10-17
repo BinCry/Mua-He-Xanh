@@ -68,7 +68,7 @@ class JourneyController {
     // visitors choose a tour first instead of completing a preference form.
     async tours(req, res) {
         try {
-            const [templates] = await db.query('SELECT * FROM seasonal_journey_templates ORDER BY created_at DESC');
+            const [templates] = await db.query('SELECT * FROM seasonal_journey_templates WHERE is_active = 1 ORDER BY created_at DESC');
             const [destinations] = await db.query('SELECT * FROM destinations WHERE is_active = 1');
             const tours = (templates || [])
                 .map(template => this.buildTour(template, destinations))
@@ -82,7 +82,7 @@ class JourneyController {
 
     async tourDetail(req, res) {
         try {
-            const [templates] = await db.query('SELECT * FROM seasonal_journey_templates WHERE id = $1', [req.params.id]);
+            const [templates] = await db.query('SELECT * FROM seasonal_journey_templates WHERE id = $1 AND is_active = 1', [req.params.id]);
             if (!templates.length) return res.status(404).render('errors/404', { title: 'Tour không tồn tại' });
 
             const [destinations] = await db.query('SELECT * FROM destinations WHERE is_active = 1');
@@ -234,7 +234,7 @@ class JourneyController {
             const { templateId } = req.body;
 
             if (templateId) {
-                const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE id = $1", [templateId]);
+                const [templates] = await db.query("SELECT * FROM seasonal_journey_templates WHERE id = $1 AND is_active = 1", [templateId]);
                 if (templates.length > 0) {
                     const t = templates[0];
                     let stopIds = [];

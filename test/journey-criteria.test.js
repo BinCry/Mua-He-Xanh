@@ -5,6 +5,7 @@ const db = require('../src/core/database');
 const JourneyController = require('../src/controllers/JourneyController');
 const Journey = require('../src/models/Journey');
 const ApiController = require('../src/controllers/ApiController');
+const AdminController = require('../src/controllers/AdminController');
 
 function response() {
     return {
@@ -14,17 +15,24 @@ function response() {
     };
 }
 
-test('journey catalogue lists every administrator-managed tour without onboarding criteria', async () => {
+test('journey catalogue lists every visible administrator-managed tour without onboarding criteria', async () => {
     const originalQuery = db.query;
     const templates = [
         { id: 'tour-culture', name: 'Tour văn hóa', description: 'Khám phá làng nghề', season: 'summer', interest: 'culture', duration: 'full_day', km: 5.2, stops: JSON.stringify(['dest-culture']) },
-        { id: 'tour-peace', name: 'Tour bình yên', description: 'Không gian xanh', season: 'winter', interest: 'peace', duration: 'half_day', km: 2.4, stops: JSON.stringify(['dest-peace']) }
+        { id: 'tour-peace', name: 'Tour bình yên', description: 'Không gian xanh', season: 'winter', interest: 'peace', duration: 'half_day', km: 2.4, stops: JSON.stringify(['dest-peace']) },
+        { id: 'tour-hidden', name: 'Tour đã ẩn', description: '', season: 'winter', interest: 'peace', duration: 'half_day', km: 2.4, stops: JSON.stringify(['dest-peace']), is_active: 0 }
     ];
     const destinations = [
         { id: 'dest-culture', name: 'Làng nghề', slug: 'lang-nghe', cover_image: '/culture.jpg' },
         { id: 'dest-peace', name: 'Vườn yên', slug: 'vuon-yen', cover_image: '/peace.jpg' }
     ];
-    db.query = async (sql) => /seasonal_journey_templates/.test(sql) ? [templates] : [destinations];
+    db.query = async (sql) => {
+        if (/seasonal_journey_templates/.test(sql)) {
+            assert.match(sql, /WHERE is_active = 1/);
+            return [templates.filter(template => template.is_active !== 0)];
+        }
+        return [destinations];
+    };
 
     try {
         const res = response();
@@ -33,6 +41,30 @@ test('journey catalogue lists every administrator-managed tour without onboardin
         assert.equal(res.payload.tours.length, 2);
         assert.deepEqual(res.payload.tours.map(tour => tour.id), ['tour-culture', 'tour-peace']);
         assert.equal(res.payload.tours[0].stops[0].name, 'Làng nghề');
+    } finally {
+        db.query = originalQuery;
+    }
+});
+
+test('an administrator can atomically hide or show a journey template', async () => {
+    const originalQuery = db.query;
+    let captured;
+    db.query = async (sql, params) => {
+        captured = { sql, params };
+        return [[{ is_active: 0 }]];
+    };
+    const res = {
+        statusCode: 200,
+        status(code) { this.statusCode = code; return this; },
+        json(payload) { this.payload = payload; return payload; }
+    };
+
+    try {
+        await AdminController.toggleJourneyTemplate({ body: { id: 'tour-1' } }, res);
+        assert.match(captured.sql, /SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END/);
+        assert.deepEqual(captured.params, ['tour-1']);
+        assert.equal(res.payload.success, true);
+        assert.equal(res.payload.is_active, false);
     } finally {
         db.query = originalQuery;
     }

@@ -997,6 +997,33 @@ const AdminController = {
         }
     },
 
+    toggleJourneyTemplate: async (req, res) => {
+        try {
+            const { id } = req.body;
+            if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID hành trình' });
+
+            const [templates] = await db.query(
+                `UPDATE seasonal_journey_templates
+                 SET is_active = CASE WHEN is_active = 1 THEN 0 ELSE 1 END,
+                     updated_at = CURRENT_TIMESTAMP
+                 WHERE id = $1
+                 RETURNING is_active`,
+                [id]
+            );
+            if (!templates.length) return res.status(404).json({ success: false, message: 'Không tìm thấy hành trình mẫu' });
+
+            const isActive = Number(templates[0].is_active) === 1;
+            return res.json({
+                success: true,
+                is_active: isActive,
+                message: isActive ? 'Đã hiện Tour cho người dùng' : 'Đã ẩn Tour khỏi người dùng'
+            });
+        } catch (error) {
+            console.error('Toggle journey template error:', error);
+            return res.status(500).json({ success: false, message: 'Lỗi hệ thống' });
+        }
+    },
+
     createSoundscape: async (req, res) => {
         try {
             const { name, mood, duration_seconds } = req.body;

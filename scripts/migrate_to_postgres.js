@@ -145,6 +145,7 @@ CREATE TABLE IF NOT EXISTS seasonal_journey_templates (
     valid_from DATE,
     valid_until DATE,
     km DECIMAL(5,2) DEFAULT 5.00,
+    is_active INT NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );

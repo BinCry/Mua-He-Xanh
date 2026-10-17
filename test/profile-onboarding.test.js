@@ -10,8 +10,10 @@ test('journey routes retire the preference form in favor of the tour catalogue',
     assert.match(routes, /res\.redirect\('\/journey\/tours'\)/);
     assert.match(routes, /router\.get\(\['\/journey\/tours', '\/journey\/tours\/'\], ensureAuthenticated, JourneyController\.tours\)/);
     assert.match(routes, /router\.get\('\/journey\/tours\/:id', ensureAuthenticated, JourneyController\.tourDetail\)/);
+    assert.match(routes, /router\.post\('\/api\/admin\/toggle-journey-template', ensureAdmin, AdminController\.toggleJourneyTemplate\)/);
     assert.match(tourList, /href="\/journey\/tours\/<%= tour\.id %>"/);
     assert.match(tourDetail, /name="templateId" value="<%= tour\.id %>"/);
+    assert.doesNotMatch(tourList, /TOUR BÌNH LỢI/);
 });
 
 test('profile queries use PostgreSQL session columns and do not require a rewards.type column', () => {

@@ -605,6 +605,7 @@ router.post('/api/admin/update-settings', ensureAdmin, AdminController.updateSet
 router.post('/api/admin/create-journey-template', ensureAdmin, AdminController.createJourneyTemplate);
 router.post('/api/admin/update-journey-template', ensureAdmin, AdminController.updateJourneyTemplate);
 router.post('/api/admin/delete-journey-template', ensureAdmin, AdminController.deleteJourneyTemplate);
+router.post('/api/admin/toggle-journey-template', ensureAdmin, AdminController.toggleJourneyTemplate);
 
 // General & Chat Upload API (with multer error handling)
 const handleUpload = (req, res, next) => {
