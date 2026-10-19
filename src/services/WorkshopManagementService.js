@@ -170,13 +170,10 @@ class WorkshopManagementService {
             assertScope(actor, session && { id: session.workshop_id, destination_id: session.destination_id, catalog_kind: session.catalog_kind });
             if (seats < Number(session.reserved_seats)) throw domainError('WORKSHOP_CAPACITY_BELOW_RESERVED');
             const [bookings] = await tx.query(
-                "SELECT COUNT(*)::int AS total, COUNT(*) FILTER (WHERE status IN ('pending', 'confirmed'))::int AS open_total FROM workshop_session_bookings WHERE session_id = $1",
+                "SELECT COUNT(*) FILTER (WHERE status IN ('pending', 'confirmed'))::int AS open_total FROM workshop_session_bookings WHERE session_id = $1",
                 [sessionId]
             );
-            const hasHistory = Number(bookings[0].total) > 0;
             const hasOpenBookings = Number(bookings[0].open_total) > 0;
-            const timeChanged = new Date(session.starts_at).getTime() !== start.getTime() || new Date(session.ends_at).getTime() !== end.getTime();
-            if (hasHistory && timeChanged) throw domainError('WORKSHOP_SCHEDULE_LOCKED');
             if (hasOpenBookings && !isActive) throw domainError('WORKSHOP_SESSION_HAS_OPEN_BOOKINGS');
             await tx.query(
                 'UPDATE workshop_sessions SET starts_at = $1, ends_at = $2, price_vnd = $3, capacity = $4, is_active = $5, updated_at = NOW() WHERE id = $6',

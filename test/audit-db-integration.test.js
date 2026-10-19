@@ -380,7 +380,7 @@ if (!canRun) {
         assert.equal(bookings.length, 1);
     });
 
-    test('Workshop management keeps managers in scope and locks schedules after booking', async () => {
+    test('Workshop management permits rescheduling booked sessions while retaining scope and booking safeguards', async () => {
         const manager = { id: 'manager-workshop-owner', role: 'manager', role_id: 2, managed_destination_id: destinationId };
         const otherManager = { id: 'manager-workshop-other', role: 'manager', role_id: 2, managed_destination_id: inactiveDestinationId };
         const createdWorkshop = await WorkshopManagementService.createWorkshop({
@@ -415,11 +415,51 @@ if (!canRun) {
         await WorkshopBookingService.create({
             userId: ownerId, sessionId: createdSession.session.id, seats: 1, idempotencyKey: 'managed-session-booking-1'
         });
+        const managerRescheduledStart = new Date(startsAt.getTime() + 60 * 60 * 1000);
+        const managerRescheduledEnd = new Date(endsAt.getTime() + 60 * 60 * 1000);
+        const managerReschedule = await WorkshopManagementService.updateSession({
+            actor: manager, sessionId: createdSession.session.id,
+            startsAt: managerRescheduledStart.toISOString(), endsAt: managerRescheduledEnd.toISOString(),
+            priceVnd: 120000, capacity: 2, isActive: true
+        });
+        assert.equal(managerReschedule.session.startsAt, managerRescheduledStart.toISOString());
+        await assert.rejects(
+            WorkshopManagementService.updateSession({
+                actor: otherManager, sessionId: createdSession.session.id,
+                startsAt: managerRescheduledStart.toISOString(), endsAt: managerRescheduledEnd.toISOString(),
+                priceVnd: 120000, capacity: 2, isActive: true
+            }),
+            error => error.code === 'WORKSHOP_MANAGEMENT_FORBIDDEN'
+        );
+        await assert.rejects(
+            WorkshopManagementService.updateSession({
+                actor: { id: ownerId, role: 'user', role_id: 3 }, sessionId: createdSession.session.id,
+                startsAt: managerRescheduledStart.toISOString(), endsAt: managerRescheduledEnd.toISOString(),
+                priceVnd: 120000, capacity: 2, isActive: true
+            }),
+            error => error.code === 'WORKSHOP_MANAGEMENT_FORBIDDEN'
+        );
+        const adminRescheduledStart = new Date(startsAt.getTime() + 2 * 60 * 60 * 1000);
+        const adminRescheduledEnd = new Date(endsAt.getTime() + 2 * 60 * 60 * 1000);
+        const adminReschedule = await WorkshopManagementService.updateSession({
+            actor: admin, sessionId: createdSession.session.id,
+            startsAt: adminRescheduledStart.toISOString(), endsAt: adminRescheduledEnd.toISOString(),
+            priceVnd: 120000, capacity: 2, isActive: true
+        });
+        assert.equal(adminReschedule.session.startsAt, adminRescheduledStart.toISOString());
         await assert.rejects(
             WorkshopManagementService.updateWorkshop({
                 actor: manager, workshopId: createdWorkshop.workshop.id, title: 'Cannot close booked workshop', description: '', isActive: false
             }),
             error => error.code === 'WORKSHOP_HAS_OPEN_BOOKINGS'
+        );
+        await assert.rejects(
+            WorkshopManagementService.updateSession({
+                actor: manager, sessionId: createdSession.session.id,
+                startsAt: adminRescheduledStart.toISOString(), endsAt: adminRescheduledEnd.toISOString(),
+                priceVnd: 120000, capacity: 2, isActive: false
+            }),
+            error => error.code === 'WORKSHOP_SESSION_HAS_OPEN_BOOKINGS'
         );
         await assert.rejects(
             CommerceTransitionService.transitionWorkshop({
@@ -446,15 +486,7 @@ if (!canRun) {
         assert.equal(cancelledByTourist.status, 'cancelled');
         await assert.rejects(
             WorkshopManagementService.updateSession({
-                actor: manager, sessionId: createdSession.session.id,
-                startsAt: new Date(startsAt.getTime() + 60 * 60 * 1000).toISOString(), endsAt: endsAt.toISOString(),
-                priceVnd: 120000, capacity: 2, isActive: true
-            }),
-            error => error.code === 'WORKSHOP_SCHEDULE_LOCKED'
-        );
-        await assert.rejects(
-            WorkshopManagementService.updateSession({
-                actor: manager, sessionId: createdSession.session.id, startsAt: startsAt.toISOString(), endsAt: endsAt.toISOString(),
+                actor: manager, sessionId: createdSession.session.id, startsAt: adminRescheduledStart.toISOString(), endsAt: adminRescheduledEnd.toISOString(),
                 priceVnd: 120000, capacity: 0, isActive: true
             }),
             error => error.code === 'INVALID_WORKSHOP_CAPACITY'

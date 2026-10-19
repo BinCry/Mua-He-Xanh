@@ -293,7 +293,9 @@ test('staff can preview public Shop, Workshop and festival pages without losing 
 test('Shop and Workshop search, manager actions and festival cards retain the agreed responsive UI', () => {
     const shop = fs.readFileSync('src/views/shop/index.ejs', 'utf8');
     const workshop = fs.readFileSync('src/views/workshops/index.ejs', 'utf8');
+    const myWorkshopBookings = fs.readFileSync('src/views/workshops/my-bookings.ejs', 'utf8');
     const manager = fs.readFileSync('src/views/manager/workshops.ejs', 'utf8');
+    const workshopManagement = fs.readFileSync('src/views/workshop-management/index.ejs', 'utf8');
     const tickets = fs.readFileSync('src/views/admin/festival_tickets.ejs', 'utf8');
     assert.match(shop, />\s*Tìm kiếm\s*</);
     assert.match(workshop, /Tìm kiếm/);
@@ -301,9 +303,29 @@ test('Shop and Workshop search, manager actions and festival cards retain the ag
     assert.match(workshop, /mb-5 workshop-search/);
     assert.doesNotMatch(workshop, /Trải nghiệm tại Bình Lợi|Mỗi ca có thời gian|Hãy thử lại sau/);
     assert.match(manager, /class="workshop-actions"/);
+    assert.match(workshopManagement, /class="table-responsive workshop-table-scroll"/);
+    assert.match(workshopManagement, /\.workshop-table-scroll\{max-height:480px;overflow-y:auto;overscroll-behavior:contain\}/);
+    assert.match(myWorkshopBookings, /booking-history-card/);
+    assert.match(myWorkshopBookings, /\.booking-history-scroll\{max-height:600px;overflow-y:auto;overscroll-behavior:contain/);
     assert.match(manager, /flex-wrap: nowrap/);
     assert.match(tickets, /col-12 col-md-6 col-xl-4/);
     assert.match(tickets, /href="\/festivals" target="_blank"/);
+});
+
+test('the 403 access-denied page centers its callout on wide screens', () => {
+    const forbidden = fs.readFileSync('src/views/errors/403.ejs', 'utf8');
+
+    assert.match(forbidden, /d-flex align-items-center justify-content-center/);
+    assert.match(forbidden, /container-site text-center w-100/);
+});
+
+test('Workshop session rescheduling stays available after booking without removing capacity or scope guards', () => {
+    const service = fs.readFileSync('src/services/WorkshopManagementService.js', 'utf8');
+
+    assert.doesNotMatch(service, /WORKSHOP_SCHEDULE_LOCKED/);
+    assert.match(service, /WORKSHOP_CAPACITY_BELOW_RESERVED/);
+    assert.match(service, /WORKSHOP_SESSION_HAS_OPEN_BOOKINGS/);
+    assert.match(service, /assertScope\(actor,/);
 });
 
 test('all server catalogue searches share tokenized Vietnamese-safe matching', () => {
