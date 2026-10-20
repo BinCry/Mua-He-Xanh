@@ -118,6 +118,12 @@ body {
     position: static !important;
 }
 
+/* Bootstrap blue falls below WCAG AA on the map's light-gray filter panel. */
+.filter-btn.btn-outline-primary {
+    color: #0a58ca;
+    border-color: #0a58ca;
+}
+
 /* Keep the viewport fixed while the opt-in Google Translate widget updates
    text. This prevents scroll anchoring from turning those text changes into a
    visible jump. */
