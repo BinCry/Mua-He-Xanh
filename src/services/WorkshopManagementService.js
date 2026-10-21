@@ -55,6 +55,10 @@ function assertSchedule(startsAt, endsAt, now = new Date()) {
     if (startsAt <= now || endsAt <= startsAt) throw domainError('INVALID_WORKSHOP_TIME');
 }
 
+function sameInstant(left, right) {
+    return Math.floor(new Date(left).getTime() / 1000) === Math.floor(new Date(right).getTime() / 1000);
+}
+
 async function lockedWorkshop(tx, workshopId) {
     const [rows] = await tx.query(
         "SELECT id, destination_id, catalog_kind, is_active FROM workshops WHERE id = $1 FOR UPDATE",
@@ -112,13 +116,12 @@ class WorkshopManagementService {
         return db.transaction(async tx => {
             const workshop = await lockedWorkshop(tx, workshopId);
             assertScope(actor, workshop);
-            if (!isActive) {
-                const [bookings] = await tx.query(
-                    "SELECT COUNT(*) FILTER (WHERE b.status IN ('pending', 'confirmed'))::int AS open_total " +
-                    'FROM workshop_session_bookings b JOIN workshop_sessions ws ON ws.id = b.session_id WHERE ws.workshop_id = $1',
-                    [workshopId]
+            if (isActive) {
+                const [destinations] = await tx.query(
+                    'SELECT id FROM destinations WHERE id = $1 AND is_active = 1 FOR UPDATE',
+                    [workshop.destination_id]
                 );
-                if (Number(bookings[0].open_total) > 0) throw domainError('WORKSHOP_HAS_OPEN_BOOKINGS');
+                if (!destinations.length) throw domainError('WORKSHOP_DESTINATION_UNAVAILABLE');
             }
             await tx.query(
                 'UPDATE workshops SET title = $1, description = $2, is_active = $3 WHERE id = $4',
@@ -138,6 +141,11 @@ class WorkshopManagementService {
             const workshop = await lockedWorkshop(tx, workshopId);
             assertScope(actor, workshop);
             if (!workshop.is_active) throw domainError('WORKSHOP_UNAVAILABLE');
+            const [destinations] = await tx.query(
+                'SELECT id FROM destinations WHERE id = $1 AND is_active = 1 FOR UPDATE',
+                [workshop.destination_id]
+            );
+            if (!destinations.length) throw domainError('WORKSHOP_DESTINATION_UNAVAILABLE');
             const idem = await CommerceIntegrityService.begin(
                 tx, actor.id, 'workshop.session.create', idempotencyKey,
                 { workshopId, startsAt: start.toISOString(), endsAt: end.toISOString(), priceVnd: price, capacity: seats }
@@ -155,26 +163,41 @@ class WorkshopManagementService {
     }
 
     static async updateSession({ actor, sessionId, startsAt, endsAt, priceVnd, capacity, isActive, now = new Date() }) {
-        const start = parseHoChiMinhDateTime(startsAt);
-        const end = parseHoChiMinhDateTime(endsAt);
-        assertSchedule(start, end, now);
-        const price = nonNegativeMoney(priceVnd);
-        const seats = positiveCapacity(capacity);
         if (typeof isActive !== 'boolean') throw domainError('INVALID_WORKSHOP_STATUS');
         return db.transaction(async tx => {
             const [sessions] = await tx.query(
-                'SELECT ws.*, w.destination_id, w.catalog_kind FROM workshop_sessions ws JOIN workshops w ON w.id = ws.workshop_id WHERE ws.id = $1 FOR UPDATE',
+                'SELECT ws.*, w.destination_id, w.catalog_kind, w.is_active AS workshop_active FROM workshop_sessions ws JOIN workshops w ON w.id = ws.workshop_id WHERE ws.id = $1 FOR UPDATE',
                 [sessionId]
             );
             const session = sessions[0];
             assertScope(actor, session && { id: session.workshop_id, destination_id: session.destination_id, catalog_kind: session.catalog_kind });
+
+            const start = parseHoChiMinhDateTime(startsAt);
+            const end = parseHoChiMinhDateTime(endsAt);
+            const price = nonNegativeMoney(priceVnd);
+            const seats = positiveCapacity(capacity);
+            if (end <= start) throw domainError('INVALID_WORKSHOP_TIME');
+
+            const hasStarted = new Date(session.starts_at) <= now;
+            const immutableDetailsChanged = !sameInstant(start, session.starts_at) ||
+                !sameInstant(end, session.ends_at) ||
+                price !== Number(session.price_vnd) ||
+                seats !== Number(session.capacity);
+            if (hasStarted) {
+                if (immutableDetailsChanged) throw domainError('WORKSHOP_SESSION_LOCKED');
+                if (isActive) throw domainError('WORKSHOP_SESSION_ALREADY_STARTED');
+            } else {
+                assertSchedule(start, end, now);
+            }
+            if (isActive) {
+                if (!session.workshop_active) throw domainError('WORKSHOP_UNAVAILABLE');
+                const [destinations] = await tx.query(
+                    'SELECT id FROM destinations WHERE id = $1 AND is_active = 1 FOR UPDATE',
+                    [session.destination_id]
+                );
+                if (!destinations.length) throw domainError('WORKSHOP_DESTINATION_UNAVAILABLE');
+            }
             if (seats < Number(session.reserved_seats)) throw domainError('WORKSHOP_CAPACITY_BELOW_RESERVED');
-            const [bookings] = await tx.query(
-                "SELECT COUNT(*) FILTER (WHERE status IN ('pending', 'confirmed'))::int AS open_total FROM workshop_session_bookings WHERE session_id = $1",
-                [sessionId]
-            );
-            const hasOpenBookings = Number(bookings[0].open_total) > 0;
-            if (hasOpenBookings && !isActive) throw domainError('WORKSHOP_SESSION_HAS_OPEN_BOOKINGS');
             await tx.query(
                 'UPDATE workshop_sessions SET starts_at = $1, ends_at = $2, price_vnd = $3, capacity = $4, is_active = $5, updated_at = NOW() WHERE id = $6',
                 [start, end, price, seats, isActive, sessionId]
@@ -184,4 +207,4 @@ class WorkshopManagementService {
     }
 }
 
-module.exports = { WorkshopManagementService, parseHoChiMinhDateTime };
+module.exports = { WorkshopManagementService, parseHoChiMinhDateTime, sameInstant };

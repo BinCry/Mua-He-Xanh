@@ -18,6 +18,8 @@ function errorResponse(res, error) {
         COMMERCE_RECORD_NOT_FOUND: 404,
         PRODUCT_UNAVAILABLE: 404,
         WORKSHOP_SESSION_UNAVAILABLE: 404,
+        WORKSHOP_BOOKING_FORBIDDEN: 403,
+        WORKSHOP_ALREADY_BOOKED: 409,
         IDEMPOTENCY_PAYLOAD_CONFLICT: 409,
         IDEMPOTENCY_IN_PROGRESS: 409,
         INVALID_STATUS_TRANSITION: 409,
@@ -26,13 +28,29 @@ function errorResponse(res, error) {
         INSUFFICIENT_WORKSHOP_SEATS: 409,
         WORKSHOP_SESSION_ALREADY_STARTED: 409,
         WORKSHOP_SESSION_NOT_FINISHED: 409,
+        WORKSHOP_CANCELLATION_CLOSED: 409,
         COMMERCE_RESERVATION_INCONSISTENT: 409,
         IDEMPOTENCY_KEY_REQUIRED: 400,
         INVALID_QUANTITY: 400,
         INVALID_SEAT_COUNT: 400
     })[code] || 500;
     if (status === 500) console.error('Commerce operation error:', error);
-    return res.status(status).json({ success: false, code, message: 'Không thể hoàn tất thao tác. Vui lòng kiểm tra lại dữ liệu và thử lại.' });
+    const message = ({
+        AUTHENTICATION_REQUIRED: 'Vui lòng đăng nhập để thực hiện thao tác này.',
+        COMMERCE_RECORD_FORBIDDEN: 'Bạn không có quyền thay đổi booking này.',
+        COMMERCE_RECORD_NOT_FOUND: 'Không tìm thấy booking Workshop.',
+        WORKSHOP_SESSION_UNAVAILABLE: 'Ca Workshop không còn mở đăng ký.',
+        WORKSHOP_BOOKING_FORBIDDEN: 'Chỉ tài khoản du khách mới có thể đăng ký Workshop.',
+        WORKSHOP_ALREADY_BOOKED: 'Bạn đã có booking đang hoạt động cho ca Workshop này.',
+        INVALID_STATUS_TRANSITION: 'Không thể chuyển booking sang trạng thái đã chọn.',
+        INSUFFICIENT_WORKSHOP_SEATS: 'Ca Workshop không còn đủ chỗ.',
+        WORKSHOP_SESSION_ALREADY_STARTED: 'Ca Workshop đã bắt đầu nên không thể đăng ký.',
+        WORKSHOP_SESSION_NOT_FINISHED: 'Chỉ có thể hoàn thành booking sau khi ca kết thúc.',
+        WORKSHOP_CANCELLATION_CLOSED: 'Bạn không thể tự hủy booking sau khi ca đã bắt đầu. Vui lòng liên hệ quản lý.',
+        IDEMPOTENCY_KEY_REQUIRED: 'Yêu cầu không hợp lệ. Vui lòng tải lại trang và thử lại.',
+        INVALID_SEAT_COUNT: 'Số chỗ đăng ký không hợp lệ.'
+    })[code] || 'Không thể hoàn tất thao tác. Vui lòng kiểm tra lại dữ liệu và thử lại.';
+    return res.status(status).json({ success: false, code, message });
 }
 
 class CommerceController {
@@ -61,7 +79,7 @@ class CommerceController {
     async createWorkshopBooking(req, res) {
         try {
             const result = await WorkshopBookingService.create({
-                userId: currentUser(req)?.id,
+                actor: currentUser(req),
                 sessionId: req.body?.sessionId,
                 seats: Number(req.body?.seats),
                 idempotencyKey: idempotencyKey(req)

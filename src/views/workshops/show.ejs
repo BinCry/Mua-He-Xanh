@@ -13,8 +13,8 @@
           <% sessions.forEach(session => { const remaining = Math.max(0, Number(session.capacity) - Number(session.reserved_seats)); %>
           <div class="border rounded-4 p-3 d-flex flex-column flex-md-row align-items-md-center gap-3">
             <div class="flex-grow-1">
-              <strong><%= new Date(session.starts_at).toLocaleString('vi-VN') %></strong>
-              <div class="small text-secondary">Kết thúc <%= new Date(session.ends_at).toLocaleString('vi-VN') %> · <%= remaining %> chỗ còn lại · <%= new Intl.NumberFormat('vi-VN').format(session.price_vnd) %>đ/người</div>
+              <strong><%= new Date(session.starts_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %></strong>
+              <div class="small text-secondary">Kết thúc <%= new Date(session.ends_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %> · <%= remaining %> chỗ còn lại · <%= new Intl.NumberFormat('vi-VN').format(session.price_vnd) %>đ/người</div>
             </div>
             <button class="btn btn-success rounded-pill book-workshop" data-session-id="<%= session.id %>" <%= remaining ? '' : 'disabled' %>>Đăng ký</button>
           </div>

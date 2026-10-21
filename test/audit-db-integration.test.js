@@ -366,8 +366,8 @@ if (!canRun) {
             [sessionId, workshopId, startsAt, endsAt]
         );
         const outcomes = await Promise.allSettled([
-            WorkshopBookingService.create({ userId: ownerId, sessionId, seats: 1, idempotencyKey: 'owner-final-seat' }),
-            WorkshopBookingService.create({ userId: otherId, sessionId, seats: 1, idempotencyKey: 'other-final-seat' })
+            WorkshopBookingService.create({ actor: { id: ownerId, role: 'user', role_id: 3 }, sessionId, seats: 1, idempotencyKey: 'owner-final-seat' }),
+            WorkshopBookingService.create({ actor: { id: otherId, role: 'user', role_id: 3 }, sessionId, seats: 1, idempotencyKey: 'other-final-seat' })
         ]);
         assert.equal(outcomes.filter(item => item.status === 'fulfilled').length, 1);
         assert.equal(outcomes.filter(item => item.status === 'rejected' && item.reason.code === 'INSUFFICIENT_WORKSHOP_SEATS').length, 1);
@@ -413,7 +413,7 @@ if (!canRun) {
             error => error.code === 'WORKSHOP_MANAGEMENT_FORBIDDEN'
         );
         await WorkshopBookingService.create({
-            userId: ownerId, sessionId: createdSession.session.id, seats: 1, idempotencyKey: 'managed-session-booking-1'
+            actor: { id: ownerId, role: 'user', role_id: 3 }, sessionId: createdSession.session.id, seats: 1, idempotencyKey: 'managed-session-booking-1'
         });
         const managerRescheduledStart = new Date(startsAt.getTime() + 60 * 60 * 1000);
         const managerRescheduledEnd = new Date(endsAt.getTime() + 60 * 60 * 1000);
@@ -447,20 +447,16 @@ if (!canRun) {
             priceVnd: 120000, capacity: 2, isActive: true
         });
         assert.equal(adminReschedule.session.startsAt, adminRescheduledStart.toISOString());
-        await assert.rejects(
-            WorkshopManagementService.updateWorkshop({
-                actor: manager, workshopId: createdWorkshop.workshop.id, title: 'Cannot close booked workshop', description: '', isActive: false
-            }),
-            error => error.code === 'WORKSHOP_HAS_OPEN_BOOKINGS'
-        );
-        await assert.rejects(
-            WorkshopManagementService.updateSession({
-                actor: manager, sessionId: createdSession.session.id,
-                startsAt: adminRescheduledStart.toISOString(), endsAt: adminRescheduledEnd.toISOString(),
-                priceVnd: 120000, capacity: 2, isActive: false
-            }),
-            error => error.code === 'WORKSHOP_SESSION_HAS_OPEN_BOOKINGS'
-        );
+        const unpublishedWorkshop = await WorkshopManagementService.updateWorkshop({
+            actor: manager, workshopId: createdWorkshop.workshop.id, title: 'Closed registration workshop', description: '', isActive: false
+        });
+        assert.equal(unpublishedWorkshop.workshop.isActive, false);
+        const closedSession = await WorkshopManagementService.updateSession({
+            actor: manager, sessionId: createdSession.session.id,
+            startsAt: adminRescheduledStart.toISOString(), endsAt: adminRescheduledEnd.toISOString(),
+            priceVnd: 120000, capacity: 2, isActive: false
+        });
+        assert.equal(closedSession.session.isActive, false);
         await assert.rejects(
             CommerceTransitionService.transitionWorkshop({
                 actor: { id: ownerId, role: 'user', role_id: 3 }, bookingId: (await db.query('SELECT id FROM workshop_session_bookings WHERE session_id = $1', [createdSession.session.id]))[0][0].id,

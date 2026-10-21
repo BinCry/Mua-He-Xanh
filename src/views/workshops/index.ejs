@@ -23,7 +23,7 @@
             <h2 class="h5 fw-bold"><a class="text-decoration-none text-dark" href="/workshops/<%= session.workshop_id %>"><%= session.title %></a></h2>
             <p class="text-secondary small flex-grow-1"><%= (session.description || '').slice(0, 170) %></p>
             <dl class="row small mb-3">
-              <dt class="col-5 text-secondary">Bắt đầu</dt><dd class="col-7"><%= new Date(session.starts_at).toLocaleString('vi-VN') %></dd>
+              <dt class="col-5 text-secondary">Bắt đầu</dt><dd class="col-7"><%= new Date(session.starts_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %></dd>
               <dt class="col-5 text-secondary">Còn lại</dt><dd class="col-7"><%= remaining %> / <%= session.capacity %> chỗ</dd>
               <dt class="col-5 text-secondary">Giá</dt><dd class="col-7 fw-bold"><%= new Intl.NumberFormat('vi-VN').format(session.price_vnd) %>đ</dd>
             </dl>

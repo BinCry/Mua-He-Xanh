@@ -10,8 +10,8 @@ class WorkshopController {
             let sql = 'SELECT ws.id AS session_id, ws.starts_at, ws.ends_at, ws.price_vnd, ws.capacity, ws.reserved_seats, ' +
                 'w.id AS workshop_id, w.title, w.description, w.image, d.name AS destination_name ' +
                 'FROM workshop_sessions ws JOIN workshops w ON w.id = ws.workshop_id ' +
-                'LEFT JOIN destinations d ON d.id = w.destination_id ' +
-                "WHERE ws.is_active = TRUE AND w.is_active = 1 AND w.catalog_kind = 'workshop' AND ws.starts_at > NOW()";
+                'JOIN destinations d ON d.id = w.destination_id ' +
+                "WHERE ws.is_active = TRUE AND w.is_active = 1 AND d.is_active = 1 AND w.catalog_kind = 'workshop' AND ws.starts_at > NOW()";
             const searchClause = buildTokenSearchClause(['w.title', 'w.description', 'd.name'], search, 1);
             if (searchClause.clause) {
                 sql += ` AND (${searchClause.clause})`;
@@ -33,8 +33,8 @@ class WorkshopController {
     async show(req, res) {
         try {
             const [workshops] = await db.query(
-                'SELECT w.*, d.name AS destination_name FROM workshops w LEFT JOIN destinations d ON d.id = w.destination_id ' +
-                "WHERE w.id = $1 AND w.is_active = 1 AND w.catalog_kind = 'workshop'",
+                'SELECT w.*, d.name AS destination_name FROM workshops w JOIN destinations d ON d.id = w.destination_id ' +
+                "WHERE w.id = $1 AND w.is_active = 1 AND d.is_active = 1 AND w.catalog_kind = 'workshop'",
                 [req.params.id]
             );
             const workshop = workshops[0];

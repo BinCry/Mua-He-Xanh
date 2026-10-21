@@ -119,7 +119,7 @@ router.get('/sitemap.xml', async (req, res) => {
             "SELECT id, updated_at FROM workshops WHERE is_active = 1 AND catalog_kind = 'shop'"
         );
         const [workshops] = await db.query(
-            "SELECT id, updated_at FROM workshops WHERE is_active = 1 AND catalog_kind = 'workshop'"
+            "SELECT w.id, w.updated_at FROM workshops w JOIN destinations d ON d.id = w.destination_id WHERE w.is_active = 1 AND d.is_active = 1 AND w.catalog_kind = 'workshop'"
         );
         
         const now = new Date().toISOString().split('T')[0];

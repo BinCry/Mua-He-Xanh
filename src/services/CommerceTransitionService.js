@@ -44,9 +44,12 @@ class CommerceTransitionService {
         return this._transition({
             actor, recordId: bookingId, targetStatus, idempotencyKey,
             operation: 'workshop-booking.transition',
-            select: 'SELECT b.id, b.user_id, b.session_id, b.seats AS quantity, b.status, w.destination_id, ws.ends_at, ws.reserved_seats ' +
+            select: 'SELECT b.id, b.user_id, b.session_id, b.seats AS quantity, b.status, w.destination_id, ws.starts_at, ws.ends_at, ws.reserved_seats ' +
                 'FROM workshop_session_bookings b JOIN workshop_sessions ws ON ws.id = b.session_id ' +
                 "JOIN workshops w ON w.id = ws.workshop_id WHERE b.id = $1 AND w.catalog_kind = 'workshop' FOR UPDATE",
+            cancelOwnerGuard: record => {
+                if (new Date(record.starts_at) <= now) throw domainError('WORKSHOP_CANCELLATION_CLOSED');
+            },
             complete: async (tx, record) => {
                 if (new Date(record.ends_at) > now) throw domainError('WORKSHOP_SESSION_NOT_FINISHED');
                 return tx.query(
@@ -64,7 +67,7 @@ class CommerceTransitionService {
         });
     }
 
-    static async _transition({ actor, recordId, targetStatus, idempotencyKey, operation, select, complete, cancel, referenceType }) {
+    static async _transition({ actor, recordId, targetStatus, idempotencyKey, operation, select, complete, cancel, cancelOwnerGuard, referenceType }) {
         if (!actor || !actor.id) throw domainError('AUTHENTICATION_REQUIRED');
         if (!['confirmed', 'completed', 'cancelled'].includes(targetStatus)) throw domainError('INVALID_STATUS_TRANSITION');
 
@@ -82,6 +85,7 @@ class CommerceTransitionService {
                 actor.managed_destination_id && String(actor.managed_destination_id) === String(record.destination_id));
             if (targetStatus === 'cancelled') {
                 if (!ownsRecord && !ownsDestination) throw domainError('COMMERCE_RECORD_FORBIDDEN');
+                if (ownsRecord && !ownsDestination && cancelOwnerGuard) cancelOwnerGuard(record);
             } else if (!ownsDestination) {
                 throw domainError('COMMERCE_RECORD_FORBIDDEN');
             }

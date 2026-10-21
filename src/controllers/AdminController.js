@@ -761,16 +761,42 @@ const AdminController = {
             const { id } = req.body;
             if (!id) return res.status(400).json({ success: false, message: 'Thiếu ID địa điểm' });
 
-            await db.query('DELETE FROM users WHERE managed_destination_id = $1', [id]);
-            await db.query('DELETE FROM workshops WHERE destination_id = $1', [id]);
-            await db.query('DELETE FROM reviews WHERE destination_id = $1', [id]);
-            await db.query('DELETE FROM destination_likes WHERE destination_id = $1', [id]);
-            await db.query('DELETE FROM user_favorites WHERE destination_id = $1', [id]);
-            await db.query('DELETE FROM destinations WHERE id = $1', [id]);
+            await db.transaction(async tx => {
+                const [destinations] = await tx.query('SELECT id FROM destinations WHERE id = $1 FOR UPDATE', [id]);
+                if (!destinations.length) {
+                    const error = new Error('DESTINATION_NOT_FOUND');
+                    error.code = 'DESTINATION_NOT_FOUND';
+                    throw error;
+                }
+                const [workshopHistory] = await tx.query(
+                    `SELECT COUNT(*)::int AS total
+                     FROM workshop_sessions ws
+                     JOIN workshops w ON w.id = ws.workshop_id
+                     WHERE w.destination_id = $1`,
+                    [id]
+                );
+                if (Number(workshopHistory[0].total) > 0) {
+                    const error = new Error('DESTINATION_HAS_WORKSHOP_HISTORY');
+                    error.code = 'DESTINATION_HAS_WORKSHOP_HISTORY';
+                    throw error;
+                }
+                await tx.query('DELETE FROM users WHERE managed_destination_id = $1', [id]);
+                await tx.query('DELETE FROM workshops WHERE destination_id = $1', [id]);
+                await tx.query('DELETE FROM reviews WHERE destination_id = $1', [id]);
+                await tx.query('DELETE FROM destination_likes WHERE destination_id = $1', [id]);
+                await tx.query('DELETE FROM user_favorites WHERE destination_id = $1', [id]);
+                await tx.query('DELETE FROM destinations WHERE id = $1', [id]);
+            });
 
             HomeController.clearCache();
             res.json({ success: true, message: 'Đã xóa địa điểm và tất cả dữ liệu liên quan!' });
         } catch (error) {
+            if (error.code === 'DESTINATION_HAS_WORKSHOP_HISTORY') {
+                return res.status(409).json({ success: false, code: error.code, message: 'Không thể xóa địa điểm đã có lịch sử Workshop. Hãy chuyển địa điểm sang trạng thái ngừng hoạt động để bảo toàn booking.' });
+            }
+            if (error.code === 'DESTINATION_NOT_FOUND') {
+                return res.status(404).json({ success: false, code: error.code, message: 'Không tìm thấy địa điểm.' });
+            }
             console.error('Delete destination error:', error);
             res.status(500).json({ success: false, message: 'Lỗi hệ thống: ' + error.message });
         }

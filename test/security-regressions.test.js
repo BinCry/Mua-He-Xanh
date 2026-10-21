@@ -319,13 +319,37 @@ test('the 403 access-denied page centers its callout on wide screens', () => {
     assert.match(forbidden, /container-site text-center w-100/);
 });
 
-test('Workshop session rescheduling stays available after booking without removing capacity or scope guards', () => {
+test('Workshop sessions separate registration closure from immutable started-session details', () => {
     const service = fs.readFileSync('src/services/WorkshopManagementService.js', 'utf8');
 
     assert.doesNotMatch(service, /WORKSHOP_SCHEDULE_LOCKED/);
     assert.match(service, /WORKSHOP_CAPACITY_BELOW_RESERVED/);
-    assert.match(service, /WORKSHOP_SESSION_HAS_OPEN_BOOKINGS/);
+    assert.doesNotMatch(service, /WORKSHOP_SESSION_HAS_OPEN_BOOKINGS/);
+    assert.match(service, /WORKSHOP_SESSION_LOCKED/);
+    assert.match(service, /WORKSHOP_SESSION_ALREADY_STARTED/);
     assert.match(service, /assertScope\(actor,/);
+});
+
+test('Workshop booking is restricted to tourist accounts and self-cancellation closes when a session starts', () => {
+    const booking = fs.readFileSync('src/services/WorkshopBookingService.js', 'utf8');
+    const transition = fs.readFileSync('src/services/CommerceTransitionService.js', 'utf8');
+    const publicController = fs.readFileSync('src/controllers/WorkshopController.js', 'utf8');
+
+    assert.match(booking, /WORKSHOP_BOOKING_FORBIDDEN/);
+    assert.match(booking, /WORKSHOP_ALREADY_BOOKED/);
+    assert.match(booking, /actor\.role !== 'user'/);
+    assert.match(booking, /d\.is_active = 1/);
+    assert.match(transition, /WORKSHOP_CANCELLATION_CLOSED/);
+    assert.match(transition, /record\.starts_at/);
+    assert.match(publicController, /d\.is_active = 1/);
+});
+
+test('deleting a destination cannot orphan operational Workshop history', () => {
+    const controller = fs.readFileSync('src/controllers/AdminController.js', 'utf8');
+
+    assert.match(controller, /db\.transaction\(async tx/);
+    assert.match(controller, /DESTINATION_HAS_WORKSHOP_HISTORY/);
+    assert.match(controller, /FROM workshop_sessions ws/);
 });
 
 test('all server catalogue searches share tokenized Vietnamese-safe matching', () => {

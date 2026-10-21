@@ -29,9 +29,8 @@ function managementError(res, error) {
         WORKSHOP_NOT_FOUND: 404,
         WORKSHOP_UNAVAILABLE: 409,
         WORKSHOP_DESTINATION_UNAVAILABLE: 404,
-        WORKSHOP_SCHEDULE_LOCKED: 409,
-        WORKSHOP_SESSION_HAS_OPEN_BOOKINGS: 409,
-        WORKSHOP_HAS_OPEN_BOOKINGS: 409,
+        WORKSHOP_SESSION_LOCKED: 409,
+        WORKSHOP_SESSION_ALREADY_STARTED: 409,
         WORKSHOP_CAPACITY_BELOW_RESERVED: 409,
         IDEMPOTENCY_PAYLOAD_CONFLICT: 409,
         IDEMPOTENCY_IN_PROGRESS: 409,
@@ -45,10 +44,27 @@ function managementError(res, error) {
         WORKSHOP_DESTINATION_REQUIRED: 400
     })[code] || 500;
     if (status === 500) console.error('Workshop management operation failed:', error);
+    const message = ({
+        WORKSHOP_MANAGEMENT_FORBIDDEN: 'Bạn không có quyền quản lý Workshop hoặc địa điểm này.',
+        WORKSHOP_NOT_FOUND: 'Không tìm thấy Workshop hoặc ca Workshop.',
+        WORKSHOP_UNAVAILABLE: 'Workshop đang bị ẩn nên không thể tạo ca mới.',
+        WORKSHOP_DESTINATION_UNAVAILABLE: 'Địa điểm không tồn tại hoặc đã ngừng hoạt động.',
+        WORKSHOP_SESSION_LOCKED: 'Ca đã bắt đầu nên chỉ có thể đóng đăng ký; không thể đổi lịch, giá hoặc sức chứa.',
+        WORKSHOP_SESSION_ALREADY_STARTED: 'Ca đã bắt đầu hoặc kết thúc nên không thể mở lại đăng ký.',
+        WORKSHOP_CAPACITY_BELOW_RESERVED: 'Sức chứa không thể thấp hơn số chỗ đang được giữ.',
+        INVALID_WORKSHOP_TIME: 'Thời gian ca không hợp lệ. Ca mới hoặc ca được đổi lịch phải bắt đầu trong tương lai.',
+        INVALID_WORKSHOP_PRICE: 'Giá Workshop không hợp lệ.',
+        INVALID_WORKSHOP_CAPACITY: 'Sức chứa Workshop phải từ 1 đến 10.000.',
+        INVALID_WORKSHOP_STATUS: 'Trạng thái Workshop không hợp lệ.',
+        INVALID_WORKSHOP_TITLE: 'Tên Workshop không hợp lệ.',
+        INVALID_WORKSHOP_DESCRIPTION: 'Mô tả Workshop quá dài.',
+        WORKSHOP_DESTINATION_REQUIRED: 'Vui lòng chọn địa điểm.',
+        IDEMPOTENCY_KEY_REQUIRED: 'Yêu cầu không hợp lệ. Vui lòng tải lại trang và thử lại.'
+    })[code] || 'Không thể hoàn tất thao tác Workshop. Vui lòng kiểm tra dữ liệu và thử lại.';
     return res.status(status).json({
         success: false,
         code,
-        message: 'Không thể hoàn tất thao tác Workshop. Vui lòng kiểm tra dữ liệu và thử lại.'
+        message
     });
 }
 
@@ -61,11 +77,12 @@ class WorkshopManagementController {
                 return res.status(403).render('errors/403', { title: 'Không có địa điểm được phân công' });
             }
             const destinationsQuery = isAdmin(user)
-                ? db.query('SELECT id, name FROM destinations WHERE is_active = 1 ORDER BY name ASC')
-                : db.query('SELECT id, name FROM destinations WHERE id = $1 AND is_active = 1', [destinationId]);
+                ? db.query('SELECT id, name, is_active FROM destinations ORDER BY is_active DESC, name ASC')
+                : db.query('SELECT id, name, is_active FROM destinations WHERE id = $1', [destinationId]);
             const [destinations] = await destinationsQuery;
             const allowedDestinationIds = destinations.map(destination => destination.id);
             const selectedDestinationId = destinationId || allowedDestinationIds[0] || null;
+            const selectedDestination = destinations.find(destination => String(destination.id) === String(selectedDestinationId));
             const params = [];
             let where = "WHERE w.catalog_kind = 'workshop'";
             if (selectedDestinationId) {
@@ -92,13 +109,21 @@ class WorkshopManagementController {
             if (workshopIds.length) {
                 [sessions] = await db.query(
                     `SELECT ws.*, w.title AS workshop_title, w.destination_id, d.name AS destination_name,
+                            CASE
+                                WHEN ws.ends_at <= NOW() THEN 'ended'
+                                WHEN ws.starts_at <= NOW() THEN 'in_progress'
+                                WHEN w.is_active <> 1 THEN 'workshop_hidden'
+                                WHEN COALESCE(d.is_active, 0) <> 1 THEN 'destination_inactive'
+                                WHEN ws.is_active = TRUE THEN 'open'
+                                ELSE 'closed'
+                            END AS lifecycle_status,
                             COUNT(b.id) FILTER (WHERE b.status IN ('pending', 'confirmed'))::int AS open_booking_count
                      FROM workshop_sessions ws
                      JOIN workshops w ON w.id = ws.workshop_id
                      LEFT JOIN destinations d ON d.id = w.destination_id
                      LEFT JOIN workshop_session_bookings b ON b.session_id = ws.id
                      WHERE ws.workshop_id = ANY($1::varchar[])
-                     GROUP BY ws.id, w.title, w.destination_id, d.name
+                     GROUP BY ws.id, w.title, w.destination_id, w.is_active, d.name, d.is_active
                      ORDER BY ws.starts_at ASC`,
                     [workshopIds]
                 );
@@ -123,6 +148,7 @@ class WorkshopManagementController {
                 managerPage: isAdmin(user) ? undefined : 'workshops',
                 destinations,
                 selectedDestinationId,
+                selectedDestinationActive: Boolean(selectedDestination?.is_active),
                 workshops,
                 sessions,
                 bookings,
