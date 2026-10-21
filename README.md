@@ -208,6 +208,17 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 ---
 
+## Public Destination API
+
+Hai endpoint chỉ đọc phục vụ giao diện và AI Helpdesk Agent, không yêu cầu đăng nhập:
+
+- `GET /api/destinations`: contract danh sách hiện tại được giữ nguyên; hỗ trợ `page`, `limit`, `type`, `mood` và `q`. Query `q` được chuẩn hóa chữ hoa/thường, khoảng trắng và dấu tiếng Việt trước khi tìm kiếm.
+- `GET /api/destinations/:slug`: trả một điểm đến đang hoạt động theo đúng slug. Nếu không tồn tại, không hoạt động hoặc slug không khớp canonical value, API trả HTTP `404` với `{ "success": false, "message": "Destination not found" }`.
+
+Response thành công của endpoint chi tiết có dạng `{ "data": { ... } }` và chỉ gồm các field công khai: `id`, `slug`, `name`, `type`, `description`, `short_description`, `open_hours`, `cost`, `highlight`, `best_time`, `latitude`, `longitude`, `cover_image`, `story`. API không trả `qr_secret`, field quản trị hoặc metadata nội bộ.
+
+---
+
 ## ☁️ Hướng dẫn Deploy lên Máy chủ Production (Azure VM)
 
 Khi có bản cập nhật mới, chỉ cần chạy lệnh sau từ máy tính của bạn:

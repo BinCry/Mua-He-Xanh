@@ -536,6 +536,7 @@ router.get('/auth/facebook/callback', (req, res, next) => {
 router.all('/api/session', ApiController.session);
 router.all('/api/session/:uuid', ApiController.session);
 router.get('/api/destinations', ApiController.destinations);
+router.get('/api/destinations/:slug', ApiController.destinationDetails);
 router.post('/api/journey', ensureAuthenticated, ApiController.journey);
 router.post('/api/journey/update-stop', ensureAuthenticated, ApiController.updateJourneyStop);
 router.post('/api/checkin', ensureAuthenticated, ApiController.checkin);
