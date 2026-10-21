@@ -50,7 +50,12 @@ test('VN/EN selector waits for the translation widget and restores Vietnamese sa
     await expect(vietnamese).toHaveAttribute('aria-pressed', 'false');
     await expect(english).toBeEnabled();
     await expect.poll(() => page.evaluate(() => document.body.style.top)).toBe('0px');
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(viewportBeforeSwitch);
+    // WebKit can expose a 1–2px scroll range after translating a short page.
+    // Allow that rounding while still catching a visible jump in reading position.
+    await expect.poll(() => page.evaluate(
+        expected => Math.abs(window.scrollY - expected),
+        viewportBeforeSwitch
+    )).toBeLessThanOrEqual(2);
     await expect(page.locator('html')).not.toHaveClass(/language-switching/);
 
     await vietnamese.click();
