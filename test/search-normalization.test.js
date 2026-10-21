@@ -6,6 +6,7 @@ const cache = require('../src/core/cache');
 const ShopController = require('../src/controllers/ShopController');
 const WorkshopController = require('../src/controllers/WorkshopController');
 const ExploreController = require('../src/controllers/ExploreController');
+const ApiController = require('../src/controllers/ApiController');
 const Destination = require('../src/models/Destination');
 
 function response() {
@@ -88,5 +89,127 @@ test('Explore, Shop and Workshop pass a typed Vietnamese query through to their 
         db.query = originalQuery;
         Destination.paginateActive = originalPaginateActive;
         cache.flush();
+    }
+});
+
+test('public destinations API forwards its normalized q to the existing search model', async () => {
+    const originalPaginateActive = Destination.paginateActive;
+    const calls = [];
+    const res = { json(payload) { this.payload = payload; } };
+    Destination.paginateActive = async (...args) => {
+        calls.push(args);
+        return { data: [], pagination: {} };
+    };
+
+    try {
+        await ApiController.destinations({ query: { q: '  LANG   mai ', page: '1', limit: '5' } }, res);
+        assert.equal(calls.length, 1);
+        assert.deepEqual(calls[0], [1, 5, null, null, 'lang mai']);
+        assert.deepEqual(res.payload, { data: [], pagination: {} });
+    } finally {
+        Destination.paginateActive = originalPaginateActive;
+    }
+});
+
+test('public destination details API returns only allowlisted fields', async () => {
+    const originalFindBySlug = Destination.findBySlug;
+    const res = response();
+    res.json = function json(payload) { this.payload = payload; return payload; };
+    Destination.findBySlug = async slug => ({
+        id: 'destination-1',
+        slug,
+        name: 'Lang Mai Vang',
+        type: 'craft',
+        description: 'Long description',
+        short_desc: 'Short description',
+        open_hours: '08:00-17:00',
+        cost: 'Free',
+        highlight: 'Apricot blossoms',
+        best_time: 'Spring',
+        lat: 10.7,
+        lng: 106.6,
+        cover_image: '/images/destination.jpg',
+        story: 'Public story',
+        is_active: 1,
+        qr_secret: 'must-not-leak',
+        internal_notes: 'must-not-leak'
+    });
+
+    try {
+        await ApiController.destinationDetails({ params: { slug: 'lang-mai-vang' } }, res);
+        assert.equal(res.statusCode, 200);
+        assert.deepEqual(res.payload, {
+            data: {
+                id: 'destination-1',
+                slug: 'lang-mai-vang',
+                name: 'Lang Mai Vang',
+                type: 'craft',
+                description: 'Long description',
+                short_description: 'Short description',
+                open_hours: '08:00-17:00',
+                cost: 'Free',
+                highlight: 'Apricot blossoms',
+                best_time: 'Spring',
+                latitude: 10.7,
+                longitude: 106.6,
+                cover_image: '/images/destination.jpg',
+                story: 'Public story'
+            }
+        });
+        assert.equal(JSON.stringify(res.payload).includes('qr_secret'), false);
+        assert.equal(JSON.stringify(res.payload).includes('internal_notes'), false);
+    } finally {
+        Destination.findBySlug = originalFindBySlug;
+    }
+});
+
+test('public destination details API returns 404 for a missing slug', async () => {
+    const originalFindBySlug = Destination.findBySlug;
+    const res = response();
+    res.json = function json(payload) { this.payload = payload; return payload; };
+    Destination.findBySlug = async () => null;
+
+    try {
+        await ApiController.destinationDetails({ params: { slug: 'missing' } }, res);
+        assert.equal(res.statusCode, 404);
+        assert.deepEqual(res.payload, { success: false, message: 'Destination not found' });
+    } finally {
+        Destination.findBySlug = originalFindBySlug;
+    }
+});
+
+test('public destination details API rejects non-canonical and inactive matches', async () => {
+    const originalFindBySlug = Destination.findBySlug;
+    const cases = [
+        {
+            requested: ' canonical-slug ',
+            found: { slug: 'canonical-slug', is_active: 1 }
+        },
+        {
+            requested: 'qr-secret-value',
+            found: { slug: 'canonical-slug', is_active: 1 }
+        },
+        {
+            requested: 'canonical-slug',
+            found: { slug: 'canonical-slug', is_active: 0 }
+        }
+    ];
+
+    try {
+        for (const testCase of cases) {
+            const res = response();
+            res.json = function json(payload) { this.payload = payload; return payload; };
+            Destination.findBySlug = async () => ({
+                id: 'destination-1',
+                name: 'Destination',
+                ...testCase.found
+            });
+
+            await ApiController.destinationDetails({ params: { slug: testCase.requested } }, res);
+            assert.equal(res.statusCode, 404);
+            assert.deepEqual(res.payload, { success: false, message: 'Destination not found' });
+        }
+    } finally {
+        Destination.findBySlug = originalFindBySlug;
     }
 });

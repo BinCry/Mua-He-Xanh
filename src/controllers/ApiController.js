@@ -5,6 +5,7 @@ const CheckIn = require('../models/CheckIn');
 const UserBadge = require('../models/UserBadge');
 const Model = require('../core/Model');
 const db = require('../core/database');
+const { normalizeSearchText } = require('../utils/search');
 const { v4: uuidv4 } = require('uuid');
 
 const CHECKIN_RADIUS_METERS = 2000; // 2 km
@@ -71,9 +72,38 @@ class ApiController {
         const limit = parseInt(req.query.limit) || 6;
         const type = req.query.type || null;
         const mood = req.query.mood || null;
+        const search = normalizeSearchText(req.query.q);
         
-        const result = await Destination.paginateActive(page, limit, type, mood);
+        const result = await Destination.paginateActive(page, limit, type, mood, search || null);
         res.json(result);
+    }
+
+    async destinationDetails(req, res) {
+        const requestedSlug = String(req.params.slug || '');
+        const destination = await Destination.findBySlug(requestedSlug);
+
+        if (!destination || destination.slug !== requestedSlug || Number(destination.is_active) !== 1) {
+            return res.status(404).json({ success: false, message: 'Destination not found' });
+        }
+
+        return res.json({
+            data: {
+                id: destination.id,
+                slug: destination.slug,
+                name: destination.name,
+                type: destination.type ?? null,
+                description: destination.description ?? null,
+                short_description: destination.short_desc ?? null,
+                open_hours: destination.open_hours ?? null,
+                cost: destination.cost ?? null,
+                highlight: destination.highlight ?? null,
+                best_time: destination.best_time ?? null,
+                latitude: destination.lat ?? null,
+                longitude: destination.lng ?? null,
+                cover_image: destination.cover_image ?? null,
+                story: destination.story ?? null
+            }
+        });
     }
 
     // --- JOURNEY API ---
