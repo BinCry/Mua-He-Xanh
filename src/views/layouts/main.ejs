@@ -513,8 +513,20 @@
         <!-- Hidden file input for image uploads -->
         <input type="file" id="floating-chat-image-input" accept="image/*" style="display: none;" onchange="handleFloatingImageUpload(event)">
 
+        <!-- Chọn kênh hỗ trợ cho widget chat desktop -->
+        <div id="floating-chat-mode-control" class="d-flex align-items-center justify-content-between gap-2 px-3 py-2 border-bottom bg-white" style="min-height: 58px; border-color: #e4e6eb !important;">
+            <div aria-live="polite" aria-atomic="true" class="min-w-0">
+                <div id="floating-chat-mode-title" class="fw-semibold text-dark text-truncate" style="font-size: 0.78rem;">Đang nhắn với nhân viên</div>
+                <small id="floating-chat-mode-description" class="text-muted d-block text-truncate" style="font-size: 0.68rem;">Tin nhắn được gửi tới kênh hỗ trợ hiện tại.</small>
+            </div>
+            <button type="button" id="floating-agent-mode-toggle" class="btn btn-sm btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 px-2.5" style="min-height: 38px; font-size: 0.75rem;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
+                <i class="bi bi-stars" aria-hidden="true"></i>
+                <span>Hỏi trợ lý AI</span>
+            </button>
+        </div>
+
         <!-- Body & Message Stream -->
-        <div class="d-flex flex-column" style="height: calc(100% - 64px);">
+        <div class="d-flex flex-column" style="height: calc(100% - 122px);">
             <div class="flex-grow-1 p-3 overflow-auto custom-scrollbar" id="floatingChatMessages" style="background: #ffffff;">
                 <div class="text-center mb-3">
                     <span class="badge bg-light text-muted px-2.5 py-1 rounded-pill small border" style="font-size: 0.7rem;">
@@ -546,21 +558,21 @@
             <div class="p-2 px-2.5 border-top bg-white d-flex align-items-center gap-1" id="floating-standard-input-bar" style="height: 56px; border-color: #e4e6eb !important;">
                 <!-- Media Action Icons (Left) -->
                 <div class="d-flex align-items-center gap-0.5 flex-shrink-0">
-                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="startFloatingVoiceRecording()" title="Ghi âm thoại">
+                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="startFloatingVoiceRecording()" title="Ghi âm thoại">
                         <i class="bi bi-mic-fill fs-6"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="triggerFloatingImageUpload()" title="Gửi ảnh">
+                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="triggerFloatingImageUpload()" title="Gửi ảnh">
                         <i class="bi bi-image fs-6"></i>
                     </button>
-                    <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="toggleFloatingGif()" title="Ảnh động GIF">
+                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="toggleFloatingGif()" title="Ảnh động GIF">
                         <i class="bi bi-filetype-gif fs-6"></i>
                     </button>
                 </div>
 
                 <!-- Text Input Pill -->
                 <div class="flex-grow-1 position-relative" style="min-width: 0;">
-                    <input type="text" class="form-control border-0" style="font-size: 0.86rem; height: 36px; background: #f0f2f5; border-radius: 18px; color: #050505; padding-left: 12px; padding-right: 32px; width: 100%;" placeholder="Nhập tin nhắn..." id="floatingChatInput" autocomplete="off" onkeypress="if(event.key === 'Enter'){ event.preventDefault(); sendFloatingLiveMessage(); }" oninput="toggleFloatingSendIcon(this)">
-                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-1.5 text-decoration-none d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;" onclick="toggleFloatingEmoji()" title="Biểu cảm / Nhãn dán">
+                    <input type="text" class="form-control border-0" style="font-size: 0.86rem; height: 36px; background: #f0f2f5; border-radius: 18px; color: #050505; padding-left: 12px; padding-right: 32px; width: 100%;" placeholder="Nhập tin nhắn..." id="floatingChatInput" maxlength="2000" autocomplete="off" onkeypress="if(event.key === 'Enter'){ event.preventDefault(); sendFloatingLiveMessage(); }" oninput="toggleFloatingSendIcon(this)">
+                    <button type="button" data-floating-agent-disable class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-1.5 text-decoration-none d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;" onclick="toggleFloatingEmoji()" title="Biểu cảm / Nhãn dán">
                         <i class="bi bi-emoji-smile-fill fs-6 text-warning"></i>
                     </button>
                 </div>
@@ -628,6 +640,9 @@
     <script>
         let floatingChatInterval = null;
         let lastFloatingMsgCount = -1;
+        let floatingAgentMode = false;
+        let floatingAgentRequestPending = false;
+        let floatingAgentMessages = [];
         let floatingMediaRecorder = null;
         let floatingAudioChunks = [];
         let floatingRecordInterval = null;
@@ -638,12 +653,15 @@
             widget.classList.toggle('d-none');
             
             if (!widget.classList.contains('d-none')) {
-                loadFloatingChatMessages();
+                if (floatingAgentMode) renderFloatingAgentMessages();
+                else loadFloatingChatMessages();
                 setTimeout(() => {
                     const container = document.getElementById('floatingChatMessages');
                     if (container) container.scrollTop = container.scrollHeight;
                 }, 150);
-                floatingChatInterval = setInterval(loadFloatingChatMessages, 3500);
+                if (!floatingAgentMode && !document.hidden) {
+                    floatingChatInterval = setInterval(loadFloatingChatMessages, 3500);
+                }
             } else {
                 if (floatingChatInterval) {
                     clearInterval(floatingChatInterval);
@@ -658,7 +676,7 @@
             if (document.hidden && floatingChatInterval) {
                 clearInterval(floatingChatInterval);
                 floatingChatInterval = null;
-            } else if (!document.hidden && !document.getElementById('floatingChatWidget').classList.contains('d-none')) {
+            } else if (!document.hidden && !floatingAgentMode && !document.getElementById('floatingChatWidget').classList.contains('d-none')) {
                 floatingChatInterval = setInterval(loadFloatingChatMessages, 3500);
             }
         });
@@ -666,22 +684,255 @@
         function toggleFloatingSendIcon(input) {
             const icon = document.getElementById('floating-send-icon');
             if (!icon) return;
-            if (input.value.trim().length > 0) {
+            if (floatingAgentMode || input.value.trim().length > 0) {
                 icon.className = 'bi bi-send-fill fs-5';
             } else {
                 icon.className = 'bi bi-hand-thumbs-up-fill fs-4';
             }
         }
 
+        function setFloatingChatMode(useAgent) {
+            if (floatingAgentRequestPending) return;
+            floatingAgentMode = Boolean(useAgent);
+
+            const toggle = document.getElementById('floating-agent-mode-toggle');
+            const title = document.getElementById('floating-chat-mode-title');
+            const description = document.getElementById('floating-chat-mode-description');
+            const input = document.getElementById('floatingChatInput');
+            const sendButton = document.getElementById('floating-btn-send');
+
+            if (toggle) {
+                toggle.setAttribute('aria-pressed', String(floatingAgentMode));
+                toggle.setAttribute('aria-label', floatingAgentMode ? 'Chuyển về chat nhân viên' : 'Chuyển sang Trợ lý AI');
+                toggle.innerHTML = floatingAgentMode
+                    ? '<i class="bi bi-person-lines-fill" aria-hidden="true"></i><span>Chat nhân viên</span>'
+                    : '<i class="bi bi-stars" aria-hidden="true"></i><span>Hỏi trợ lý AI</span>';
+            }
+            if (title) title.textContent = floatingAgentMode ? 'Đang hỏi Trợ lý AI' : 'Đang nhắn với nhân viên';
+            if (description) {
+                description.textContent = floatingAgentMode
+                    ? 'AI tra cứu thông tin công khai và hiển thị nguồn tham khảo.'
+                    : 'Tin nhắn được gửi tới kênh hỗ trợ hiện tại.';
+            }
+            if (input) input.placeholder = floatingAgentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
+            if (sendButton) sendButton.title = floatingAgentMode ? 'Gửi câu hỏi cho Trợ lý AI' : 'Gửi';
+
+            document.querySelectorAll('[data-floating-agent-disable]').forEach(button => {
+                button.disabled = floatingAgentMode;
+            });
+            toggleFloatingEmoji(false);
+
+            if (floatingChatInterval) {
+                clearInterval(floatingChatInterval);
+                floatingChatInterval = null;
+            }
+            if (floatingAgentMode) {
+                if (floatingAgentMessages.length === 0) {
+                    floatingAgentMessages.push({
+                        role: 'assistant',
+                        content: 'Xin chào! Bạn có thể hỏi về điểm đến và dịch vụ tại Bình Lợi. Mình sẽ chỉ trả lời khi có thông tin và nguồn phù hợp.'
+                    });
+                }
+                renderFloatingAgentMessages();
+            } else {
+                lastFloatingMsgCount = -1;
+                loadFloatingChatMessages();
+                if (!document.hidden && !document.getElementById('floatingChatWidget').classList.contains('d-none')) {
+                    floatingChatInterval = setInterval(loadFloatingChatMessages, 3500);
+                }
+            }
+            if (input) toggleFloatingSendIcon(input);
+        }
+
+        function safeFloatingAgentCitationUrl(rawUrl) {
+            try {
+                const parsed = new URL(String(rawUrl || ''), window.location.origin);
+                if (parsed.origin !== window.location.origin || !/^\/explore\/[a-z0-9-]+\/?$/i.test(parsed.pathname)) return null;
+                return `${parsed.pathname}${parsed.search}${parsed.hash}`;
+            } catch (_) {
+                return null;
+            }
+        }
+
+        function renderFloatingAgentMessages() {
+            const container = document.getElementById('floatingChatMessages');
+            if (!container) return;
+            container.replaceChildren();
+
+            const badgeRow = document.createElement('div');
+            badgeRow.className = 'text-center mb-3';
+            const badge = document.createElement('span');
+            badge.className = 'badge bg-light text-muted px-2.5 py-1 rounded-pill small border';
+            badge.style.fontSize = '0.7rem';
+            const badgeIcon = document.createElement('i');
+            badgeIcon.className = 'bi bi-shield-check text-success me-1';
+            badgeIcon.setAttribute('aria-hidden', 'true');
+            badge.append(badgeIcon, document.createTextNode('Trợ lý AI • nguồn tham khảo công khai'));
+            badgeRow.append(badge);
+            container.append(badgeRow);
+
+            floatingAgentMessages.forEach(entry => {
+                const isUser = entry.role === 'user';
+                const row = document.createElement('div');
+                row.className = `mb-2 d-flex flex-column ${isUser ? 'align-items-end' : 'align-items-start'}`;
+                const bubble = document.createElement('div');
+                bubble.className = 'shadow-sm';
+                bubble.style.cssText = isUser
+                    ? 'max-width: 86%; padding: 8px 12px; border-radius: 16px 16px 4px 16px; background: linear-gradient(135deg, #922724 0%, #b83330 100%); color: #fff; font-size: 0.85rem; line-height: 1.4; overflow-wrap: anywhere;'
+                    : 'max-width: 90%; padding: 8px 12px; border-radius: 16px 16px 16px 4px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); color: #065f46; font-size: 0.85rem; line-height: 1.4; overflow-wrap: anywhere;';
+
+                if (!isUser) {
+                    const label = document.createElement('div');
+                    label.className = 'small fw-bold text-success mb-1';
+                    label.textContent = 'Trợ lý AI';
+                    bubble.append(label);
+                }
+
+                if (entry.loading) {
+                    const loading = document.createElement('span');
+                    loading.className = 'd-inline-flex align-items-center gap-2 text-muted';
+                    loading.setAttribute('role', 'status');
+                    const spinner = document.createElement('span');
+                    spinner.className = 'spinner-border spinner-border-sm text-success';
+                    spinner.setAttribute('aria-hidden', 'true');
+                    const loadingText = document.createElement('span');
+                    loadingText.textContent = 'Đang tra cứu thông tin…';
+                    loading.append(spinner, loadingText);
+                    bubble.append(loading);
+                } else {
+                    const content = document.createElement('div');
+                    content.textContent = String(entry.content || '');
+                    bubble.append(content);
+
+                    if (Array.isArray(entry.citations) && entry.citations.length > 0) {
+                        const sources = document.createElement('div');
+                        sources.className = 'border-top mt-2 pt-2';
+                        const heading = document.createElement('div');
+                        heading.className = 'small fw-semibold text-muted mb-1';
+                        heading.textContent = 'Nguồn tham khảo';
+                        sources.append(heading);
+                        entry.citations.forEach(citation => {
+                            const titleText = String(citation?.title || 'Nguồn đã kiểm chứng');
+                            const href = safeFloatingAgentCitationUrl(citation?.url);
+                            const source = document.createElement(href ? 'a' : 'span');
+                            source.className = 'd-block small text-success text-decoration-underline';
+                            source.textContent = titleText;
+                            if (href) source.href = href;
+                            sources.append(source);
+                        });
+                        bubble.append(sources);
+                    }
+
+                    if (Array.isArray(entry.actions) && entry.actions.length > 0) {
+                        const actions = document.createElement('div');
+                        actions.className = 'd-flex flex-wrap gap-2 mt-2';
+                        entry.actions.forEach(action => {
+                            const actionLabel = String(action?.label || '');
+                            if (action?.type === 'view_destination' && /^[a-z0-9-]+$/i.test(String(action.target || ''))) {
+                                const link = document.createElement('a');
+                                link.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                link.href = `/explore/${encodeURIComponent(action.target)}`;
+                                link.textContent = actionLabel || 'Xem điểm đến';
+                                actions.append(link);
+                            } else if (action?.type === 'request_handoff') {
+                                const button = document.createElement('button');
+                                button.type = 'button';
+                                button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                button.textContent = actionLabel || 'Gặp nhân viên hỗ trợ';
+                                button.addEventListener('click', () => setFloatingChatMode(false));
+                                actions.append(button);
+                            } else if (action?.type === 'retry') {
+                                const button = document.createElement('button');
+                                button.type = 'button';
+                                button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                button.textContent = actionLabel || 'Thử lại';
+                                button.disabled = floatingAgentRequestPending;
+                                button.addEventListener('click', () => {
+                                    const lastQuestion = [...floatingAgentMessages].reverse().find(item => item.role === 'user')?.content;
+                                    if (lastQuestion) sendFloatingAgentMessage(lastQuestion);
+                                });
+                                actions.append(button);
+                            }
+                        });
+                        if (actions.childElementCount > 0) bubble.append(actions);
+                    }
+                }
+
+                row.append(bubble);
+                container.append(row);
+            });
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function getFloatingAgentOutputMessage(output) {
+            if (output?.type === 'clarification_required') return output.question;
+            if (typeof output?.message === 'string' && output.message.trim()) return output.message;
+            return 'Trợ lý chưa thể trả lời câu hỏi này bằng thông tin đã kiểm chứng.';
+        }
+
+        async function sendFloatingAgentMessage(message) {
+            const question = String(message || '').trim();
+            if (!floatingAgentMode || floatingAgentRequestPending || !question) return;
+            const input = document.getElementById('floatingChatInput');
+            const sendButton = document.getElementById('floating-btn-send');
+            const toggle = document.getElementById('floating-agent-mode-toggle');
+            floatingAgentMessages.push({ role: 'user', content: question });
+            floatingAgentRequestPending = true;
+            floatingAgentMessages.push({ role: 'assistant', loading: true });
+            renderFloatingAgentMessages();
+            if (input) input.disabled = true;
+            if (sendButton) sendButton.disabled = true;
+            if (toggle) toggle.disabled = true;
+
+            try {
+                const response = await axios.post('/api/agent/chat', { message: question }, { timeout: 40000 });
+                const output = response.data?.data?.output;
+                if (response.data?.success !== true || !output || typeof output.type !== 'string') {
+                    throw new Error('AGENT_RESPONSE_INVALID');
+                }
+                floatingAgentMessages.pop();
+                floatingAgentMessages.push({
+                    role: 'assistant',
+                    content: getFloatingAgentOutputMessage(output),
+                    citations: output.type === 'answer' && Array.isArray(output.citations) ? output.citations : [],
+                    actions: Array.isArray(output.suggestedActions) ? output.suggestedActions : []
+                });
+            } catch (_) {
+                floatingAgentMessages.pop();
+                floatingAgentMessages.push({
+                    role: 'assistant',
+                    content: 'Trợ lý AI tạm thời không khả dụng. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.',
+                    actions: [
+                        { type: 'retry', label: 'Thử lại' },
+                        { type: 'request_handoff', label: 'Chat nhân viên' }
+                    ]
+                });
+            } finally {
+                floatingAgentRequestPending = false;
+                if (input) input.disabled = false;
+                if (sendButton) sendButton.disabled = false;
+                if (toggle) toggle.disabled = false;
+                renderFloatingAgentMessages();
+                if (input) input.focus();
+            }
+        }
+
+        const floatingAgentModeToggle = document.getElementById('floating-agent-mode-toggle');
+        if (floatingAgentModeToggle) {
+            floatingAgentModeToggle.addEventListener('click', () => setFloatingChatMode(!floatingAgentMode));
+        }
+
         function toggleFloatingEmoji(force) {
             const d = document.getElementById('floating-messenger-drawer');
             if (!d) return;
+            if (floatingAgentMode && force !== false) return;
             const willHide = (force !== undefined) ? !force : (d.style.display !== 'none');
             d.style.display = willHide ? 'none' : 'block';
             if (!willHide) switchFloatingNavTab('all-emoji');
         }
 
         function toggleFloatingGif() {
+            if (floatingAgentMode) return;
             const d = document.getElementById('floating-messenger-drawer');
             if (!d) return;
             d.style.display = 'block';
@@ -728,6 +979,7 @@
         }
 
         function insertFloatingEmoji(emoji) {
+            if (floatingAgentMode) return;
             const input = document.getElementById('floatingChatInput');
             if (!input) return;
             input.value += emoji;
@@ -736,15 +988,18 @@
         }
 
         function sendFloatingGif(gifUrl) {
+            if (floatingAgentMode) return;
             toggleFloatingEmoji(false);
             sendFloatingCustomMessage(`[GIF: ${gifUrl}]`);
         }
 
         function triggerFloatingImageUpload() {
+            if (floatingAgentMode) return;
             document.getElementById('floating-chat-image-input').click();
         }
 
         async function handleFloatingImageUpload(e) {
+            if (floatingAgentMode) return;
             const file = e.target.files[0];
             if (!file) return;
 
@@ -769,6 +1024,7 @@
         }
 
         async function startFloatingVoiceRecording() {
+            if (floatingAgentMode) return;
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                 floatingAudioChunks = [];
@@ -984,8 +1240,10 @@
         }
 
         async function loadFloatingChatMessages() {
+            if (floatingAgentMode) return;
             try {
                 const res = await axios.get('/api/get-messages');
+                if (floatingAgentMode) return;
                 if (res.data.success) {
                     const messages = res.data.data;
                     if (messages.length === lastFloatingMsgCount) return;
@@ -1126,7 +1384,7 @@
         }
 
         async function sendFloatingCustomMessage(msg) {
-            if (!msg) return;
+            if (!msg || floatingAgentMode) return;
             const container = document.getElementById('floatingChatMessages');
             const exactTime = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
             const isLikeEmoji = (msg === '👍');
@@ -1155,8 +1413,17 @@
 
         function sendFloatingLiveMessage() {
             const input = document.getElementById('floatingChatInput');
-            let msg = input.value.trim();
-            if (!msg) msg = '👍';
+            const typedMessage = input.value.trim();
+
+            if (floatingAgentMode) {
+                if (!typedMessage || floatingAgentRequestPending) return;
+                input.value = '';
+                toggleFloatingSendIcon(input);
+                sendFloatingAgentMessage(typedMessage);
+                return;
+            }
+
+            const msg = typedMessage || '👍';
 
             input.value = '';
             toggleFloatingSendIcon(input);
