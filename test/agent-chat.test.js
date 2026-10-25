@@ -121,11 +121,11 @@ test('web route creates a secure session identifier and hides upstream failures'
     assert.equal(res.cookies[0].options.sameSite, 'lax');
 });
 
-test('agent client sends the backend credential only to a secure internal endpoint', async () => {
+test('agent client sends the backend credential to HTTPS or a loopback endpoint', async () => {
     let captured;
     const client = createHelpdeskAgentClient({
         env: {
-            NODE_ENV: 'development',
+            NODE_ENV: 'production',
             AI_SERVICE_CHAT_URL: 'http://127.0.0.1:8100/api/v1/chat',
             AI_SERVICE_AUTH_TOKEN: TEST_TOKEN
         },

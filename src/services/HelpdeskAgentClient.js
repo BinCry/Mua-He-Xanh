@@ -32,12 +32,12 @@ function createHelpdeskAgentClient({ httpClient = axios, env = process.env } = {
             }
 
             const secureTransport = parsedEndpoint.protocol === 'https:';
-            const localDevelopmentTransport =
-                env.NODE_ENV !== 'production' &&
+            // Cho phép HTTP chỉ trên loopback để hai service cùng VPS giao tiếp nội bộ.
+            const localLoopbackTransport =
                 parsedEndpoint.protocol === 'http:' &&
                 isLoopback(parsedEndpoint.hostname);
             if (
-                (!secureTransport && !localDevelopmentTransport) ||
+                (!secureTransport && !localLoopbackTransport) ||
                 parsedEndpoint.username ||
                 parsedEndpoint.password ||
                 parsedEndpoint.search ||
