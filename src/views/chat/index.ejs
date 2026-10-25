@@ -42,6 +42,16 @@
                 <!-- Input Footer (Messenger Style) -->
                 <div class="p-2.5 px-3 bg-white border-top position-relative" style="border-color: #e4e6eb !important;">
                     <% if (currentUser) { %>
+                    <div class="d-flex align-items-center justify-content-between gap-2 px-1 pb-2 mb-2 border-bottom" id="chat-mode-control">
+                        <div aria-live="polite" aria-atomic="true">
+                            <div class="fw-semibold text-dark" id="chat-mode-title" style="font-size: 0.82rem;">Đang nhắn với nhân viên</div>
+                            <small class="text-muted" id="chat-mode-description" style="font-size: 0.72rem;">Tin nhắn được gửi tới kênh hỗ trợ hiện tại.</small>
+                        </div>
+                        <button type="button" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 px-3" id="agent-mode-toggle" style="min-height: 44px;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
+                            <i class="bi bi-stars" aria-hidden="true"></i>
+                            <span>Hỏi trợ lý AI</span>
+                        </button>
+                    </div>
                     <!-- Messenger Full Emoji, Sticker & GIF Drawer / Popover -->
                     <div id="tourist-messenger-drawer" class="messenger-drawer shadow-2xl border bg-white" style="display: none;">
                         <!-- Mobile Drag Handle -->
@@ -245,20 +255,20 @@
                     <form id="chat-form" class="d-flex align-items-center gap-1.5 mb-0" onsubmit="sendMessage(event)">
                         <!-- Media Icons (Left) -->
                         <div class="d-flex align-items-center gap-1 flex-shrink-0">
-                            <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 32px; height: 32px; color: #922724;" onclick="startTouristVoiceRecording()" title="Ghi âm thoại">
+                            <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 32px; height: 32px; color: #922724;" onclick="startTouristVoiceRecording()" title="Ghi âm thoại" data-agent-mode-disable aria-label="Ghi âm thoại, chỉ dùng khi nhắn nhân viên">
                                 <i class="bi bi-mic-fill fs-5"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 32px; height: 32px; color: #922724;" onclick="triggerTouristImageUpload()" title="Gửi ảnh">
+                            <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 32px; height: 32px; color: #922724;" onclick="triggerTouristImageUpload()" title="Gửi ảnh" data-agent-mode-disable aria-label="Gửi ảnh, chỉ dùng khi nhắn nhân viên">
                                 <i class="bi bi-image fs-5"></i>
                             </button>
-                            <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 32px; height: 32px; color: #922724;" onclick="toggleTouristGif()" title="Ảnh động GIF">
+                            <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 32px; height: 32px; color: #922724;" onclick="toggleTouristGif()" title="Ảnh động GIF" data-agent-mode-disable aria-label="Gửi GIF, chỉ dùng khi nhắn nhân viên">
                                 <i class="bi bi-filetype-gif fs-5"></i>
                             </button>
                         </div>
                         
                         <div class="flex-grow-1 position-relative" style="min-width: 0;">
-                            <input type="text" class="form-control border-0" style="height: 38px; font-size: 0.9rem; background: #f0f2f5; border-radius: 20px; color: #050505; padding-left: 14px; padding-right: 38px; width: 100%;" placeholder="Nhập tin nhắn..." id="chat-input" autocomplete="off" oninput="toggleTouristSendIcon(this)">
-                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-2 text-decoration-none d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;" onclick="toggleTouristEmoji()" title="Biểu cảm / Nhãn dán">
+                            <input type="text" class="form-control border-0" style="height: 38px; font-size: 0.9rem; background: #f0f2f5; border-radius: 20px; color: #050505; padding-left: 14px; padding-right: 38px; width: 100%;" placeholder="Nhập tin nhắn..." id="chat-input" maxlength="2000" autocomplete="off" oninput="toggleTouristSendIcon(this)">
+                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-2 text-decoration-none d-flex align-items-center justify-content-center" style="width: 26px; height: 26px;" onclick="toggleTouristEmoji()" title="Biểu cảm / Nhãn dán" data-agent-mode-disable aria-label="Biểu cảm, chỉ dùng khi nhắn nhân viên">
                                 <i class="bi bi-emoji-smile-fill fs-5 text-warning"></i>
                             </button>
                         </div>
@@ -408,6 +418,9 @@
     let currentGlobalMessages = [];
     let lastGlobalChatCount = -1;
     const currentUser = JSON.parse(document.getElementById('current-user-json-data')?.textContent || 'null');
+    let agentMode = false;
+    let agentRequestPending = false;
+    const agentMessages = [];
 
     // Voice recorder state
     let touristMediaRecorder = null;
@@ -418,10 +431,220 @@
     function toggleTouristSendIcon(input) {
         const icon = document.getElementById('tourist-send-icon');
         if (!icon) return;
-        if (input.value.trim().length > 0) {
+        if (agentMode || input.value.trim().length > 0) {
             icon.className = 'bi bi-send-fill fs-5';
         } else {
             icon.className = 'bi bi-hand-thumbs-up-fill fs-4';
+        }
+    }
+
+    function safeAgentCitationUrl(rawValue) {
+        const value = String(rawValue || '').trim();
+        if (!value || value.startsWith('//') || value.includes('\\')) return null;
+        try {
+            const url = new URL(value, window.location.origin);
+            if (url.origin !== window.location.origin || !/^\/explore\/[a-z0-9-]+\/?$/i.test(url.pathname)) return null;
+            return `${url.pathname}${url.search}`;
+        } catch (_) {
+            return null;
+        }
+    }
+
+    function renderAgentMessages() {
+        const container = document.getElementById('chat-messages');
+        if (!container) return;
+        container.replaceChildren();
+
+        agentMessages.forEach(entry => {
+            const isUser = entry.role === 'user';
+            const row = document.createElement('div');
+            row.className = `d-flex flex-column mb-2 ${isUser ? 'align-items-end' : 'align-items-start'}`;
+
+            const bubble = document.createElement('div');
+            bubble.className = 'shadow-2xs text-start rounded-4 px-3 py-2';
+            bubble.style.maxWidth = '82%';
+            bubble.style.whiteSpace = 'pre-wrap';
+            bubble.style.overflowWrap = 'anywhere';
+            bubble.style.background = isUser ? 'linear-gradient(135deg, #922724 0%, #b83330 100%)' : '#ffffff';
+            bubble.style.color = isUser ? '#ffffff' : '#202124';
+
+            if (!isUser) {
+                const label = document.createElement('div');
+                label.className = 'small fw-bold text-success mb-1';
+                label.textContent = 'Trợ lý AI';
+                bubble.append(label);
+            }
+
+            if (entry.loading) {
+                const loading = document.createElement('span');
+                loading.className = 'd-inline-flex align-items-center gap-2 text-muted';
+                loading.setAttribute('role', 'status');
+                const spinner = document.createElement('span');
+                spinner.className = 'spinner-border spinner-border-sm text-success';
+                spinner.setAttribute('aria-hidden', 'true');
+                const text = document.createElement('span');
+                text.textContent = 'Đang tra cứu thông tin…';
+                loading.append(spinner, text);
+                bubble.append(loading);
+            } else {
+                const content = document.createElement('div');
+                content.textContent = String(entry.content || '');
+                bubble.append(content);
+
+                if (Array.isArray(entry.citations) && entry.citations.length > 0) {
+                    const sources = document.createElement('div');
+                    sources.className = 'border-top mt-2 pt-2';
+                    const heading = document.createElement('div');
+                    heading.className = 'small fw-semibold text-muted mb-1';
+                    heading.textContent = 'Nguồn tham khảo';
+                    sources.append(heading);
+
+                    entry.citations.forEach(citation => {
+                        const title = String(citation?.title || 'Nguồn đã kiểm chứng');
+                        const href = safeAgentCitationUrl(citation?.url);
+                        const source = href ? document.createElement('a') : document.createElement('span');
+                        source.className = 'd-block small text-success text-decoration-underline';
+                        source.textContent = title;
+                        if (href) source.href = href;
+                        sources.append(source);
+                    });
+                    bubble.append(sources);
+                }
+
+                if (Array.isArray(entry.actions) && entry.actions.length > 0) {
+                    const actions = document.createElement('div');
+                    actions.className = 'd-flex flex-wrap gap-2 mt-2';
+                    entry.actions.forEach(action => {
+                        if (action?.type === 'view_destination' && /^[a-z0-9-]+$/i.test(String(action.target || ''))) {
+                            const link = document.createElement('a');
+                            link.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            link.href = `/explore/${encodeURIComponent(action.target)}`;
+                            link.textContent = String(action.label || 'Xem điểm đến');
+                            actions.append(link);
+                        } else if (action?.type === 'request_handoff') {
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            button.textContent = String(action.label || 'Gặp nhân viên hỗ trợ');
+                            button.addEventListener('click', () => setChatMode(false));
+                            actions.append(button);
+                        } else if (action?.type === 'retry') {
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            button.textContent = String(action.label || 'Thử lại');
+                            button.addEventListener('click', () => {
+                                const lastQuestion = [...agentMessages].reverse().find(item => item.role === 'user')?.content;
+                                if (lastQuestion) sendAgentMessage(lastQuestion);
+                            });
+                            actions.append(button);
+                        }
+                    });
+                    if (actions.childElementCount > 0) bubble.append(actions);
+                }
+            }
+
+            row.append(bubble);
+            container.append(row);
+        });
+
+        container.scrollTop = container.scrollHeight;
+    }
+
+    function addAgentMessage(role, content, citations = [], loading = false, actions = []) {
+        agentMessages.push({ role, content, citations, loading, actions });
+        renderAgentMessages();
+    }
+
+    function setChatMode(useAgent) {
+        if (agentRequestPending) return;
+        agentMode = Boolean(useAgent);
+
+        const toggle = document.getElementById('agent-mode-toggle');
+        const title = document.getElementById('chat-mode-title');
+        const description = document.getElementById('chat-mode-description');
+        const input = document.getElementById('chat-input');
+        const sendButton = document.getElementById('tourist-btn-send');
+
+        if (toggle) {
+            toggle.setAttribute('aria-pressed', String(agentMode));
+            toggle.setAttribute('aria-label', agentMode ? 'Chuyển về chat nhân viên' : 'Chuyển sang Trợ lý AI');
+            const icon = document.createElement('i');
+            icon.className = agentMode ? 'bi bi-person-lines-fill' : 'bi bi-stars';
+            icon.setAttribute('aria-hidden', 'true');
+            const label = document.createElement('span');
+            label.textContent = agentMode ? 'Chat nhân viên' : 'Hỏi trợ lý AI';
+            toggle.replaceChildren(icon, label);
+        }
+        if (title) title.textContent = agentMode ? 'Đang hỏi Trợ lý AI' : 'Đang nhắn với nhân viên';
+        if (description) {
+            description.textContent = agentMode
+                ? 'AI tra cứu thông tin công khai và hiển thị nguồn tham khảo.'
+                : 'Tin nhắn được gửi tới kênh hỗ trợ hiện tại.';
+        }
+        if (input) input.placeholder = agentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
+        if (sendButton) sendButton.title = agentMode ? 'Gửi câu hỏi cho Trợ lý AI' : 'Gửi';
+
+        document.querySelectorAll('[data-agent-mode-disable]').forEach(button => {
+            button.disabled = agentMode;
+        });
+
+        if (agentMode) {
+            if (agentMessages.length === 0) {
+                addAgentMessage('assistant', 'Xin chào! Bạn có thể hỏi về điểm đến và dịch vụ tại Bình Lợi. Mình sẽ chỉ trả lời khi có thông tin và nguồn phù hợp.');
+            } else {
+                renderAgentMessages();
+            }
+        } else {
+            renderGlobalChat(currentGlobalMessages);
+            loadChatMessages();
+        }
+        if (input) toggleTouristSendIcon(input);
+    }
+
+    function getAgentOutputMessage(output) {
+        if (output?.type === 'clarification_required') return output.question;
+        if (typeof output?.message === 'string' && output.message.trim()) return output.message;
+        return 'Trợ lý chưa thể trả lời câu hỏi này bằng thông tin đã kiểm chứng.';
+    }
+
+    async function sendAgentMessage(message) {
+        if (!agentMode || agentRequestPending || !message) return;
+        const input = document.getElementById('chat-input');
+        const sendButton = document.getElementById('tourist-btn-send');
+        const toggle = document.getElementById('agent-mode-toggle');
+        addAgentMessage('user', message);
+        agentRequestPending = true;
+        agentMessages.push({ role: 'assistant', loading: true });
+        renderAgentMessages();
+        if (input) input.disabled = true;
+        if (sendButton) sendButton.disabled = true;
+        if (toggle) toggle.disabled = true;
+
+        try {
+            const response = await axios.post('/api/agent/chat', { message }, { timeout: 40000 });
+            const output = response.data?.data?.output;
+            if (response.data?.success !== true || !output || typeof output.type !== 'string') {
+                throw new Error('AGENT_RESPONSE_INVALID');
+            }
+
+            agentMessages.pop();
+            addAgentMessage(
+                'assistant',
+                getAgentOutputMessage(output),
+                output.type === 'answer' && Array.isArray(output.citations) ? output.citations : [],
+                false,
+                Array.isArray(output.suggestedActions) ? output.suggestedActions : []
+            );
+        } catch (_) {
+            agentMessages.pop();
+            addAgentMessage('assistant', 'Trợ lý AI tạm thời không khả dụng. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.');
+        } finally {
+            agentRequestPending = false;
+            if (input) input.disabled = false;
+            if (sendButton) sendButton.disabled = false;
+            if (toggle) toggle.disabled = false;
+            if (input) input.focus();
         }
     }
 
@@ -729,6 +952,7 @@
     }
 
     async function loadChatMessages() {
+        if (agentMode) return;
         try {
             const url = destId ? `/api/get-messages?destinationId=${destId}` : '/api/get-messages?scope=global';
             const res = await axios.get(url);
@@ -883,6 +1107,10 @@
 
     async function sendCustomMessageTourist(msg) {
         if (!msg) return;
+        if (agentMode) {
+            addAgentMessage('assistant', 'Trợ lý AI hiện chỉ nhận câu hỏi bằng văn bản. Chuyển về chat nhân viên để gửi ảnh, GIF hoặc ghi âm.');
+            return;
+        }
         const container = document.getElementById('chat-messages');
         const exactTime = new Date().toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'});
         const isLikeEmoji = (msg === '👍');
@@ -919,6 +1147,14 @@
         if (e) e.preventDefault();
         const input = document.getElementById('chat-input');
         let msg = input.value.trim();
+        if (agentMode) {
+            if (!msg || agentRequestPending) return;
+            input.value = '';
+            toggleTouristSendIcon(input);
+            sendAgentMessage(msg);
+            input.focus();
+            return;
+        }
         if (!msg) msg = '👍';
 
         input.value = '';
@@ -954,5 +1190,6 @@
         renderGlobalChat(currentGlobalMessages);
         loadChatMessages();
         chatInterval = setInterval(loadChatMessages, 3500);
+        document.getElementById('agent-mode-toggle')?.addEventListener('click', () => setChatMode(!agentMode));
     });
 </script>
