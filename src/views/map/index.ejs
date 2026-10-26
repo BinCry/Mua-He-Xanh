@@ -274,8 +274,11 @@ function locateMe() {
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .z-index-10 { z-index: 10; }
-    /* #0d6efd on Bootstrap's light badge misses WCAG AA in WebKit. */
+    /* Dark blue keeps map labels and outlined filters above WCAG AA on light surfaces. */
     .map-type-badge { color: #0a58ca !important; }
+    .filter-btn.btn-outline-primary { color: #0a58ca; border-color: #0a58ca; }
+    .filter-btn.btn-outline-primary:hover,
+    .filter-btn.btn-outline-primary:focus-visible { color: #fff; background-color: #084298; border-color: #084298; }
     .map-control-btn { transition: all 0.2s; }
     .map-control-btn:hover { transform: scale(1.1); }
     .map-dest-button { display: block; width: 100%; background: #fff; color: inherit; font: inherit; text-align: left; cursor: pointer; }
