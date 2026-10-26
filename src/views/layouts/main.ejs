@@ -893,7 +893,12 @@
                     role: 'assistant',
                     content: getFloatingAgentOutputMessage(output),
                     citations: output.type === 'answer' && Array.isArray(output.citations) ? output.citations : [],
-                    actions: Array.isArray(output.suggestedActions) ? output.suggestedActions : []
+                    actions: output.type === 'temporarily_unavailable'
+                        ? [
+                            ...(output.retryable === true ? [{ type: 'retry', label: 'Thử lại' }] : []),
+                            { type: 'request_handoff', label: 'Chat nhân viên' }
+                        ]
+                        : (Array.isArray(output.suggestedActions) ? output.suggestedActions : [])
                 });
             } catch (_) {
                 floatingAgentMessages.pop();
