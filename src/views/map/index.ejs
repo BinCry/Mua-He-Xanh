@@ -6,57 +6,57 @@
     <div class="row g-0 flex-grow-1 position-relative">
         
         <!-- Left Sidebar (Desktop Only) -->
-        <div class="col-lg-3 bg-white shadow-lg z-index-10 d-none d-lg-flex flex-column" style="height: calc(100vh - var(--navbar-height, 107px));">
+        <div class="col-lg-3 bg-white shadow-lg z-index-10 d-none d-lg-flex flex-column map-sidebar" style="height: calc(100vh - var(--navbar-height, 107px)); height: calc(100dvh - var(--navbar-height, 107px) - env(safe-area-inset-bottom, 0px));">
             <div class="p-4 border-bottom bg-light">
                 <h5 class="fw-black text-primary mb-1"><i class="bi bi-map-fill me-2"></i>Bản đồ du lịch Bình Lợi</h5>
                 <p class="small text-muted mb-3">Khám phá và định vị các địa điểm trên bản đồ</p>
                 
                 <div class="input-group mb-3">
                     <span class="input-group-text bg-white border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
-                    <input type="search" id="mapSearch" class="form-control border-start-0 rounded-end-pill px-0 shadow-none" placeholder="Tìm địa điểm..." autocomplete="off" oninput="filterMapList(this)">
+                    <input type="search" id="mapSearch" class="form-control border-start-0 rounded-end-pill px-0 shadow-none" style="font-size:16px" placeholder="Tìm địa điểm..." autocomplete="off" oninput="filterMapList(this)">
                 </div>
                 
                 <div class="d-flex gap-2 overflow-auto pb-2 no-scrollbar">
-                    <button class="btn btn-primary btn-sm rounded-pill flex-shrink-0 active filter-btn" data-type="all">Tất cả</button>
-                    <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="temple">Tâm linh</button>
-                    <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="park">Sinh thái</button>
-                    <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="craft">Làng nghề</button>
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill flex-shrink-0 active filter-btn" data-type="all" aria-pressed="true">Tất cả</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="temple" aria-pressed="false">Tâm linh</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="park" aria-pressed="false">Sinh thái</button>
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="craft" aria-pressed="false">Làng nghề</button>
                 </div>
             </div>
 
             <!-- Destinations List (Desktop) -->
             <div class="flex-grow-1 overflow-auto p-3" id="mapDestList" tabindex="0" role="region" aria-label="Danh sách địa điểm trên bản đồ">
                 <% allDests.forEach(dest => { %>
-                    <div class="card-bl border-0 shadow-sm p-2 mb-3 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" data-lat="<%= dest.lat %>" data-lng="<%= dest.lng %>" onclick="focusMarker(<%= dest.lat %>, <%= dest.lng %>, '<%= dest.name %>')">
-                        <div class="d-flex gap-3">
-                            <div class="rounded-3 overflow-hidden shadow-sm" style="width: 70px; height: 70px; flex-shrink: 0;">
+                    <button type="button" class="card-bl border-0 shadow-sm p-2 mb-3 dest-item map-dest-button" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" data-lat="<%= dest.lat %>" data-lng="<%= dest.lng %>" aria-label="Hiển thị địa điểm <%= dest.name %> trên bản đồ">
+                        <span class="d-flex gap-3">
+                            <span class="rounded-3 overflow-hidden shadow-sm" style="width: 70px; height: 70px; flex-shrink: 0;">
                                 <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover" width="70" height="70" loading="lazy" decoding="async" alt="<%= dest.name %>">
-                            </div>
-                            <div>
-                                <h6 class="fw-bold mb-1 text-dark small"><%= dest.name %></h6>
-                                <p class="x-small text-muted mb-2 line-clamp-1"><%= dest.short_desc %></p>
+                            </span>
+                            <span>
+                                <span class="d-block fw-bold mb-1 text-dark small"><%= dest.name %></span>
+                                <span class="d-block x-small text-muted mb-2 line-clamp-1"><%= dest.short_desc %></span>
                                 <span class="badge bg-light border map-type-badge"><%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm')))) %></span>
-                            </div>
-                        </div>
-                    </div>
+                            </span>
+                        </span>
+                    </button>
                 <% }) %>
             </div>
         </div>
 
         <!-- Right Side: Google Map & Mobile Controls -->
         <div class="col-lg-9 col-12 position-relative">
-            <div id="map" style="width: 100%; height: calc(100vh - var(--navbar-height, 107px)); z-index: 1;"></div>
+            <div id="map" style="width: 100%; height: calc(100vh - var(--navbar-height, 107px)); height: calc(100dvh - var(--navbar-height, 107px) - env(safe-area-inset-bottom, 0px)); z-index: 1;"></div>
             
             <!-- Map Controls Overlay (Mobile List Button adjacent to Zoom Controls) -->
             <div class="position-absolute d-lg-none" style="top: 12px; left: 54px; z-index: 1000;">
-                <button class="btn btn-primary-bl rounded-pill shadow-lg px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 border-0" data-bs-toggle="offcanvas" data-bs-target="#mobileDestDrawer" style="font-size: 0.78rem;">
+                <button type="button" class="btn btn-primary-bl rounded-pill shadow-lg px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5 border-0 map-list-trigger" data-bs-toggle="offcanvas" data-bs-target="#mobileDestDrawer" style="font-size: 0.78rem;">
                     <i class="bi bi-list fs-5"></i> <span>Danh sách địa điểm</span>
                 </button>
             </div>
 
             <!-- Location Control (Top Right) -->
             <div class="position-absolute top-0 end-0 m-3 m-md-4" style="z-index: 1000;">
-                <button class="btn btn-white rounded-circle shadow-lg p-0 map-control-btn" style="width: 45px; height: 45px; background: #ffffff;" onclick="locateMe()" title="Vị trí của tôi">
+                <button type="button" class="btn btn-white rounded-circle shadow-lg p-0 map-control-btn" style="width: 45px; height: 45px; background: #ffffff;" onclick="locateMe()" title="Vị trí của tôi" aria-label="Tìm vị trí hiện tại của tôi">
                     <i class="bi bi-geo-fill text-primary fs-5"></i>
                 </button>
             </div>
@@ -65,7 +65,7 @@
 </section>
 
 <!-- Mobile Offcanvas Drawer -->
-<div class="offcanvas offcanvas-bottom rounded-top-4 d-lg-none" tabindex="-1" id="mobileDestDrawer" style="height: 75vh; z-index: 1055;">
+<div class="offcanvas offcanvas-bottom rounded-top-4 d-lg-none" tabindex="-1" id="mobileDestDrawer" style="height: 75vh; height: 75dvh; padding-bottom: env(safe-area-inset-bottom, 0px); z-index: 1055;">
     <div class="offcanvas-header border-bottom py-3 px-4 bg-light">
         <h6 class="offcanvas-title fw-black text-primary mb-0"><i class="bi bi-map-fill me-2"></i>Địa điểm du lịch Bình Lợi</h6>
         <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
@@ -73,32 +73,32 @@
     <div class="offcanvas-body p-3">
         <div class="input-group mb-3">
             <span class="input-group-text bg-white border-end-0 rounded-start-pill"><i class="bi bi-search text-muted"></i></span>
-            <input type="search" id="mobileMapSearch" class="form-control border-start-0 rounded-end-pill px-0 shadow-none" placeholder="Tìm địa điểm..." autocomplete="off" oninput="filterMapList(this)">
+            <input type="search" id="mobileMapSearch" class="form-control border-start-0 rounded-end-pill px-0 shadow-none" style="font-size:16px" placeholder="Tìm địa điểm..." autocomplete="off" oninput="filterMapList(this)">
         </div>
         <!-- Filter Tabs Mobile -->
         <div class="d-flex gap-2 overflow-auto pb-3 no-scrollbar mb-2">
-            <button class="btn btn-primary btn-sm rounded-pill flex-shrink-0 active filter-btn" data-type="all">Tất cả</button>
-            <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="temple">Tâm linh</button>
-            <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="park">Sinh thái</button>
-            <button class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="craft">Làng nghề</button>
+            <button type="button" class="btn btn-primary btn-sm rounded-pill flex-shrink-0 active filter-btn" data-type="all" aria-pressed="true">Tất cả</button>
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="temple" aria-pressed="false">Tâm linh</button>
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="park" aria-pressed="false">Sinh thái</button>
+            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill flex-shrink-0 filter-btn" data-type="craft" aria-pressed="false">Làng nghề</button>
         </div>
 
         <!-- Mobile Destinations List -->
         <div class="d-flex flex-column gap-2" id="mobileDestList">
             <% allDests.forEach(dest => { %>
-                <div class="card-bl border-0 shadow-sm p-2 cursor-pointer dest-item" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" onclick="focusMarkerMobile(<%= dest.lat %>, <%= dest.lng %>, '<%= dest.name %>')">
-                    <div class="d-flex gap-3 align-items-center">
-                        <div class="rounded-3 overflow-hidden shadow-sm" style="width: 60px; height: 60px; flex-shrink: 0;">
+                <button type="button" class="card-bl border-0 shadow-sm p-2 dest-item map-dest-button" data-type="<%= dest.type %>" data-name="<%= dest.name.toLowerCase() %>" data-lat="<%= dest.lat %>" data-lng="<%= dest.lng %>" aria-label="Hiển thị địa điểm <%= dest.name %> trên bản đồ">
+                    <span class="d-flex gap-3 align-items-center">
+                        <span class="rounded-3 overflow-hidden shadow-sm" style="width: 60px; height: 60px; flex-shrink: 0;">
                             <img src="<%= fixImg(dest.cover_image) %>" class="w-100 h-100 object-fit-cover" width="60" height="60" loading="lazy" decoding="async" alt="<%= dest.name %>">
-                        </div>
-                        <div class="min-w-0 flex-grow-1">
-                            <h6 class="fw-bold mb-1 text-dark small text-truncate"><%= dest.name %></h6>
-                            <p class="x-small text-muted mb-1 line-clamp-1"><%= dest.short_desc %></p>
+                        </span>
+                        <span class="min-w-0 flex-grow-1">
+                            <span class="d-block fw-bold mb-1 text-dark small text-truncate"><%= dest.name %></span>
+                            <span class="d-block x-small text-muted mb-1 line-clamp-1"><%= dest.short_desc %></span>
                             <span class="badge bg-light border map-type-badge" style="font-size: 0.65rem;"><%= dest.type === 'temple' ? 'Tâm linh' : (dest.type === 'park' ? 'Sinh thái' : (dest.type === 'craft' ? 'Làng nghề' : (dest.type === 'food' ? 'Ẩm thực' : (dest.type || 'Địa điểm')))) %></span>
-                        </div>
+                        </span>
                         <i class="bi bi-chevron-right text-muted me-2"></i>
-                    </div>
-                </div>
+                    </span>
+                </button>
             <% }) %>
         </div>
     </div>
@@ -196,6 +196,13 @@ function focusMarkerMobile(lat, lng, name) {
     focusMarker(lat, lng, name);
 }
 
+document.querySelectorAll('.dest-item').forEach(item => {
+    item.addEventListener('click', () => {
+        const focus = item.closest('#mobileDestList') ? focusMarkerMobile : focusMarker;
+        focus(item.dataset.lat, item.dataset.lng, item.dataset.name);
+    });
+});
+
 function normalizeMapSearch(value) {
     return String(value || '')
         .normalize('NFD')
@@ -225,10 +232,15 @@ function filterMapList(source) {
 }
 
 document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-        document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('active', 'btn-primary'); b.classList.add('btn-outline-primary'); });
-        e.target.classList.remove('btn-outline-primary');
-        e.target.classList.add('active', 'btn-primary');
+    btn.addEventListener('click', () => {
+        const selectedType = btn.dataset.type;
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            const active = b.dataset.type === selectedType;
+            b.classList.toggle('active', active);
+            b.classList.toggle('btn-primary', active);
+            b.classList.toggle('btn-outline-primary', !active);
+            b.setAttribute('aria-pressed', String(active));
+        });
         filterMapList();
     });
 });
@@ -262,9 +274,20 @@ function locateMe() {
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .z-index-10 { z-index: 10; }
-    /* #0d6efd on Bootstrap's light badge misses WCAG AA in WebKit. */
+    /* Dark blue keeps map labels and outlined filters above WCAG AA on light surfaces. */
     .map-type-badge { color: #0a58ca !important; }
+    .filter-btn.btn-outline-primary { color: #0a58ca; border-color: #0a58ca; }
+    .filter-btn.btn-outline-primary:hover,
+    .filter-btn.btn-outline-primary:focus-visible { color: #fff; background-color: #084298; border-color: #084298; }
     .map-control-btn { transition: all 0.2s; }
     .map-control-btn:hover { transform: scale(1.1); }
+    .map-dest-button { display: block; width: 100%; background: #fff; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    .map-dest-button:focus-visible { outline: 3px solid #0a58ca; outline-offset: 2px; }
+    .filter-btn { min-height: 44px; padding-inline: 0.8rem; }
+    .map-list-trigger { min-height: 44px; }
+    @media (max-width: 575.98px) {
+        .map-sidebar { height: auto !important; }
+        #map { min-height: 60dvh; }
+    }
     #map { background-color: #d5f2e3 !important; } /* Thiết lập màu nền xanh ngọc giống sơ đồ */
 </style>

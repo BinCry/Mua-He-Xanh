@@ -1,7 +1,7 @@
 <!-- Premium Admin Chat Panel - Pixel-Perfect Facebook Messenger UI -->
 <div class="container-fluid p-0 animate__animated animate__fadeIn position-relative">
     <!-- Header banner -->
-    <div class="d-flex justify-content-between align-items-center mb-3">
+    <div class="admin-chat-page-header d-flex justify-content-between align-items-center mb-3">
         <div>
             <div class="admin-page-title">
                 <span class="admin-page-title-mark" aria-hidden="true"><i class="bi bi-messenger"></i></span>
@@ -11,7 +11,7 @@
                 Tương tác, tư vấn và hỗ trợ du khách toàn hệ thống theo giao diện Messenger thời gian thực.
             </p>
         </div>
-        <div>
+        <div class="admin-chat-page-badge">
             <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-20 rounded-pill px-3 py-2 fw-semibold">
                 <i class="bi bi-shield-lock me-1"></i>Hộp thư Admin
             </span>
@@ -29,10 +29,10 @@
                 <div class="px-3 pt-3 pb-2 d-flex justify-content-between align-items-center">
                     <h4 class="fw-bold mb-0 text-dark" style="font-size: 1.45rem; font-weight: 800; letter-spacing: -0.5px;">Đoạn chat</h4>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-muted" style="width: 36px; height: 36px; background: #f0f2f5;" title="Tùy chọn">
+                        <button type="button" class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-muted" style="width: 36px; height: 36px; background: #f0f2f5;" title="Tùy chọn" aria-label="Tùy chọn hộp thư">
                             <i class="bi bi-three-dots fs-5"></i>
                         </button>
-                        <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-muted" style="width: 36px; height: 36px; background: #f0f2f5;" title="Làm mới danh sách" onclick="location.reload()">
+                        <button type="button" class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-muted" style="width: 36px; height: 36px; background: #f0f2f5;" title="Làm mới danh sách" aria-label="Làm mới danh sách hội thoại" onclick="location.reload()">
                             <i class="bi bi-arrow-clockwise fs-5"></i>
                         </button>
                     </div>
@@ -42,7 +42,7 @@
                 <div class="px-3 pb-2">
                     <div class="position-relative">
                         <i class="bi bi-search position-absolute text-muted" style="left: 14px; top: 50%; transform: translateY(-50%); font-size: 0.9rem;"></i>
-                        <input type="text" class="form-control border-0" id="chat-search" placeholder="Tìm kiếm trên Messenger" oninput="filterConversations()" style="background: #f0f2f5; border-radius: 20px; height: 36px; padding-left: 38px; font-size: 0.9rem;">
+                    <input type="text" class="form-control border-0" id="chat-search" placeholder="Tìm kiếm trên Messenger" aria-label="Tìm kiếm hội thoại" oninput="filterConversations()" style="background: #f0f2f5; border-radius: 20px; height: 36px; padding-left: 38px; font-size: 0.9rem;">
                     </div>
                 </div>
 
@@ -138,24 +138,24 @@ function formatMessengerSidebarDate(dateStr) {
                 <!-- Chat Header -->
                 <div class="px-3 py-2 border-bottom d-flex justify-content-between align-items-center" id="chat-header" style="height: 64px; border-color: #e4e6eb !important; background: #ffffff;">
                     <div class="d-flex align-items-center gap-2.5">
-                        <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-md-none d-flex align-items-center justify-content-center flex-shrink-0" id="btn-back-to-convos" onclick="backToConversationList()" style="width: 34px; height: 34px; background: #f0f2f5;" title="Quay lại danh sách chat">
+                        <button type="button" class="btn btn-sm btn-light rounded-circle p-0 d-md-none d-flex align-items-center justify-content-center flex-shrink-0" id="btn-back-to-convos" onclick="backToConversationList()" style="width: 34px; height: 34px; background: #f0f2f5;" title="Quay lại danh sách chat" aria-label="Quay lại danh sách hội thoại">
                             <i class="bi bi-chevron-left fs-6"></i>
                         </button>
                         <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold shadow-2xs flex-shrink-0" id="active-chat-avatar" style="width: 40px; height: 40px; background: #e4e6eb; color: #050505; font-size: 0.9rem;">
                             <i class="bi bi-person-fill"></i>
                         </div>
-                        <div>
+                        <div class="chat-header-copy">
                             <h6 class="fw-bold mb-0 text-dark" id="active-chat-name" style="font-size: 0.98rem;">Vui lòng chọn hội thoại</h6>
-                            <small class="text-muted d-flex align-items-center gap-1.5" style="font-size: 0.72rem;" id="active-chat-status">
+                            <small class="chat-header-status text-muted d-flex align-items-center gap-1.5" style="font-size: 0.72rem;" id="active-chat-status">
                                 <span class="d-inline-block rounded-circle bg-secondary" style="width: 6px; height: 6px;"></span> Chọn cuộc hội thoại để phản hồi
                             </small>
                         </div>
                     </div>
                     <div id="active-chat-actions" class="d-flex align-items-center gap-2" style="display: none;">
-                        <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-danger" style="width: 36px; height: 36px; background: #fef2f2;" onclick="deleteActiveConversation()" title="Xóa cuộc hội thoại">
+                        <button type="button" class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none text-danger" style="width: 36px; height: 36px; background: #fef2f2;" onclick="deleteActiveConversation()" title="Xóa cuộc hội thoại" aria-label="Xóa cuộc hội thoại">
                             <i class="bi bi-trash3 fs-6"></i>
                         </button>
-                        <button class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px; background: #f0f2f5; color: #7c3aed;" onclick="openVisitorInfoModal()" title="Thông tin chi tiết người dùng">
+                        <button type="button" class="btn btn-light rounded-circle p-0 d-flex align-items-center justify-content-center border-0 shadow-none" style="width: 36px; height: 36px; background: #f0f2f5; color: #7c3aed;" onclick="openVisitorInfoModal()" title="Thông tin chi tiết người dùng" aria-label="Xem thông tin du khách">
                             <i class="bi bi-info-circle-fill fs-5"></i>
                         </button>
                     </div>
@@ -279,7 +279,7 @@ function formatMessengerSidebarDate(dateStr) {
                 <div class="border-top" id="chat-controls-area" style="display: none; border-color: #e4e6eb !important; background: #ffffff;">
                     
                     <!-- Quick canned responses chips -->
-                    <div class="p-2 border-bottom d-flex gap-2 overflow-x-auto custom-scrollbar whitespace-nowrap bg-light bg-opacity-50" style="padding-left: 16px !important; padding-right: 16px !important; border-color: #f1f5f9 !important;">
+                    <div class="admin-chat-quick-replies p-2 border-bottom d-flex gap-2 overflow-x-auto custom-scrollbar whitespace-nowrap bg-light bg-opacity-50" style="border-color: #f1f5f9 !important;">
                         <button class="btn btn-white btn-sm rounded-pill px-3 shadow-2xs border text-muted fw-semibold" style="font-size: 0.72rem;" onclick="insertCannedResponse('welcome')">
                             🌿 Chào mừng du khách
                         </button>
@@ -314,19 +314,19 @@ function formatMessengerSidebarDate(dateStr) {
                     </div>
 
                     <!-- Messenger Bottom Input Bar -->
-                    <div class="p-2.5 px-3 bg-white d-flex align-items-center gap-2" id="standard-chat-bar">
+                    <div class="admin-chat-composer p-2.5 px-3 bg-white d-flex align-items-center gap-2" id="standard-chat-bar">
                         <!-- Media Icons (Left) -->
-                        <div class="d-flex align-items-center gap-1 flex-shrink-0" style="color: #0084ff;">
-                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="startVoiceRecording()" title="Ghi âm thoại">
+                        <div class="admin-chat-media-actions d-flex align-items-center gap-1 flex-shrink-0" style="color: #0084ff;">
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="startVoiceRecording()" title="Ghi âm thoại" aria-label="Ghi âm thoại">
                                 <i class="bi bi-mic-fill fs-5" id="mic-icon"></i>
                             </button>
-                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="triggerImageUpload()" title="Gửi ảnh">
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="triggerImageUpload()" title="Gửi ảnh" aria-label="Gửi ảnh">
                                 <i class="bi bi-image fs-5"></i>
                             </button>
-                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="toggleEmojiPanel()" title="Nhãn dán">
+                            <button type="button" class="admin-chat-sticker-toggle btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="toggleEmojiPanel()" title="Nhãn dán" aria-label="Mở nhãn dán">
                                 <i class="bi bi-stickers fs-5"></i>
                             </button>
-                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="toggleGifPanel()" title="Ảnh động GIF">
+                            <button type="button" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="toggleGifPanel()" title="Ảnh động GIF" aria-label="Gửi ảnh động GIF">
                                 <i class="bi bi-filetype-gif fs-5"></i>
                             </button>
                         </div>
@@ -334,14 +334,14 @@ function formatMessengerSidebarDate(dateStr) {
                         <!-- Pill Input -->
                         <div class="flex-grow-1 position-relative">
                             <input type="text" id="admin-chat-input" class="form-control border-0" placeholder="Aa" style="background: #f0f2f5; border-radius: 20px; height: 38px; padding: 0 40px 0 16px; font-size: 0.92rem; color: #050505;" onkeypress="if(event.key === 'Enter') sendLiveReply()" oninput="toggleSendIcon(this)">
-                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-2 text-decoration-none" style="color: #0084ff;" onclick="toggleEmojiPanel()">
+                            <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-2 text-decoration-none" style="color: #0084ff;" onclick="toggleEmojiPanel()" aria-label="Mở biểu cảm và nhãn dán">
                                 <i class="bi bi-emoji-smile-fill fs-5"></i>
                             </button>
                         </div>
 
                         <!-- Right Button (Thumbs Up / Send) -->
                         <div class="flex-shrink-0">
-                            <button type="button" id="admin-btn-send" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="sendLiveReply()" title="Gửi">
+                            <button type="button" id="admin-btn-send" class="btn btn-link p-1 text-decoration-none" style="color: #0084ff;" onclick="sendLiveReply()" title="Gửi" aria-label="Gửi tin nhắn">
                                 <i class="bi bi-hand-thumbs-up-fill fs-4" id="send-icon-graphic"></i>
                             </button>
                         </div>
@@ -494,6 +494,14 @@ function formatMessengerSidebarDate(dateStr) {
     .convo-item-card.active {
         background: #ebf5ff !important;
     }
+    .chat-status-points {
+        white-space: nowrap;
+    }
+    .chat-status-points::before {
+        content: "•";
+        margin: 0 0.3rem;
+        color: #6c757d;
+    }
     .hover-scale {
         transition: transform 0.15s;
     }
@@ -518,6 +526,28 @@ function formatMessengerSidebarDate(dateStr) {
         background: rgba(0,0,0,0.25);
     }
     @media (max-width: 767px) {
+        .admin-chat-page-header {
+            align-items: stretch !important;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 12px !important;
+        }
+        .admin-chat-page-header .admin-page-title {
+            align-items: flex-start;
+            gap: 8px;
+        }
+        .admin-chat-page-header .admin-page-title h4 {
+            min-width: 0;
+            font-size: clamp(1.15rem, 5vw, 1.35rem);
+            line-height: 1.25;
+            overflow-wrap: anywhere;
+        }
+        .admin-chat-page-badge {
+            align-self: flex-start;
+        }
+        .admin-chat-page-badge .badge {
+            white-space: nowrap;
+        }
         #chat-feed-col.d-none {
             display: none !important;
         }
@@ -527,9 +557,167 @@ function formatMessengerSidebarDate(dateStr) {
         #chat-feed-col:not(.d-none) {
             display: flex !important;
         }
+        #chat-sidebar-col > .px-3.pt-3.pb-2 button {
+            width: 44px !important;
+            height: 44px !important;
+        }
+        #chat-search {
+            height: 44px !important;
+            font-size: 16px !important;
+        }
+        #chat-sidebar-col .filter-tab-btn {
+            min-height: 44px;
+            padding-right: 10px !important;
+            padding-left: 10px !important;
+        }
         .chat-container-card {
             height: calc(100vh - 120px) !important;
-            min-height: 480px !important;
+            height: calc(100dvh - 120px) !important;
+            min-height: min(480px, calc(100dvh - 120px)) !important;
+            width: 100%;
+            max-width: 100%;
+        }
+        #chat-feed-col {
+            min-width: 0;
+            min-height: 0;
+        }
+        #chat-header {
+            height: auto !important;
+            min-height: 68px;
+            flex: 0 0 auto;
+            gap: 8px;
+            padding: 8px 10px !important;
+        }
+        #chat-header > .d-flex:first-child {
+            flex: 1 1 auto;
+            min-width: 0;
+            gap: 8px !important;
+        }
+        #btn-back-to-convos {
+            width: 40px !important;
+            height: 40px !important;
+        }
+        #active-chat-avatar {
+            width: 36px !important;
+            height: 36px !important;
+        }
+        .chat-header-copy {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+        #active-chat-name {
+            display: -webkit-box;
+            overflow: hidden;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 2;
+            line-height: 1.2;
+            overflow-wrap: anywhere;
+            font-size: 0.94rem !important;
+        }
+        #active-chat-status {
+            min-width: 0;
+            max-width: 100%;
+            flex-wrap: nowrap;
+            gap: 4px !important;
+            overflow: hidden;
+            white-space: nowrap;
+            font-size: 0.7rem !important;
+        }
+        #active-chat-status > * {
+            flex: 0 1 auto;
+        }
+        #active-chat-status > .bg-success {
+            flex: 0 0 7px;
+        }
+        .chat-status-points {
+            display: flex;
+            min-width: 0;
+            align-items: center;
+            gap: 3px;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+        .chat-status-points-label {
+            display: none;
+        }
+        #active-chat-actions {
+            flex: 0 0 auto;
+            gap: 4px !important;
+        }
+        #active-chat-actions button {
+            width: 44px !important;
+            height: 44px !important;
+        }
+        #chat-messages-stream {
+            width: 100%;
+            min-width: 0;
+            overflow-x: hidden !important;
+            overscroll-behavior: contain;
+            padding-right: 12px !important;
+            padding-left: 12px !important;
+        }
+        #chat-messages-stream > * {
+            min-width: 0;
+            max-width: 100%;
+        }
+        #chat-messages-stream img,
+        #chat-messages-stream video {
+            max-width: 100%;
+            height: auto;
+        }
+        .admin-chat-quick-replies {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px !important;
+            overflow: visible !important;
+            white-space: normal !important;
+            padding: 8px 10px !important;
+        }
+        .admin-chat-quick-replies button {
+            width: 100%;
+            min-width: 0;
+            min-height: 44px;
+            padding: 8px 10px !important;
+            border-radius: 12px !important;
+            font-size: 0.78rem !important;
+            line-height: 1.25;
+            text-align: left;
+            white-space: normal !important;
+        }
+        #chat-controls-area {
+            min-width: 0;
+            max-width: 100%;
+        }
+        #standard-chat-bar {
+            gap: 6px !important;
+            padding: 8px 10px max(8px, env(safe-area-inset-bottom)) !important;
+        }
+        .admin-chat-media-actions {
+            gap: 0 !important;
+        }
+        .admin-chat-media-actions button,
+        #standard-chat-bar > .flex-shrink-0 button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            min-width: 44px;
+            height: 44px;
+            padding: 0 !important;
+        }
+        .admin-chat-sticker-toggle {
+            display: none !important;
+        }
+        #standard-chat-bar > .position-relative {
+            flex: 1 1 0%;
+            min-width: 0;
+        }
+        #admin-chat-input {
+            height: 44px !important;
+            min-width: 0;
+            padding-left: 12px !important;
+            padding-right: 38px !important;
+            font-size: 16px !important;
         }
     }
 </style>
@@ -594,12 +782,19 @@ function formatMessengerSidebarDate(dateStr) {
         online.className = 'd-inline-block rounded-circle bg-success';
         online.style.cssText = 'width: 7px; height: 7px;';
         const label = document.createElement('span');
-        label.className = 'text-success fw-semibold';
+        label.className = 'chat-status-label text-success fw-semibold';
         label.textContent = 'Đang hoạt động';
+        const pointsGroup = document.createElement('span');
+        pointsGroup.className = 'chat-status-points';
+        const pointsLabel = document.createElement('span');
+        pointsLabel.className = 'chat-status-points-label';
+        pointsLabel.textContent = 'Điểm tích lũy: ';
         const score = document.createElement('strong');
         score.className = 'text-dark';
         score.textContent = `${points} ✨`;
-        container.replaceChildren(online, document.createTextNode(' '), label, document.createTextNode(' • Điểm tích lũy: '), score);
+        pointsGroup.append(pointsLabel, score);
+        container.replaceChildren(online, label, pointsGroup);
+        container.setAttribute('aria-label', `Đang hoạt động. Điểm tích lũy: ${points}.`);
     }
 
     function toggleSendIcon(input) {
@@ -1004,6 +1199,8 @@ function formatMessengerSidebarDate(dateStr) {
             : ('Du khách #' + shortId);
 
         headerName.innerText = vName;
+        headerName.title = vName;
+        headerName.setAttribute('aria-label', vName);
         renderAdminChatStatus(headerStatus, visitor && visitor.total_points);
         
         const avatarInitial = (visitor && visitor.full_name) 
