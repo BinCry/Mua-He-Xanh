@@ -67,20 +67,18 @@
                 </ul>
             </div>
 
-            <!-- Newsletter -->
+            <!-- Updates -->
             <div class="col-md-6 col-lg-2">
-                <h6 class="fw-bold mb-3 text-uppercase tracking-widest text-white" style="font-size: 0.8rem; color: #ffffff !important;">Đăng kí nhận tin</h6>
+                <h6 class="fw-bold mb-3 text-uppercase tracking-widest text-white" style="font-size: 0.8rem; color: #ffffff !important;">CẬP NHẬT TIN TỨC</h6>
                 <p class="mb-3 footer-newsletter-copy" style="color: rgba(255,255,255,0.92); line-height: 1.6; font-size: 0.8rem;">
-                    Cập nhật thông tin mới nhất về Bình Lợi và các trải nghiệm hấp&nbsp;dẫn.
+                    Theo dõi các kênh chính thức hoặc liên hệ với Bình Lợi để cập nhật trải nghiệm mới.
                 </p>
-                <form onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận tin!');">
-                    <div class="input-group" style="max-width: 240px;">
-                        <input type="email" class="form-control border-0 ps-3 py-2" placeholder="Email..." aria-label="Email đăng ký nhận tin" required style="border-radius: 8px 0 0 8px; font-size: 0.8rem; background: #ffffff; height: 38px;">
-                        <button class="btn btn-danger d-flex align-items-center justify-content-center" type="submit" aria-label="Đăng ký nhận tin" style="background: var(--primary); border: 1px solid rgba(255,255,255,0.2); border-left: none; border-radius: 0 8px 8px 0; width: 40px; height: 38px;">
-                            <i class="bi bi-arrow-right text-white"></i>
-                        </button>
-                    </div>
-                </form>
+                <% const updateChannel = String(settings.social_facebook || '').trim(); %>
+                <% if (updateChannel && updateChannel !== '#') { %>
+                    <a href="<%= updateChannel %>" target="_blank" rel="noopener noreferrer" class="btn btn-outline-light rounded-pill px-3 py-2 fw-semibold">Theo dõi Facebook</a>
+                <% } else { %>
+                    <a href="/lien-he" class="btn btn-outline-light rounded-pill px-3 py-2 fw-semibold">Liên hệ Bình Lợi</a>
+                <% } %>
             </div>
         </div>
 
