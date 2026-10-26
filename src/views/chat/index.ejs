@@ -46,7 +46,7 @@
                             <div class="fw-semibold text-dark" id="chat-mode-title" style="font-size: 0.82rem;">Đang nhắn với nhân viên</div>
                             <small class="text-muted" id="chat-mode-description" style="font-size: 0.72rem;">Tin nhắn được gửi tới kênh hỗ trợ hiện tại.</small>
                         </div>
-                        <button type="button" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 px-3" id="agent-mode-toggle" style="min-height: 44px;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
+                        <button type="button" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 px-3" id="agent-mode-toggle" data-agent-chat-history-key="<%= agentChatHistoryKey || '' %>" style="min-height: 44px;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
                             <i class="bi bi-stars" aria-hidden="true"></i>
                             <span>Hỏi trợ lý AI</span>
                         </button>
@@ -470,7 +470,8 @@
     const currentUser = JSON.parse(document.getElementById('current-user-json-data')?.textContent || 'null');
     let agentMode = false;
     let agentRequestPending = false;
-    const agentMessages = [];
+    let agentHandoffPending = false;
+    const agentMessages = window.HelpdeskAgentChat?.load?.() || [];
 
     // Voice recorder state
     let touristMediaRecorder = null;
@@ -541,6 +542,18 @@
                 content.textContent = String(entry.content || '');
                 bubble.append(content);
 
+                if (entry.actionPreview) {
+                    const preview = document.createElement('div');
+                    preview.className = 'border rounded-3 p-2 mt-2 bg-light small';
+                    const previewTitle = document.createElement('div');
+                    previewTitle.className = 'fw-semibold text-dark mb-1';
+                    previewTitle.textContent = 'Chi tiết yêu cầu';
+                    const previewSummary = document.createElement('div');
+                    previewSummary.textContent = entry.actionPreview;
+                    preview.append(previewTitle, previewSummary);
+                    bubble.append(preview);
+                }
+
                 if (Array.isArray(entry.citations) && entry.citations.length > 0) {
                     const sources = document.createElement('div');
                     sources.className = 'border-top mt-2 pt-2';
@@ -568,6 +581,7 @@
                         if (action?.type === 'view_destination' && /^[a-z0-9-]+$/i.test(String(action.target || ''))) {
                             const link = document.createElement('a');
                             link.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            link.style.minHeight = '44px';
                             link.href = `/explore/${encodeURIComponent(action.target)}`;
                             link.textContent = String(action.label || 'Xem điểm đến');
                             actions.append(link);
@@ -575,18 +589,36 @@
                             const button = document.createElement('button');
                             button.type = 'button';
                             button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            button.style.minHeight = '44px';
                             button.textContent = String(action.label || 'Gặp nhân viên hỗ trợ');
-                            button.addEventListener('click', () => setChatMode(false));
+                            button.addEventListener('click', () => requestChatAgentHandoff(button));
                             actions.append(button);
                         } else if (action?.type === 'retry') {
                             const button = document.createElement('button');
                             button.type = 'button';
                             button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            button.style.minHeight = '44px';
                             button.textContent = String(action.label || 'Thử lại');
                             button.addEventListener('click', () => {
                                 const lastQuestion = [...agentMessages].reverse().find(item => item.role === 'user')?.content;
                                 if (lastQuestion) sendAgentMessage(lastQuestion);
                             });
+                            actions.append(button);
+                        } else if (action?.type === 'sign_in') {
+                            const link = document.createElement('a');
+                            link.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            link.style.minHeight = '44px';
+                            link.href = '/auth/login';
+                            link.textContent = String(action.label || 'Đăng nhập');
+                            actions.append(link);
+                        } else if (action?.type === 'confirm' || action?.type === 'cancel') {
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            button.style.minHeight = '44px';
+                            const fallbackLabel = action.type === 'confirm' ? 'xác nhận' : 'hủy';
+                            button.textContent = `Nhờ nhân viên: ${String(action.label || fallbackLabel)}`;
+                            button.addEventListener('click', () => requestChatAgentHandoff(button, action.type));
                             actions.append(button);
                         }
                     });
@@ -601,14 +633,22 @@
         container.scrollTop = container.scrollHeight;
     }
 
-    function addAgentMessage(role, content, citations = [], loading = false, actions = []) {
-        agentMessages.push({ role, content, citations, loading, actions });
+    function addAgentMessage(role, content, citations = [], loading = false, actions = [], actionPreview = '') {
+        agentMessages.push({ role, content, citations, loading, actions, actionPreview });
+        window.HelpdeskAgentChat?.save?.(agentMessages);
         renderAgentMessages();
     }
 
-    function setChatMode(useAgent) {
-        if (agentRequestPending) return;
-        agentMode = Boolean(useAgent);
+    function setChatMode(useAgent, skipHandoff = false) {
+        if (agentRequestPending || (agentHandoffPending && !skipHandoff)) return;
+        const nextMode = Boolean(useAgent);
+        if (agentMode && !nextMode && !skipHandoff
+            && agentMessages.some(entry => entry.role === 'user')) {
+            const toggle = document.getElementById('agent-mode-toggle');
+            if (toggle) requestChatAgentHandoff(toggle);
+            return;
+        }
+        agentMode = nextMode;
 
         const toggle = document.getElementById('agent-mode-toggle');
         const title = document.getElementById('chat-mode-title');
@@ -658,6 +698,37 @@
         return 'Trợ lý chưa thể trả lời câu hỏi này bằng thông tin đã kiểm chứng.';
     }
 
+    async function requestChatAgentHandoff(button, intentType = '') {
+        if (agentHandoffPending) return;
+        agentHandoffPending = true;
+        let handoffComplete = false;
+        button.disabled = true;
+        const originalLabel = button.textContent;
+        button.textContent = 'Đang chuyển yêu cầu…';
+
+        try {
+            if (!window.HelpdeskAgentChat?.requestHandoff) throw new Error('HANDOFF_UNAVAILABLE');
+            const intent = intentType === 'confirm' ? 'xử lý xác nhận' : intentType === 'cancel' ? 'xử lý hủy' : '';
+            await window.HelpdeskAgentChat.requestHandoff(agentMessages, intent);
+            setChatMode(false, true);
+            handoffComplete = true;
+        } catch (_) {
+            agentMessages.push({
+                role: 'assistant',
+                content: 'Chưa gửi được yêu cầu đến nhân viên. Hãy thử chuyển lại khi mạng ổn định.',
+                actions: [{ type: 'request_handoff', label: 'Thử chuyển lại' }]
+            });
+            window.HelpdeskAgentChat?.save?.(agentMessages);
+            renderAgentMessages();
+        } finally {
+            agentHandoffPending = false;
+            if (!handoffComplete && button.isConnected) {
+                button.disabled = false;
+                button.textContent = originalLabel;
+            }
+        }
+    }
+
     async function sendAgentMessage(message) {
         if (!agentMode || agentRequestPending || !message) return;
         const input = document.getElementById('chat-input');
@@ -684,11 +755,21 @@
                 getAgentOutputMessage(output),
                 output.type === 'answer' && Array.isArray(output.citations) ? output.citations : [],
                 false,
-                Array.isArray(output.suggestedActions) ? output.suggestedActions : []
+                window.HelpdeskAgentChat?.actionsFromOutput?.(output) || [],
+                window.HelpdeskAgentChat?.outputDetails?.(output) || ''
             );
         } catch (_) {
             agentMessages.pop();
-            addAgentMessage('assistant', 'Trợ lý AI tạm thời không khả dụng. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.');
+            addAgentMessage(
+                'assistant',
+                'Trợ lý AI tạm thời không khả dụng. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.',
+                [],
+                false,
+                [
+                    { type: 'retry', label: 'Thử lại' },
+                    { type: 'request_handoff', label: 'Chat nhân viên' }
+                ]
+            );
         } finally {
             agentRequestPending = false;
             if (input) input.disabled = false;

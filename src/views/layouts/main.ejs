@@ -517,7 +517,7 @@
                 <div id="floating-chat-mode-title" class="fw-semibold text-dark text-truncate" style="font-size: 0.78rem;">Đang nhắn với nhân viên</div>
                 <small id="floating-chat-mode-description" class="text-muted d-block text-truncate" style="font-size: 0.68rem;">Tin nhắn được gửi tới kênh hỗ trợ hiện tại.</small>
             </div>
-            <button type="button" id="floating-agent-mode-toggle" class="btn btn-sm btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 px-2.5" style="min-height: 38px; font-size: 0.75rem;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
+            <button type="button" id="floating-agent-mode-toggle" class="btn btn-sm btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 px-2.5" data-agent-chat-history-key="<%= agentChatHistoryKey || '' %>" style="min-height: 38px; font-size: 0.75rem;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
                 <i class="bi bi-stars" aria-hidden="true"></i>
                 <span>Hỏi trợ lý AI</span>
             </button>
@@ -636,11 +636,149 @@
     </div>
 
     <script>
+        // Lưu transcript AI theo phiên để hai giao diện chat dùng chung trong một tab.
+        window.HelpdeskAgentChat = (() => {
+            const maxEntries = 60;
+            const maxAgeMs = 30 * 24 * 60 * 60 * 1000;
+            const allowedActionTypes = new Set([
+                'view_destination', 'request_handoff', 'retry', 'sign_in', 'confirm', 'cancel'
+            ]);
+
+            function storageKey() {
+                const key = document.querySelector('[data-agent-chat-history-key]')
+                    ?.getAttribute('data-agent-chat-history-key');
+                return key ? `bl-agent-chat-v1:${key}` : null;
+            }
+
+            function normalizeEntries(entries) {
+                if (!Array.isArray(entries)) return [];
+                return entries
+                    .filter(entry => entry && ['user', 'assistant'].includes(entry.role)
+                        && !entry.loading && typeof entry.content === 'string')
+                    .slice(-maxEntries)
+                    .map(entry => ({
+                        role: entry.role,
+                        content: entry.content.slice(0, 12000),
+                        citations: Array.isArray(entry.citations)
+                            ? entry.citations.slice(0, 8).map(citation => ({
+                                title: String(citation?.title || '').slice(0, 300),
+                                url: String(citation?.url || '').slice(0, 2048)
+                            }))
+                            : [],
+                        actions: Array.isArray(entry.actions)
+                            ? entry.actions.filter(action => allowedActionTypes.has(action?.type))
+                                .slice(0, 8).map(action => ({
+                                    type: action.type,
+                                    label: String(action.label || '').slice(0, 120),
+                                    target: String(action.target || '').slice(0, 200)
+                                }))
+                            : [],
+                        actionPreview: typeof entry.actionPreview === 'string'
+                            ? entry.actionPreview.slice(0, 1000)
+                            : ''
+                    }));
+            }
+
+            function load() {
+                try {
+                    const key = storageKey();
+                    if (!key) return [];
+                    const saved = JSON.parse(sessionStorage.getItem(key) || 'null');
+                    if (!saved || !Number.isFinite(saved.savedAt)
+                        || Date.now() - saved.savedAt > maxAgeMs) {
+                        sessionStorage.removeItem(key);
+                        return [];
+                    }
+                    const messages = normalizeEntries(saved.messages);
+                    if (messages.length > 0 && messages[messages.length - 1].role === 'user') {
+                        messages.push({
+                            role: 'assistant',
+                            content: 'Yêu cầu trước chưa ghi nhận phản hồi trong giao diện. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.',
+                            actions: [
+                                { type: 'retry', label: 'Thử lại' },
+                                { type: 'request_handoff', label: 'Chat nhân viên' }
+                            ]
+                        });
+                    }
+                    return messages;
+                } catch (_) {
+                    return [];
+                }
+            }
+
+            function save(entries) {
+                try {
+                    const key = storageKey();
+                    if (!key) return;
+                    sessionStorage.setItem(key, JSON.stringify({
+                        savedAt: Date.now(),
+                        messages: normalizeEntries(entries)
+                    }));
+                } catch (_) {
+                    // Chat vẫn tiếp tục hoạt động nếu trình duyệt chặn sessionStorage.
+                }
+            }
+
+            function buildHandoffMessage(entries, intent = '') {
+                const recentMessages = normalizeEntries(entries).slice(-4);
+                const transcript = recentMessages.map(entry => {
+                    const role = entry.role === 'user' ? 'Khách' : 'Trợ lý AI';
+                    const details = entry.actionPreview ? `\nChi tiết yêu cầu: ${entry.actionPreview}` : '';
+                    return `${role}: ${(entry.content + details).slice(0, 350)}`;
+                }).join('\n');
+                const intentLine = intent
+                    ? `Yêu cầu hỗ trợ: Khách muốn nhân viên ${intent}.\n`
+                    : 'Yêu cầu hỗ trợ: Khách muốn nhân viên tiếp tục hỗ trợ.\n';
+                const prefix = `${intentLine}Nội dung trao đổi gần đây:\n`;
+                return `${prefix}${transcript}`.slice(0, 1900);
+            }
+
+            function actionsFromOutput(output) {
+                const actions = Array.isArray(output?.suggestedActions)
+                    ? [...output.suggestedActions]
+                    : [];
+                if (output?.type === 'temporarily_unavailable' && output.retryable
+                    && !actions.some(action => action?.type === 'retry')) {
+                    actions.push({ type: 'retry', label: 'Thử lại' });
+                }
+                if (['handoff', 'confirmation_required', 'approval_pending'].includes(output?.type)
+                    && !actions.some(action => action?.type === 'request_handoff')) {
+                    actions.push({ type: 'request_handoff', label: 'Nhờ nhân viên tiếp tục' });
+                }
+                return actions;
+            }
+
+            function outputDetails(output) {
+                if (typeof output?.actionPreview?.summary === 'string') {
+                    return output.actionPreview.summary;
+                }
+                if (output?.type === 'action_completed' && output.referenceId) {
+                    return `Mã tham chiếu: ${output.referenceId}`;
+                }
+                if (output?.type === 'handoff' && output.handoffId) {
+                    return `Mã bàn giao: ${output.handoffId}`;
+                }
+                return '';
+            }
+
+            async function requestHandoff(entries, intent = '') {
+                const response = await axios.post('/api/send-message', {
+                    message: buildHandoffMessage(entries, intent)
+                }, { timeout: 15000 });
+                if (response.data?.success !== true) {
+                    throw new Error('HANDOFF_REQUEST_FAILED');
+                }
+            }
+
+            return { load, save, requestHandoff, actionsFromOutput, outputDetails };
+        })();
+
         let floatingChatInterval = null;
         let lastFloatingMsgCount = -1;
         let floatingAgentMode = false;
         let floatingAgentRequestPending = false;
-        let floatingAgentMessages = [];
+        let floatingAgentHandoffPending = false;
+        let floatingAgentMessages = window.HelpdeskAgentChat.load();
         let floatingMediaRecorder = null;
         let floatingAudioChunks = [];
         let floatingRecordInterval = null;
@@ -689,9 +827,16 @@
             }
         }
 
-        function setFloatingChatMode(useAgent) {
-            if (floatingAgentRequestPending) return;
-            floatingAgentMode = Boolean(useAgent);
+        function setFloatingChatMode(useAgent, skipHandoff = false) {
+            if (floatingAgentRequestPending || (floatingAgentHandoffPending && !skipHandoff)) return;
+            const nextMode = Boolean(useAgent);
+            if (floatingAgentMode && !nextMode && !skipHandoff
+                && floatingAgentMessages.some(entry => entry.role === 'user')) {
+                const toggle = document.getElementById('floating-agent-mode-toggle');
+                if (toggle) requestFloatingAgentHandoff(toggle);
+                return;
+            }
+            floatingAgentMode = nextMode;
 
             const toggle = document.getElementById('floating-agent-mode-toggle');
             const title = document.getElementById('floating-chat-mode-title');
@@ -730,6 +875,7 @@
                         role: 'assistant',
                         content: 'Xin chào! Bạn có thể hỏi về điểm đến và dịch vụ tại Bình Lợi. Mình sẽ chỉ trả lời khi có thông tin và nguồn phù hợp.'
                     });
+                    window.HelpdeskAgentChat.save(floatingAgentMessages);
                 }
                 renderFloatingAgentMessages();
             } else {
@@ -802,6 +948,18 @@
                     content.textContent = String(entry.content || '');
                     bubble.append(content);
 
+                    if (entry.actionPreview) {
+                        const preview = document.createElement('div');
+                        preview.className = 'border rounded-3 p-2 mt-2 bg-white small';
+                        const previewTitle = document.createElement('div');
+                        previewTitle.className = 'fw-semibold text-dark mb-1';
+                        previewTitle.textContent = 'Chi tiết yêu cầu';
+                        const previewSummary = document.createElement('div');
+                        previewSummary.textContent = entry.actionPreview;
+                        preview.append(previewTitle, previewSummary);
+                        bubble.append(preview);
+                    }
+
                     if (Array.isArray(entry.citations) && entry.citations.length > 0) {
                         const sources = document.createElement('div');
                         sources.className = 'border-top mt-2 pt-2';
@@ -829,6 +987,7 @@
                             if (action?.type === 'view_destination' && /^[a-z0-9-]+$/i.test(String(action.target || ''))) {
                                 const link = document.createElement('a');
                                 link.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                link.style.minHeight = '44px';
                                 link.href = `/explore/${encodeURIComponent(action.target)}`;
                                 link.textContent = actionLabel || 'Xem điểm đến';
                                 actions.append(link);
@@ -836,19 +995,36 @@
                                 const button = document.createElement('button');
                                 button.type = 'button';
                                 button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                button.style.minHeight = '44px';
                                 button.textContent = actionLabel || 'Gặp nhân viên hỗ trợ';
-                                button.addEventListener('click', () => setFloatingChatMode(false));
+                                button.addEventListener('click', () => requestFloatingAgentHandoff(button));
                                 actions.append(button);
                             } else if (action?.type === 'retry') {
                                 const button = document.createElement('button');
                                 button.type = 'button';
                                 button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                button.style.minHeight = '44px';
                                 button.textContent = actionLabel || 'Thử lại';
                                 button.disabled = floatingAgentRequestPending;
                                 button.addEventListener('click', () => {
                                     const lastQuestion = [...floatingAgentMessages].reverse().find(item => item.role === 'user')?.content;
                                     if (lastQuestion) sendFloatingAgentMessage(lastQuestion);
                                 });
+                                actions.append(button);
+                            } else if (action?.type === 'sign_in') {
+                                const link = document.createElement('a');
+                                link.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                link.style.minHeight = '44px';
+                                link.href = '/auth/login';
+                                link.textContent = actionLabel || 'Đăng nhập';
+                                actions.append(link);
+                            } else if (action?.type === 'confirm' || action?.type === 'cancel') {
+                                const button = document.createElement('button');
+                                button.type = 'button';
+                                button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                button.style.minHeight = '44px';
+                                button.textContent = `Nhờ nhân viên: ${actionLabel || (action.type === 'confirm' ? 'xác nhận' : 'hủy')}`;
+                                button.addEventListener('click', () => requestFloatingAgentHandoff(button, action.type));
                                 actions.append(button);
                             }
                         });
@@ -868,6 +1044,36 @@
             return 'Trợ lý chưa thể trả lời câu hỏi này bằng thông tin đã kiểm chứng.';
         }
 
+        async function requestFloatingAgentHandoff(button, intentType = '') {
+            if (floatingAgentHandoffPending) return;
+            floatingAgentHandoffPending = true;
+            let handoffComplete = false;
+            const originalLabel = button.textContent;
+            button.disabled = true;
+            button.textContent = 'Đang chuyển yêu cầu…';
+
+            try {
+                const intent = intentType === 'confirm' ? 'xử lý xác nhận' : intentType === 'cancel' ? 'xử lý hủy' : '';
+                await window.HelpdeskAgentChat.requestHandoff(floatingAgentMessages, intent);
+                setFloatingChatMode(false, true);
+                handoffComplete = true;
+            } catch (_) {
+                floatingAgentMessages.push({
+                    role: 'assistant',
+                    content: 'Chưa gửi được yêu cầu đến nhân viên. Hãy thử chuyển lại khi mạng ổn định.',
+                    actions: [{ type: 'request_handoff', label: 'Thử chuyển lại' }]
+                });
+                window.HelpdeskAgentChat.save(floatingAgentMessages);
+                renderFloatingAgentMessages();
+            } finally {
+                floatingAgentHandoffPending = false;
+                if (!handoffComplete && button.isConnected) {
+                    button.disabled = false;
+                    button.textContent = originalLabel;
+                }
+            }
+        }
+
         async function sendFloatingAgentMessage(message) {
             const question = String(message || '').trim();
             if (!floatingAgentMode || floatingAgentRequestPending || !question) return;
@@ -875,6 +1081,7 @@
             const sendButton = document.getElementById('floating-btn-send');
             const toggle = document.getElementById('floating-agent-mode-toggle');
             floatingAgentMessages.push({ role: 'user', content: question });
+            window.HelpdeskAgentChat.save(floatingAgentMessages);
             floatingAgentRequestPending = true;
             floatingAgentMessages.push({ role: 'assistant', loading: true });
             renderFloatingAgentMessages();
@@ -893,7 +1100,8 @@
                     role: 'assistant',
                     content: getFloatingAgentOutputMessage(output),
                     citations: output.type === 'answer' && Array.isArray(output.citations) ? output.citations : [],
-                    actions: Array.isArray(output.suggestedActions) ? output.suggestedActions : []
+                    actions: window.HelpdeskAgentChat.actionsFromOutput(output),
+                    actionPreview: window.HelpdeskAgentChat.outputDetails(output)
                 });
             } catch (_) {
                 floatingAgentMessages.pop();
@@ -907,6 +1115,7 @@
                 });
             } finally {
                 floatingAgentRequestPending = false;
+                window.HelpdeskAgentChat.save(floatingAgentMessages);
                 if (input) input.disabled = false;
                 if (sendButton) sendButton.disabled = false;
                 if (toggle) toggle.disabled = false;

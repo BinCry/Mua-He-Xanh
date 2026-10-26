@@ -13,6 +13,7 @@ const CheckIn = require('./models/CheckIn');
 const { LEGACY_IMAGE_ALIASES, DEFAULT_IMAGE, normalizeImagePath } = require('./utils/imagePaths');
 const { safeJsonForScript } = require('./utils/safeJson');
 const { v4: uuidv4 } = require('uuid');
+const { createHash } = require('crypto');
 
 const app = express();
 const PORT = config.port;
@@ -474,6 +475,14 @@ app.use(async (req, res, next) => {
             console.error("Session initialize middleware error:", e);
         }
     }
+
+    // Dùng khóa không thể đảo ngược để FE lưu transcript AI đúng phiên đăng nhập.
+    // Khóa này không thay thế cookie xác thực và không tiết lộ session UUID.
+    const chatUserId = res.locals.user?.id;
+    const chatSessionUuid = res.locals.sessionDbUuid || req.cookies?.session_uuid;
+    res.locals.agentChatHistoryKey = chatUserId && chatSessionUuid
+        ? createHash('sha256').update(`${chatUserId}:${chatSessionUuid}`).digest('hex')
+        : '';
 
     // Load Site Settings with RAM caching (2 minutes TTL)
     const now = Date.now();
