@@ -512,12 +512,11 @@
         <input type="file" id="floating-chat-image-input" accept="image/*" style="display: none;" onchange="handleFloatingImageUpload(event)">
 
         <!-- Chọn kênh hỗ trợ cho widget chat desktop -->
-        <div id="floating-chat-mode-control" class="d-flex align-items-center justify-content-between gap-2 px-3 py-2 border-bottom bg-white" style="min-height: 58px; border-color: #e4e6eb !important;">
-            <div aria-live="polite" aria-atomic="true" class="min-w-0">
+        <div id="floating-chat-mode-control" class="d-flex align-items-center gap-2 px-2 py-2 border-bottom bg-white" style="min-height: 54px; border-color: #e4e6eb !important;">
+            <div aria-live="polite" aria-atomic="true" class="flex-grow-1" style="min-width: 0;">
                 <div id="floating-chat-mode-title" class="fw-semibold text-dark text-truncate" style="font-size: 0.78rem;">Đang nhắn với nhân viên</div>
-                <small id="floating-chat-mode-description" class="text-muted d-block text-truncate" style="font-size: 0.68rem;">Tin nhắn được gửi tới kênh hỗ trợ hiện tại.</small>
             </div>
-            <button type="button" id="floating-agent-mode-toggle" class="btn btn-sm btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 px-2.5" style="min-height: 38px; font-size: 0.75rem;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
+            <button type="button" id="floating-agent-mode-toggle" class="btn btn-sm btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 text-nowrap px-2.5" style="min-height: 38px; font-size: 0.75rem;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
                 <i class="bi bi-stars" aria-hidden="true"></i>
                 <span>Hỏi trợ lý AI</span>
             </button>
@@ -695,7 +694,6 @@
 
             const toggle = document.getElementById('floating-agent-mode-toggle');
             const title = document.getElementById('floating-chat-mode-title');
-            const description = document.getElementById('floating-chat-mode-description');
             const input = document.getElementById('floatingChatInput');
             const sendButton = document.getElementById('floating-btn-send');
 
@@ -707,11 +705,6 @@
                     : '<i class="bi bi-stars" aria-hidden="true"></i><span>Hỏi trợ lý AI</span>';
             }
             if (title) title.textContent = floatingAgentMode ? 'Đang hỏi Trợ lý AI' : 'Đang nhắn với nhân viên';
-            if (description) {
-                description.textContent = floatingAgentMode
-                    ? 'AI tra cứu thông tin công khai và hiển thị nguồn tham khảo.'
-                    : 'Tin nhắn được gửi tới kênh hỗ trợ hiện tại.';
-            }
             if (input) input.placeholder = floatingAgentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
             if (sendButton) sendButton.title = floatingAgentMode ? 'Gửi câu hỏi cho Trợ lý AI' : 'Gửi';
 

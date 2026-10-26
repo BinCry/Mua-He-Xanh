@@ -41,12 +41,11 @@
                 <!-- Input Footer (Messenger Style) -->
                 <div class="p-2.5 px-3 bg-white border-top position-relative" style="border-color: #e4e6eb !important;">
                     <% if (currentUser) { %>
-                    <div class="d-flex align-items-center justify-content-between gap-2 px-1 pb-2 mb-2 border-bottom" id="chat-mode-control">
-                        <div aria-live="polite" aria-atomic="true">
+                    <div class="d-flex align-items-center gap-2 px-1 pb-2 mb-2 border-bottom" id="chat-mode-control">
+                        <div aria-live="polite" aria-atomic="true" class="flex-grow-1" style="min-width: 0;">
                             <div class="fw-semibold text-dark" id="chat-mode-title" style="font-size: 0.82rem;">Đang nhắn với nhân viên</div>
-                            <small class="text-muted" id="chat-mode-description" style="font-size: 0.72rem;">Tin nhắn được gửi tới kênh hỗ trợ hiện tại.</small>
                         </div>
-                        <button type="button" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 px-3" id="agent-mode-toggle" style="min-height: 44px;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
+                        <button type="button" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 text-nowrap px-3" id="agent-mode-toggle" style="min-height: 44px;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
                             <i class="bi bi-stars" aria-hidden="true"></i>
                             <span>Hỏi trợ lý AI</span>
                         </button>
@@ -612,7 +611,6 @@
 
         const toggle = document.getElementById('agent-mode-toggle');
         const title = document.getElementById('chat-mode-title');
-        const description = document.getElementById('chat-mode-description');
         const input = document.getElementById('chat-input');
         const sendButton = document.getElementById('tourist-btn-send');
 
@@ -627,11 +625,6 @@
             toggle.replaceChildren(icon, label);
         }
         if (title) title.textContent = agentMode ? 'Đang hỏi Trợ lý AI' : 'Đang nhắn với nhân viên';
-        if (description) {
-            description.textContent = agentMode
-                ? 'AI tra cứu thông tin công khai và hiển thị nguồn tham khảo.'
-                : 'Tin nhắn được gửi tới kênh hỗ trợ hiện tại.';
-        }
         if (input) input.placeholder = agentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
         if (sendButton) sendButton.title = agentMode ? 'Gửi câu hỏi cho Trợ lý AI' : 'Gửi';
 
