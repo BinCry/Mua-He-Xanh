@@ -235,12 +235,12 @@ main {
         padding-bottom: 2px !important;
         overflow: visible !important;
     }
-    .lang-switch-group button {
-        font-size: 0.75rem !important;
-        min-width: 44px !important;
-        width: 44px !important;
-        min-height: 44px !important;
-        height: 44px !important;
+    .navbar-premium .lang-switch-group button {
+        font-size: 0.7rem !important;
+        min-width: 36px !important;
+        width: 36px !important;
+        min-height: 36px !important;
+        height: 36px !important;
         padding: 0 !important;
     }
 }
