@@ -161,15 +161,31 @@
             display: flex;
             flex-direction: column;
         }
+        /* Bootstrap has no `p-2.5`/`gap-2.5` utility. Keep the mobile staff
+           card's breathing room explicit so its avatar and role badge never
+           sit flush against the card border. */
+        .admin-mobile-user-card {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-color: var(--admin-border) !important;
+        }
+        .admin-mobile-user-card .role-badge {
+            flex: 0 0 auto;
+            white-space: nowrap;
+        }
         
         @media (max-width: 991px) {
             .admin-sb { display: none !important; }
             .admin-main { 
                 margin-left: 0 !important; 
-                padding: 16px !important; 
-                padding-top: 12px !important;
+                padding: 0 16px 16px !important;
                 width: 100% !important;
                 overflow-x: hidden;
+            }
+            .admin-mobile-topbar {
+                margin: 0 -16px 20px !important;
             }
             
             /* Responsive action header buttons */
@@ -367,7 +383,7 @@
 
         <div class="offcanvas-body">
             <!-- User Info Card -->
-            <div class="d-flex align-items-center gap-2.5 p-2.5 rounded-3 mb-3 bg-light border" style="border-color: var(--admin-border) !important;">
+            <div class="admin-mobile-user-card rounded-3 mb-3 bg-light border">
                 <img src="<%= fixImg(user.avatar || settings.brand_logo, '/images/default-avatar.svg') %>" class="rounded-circle shadow-2xs flex-shrink-0" style="width: 40px; height: 40px; object-fit: cover;" onerror="this.src='/images/default-avatar.svg'">
                 <div class="min-w-0 flex-grow-1">
                     <div class="fw-bold text-truncate notranslate" translate="no" style="font-size: 0.85rem;"><%= user.full_name %></div>

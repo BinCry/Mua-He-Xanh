@@ -4,7 +4,7 @@
     <header class="bl-studio-header d-flex align-items-center justify-content-between px-4 border-bottom bg-white shadow-2xs">
         <!-- Bên trái: Logo & Branding -->
         <div class="d-flex align-items-center gap-3">
-            <a href="/reviews" class="btn btn-sm bl-btn-back rounded-circle d-flex align-items-center justify-content-center me-1" title="Quay lại Bảng tin">
+            <a href="/reviews" class="btn btn-sm bl-btn-back rounded-circle d-flex align-items-center justify-content-center me-1" title="Quay lại Bảng tin" aria-label="Quay lại Bảng tin">
                 <i class="bi bi-arrow-left fs-6"></i>
             </a>
             <div class="d-flex align-items-center gap-3">
@@ -31,23 +31,23 @@
 
         <!-- Bên phải: Các công cụ thao tác nhanh (Undo, Redo, Play, Xuất video) -->
         <div class="d-flex align-items-center gap-2.5">
-            <button type="button" class="btn btn-sm bl-btn-icon" id="btnUndo" title="Hoàn tác (Ctrl+Z)" disabled>
+            <button type="button" class="btn btn-sm bl-btn-icon" id="btnUndo" title="Hoàn tác (Ctrl+Z)" aria-label="Hoàn tác" disabled>
                 <i class="bi bi-arrow-counterclockwise fs-5"></i>
             </button>
-            <button type="button" class="btn btn-sm bl-btn-icon" id="btnRedo" title="Làm lại (Ctrl+Y)" disabled>
+            <button type="button" class="btn btn-sm bl-btn-icon" id="btnRedo" title="Làm lại (Ctrl+Y)" aria-label="Làm lại" disabled>
                 <i class="bi bi-arrow-clockwise fs-5"></i>
             </button>
             <div class="vr my-1 bl-vr mx-1"></div>
-            <button type="button" class="btn btn-sm bl-btn-secondary d-none d-sm-flex align-items-center gap-2 px-3 py-1.5 rounded-pill" id="btnHeaderPlay">
+            <button type="button" class="btn btn-sm bl-btn-secondary d-none d-sm-flex align-items-center gap-2 px-3 py-1.5 rounded-pill" id="btnHeaderPlay" aria-label="Xem trước video">
                 <i class="bi bi-play-fill fs-5"></i>
                 <span>Xem trước</span>
             </button>
-            <button type="button" class="btn btn-sm bl-btn-secondary d-none d-lg-flex align-items-center gap-2 px-3 py-1.5 rounded-pill" id="btnSaveProject">
+            <button type="button" class="btn btn-sm bl-btn-secondary d-none d-lg-flex align-items-center gap-2 px-3 py-1.5 rounded-pill" id="btnSaveProject" aria-label="Lưu dự án">
                 <i class="bi bi-floppy fs-6"></i>
                 <span>Lưu</span>
             </button>
             <!-- Nút Export nổi bật màu đỏ -->
-            <button type="button" class="btn btn-sm bl-btn-export fw-bold d-flex align-items-center gap-2 shadow-sm px-4 py-1.5 rounded-pill ms-1" id="btnOpenExportModal">
+            <button type="button" class="btn btn-sm bl-btn-export fw-bold d-flex align-items-center gap-2 shadow-sm px-4 py-1.5 rounded-pill ms-1" id="btnOpenExportModal" aria-label="Xuất video">
                 <i class="bi bi-box-arrow-up-right fs-6"></i>
                 <span>Xuất video</span>
             </button>
@@ -1527,9 +1527,16 @@ main {
         top: 0;
         height: 60px;
         min-height: 60px;
-        padding: 8px 10px !important;
+        padding: 8px 6px !important;
         gap: 6px;
         z-index: 1100;
+    }
+
+    .bl-studio-header .bl-btn-back {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        flex: 0 0 44px;
     }
 
     .bl-studio-header > div:first-child {
@@ -1571,15 +1578,21 @@ main {
 
     .bl-studio-header > div:last-child button {
         display: grid !important;
-        width: 36px;
-        height: 36px;
-        min-width: 36px;
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
         margin: 0 !important;
         padding: 0 !important;
         place-items: center;
     }
 
     .bl-studio-header > div:last-child button > span {
+        display: none !important;
+    }
+
+    .bl-studio-header #btnHeaderPlay,
+    .bl-studio-header #btnSaveProject {
         display: none !important;
     }
 
@@ -1708,6 +1721,15 @@ main {
     .bl-track-row {
         min-width: 560px;
     }
+}
+
+@media (max-width: 359.98px) {
+    .bl-studio-header > div:first-child > div > img { display: none !important; }
+    .bl-studio-header > div:first-child > div { gap: 0 !important; }
+}
+
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .bl-studio-header #btnSaveProject { display: none !important; }
 }
 
 @keyframes fadeIn {

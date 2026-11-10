@@ -43,7 +43,7 @@ test('Explore, Shop and Workshop restore the full catalogue when the query is cl
 });
 
 test('catalogue cards stay visible instead of depending on their scroll animation', async ({ page }) => {
-    await expectCatalogueCardsVisible(page, '/explore', '[data-catalog-results] .row > .col-4');
+    await expectCatalogueCardsVisible(page, '/explore', '[data-catalog-results] .row > div[class*="col-"]');
     await expectCatalogueCardsVisible(page, '/shops', '[data-catalog-results] .shop-grid-container > .col');
     await expectCatalogueCardsVisible(page, '/workshops', '[data-catalog-results] article');
 });

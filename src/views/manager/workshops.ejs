@@ -1,16 +1,16 @@
 <!-- Manager: Shop Management -->
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="d-flex justify-content-between align-items-center mb-4 manager-shop-heading">
     <div>
         <h4 class="fw-bold mb-1" style="font-family: 'Inter', sans-serif;">Quản lý Shop - <%= dest.name %></h4>
         <p class="mb-0" style="color: var(--admin-muted); font-size: 0.85rem;">Quản lý danh sách, thêm, sửa, xóa các sản phẩm thuộc địa điểm <%= dest.name %>.</p>
     </div>
-    <button class="btn btn-primary rounded-pill px-4 fw-bold" data-bs-toggle="modal" data-bs-target="#wsModal" onclick="openWsForm()">
+    <button class="btn btn-primary rounded-pill px-4 fw-bold manager-shop-add" data-bs-toggle="modal" data-bs-target="#wsModal" onclick="openWsForm()">
         <i class="bi bi-plus-lg me-1"></i> Thêm sản phẩm
     </button>
 </div>
 
 <!-- Workshops Table -->
-<div class="admin-table">
+<div class="admin-table manager-shop-table-wrap">
     <table class="table table-borderless mb-0 manager-shop-table">
         <thead>
             <tr>
@@ -26,7 +26,7 @@
         <tbody>
             <% workshops.forEach(ws => { %>
             <tr id="ws-row-<%= ws.id %>">
-                <td class="manager-shop-type">
+                <td data-label="Sản phẩm">
                     <div class="d-flex align-items-center gap-2">
                         <img src="<%= fixImg(ws.image, '/uploads/posters/poster-1.webp') %>" class="rounded-3" style="width: 44px; height: 44px; object-fit: cover;">
                         <div>
@@ -35,7 +35,7 @@
                         </div>
                     </div>
                 </td>
-                <td>
+                <td data-label="Loại">
                     <% 
                     const typeLabels = {
                         nhang: 'Làm Nhang', mai: 'Chăm Mai', thien: 'Thiền Healing',
@@ -44,23 +44,23 @@
                     %>
                     <span class="role-badge role-user"><%= typeLabels[ws.type] || ws.type %></span>
                 </td>
-                <td>
+                <td data-label="Giá">
                     <% if (ws.price == 0) { %>
                         <span class="text-success small fw-bold">Miễn phí</span>
                     <% } else { %>
                         <span class="small"><%= new Intl.NumberFormat('vi-VN').format(ws.price) %>đ</span>
                     <% } %>
                 </td>
-                <td class="small"><%= ws.duration || '2 giờ' %></td>
-                <td class="small"><%= ws.max_participants || 20 %></td>
-                <td>
+                <td class="small" data-label="Thời gian / Quy cách"><%= ws.duration || '2 giờ' %></td>
+                <td class="small" data-label="Sức chứa / Kho"><%= ws.max_participants || 20 %></td>
+                <td data-label="Trạng thái">
                     <% if (ws.is_active) { %>
                         <span class="badge bg-success bg-opacity-25 text-success rounded-pill px-3">Active</span>
                     <% } else { %>
                         <span class="badge bg-secondary bg-opacity-25 text-secondary rounded-pill px-3">Ẩn</span>
                     <% } %>
                 </td>
-                <td class="workshop-actions-cell">
+                <td class="workshop-actions-cell" data-label="Thao tác">
                     <div class="workshop-actions" role="group" aria-label="Thao tác với <%= ws.title %>">
                     <button class="btn btn-sm btn-outline-primary rounded-pill px-3" onclick="editWs(this)" data-workshop="<%= encodeURIComponent(JSON.stringify(ws)) %>" aria-label="Sửa <%= ws.title %>" title="Sửa">
                         <i class="bi bi-pencil"></i>
@@ -73,7 +73,7 @@
             </tr>
             <% }) %>
             <% if (workshops.length === 0) { %>
-            <tr><td colspan="7" class="text-center py-5 text-muted">Chưa có sản phẩm nào trong shop.</td></tr>
+            <tr class="workshop-empty-row"><td colspan="7" class="text-center py-5 text-muted">Chưa có sản phẩm nào trong shop.</td></tr>
             <% } %>
         </tbody>
     </table>
@@ -84,10 +84,40 @@
   .manager-shop-table .manager-shop-type { min-width: 132px; width: 132px; }
   .manager-shop-table .role-badge { display: inline-flex; align-items: center; white-space: nowrap; line-height: 1.25; }
   .workshop-actions { display: flex; flex-wrap: nowrap; align-items: center; gap: .5rem; min-width: max-content; }
-  .workshop-actions .btn { min-height: 38px; }
+  .workshop-actions .btn { min-width: 44px; min-height: 44px; }
+  .manager-shop-add { min-height: 44px; }
   @media (max-width: 767.98px) {
-    .workshop-actions { gap: .375rem; }
-    .workshop-actions .btn { min-width: 38px; }
+    .manager-shop-heading { align-items: stretch !important; flex-direction: column; gap: .75rem; }
+    .manager-shop-add { align-self: flex-start; }
+    .manager-shop-table-wrap { overflow: visible !important; }
+    .manager-shop-table { display: block; width: 100%; min-width: 0 !important; }
+    .manager-shop-table thead {
+      position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+      overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+    }
+    .manager-shop-table tbody { display: block; width: 100%; }
+    .manager-shop-table tbody tr {
+      display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: .75rem;
+      margin-bottom: .75rem; padding: .9rem; border: 1px solid var(--admin-border, #e2e8f0);
+      border-radius: 14px; background: var(--admin-surface, #fff);
+    }
+    .manager-shop-table tbody td {
+      display: grid; grid-template-columns: minmax(0, 1fr); align-content: start;
+      min-width: 0; padding: 0; border: 0; overflow-wrap: anywhere;
+    }
+    .manager-shop-table tbody td::before {
+      content: attr(data-label); margin-bottom: .3rem; color: var(--admin-muted, #64748b);
+      font-size: .72rem; font-weight: 700; line-height: 1.3;
+    }
+    .manager-shop-table tbody td:first-child,
+    .manager-shop-table tbody td:last-child { grid-column: 1 / -1; }
+    .manager-shop-table tbody td:first-child::before { display: none; }
+    .manager-shop-table tbody td:last-child { justify-self: start; }
+    .workshop-actions { gap: .5rem; }
+    .workshop-actions .btn { min-width: 44px; min-height: 44px; }
+    .manager-shop-table tbody tr.workshop-empty-row { display: block; }
+    .manager-shop-table tbody td[colspan] { display: block; }
+    .manager-shop-table tbody td[colspan]::before { content: none; }
   }
 </style>
 

@@ -109,8 +109,10 @@
             align-items: center !important;
             justify-content: center !important;
             flex-shrink: 0 !important;
-            width: clamp(32px, 4vw, 38px) !important;
-            height: clamp(32px, 4vw, 38px) !important;
+            width: 44px !important;
+            height: 44px !important;
+            min-width: 44px !important;
+            min-height: 44px !important;
             margin-right: clamp(8px, 1.5vw, 14px) !important;
             padding: 0 !important;
             background: #f8fafc !important;
@@ -157,8 +159,10 @@
         }
 
         .lang-switch-group button {
-            font-size: clamp(0.58rem, 0.75vw, 0.75rem) !important;
-            padding: clamp(2px, 0.3vw, 4px) clamp(4px, 0.7vw, 8px) !important;
+            font-size: 0.75rem !important;
+            min-width: 44px !important;
+            min-height: 44px !important;
+            padding: 0 !important;
         }
 
         .btn-premium {
@@ -237,9 +241,9 @@
             <div class="lang-switch-group d-inline-flex align-items-center bg-white border rounded-pill p-0.5 shadow-sm notranslate"
                 translate="no" style="border-color: rgba(0,0,0,0.15) !important;">
                 <button type="button" class="btn btn-sm rounded-pill lang-btn-vn border-0 text-center notranslate"
-                    translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">VN</button>
+                    translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('vi')">VN</button>
                 <button type="button" class="btn btn-sm rounded-pill lang-btn-en border-0 text-center notranslate"
-                    translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')" style="font-size: 0.65rem; width: 28px; padding: 1px 0; letter-spacing: 0.5px;">EN</button>
+                    translate="no" onclick="event.preventDefault(); event.stopPropagation(); setAppLanguage('en')">EN</button>
             </div>
 
             <% const navUser = locals.user || (typeof user !== 'undefined' ? user : null); %>
@@ -277,8 +281,8 @@
                 </ul>
                 </div>
                 <% } else { %>
-                    <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold"
-                        style="font-size: 0.82rem;">Đăng nhập</a>
+                    <a href="/auth/login" class="btn btn-premium rounded-pill px-4 py-2 fw-bold navbar-login-link" aria-label="Đăng nhập"
+                        style="font-size: 0.82rem;"><i class="bi bi-box-arrow-in-right d-inline d-sm-none" aria-hidden="true"></i><span class="navbar-login-label">Đăng nhập</span></a>
                     <% } %>
         </div>
 
@@ -348,6 +352,33 @@
 </div>
 
 <style>
+    @media (max-width: 575.98px) {
+        .navbar-premium .brand-sub-text {
+            display: none !important;
+        }
+
+        .navbar-premium .brand-title-text {
+            font-size: 0.95rem !important;
+        }
+    }
+
+    @media (max-width: 400px) {
+        .navbar-premium .navbar-login-link {
+            width: 44px !important;
+            min-width: 44px !important;
+            height: 44px !important;
+            min-height: 44px !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .navbar-premium .navbar-login-label {
+            display: none !important;
+        }
+    }
+
     /* Mobile hamburger: override legacy bar rules so the visual glyph is truly centered. */
     .navbar-premium .navbar-toggler .nav-hamburger {
         width: 24px !important;

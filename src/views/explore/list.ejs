@@ -16,14 +16,14 @@
                     <i class="bi bi-search position-absolute top-50 translate-middle-y text-muted" style="left: 20px;"></i>
                     <input type="search" name="q" class="form-control border-0 bg-light rounded-pill py-3 ps-5 pe-4 shadow-none"
                         placeholder="" aria-label="Tìm kiếm địa điểm"
-                        value="<%= searchQuery || '' %>" autocomplete="off" style="font-size: 0.95rem; height: 52px;">
-                    <button type="submit" class="btn btn-primary rounded-pill fw-bold text-white btn-premium search-submit-btn position-absolute end-0 top-50 translate-middle-y me-2" style="background: var(--primary); font-size: 0.88rem;">
+                        value="<%= searchQuery || '' %>" autocomplete="off" style="font-size: 16px; height: 52px;">
+                    <button type="submit" class="btn btn-primary rounded-pill fw-bold text-white btn-premium search-submit-btn position-absolute end-0 top-50 translate-middle-y me-2" style="background: var(--primary); font-size: 0.875rem; min-height: 44px;">
                         Tìm kiếm
                     </button>
                 </div>
 
                 <!-- Capsule Filters -->
-                <div class="d-flex flex-nowrap gap-2 justify-content-between align-items-center w-100 explore-capsules-single-row">
+                <div class="explore-capsules-single-row w-100">
                     <button type="button" onclick="setFilterType('')" class="btn-filter-capsule <%= !currentType ? 'active' : '' %>">
                         Tất cả
                     </button>
@@ -59,7 +59,7 @@
 <div data-catalog-results aria-live="polite">
 <div class="row g-2 g-md-4">
     <% destinations.forEach(dest => { %>
-    <div class="col-4 col-md-6 col-lg-4 px-1 px-sm-2 mb-2 mb-md-3">
+    <div class="col-6 col-md-6 col-lg-4 px-1 px-sm-2 mb-2 mb-md-3">
         <a href="/explore/<%= dest.slug %>" class="text-decoration-none card-heal-wrapper">
             <!-- Equal Bento Card: identical to homepage cards -->
             <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative hover-lift home-dest-card" style="transition: all 0.3s ease;">
@@ -177,8 +177,23 @@
     }
 
     @media (max-width: 767.98px) {
+        .explore-capsules-single-row {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px !important;
+            overflow: visible !important;
+            padding: 0 !important;
+        }
+        .explore-capsules-single-row .btn-filter-capsule {
+            min-height: 44px !important;
+            padding: 8px 10px !important;
+            font-size: 0.875rem !important;
+            line-height: 1.25 !important;
+            white-space: normal !important;
+            justify-content: center;
+        }
         .home-dest-card {
-            height: 140px !important;
+            height: 176px !important;
             border-radius: 12px !important;
             position: relative !important;
             overflow: hidden !important;
@@ -209,9 +224,9 @@
             padding: 4px 5px !important;
             z-index: 5 !important;
         }
-        .home-dest-title {
+        .home-dest-card .home-dest-title {
             color: #ffffff !important;
-            font-size: 0.7rem !important;
+            font-size: 0.875rem !important;
             font-weight: 700 !important;
             line-height: 1.25 !important;
             margin-bottom: 0 !important;
@@ -227,8 +242,8 @@
             text-align: center !important;
         }
         .home-dest-card .badge {
-            font-size: 0.48rem !important;
-            padding: 2px 5px !important;
+            font-size: 0.75rem !important;
+            padding: 4px 6px !important;
             border-radius: 4px !important;
             letter-spacing: 0 !important;
         }
