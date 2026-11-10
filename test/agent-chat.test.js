@@ -10,6 +10,32 @@ const {
 const SESSION_UUID = 'f9d3b46b-fdc6-43c9-9d10-1bb22810abf7';
 const TEST_TOKEN = 'test-service-token-with-at-least-32-characters';
 
+test('a paused agent conversation keeps its 409 status without leaking upstream details', async () => {
+    const client = createHelpdeskAgentClient({
+        env: {
+            AI_SERVICE_CHAT_URL: 'http://127.0.0.1:8100/api/v1/chat',
+            AI_SERVICE_AUTH_TOKEN: TEST_TOKEN
+        },
+        httpClient: {
+            async post() {
+                const error = new Error('private upstream pause details');
+                error.response = { status: 409 };
+                throw error;
+            }
+        }
+    });
+    const controller = createAgentChatController({ client });
+    const res = response();
+    await controller.chat({
+        body: { message: 'Tình trạng ticket của tôi?' },
+        cookies: { session_uuid: SESSION_UUID },
+        user: { id: 'customer-123', role: 'user' }
+    }, res);
+    assert.equal(res.statusCode, 409);
+    assert.match(res.body.message, /đang chờ nhân viên/i);
+    assert.doesNotMatch(JSON.stringify(res.body), /private upstream/i);
+});
+
 function response() {
     return {
         statusCode: 200,

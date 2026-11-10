@@ -1,0 +1,108 @@
+<div class="container-fluid py-3" style="max-width: 860px;">
+    <h1 class="h3 fw-bold mb-2">Duyệt yêu cầu Trợ lý AI</h1>
+    <p class="text-muted mb-4">Nhập mã bàn giao do khách gửi trong Hộp thư Hỗ trợ. Kiểm tra nội dung trước khi đưa ra quyết định.</p>
+
+    <div class="card border-0 shadow-sm rounded-4 mb-3">
+        <div class="card-body p-4">
+            <label for="agent-review-receipt" class="form-label fw-semibold">Mã hoặc tin nhắn bàn giao</label>
+            <textarea id="agent-review-receipt" class="form-control mb-3" rows="3" maxlength="2400" autocomplete="off" spellcheck="false" placeholder="Dán tin nhắn khách gửi hoặc mã ar1.…"></textarea>
+            <button type="button" id="agent-review-inspect" class="btn btn-outline-primary" style="min-height: 44px;">Kiểm tra yêu cầu</button>
+        </div>
+    </div>
+
+    <div id="agent-review-detail" class="card border-0 shadow-sm rounded-4 d-none">
+        <div class="card-body p-4">
+            <div class="small text-muted mb-2" id="agent-review-kind"></div>
+            <h2 class="h5 fw-semibold">Nội dung từ agent</h2>
+            <p id="agent-review-summary" class="border rounded-3 bg-light p-3" style="white-space: pre-wrap;"></p>
+            <label for="agent-review-note" class="form-label fw-semibold">Ghi chú quyết định (không bắt buộc)</label>
+            <textarea id="agent-review-note" class="form-control mb-3" rows="3" maxlength="2000"></textarea>
+            <div class="d-flex flex-wrap gap-2">
+                <button type="button" id="agent-review-approve" class="btn btn-success" style="min-height: 44px;">Duyệt và tiếp tục</button>
+                <button type="button" id="agent-review-reject" class="btn btn-outline-danger" style="min-height: 44px;">Từ chối</button>
+            </div>
+        </div>
+    </div>
+    <div id="agent-review-status" class="mt-3" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(() => {
+    const field = document.getElementById('agent-review-receipt');
+    const detail = document.getElementById('agent-review-detail');
+    const status = document.getElementById('agent-review-status');
+    const inspectButton = document.getElementById('agent-review-inspect');
+    const approveButton = document.getElementById('agent-review-approve');
+    const rejectButton = document.getElementById('agent-review-reject');
+    let inspectedReceipt = '';
+    let busy = false;
+    function extractReceipt() {
+        return field.value.match(/ar1\.[A-Za-z0-9_-]{40,1800}/)?.[0] || '';
+    }
+
+    function setStatus(message, error = false) {
+        status.className = `mt-3 ${error ? 'text-danger' : 'text-success'}`;
+        status.textContent = message;
+    }
+    function setBusy(value) {
+        busy = value;
+        inspectButton.disabled = value;
+        approveButton.disabled = value;
+        rejectButton.disabled = value;
+    }
+    field.addEventListener('input', () => {
+        inspectedReceipt = '';
+        detail.classList.add('d-none');
+        setStatus('');
+    });
+
+    inspectButton.addEventListener('click', async () => {
+        if (busy) return;
+        const receipt = extractReceipt();
+        if (!receipt) return setStatus('Hãy nhập mã bàn giao.', true);
+        setBusy(true);
+        setStatus('Đang kiểm tra…');
+        try {
+            const response = await axios.post('/api/admin/agent/receipt', { receipt });
+            if (extractReceipt() !== receipt) return;
+            inspectedReceipt = receipt;
+            document.getElementById('agent-review-kind').textContent = response.data.data.kind === 'approval'
+                ? 'Yêu cầu tạo ticket đang chờ duyệt' : 'Hội thoại cần nhân viên tiếp tục';
+            document.getElementById('agent-review-summary').textContent = response.data.data.summary;
+            detail.classList.remove('d-none');
+            setStatus('Mã hợp lệ. Hãy đọc nội dung trước khi quyết định.');
+        } catch (error) {
+            detail.classList.add('d-none');
+            setStatus(error.response?.data?.message || 'Không thể kiểm tra mã bàn giao.', true);
+        } finally { setBusy(false); }
+    });
+
+    async function decide(decision) {
+        if (busy || !inspectedReceipt || extractReceipt() !== inspectedReceipt) return;
+        const label = decision === 'approve' ? 'duyệt và tiếp tục' : 'từ chối';
+        if (!window.confirm(`Bạn xác nhận ${label} yêu cầu này?`)) return;
+        setBusy(true);
+        setStatus('Đang gửi quyết định…');
+        try {
+            const response = await axios.post('/api/admin/agent/resume', {
+                receipt: inspectedReceipt,
+                decision,
+                note: document.getElementById('agent-review-note').value.trim()
+            }, { timeout: 40000 });
+            const output = response.data?.data?.output;
+            const reference = output?.referenceId ? ` Mã tham chiếu: ${output.referenceId}.` : '';
+            setStatus(`${output?.message || 'Đã ghi nhận quyết định.'}${reference}`);
+            detail.classList.add('d-none');
+            inspectedReceipt = '';
+            if (output?.reviewReceipt) {
+                field.value = output.reviewReceipt;
+                setStatus('Agent tạo yêu cầu tiếp theo. Hãy kiểm tra mã mới trước khi quyết định.');
+            }
+        } catch (error) {
+            setStatus(error.response?.data?.message || 'Chưa xác nhận được kết quả. Thử lại cùng quyết định để kiểm tra.', true);
+        } finally { setBusy(false); }
+    }
+    approveButton.addEventListener('click', () => decide('approve'));
+    rejectButton.addEventListener('click', () => decide('reject'));
+})();
+</script>
