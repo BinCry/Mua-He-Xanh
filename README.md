@@ -217,6 +217,25 @@ Hai endpoint chỉ đọc phục vụ giao diện và AI Helpdesk Agent, không 
 
 Response thành công của endpoint chi tiết có dạng `{ "data": { ... } }` và chỉ gồm các field công khai: `id`, `slug`, `name`, `type`, `description`, `short_description`, `open_hours`, `cost`, `highlight`, `best_time`, `latitude`, `longitude`, `cover_image`, `story`. API không trả `qr_secret`, field quản trị hoặc metadata nội bộ.
 
+### Private booking API cho AI agent
+
+`GET /api/internal/agent/workshop-bookings` là endpoint server-to-server chỉ
+đọc. Endpoint yêu cầu `Authorization: Bearer <BINHLOI_AGENT_SERVICE_TOKEN>` với
+token riêng tối thiểu 32 ký tự, cùng `X-Principal-ID` do backend web đã xác thực
+và `X-Request-ID` để correlation. Không nhận owner ID từ query/body.
+
+Query tùy chọn gồm `bookingReference`, `limit` và `offset`. SQL luôn lọc
+`user_id` theo principal trước; booking của tài khoản khác trả danh sách rỗng
+trung tính. Response chỉ có `bookingId`, `status`, `seats`, `workshopTitle`,
+`destinationName`, `startsAt`, `endsAt`; không trả PII, giá, thanh toán hay
+idempotency key. Credential phải đặt trong secret store và không dùng lại
+`AI_SERVICE_AUTH_TOKEN`.
+
+Thứ tự deploy: cấu hình token và deploy backend Bình Lợi trước, kiểm tra endpoint
+trên mạng private/HTTPS, rồi deploy agent với cùng token và
+`BINHLOI_API_BASE_URL`. Không expose endpoint này cho browser hoặc dùng HTTP qua
+Internet công cộng.
+
 ---
 
 ## ☁️ Hướng dẫn Deploy lên Máy chủ Production (Azure VM)
