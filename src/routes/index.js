@@ -28,9 +28,11 @@ const EventController = require('../controllers/EventController');
 const CommerceController = require('../controllers/CommerceController');
 const WorkshopController = require('../controllers/WorkshopController');
 const WorkshopManagementController = require('../controllers/WorkshopManagementController');
+const { AgentWorkshopBookingController } = require('../controllers/AgentWorkshopBookingController');
 
 // Middleware
 const { ensureAuthenticated, ensureAdmin, ensureManager, ensureTourist } = require('../middleware/auth');
+const { agentServiceAuth } = require('../middleware/agentServiceAuth');
 const ManagerController = require('../controllers/ManagerController');
 
 // ===== PUBLIC PAGES =====
@@ -336,6 +338,11 @@ router.post('/api/products/orders', ensureAuthenticated, CommerceController.shop
 router.post('/api/products/orders/:id/status', ensureAuthenticated, CommerceController.shopOrdersRetired);
 router.post('/api/workshop-sessions/bookings', ensureAuthenticated, CommerceController.createWorkshopBooking);
 router.post('/api/workshop-bookings/:id/status', ensureAuthenticated, CommerceController.transitionWorkshopBooking);
+router.get(
+    '/api/internal/agent/workshop-bookings',
+    agentServiceAuth,
+    AgentWorkshopBookingController.list
+);
 router.get('/workshops', WorkshopController.index);
 router.get('/my-workshops', ensureAuthenticated, WorkshopController.myBookings);
 router.get('/workshops/:id', WorkshopController.show);
