@@ -410,6 +410,7 @@ router.post('/api/admin/reorder-posters', ensureAdmin, AdminController.reorderPo
 router.get('/admin/journey-templates', ensureAdmin, AdminController.journeyTemplates);
 router.get('/admin/studio-templates', ensureAdmin, StudioApiController.adminListTemplates);
 router.get('/admin/chat', ensureAdmin, AdminController.chat);
+router.get('/admin/agent-review', ensureAdmin, AgentChatController.reviewPage);
 router.get('/api/admin/chat-history', ensureAdmin, AdminController.getChatHistory);
 router.post('/api/admin/reply-message', ensureAdmin, ApiController.replyMessage);
 router.post('/api/delete-conversation', ensureAuthenticated, ApiController.deleteConversation);
@@ -549,6 +550,9 @@ router.post('/api/journey', ensureAuthenticated, ApiController.journey);
 router.post('/api/journey/update-stop', ensureAuthenticated, ApiController.updateJourneyStop);
 router.post('/api/checkin', ensureAuthenticated, ApiController.checkin);
 router.post('/api/agent/chat', ensureAuthenticated, AgentChatController.chat);
+router.delete('/api/agent/conversation', ensureAuthenticated, AgentChatController.clear);
+router.post('/api/admin/agent/receipt', ensureAdmin, AgentChatController.inspectReview);
+router.post('/api/admin/agent/resume', ensureAdmin, AgentChatController.resume);
 router.post('/api/send-message', ensureAuthenticated, ApiController.sendMessage);
 router.get('/api/get-messages', ApiController.getMessages);
 router.get('/api/soundscapes', ApiController.getSoundscapes);

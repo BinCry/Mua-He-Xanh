@@ -116,6 +116,7 @@
 
 
     <!-- Main Content -->
+    <% if (locals.user) { %><script src="/js/agent-chat-ui.js?v=<%= assetV %>"></script><% } %>
     <main>
         <%- body %>
     </main>
@@ -516,15 +517,18 @@
             <div aria-live="polite" aria-atomic="true" class="flex-grow-1" style="min-width: 0;">
                 <div id="floating-chat-mode-title" class="fw-semibold text-dark text-truncate" style="font-size: 0.78rem;">Đang nhắn với nhân viên</div>
             </div>
-            <button type="button" id="floating-agent-mode-toggle" class="btn btn-sm btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 text-nowrap px-2.5" style="min-height: 38px; font-size: 0.75rem;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
+            <button type="button" id="floating-agent-mode-toggle" class="btn btn-sm btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 text-nowrap px-2.5" style="min-height: 44px; font-size: 0.75rem;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
                 <i class="bi bi-stars" aria-hidden="true"></i>
                 <span>Hỏi trợ lý AI</span>
+            </button>
+            <button type="button" id="floating-agent-clear" class="btn btn-outline-secondary rounded-circle d-none align-items-center justify-content-center flex-shrink-0 p-0" style="width: 44px; height: 44px;" title="Bắt đầu lại hội thoại AI" aria-label="Bắt đầu lại hội thoại AI">
+                <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
             </button>
         </div>
 
         <!-- Body & Message Stream -->
         <div class="d-flex flex-column" style="height: calc(100% - 122px);">
-            <div class="flex-grow-1 p-3 overflow-auto custom-scrollbar" id="floatingChatMessages" style="background: #ffffff;">
+            <div class="flex-grow-1 p-3 overflow-auto custom-scrollbar" id="floatingChatMessages" role="log" aria-live="polite" aria-label="Tin nhắn hỗ trợ" style="background: #ffffff;">
                 <div class="text-center mb-3">
                     <span class="badge bg-light text-muted px-2.5 py-1 rounded-pill small border" style="font-size: 0.7rem;">
                         <i class="bi bi-shield-check text-success me-1"></i>Hỗ trợ trực tuyến bảo mật
@@ -555,28 +559,28 @@
             <div class="p-2 px-2.5 border-top bg-white d-flex align-items-center gap-1" id="floating-standard-input-bar" style="height: 56px; border-color: #e4e6eb !important;">
                 <!-- Media Action Icons (Left) -->
                 <div class="d-flex align-items-center gap-0.5 flex-shrink-0">
-                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="startFloatingVoiceRecording()" title="Ghi âm thoại">
+                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 44px; height: 44px; color: #922724;" onclick="startFloatingVoiceRecording()" title="Ghi âm thoại" aria-label="Ghi âm thoại">
                         <i class="bi bi-mic-fill fs-6"></i>
                     </button>
-                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="triggerFloatingImageUpload()" title="Gửi ảnh">
+                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 44px; height: 44px; color: #922724;" onclick="triggerFloatingImageUpload()" title="Gửi ảnh" aria-label="Gửi ảnh">
                         <i class="bi bi-image fs-6"></i>
                     </button>
-                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 28px; height: 28px; color: #922724;" onclick="toggleFloatingGif()" title="Ảnh động GIF">
+                    <button type="button" data-floating-agent-disable class="btn btn-sm btn-light rounded-circle p-0 d-flex align-items-center justify-content-center shadow-none text-decoration-none" style="width: 44px; height: 44px; color: #922724;" onclick="toggleFloatingGif()" title="Ảnh động GIF" aria-label="Gửi GIF">
                         <i class="bi bi-filetype-gif fs-6"></i>
                     </button>
                 </div>
 
                 <!-- Text Input Pill -->
                 <div class="flex-grow-1 position-relative" style="min-width: 0;">
-                    <input type="text" class="form-control border-0" style="font-size: 0.86rem; height: 36px; background: #f0f2f5; border-radius: 18px; color: #050505; padding-left: 12px; padding-right: 32px; width: 100%;" placeholder="Nhập tin nhắn..." id="floatingChatInput" maxlength="2000" autocomplete="off" onkeypress="if(event.key === 'Enter'){ event.preventDefault(); sendFloatingLiveMessage(); }" oninput="toggleFloatingSendIcon(this)">
-                    <button type="button" data-floating-agent-disable class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 me-1.5 text-decoration-none d-flex align-items-center justify-content-center" style="width: 24px; height: 24px;" onclick="toggleFloatingEmoji()" title="Biểu cảm / Nhãn dán">
+                    <input type="text" class="form-control border-0" style="font-size: 16px; height: 44px; background: #f0f2f5; border-radius: 22px; color: #050505; padding-left: 12px; padding-right: 48px; width: 100%;" placeholder="Nhập tin nhắn..." aria-label="Nhập tin nhắn hỗ trợ" id="floatingChatInput" maxlength="2000" autocomplete="off" onkeypress="if(event.key === 'Enter'){ event.preventDefault(); sendFloatingLiveMessage(); }" oninput="toggleFloatingSendIcon(this)">
+                    <button type="button" data-floating-agent-disable class="btn btn-link position-absolute end-0 top-50 translate-middle-y p-0 text-decoration-none d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;" onclick="toggleFloatingEmoji()" title="Biểu cảm / Nhãn dán" aria-label="Biểu cảm, chỉ dùng khi nhắn nhân viên">
                         <i class="bi bi-emoji-smile-fill fs-6 text-warning"></i>
                     </button>
                 </div>
 
                 <!-- Right Button (Thumbs-Up / Send) -->
                 <div class="flex-shrink-0">
-                    <button type="button" id="floating-btn-send" class="btn btn-link p-0 d-flex align-items-center justify-content-center flex-shrink-0 text-decoration-none" style="color: #922724; width: 32px; height: 32px;" onclick="sendFloatingLiveMessage()" title="Gửi">
+                    <button type="button" id="floating-btn-send" class="btn btn-link p-0 d-flex align-items-center justify-content-center flex-shrink-0 text-decoration-none" style="color: #922724; width: 44px; height: 44px;" onclick="sendFloatingLiveMessage()" title="Gửi" aria-label="Gửi tin nhắn">
                         <i class="bi bi-hand-thumbs-up-fill fs-5" id="floating-send-icon"></i>
                     </button>
                 </div>
@@ -639,7 +643,10 @@
         let lastFloatingMsgCount = -1;
         let floatingAgentMode = false;
         let floatingAgentRequestPending = false;
-        let floatingAgentMessages = [];
+        let floatingStaffDraft = '';
+        let floatingAgentDraft = '';
+        const floatingAgentUserId = <%- safeJsonForScript(String(locals.user.id)) %>;
+        let floatingAgentMessages = window.HelpdeskAgentUI.load(floatingAgentUserId);
         let floatingMediaRecorder = null;
         let floatingAudioChunks = [];
         let floatingRecordInterval = null;
@@ -690,12 +697,20 @@
 
         function setFloatingChatMode(useAgent) {
             if (floatingAgentRequestPending) return;
+            const input = document.getElementById('floatingChatInput');
+            const nextAgentMode = Boolean(useAgent);
+            if (nextAgentMode === floatingAgentMode) return;
+            if (floatingAgentMode) floatingAgentDraft = input?.value || '';
+            else floatingStaffDraft = input?.value || '';
+            if (nextAgentMode && floatingMediaRecorder?.state === 'recording') {
+                cancelFloatingVoiceRecording();
+            }
             floatingAgentMode = Boolean(useAgent);
 
             const toggle = document.getElementById('floating-agent-mode-toggle');
             const title = document.getElementById('floating-chat-mode-title');
-            const input = document.getElementById('floatingChatInput');
             const sendButton = document.getElementById('floating-btn-send');
+            const clearButton = document.getElementById('floating-agent-clear');
 
             if (toggle) {
                 toggle.setAttribute('aria-pressed', String(floatingAgentMode));
@@ -705,8 +720,15 @@
                     : '<i class="bi bi-stars" aria-hidden="true"></i><span>Hỏi trợ lý AI</span>';
             }
             if (title) title.textContent = floatingAgentMode ? 'Đang hỏi Trợ lý AI' : 'Đang nhắn với nhân viên';
-            if (input) input.placeholder = floatingAgentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
+            if (input) {
+                input.placeholder = floatingAgentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
+                input.value = floatingAgentMode ? floatingAgentDraft : floatingStaffDraft;
+            }
             if (sendButton) sendButton.title = floatingAgentMode ? 'Gửi câu hỏi cho Trợ lý AI' : 'Gửi';
+            if (clearButton) {
+                clearButton.classList.toggle('d-none', !floatingAgentMode);
+                clearButton.classList.toggle('d-inline-flex', floatingAgentMode);
+            }
 
             document.querySelectorAll('[data-floating-agent-disable]').forEach(button => {
                 button.disabled = floatingAgentMode;
@@ -718,6 +740,7 @@
                 floatingChatInterval = null;
             }
             if (floatingAgentMode) {
+                floatingAgentMessages = window.HelpdeskAgentUI.load(floatingAgentUserId);
                 if (floatingAgentMessages.length === 0) {
                     floatingAgentMessages.push({
                         role: 'assistant',
@@ -736,13 +759,7 @@
         }
 
         function safeFloatingAgentCitationUrl(rawUrl) {
-            try {
-                const parsed = new URL(String(rawUrl || ''), window.location.origin);
-                if (parsed.origin !== window.location.origin || !/^\/explore\/[a-z0-9-]+\/?$/i.test(parsed.pathname)) return null;
-                return `${parsed.pathname}${parsed.search}${parsed.hash}`;
-            } catch (_) {
-                return null;
-            }
+            return window.HelpdeskAgentUI.citationUrl(rawUrl);
         }
 
         function renderFloatingAgentMessages() {
@@ -795,6 +812,19 @@
                     content.textContent = String(entry.content || '');
                     bubble.append(content);
 
+                    if (entry.preview) {
+                        const preview = document.createElement('div');
+                        preview.className = 'border rounded-3 p-2 mt-2 small bg-white text-dark';
+                        preview.textContent = `${entry.status === 'confirmation_required' ? 'Cần bạn xác nhận' : 'Đang chờ nhân viên phê duyệt'}: ${entry.preview}`;
+                        bubble.append(preview);
+                    }
+                    if (entry.reference) {
+                        const reference = document.createElement('div');
+                        reference.className = 'small fw-semibold mt-2';
+                        reference.textContent = `Mã tham chiếu: ${entry.reference}`;
+                        bubble.append(reference);
+                    }
+
                     if (Array.isArray(entry.citations) && entry.citations.length > 0) {
                         const sources = document.createElement('div');
                         sources.className = 'border-top mt-2 pt-2';
@@ -808,8 +838,20 @@
                             const source = document.createElement(href ? 'a' : 'span');
                             source.className = 'd-block small text-success text-decoration-underline';
                             source.textContent = titleText;
-                            if (href) source.href = href;
+                            if (href) {
+                                source.href = href;
+                                if (href.startsWith('https://') && !href.startsWith(window.location.origin)) {
+                                    source.target = '_blank';
+                                    source.rel = 'noopener noreferrer';
+                                }
+                            }
                             sources.append(source);
+                            if (citation?.locator) {
+                                const locator = document.createElement('small');
+                                locator.className = 'd-block text-muted';
+                                locator.textContent = String(citation.locator);
+                                sources.append(locator);
+                            }
                         });
                         bubble.append(sources);
                     }
@@ -830,7 +872,7 @@
                                 button.type = 'button';
                                 button.className = 'btn btn-sm btn-outline-success rounded-pill';
                                 button.textContent = actionLabel || 'Gặp nhân viên hỗ trợ';
-                                button.addEventListener('click', () => setFloatingChatMode(false));
+                                button.addEventListener('click', handoffFloatingAgentToStaff);
                                 actions.append(button);
                             } else if (action?.type === 'retry') {
                                 const button = document.createElement('button');
@@ -843,6 +885,12 @@
                                     if (lastQuestion) sendFloatingAgentMessage(lastQuestion);
                                 });
                                 actions.append(button);
+                            } else if (action?.type === 'sign_in') {
+                                const link = document.createElement('a');
+                                link.className = 'btn btn-sm btn-outline-success rounded-pill';
+                                link.href = `/auth/login?redirect=${encodeURIComponent(window.location.pathname)}`;
+                                link.textContent = actionLabel || 'Đăng nhập';
+                                actions.append(link);
                             }
                         });
                         if (actions.childElementCount > 0) bubble.append(actions);
@@ -855,10 +903,23 @@
             container.scrollTop = container.scrollHeight;
         }
 
-        function getFloatingAgentOutputMessage(output) {
-            if (output?.type === 'clarification_required') return output.question;
-            if (typeof output?.message === 'string' && output.message.trim()) return output.message;
-            return 'Trợ lý chưa thể trả lời câu hỏi này bằng thông tin đã kiểm chứng.';
+        function handoffFloatingAgentToStaff() {
+            const summary = window.HelpdeskAgentUI.handoffSummary(floatingAgentMessages);
+            setFloatingChatMode(false);
+            const input = document.getElementById('floatingChatInput');
+            if (input) {
+                const draft = input.value.trim();
+                const available = Math.max(0, 2000 - summary.length - 3);
+                input.value = draft && available > 0 ? `${draft.slice(0, available)} | ${summary}` : summary;
+                floatingStaffDraft = input.value;
+                toggleFloatingSendIcon(input);
+                input.focus();
+            }
+            const title = document.getElementById('floating-chat-mode-title');
+            if (title) {
+                title.textContent = 'Kiểm tra bản nháp rồi gửi';
+                title.title = title.textContent;
+            }
         }
 
         async function sendFloatingAgentMessage(message) {
@@ -868,6 +929,7 @@
             const sendButton = document.getElementById('floating-btn-send');
             const toggle = document.getElementById('floating-agent-mode-toggle');
             floatingAgentMessages.push({ role: 'user', content: question });
+            window.HelpdeskAgentUI.save(floatingAgentUserId, floatingAgentMessages);
             floatingAgentRequestPending = true;
             floatingAgentMessages.push({ role: 'assistant', loading: true });
             renderFloatingAgentMessages();
@@ -882,23 +944,22 @@
                     throw new Error('AGENT_RESPONSE_INVALID');
                 }
                 floatingAgentMessages.pop();
-                floatingAgentMessages.push({
-                    role: 'assistant',
-                    content: getFloatingAgentOutputMessage(output),
-                    citations: output.type === 'answer' && Array.isArray(output.citations) ? output.citations : [],
-                    actions: Array.isArray(output.suggestedActions) ? output.suggestedActions : []
-                });
-            } catch (_) {
+                floatingAgentMessages.push(window.HelpdeskAgentUI.project(output));
+            } catch (error) {
                 floatingAgentMessages.pop();
+                const paused = error?.response?.status === 409;
                 floatingAgentMessages.push({
                     role: 'assistant',
-                    content: 'Trợ lý AI tạm thời không khả dụng. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.',
+                    content: paused
+                        ? 'Hội thoại AI đang chờ nhân viên xử lý. Bạn có thể chuyển sang chat nhân viên.'
+                        : 'Trợ lý AI tạm thời không khả dụng. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.',
                     actions: [
-                        { type: 'retry', label: 'Thử lại' },
+                        ...(!paused ? [{ type: 'retry', label: 'Thử lại' }] : []),
                         { type: 'request_handoff', label: 'Chat nhân viên' }
                     ]
                 });
             } finally {
+                window.HelpdeskAgentUI.save(floatingAgentUserId, floatingAgentMessages);
                 floatingAgentRequestPending = false;
                 if (input) input.disabled = false;
                 if (sendButton) sendButton.disabled = false;
@@ -908,10 +969,39 @@
             }
         }
 
+        async function clearFloatingAgentConversation() {
+            if (!floatingAgentMode || floatingAgentRequestPending) return;
+            if (!window.confirm('Xóa lịch sử và yêu cầu đang chờ của hội thoại AI này?')) return;
+            const button = document.getElementById('floating-agent-clear');
+            const input = document.getElementById('floatingChatInput');
+            const sendButton = document.getElementById('floating-btn-send');
+            const toggle = document.getElementById('floating-agent-mode-toggle');
+            floatingAgentRequestPending = true;
+            if (button) button.disabled = true;
+            if (input) input.disabled = true;
+            if (sendButton) sendButton.disabled = true;
+            if (toggle) toggle.disabled = true;
+            try {
+                await axios.delete('/api/agent/conversation', { data: { confirm: 'clear' }, timeout: 40000 });
+                window.HelpdeskAgentUI.clear(floatingAgentUserId);
+                floatingAgentMessages = [{ role: 'assistant', content: 'Đã bắt đầu hội thoại AI mới. Bạn có thể nhập câu hỏi tiếp theo.' }];
+                renderFloatingAgentMessages();
+            } catch (error) {
+                window.alert(error.response?.data?.message || 'Chưa thể bắt đầu lại hội thoại AI. Hãy thử sau.');
+            } finally {
+                floatingAgentRequestPending = false;
+                if (button) button.disabled = false;
+                if (input) input.disabled = false;
+                if (sendButton) sendButton.disabled = false;
+                if (toggle) toggle.disabled = false;
+            }
+        }
+
         const floatingAgentModeToggle = document.getElementById('floating-agent-mode-toggle');
         if (floatingAgentModeToggle) {
             floatingAgentModeToggle.addEventListener('click', () => setFloatingChatMode(!floatingAgentMode));
         }
+        document.getElementById('floating-agent-clear')?.addEventListener('click', clearFloatingAgentConversation);
 
         function toggleFloatingEmoji(force) {
             const d = document.getElementById('floating-messenger-drawer');
@@ -1018,6 +1108,10 @@
             if (floatingAgentMode) return;
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                if (floatingAgentMode) {
+                    stream.getTracks().forEach(track => track.stop());
+                    return;
+                }
                 floatingAudioChunks = [];
                 floatingMediaRecorder = new MediaRecorder(stream);
                 
@@ -1038,7 +1132,7 @@
                     document.getElementById('floating-recording-timer').innerText = `${mins}:${secs}`;
                 }, 1000);
             } catch (err) {
-                sendFloatingCustomMessage('🎤 [Ghi âm thoại: 0:12]');
+                window.alert('Không thể ghi âm. Hãy kiểm tra quyền micro và thử lại.');
             }
         }
 
