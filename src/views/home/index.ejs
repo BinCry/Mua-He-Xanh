@@ -34,6 +34,131 @@
         display: block !important;
     }
 
+    .hero-intro-video {
+        position: relative;
+        width: 100%;
+        background: #044b5e;
+    }
+
+    .hero-intro-video[hidden] {
+        display: none !important;
+    }
+
+    .hero-intro-video__player {
+        display: block;
+        width: 100%;
+        height: auto;
+        max-height: min(72vh, 860px);
+        object-fit: contain;
+        background: #044b5e;
+    }
+
+    .hero-intro-video__actions {
+        position: absolute;
+        right: 1rem;
+        bottom: 1.7rem;
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 0.55rem;
+    }
+
+    .hero-intro-video__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.35rem;
+        border: 1px solid rgba(255, 255, 255, 0.58);
+        border-radius: 999px;
+        padding: 0.45rem 0.85rem;
+        color: #fff;
+        background: rgba(0, 0, 0, 0.62);
+        box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+        font-size: 0.85rem;
+        font-weight: 700;
+        line-height: 1;
+        transition: background-color 0.2s ease, transform 0.2s ease;
+    }
+
+    .hero-intro-video__button:hover,
+    .hero-intro-video__button:focus-visible {
+        color: #fff;
+        background: rgba(146, 39, 36, 0.92);
+        transform: translateY(-1px);
+    }
+
+    .hero-intro-video__button--sound {
+        width: 2.35rem;
+        padding: 0;
+    }
+
+    .hero-intro-video__progress {
+        --progress: 0%;
+        position: absolute;
+        right: 1rem;
+        bottom: 0.55rem;
+        left: 1rem;
+        z-index: 2;
+        width: calc(100% - 2rem);
+        height: 0.42rem;
+        margin: 0;
+        cursor: pointer;
+        accent-color: #e53945;
+        appearance: none;
+        border-radius: 999px;
+        background: linear-gradient(to right, #e53945 var(--progress), rgba(255, 255, 255, 0.42) var(--progress));
+    }
+
+    .hero-intro-video__progress::-webkit-slider-thumb {
+        width: 0.85rem;
+        height: 0.85rem;
+        appearance: none;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        background: #e53945;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+    }
+
+    .hero-intro-video__progress::-moz-range-thumb {
+        width: 0.7rem;
+        height: 0.7rem;
+        border: 2px solid #fff;
+        border-radius: 50%;
+        background: #e53945;
+        box-shadow: 0 1px 5px rgba(0, 0, 0, 0.45);
+    }
+
+    .hero-intro-video__progress:disabled {
+        cursor: wait;
+        opacity: 0.7;
+    }
+
+    @media (max-width: 575.98px) {
+        .hero-intro-video__actions {
+            right: 0.75rem;
+            bottom: 1.45rem;
+            gap: 0.45rem;
+        }
+
+        .hero-intro-video__button {
+            min-height: 2.2rem;
+            padding: 0.4rem 0.7rem;
+            font-size: 0.8rem;
+        }
+
+        .hero-intro-video__button--sound {
+            width: 2.2rem;
+            padding: 0;
+        }
+
+        .hero-intro-video__progress {
+            right: 0.75rem;
+            bottom: 0.45rem;
+            left: 0.75rem;
+            width: calc(100% - 1.5rem);
+        }
+    }
+
     /* Solid Circular Dots for Hero Poster Carousel Indicators */
     #heroPosterCarousel .carousel-indicators {
         bottom: 18px !important;
@@ -79,6 +204,26 @@
 
 <!-- HERO: Poster Carousel Banner (Fly To Sky Style) -->
 <section class="hero-poster-section position-relative overflow-hidden" style="background-color: #044b5e !important;">
+    <!-- Intro video streams directly from Google Drive; the application server never proxies this file. -->
+    <div id="heroIntroVideo" class="hero-intro-video" hidden>
+        <video id="heroIntroVideoPlayer" class="hero-intro-video__player" muted playsinline preload="metadata"
+            poster="<%= fixImg((heroPosters && heroPosters[0] && heroPosters[0].image_url) || '/uploads/posters/poster-1.webp') %>">
+            <source src="https://drive.usercontent.google.com/download?id=13q2u8jMa_Bx3nzJh9DwLEvtTI-OE0kmx&amp;export=download&amp;confirm=t" type="video/mp4">
+        </video>
+        <div class="hero-intro-video__actions" aria-label="Điều khiển video giới thiệu">
+            <button id="heroIntroPlayPause" class="hero-intro-video__button hero-intro-video__button--sound" type="button" aria-label="Tạm dừng video" aria-pressed="true" title="Tạm dừng video">
+                <i class="bi bi-pause-fill" aria-hidden="true"></i>
+            </button>
+            <button id="heroIntroSound" class="hero-intro-video__button hero-intro-video__button--sound" type="button" aria-label="Bật âm thanh" aria-pressed="false" title="Bật âm thanh">
+                <i class="bi bi-volume-mute-fill" aria-hidden="true"></i>
+            </button>
+            <button id="heroIntroSkip" class="hero-intro-video__button" type="button">
+                Bỏ qua <i class="bi bi-skip-forward-fill ms-1" aria-hidden="true"></i>
+            </button>
+        </div>
+        <input id="heroIntroProgress" class="hero-intro-video__progress" type="range" min="0" max="100" value="0" step="0.1" disabled aria-label="Tua video giới thiệu">
+    </div>
+
     <!-- Carousel Poster Slider (Continuous rotation, no pause on hover) -->
     <div id="heroPosterCarousel" class="carousel slide carousel-fade position-relative" data-bs-ride="carousel"
         data-bs-interval="5000" data-bs-pause="false" style="background-color: #044b5e !important;">
@@ -115,16 +260,122 @@
 
 <script>
     (function () {
-        // Continuous Auto-play Carousel without pointer jitter
+        // Video is shown on each page load. After it is skipped or ends, it cannot reappear until reload.
         document.addEventListener('DOMContentLoaded', function () {
             const heroCarousel = document.getElementById('heroPosterCarousel');
-            if (heroCarousel && typeof bootstrap !== 'undefined') {
-                bootstrap.Carousel.getOrCreateInstance(heroCarousel, {
+            const introVideoShell = document.getElementById('heroIntroVideo');
+            const introVideo = document.getElementById('heroIntroVideoPlayer');
+            const playPauseButton = document.getElementById('heroIntroPlayPause');
+            const soundButton = document.getElementById('heroIntroSound');
+            const skipButton = document.getElementById('heroIntroSkip');
+            const progressControl = document.getElementById('heroIntroProgress');
+            let hasReturnedToCarousel = false;
+
+            const startCarousel = function () {
+                if (!heroCarousel || typeof bootstrap === 'undefined') return;
+                const carousel = bootstrap.Carousel.getOrCreateInstance(heroCarousel, {
                     interval: 5000,
                     pause: false,
                     touch: true
                 });
+                carousel.cycle();
+            };
+
+            const returnToCarousel = function () {
+                if (hasReturnedToCarousel) return;
+                hasReturnedToCarousel = true;
+
+                if (introVideo) introVideo.pause();
+                if (introVideoShell) introVideoShell.hidden = true;
+                if (heroCarousel) heroCarousel.hidden = false;
+                startCarousel();
+            };
+
+            const updateSoundControl = function () {
+                if (!introVideo || !soundButton) return;
+                const isMuted = introVideo.muted;
+                const icon = soundButton.querySelector('i');
+                soundButton.setAttribute('aria-pressed', String(!isMuted));
+                soundButton.setAttribute('aria-label', isMuted ? 'Bật âm thanh' : 'Tắt âm thanh');
+                soundButton.setAttribute('title', isMuted ? 'Bật âm thanh' : 'Tắt âm thanh');
+                if (icon) icon.className = isMuted ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
+            };
+
+            const updatePlaybackControl = function () {
+                if (!introVideo || !playPauseButton) return;
+                const isPaused = introVideo.paused;
+                const icon = playPauseButton.querySelector('i');
+                playPauseButton.setAttribute('aria-pressed', String(!isPaused));
+                playPauseButton.setAttribute('aria-label', isPaused ? 'Phát video' : 'Tạm dừng video');
+                playPauseButton.setAttribute('title', isPaused ? 'Phát video' : 'Tạm dừng video');
+                if (icon) icon.className = isPaused ? 'bi bi-play-fill' : 'bi bi-pause-fill';
+            };
+
+            const updateProgressControl = function () {
+                if (!introVideo || !progressControl) return;
+                const duration = introVideo.duration;
+                const percent = Number.isFinite(duration) && duration > 0
+                    ? Math.min(100, Math.max(0, (introVideo.currentTime / duration) * 100))
+                    : 0;
+                progressControl.value = String(percent);
+                progressControl.style.setProperty('--progress', `${percent}%`);
+                progressControl.disabled = !(Number.isFinite(duration) && duration > 0);
+            };
+
+            if (!introVideoShell || !introVideo) {
+                startCarousel();
+                return;
             }
+
+            if (heroCarousel) heroCarousel.hidden = true;
+            introVideoShell.hidden = false;
+            introVideo.muted = true;
+            updateSoundControl();
+            updatePlaybackControl();
+            updateProgressControl();
+
+            skipButton?.addEventListener('click', function () {
+                returnToCarousel();
+            });
+
+            soundButton?.addEventListener('click', function () {
+                introVideo.muted = !introVideo.muted;
+                updateSoundControl();
+                void introVideo.play().catch(function () {});
+            });
+
+            playPauseButton?.addEventListener('click', function () {
+                if (introVideo.paused) {
+                    void introVideo.play().catch(function () {});
+                } else {
+                    introVideo.pause();
+                }
+            });
+
+            progressControl?.addEventListener('input', function () {
+                const duration = introVideo.duration;
+                if (!Number.isFinite(duration) || duration <= 0) return;
+                introVideo.currentTime = (Number(progressControl.value) / 100) * duration;
+                updateProgressControl();
+            });
+
+            introVideo.addEventListener('loadedmetadata', updateProgressControl);
+            introVideo.addEventListener('durationchange', updateProgressControl);
+            introVideo.addEventListener('timeupdate', updateProgressControl);
+            introVideo.addEventListener('play', updatePlaybackControl);
+            introVideo.addEventListener('pause', updatePlaybackControl);
+
+            introVideo.addEventListener('ended', function () {
+                returnToCarousel();
+            });
+
+            introVideo.addEventListener('error', function () {
+                returnToCarousel();
+            });
+
+            void introVideo.play().catch(function () {
+                returnToCarousel();
+            });
         });
     })();
 </script>
@@ -556,18 +807,18 @@
                             <% } } %>
                             
                             <!-- Footer Action Badges (Read-Only on Homepage) -->
-                            <div class="d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
-                                <span class="d-flex align-items-center gap-1 text-dark fw-bold">
+                            <div class="home-review-footer d-flex align-items-center gap-3 px-3 px-sm-4 py-3" style="font-size: 0.85rem; border-top: 1px solid rgba(0,0,0,0.03);">
+                                <span class="home-review-metric d-flex align-items-center gap-1 text-dark fw-bold" aria-label="Lượt tim">
                                     <i class="bi bi-heart-fill text-danger fs-5"></i>
                                     <span><span data-engagement-count="likes"><%= parseInt(r.likes_count || 0, 10) %></span> tim</span>
                                 </span>
                                 
-                                <span class="d-flex align-items-center gap-1 text-dark fw-bold me-auto">
+                                <span class="home-review-metric d-flex align-items-center gap-1 text-dark fw-bold me-auto" aria-label="Bình luận">
                                     <i class="bi bi-chat-fill text-primary fs-5"></i>
                                     <span><span data-engagement-count="comments"><%= parseInt(r.comments_count || 0, 10) %></span> bình luận</span>
                                 </span>
                                 
-                                <a href="/reviews" class="btn btn-sm btn-light rounded-pill px-3 py-1 text-danger fw-bold shadow-2xs" style="font-size: 0.78rem;">
+                                <a href="/reviews" class="home-review-cta btn btn-sm btn-light rounded-pill px-3 py-1 text-danger fw-bold shadow-2xs" style="font-size: 0.78rem;">
                                     Vào Cộng đồng để tương tác <i class="bi bi-arrow-right ms-1"></i>
                                 </a>
                             </div>
@@ -591,6 +842,35 @@
                 }
                 .btn-community-custom:active {
                     transform: scale(0.96);
+                }
+
+                /* Keep engagement actions compact on phone widths without changing desktop layout. */
+                @media (max-width: 575.98px) {
+                    .home-review-footer {
+                        gap: 0.75rem !important;
+                    }
+
+                    .home-review-metric {
+                        flex: 0 0 auto;
+                        white-space: nowrap;
+                    }
+
+                    .home-review-metric > span {
+                        font-size: 0;
+                    }
+
+                    .home-review-metric [data-engagement-count] {
+                        font-size: 0.85rem;
+                    }
+
+                    .home-review-cta {
+                        flex: 0 1 auto;
+                        min-width: 0;
+                        margin-left: auto;
+                        padding-right: 0.65rem !important;
+                        padding-left: 0.65rem !important;
+                        white-space: nowrap;
+                    }
                 }
             </style>
             <div class="text-center mt-5">
