@@ -1,4 +1,10 @@
-const CACHE_NAME = 'binh-loi-healing-v20';
+const CACHE_NAME = 'binh-loi-healing-v21';
+// Mobile connections can take several seconds to wake up after a visitor
+// opens the site. Navigation gets a longer grace period before the recovery
+// screen is shown; API and asset requests remain short so the UI stays
+// responsive when the connection is genuinely unavailable.
+const NAVIGATION_TIMEOUT_MS = 15000;
+const REQUEST_TIMEOUT_MS = 8000;
 const STATIC_ASSETS = [
     '/css/style-v5.css',
     '/images/logo.png',
@@ -112,7 +118,8 @@ async function resolveOfflineNavigation() {
 async function networkFirst(req) {
     const cache = await caches.open(CACHE_NAME);
     try {
-        const networkResponse = await fetchWithTimeout(req, req.mode === 'navigate' ? 5000 : 8000);
+        const timeoutMs = req.mode === 'navigate' ? NAVIGATION_TIMEOUT_MS : REQUEST_TIMEOUT_MS;
+        const networkResponse = await fetchWithTimeout(req, timeoutMs);
         const isStaticAsset = req.url.match(/\.(css|js|png|jpg|jpeg|webp|svg|woff2?|ico)(\?.*)?$/i);
         if (networkResponse.ok && isStaticAsset && !req.url.includes('/api/') && req.url.startsWith('http')) {
             cache.put(req, networkResponse.clone());
