@@ -10,6 +10,7 @@ test('homepage intro video uses the static asset and restores the poster carouse
     assert.match(home, /<video id="heroIntroVideoPlayer"[^>]*muted playsinline preload="metadata"/);
     assert.doesNotMatch(home, /\.hero-intro-video\s*{[^}]*aspect-ratio:/);
     assert.match(home, /\.hero-intro-video__player\s*{[^}]*height: 100%;[^}]*object-fit: cover/);
+    assert.match(home, /\.hero-intro-video__player\s*{[^}]*transform: scale\(1\.025\);[^}]*transform-origin: center/);
     assert.match(home, /id="heroIntroSound"/);
     assert.match(home, /bi-volume-mute-fill/);
     assert.match(home, /id="heroIntroPlayPause"/);

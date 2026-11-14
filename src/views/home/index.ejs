@@ -53,6 +53,10 @@
         max-height: none;
         object-fit: cover;
         object-position: center;
+        /* Crop the source's outer caption edge so no end-card text peeks
+           into the player frame on wide screens. */
+        transform: scale(1.025);
+        transform-origin: center;
         background: #044b5e;
     }
 
