@@ -70,6 +70,8 @@ test('login banner and public fallback images refer to existing assets', () => {
 test('service worker limits its persistent cache to static assets and has an explicit recovery response', () => {
     const serviceWorker = fs.readFileSync('public/sw.js', 'utf8');
     assert.match(serviceWorker, /const STATIC_ASSETS/);
+    assert.match(serviceWorker, /const NAVIGATION_TIMEOUT_MS = 15000/);
+    assert.match(serviceWorker, /req\.mode === 'navigate' \? NAVIGATION_TIMEOUT_MS : REQUEST_TIMEOUT_MS/);
     assert.match(serviceWorker, /if \(req\.mode === 'navigate'\) return offlineResponse\(\)/);
     assert.match(serviceWorker, /!req\.url\.includes\('\/api\/'\)/);
     assert.match(serviceWorker, /function offlineResponse\(\)/);
