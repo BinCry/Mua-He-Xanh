@@ -16,7 +16,7 @@ const publicRoutes = ['/', '/explore', '/map', '/reviews', '/reviews/video-edito
 // The full intro MP4 is deliberately installed only on the production VPS.
 // Keep responsive CI focused on layout and resource failures owned by this
 // checkout without committing a multi-gigabyte production media asset.
-const INTRO_VIDEO_PATH = '/videos/thuc-giac-tap-dac-biet.mp4';
+const INTRO_VIDEO_PATH = '/videos/intro-trailer.mp4';
 const e2eOrigin = new URL(process.env.E2E_BASE_URL).origin;
 
 function isProductionIntroVideo(url) {
