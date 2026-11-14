@@ -35,8 +35,10 @@
     }
 
     .hero-intro-video {
-        position: relative;
-        width: 100%;
+        position: absolute;
+        inset: 0;
+        z-index: 11;
+        overflow: hidden;
         background: #044b5e;
     }
 
@@ -47,9 +49,9 @@
     .hero-intro-video__player {
         display: block;
         width: 100%;
-        height: auto;
+        height: 100%;
         max-height: none;
-        object-fit: contain;
+        object-fit: cover;
         object-position: center;
         background: #044b5e;
     }
@@ -209,7 +211,7 @@
     <div id="heroIntroVideo" class="hero-intro-video" hidden>
         <video id="heroIntroVideoPlayer" class="hero-intro-video__player" muted playsinline preload="metadata"
             poster="<%= fixImg((heroPosters && heroPosters[0] && heroPosters[0].image_url) || '/uploads/posters/poster-1.webp') %>">
-            <source src="/videos/thuc-giac-tap-dac-biet.mp4" type="video/mp4">
+            <source src="/videos/intro-trailer.mp4" type="video/mp4">
         </video>
         <div class="hero-intro-video__actions" aria-label="Điều khiển video giới thiệu">
             <button id="heroIntroPlayPause" class="hero-intro-video__button hero-intro-video__button--sound" type="button" aria-label="Tạm dừng video" aria-pressed="true" title="Tạm dừng video">
@@ -271,6 +273,7 @@
             const skipButton = document.getElementById('heroIntroSkip');
             const progressControl = document.getElementById('heroIntroProgress');
             let hasReturnedToCarousel = false;
+            let startupTimer;
 
             const startCarousel = function () {
                 if (!heroCarousel || typeof bootstrap === 'undefined') return;
@@ -285,6 +288,7 @@
             const returnToCarousel = function () {
                 if (hasReturnedToCarousel) return;
                 hasReturnedToCarousel = true;
+                clearTimeout(startupTimer);
 
                 if (introVideo) introVideo.pause();
                 if (introVideoShell) introVideoShell.hidden = true;
@@ -328,8 +332,6 @@
                 return;
             }
 
-            if (heroCarousel) heroCarousel.hidden = true;
-            introVideoShell.hidden = false;
             introVideo.muted = true;
             updateSoundControl();
             updatePlaybackControl();
@@ -365,6 +367,14 @@
             introVideo.addEventListener('timeupdate', updateProgressControl);
             introVideo.addEventListener('play', updatePlaybackControl);
             introVideo.addEventListener('pause', updatePlaybackControl);
+            introVideo.addEventListener('playing', function () {
+                if (hasReturnedToCarousel || !introVideoShell.hidden) return;
+                clearTimeout(startupTimer);
+                if (heroCarousel && typeof bootstrap !== 'undefined') {
+                    bootstrap.Carousel.getOrCreateInstance(heroCarousel).pause();
+                }
+                introVideoShell.hidden = false;
+            });
 
             introVideo.addEventListener('ended', function () {
                 returnToCarousel();
@@ -374,6 +384,7 @@
                 returnToCarousel();
             });
 
+            startupTimer = setTimeout(returnToCarousel, 15000);
             void introVideo.play().catch(function () {
                 returnToCarousel();
             });
