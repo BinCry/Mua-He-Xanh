@@ -8,8 +8,8 @@ test('homepage intro video uses the static asset and restores the poster carouse
     assert.match(home, /<source src="\/videos\/thuc-giac-tap-dac-biet\.mp4" type="video\/mp4">/);
     assert.doesNotMatch(home, /drive\.usercontent\.google\.com/);
     assert.match(home, /<video id="heroIntroVideoPlayer"[^>]*muted playsinline preload="metadata"/);
-    assert.match(home, /\.hero-intro-video\s*{[\s\S]*?aspect-ratio: 2\.72 \/ 1/);
-    assert.match(home, /\.hero-intro-video__player\s*{[\s\S]*?object-fit: cover/);
+    assert.doesNotMatch(home, /\.hero-intro-video\s*{[^}]*aspect-ratio:/);
+    assert.match(home, /\.hero-intro-video__player\s*{[^}]*height: auto;[^}]*object-fit: contain/);
     assert.match(home, /id="heroIntroSound"/);
     assert.match(home, /bi-volume-mute-fill/);
     assert.match(home, /id="heroIntroPlayPause"/);
