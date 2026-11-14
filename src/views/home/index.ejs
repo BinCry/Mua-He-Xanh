@@ -37,6 +37,8 @@
     .hero-intro-video {
         position: relative;
         width: 100%;
+        aspect-ratio: 2.72 / 1;
+        overflow: hidden;
         background: #044b5e;
     }
 
@@ -47,9 +49,10 @@
     .hero-intro-video__player {
         display: block;
         width: 100%;
-        height: auto;
-        max-height: min(72vh, 860px);
-        object-fit: contain;
+        height: 100%;
+        max-height: none;
+        object-fit: cover;
+        object-position: center;
         background: #044b5e;
     }
 
@@ -204,11 +207,11 @@
 
 <!-- HERO: Poster Carousel Banner (Fly To Sky Style) -->
 <section class="hero-poster-section position-relative overflow-hidden" style="background-color: #044b5e !important;">
-    <!-- Intro video streams directly from Google Drive; the application server never proxies this file. -->
+    <!-- Intro video is served as a static asset, so the application never proxies the media stream. -->
     <div id="heroIntroVideo" class="hero-intro-video" hidden>
         <video id="heroIntroVideoPlayer" class="hero-intro-video__player" muted playsinline preload="metadata"
             poster="<%= fixImg((heroPosters && heroPosters[0] && heroPosters[0].image_url) || '/uploads/posters/poster-1.webp') %>">
-            <source src="https://drive.usercontent.google.com/download?id=13q2u8jMa_Bx3nzJh9DwLEvtTI-OE0kmx&amp;export=download&amp;confirm=t" type="video/mp4">
+            <source src="/videos/thuc-giac-tap-dac-biet.mp4" type="video/mp4">
         </video>
         <div class="hero-intro-video__actions" aria-label="Điều khiển video giới thiệu">
             <button id="heroIntroPlayPause" class="hero-intro-video__button hero-intro-video__button--sound" type="button" aria-label="Tạm dừng video" aria-pressed="true" title="Tạm dừng video">
