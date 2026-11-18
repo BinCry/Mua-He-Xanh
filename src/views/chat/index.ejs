@@ -45,6 +45,9 @@
                         <div aria-live="polite" aria-atomic="true" class="flex-grow-1" style="min-width: 0;">
                             <div class="fw-semibold text-dark" id="chat-mode-title" style="font-size: 0.82rem;">Đang nhắn với nhân viên</div>
                         </div>
+                        <button type="button" class="btn btn-sm btn-link text-success d-none flex-shrink-0" id="agent-new-conversation" aria-label="Bắt đầu cuộc trò chuyện AI mới">
+                            Cuộc trò chuyện mới
+                        </button>
                         <button type="button" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 text-nowrap px-3" id="agent-mode-toggle" style="min-height: 44px;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
                             <i class="bi bi-stars" aria-hidden="true"></i>
                             <span>Hỏi trợ lý AI</span>
@@ -611,8 +614,8 @@
                             button.className = 'btn btn-sm btn-outline-success rounded-pill';
                             button.textContent = String(action.label || 'Thử lại');
                             button.addEventListener('click', () => {
-                                const lastQuestion = [...agentMessages].reverse().find(item => item.role === 'user')?.content;
-                                if (lastQuestion) sendAgentMessage(lastQuestion);
+                                const lastQuestion = [...agentMessages].reverse().find(item => item.role === 'user');
+                                if (lastQuestion?.content) sendAgentMessage(lastQuestion.content, lastQuestion.requestId);
                             });
                             actions.append(button);
                         } else if (action?.type === 'sign_in') {
@@ -717,7 +720,10 @@
         const input = document.getElementById('chat-input');
         const sendButton = document.getElementById('tourist-btn-send');
         const toggle = document.getElementById('agent-mode-toggle');
-        addAgentMessage('user', message);
+        const requestId = previousRequestId || crypto.randomUUID();
+        const requestEpoch = agentConversationEpoch;
+        agentMessages.push({ role: 'user', content: message, requestId });
+        renderAgentMessages();
         agentRequestPending = true;
         agentMessages.push({ role: 'assistant', loading: true });
         renderAgentMessages();
@@ -726,7 +732,8 @@
         if (toggle) toggle.disabled = true;
 
         try {
-            const response = await axios.post('/api/agent/chat', { message }, { timeout: 40000 });
+            const response = await axios.post('/api/agent/chat', { message, requestId }, { timeout: 40000 });
+            if (requestEpoch !== agentConversationEpoch) return;
             const output = response.data?.data?.output;
             if (response.data?.success !== true || !output || typeof output.type !== 'string') {
                 throw new Error('AGENT_RESPONSE_INVALID');

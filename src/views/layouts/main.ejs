@@ -881,8 +881,8 @@
                                 button.textContent = actionLabel || 'Thử lại';
                                 button.disabled = floatingAgentRequestPending;
                                 button.addEventListener('click', () => {
-                                    const lastQuestion = [...floatingAgentMessages].reverse().find(item => item.role === 'user')?.content;
-                                    if (lastQuestion) sendFloatingAgentMessage(lastQuestion);
+                                    const lastQuestion = [...floatingAgentMessages].reverse().find(item => item.role === 'user');
+                                    if (lastQuestion?.content) sendFloatingAgentMessage(lastQuestion.content, lastQuestion.requestId);
                                 });
                                 actions.append(button);
                             } else if (action?.type === 'sign_in') {
@@ -922,9 +922,58 @@
             }
         }
 
-        async function sendFloatingAgentMessage(message) {
+        async function loadFloatingAgentHistory() {
+            if (floatingAgentHistoryLoaded || floatingAgentHistoryLoading) return;
+            floatingAgentHistoryLoading = true;
+            floatingAgentMessages = [{ role: 'assistant', loading: true }];
+            renderFloatingAgentMessages();
+            try {
+                const response = await axios.get('/api/agent/chat/history', { timeout: 40000 });
+                const messages = response.data?.data?.messages;
+                if (response.data?.success !== true || !Array.isArray(messages)) throw new Error('AGENT_HISTORY_INVALID');
+                floatingAgentMessages = messages
+                    .filter(item => item?.role === 'user' || item?.role === 'assistant')
+                    .map(item => ({ role: item.role, content: String(item.content || '') }));
+                if (floatingAgentMessages.length === 0) {
+                    floatingAgentMessages.push({ role: 'assistant', content: 'Xin chào! Bạn có thể hỏi về điểm đến và dịch vụ tại Bình Lợi.' });
+                }
+                floatingAgentHistoryLoaded = true;
+            } catch (_) {
+                floatingAgentMessages = [{
+                    role: 'assistant',
+                    content: 'Chưa thể tải lại lịch sử Trợ lý AI. Bạn có thể thử lại hoặc bắt đầu cuộc trò chuyện mới.'
+                }];
+            } finally {
+                floatingAgentHistoryLoading = false;
+                renderFloatingAgentMessages();
+            }
+        }
+
+        async function startNewFloatingAgentConversation() {
+            if (floatingAgentRequestPending || floatingAgentHistoryLoading) return;
+            floatingAgentHistoryLoading = true;
+            try {
+                const response = await axios.post('/api/agent/chat/conversations', {}, { timeout: 10000 });
+                if (response.data?.success !== true) throw new Error('AGENT_CONVERSATION_INVALID');
+                floatingAgentConversationEpoch += 1;
+                floatingAgentConversationChannel?.postMessage({ type: 'conversation-reset' });
+                floatingAgentMessages = [{
+                    role: 'assistant',
+                    content: 'Đã bắt đầu cuộc trò chuyện mới. Bạn muốn tìm hiểu điều gì ở Bình Lợi?'
+                }];
+                floatingAgentHistoryLoaded = true;
+                renderFloatingAgentMessages();
+            } catch (_) {
+                floatingAgentMessages.push({ role: 'assistant', content: 'Chưa thể bắt đầu cuộc trò chuyện mới. Vui lòng thử lại.' });
+                renderFloatingAgentMessages();
+            } finally {
+                floatingAgentHistoryLoading = false;
+            }
+        }
+
+        async function sendFloatingAgentMessage(message, previousRequestId = '') {
             const question = String(message || '').trim();
-            if (!floatingAgentMode || floatingAgentRequestPending || !question) return;
+            if (!floatingAgentMode || floatingAgentRequestPending || floatingAgentHistoryLoading || !question) return;
             const input = document.getElementById('floatingChatInput');
             const sendButton = document.getElementById('floating-btn-send');
             const toggle = document.getElementById('floating-agent-mode-toggle');
@@ -938,7 +987,8 @@
             if (toggle) toggle.disabled = true;
 
             try {
-                const response = await axios.post('/api/agent/chat', { message: question }, { timeout: 40000 });
+                const response = await axios.post('/api/agent/chat', { message: question, requestId }, { timeout: 40000 });
+                if (requestEpoch !== floatingAgentConversationEpoch) return;
                 const output = response.data?.data?.output;
                 if (response.data?.success !== true || !output || typeof output.type !== 'string') {
                     throw new Error('AGENT_RESPONSE_INVALID');
