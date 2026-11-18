@@ -78,6 +78,61 @@ function createHelpdeskAgentClient({ httpClient = axios, env = process.env } = {
             }
 
             return output;
+        },
+
+        async history({ conversationId, principalId, principalRole, requestId, limit = 100 }) {
+            const endpoint = String(env.AI_SERVICE_CHAT_URL || '').trim();
+            const token = String(env.AI_SERVICE_AUTH_TOKEN || '').trim();
+            if (!endpoint || token.length < MIN_TOKEN_LENGTH) {
+                throw new AgentServiceError('AGENT_NOT_CONFIGURED');
+            }
+            let parsedEndpoint;
+            try {
+                parsedEndpoint = new URL(endpoint);
+            } catch (_) {
+                throw new AgentServiceError('AGENT_ENDPOINT_INVALID');
+            }
+            const secureTransport = parsedEndpoint.protocol === 'https:';
+            const localLoopbackTransport = parsedEndpoint.protocol === 'http:' && isLoopback(parsedEndpoint.hostname);
+            if ((!secureTransport && !localLoopbackTransport) || parsedEndpoint.username || parsedEndpoint.password || parsedEndpoint.search || parsedEndpoint.hash) {
+                throw new AgentServiceError('AGENT_ENDPOINT_INVALID');
+            }
+            const basePath = parsedEndpoint.pathname.replace(/\/chat\/?$/, '');
+            if (basePath === parsedEndpoint.pathname) {
+                throw new AgentServiceError('AGENT_ENDPOINT_INVALID');
+            }
+            parsedEndpoint.pathname = `${basePath}/conversations/${encodeURIComponent(conversationId)}/messages`;
+            parsedEndpoint.searchParams.set('limit', String(limit));
+            let response;
+            try {
+                response = await httpClient.get(parsedEndpoint.toString(), {
+                    timeout: REQUEST_TIMEOUT_MS,
+                    proxy: false,
+                    maxRedirects: 0,
+                    maxContentLength: 256 * 1024,
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'X-Principal-ID': principalId,
+                        'X-Principal-Role': principalRole,
+                        'X-Request-ID': requestId
+                    }
+                });
+            } catch (_) {
+                throw new AgentServiceError('AGENT_UNAVAILABLE');
+            }
+            const data = response?.data?.data;
+            if (response?.data?.success !== true || !data || !Array.isArray(data.messages)) {
+                throw new AgentServiceError('AGENT_RESPONSE_INVALID');
+            }
+            return {
+                messages: data.messages.map(message => ({
+                    messageId: message.messageId,
+                    role: message.role,
+                    content: message.content,
+                    createdAt: message.createdAt
+                })),
+                nextCursor: data.nextCursor ?? null
+            };
         }
     };
 }

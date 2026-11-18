@@ -45,6 +45,9 @@
                         <div aria-live="polite" aria-atomic="true" class="flex-grow-1" style="min-width: 0;">
                             <div class="fw-semibold text-dark" id="chat-mode-title" style="font-size: 0.82rem;">Đang nhắn với nhân viên</div>
                         </div>
+                        <button type="button" class="btn btn-sm btn-link text-success d-none flex-shrink-0" id="agent-new-conversation" aria-label="Bắt đầu cuộc trò chuyện AI mới">
+                            Cuộc trò chuyện mới
+                        </button>
                         <button type="button" class="btn btn-outline-success rounded-pill d-inline-flex align-items-center justify-content-center gap-1 flex-shrink-0 text-nowrap px-3" id="agent-mode-toggle" style="min-height: 44px;" aria-pressed="false" aria-label="Chuyển sang Trợ lý AI">
                             <i class="bi bi-stars" aria-hidden="true"></i>
                             <span>Hỏi trợ lý AI</span>
@@ -470,6 +473,24 @@
     let agentMode = false;
     let agentRequestPending = false;
     const agentMessages = [];
+    let agentHistoryLoaded = false;
+    let agentHistoryLoading = false;
+    let agentConversationEpoch = 0;
+    const agentConversationChannel = typeof BroadcastChannel === 'function'
+        ? new BroadcastChannel('binhloi-agent-conversation')
+        : null;
+    if (agentConversationChannel) {
+        agentConversationChannel.onmessage = event => {
+            if (event.data?.type !== 'conversation-reset') return;
+            agentConversationEpoch += 1;
+            agentHistoryLoaded = false;
+            agentMessages.splice(0, agentMessages.length, {
+                role: 'assistant',
+                content: 'Cuộc trò chuyện AI mới đã được mở ở tab khác.'
+            });
+            renderAgentMessages();
+        };
+    }
 
     // Voice recorder state
     let touristMediaRecorder = null;
@@ -583,8 +604,8 @@
                             button.className = 'btn btn-sm btn-outline-success rounded-pill';
                             button.textContent = String(action.label || 'Thử lại');
                             button.addEventListener('click', () => {
-                                const lastQuestion = [...agentMessages].reverse().find(item => item.role === 'user')?.content;
-                                if (lastQuestion) sendAgentMessage(lastQuestion);
+                                const lastQuestion = [...agentMessages].reverse().find(item => item.role === 'user');
+                                if (lastQuestion?.content) sendAgentMessage(lastQuestion.content, lastQuestion.requestId);
                             });
                             actions.append(button);
                         }
@@ -605,6 +626,61 @@
         renderAgentMessages();
     }
 
+    async function loadAgentHistory() {
+        if (agentHistoryLoaded || agentHistoryLoading) return;
+        agentHistoryLoading = true;
+        const input = document.getElementById('chat-input');
+        const sendButton = document.getElementById('tourist-btn-send');
+        if (input) input.disabled = true;
+        if (sendButton) sendButton.disabled = true;
+        agentMessages.splice(0, agentMessages.length, { role: 'assistant', loading: true });
+        renderAgentMessages();
+        try {
+            const response = await axios.get('/api/agent/chat/history', { timeout: 40000 });
+            const messages = response.data?.data?.messages;
+            if (response.data?.success !== true || !Array.isArray(messages)) throw new Error('AGENT_HISTORY_INVALID');
+            agentMessages.splice(0, agentMessages.length, ...messages
+                .filter(item => item?.role === 'user' || item?.role === 'assistant')
+                .map(item => ({ role: item.role, content: String(item.content || '') }))
+            );
+            if (agentMessages.length === 0) {
+                agentMessages.push({ role: 'assistant', content: 'Xin chào! Bạn có thể hỏi về điểm đến và dịch vụ tại Bình Lợi.' });
+            }
+            agentHistoryLoaded = true;
+        } catch (_) {
+            agentMessages.splice(0, agentMessages.length, {
+                role: 'assistant',
+                content: 'Chưa thể tải lại lịch sử Trợ lý AI. Bạn có thể thử lại hoặc bắt đầu cuộc trò chuyện mới.'
+            });
+        } finally {
+            agentHistoryLoading = false;
+            if (input) input.disabled = false;
+            if (sendButton) sendButton.disabled = false;
+            renderAgentMessages();
+        }
+    }
+
+    async function startNewAgentConversation() {
+        if (agentRequestPending || agentHistoryLoading) return;
+        agentHistoryLoading = true;
+        try {
+            const response = await axios.post('/api/agent/chat/conversations', {}, { timeout: 10000 });
+            if (response.data?.success !== true) throw new Error('AGENT_CONVERSATION_INVALID');
+            agentConversationEpoch += 1;
+            agentConversationChannel?.postMessage({ type: 'conversation-reset' });
+            agentMessages.splice(0, agentMessages.length, {
+                role: 'assistant',
+                content: 'Đã bắt đầu cuộc trò chuyện mới. Bạn muốn tìm hiểu điều gì ở Bình Lợi?'
+            });
+            agentHistoryLoaded = true;
+            renderAgentMessages();
+        } catch (_) {
+            addAgentMessage('assistant', 'Chưa thể bắt đầu cuộc trò chuyện mới. Vui lòng thử lại.');
+        } finally {
+            agentHistoryLoading = false;
+        }
+    }
+
     function setChatMode(useAgent) {
         if (agentRequestPending) return;
         agentMode = Boolean(useAgent);
@@ -613,6 +689,7 @@
         const title = document.getElementById('chat-mode-title');
         const input = document.getElementById('chat-input');
         const sendButton = document.getElementById('tourist-btn-send');
+        const newConversation = document.getElementById('agent-new-conversation');
 
         if (toggle) {
             toggle.setAttribute('aria-pressed', String(agentMode));
@@ -627,17 +704,14 @@
         if (title) title.textContent = agentMode ? 'Đang hỏi Trợ lý AI' : 'Đang nhắn với nhân viên';
         if (input) input.placeholder = agentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
         if (sendButton) sendButton.title = agentMode ? 'Gửi câu hỏi cho Trợ lý AI' : 'Gửi';
+        newConversation?.classList.toggle('d-none', !agentMode);
 
         document.querySelectorAll('[data-agent-mode-disable]').forEach(button => {
             button.disabled = agentMode;
         });
 
         if (agentMode) {
-            if (agentMessages.length === 0) {
-                addAgentMessage('assistant', 'Xin chào! Bạn có thể hỏi về điểm đến và dịch vụ tại Bình Lợi. Mình sẽ chỉ trả lời khi có thông tin và nguồn phù hợp.');
-            } else {
-                renderAgentMessages();
-            }
+            loadAgentHistory();
         } else {
             renderGlobalChat(currentGlobalMessages);
             loadChatMessages();
@@ -651,12 +725,15 @@
         return 'Trợ lý chưa thể trả lời câu hỏi này bằng thông tin đã kiểm chứng.';
     }
 
-    async function sendAgentMessage(message) {
-        if (!agentMode || agentRequestPending || !message) return;
+    async function sendAgentMessage(message, previousRequestId = '') {
+        if (!agentMode || agentRequestPending || agentHistoryLoading || !message) return;
         const input = document.getElementById('chat-input');
         const sendButton = document.getElementById('tourist-btn-send');
         const toggle = document.getElementById('agent-mode-toggle');
-        addAgentMessage('user', message);
+        const requestId = previousRequestId || crypto.randomUUID();
+        const requestEpoch = agentConversationEpoch;
+        agentMessages.push({ role: 'user', content: message, requestId });
+        renderAgentMessages();
         agentRequestPending = true;
         agentMessages.push({ role: 'assistant', loading: true });
         renderAgentMessages();
@@ -665,7 +742,8 @@
         if (toggle) toggle.disabled = true;
 
         try {
-            const response = await axios.post('/api/agent/chat', { message }, { timeout: 40000 });
+            const response = await axios.post('/api/agent/chat', { message, requestId }, { timeout: 40000 });
+            if (requestEpoch !== agentConversationEpoch) return;
             const output = response.data?.data?.output;
             if (response.data?.success !== true || !output || typeof output.type !== 'string') {
                 throw new Error('AGENT_RESPONSE_INVALID');
@@ -680,8 +758,18 @@
                 Array.isArray(output.suggestedActions) ? output.suggestedActions : []
             );
         } catch (_) {
+            if (requestEpoch !== agentConversationEpoch) return;
             agentMessages.pop();
-            addAgentMessage('assistant', 'Trợ lý AI tạm thời không khả dụng. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.');
+            addAgentMessage(
+                'assistant',
+                'Trợ lý AI tạm thời không khả dụng. Bạn có thể thử lại hoặc chuyển sang chat nhân viên.',
+                [],
+                false,
+                [
+                    { type: 'retry', label: 'Thử lại' },
+                    { type: 'request_handoff', label: 'Chat nhân viên' }
+                ]
+            );
         } finally {
             agentRequestPending = false;
             if (input) input.disabled = false;
@@ -1234,5 +1322,6 @@
         loadChatMessages();
         chatInterval = setInterval(loadChatMessages, 3500);
         document.getElementById('agent-mode-toggle')?.addEventListener('click', () => setChatMode(!agentMode));
+        document.getElementById('agent-new-conversation')?.addEventListener('click', startNewAgentConversation);
     });
 </script>
