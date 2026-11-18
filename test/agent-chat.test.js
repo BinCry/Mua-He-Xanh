@@ -1,4 +1,6 @@
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const test = require('node:test');
 
 const { createAgentChatController } = require('../src/controllers/AgentChatController');
@@ -8,6 +10,7 @@ const {
 } = require('../src/services/HelpdeskAgentClient');
 
 const SESSION_UUID = 'f9d3b46b-fdc6-43c9-9d10-1bb22810abf7';
+const SESSION_UUID_PATTERN_FOR_TEST = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TEST_TOKEN = 'test-service-token-with-at-least-32-characters';
 
 test('a paused agent conversation keeps its 409 status without leaking upstream details', async () => {
@@ -55,6 +58,15 @@ function response() {
     };
 }
 
+function authenticatedRequest(overrides = {}) {
+    return {
+        body: {},
+        cookies: { session_uuid: SESSION_UUID },
+        user: { id: 'customer-123', role: 'user', role_id: 3 },
+        ...overrides
+    };
+}
+
 test('web route sends server-owned identity and returns only the public output', async () => {
     let request;
     const controller = createAgentChatController({
@@ -93,6 +105,87 @@ test('web route sends server-owned identity and returns only the public output',
             }
         }
     });
+});
+
+test('web route forwards a stable client request ID and rejects malformed IDs', async () => {
+    let forwarded;
+    const controller = createAgentChatController({
+        client: {
+            async chat(value) {
+                forwarded = value.requestId;
+                return { type: 'abstain', message: 'Chưa đủ căn cứ.' };
+            }
+        }
+    });
+    const stableId = 'chat-turn-01JTEST123';
+    const accepted = response();
+    await controller.chat(authenticatedRequest({
+        body: { message: 'Xin chào', requestId: stableId }
+    }), accepted);
+    assert.equal(accepted.statusCode, 200);
+    assert.equal(forwarded, stableId);
+
+    const rejected = response();
+    await controller.chat(authenticatedRequest({
+        body: { message: 'Xin chào', requestId: '../not allowed' }
+    }), rejected);
+    assert.equal(rejected.statusCode, 400);
+});
+
+test('chat UIs reuse request IDs on retry and synchronize conversation resets', () => {
+    for (const relativePath of [
+        'src/views/chat/index.ejs',
+        'src/views/layouts/main.ejs'
+    ]) {
+        const source = fs.readFileSync(path.join(__dirname, '..', relativePath), 'utf8');
+        assert.match(source, /BroadcastChannel\('binhloi-agent-conversation'\)/);
+        assert.match(source, /previousRequestId \|\| crypto\.randomUUID\(\)/);
+        assert.match(source, /lastQuestion\.requestId/);
+        assert.match(source, /conversation-reset/);
+    }
+});
+
+test('agent conversation has its own durable cookie and reload restores its transcript', async () => {
+    const calls = [];
+    const controller = createAgentChatController({
+        client: {
+            async history(value) {
+                calls.push(value);
+                return {
+                    messages: [
+                        { messageId: 1, role: 'user', content: 'Gợi ý một nơi thiên nhiên' },
+                        { messageId: 2, role: 'assistant', content: 'World Farm phù hợp.' }
+                    ],
+                    nextCursor: null
+                };
+            }
+        }
+    });
+    const res = response();
+    await controller.history(authenticatedRequest({
+        query: {},
+        cookies: {
+            session_uuid: SESSION_UUID,
+            agent_conversation_id: '3a29a88a-27ce-4f3e-a7bd-30de9c8100fa'
+        }
+    }), res);
+
+    assert.equal(res.statusCode, 200);
+    assert.equal(calls[0].conversationId, 'web-3a29a88a-27ce-4f3e-a7bd-30de9c8100fa');
+    assert.equal(calls[0].principalId, 'customer-123');
+    assert.equal(res.body.data.messages.length, 2);
+});
+
+test('starting a new agent conversation rotates only the agent conversation cookie', async () => {
+    const controller = createAgentChatController({ client: {} });
+    const res = response();
+    await controller.startConversation(authenticatedRequest(), res);
+
+    assert.equal(res.statusCode, 201);
+    assert.equal(res.cookies.length, 1);
+    assert.equal(res.cookies[0].name, 'agent_conversation_id');
+    assert.match(res.cookies[0].value, SESSION_UUID_PATTERN_FOR_TEST);
+    assert.equal(res.cookies[0].options.httpOnly, true);
 });
 
 test('web route maps administrators from trusted session data', async () => {
@@ -190,6 +283,51 @@ test('agent client sends the backend credential to HTTPS or a loopback endpoint'
     assert.equal(captured[2].timeout, 35000);
     assert.deepEqual(output, { type: 'abstain', message: 'Không đủ căn cứ.' });
     assert.doesNotMatch(JSON.stringify(output), /private-conversation-id|private-run-id|test-service-token/);
+});
+
+test('agent client restores only the current conversation transcript', async () => {
+    let captured;
+    const client = createHelpdeskAgentClient({
+        env: {
+            NODE_ENV: 'production',
+            AI_SERVICE_CHAT_URL: 'http://127.0.0.1:8100/api/v1/chat',
+            AI_SERVICE_AUTH_TOKEN: TEST_TOKEN
+        },
+        httpClient: {
+            async get(...args) {
+                captured = args;
+                return {
+                    data: {
+                        success: true,
+                        data: {
+                            conversationId: `web-${SESSION_UUID}`,
+                            messages: [{
+                                messageId: 1,
+                                role: 'user',
+                                content: 'Câu hỏi trước',
+                                createdAt: '2026-11-18T01:00:00+00:00'
+                            }],
+                            nextCursor: null
+                        }
+                    }
+                };
+            }
+        }
+    });
+
+    const history = await client.history({
+        conversationId: `web-${SESSION_UUID}`,
+        principalId: 'customer-123',
+        principalRole: 'customer',
+        requestId: SESSION_UUID,
+        limit: 100
+    });
+
+    const url = new URL(captured[0]);
+    assert.equal(url.pathname, `/api/v1/conversations/web-${SESSION_UUID}/messages`);
+    assert.equal(url.searchParams.get('limit'), '100');
+    assert.equal(captured[1].headers['X-Principal-ID'], 'customer-123');
+    assert.deepEqual(history.messages.map(item => item.content), ['Câu hỏi trước']);
 });
 
 test('agent client rejects missing credentials and unsafe transport without making a request', async () => {
