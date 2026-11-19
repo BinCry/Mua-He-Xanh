@@ -1,6 +1,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
+const crypto = require('node:crypto');
 const test = require('node:test');
 
 const { createAgentChatController } = require('../src/controllers/AgentChatController');
@@ -12,6 +13,15 @@ const {
 const SESSION_UUID = 'f9d3b46b-fdc6-43c9-9d10-1bb22810abf7';
 const SESSION_UUID_PATTERN_FOR_TEST = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const TEST_TOKEN = 'test-service-token-with-at-least-32-characters';
+
+function agentCookies(principalId, values = {}) {
+    return {
+        session_uuid: SESSION_UUID,
+        agent_conversation_principal: crypto.createHash('sha256')
+            .update(String(principalId)).digest('hex').slice(0, 32),
+        ...values
+    };
+}
 
 test('a paused agent conversation keeps its 409 status without leaking upstream details', async () => {
     const client = createHelpdeskAgentClient({
@@ -31,7 +41,7 @@ test('a paused agent conversation keeps its 409 status without leaking upstream 
     const res = response();
     await controller.chat({
         body: { message: 'Tình trạng ticket của tôi?' },
-        cookies: { session_uuid: SESSION_UUID },
+        cookies: agentCookies('customer-123'),
         user: { id: 'customer-123', role: 'user' }
     }, res);
     assert.equal(res.statusCode, 409);
@@ -61,7 +71,7 @@ function response() {
 function authenticatedRequest(overrides = {}) {
     return {
         body: {},
-        cookies: { session_uuid: SESSION_UUID },
+        cookies: agentCookies('customer-123'),
         user: { id: 'customer-123', role: 'user', role_id: 3 },
         ...overrides
     };
@@ -85,7 +95,7 @@ test('web route sends server-owned identity and returns only the public output',
 
     await controller.chat({
         body: { message: '  Bình Lợi có gì?  ' },
-        cookies: { session_uuid: SESSION_UUID },
+        cookies: agentCookies('customer-123'),
         user: { id: 'customer-123', role: 'user', role_id: 3 }
     }, res);
 
@@ -164,10 +174,9 @@ test('agent conversation has its own durable cookie and reload restores its tran
     const res = response();
     await controller.history(authenticatedRequest({
         query: {},
-        cookies: {
-            session_uuid: SESSION_UUID,
+        cookies: agentCookies('customer-123', {
             agent_conversation_id: '3a29a88a-27ce-4f3e-a7bd-30de9c8100fa'
-        }
+        })
     }), res);
 
     assert.equal(res.statusCode, 200);
@@ -182,10 +191,11 @@ test('starting a new agent conversation rotates only the agent conversation cook
     await controller.startConversation(authenticatedRequest(), res);
 
     assert.equal(res.statusCode, 201);
-    assert.equal(res.cookies.length, 1);
-    assert.equal(res.cookies[0].name, 'agent_conversation_id');
-    assert.match(res.cookies[0].value, SESSION_UUID_PATTERN_FOR_TEST);
-    assert.equal(res.cookies[0].options.httpOnly, true);
+    const conversationCookie = res.cookies.find(item => item.name === 'agent_conversation_id');
+    assert.ok(conversationCookie);
+    assert.match(conversationCookie.value, SESSION_UUID_PATTERN_FOR_TEST);
+    assert.equal(conversationCookie.options.httpOnly, true);
+    assert.equal(conversationCookie.options.path, '/api/agent');
 });
 
 test('web route maps administrators from trusted session data', async () => {
@@ -235,9 +245,10 @@ test('web route creates a secure session identifier and hides upstream failures'
     assert.equal(res.statusCode, 503);
     assert.match(res.body.message, /tạm thời không khả dụng/i);
     assert.doesNotMatch(JSON.stringify(res.body), /Bearer|secret/i);
-    assert.equal(res.cookies.length, 1);
-    assert.equal(res.cookies[0].options.httpOnly, true);
-    assert.equal(res.cookies[0].options.sameSite, 'lax');
+    const conversationCookie = res.cookies.find(item => item.name === 'agent_conversation_id');
+    assert.ok(conversationCookie);
+    assert.equal(conversationCookie.options.httpOnly, true);
+    assert.equal(conversationCookie.options.sameSite, 'lax');
 });
 
 test('agent client sends the backend credential to HTTPS or a loopback endpoint', async () => {

@@ -521,6 +521,9 @@
                 <i class="bi bi-stars" aria-hidden="true"></i>
                 <span>Hỏi trợ lý AI</span>
             </button>
+            <button type="button" id="floating-agent-new-conversation" class="btn btn-sm btn-link text-success d-none flex-shrink-0" aria-label="Bắt đầu cuộc trò chuyện AI mới">
+                Cuộc trò chuyện mới
+            </button>
             <button type="button" id="floating-agent-clear" class="btn btn-outline-secondary rounded-circle d-none align-items-center justify-content-center flex-shrink-0 p-0" style="width: 44px; height: 44px;" title="Bắt đầu lại hội thoại AI" aria-label="Bắt đầu lại hội thoại AI">
                 <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
             </button>
@@ -647,6 +650,24 @@
         let floatingAgentDraft = '';
         const floatingAgentUserId = <%- safeJsonForScript(String(locals.user.id)) %>;
         let floatingAgentMessages = window.HelpdeskAgentUI.load(floatingAgentUserId);
+        let floatingAgentHistoryLoaded = false;
+        let floatingAgentHistoryLoading = false;
+        let floatingAgentConversationEpoch = 0;
+        const floatingAgentConversationChannel = typeof BroadcastChannel === 'function'
+            ? new BroadcastChannel('binhloi-agent-conversation')
+            : null;
+        if (floatingAgentConversationChannel) {
+            floatingAgentConversationChannel.onmessage = event => {
+                if (event.data?.type !== 'conversation-reset') return;
+                floatingAgentConversationEpoch += 1;
+                floatingAgentHistoryLoaded = false;
+                floatingAgentMessages = [{
+                    role: 'assistant',
+                    content: 'Cuộc trò chuyện AI mới đã được mở ở tab khác.'
+                }];
+                renderFloatingAgentMessages();
+            };
+        }
         let floatingMediaRecorder = null;
         let floatingAudioChunks = [];
         let floatingRecordInterval = null;
@@ -711,6 +732,7 @@
             const title = document.getElementById('floating-chat-mode-title');
             const sendButton = document.getElementById('floating-btn-send');
             const clearButton = document.getElementById('floating-agent-clear');
+            const newConversation = document.getElementById('floating-agent-new-conversation');
 
             if (toggle) {
                 toggle.setAttribute('aria-pressed', String(floatingAgentMode));
@@ -729,6 +751,7 @@
                 clearButton.classList.toggle('d-none', !floatingAgentMode);
                 clearButton.classList.toggle('d-inline-flex', floatingAgentMode);
             }
+            newConversation?.classList.toggle('d-none', !floatingAgentMode);
 
             document.querySelectorAll('[data-floating-agent-disable]').forEach(button => {
                 button.disabled = floatingAgentMode;
@@ -740,14 +763,7 @@
                 floatingChatInterval = null;
             }
             if (floatingAgentMode) {
-                floatingAgentMessages = window.HelpdeskAgentUI.load(floatingAgentUserId);
-                if (floatingAgentMessages.length === 0) {
-                    floatingAgentMessages.push({
-                        role: 'assistant',
-                        content: 'Xin chào! Bạn có thể hỏi về điểm đến và dịch vụ tại Bình Lợi. Mình sẽ chỉ trả lời khi có thông tin và nguồn phù hợp.'
-                    });
-                }
-                renderFloatingAgentMessages();
+                loadFloatingAgentHistory();
             } else {
                 lastFloatingMsgCount = -1;
                 loadFloatingChatMessages();
@@ -925,10 +941,12 @@
         async function loadFloatingAgentHistory() {
             if (floatingAgentHistoryLoaded || floatingAgentHistoryLoading) return;
             floatingAgentHistoryLoading = true;
+            const requestEpoch = floatingAgentConversationEpoch;
             floatingAgentMessages = [{ role: 'assistant', loading: true }];
             renderFloatingAgentMessages();
             try {
                 const response = await axios.get('/api/agent/chat/history', { timeout: 40000 });
+                if (requestEpoch !== floatingAgentConversationEpoch) return;
                 const messages = response.data?.data?.messages;
                 if (response.data?.success !== true || !Array.isArray(messages)) throw new Error('AGENT_HISTORY_INVALID');
                 floatingAgentMessages = messages
@@ -939,6 +957,7 @@
                 }
                 floatingAgentHistoryLoaded = true;
             } catch (_) {
+                if (requestEpoch !== floatingAgentConversationEpoch) return;
                 floatingAgentMessages = [{
                     role: 'assistant',
                     content: 'Chưa thể tải lại lịch sử Trợ lý AI. Bạn có thể thử lại hoặc bắt đầu cuộc trò chuyện mới.'
@@ -977,7 +996,9 @@
             const input = document.getElementById('floatingChatInput');
             const sendButton = document.getElementById('floating-btn-send');
             const toggle = document.getElementById('floating-agent-mode-toggle');
-            floatingAgentMessages.push({ role: 'user', content: question });
+            const requestId = previousRequestId || crypto.randomUUID();
+            const requestEpoch = floatingAgentConversationEpoch;
+            floatingAgentMessages.push({ role: 'user', content: question, requestId });
             window.HelpdeskAgentUI.save(floatingAgentUserId, floatingAgentMessages);
             floatingAgentRequestPending = true;
             floatingAgentMessages.push({ role: 'assistant', loading: true });
@@ -996,6 +1017,7 @@
                 floatingAgentMessages.pop();
                 floatingAgentMessages.push(window.HelpdeskAgentUI.project(output));
             } catch (error) {
+                if (requestEpoch !== floatingAgentConversationEpoch) return;
                 floatingAgentMessages.pop();
                 const paused = error?.response?.status === 409;
                 floatingAgentMessages.push({
@@ -1033,6 +1055,8 @@
             if (toggle) toggle.disabled = true;
             try {
                 await axios.delete('/api/agent/conversation', { data: { confirm: 'clear' }, timeout: 40000 });
+                floatingAgentConversationEpoch += 1;
+                floatingAgentConversationChannel?.postMessage({ type: 'conversation-reset' });
                 window.HelpdeskAgentUI.clear(floatingAgentUserId);
                 floatingAgentMessages = [{ role: 'assistant', content: 'Đã bắt đầu hội thoại AI mới. Bạn có thể nhập câu hỏi tiếp theo.' }];
                 renderFloatingAgentMessages();
@@ -1051,6 +1075,7 @@
         if (floatingAgentModeToggle) {
             floatingAgentModeToggle.addEventListener('click', () => setFloatingChatMode(!floatingAgentMode));
         }
+        document.getElementById('floating-agent-new-conversation')?.addEventListener('click', startNewFloatingAgentConversation);
         document.getElementById('floating-agent-clear')?.addEventListener('click', clearFloatingAgentConversation);
 
         function toggleFloatingEmoji(force) {

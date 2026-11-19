@@ -84,6 +84,39 @@ function createHelpdeskAgentClient({ httpClient = axios, env = process.env } = {
 
             return output;
         },
+        async history({ conversationId, principalId, principalRole, requestId, limit = 100 }) {
+            const { url, token } = serviceConfig(env);
+            const endpoint = auxiliaryUrl(
+                url,
+                `/conversations/${encodeURIComponent(conversationId)}/messages`
+            );
+            const historyUrl = new URL(endpoint);
+            historyUrl.searchParams.set('limit', String(limit));
+            try {
+                const response = await httpClient.get(
+                    historyUrl.toString(),
+                    requestOptions(serviceHeaders(token, {
+                        conversationId, principalId, principalRole, requestId
+                    }))
+                );
+                const data = response?.data?.data;
+                if (response?.data?.success !== true || !data || !Array.isArray(data.messages)) {
+                    throw new AgentServiceError('AGENT_RESPONSE_INVALID');
+                }
+                return {
+                    messages: data.messages.map(message => ({
+                        messageId: message.messageId,
+                        role: message.role,
+                        content: message.content,
+                        createdAt: message.createdAt
+                    })),
+                    nextCursor: data.nextCursor ?? null
+                };
+            } catch (error) {
+                if (error instanceof AgentServiceError) throw error;
+                throw safeServiceFailure(error);
+            }
+        },
         async resume({ conversationId, pauseId, decision, note, idempotencyKey, principalId, requestId }) {
             const { url, token } = serviceConfig(env);
             const endpoint = auxiliaryUrl(url, '/chat/resume');

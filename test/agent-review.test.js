@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict');
 const test = require('node:test');
+const crypto = require('node:crypto');
 
 const { createReviewReceipt, readReviewReceipt } = require('../src/services/AgentReviewReceipt');
 const { createAgentChatController } = require('../src/controllers/AgentChatController');
@@ -7,6 +8,14 @@ const { createHelpdeskAgentClient } = require('../src/services/HelpdeskAgentClie
 
 const SESSION_UUID = 'f9d3b46b-fdc6-43c9-9d10-1bb22810abf7';
 const SECRET_ENV = { SESSION_SECRET: 'local-test-session-secret-with-at-least-32-characters' };
+
+function agentCookies(principalId) {
+    return {
+        session_uuid: SESSION_UUID,
+        agent_conversation_principal: crypto.createHash('sha256')
+            .update(String(principalId)).digest('hex').slice(0, 32)
+    };
+}
 
 function response() {
     return {
@@ -48,7 +57,7 @@ test('admin reviews an authentic preview and resumes the exact conversation', as
         }
     });
     const chat = response();
-    await controller.chat({ body: { message: 'Tôi cần hỗ trợ' }, cookies: { session_uuid: SESSION_UUID },
+    await controller.chat({ body: { message: 'Tôi cần hỗ trợ' }, cookies: agentCookies('customer-1'),
         user: { id: 'customer-1', role: 'user' } }, chat);
     const receipt = chat.body.data.output.reviewReceipt;
     assert.ok(receipt);
@@ -79,7 +88,7 @@ test('clear endpoint only targets the signed-in browser conversation after confi
     const controller = createAgentChatController({ client: {
         async clear(args) { target = args; return true; }
     } });
-    const req = { body: { confirm: 'clear' }, cookies: { session_uuid: SESSION_UUID },
+    const req = { body: { confirm: 'clear' }, cookies: agentCookies('customer-1'),
         user: { id: 'customer-1', role: 'user' } };
     const missingConfirmation = response();
     await controller.clear({ ...req, body: {} }, missingConfirmation);
