@@ -11,8 +11,12 @@
                             <img src="<%= fixImg((typeof settings !== 'undefined' && settings && settings.brand_logo) ? settings.brand_logo : '/images/logo.png', '/images/logo.png') %>" class="rounded-circle w-100 h-100 object-fit-cover" alt="Logo Bình Lợi" onerror="this.src='/images/logo.png'">
                         </div>
                         <div>
-                            <h6 class="fw-bold mb-0 text-white" style="color: #ffffff !important; font-size: 1rem;">
-                                <%= currentDest ? ('Nhắn tin hỗ trợ - ' + currentDest.name) : 'Nhắn tin hỗ trợ - Du Lịch Bình Lợi' %>
+                            <h6 class="tourist-chat-header-title fw-bold mb-0 text-white" style="color: #ffffff !important; font-size: 1rem;">
+                                <% if (currentDest) { %>
+                                    Nhắn tin hỗ trợ - <%= currentDest.name %>
+                                <% } else { %>
+                                    Nhắn tin hỗ trợ - Du Lịch <span class="tourist-chat-brand-name">Bình Lợi</span>
+                                <% } %>
                             </h6>
                             <small class="opacity-90 text-white-50 d-block" style="font-size: 0.75rem;">
                                 <%= currentDest ? ('Kênh hỗ trợ ' + currentDest.name) : 'Kênh hỗ trợ du lịch Bình Lợi' %>
@@ -412,6 +416,7 @@
         }
         .tourist-chat-header { padding: 0.75rem !important; }
         .tourist-chat-brand-logo { width: 34px !important; height: 34px !important; }
+        .tourist-chat-brand-name { white-space: nowrap; }
         .tourist-chat-user-avatar { display: none !important; }
         #chat-mode-control { gap: 0.5rem !important; }
         #chat-mode-title {
