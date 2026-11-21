@@ -1106,19 +1106,20 @@ const AdminController = {
                          COALESCE(s.total_points, u.total_points, u_sender.total_points, 0) AS visitor_points
                      FROM (
                          SELECT 
-                             CASE 
-                                 WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid 
+                              CASE
+                                  WHEN conversation_user_id IS NOT NULL AND conversation_user_id != '' THEN conversation_user_id
+                                  WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid
                                  ELSE receiver_uuid 
                              END AS session_key,
                              MAX(created_at) AS last_message_time
                          FROM messages
-                         WHERE (sender_uuid IS NOT NULL AND sender_uuid != '') OR (receiver_uuid IS NOT NULL AND receiver_uuid != '')
+                          WHERE conversation_user_id IS NOT NULL OR (sender_uuid IS NOT NULL AND sender_uuid != '') OR (receiver_uuid IS NOT NULL AND receiver_uuid != '')
                          GROUP BY session_key
                      ) conv
                      JOIN LATERAL (
                          SELECT COALESCE(message, content, '') as message
                          FROM messages m
-                         WHERE (m.sender_uuid = conv.session_key OR m.receiver_uuid = conv.session_key)
+                         WHERE m.conversation_user_id = conv.session_key OR m.sender_uuid = conv.session_key OR m.receiver_uuid = conv.session_key
                          ORDER BY m.created_at DESC
                          LIMIT 1
                      ) m_latest ON true
@@ -1165,7 +1166,7 @@ const AdminController = {
                 `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id::text = $1 OR s.uuid = $1`,
+                 WHERE s.id::text = $1 OR s.uuid = $1 OR s.user_id = $1 OR u.id = $1`,
                 [String(sessionId)]
             );
             
@@ -1185,7 +1186,7 @@ const AdminController = {
                             COALESCE(message, content, '') as message, is_ai, created_at,
                             COALESCE(is_recalled, 0) as is_recalled, COALESCE(deleted_for, '') as deleted_for
                      FROM messages 
-                     WHERE (sender_uuid = $1 OR receiver_uuid = $1)
+                     WHERE conversation_user_id = $1 OR sender_uuid = $1 OR receiver_uuid = $1
                      ORDER BY created_at ASC`,
                     [String(sessionId)]
                 );

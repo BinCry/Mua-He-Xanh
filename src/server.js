@@ -82,6 +82,7 @@ if (allowLegacySchemaAutopatch && !global._dbPatched) {
                 db.query(`ALTER TABLE workshops ALTER COLUMN description TYPE TEXT`),
                 db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS is_recalled INTEGER DEFAULT 0`),
                 db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS deleted_for TEXT DEFAULT ''`),
+                db.query(`ALTER TABLE messages ADD COLUMN IF NOT EXISTS conversation_user_id VARCHAR(36)`),
                 db.query(`
                     CREATE TABLE IF NOT EXISTS hero_posters (
                         id VARCHAR(36) PRIMARY KEY,
