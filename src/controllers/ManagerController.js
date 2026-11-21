@@ -300,11 +300,35 @@ class ManagerController {
             }
 
             const [visitorDetails] = await UserSession.db.query(
-                `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone,
-                        (SELECT COUNT(*) FROM check_ins ci WHERE (ci.session_id = s.id OR (u.id IS NOT NULL AND ci.user_id = u.id)) AND ci.destination_id = $2) as is_checked_in
-                 FROM user_sessions s
-                 LEFT JOIN users u ON s.user_id = u.id
-                  WHERE s.id::text = $1 OR s.uuid = $1 OR s.user_id = $1 OR u.id = $1`,
+                `SELECT vc.id, vc.uuid, vc.total_points, vc.full_name, vc.avatar, vc.email, vc.phone,
+                        (SELECT COUNT(*) FROM check_ins ci
+                         WHERE (ci.user_id = vc.user_id OR (vc.session_id IS NOT NULL AND ci.session_id = vc.session_id))
+                           AND ci.destination_id = $2) AS is_checked_in
+                 FROM (
+                     SELECT u.id, s.uuid, s.id AS session_id, u.id AS user_id,
+                            COALESCE(s.total_points, u.total_points, 0) AS total_points,
+                            u.full_name, u.avatar, u.email, u.phone, 0 AS match_priority
+                     FROM users u
+                     LEFT JOIN LATERAL (
+                         SELECT id, uuid, total_points
+                         FROM user_sessions
+                         WHERE user_id = u.id
+                         ORDER BY updated_at DESC NULLS LAST, created_at DESC
+                         LIMIT 1
+                     ) s ON true
+                     WHERE u.id::text = $1
+
+                     UNION ALL
+
+                     SELECT s.id, s.uuid, s.id AS session_id, u.id AS user_id,
+                            COALESCE(s.total_points, u.total_points, 0) AS total_points,
+                            u.full_name, u.avatar, u.email, u.phone, 1 AS match_priority
+                     FROM user_sessions s
+                     LEFT JOIN users u ON s.user_id = u.id
+                     WHERE s.id::text = $1 OR s.uuid = $1
+                 ) AS vc
+                 ORDER BY vc.match_priority ASC
+                 LIMIT 1`,
                 [String(sessionId), destId]
             );
 
