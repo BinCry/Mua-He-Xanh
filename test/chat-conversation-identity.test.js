@@ -69,3 +69,14 @@ test('migration backfills legacy replies and indexes the stable conversation key
     assert.match(source, /previous\.sender_uuid = m\.receiver_uuid/);
     assert.match(source, /idx_messages_conversation_user/);
 });
+
+test('chat history resolves a visitor directly from the stable user id when no session remains', () => {
+    const adminSource = fs.readFileSync('src/controllers/AdminController.js', 'utf8');
+    const managerSource = fs.readFileSync('src/controllers/ManagerController.js', 'utf8');
+
+    for (const source of [adminSource, managerSource]) {
+        assert.match(source, /FROM users u\s+LEFT JOIN LATERAL \(/);
+        assert.match(source, /WHERE u\.id::text = \$1/);
+        assert.match(source, /match_priority/);
+    }
+});

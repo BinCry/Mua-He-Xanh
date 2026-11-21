@@ -1163,10 +1163,30 @@ const AdminController = {
             let visitor = null;
 
             const [visitorDetails] = await db.query(
-                `SELECT s.id, s.uuid, s.total_points, u.full_name, u.avatar, u.email, u.phone
-                 FROM user_sessions s
-                 LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id::text = $1 OR s.uuid = $1 OR s.user_id = $1 OR u.id = $1`,
+                `SELECT id, uuid, total_points, full_name, avatar, email, phone
+                 FROM (
+                     SELECT u.id, s.uuid, COALESCE(s.total_points, u.total_points, 0) AS total_points,
+                            u.full_name, u.avatar, u.email, u.phone, 0 AS match_priority
+                     FROM users u
+                     LEFT JOIN LATERAL (
+                         SELECT id, uuid, total_points
+                         FROM user_sessions
+                         WHERE user_id = u.id
+                         ORDER BY updated_at DESC NULLS LAST, created_at DESC
+                         LIMIT 1
+                     ) s ON true
+                     WHERE u.id::text = $1
+
+                     UNION ALL
+
+                     SELECT s.id, s.uuid, COALESCE(s.total_points, u.total_points, 0) AS total_points,
+                            u.full_name, u.avatar, u.email, u.phone, 1 AS match_priority
+                     FROM user_sessions s
+                     LEFT JOIN users u ON s.user_id = u.id
+                     WHERE s.id::text = $1 OR s.uuid = $1
+                 ) visitor_candidates
+                 ORDER BY match_priority ASC
+                 LIMIT 1`,
                 [String(sessionId)]
             );
             
