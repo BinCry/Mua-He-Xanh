@@ -420,8 +420,8 @@ class ApiController {
             }
 
             await db.query(
-                "INSERT INTO messages (id, sender_id, sender_uuid, receiver_uuid, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, $6, NOW())",
-                [uuidv4(), currentUserId, session.id, receiverUuid, destinationId || null, normalizedMessage]
+                "INSERT INTO messages (id, sender_id, sender_uuid, receiver_uuid, conversation_user_id, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $7, NOW())",
+                [uuidv4(), currentUserId, session.id, receiverUuid, currentUserId, destinationId || null, normalizedMessage]
             );
 
             res.json({ success: true, message: 'Tin nhắn đã được gửi thành công.' });
@@ -451,10 +451,12 @@ class ApiController {
             }
 
             let receiverUuid = null;
+            let conversationUserId = null;
             let finalDestId = managerIsAdmin ? (destinationId || null) : managerDestinationId;
 
             if (sessionId) {
                 receiverUuid = sessionId;
+                conversationUserId = sessionId;
                 if (!managerIsAdmin && destinationId && String(destinationId) !== String(managerDestinationId)) {
                     return res.status(403).json({ success: false, message: 'Không thể phản hồi ngoài địa điểm được phân công.' });
                 }
@@ -466,14 +468,19 @@ class ApiController {
                     return res.status(403).json({ success: false, message: 'Không thể phản hồi hội thoại ngoài địa điểm được phân công.' });
                 }
                 receiverUuid = originalMsg.sender_uuid;
+                conversationUserId = originalMsg.conversation_user_id || originalMsg.sender_id || null;
                 finalDestId = originalMsg.destination_id || finalDestId;
             } else {
                 return res.status(400).json({ success: false, message: 'Thiếu thông tin người nhận' });
             }
 
+            if (!conversationUserId) {
+                return res.status(400).json({ success: false, message: 'Không xác định được chủ hội thoại.' });
+            }
+
             await db.query(
-                "INSERT INTO messages (id, sender_id, receiver_uuid, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $5, NOW())",
-                [uuidv4(), manager.id, receiverUuid, finalDestId, replyText.trim()]
+                "INSERT INTO messages (id, sender_id, receiver_uuid, conversation_user_id, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, $6, NOW())",
+                [uuidv4(), manager.id, receiverUuid, conversationUserId, finalDestId, replyText.trim()]
             );
 
             res.json({ success: true, message: 'Đã gửi phản hồi.' });
@@ -613,7 +620,7 @@ class ApiController {
         let userCondition = '';
         if (currentUserId) {
             queryParams.push(currentUserId);
-            userCondition = `OR sender_id = $${queryParams.length}`;
+            userCondition = `OR sender_id = $${queryParams.length} OR conversation_user_id = $${queryParams.length}`;
         }
 
         const { destinationId } = req.query;

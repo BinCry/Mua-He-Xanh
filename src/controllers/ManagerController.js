@@ -210,19 +210,20 @@ class ManagerController {
                      COALESCE(s.total_points, u.total_points, u_sender.total_points, 0) AS visitor_points
                  FROM (
                      SELECT 
-                         CASE 
-                             WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid 
+                          CASE
+                              WHEN conversation_user_id IS NOT NULL AND conversation_user_id != '' THEN conversation_user_id
+                              WHEN sender_uuid IS NOT NULL AND sender_uuid != '' THEN sender_uuid
                              ELSE receiver_uuid 
                          END AS session_key,
                          MAX(created_at) AS last_message_time
                      FROM messages
-                     WHERE destination_id = $1 AND ((sender_uuid IS NOT NULL AND sender_uuid != '') OR (receiver_uuid IS NOT NULL AND receiver_uuid != ''))
+                      WHERE destination_id = $1 AND (conversation_user_id IS NOT NULL OR (sender_uuid IS NOT NULL AND sender_uuid != '') OR (receiver_uuid IS NOT NULL AND receiver_uuid != ''))
                      GROUP BY session_key
                  ) conv
                  JOIN LATERAL (
                      SELECT COALESCE(message, content, '') as message
                      FROM messages m
-                     WHERE m.destination_id = $1 AND (m.sender_uuid = conv.session_key OR m.receiver_uuid = conv.session_key)
+                      WHERE m.destination_id = $1 AND (m.conversation_user_id = conv.session_key OR m.sender_uuid = conv.session_key OR m.receiver_uuid = conv.session_key)
                      ORDER BY m.created_at DESC
                      LIMIT 1
                  ) m_latest ON true
@@ -303,7 +304,7 @@ class ManagerController {
                         (SELECT COUNT(*) FROM check_ins ci WHERE (ci.session_id = s.id OR (u.id IS NOT NULL AND ci.user_id = u.id)) AND ci.destination_id = $2) as is_checked_in
                  FROM user_sessions s
                  LEFT JOIN users u ON s.user_id = u.id
-                 WHERE s.id::text = $1 OR s.uuid = $1`,
+                  WHERE s.id::text = $1 OR s.uuid = $1 OR s.user_id = $1 OR u.id = $1`,
                 [String(sessionId), destId]
             );
 
@@ -329,7 +330,7 @@ class ManagerController {
                  LEFT JOIN users u ON s.user_id = u.id
                  LEFT JOIN users mgr ON m.sender_id = mgr.id
                  WHERE m.destination_id = $1 
-                   AND (m.sender_uuid = $2 OR m.receiver_uuid = $2)
+                    AND (m.conversation_user_id = $2 OR m.sender_uuid = $2 OR m.receiver_uuid = $2)
                  ORDER BY m.created_at ASC`,
                 [destId, String(sessionId)]
             );

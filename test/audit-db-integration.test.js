@@ -168,6 +168,7 @@ if (!canRun) {
                 destination_id VARCHAR(36), message TEXT, content TEXT, is_recalled INT NOT NULL DEFAULT 0,
                 deleted_for TEXT DEFAULT ''
             );
+            ALTER TABLE messages ADD COLUMN IF NOT EXISTS conversation_user_id VARCHAR(36);
         `);
         await db.query('TRUNCATE festival_tickets, festivals, workshop_session_bookings, workshop_sessions, workshops, product_orders, products, review_likes, review_comments, reviews, journey_stops, journeys, destinations, user_sessions, users, events, messages, point_ledger, idempotency_keys');
         await db.query(
