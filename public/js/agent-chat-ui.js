@@ -51,9 +51,16 @@
 
     function project(output) {
         const type = String(output?.type || '');
-        let content = type === 'clarification_required'
-            ? String(output.question || '')
-            : String(output?.message || 'Trợ lý chưa thể trả lời bằng thông tin đã kiểm chứng.');
+        let content;
+        if (type === 'clarification_required') {
+            // A handoff review carries the exact summary the customer will send;
+            // show it before the confirmation question.
+            const summary = typeof output.summary === 'string' ? output.summary.trim() : '';
+            const question = String(output.question || '');
+            content = summary ? `${summary}\n\n${question}` : question;
+        } else {
+            content = String(output?.message || 'Trợ lý chưa thể trả lời bằng thông tin đã kiểm chứng.');
+        }
         if (['approval_pending', 'handoff'].includes(type) && !output?.reviewReceipt) {
             content += ' Mã bàn giao chưa khả dụng; hãy liên hệ nhân viên để được hỗ trợ trực tiếp.';
         }
