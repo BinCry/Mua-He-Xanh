@@ -111,43 +111,6 @@ test('web route maps administrators from trusted session data', async () => {
     assert.equal(request.principalId, 'admin-1');
 });
 
-test('legacy mobile history and new-conversation requests use the protected agent transcript', async () => {
-    const calls = [];
-    const controller = createAgentChatController({
-        client: {
-            async history(value) {
-                calls.push(['history', value]);
-                return [
-                    { role: 'user', content: 'Câu hỏi cũ', internal: 'not returned' },
-                    { role: 'assistant', content: 'Câu trả lời cũ' },
-                    { role: 'system', content: 'hidden' }
-                ];
-            },
-            async clear(value) { calls.push(['clear', value]); return true; }
-        }
-    });
-    const request = {
-        cookies: { session_uuid: SESSION_UUID },
-        user: { id: 'customer-123', role: 'user' }
-    };
-
-    const history = response();
-    await controller.history(request, history);
-    assert.deepEqual(history.body, {
-        success: true,
-        data: { messages: [
-            { role: 'user', content: 'Câu hỏi cũ' },
-            { role: 'assistant', content: 'Câu trả lời cũ' }
-        ] }
-    });
-
-    const started = response();
-    await controller.startConversation(request, started);
-    assert.equal(started.body.success, true);
-    assert.equal(calls[0][1].conversationId, `web-${SESSION_UUID}`);
-    assert.equal(calls[1][1].conversationId, `web-${SESSION_UUID}`);
-});
-
 test('web route rejects missing users and invalid text before calling the agent', async () => {
     let calls = 0;
     const controller = createAgentChatController({ client: { async chat() { calls += 1; } } });
@@ -227,25 +190,6 @@ test('agent client sends the backend credential to HTTPS or a loopback endpoint'
     assert.equal(captured[2].timeout, 35000);
     assert.deepEqual(output, { type: 'abstain', message: 'Không đủ căn cứ.' });
     assert.doesNotMatch(JSON.stringify(output), /private-conversation-id|private-run-id|test-service-token/);
-});
-
-test('agent client reads the durable transcript through the service-owned history endpoint', async () => {
-    let captured;
-    const client = createHelpdeskAgentClient({
-        env: { AI_SERVICE_CHAT_URL: 'http://127.0.0.1:8100/api/v1/chat', AI_SERVICE_AUTH_TOKEN: TEST_TOKEN },
-        httpClient: {
-            async get(...args) {
-                captured = args;
-                return { data: { success: true, data: { messages: [{ role: 'assistant', content: 'Đã lưu' }] } } };
-            }
-        }
-    });
-    const messages = await client.history({
-        conversationId: `web-${SESSION_UUID}`, principalId: 'customer-123', principalRole: 'customer', requestId: SESSION_UUID
-    });
-    assert.equal(captured[0], `http://127.0.0.1:8100/api/v1/conversations/web-${SESSION_UUID}/messages`);
-    assert.equal(captured[1].headers['X-Principal-ID'], 'customer-123');
-    assert.deepEqual(messages, [{ role: 'assistant', content: 'Đã lưu' }]);
 });
 
 test('agent client rejects missing credentials and unsafe transport without making a request', async () => {

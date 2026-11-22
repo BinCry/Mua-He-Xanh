@@ -550,8 +550,6 @@ router.post('/api/journey', ensureAuthenticated, ApiController.journey);
 router.post('/api/journey/update-stop', ensureAuthenticated, ApiController.updateJourneyStop);
 router.post('/api/checkin', ensureAuthenticated, ApiController.checkin);
 router.post('/api/agent/chat', ensureAuthenticated, AgentChatController.chat);
-router.get('/api/agent/chat/history', ensureAuthenticated, AgentChatController.history);
-router.post('/api/agent/chat/conversations', ensureAuthenticated, AgentChatController.startConversation);
 router.delete('/api/agent/conversation', ensureAuthenticated, AgentChatController.clear);
 router.post('/api/admin/agent/receipt', ensureAdmin, AgentChatController.inspectReview);
 router.post('/api/admin/agent/resume', ensureAdmin, AgentChatController.resume);
