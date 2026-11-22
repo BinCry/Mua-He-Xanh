@@ -874,7 +874,7 @@
                                 button.type = 'button';
                                 button.className = 'btn btn-sm btn-outline-success rounded-pill';
                                 button.textContent = actionLabel || 'Gặp nhân viên hỗ trợ';
-                                button.addEventListener('click', handoffFloatingAgentToStaff);
+                                button.addEventListener('click', () => handoffFloatingAgentToStaff(action.handoffId || ''));
                                 actions.append(button);
                             } else if (action?.type === 'retry') {
                                 const button = document.createElement('button');
@@ -907,23 +907,8 @@
             if (floatingAgentMode && input) input.disabled = floatingAgentRequestPending || Boolean(window.HelpdeskAgentUI.choiceOnly(floatingAgentMessages));
         }
 
-        function handoffFloatingAgentToStaff() {
-            const summary = window.HelpdeskAgentUI.handoffSummary(floatingAgentMessages);
-            setFloatingChatMode(false);
-            const input = document.getElementById('floatingChatInput');
-            if (input) {
-                const draft = input.value.trim();
-                const available = Math.max(0, 2000 - summary.length - 3);
-                input.value = draft && available > 0 ? `${draft.slice(0, available)} | ${summary}` : summary;
-                floatingStaffDraft = input.value;
-                toggleFloatingSendIcon(input);
-                input.focus();
-            }
-            const title = document.getElementById('floating-chat-mode-title');
-            if (title) {
-                title.textContent = 'Kiểm tra bản nháp rồi gửi';
-                title.title = title.textContent;
-            }
+        function handoffFloatingAgentToStaff(handoffId = '') {
+            window.openHumanHandoff({ handoffId, switchToStaff: () => setFloatingChatMode(false) });
         }
 
         async function sendFloatingAgentMessage(message) {
@@ -948,7 +933,9 @@
                     throw new Error('AGENT_RESPONSE_INVALID');
                 }
                 floatingAgentMessages.pop();
-                floatingAgentMessages.push(window.HelpdeskAgentUI.project(output));
+                floatingAgentMessages.push(output.type === 'handoff'
+                    ? { ...window.HelpdeskAgentUI.project(output), actions: [{ type: 'request_handoff', label: 'Xem tóm tắt và chat nhân viên', handoffId: output.handoffId }] }
+                    : window.HelpdeskAgentUI.project(output));
             } catch (error) {
                 floatingAgentMessages.pop();
                 const paused = error?.response?.status === 409;
@@ -1328,6 +1315,7 @@
             return div.innerHTML;
         }
 
+        window.addEventListener('human-handoff-sent', () => loadFloatingChatMessages());
         async function loadFloatingChatMessages() {
             if (floatingAgentMode) return;
             try {
@@ -2037,6 +2025,7 @@
         window.addEventListener('beforeunload', function() { sendHeartbeat(true); });
     })();
     </script>
+    <script src="/js/handoff-preview.js"></script>
 </body>
 
 </html>

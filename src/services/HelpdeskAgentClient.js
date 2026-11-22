@@ -62,6 +62,32 @@ function safeServiceFailure(error, operation = 'chat') {
 
 function createHelpdeskAgentClient({ httpClient = axios, env = process.env } = {}) {
     return {
+        async handoff({ handoffId, conversationId, principalId, principalRole, requestId }) {
+            const token = String(env.AI_SERVICE_AUTH_TOKEN || '').trim();
+            let endpoint;
+            try { endpoint = new URL(String(env.AI_SERVICE_CHAT_URL || '').trim()); }
+            catch (_) { throw new AgentServiceError('AGENT_NOT_CONFIGURED'); }
+            if (token.length < MIN_TOKEN_LENGTH) throw new AgentServiceError('AGENT_NOT_CONFIGURED');
+            if ((endpoint.protocol !== 'https:' && !(endpoint.protocol === 'http:' && isLoopback(endpoint.hostname))) || endpoint.username || endpoint.password || endpoint.search || endpoint.hash || !/\/chat\/?$/.test(endpoint.pathname)) {
+                throw new AgentServiceError('AGENT_ENDPOINT_INVALID');
+            }
+            endpoint.pathname = endpoint.pathname.replace(/\/chat\/?$/, `/handoffs/${encodeURIComponent(handoffId)}`);
+            endpoint.searchParams.set('conversationId', conversationId);
+            let response;
+            try {
+                response = await httpClient.get(endpoint.toString(), {
+                    timeout: REQUEST_TIMEOUT_MS, proxy: false, maxRedirects: 0, maxContentLength: 256 * 1024,
+                    headers: { Authorization: `Bearer ${token}`, 'X-Conversation-ID': conversationId,
+                        'X-Principal-ID': principalId, 'X-Principal-Role': principalRole, 'X-Request-ID': requestId }
+                });
+            } catch (error) {
+                const status = error?.response?.status;
+                throw new AgentServiceError(status === 410 ? 'HANDOFF_EXPIRED' : [403, 404].includes(status) ? 'HANDOFF_NOT_FOUND' : 'AGENT_UNAVAILABLE');
+            }
+            const data = response?.data?.data;
+            if (response?.data?.success !== true || !data?.packet || typeof data.packet !== 'object') throw new AgentServiceError('AGENT_RESPONSE_INVALID');
+            return data;
+        },
         async chat({ message, conversationId, principalId, principalRole, requestId }) {
             const { url, token } = serviceConfig(env);
 
