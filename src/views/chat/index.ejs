@@ -418,10 +418,20 @@
         .tourist-chat-brand-logo { width: 34px !important; height: 34px !important; }
         .tourist-chat-brand-name { white-space: nowrap; }
         .tourist-chat-user-avatar { display: none !important; }
-        #chat-mode-control { gap: 0.5rem !important; }
+        #chat-mode-control {
+            display: grid !important;
+            grid-template-columns: minmax(0, 1fr) auto auto;
+            gap: 0.5rem !important;
+        }
+        #chat-mode-control > [aria-live] {
+            grid-column: 1 / -1;
+            min-width: 0;
+        }
         #chat-mode-title {
             font-size: 0.75rem !important;
             white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
         #agent-mode-toggle { padding-left: 0.5rem !important; padding-right: 0.5rem !important; }
         .messenger-drawer {
