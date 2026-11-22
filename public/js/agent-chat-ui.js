@@ -23,9 +23,12 @@
             content: redactText(entry.content).slice(0, MAX_TEXT),
             citations: Array.isArray(entry.citations) ? entry.citations.slice(0, 8) : [],
             actions: Array.isArray(entry.actions) ? entry.actions.slice(0, 4) : [],
-            preview: redactText(entry.preview).slice(0, 500),
+            preview: redactText(entry.preview).slice(0, 4400),
             reference: String(entry.reference || '').slice(0, 128),
             status: String(entry.status || '').slice(0, 40),
+            options: Array.isArray(entry.options) ? entry.options.slice(0, 10) : [],
+            allowFreeText: entry.allowFreeText !== false,
+            confirmationId: String(entry.confirmationId || '').slice(0, 128),
             reviewReceipt: /^ar1\.[A-Za-z0-9_-]{40,1800}$/.test(String(entry.reviewReceipt || ''))
                 ? entry.reviewReceipt : ''
         };
@@ -59,7 +62,7 @@
             if (output.retryable) actions.push({ type: 'retry', label: 'Thử lại' });
             actions.push({ type: 'request_handoff', label: 'Chat nhân viên' });
         }
-        if (['handoff', 'approval_pending', 'confirmation_required'].includes(type)) {
+        if (['handoff', 'approval_pending'].includes(type)) {
             actions.push({ type: 'request_handoff', label: 'Liên hệ nhân viên' });
         }
         return {
@@ -71,6 +74,10 @@
                 ? String(output.actionPreview?.summary || '') : '',
             reference: type === 'action_completed' ? String(output.referenceId || '') : '',
             status: type,
+            options: type === 'clarification_required' && Array.isArray(output.options)
+                ? output.options.filter(option => typeof option === 'string' && option.trim() && option.length <= MAX_TEXT).slice(0, 10) : [],
+            allowFreeText: output?.allowFreeText !== false,
+            confirmationId: type === 'confirmation_required' ? String(output.confirmationId || '') : '',
             reviewReceipt: String(output?.reviewReceipt || '')
         };
     }
@@ -100,5 +107,37 @@
         return `${summary.slice(0, Math.max(0, 2000 - suffix.length))}${suffix}`;
     }
 
-    root.HelpdeskAgentUI = { load, save, clear, project, citationUrl, handoffSummary };
+    function choiceOnly(messages) {
+        const last = messages[messages.length - 1];
+        return last?.status === 'clarification_required' && last.allowFreeText === false && last.options?.length > 0;
+    }
+
+    function appendTicketControls(bubble, entry, messages, pending, send) {
+        let labels = [];
+        if (entry.status === 'clarification_required') labels = entry.options || [];
+        if (entry.status === 'confirmation_required' && entry.confirmationId) {
+            labels = ['Xác nhận gửi', 'Sửa nội dung', 'Hủy'];
+        }
+        if (!labels.length) return;
+        const controls = root.document.createElement('div');
+        controls.className = 'd-flex flex-wrap gap-2 mt-2';
+        controls.setAttribute('role', 'group');
+        controls.setAttribute('aria-label', 'Trả lời yêu cầu hỗ trợ');
+        labels.forEach(label => {
+            const button = root.document.createElement('button');
+            button.type = 'button';
+            button.className = 'btn btn-sm btn-outline-success rounded-pill';
+            button.textContent = label;
+            button.disabled = pending || messages[messages.length - 1] !== entry;
+            button.addEventListener('click', () => {
+                if (button.disabled || messages[messages.length - 1] !== entry) return;
+                Array.from(controls.children).forEach(control => { control.disabled = true; });
+                send(label);
+            });
+            controls.append(button);
+        });
+        bubble.append(controls);
+    }
+
+    root.HelpdeskAgentUI = { load, save, clear, project, citationUrl, handoffSummary, appendTicketControls, choiceOnly };
 })(window);

@@ -723,6 +723,7 @@
             if (input) {
                 input.placeholder = floatingAgentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
                 input.value = floatingAgentMode ? floatingAgentDraft : floatingStaffDraft;
+                input.disabled = false;
             }
             if (sendButton) sendButton.title = floatingAgentMode ? 'Gửi câu hỏi cho Trợ lý AI' : 'Gửi';
             if (clearButton) {
@@ -811,6 +812,7 @@
                     const content = document.createElement('div');
                     content.textContent = String(entry.content || '');
                     bubble.append(content);
+                    window.HelpdeskAgentUI.appendTicketControls(bubble, entry, floatingAgentMessages, floatingAgentRequestPending, sendFloatingAgentMessage);
 
                     if (entry.preview) {
                         const preview = document.createElement('div');
@@ -901,6 +903,8 @@
                 container.append(row);
             });
             container.scrollTop = container.scrollHeight;
+            const input = document.getElementById('floatingChatInput');
+            if (floatingAgentMode && input) input.disabled = floatingAgentRequestPending || Boolean(window.HelpdeskAgentUI.choiceOnly(floatingAgentMessages));
         }
 
         function handoffFloatingAgentToStaff() {
