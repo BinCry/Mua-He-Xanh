@@ -44,6 +44,64 @@ function createAgentChatController({ client = agentClient, env = process.env } =
     }
 
     return {
+        async history(req, res) {
+            const user = req.user || req.session?.user || null;
+            if (!user?.id || !IDENTIFIER_PATTERN.test(String(user.id))) {
+                return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập lại.' });
+            }
+
+            let sessionUuid = req.cookies?.session_uuid;
+            if (!SESSION_UUID_PATTERN.test(String(sessionUuid || ''))) {
+                sessionUuid = uuidv4();
+                res.cookie('session_uuid', sessionUuid, {
+                    maxAge: 30 * 24 * 60 * 60 * 1000,
+                    httpOnly: true,
+                    sameSite: 'lax',
+                    secure: process.env.NODE_ENV === 'production'
+                });
+            }
+
+            try {
+                const messages = await client.history({
+                    conversationId: `web-${sessionUuid}`,
+                    principalId: String(user.id),
+                    principalRole: isAdmin(user) ? 'admin' : 'customer',
+                    requestId: uuidv4()
+                });
+                return res.json({
+                    success: true,
+                    data: {
+                        messages: messages
+                            .filter(item => item?.role === 'user' || item?.role === 'assistant')
+                            .map(item => ({ role: item.role, content: String(item.content || '') }))
+                            .filter(item => item.content.length > 0)
+                    }
+                });
+            } catch (error) {
+                return serviceFailure(res, error);
+            }
+        },
+        async startConversation(req, res) {
+            const user = req.user || req.session?.user || null;
+            const sessionUuid = String(req.cookies?.session_uuid || '');
+            if (!user?.id || !IDENTIFIER_PATTERN.test(String(user.id))) {
+                return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập lại.' });
+            }
+            if (!SESSION_UUID_PATTERN.test(sessionUuid)) {
+                return res.json({ success: true, data: { cleared: false } });
+            }
+            try {
+                const cleared = await client.clear({
+                    conversationId: `web-${sessionUuid}`,
+                    principalId: String(user.id),
+                    principalRole: isAdmin(user) ? 'admin' : 'customer',
+                    requestId: uuidv4()
+                });
+                return res.json({ success: true, data: { cleared } });
+            } catch (error) {
+                return serviceFailure(res, error);
+            }
+        },
         async chat(req, res) {
             const user = req.user || req.session?.user || null;
             if (!user?.id) {
