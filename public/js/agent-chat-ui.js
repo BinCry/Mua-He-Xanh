@@ -120,14 +120,15 @@
         }
         if (!labels.length) return;
         const controls = root.document.createElement('div');
-        controls.className = 'd-flex flex-wrap gap-2 mt-2';
+        controls.className = 'd-flex flex-column gap-2 mt-3 p-2 bg-white border rounded-4 text-dark';
         controls.setAttribute('role', 'group');
         controls.setAttribute('aria-label', 'Trả lời yêu cầu hỗ trợ');
-        labels.forEach(label => {
+        labels.forEach((label, index) => {
             const button = root.document.createElement('button');
             button.type = 'button';
-            button.className = 'btn btn-sm btn-outline-success rounded-pill';
-            button.textContent = label;
+            button.className = 'btn btn-light border rounded-3 text-start w-100 px-3 py-2';
+            button.style = 'min-height:44px;white-space:normal;overflow-wrap:anywhere';
+            button.textContent = `${index + 1}. ${label}`;
             button.disabled = pending || messages[messages.length - 1] !== entry;
             button.addEventListener('click', () => {
                 if (button.disabled || messages[messages.length - 1] !== entry) return;

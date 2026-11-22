@@ -49,7 +49,7 @@ test('ticket questions preserve choices and confirmation controls send only once
     const sent = [];
     ui.appendTicketControls(bubble, entry, [entry], false, message => sent.push(message));
     const buttons = bubble.children[0].children;
-    assert.deepEqual(Array.from(buttons, button => button.textContent), ['Xác nhận gửi', 'Sửa nội dung', 'Hủy']);
+    assert.deepEqual(Array.from(buttons, button => button.textContent), ['1. Xác nhận gửi', '2. Sửa nội dung', '3. Hủy']);
     buttons[0].listeners.click();
     buttons[0].listeners.click();
     buttons[2].listeners.click();
