@@ -645,7 +645,6 @@
         let floatingAgentRequestPending = false;
         let floatingStaffDraft = '';
         let floatingAgentDraft = '';
-        const FLOATING_CHAT_OPEN_KEY = 'binhloi.floating-chat.open';
         const floatingAgentUserId = <%- safeJsonForScript(String(locals.user.id)) %>;
         let floatingAgentMessages = window.HelpdeskAgentUI.load(floatingAgentUserId);
         let floatingMediaRecorder = null;
@@ -653,20 +652,11 @@
         let floatingRecordInterval = null;
         let floatingRecordSeconds = 0;
 
-        function setFloatingChatOpen(isOpen, remember = true) {
+        function toggleFloatingChat() {
             const widget = document.getElementById('floatingChatWidget');
-            if (!widget) return;
-            widget.classList.toggle('d-none', !isOpen);
-            try {
-                if (remember) {
-                    if (isOpen) sessionStorage.setItem(FLOATING_CHAT_OPEN_KEY, '1');
-                    else sessionStorage.removeItem(FLOATING_CHAT_OPEN_KEY);
-                }
-            } catch (_) {
-                // Storage can be unavailable in strict privacy modes; the chat still works in-page.
-            }
+            widget.classList.toggle('d-none');
             
-            if (isOpen) {
+            if (!widget.classList.contains('d-none')) {
                 if (floatingAgentMode) renderFloatingAgentMessages();
                 else loadFloatingChatMessages();
                 setTimeout(() => {
@@ -684,11 +674,6 @@
                 toggleFloatingEmoji(false);
                 toggleFloatingGif(false);
             }
-        }
-
-        function toggleFloatingChat() {
-            const widget = document.getElementById('floatingChatWidget');
-            setFloatingChatOpen(Boolean(widget?.classList.contains('d-none')));
         }
 
         document.addEventListener('visibilitychange', () => {
@@ -1017,11 +1002,6 @@
             floatingAgentModeToggle.addEventListener('click', () => setFloatingChatMode(!floatingAgentMode));
         }
         document.getElementById('floating-agent-clear')?.addEventListener('click', clearFloatingAgentConversation);
-        try {
-            if (sessionStorage.getItem(FLOATING_CHAT_OPEN_KEY) === '1') setFloatingChatOpen(true, false);
-        } catch (_) {
-            // Ignore unavailable session storage.
-        }
 
         function toggleFloatingEmoji(force) {
             const d = document.getElementById('floating-messenger-drawer');

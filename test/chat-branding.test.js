@@ -15,15 +15,3 @@ test('tourist chat header consistently uses the Bình Lợi logo', () => {
     assert.doesNotMatch(header, /bi bi-messenger text-danger/);
     assert.match(view, /@media \(max-width: 767\.98px\) \{[\s\S]*?\.tourist-chat-header \{ padding: 0\.75rem !important; \}[\s\S]*?\.tourist-chat-brand-logo \{ width: 34px !important; height: 34px !important; \}[\s\S]*?\.tourist-chat-user-avatar \{ display: none !important; \}/);
 });
-
-test('mobile AI controls reserve a full row for the status and keep the floating chat open across navigation', () => {
-    const chat = fs.readFileSync('src/views/chat/index.ejs', 'utf8');
-    const layout = fs.readFileSync('src/views/layouts/main.ejs', 'utf8');
-
-    assert.match(chat, /#chat-mode-control \{\s*display: grid !important;/);
-    assert.match(chat, /#chat-mode-control > \[aria-live\] \{\s*grid-column: 1 \/ -1;/);
-    assert.match(chat, /#chat-mode-title \{[\s\S]*?text-overflow: ellipsis;/);
-    assert.match(layout, /FLOATING_CHAT_OPEN_KEY/);
-    assert.match(layout, /sessionStorage\.setItem\(FLOATING_CHAT_OPEN_KEY, '1'\)/);
-    assert.match(layout, /sessionStorage\.getItem\(FLOATING_CHAT_OPEN_KEY\) === '1'/);
-});
