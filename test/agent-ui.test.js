@@ -58,6 +58,20 @@ test('ticket questions preserve choices and confirmation controls send only once
     assert.equal(ui.choiceOnly([entry]), false);
 });
 
+test('handoff clarification shows the reviewed summary before its question', () => {
+    const ui = agentUi();
+    const entry = ui.project({
+        type: 'clarification_required',
+        question: 'Bạn có muốn gửi cho nhân viên không?',
+        summary: 'Bản tóm tắt sẽ gửi cho nhân viên:\n- Vấn đề: Trễ giờ',
+        previewId: 'preview-1',
+        options: ['Gửi cho nhân viên', 'Để sau'],
+        allowFreeText: false
+    });
+    assert.equal(entry.content, 'Bản tóm tắt sẽ gửi cho nhân viên:\n- Vấn đề: Trễ giờ\n\nBạn có muốn gửi cho nhân viên không?');
+    assert.deepEqual(Array.from(entry.options), ['Gửi cho nhân viên', 'Để sau']);
+});
+
 test('previous ticket controls stay disabled when another turn has started', () => {
     const ui = agentUi();
     const entry = ui.project({ type: 'clarification_required', question: 'Chọn', options: ['A'] });

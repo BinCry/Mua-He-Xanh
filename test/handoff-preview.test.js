@@ -10,6 +10,7 @@ function browser(post) {
         get isConnected() { return this.tag === 'body' || Boolean(this.parent && this.parent.children.includes(this) && this.parent.isConnected); }
         append(...items) { items.forEach(item => { item.parent = this; this.children.push(item); }); }
         insertBefore(item, target) { item.parent = this; this.children.splice(this.children.indexOf(target), 0, item); }
+        replaceChildren(...items) { this.children = []; this.append(...items); }
         remove() { this.parent.children.splice(this.parent.children.indexOf(this), 1); }
         setAttribute(key, value) { this[key] = value; }
         focus() { this.focused = true; }
@@ -25,26 +26,87 @@ function browser(post) {
     vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../public/js/handoff-preview.js'), 'utf8'), context);
     return { window, find, events };
 }
+const summary = 'Bản tóm tắt sẽ gửi cho nhân viên:\n- Vấn đề: Đổi lịch booking';
+const review = { status: 'preview', previewId: 'preview-1', summary, sendLabel: 'Gửi cho nhân viên' };
+function greenButton(ui) { return ui.find(el => el.tag === 'button' && el.className.includes('btn-success')); }
 
-test('handoff previews authoritative text safely and sends only after customer confirmation', async () => {
+test('preview shows the server summary verbatim and sends only the preview id and note', async () => {
     const calls = [];
     let switched = 0;
     const ui = browser(async (url, payload) => {
         calls.push({ url, payload });
-        return { data: { success: true, data: { handoffId: 'handoff-1', summary: '<img src=x onerror=alert(1)> Verified booking' } } };
+        if (url.endsWith('/preview')) return { data: { success: true, data: review } };
+        return { data: { success: true, data: { status: 'waiting_for_human', handoffId: 'handoff-1', previewId: 'preview-1', messageId: 'id-1' } } };
     });
-    await ui.window.openHumanHandoff({ handoffId: 'handoff-1', destinationId: 'dest-1', switchToStaff: () => switched++ });
-    assert.equal(calls.length, 1);
-    assert.equal(switched, 1);
-    assert.equal(ui.find(el => el.tag === 'div').textContent, '<img src=x onerror=alert(1)> Verified booking');
+    await ui.window.openHumanHandoff({ destinationId: 'dest-1', switchToStaff: () => switched++ });
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[0].payload)), {});
+    assert.equal(ui.find(el => el.tag === 'div' && el.textContent === summary).textContent, summary);
     assert.equal(ui.find(el => el.tag === 'img'), undefined);
-    const note = ui.find(el => el.tag === 'textarea');
-    note.value = 'Please help';
-    await ui.find(el => el.tag === 'button' && el.className.includes('btn-success')).onclick();
-    assert.equal(calls[1].url, '/api/agent/handoff/send');
-    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), { handoffId: 'handoff-1', note: 'Please help', destinationId: 'dest-1' });
+    assert.equal(switched, 0);
+    ui.find(el => el.tag === 'textarea').value = 'Please help';
+    await greenButton(ui).onclick();
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), { previewId: 'preview-1', note: 'Please help', destinationId: 'dest-1' });
+    assert.equal(switched, 1);
     assert.deepEqual(ui.events, ['human-handoff-sent']);
-    assert.equal(ui.find(el => el.tag === 'button' && el.className.includes('btn-success')), undefined);
+    assert.equal(greenButton(ui), undefined);
+    assert.ok(ui.find(el => el.tag === 'button' && el.textContent === 'Vào chat nhân viên'));
+});
+
+test('preview with a recovered pause shows Retry with the same preview id', async () => {
+    const calls = [];
+    const ui = browser(async (url, payload) => {
+        calls.push({ url, payload });
+        if (url.endsWith('/preview')) return { data: { success: true, data: { ...review, status: 'pending', written: false, handoffId: 'handoff-1' } } };
+        return { data: { success: true, data: { status: 'waiting_for_human', handoffId: 'handoff-1', previewId: 'preview-1' } } };
+    });
+    await ui.window.openHumanHandoff({ handoffId: 'handoff-1' });
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[0].payload)), { handoffId: 'handoff-1' });
+    assert.equal(ui.find(el => el.tag === 'div' && el.textContent === summary).textContent, summary);
+    const retry = greenButton(ui);
+    assert.equal(retry.textContent, 'Thử lại');
+    await retry.onclick();
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), { previewId: 'preview-1', note: '', destinationId: null });
+});
+
+test('a handoff whose message was already written only finishes the delivery step', async () => {
+    const calls = [];
+    const ui = browser(async (url, payload) => {
+        calls.push({ url, payload });
+        if (url.endsWith('/preview')) return { data: { success: true, data: { ...review, status: 'pending', written: true, handoffId: 'handoff-1' } } };
+        return { data: { success: true, data: { status: 'sent', handoffId: 'handoff-1', previewId: 'preview-1' } } };
+    });
+    await ui.window.openHumanHandoff({ handoffId: 'handoff-1' });
+    assert.equal(ui.find(el => el.tag === 'textarea'), undefined);
+    await greenButton(ui).onclick();
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), { previewId: 'preview-1', note: '', destinationId: null });
+    assert.equal(greenButton(ui), undefined);
+});
+
+test('an already sent handoff shows the sent state and lets the customer enter staff chat', async () => {
+    let switched = 0;
+    const ui = browser(async () => ({ data: { success: true, data: { ...review, status: 'sent', handoffId: 'handoff-1' } } }));
+    await ui.window.openHumanHandoff({ handoffId: 'handoff-1', switchToStaff: () => switched++ });
+    assert.equal(ui.find(el => el.role === 'status').textContent, 'Đã gửi bản tóm tắt cho nhân viên.');
+    assert.equal(greenButton(ui), undefined);
+    await ui.find(el => el.tag === 'button' && el.textContent === 'Vào chat nhân viên').onclick();
+    assert.equal(switched, 1);
+});
+
+test('a changed review replaces the summary without sending', async () => {
+    const calls = [];
+    let switched = 0;
+    const ui = browser(async (url, payload) => {
+        calls.push({ url, payload });
+        if (url.endsWith('/preview')) return { data: { success: true, data: review } };
+        return { data: { success: true, data: { status: 'preview', previewId: 'preview-2', summary: 'Bản tóm tắt mới', sendLabel: 'Gửi cho nhân viên',
+            message: 'Nội dung bản tóm tắt đã thay đổi. Vui lòng xem lại trước khi gửi.' } } };
+    });
+    await ui.window.openHumanHandoff({ switchToStaff: () => switched++ });
+    await greenButton(ui).onclick();
+    assert.equal(switched, 0);
+    assert.ok(ui.find(el => el.tag === 'div' && el.textContent === 'Bản tóm tắt mới'));
+    assert.equal(greenButton(ui).textContent, 'Gửi cho nhân viên');
+    assert.equal(calls.length, 2);
 });
 
 test('duplicate preview clicks do not create duplicate requests or panels', async () => {
@@ -54,7 +116,7 @@ test('duplicate preview clicks do not create duplicate requests or panels', asyn
     const first = ui.window.openHumanHandoff();
     await ui.window.openHumanHandoff();
     assert.equal(calls, 1);
-    resolve({ data: { success: true, data: { handoffId: 'h1', summary: 'Summary' } } });
+    resolve({ data: { success: true, data: review } });
     await first;
     await ui.window.openHumanHandoff();
     assert.equal(calls, 1);
@@ -76,26 +138,26 @@ test('closing a pending preview prevents a late response from changing chat mode
     const ui = browser(() => new Promise(done => { resolve = done; }));
     const preview = ui.window.openHumanHandoff({ switchToStaff: () => { switched = true; } });
     ui.find(el => el.tag === 'button').onclick();
-    resolve({ data: { success: true, data: { handoffId: 'h1', summary: 'Summary' } } });
+    resolve({ data: { success: true, data: review } });
     await preview;
     assert.equal(switched, false);
     assert.equal(ui.find(el => el.id === 'human-handoff-preview'), undefined);
 });
 
-test('send failure keeps preview available for retry without success event', async () => {
+test('send failure keeps the reviewed summary available for retry without a success event', async () => {
     const ui = browser(async url => {
         if (url.endsWith('/send')) throw new Error('network down');
-        return { data: { success: true, data: { handoffId: 'h1', summary: 'Summary' } } };
+        return { data: { success: true, data: review } };
     });
     await ui.window.openHumanHandoff();
-    const send = ui.find(el => el.tag === 'button' && el.className.includes('btn-success'));
+    const send = greenButton(ui);
     await send.onclick();
     assert.equal(send.disabled, false);
     assert.equal(ui.find(el => el.tag === 'textarea').disabled, false);
     assert.deepEqual(ui.events, []);
 });
 
-test('both chat surfaces preserve handoff receipts and open confirmation before staff delivery', () => {
+test('both chat surfaces open confirmation before staff delivery', () => {
     for (const name of ['chat/index.ejs', 'layouts/main.ejs']) {
         const source = fs.readFileSync(path.join(__dirname, '../src/views', name), 'utf8');
         assert.match(source, /output\.type === 'handoff'/);

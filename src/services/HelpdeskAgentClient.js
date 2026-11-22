@@ -88,14 +88,53 @@ function createHelpdeskAgentClient({ httpClient = axios, env = process.env } = {
             if (response?.data?.success !== true || !data?.packet || typeof data.packet !== 'object') throw new AgentServiceError('AGENT_RESPONSE_INVALID');
             return data;
         },
-        async chat({ message, conversationId, principalId, principalRole, requestId }) {
+        async acknowledgeHandoff({ handoffId, conversationId, principalId, principalRole, requestId }) {
+            const { url, token } = serviceConfig(env);
+            const endpoint = new URL(auxiliaryUrl(url, `/handoffs/${encodeURIComponent(handoffId)}/delivery`));
+            endpoint.searchParams.set('conversationId', conversationId);
+            let response;
+            try {
+                response = await httpClient.post(endpoint.toString(), null, requestOptions(serviceHeaders(token, {
+                    conversationId, principalId, principalRole, requestId
+                })));
+            } catch (error) {
+                if (error instanceof AgentServiceError) throw error;
+                const status = error?.response?.status;
+                throw new AgentServiceError(status === 410 ? 'HANDOFF_EXPIRED' : [403, 404].includes(status) ? 'HANDOFF_NOT_FOUND' : 'AGENT_UNAVAILABLE');
+            }
+            const data = response?.data?.data;
+            if (response?.data?.success !== true || data?.delivery !== 'sent') {
+                throw new AgentServiceError('AGENT_RESPONSE_INVALID');
+            }
+            return data;
+        },
+        async pendingHandoff({ conversationId, principalId, principalRole, requestId }) {
+            const { url, token } = serviceConfig(env);
+            const endpoint = new URL(auxiliaryUrl(url, '/handoffs/pending'));
+            endpoint.searchParams.set('conversationId', conversationId);
+            let response;
+            try {
+                response = await httpClient.get(endpoint.toString(), requestOptions(serviceHeaders(token, {
+                    conversationId, principalId, principalRole, requestId
+                })));
+            } catch (error) {
+                const status = error?.response?.status;
+                throw new AgentServiceError(status === 410 ? 'HANDOFF_EXPIRED' : [403, 404].includes(status) ? 'HANDOFF_NOT_FOUND' : 'AGENT_UNAVAILABLE');
+            }
+            const data = response?.data?.data;
+            if (response?.data?.success !== true || !data?.handoffId || !data?.packet || typeof data.packet !== 'object') {
+                throw new AgentServiceError('AGENT_RESPONSE_INVALID');
+            }
+            return data;
+        },
+        async chat({ message, handoffPreviewId, conversationId, principalId, principalRole, requestId }) {
             const { url, token } = serviceConfig(env);
 
             let response;
             try {
                 response = await httpClient.post(
                     url.toString(),
-                    { message },
+                    handoffPreviewId ? { message, handoffPreviewId } : { message },
                     requestOptions(serviceHeaders(token, { conversationId, principalId, principalRole, requestId }))
                 );
             } catch (error) {
