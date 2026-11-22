@@ -6,6 +6,14 @@ const vm = require('node:vm');
 
 function agentUi() {
     const window = {
+        document: { createElement() {
+            return {
+                children: [], listeners: {}, disabled: false,
+                append(child) { this.children.push(child); },
+                setAttribute() {},
+                addEventListener(name, handler) { this.listeners[name] = handler; }
+            };
+        } },
         location: { origin: 'https://www.dulichbinhloi.com' }
     };
     const source = fs.readFileSync(path.join(__dirname, '../public/js/agent-chat-ui.js'), 'utf8');
@@ -29,6 +37,34 @@ test('agent UI projects approval, completion and recoverable errors', () => {
     assert.deepEqual(Array.from(retry.actions, action => action.type), ['retry', 'request_handoff']);
     const terminal = ui.project({ type: 'temporarily_unavailable', message: 'Tạm dừng', retryable: false });
     assert.deepEqual(Array.from(terminal.actions, action => action.type), ['request_handoff']);
+});
+
+test('ticket questions preserve choices and confirmation controls send only once', () => {
+    const ui = agentUi();
+    const question = ui.project({ type: 'clarification_required', question: 'Chọn buổi', options: ['Buổi A', 'Buổi B'], allowFreeText: false });
+    ui.save('customer', [question]);
+    assert.equal(ui.choiceOnly(ui.load('customer')), true);
+    const entry = ui.project({ type: 'confirmation_required', message: 'Kiểm tra', confirmationId: 'draft-1', actionPreview: { summary: 'Khách phản ánh...' } });
+    const bubble = { children: [], append(child) { this.children.push(child); } };
+    const sent = [];
+    ui.appendTicketControls(bubble, entry, [entry], false, message => sent.push(message));
+    const buttons = bubble.children[0].children;
+    assert.deepEqual(Array.from(buttons, button => button.textContent), ['Xác nhận gửi', 'Sửa nội dung', 'Hủy']);
+    buttons[0].listeners.click();
+    buttons[0].listeners.click();
+    buttons[2].listeners.click();
+    assert.deepEqual(sent, ['Xác nhận gửi']);
+    assert.equal(entry.confirmationId, 'draft-1');
+    assert.equal(ui.choiceOnly([entry]), false);
+});
+
+test('previous ticket controls stay disabled when another turn has started', () => {
+    const ui = agentUi();
+    const entry = ui.project({ type: 'clarification_required', question: 'Chọn', options: ['A'] });
+    const bubble = { children: [], append(child) { this.children.push(child); } };
+    ui.appendTicketControls(bubble, entry, [entry, { role: 'user', content: 'A' }], false, () => assert.fail('stale choice'));
+    assert.equal(bubble.children[0].children[0].disabled, true);
+    bubble.children[0].children[0].listeners.click();
 });
 
 test('citation links allow safe source URLs and refuse unsafe schemes', () => {

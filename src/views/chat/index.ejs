@@ -547,6 +547,7 @@
                 const content = document.createElement('div');
                 content.textContent = String(entry.content || '');
                 bubble.append(content);
+                window.HelpdeskAgentUI.appendTicketControls(bubble, entry, agentMessages, agentRequestPending, sendAgentMessage);
 
                 if (entry.preview) {
                     const preview = document.createElement('div');
@@ -637,6 +638,8 @@
         });
 
         container.scrollTop = container.scrollHeight;
+        const input = document.getElementById('chat-input');
+        if (agentMode && input) input.disabled = agentRequestPending || Boolean(window.HelpdeskAgentUI.choiceOnly(agentMessages));
     }
 
     function addAgentMessage(role, content, citations = [], loading = false, actions = []) {
@@ -692,6 +695,7 @@
         if (input) {
             input.placeholder = agentMode ? 'Hỏi về điểm đến hoặc dịch vụ…' : 'Nhập tin nhắn...';
             input.value = agentMode ? agentDraft : staffDraft;
+            input.disabled = false;
         }
         if (sendButton) sendButton.title = agentMode ? 'Gửi câu hỏi cho Trợ lý AI' : 'Gửi';
         if (clearButton) {
@@ -755,6 +759,7 @@
             if (input) input.disabled = false;
             if (sendButton) sendButton.disabled = false;
             if (toggle) toggle.disabled = false;
+            renderAgentMessages();
             if (input) input.focus();
         }
     }
