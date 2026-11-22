@@ -171,7 +171,28 @@ function createAgentChatController({ client = agentClient, env = process.env } =
     };
 }
 
+// Use the same server-owned conversation identity as chat and review receipts.
+function agentConversationUuid(req, res) {
+    let value = String(req.cookies?.session_uuid || '');
+    if (!SESSION_UUID_PATTERN.test(value)) {
+        value = uuidv4();
+        res.cookie('session_uuid', value, { maxAge: 2592000000, httpOnly: true,
+            sameSite: 'lax', secure: process.env.NODE_ENV === 'production' });
+    }
+    return value;
+}
+function trustedPrincipal(req, res) {
+    const user = req.user || req.session?.user;
+    if (!user?.id || !IDENTIFIER_PATTERN.test(String(user.id))) {
+        res.status(401).json({ success: false, message: 'Vui lòng đăng nhập lại.' });
+        return null;
+    }
+    return { principalId: String(user.id), principalRole: isAdmin(user) ? 'admin' : 'customer' };
+}
+
 module.exports = {
+    agentConversationUuid,
+    trustedPrincipal,
     ...createAgentChatController(),
     createAgentChatController
 };

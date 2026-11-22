@@ -609,7 +609,7 @@
                             button.type = 'button';
                             button.className = 'btn btn-sm btn-outline-success rounded-pill';
                             button.textContent = String(action.label || 'Gặp nhân viên hỗ trợ');
-                            button.addEventListener('click', handoffAgentToStaff);
+                            button.addEventListener('click', () => handoffAgentToStaff(action.handoffId || ''));
                             actions.append(button);
                         } else if (action?.type === 'retry') {
                             const button = document.createElement('button');
@@ -648,20 +648,8 @@
         renderAgentMessages();
     }
 
-    function handoffAgentToStaff() {
-        const summary = window.HelpdeskAgentUI.handoffSummary(agentMessages);
-        setChatMode(false);
-        const input = document.getElementById('chat-input');
-        if (input) {
-            const draft = input.value.trim();
-            const available = Math.max(0, 2000 - summary.length - 3);
-            input.value = draft && available > 0 ? `${draft.slice(0, available)} | ${summary}` : summary;
-            staffDraft = input.value;
-            toggleTouristSendIcon(input);
-            input.focus();
-        }
-        const title = document.getElementById('chat-mode-title');
-        if (title) title.textContent = 'Kiểm tra bản nháp rồi gửi cho nhân viên';
+    function handoffAgentToStaff(handoffId = '') {
+        window.openHumanHandoff({ handoffId, destinationId: destId || null, switchToStaff: () => setChatMode(false) });
     }
 
     function setChatMode(useAgent) {
@@ -742,7 +730,9 @@
             }
 
             agentMessages.pop();
-            agentMessages.push(window.HelpdeskAgentUI.project(output));
+            agentMessages.push(output.type === 'handoff'
+                    ? { ...window.HelpdeskAgentUI.project(output), actions: [{ type: 'request_handoff', label: 'Xem tóm tắt và chat nhân viên', handoffId: output.handoffId }] }
+                    : window.HelpdeskAgentUI.project(output));
             window.HelpdeskAgentUI.save(currentUser?.id, agentMessages);
             renderAgentMessages();
         } catch (error) {
@@ -1336,6 +1326,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('human-handoff-sent', () => loadChatMessages());
         renderGlobalChat(currentGlobalMessages);
         loadChatMessages();
         chatInterval = setInterval(loadChatMessages, 3500);
