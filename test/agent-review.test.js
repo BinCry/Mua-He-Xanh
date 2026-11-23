@@ -116,3 +116,60 @@ test('agent client uses internal resume and state paths with server-owned header
     assert.equal(calls[1][2].headers['X-Principal-Role'], 'customer');
     assert.equal(calls[1][2].maxRedirects, 0);
 });
+
+test('pending approvals use admin identity, hide internal IDs and retain review decision path', async () => {
+    let calls = 0;
+    const controller = createAgentChatController({ env: SECRET_ENV, client: {
+        async pendingApprovals(args) {
+            calls += 1;
+            assert.equal(args.principalId, 'admin-1');
+            assert.equal(args.offset, 20);
+            return { items: [{
+                conversationId: 'web-original', pauseId: 'pause-original',
+                summary: 'Workshop ngày 20/11 bắt đầu trễ 30 phút'
+            }], hasMore: false, nextOffset: null };
+        }
+    } });
+    const denied = response();
+    await controller.pendingApprovals({ user: { id: 'customer-1', role: 'user' } }, denied);
+    assert.equal(denied.statusCode, 403);
+    assert.equal(calls, 0);
+    const invalid = response();
+    await controller.pendingApprovals({ user: { id: 'admin-1', role: 'admin' }, query: { offset: '-1' } }, invalid);
+    assert.equal(invalid.statusCode, 400);
+    const res = response();
+    await controller.pendingApprovals({ user: { id: 'admin-1', role: 'admin' }, query: { offset: '20' } }, res);
+    assert.equal(res.body.success, true);
+    assert.doesNotMatch(JSON.stringify(res.body), /web-original|pause-original/);
+    const receipt = readReviewReceipt(res.body.data.items[0].receipt, SECRET_ENV);
+    assert.equal(receipt.conversationId, 'web-original');
+    assert.equal(receipt.pauseId, 'pause-original');
+});
+
+test('queue fails visibly when receipts cannot be signed or upstream record is malformed', async () => {
+    for (const item of [{ conversationId: 'web-x', pauseId: 'pause-x', summary: 'Phản ánh' }, null]) {
+        const controller = createAgentChatController({ env: {}, client: {
+            async pendingApprovals() { return { items: [item], hasMore: false, nextOffset: null }; }
+        } });
+        const res = response();
+        await controller.pendingApprovals({ user: { id: 'admin-1', role: 'admin' }, query: {} }, res);
+        assert.equal(res.statusCode, 503);
+        assert.equal(res.body.success, false);
+    }
+});
+
+test('pending approvals client sends backend admin credentials and bounded pagination', async () => {
+    const client = createHelpdeskAgentClient({
+        env: { AI_SERVICE_CHAT_URL: 'http://127.0.0.1:8100/api/v1/chat', AI_SERVICE_AUTH_TOKEN: 'test-service-token-with-at-least-32-characters' },
+        httpClient: { async get(url, options) {
+            assert.equal(new URL(url).pathname, '/api/v1/approvals/pending');
+            assert.equal(new URL(url).searchParams.get('offset'), '20');
+            assert.equal(options.headers['X-Principal-Role'], 'admin');
+            assert.equal(options.headers['X-Principal-ID'], 'admin-1');
+            return { data: { success: true, data: { items: [], hasMore: false, nextOffset: null } } };
+        } }
+    });
+    assert.deepEqual(await client.pendingApprovals({ principalId: 'admin-1', offset: 20, requestId: 'request-1' }), {
+        items: [], hasMore: false, nextOffset: null
+    });
+});

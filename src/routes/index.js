@@ -554,6 +554,7 @@ router.post('/api/agent/chat', ensureAuthenticated, AgentChatController.chat);
 router.post('/api/agent/handoff/preview', ensureAuthenticated, AgentHandoffController.preview);
 router.post('/api/agent/handoff/send', ensureAuthenticated, AgentHandoffController.send);
 router.delete('/api/agent/conversation', ensureAuthenticated, AgentChatController.clear);
+router.get('/api/admin/agent/approvals', ensureAdmin, AgentChatController.pendingApprovals);
 router.post('/api/admin/agent/receipt', ensureAdmin, AgentChatController.inspectReview);
 router.post('/api/admin/agent/resume', ensureAdmin, AgentChatController.resume);
 router.post('/api/send-message', ensureAuthenticated, ApiController.sendMessage);

@@ -149,6 +149,27 @@ function createHelpdeskAgentClient({ httpClient = axios, env = process.env } = {
 
             return output;
         },
+        async pendingApprovals({ principalId, requestId, offset = 0, limit = 20 }) {
+            const { url, token } = serviceConfig(env);
+            const endpoint = new URL(auxiliaryUrl(url, '/approvals/pending'));
+            endpoint.searchParams.set('offset', String(offset));
+            endpoint.searchParams.set('limit', String(limit));
+            try {
+                const response = await httpClient.get(endpoint.toString(), requestOptions(serviceHeaders(token, {
+                    principalId, principalRole: 'admin', requestId
+                })));
+                const data = response?.data?.data;
+                if (response?.data?.success !== true || !Array.isArray(data?.items)
+                    || data.items.length > limit || typeof data.hasMore !== 'boolean'
+                    || (data.hasMore && (!Number.isSafeInteger(data.nextOffset) || data.nextOffset <= offset))) {
+                    throw new AgentServiceError('AGENT_RESPONSE_INVALID');
+                }
+                return data;
+            } catch (error) {
+                if (error instanceof AgentServiceError) throw error;
+                throw safeServiceFailure(error);
+            }
+        },
         async resume({ conversationId, pauseId, decision, note, idempotencyKey, principalId, requestId }) {
             const { url, token } = serviceConfig(env);
             const endpoint = auxiliaryUrl(url, '/chat/resume');
