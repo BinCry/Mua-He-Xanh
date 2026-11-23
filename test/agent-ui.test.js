@@ -28,7 +28,8 @@ test('agent UI projects approval, completion and recoverable errors', () => {
         actionPreview: { summary: 'Đơn giao thiếu hàng' }
     });
     assert.equal(approval.preview, 'Đơn giao thiếu hàng');
-    assert.equal(approval.actions[0].type, 'request_handoff');
+    assert.equal(approval.actions.length, 0);
+    assert.doesNotMatch(approval.content, /Mã bàn giao|liên hệ nhân viên/i);
 
     const completed = ui.project({ type: 'action_completed', message: 'Đã tạo', referenceId: 'ticket-123' });
     assert.equal(completed.reference, 'ticket-123');

@@ -131,6 +131,35 @@ function createAgentChatController({ client = agentClient, env = process.env } =
                 return serviceFailure(res, error);
             }
         },
+        async pendingApprovals(req, res) {
+            const user = req.user || req.session?.user;
+            if (!isAdmin(user) || !IDENTIFIER_PATTERN.test(String(user?.id || ''))) {
+                return res.status(403).json({ success: false, message: 'Chỉ quản trị viên được xem yêu cầu chờ duyệt.' });
+            }
+            const offset = Number(req.query?.offset || 0);
+            if (!Number.isSafeInteger(offset) || offset < 0 || offset > 100000) {
+                return res.status(400).json({ success: false, message: 'Trang yêu cầu không hợp lệ.' });
+            }
+            try {
+                const page = await client.pendingApprovals({
+                    principalId: String(user.id), requestId: uuidv4(), offset, limit: 20
+                });
+                const items = page.items.map(item => {
+                    const summary = String(item.summary || '').slice(0, 500);
+                    const receipt = createReviewReceipt({
+                        conversationId: item.conversationId, pauseId: item.pauseId,
+                        kind: 'approval', summary
+                    }, env);
+                    if (!receipt) throw new AgentServiceError('AGENT_RESPONSE_INVALID');
+                    return { summary, receipt, createdAt: item.createdAt, expiresAt: item.expiresAt };
+                });
+                return res.json({ success: true, data: {
+                    items, hasMore: page.hasMore, nextOffset: page.nextOffset
+                } });
+            } catch (error) {
+                return serviceFailure(res, error);
+            }
+        },
         reviewPage(req, res) {
             return res.render('admin/agent-review', {
                 title: 'Duyệt yêu cầu Trợ lý AI', layout: 'layouts/admin', adminPage: 'agent-review'

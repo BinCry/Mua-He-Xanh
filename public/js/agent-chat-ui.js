@@ -61,7 +61,7 @@
         } else {
             content = String(output?.message || 'Trợ lý chưa thể trả lời bằng thông tin đã kiểm chứng.');
         }
-        if (['approval_pending', 'handoff'].includes(type) && !output?.reviewReceipt) {
+        if (type === 'handoff' && !output?.reviewReceipt) {
             content += ' Mã bàn giao chưa khả dụng; hãy liên hệ nhân viên để được hỗ trợ trực tiếp.';
         }
         const actions = Array.isArray(output?.suggestedActions) ? [...output.suggestedActions] : [];
@@ -69,7 +69,7 @@
             if (output.retryable) actions.push({ type: 'retry', label: 'Thử lại' });
             actions.push({ type: 'request_handoff', label: 'Chat nhân viên' });
         }
-        if (['handoff', 'approval_pending'].includes(type)) {
+        if (type === 'handoff') {
             actions.push({ type: 'request_handoff', label: 'Liên hệ nhân viên' });
         }
         return {

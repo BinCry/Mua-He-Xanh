@@ -1,7 +1,18 @@
 <div class="container-fluid py-3" style="max-width: 860px;">
     <h1 class="h3 fw-bold mb-2">Duyệt yêu cầu Trợ lý AI</h1>
-    <p class="text-muted mb-4">Nhập mã bàn giao do khách gửi trong Hộp thư Hỗ trợ. Kiểm tra nội dung trước khi đưa ra quyết định.</p>
+    <p class="text-muted mb-4">Chọn phản ánh đang chờ duyệt và kiểm tra nội dung trước khi quyết định.</p>
 
+    <section class="card border-0 shadow-sm rounded-4 mb-3" aria-labelledby="approval-queue-heading">
+        <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-center gap-2 mb-3">
+                <h2 id="approval-queue-heading" class="h5 mb-0">Chờ duyệt</h2>
+                <button type="button" id="approval-queue-refresh" class="btn btn-outline-secondary">Làm mới</button>
+            </div>
+            <p id="approval-queue-status" role="status" aria-live="polite"></p>
+            <div id="approval-queue-list" class="d-flex flex-column gap-2"></div>
+            <button type="button" id="approval-queue-more" class="btn btn-outline-primary mt-3 d-none">Xem thêm</button>
+        </div>
+    </section>
     <div class="card border-0 shadow-sm rounded-4 mb-3">
         <div class="card-body p-4">
             <label for="agent-review-receipt" class="form-label fw-semibold">Mã hoặc tin nhắn bàn giao</label>
@@ -28,6 +39,12 @@
 
 <script>
 (() => {
+    const queueList = document.getElementById('approval-queue-list');
+    const queueStatus = document.getElementById('approval-queue-status');
+    const refreshButton = document.getElementById('approval-queue-refresh');
+    const moreButton = document.getElementById('approval-queue-more');
+    let nextOffset = 0;
+    let loadingQueue = false;
     const field = document.getElementById('agent-review-receipt');
     const detail = document.getElementById('agent-review-detail');
     const status = document.getElementById('agent-review-status');
@@ -56,7 +73,7 @@
         setStatus('');
     });
 
-    inspectButton.addEventListener('click', async () => {
+    async function inspect() {
         if (busy) return;
         const receipt = extractReceipt();
         if (!receipt) return setStatus('Hãy nhập mã bàn giao.', true);
@@ -75,7 +92,8 @@
             detail.classList.add('d-none');
             setStatus(error.response?.data?.message || 'Không thể kiểm tra mã bàn giao.', true);
         } finally { setBusy(false); }
-    });
+    }
+    inspectButton.addEventListener('click', inspect);
 
     async function decide(decision) {
         if (busy || !inspectedReceipt || extractReceipt() !== inspectedReceipt) return;
@@ -94,6 +112,7 @@
             setStatus(`${output?.message || 'Đã ghi nhận quyết định.'}${reference}`);
             detail.classList.add('d-none');
             inspectedReceipt = '';
+            await loadQueue(true);
             if (output?.reviewReceipt) {
                 field.value = output.reviewReceipt;
                 setStatus('Agent tạo yêu cầu tiếp theo. Hãy kiểm tra mã mới trước khi quyết định.');
@@ -102,6 +121,47 @@
             setStatus(error.response?.data?.message || 'Chưa xác nhận được kết quả. Thử lại cùng quyết định để kiểm tra.', true);
         } finally { setBusy(false); }
     }
+    async function loadQueue(reset = false) {
+        if (loadingQueue) return;
+        loadingQueue = true;
+        refreshButton.disabled = true;
+        moreButton.disabled = true;
+        queueStatus.textContent = 'Đang tải yêu cầu…';
+        try {
+            const response = await axios.get('/api/admin/agent/approvals', {
+                params: { offset: reset ? 0 : nextOffset }
+            });
+            const page = response.data.data;
+            if (reset) queueList.replaceChildren();
+            for (const item of page.items) {
+                const button = document.createElement('button');
+                button.type = 'button';
+                button.className = 'btn btn-light border text-start p-3';
+                button.style.whiteSpace = 'pre-wrap';
+                button.textContent = item.summary;
+                button.addEventListener('click', () => {
+                    if (busy) return;
+                    field.value = item.receipt;
+                    inspectedReceipt = '';
+                    document.getElementById('agent-review-note').value = '';
+                    inspect();
+                });
+                queueList.appendChild(button);
+            }
+            nextOffset = page.nextOffset;
+            moreButton.classList.toggle('d-none', !page.hasMore);
+            queueStatus.textContent = queueList.children.length ? '' : 'Hiện chưa có phản ánh chờ duyệt.';
+        } catch (error) {
+            queueStatus.textContent = error.response?.data?.message || 'Không thể tải danh sách. Bạn có thể thử lại.';
+        } finally {
+            loadingQueue = false;
+            refreshButton.disabled = false;
+            moreButton.disabled = false;
+        }
+    }
+    refreshButton.addEventListener('click', () => loadQueue(true));
+    moreButton.addEventListener('click', () => loadQueue());
+    loadQueue(true);
     approveButton.addEventListener('click', () => decide('approve'));
     rejectButton.addEventListener('click', () => decide('reject'));
 })();
