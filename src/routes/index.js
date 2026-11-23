@@ -325,6 +325,9 @@ router.get('/explore/:slug', ExploreController.show);
 // Shop is the established, contact-first product catalogue.  The data that
 // managers maintain lives in the legacy workshop catalogue; it must remain
 // the source of truth until a separately reconciled product migration exists.
+const PublicCatalogController = require('../controllers/PublicCatalogController');
+router.get('/api/public/products', PublicCatalogController.products);
+router.get('/api/public/workshop-sessions', PublicCatalogController.workshops);
 router.get('/shops', ShopController.index);
 router.get('/shops/:id', ShopController.show);
 // Legacy Shop bookings are archived for reconciliation only.  Shop products
