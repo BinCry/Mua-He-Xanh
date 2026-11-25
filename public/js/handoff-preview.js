@@ -12,7 +12,7 @@
         panel.setAttribute('aria-label', 'Bàn giao cho nhân viên');
         const title = document.createElement('h2');
         title.className = 'h5';
-        title.textContent = 'Thông tin gửi cho nhân viên';
+        title.textContent = 'Gửi yêu cầu cho nhân viên';
         const status = document.createElement('p');
         status.setAttribute('role', 'status');
         status.textContent = 'Đang chuẩn bị bản tóm tắt…';
@@ -20,7 +20,7 @@
         const close = document.createElement('button');
         close.type = 'button';
         close.className = 'btn btn-sm btn-outline-secondary';
-        close.textContent = 'Đóng';
+        close.textContent = 'Hủy';
         close.onclick = () => panel.remove();
         panel.append(title, status, content, close);
         document.body.append(panel);
@@ -31,10 +31,9 @@
             const written = data.status === 'pending' && data.written === true;
             status.textContent = data.message
                 || (data.status === 'sent' ? 'Đã gửi bản tóm tắt cho nhân viên.'
-                    : written ? 'Tin nhắn đã được ghi cho nhân viên. Cần hoàn tất bước xác nhận giao nhận.'
-                        : data.status === 'pending' ? 'Lần gửi trước chưa hoàn tất. Bạn có thể thử lại với đúng bản tóm tắt này.'
-                            : 'Bạn có thể bổ sung lời nhắn trước khi gửi.');
-            if (summaryText) {
+                    : written ? 'Nội dung đã được lưu. Xác nhận để hoàn tất chuyển sang chat nhân viên.'
+                        : 'Kiểm tra và chỉnh sửa nội dung trước khi gửi.');
+            if (data.status === 'sent' && summaryText) {
                 const summary = document.createElement('div');
                 summary.className = 'bg-light rounded p-3 mb-3';
                 summary.style.whiteSpace = 'pre-wrap';
@@ -42,6 +41,7 @@
                 content.append(summary);
             }
             if (data.status === 'sent') {
+                close.textContent = 'Đóng';
                 const go = document.createElement('button');
                 go.type = 'button';
                 go.className = 'btn btn-outline-success';
@@ -50,31 +50,39 @@
                 content.append(go);
                 return;
             }
-            let note = null;
-            if (!written) {
-                const label = document.createElement('label');
-                label.htmlFor = 'handoff-customer-note';
-                label.textContent = 'Lời nhắn bổ sung (không bắt buộc)';
-                note = document.createElement('textarea');
-                note.id = 'handoff-customer-note';
-                note.className = 'form-control mb-3';
-                note.maxLength = 300;
-                content.append(label, note);
-            }
+            close.textContent = 'Hủy';
+            const label = document.createElement('label');
+            label.htmlFor = 'handoff-summary-editor';
+            label.textContent = 'Nội dung gửi cho nhân viên';
+            const editor = document.createElement('textarea');
+            editor.id = 'handoff-summary-editor';
+            editor.className = 'form-control mb-3';
+            editor.maxLength = 1400;
+            editor.rows = 8;
+            editor.required = true;
+            editor.value = summaryText;
+            editor.disabled = written;
+            content.append(label, editor);
             const send = document.createElement('button');
             send.type = 'button';
             send.className = 'btn btn-success me-2';
-            send.textContent = data.status === 'pending' ? 'Thử lại'
-                : typeof data.sendLabel === 'string' && data.sendLabel.trim()
-                    ? data.sendLabel.trim()
-                    : 'Gửi cho nhân viên';
+            send.textContent = typeof data.sendLabel === 'string' && data.sendLabel.trim()
+                ? data.sendLabel.trim()
+                : 'Gửi cho nhân viên';
             send.onclick = async () => {
+                const editedSummary = editor.value.trim();
+                if (!editedSummary) {
+                    status.textContent = 'Vui lòng nhập nội dung cần gửi cho nhân viên.';
+                    editor.focus();
+                    return;
+                }
                 send.disabled = true;
-                if (note) note.disabled = true;
+                close.disabled = true;
+                editor.disabled = true;
                 try {
                     const result = await axios.post('/api/agent/handoff/send', {
                         previewId: data.previewId,
-                        note: note ? note.value : '',
+                        summary: editedSummary,
                         destinationId
                     }, { timeout: 15000 });
                     if (!result.data?.success || !result.data?.data) throw new Error();
@@ -90,9 +98,11 @@
                         window.dispatchEvent(new Event('human-handoff-sent'));
                     }
                 } catch (_) {
-                    status.textContent = 'Chưa gửi được yêu cầu. Vui lòng thử lại; nếu phiên hết hạn, hãy chuẩn bị lại bản tóm tắt.';
+                    status.textContent = 'Chưa gửi được yêu cầu. Nội dung vẫn được giữ lại; vui lòng gửi lại.';
                     send.disabled = false;
-                    if (note) note.disabled = false;
+                    editor.disabled = written;
+                } finally {
+                    close.disabled = false;
                 }
             };
             content.append(send);

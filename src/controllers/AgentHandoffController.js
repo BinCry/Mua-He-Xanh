@@ -33,20 +33,22 @@ function createAgentHandoffController({ client = createHelpdeskAgentClient(), da
             : 'Chưa thể chuyển ngữ cảnh. Bạn có thể thử lại hoặc nhắn trực tiếp cho nhân viên.' });
     }
     async function recover(handoffId, packet, principal, context) {
-        // Only the summary stored by the agent for this preview may be shown or
-        // sent; the browser never supplies the content the staff receives.
+        // The agent summary is the initial draft. The owning customer may edit
+        // that draft before send; the server bounds and redacts the final text.
         const preview = customerPreview(packet);
         if (!preview) throw Object.assign(new Error('missing customer preview'), { code: 'AGENT_RESPONSE_INVALID' });
         const id = messageId(preview.preview_id, principal.principalId);
         const [rows] = await db().query(
-            'SELECT id FROM messages WHERE id = $1 AND sender_id = $2 LIMIT 1',
+            'SELECT id, message FROM messages WHERE id = $1 AND sender_id = $2 LIMIT 1',
             [id, principal.principalId]
         );
         const written = Array.isArray(rows) && rows.length > 0;
         const base = {
             handoffId,
             previewId: preview.preview_id,
-            summary: preview.summary,
+            summary: written && typeof rows[0]?.message === 'string'
+                ? rows[0].message.replace(/\nMã bàn giao: [^\n]+$/, '')
+                : preview.summary,
             sendLabel: HANDOFF_SEND_LABEL
         };
         if (preview.delivery === 'sent') return { ...base, status: 'sent', messageId: id };
@@ -107,10 +109,12 @@ function createAgentHandoffController({ client = createHelpdeskAgentClient(), da
         async send(req, res) {
             const principal = trustedPrincipal(req, res);
             if (!principal) return;
-            const { previewId = null, note = '', destinationId = null } = req.body || {};
+            const { previewId = null, summary = '', destinationId = null } = req.body || {};
             if ((typeof previewId !== 'string' || !PREVIEW_ID.test(previewId))
-                || typeof note !== 'string' || note.length > 300
+                || typeof summary !== 'string' || !summary.trim() || summary.length > 1400
                 || (destinationId !== null && !ID.test(String(destinationId)))) return res.status(400).json({ success: false, message: 'Yêu cầu bàn giao không hợp lệ.' });
+            const reviewedSummary = safeText(summary).trim().slice(0, 1400);
+            if (!reviewedSummary) return res.status(400).json({ success: false, message: 'Yêu cầu bàn giao không hợp lệ.' });
             const context = {
                 conversationId: `web-${agentConversationUuid(req, res)}`, ...principal,
                 // The key is derived from the reviewed preview, so reopening the
@@ -176,10 +180,9 @@ function createAgentHandoffController({ client = createHelpdeskAgentClient(), da
                     const [managers] = await db().query("SELECT id FROM users WHERE managed_destination_id = $1 AND role = 'manager' LIMIT 1", [destinationId]);
                     receiver = managers[0]?.id || null;
                 }
-                // The staff message repeats the reviewed summary verbatim; only
-                // the supplementary note and handoff code are appended.
-                const lines = [preview.summary];
-                if (note.trim()) lines.push(`Lời nhắn của khách: ${safeText(note.trim()).slice(0, 300)}`);
+                // The customer reviews one editable message. Re-redact it at
+                // the trusted boundary before storing it for staff.
+                const lines = [reviewedSummary];
                 lines.push(`Mã bàn giao: ${handoffId}`);
                 const content = lines.join('\n').slice(0, 2000);
                 await db().query('INSERT INTO messages (id, sender_id, sender_uuid, receiver_uuid, destination_id, message, content, created_at) VALUES ($1, $2, $3, $4, $5, $6, $6, NOW()) ON CONFLICT (id) DO NOTHING', [id, principal.principalId, session.id, receiver, destinationId, content]);
@@ -187,7 +190,10 @@ function createAgentHandoffController({ client = createHelpdeskAgentClient(), da
                 // stored the message. A retry after a timeout is safe: the insert
                 // deduplicates and the acknowledgement is idempotent.
                 await client.acknowledgeHandoff({ ...context, handoffId });
-                return res.json({ success: true, data: { status: 'waiting_for_human', handoffId, previewId, messageId: id } });
+                return res.json({ success: true, data: {
+                    status: 'waiting_for_human', handoffId, previewId,
+                    summary: reviewedSummary, messageId: id
+                } });
             } catch (error) { return failure(res, error); }
         }
     };
