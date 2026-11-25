@@ -723,7 +723,10 @@
         if (toggle) toggle.disabled = true;
 
         try {
-            const response = await axios.post('/api/agent/chat', { message }, { timeout: 40000 });
+            const response = await axios.post('/api/agent/chat', { message }, {
+                timeout: 40000,
+                headers: window.HelpdeskAgentUI.conversationHeaders()
+            });
             const output = response.data?.data?.output;
             if (response.data?.success !== true || !output || typeof output.type !== 'string') {
                 throw new Error('AGENT_RESPONSE_INVALID');
@@ -767,7 +770,12 @@
         if (sendButton) sendButton.disabled = true;
         if (toggle) toggle.disabled = true;
         try {
-            await axios.delete('/api/agent/conversation', { data: { confirm: 'clear' }, timeout: 40000 });
+            await axios.delete('/api/agent/conversation', {
+                data: { confirm: 'clear' },
+                timeout: 40000,
+                headers: window.HelpdeskAgentUI.conversationHeaders()
+            });
+            window.HelpdeskAgentUI.beginConversation();
             window.HelpdeskAgentUI.clear(currentUser?.id);
             agentMessages.length = 0;
             addAgentMessage('assistant', 'Đã bắt đầu hội thoại AI mới. Bạn có thể nhập câu hỏi tiếp theo.');

@@ -4,6 +4,8 @@ const path = require('node:path');
 const test = require('node:test');
 const vm = require('node:vm');
 
+let conversationSequence = 0;
+
 function agentUi() {
     const window = {
         document: { createElement() {
@@ -14,12 +16,29 @@ function agentUi() {
                 addEventListener(name, handler) { this.listeners[name] = handler; }
             };
         } },
-        location: { origin: 'https://www.dulichbinhloi.com' }
+        location: { origin: 'https://www.dulichbinhloi.com' },
+        crypto: { randomUUID() {
+            conversationSequence += 1;
+            return `00000000-0000-4000-8000-${String(conversationSequence).padStart(12, '0')}`;
+        } }
     };
     const source = fs.readFileSync(path.join(__dirname, '../public/js/agent-chat-ui.js'), 'utf8');
     vm.runInNewContext(source, { window, URL });
     return window.HelpdeskAgentUI;
 }
+
+test('each page runtime owns a fresh AI conversation and reset rotates it', () => {
+    const first = agentUi();
+    const second = agentUi();
+    const firstId = first.conversationId();
+    assert.notEqual(firstId, second.conversationId());
+    assert.deepEqual(
+        JSON.parse(JSON.stringify(first.conversationHeaders())),
+        { 'X-Agent-Conversation-ID': firstId }
+    );
+    first.beginConversation();
+    assert.notEqual(first.conversationId(), firstId);
+});
 
 test('agent UI projects approval, completion and recoverable errors', () => {
     const ui = agentUi();

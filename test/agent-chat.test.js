@@ -8,6 +8,7 @@ const {
 } = require('../src/services/HelpdeskAgentClient');
 
 const SESSION_UUID = 'f9d3b46b-fdc6-43c9-9d10-1bb22810abf7';
+const PAGE_UUID = '2eb7bdc5-7ae2-4ca8-9b18-c973ac77d439';
 const TEST_TOKEN = 'test-service-token-with-at-least-32-characters';
 
 test('a paused agent conversation keeps its 409 status without leaking upstream details', async () => {
@@ -55,7 +56,7 @@ function response() {
     };
 }
 
-test('web route sends server-owned identity and returns only the public output', async () => {
+test('web route binds the page conversation to the authenticated user and returns only public output', async () => {
     let request;
     const controller = createAgentChatController({
         client: {
@@ -73,13 +74,14 @@ test('web route sends server-owned identity and returns only the public output',
 
     await controller.chat({
         body: { message: '  Bình Lợi có gì?  ' },
+        headers: { 'x-agent-conversation-id': PAGE_UUID },
         cookies: { session_uuid: SESSION_UUID },
         user: { id: 'customer-123', role: 'user', role_id: 3 }
     }, res);
 
     assert.equal(res.statusCode, 200);
     assert.equal(request.message, 'Bình Lợi có gì?');
-    assert.equal(request.conversationId, `web-${SESSION_UUID}`);
+    assert.equal(request.conversationId, `web-${PAGE_UUID}`);
     assert.equal(request.principalId, 'customer-123');
     assert.equal(request.principalRole, 'customer');
     assert.match(request.requestId, /^[0-9a-f-]{36}$/i);
@@ -93,6 +95,23 @@ test('web route sends server-owned identity and returns only the public output',
             }
         }
     });
+});
+
+test('a fresh page conversation overrides the long-lived account session', async () => {
+    let request;
+    const controller = createAgentChatController({
+        client: { async chat(value) { request = value; return { type: 'answer', message: 'Fresh page' }; } }
+    });
+
+    await controller.chat({
+        body: { message: 'Start again' },
+        headers: { 'x-agent-conversation-id': PAGE_UUID },
+        cookies: { session_uuid: SESSION_UUID },
+        user: { id: 'customer-123', role: 'user' }
+    }, response());
+
+    assert.equal(request.conversationId, `web-${PAGE_UUID}`);
+    assert.notEqual(request.conversationId, `web-${SESSION_UUID}`);
 });
 
 test('web route maps administrators from trusted session data', async () => {

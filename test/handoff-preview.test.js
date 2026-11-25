@@ -21,7 +21,10 @@ function browser(post) {
         for (const child of element.children) { const match = find(predicate, child); if (match) return match; }
     }
     const events = [];
-    const window = { dispatchEvent(event) { events.push(event.type); } };
+    const window = {
+        dispatchEvent(event) { events.push(event.type); },
+        HelpdeskAgentUI: { conversationHeaders() { return { 'X-Agent-Conversation-ID': 'page-conversation' }; } }
+    };
     const context = { window, document: { body, createElement: tag => new Element(tag), getElementById: id => find(el => el.id === id) }, axios: { post }, Event: class { constructor(type) { this.type = type; } } };
     vm.runInNewContext(fs.readFileSync(path.join(__dirname, '../public/js/handoff-preview.js'), 'utf8'), context);
     return { window, find, events };
@@ -30,16 +33,19 @@ const summary = 'Bản tóm tắt sẽ gửi cho nhân viên:\n- Vấn đề: Đ
 const review = { status: 'preview', previewId: 'preview-1', summary, sendLabel: 'Gửi cho nhân viên' };
 function greenButton(ui) { return ui.find(el => el.tag === 'button' && el.className.includes('btn-success')); }
 
-test('preview uses one editable summary and sends it with the preview id', async () => {
+test('preview uses one editable summary and the current page conversation', async () => {
     const calls = [];
     let switched = 0;
-    const ui = browser(async (url, payload) => {
-        calls.push({ url, payload });
+    const ui = browser(async (url, payload, config) => {
+        calls.push({ url, payload, config });
         if (url.endsWith('/preview')) return { data: { success: true, data: review } };
         return { data: { success: true, data: { status: 'waiting_for_human', handoffId: 'handoff-1', previewId: 'preview-1', messageId: 'id-1' } } };
     });
     await ui.window.openHumanHandoff({ destinationId: 'dest-1', switchToStaff: () => switched++ });
     assert.deepEqual(JSON.parse(JSON.stringify(calls[0].payload)), {});
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[0].config.headers)), {
+        'X-Agent-Conversation-ID': 'page-conversation'
+    });
     const editor = ui.find(el => el.tag === 'textarea');
     assert.equal(editor.value, summary);
     assert.equal(ui.find(el => el.tag === 'img'), undefined);
@@ -48,6 +54,9 @@ test('preview uses one editable summary and sends it with the preview id', async
     await greenButton(ui).onclick();
     assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), {
         previewId: 'preview-1', summary: 'Please help with this booking', destinationId: 'dest-1'
+    });
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].config.headers)), {
+        'X-Agent-Conversation-ID': 'page-conversation'
     });
     assert.equal(switched, 1);
     assert.deepEqual(ui.events, ['human-handoff-sent']);
@@ -171,5 +180,6 @@ test('both chat surfaces open confirmation before staff delivery', () => {
         assert.match(source, /output\.type === 'handoff'/);
         assert.match(source, /handoffId: output\.handoffId/);
         assert.match(source, /window\.openHumanHandoff/);
+        assert.match(source, /conversationHeaders\(\)/);
     }
 });
