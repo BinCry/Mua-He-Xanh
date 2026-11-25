@@ -183,3 +183,9 @@ test('both chat surfaces open confirmation before staff delivery', () => {
         assert.match(source, /conversationHeaders\(\)/);
     }
 });
+
+test('agent chat assets use a release URL so immutable browser caches receive fixes', () => {
+    const source = fs.readFileSync(path.join(__dirname, '../src/views/layouts/main.ejs'), 'utf8');
+    assert.match(source, /agent-chat-ui\.js\?v=<%= assetV %>-uc04-page-conversation-1/);
+    assert.match(source, /handoff-preview\.js\?v=<%= assetV %>-uc04-page-conversation-1/);
+});

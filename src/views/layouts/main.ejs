@@ -116,7 +116,7 @@
 
 
     <!-- Main Content -->
-    <% if (locals.user) { %><script src="/js/agent-chat-ui.js?v=<%= assetV %>-uc03-independent-2"></script><% } %>
+    <% if (locals.user) { %><script src="/js/agent-chat-ui.js?v=<%= assetV %>-uc04-page-conversation-1"></script><% } %>
     <main>
         <%- body %>
     </main>
@@ -2033,7 +2033,7 @@
         window.addEventListener('beforeunload', function() { sendHeartbeat(true); });
     })();
     </script>
-    <script src="/js/handoff-preview.js"></script>
+    <script src="/js/handoff-preview.js?v=<%= assetV %>-uc04-page-conversation-1"></script>
 </body>
 
 </html>
