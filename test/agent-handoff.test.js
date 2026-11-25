@@ -25,7 +25,7 @@ const packet = { goal: 'Đổi lịch booking', customer_preview: customerPrevie
 function memoryDatabase({ messageExists = false, writes = [], updates = [] } = {}) {
     return {
         async query(sql, params) {
-            if (sql.startsWith('SELECT id FROM messages')) return [messageExists ? [{ id: params[0] }] : []];
+            if (sql.startsWith('SELECT id')) return [messageExists ? [{ id: params[0] }] : []];
             if (sql.startsWith('SELECT')) return [[]];
             if (sql.startsWith('UPDATE')) { updates.push({ sql, params }); return [[{ id: 'session-1' }]]; }
             writes.push({ sql, params });
@@ -81,7 +81,7 @@ test('preview finishes delivery when the live chat already stored the message', 
     assert.equal(output.body.data.messageId, previewIdOf('preview-1'));
     assert.deepEqual(acknowledgements, ['handoff-7']);
 });
-test('send writes the reviewed summary verbatim with a deterministic id, then acknowledges', async () => {
+test('send writes the customer-edited summary with a deterministic id, then acknowledges', async () => {
     const calls = [];
     const writes = [];
     const controller = createAgentHandoffController({ client: {
@@ -91,7 +91,7 @@ test('send writes the reviewed summary verbatim with a deterministic id, then ac
     }, sessions: { async findOrCreate() { return { id: 'session-1', user_id: 'customer-1' }; } },
     database: memoryDatabase({ writes }) });
     const output = res();
-    await controller.send(req({ previewId: 'preview-1', note: 'Cần hỗ trợ', destinationId: 'dest-1' }), output);
+    await controller.send(req({ previewId: 'preview-1', summary: 'Tôi cần đổi lịch booking sang ngày khác.', destinationId: 'dest-1' }), output);
     assert.equal(output.statusCode, 200);
     assert.deepEqual(calls.map(call => call[0]), ['chat', 'handoff', 'ack']);
     assert.equal(calls[0][1].message, 'Gửi cho nhân viên');
@@ -105,7 +105,7 @@ test('send writes the reviewed summary verbatim with a deterministic id, then ac
     assert.match(writes[0].sql, /ON CONFLICT \(id\) DO NOTHING/);
     assert.equal(writes[0].params[0], previewIdOf('preview-1'));
     assert.equal(output.body.data.messageId, writes[0].params[0]);
-    assert.equal(writes[0].params[5], `${customerPreview.summary}\nLời nhắn của khách: Cần hỗ trợ\nMã bàn giao: handoff-9`);
+    assert.equal(writes[0].params[5], 'Tôi cần đổi lịch booking sang ngày khác.\nMã bàn giao: handoff-9');
 });
 test('retrying a send after a timeout uses the same id and writes the summary once', async () => {
     const writes = [];
@@ -121,11 +121,11 @@ test('retrying a send after a timeout uses the same id and writes the summary on
     database: memoryDatabase({ writes }) });
     for (let attempt = 0; attempt < 2; attempt++) {
         const output = res();
-        await controller.send(req({ previewId: 'preview-1', summary: 'forged' }), output);
+        await controller.send(req({ previewId: 'preview-1', summary: 'Nội dung khách đã chỉnh' }), output);
         assert.equal(output.body.data.status, 'waiting_for_human');
     }
     assert.equal(writes[0].params[0], writes[1].params[0]);
-    assert.doesNotMatch(writes[0].params[5], /forged/);
+    assert.match(writes[0].params[5], /Nội dung khách đã chỉnh/);
     assert.deepEqual(acknowledgements, ['handoff-1', 'handoff-1']);
 });
 test('send refuses a preview that no longer matches the stored handoff', async () => {
@@ -138,7 +138,7 @@ test('send refuses a preview that no longer matches the stored handoff', async (
         }
     }, database: memoryDatabase({ writes }) });
     const output = res();
-    await controller.send(req({ previewId: 'preview-1' }), output);
+    await controller.send(req({ previewId: 'preview-1', summary: customerPreview.summary }), output);
     assert.equal(output.statusCode, 200);
     assert.equal(output.body.data.status, 'preview');
     assert.equal(output.body.data.previewId, 'preview-2');
@@ -155,7 +155,7 @@ test('send surfaces a rebuilt preview when the incident changed without a pause'
         }
     }, database: memoryDatabase({ writes }) });
     const output = res();
-    await controller.send(req({ previewId: 'preview-1' }), output);
+    await controller.send(req({ previewId: 'preview-1', summary: customerPreview.summary }), output);
     assert.equal(output.statusCode, 200);
     assert.equal(output.body.data.status, 'preview');
     assert.equal(output.body.data.previewId, 'preview-3');
@@ -169,7 +169,7 @@ test('send does not write twice when an earlier attempt already delivered', asyn
         async handoff() { return { packet: { ...packet, customer_preview: { ...customerPreview, delivery: 'sent' } } }; }
     }, database: memoryDatabase({ writes }) });
     const output = res();
-    await controller.send(req({ previewId: 'preview-1' }), output);
+    await controller.send(req({ previewId: 'preview-1', summary: customerPreview.summary }), output);
     assert.equal(output.body.data.status, 'sent');
     assert.equal(output.body.data.messageId, previewIdOf('preview-1'));
     assert.equal(writes.length, 0);
@@ -182,7 +182,7 @@ test('send rejects a live-chat session owned by another account', async () => {
     }, sessions: { async findOrCreate() { return { id: 'session-1', user_id: 'other-user' }; } },
     database: memoryDatabase({ writes }) });
     const output = res();
-    await controller.send(req({ previewId: 'preview-1' }), output);
+    await controller.send(req({ previewId: 'preview-1', summary: customerPreview.summary }), output);
     assert.equal(output.statusCode, 403);
     assert.equal(writes.length, 0);
 });
@@ -190,10 +190,27 @@ test('invalid, expired and anonymous requests fail safely', async () => {
     const controller = createAgentHandoffController({ client: {
         async handoff() { throw Object.assign(new Error('private'), { code: 'HANDOFF_EXPIRED' }); }
     } });
-    const invalid = res(); await controller.send(req({ previewId: '../bad' }), invalid); assert.equal(invalid.statusCode, 400);
+    const invalid = res(); await controller.send(req({ previewId: '../bad', summary: 'Help' }), invalid); assert.equal(invalid.statusCode, 400);
+    const empty = res(); await controller.send(req({ previewId: 'preview-1', summary: '   ' }), empty); assert.equal(empty.statusCode, 400);
     const expired = res(); await controller.preview(req({ handoffId: 'handoff-1' }), expired); assert.equal(expired.statusCode, 410);
     assert.doesNotMatch(JSON.stringify(expired.body), /private/);
     const anonymous = res(); await controller.preview({ body: {} }, anonymous); assert.equal(anonymous.statusCode, 401);
+});
+test('edited summary is bounded and redacted before live-chat storage', async () => {
+    const writes = [];
+    const controller = createAgentHandoffController({ client: {
+        async chat() { return { type: 'handoff', handoffId: 'handoff-1' }; },
+        async handoff() { return { packet }; },
+        async acknowledgeHandoff() { return { delivery: 'sent' }; }
+    }, sessions: { async findOrCreate() { return { id: 'session-1', user_id: 'customer-1' }; } },
+    database: memoryDatabase({ writes }) });
+    const output = res();
+    await controller.send(req({
+        previewId: 'preview-1',
+        summary: 'Liên hệ me@example.com, token=private-secret để hỗ trợ.'
+    }), output);
+    assert.equal(output.statusCode, 200);
+    assert.doesNotMatch(writes[0].params[5], /me@example.com|private-secret/);
 });
 test('handoff delivery acknowledgement uses the authenticated backend transport', async () => {
     let captured;
