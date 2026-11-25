@@ -30,7 +30,7 @@ const summary = 'Bản tóm tắt sẽ gửi cho nhân viên:\n- Vấn đề: Đ
 const review = { status: 'preview', previewId: 'preview-1', summary, sendLabel: 'Gửi cho nhân viên' };
 function greenButton(ui) { return ui.find(el => el.tag === 'button' && el.className.includes('btn-success')); }
 
-test('preview shows the server summary verbatim and sends only the preview id and note', async () => {
+test('preview uses one editable summary and sends it with the preview id', async () => {
     const calls = [];
     let switched = 0;
     const ui = browser(async (url, payload) => {
@@ -40,19 +40,22 @@ test('preview shows the server summary verbatim and sends only the preview id an
     });
     await ui.window.openHumanHandoff({ destinationId: 'dest-1', switchToStaff: () => switched++ });
     assert.deepEqual(JSON.parse(JSON.stringify(calls[0].payload)), {});
-    assert.equal(ui.find(el => el.tag === 'div' && el.textContent === summary).textContent, summary);
+    const editor = ui.find(el => el.tag === 'textarea');
+    assert.equal(editor.value, summary);
     assert.equal(ui.find(el => el.tag === 'img'), undefined);
     assert.equal(switched, 0);
-    ui.find(el => el.tag === 'textarea').value = 'Please help';
+    editor.value = 'Please help with this booking';
     await greenButton(ui).onclick();
-    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), { previewId: 'preview-1', note: 'Please help', destinationId: 'dest-1' });
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), {
+        previewId: 'preview-1', summary: 'Please help with this booking', destinationId: 'dest-1'
+    });
     assert.equal(switched, 1);
     assert.deepEqual(ui.events, ['human-handoff-sent']);
     assert.equal(greenButton(ui), undefined);
     assert.ok(ui.find(el => el.tag === 'button' && el.textContent === 'Vào chat nhân viên'));
 });
 
-test('preview with a recovered pause shows Retry with the same preview id', async () => {
+test('recovered preview keeps the same editor and normal send action', async () => {
     const calls = [];
     const ui = browser(async (url, payload) => {
         calls.push({ url, payload });
@@ -61,11 +64,14 @@ test('preview with a recovered pause shows Retry with the same preview id', asyn
     });
     await ui.window.openHumanHandoff({ handoffId: 'handoff-1' });
     assert.deepEqual(JSON.parse(JSON.stringify(calls[0].payload)), { handoffId: 'handoff-1' });
-    assert.equal(ui.find(el => el.tag === 'div' && el.textContent === summary).textContent, summary);
-    const retry = greenButton(ui);
-    assert.equal(retry.textContent, 'Thử lại');
-    await retry.onclick();
-    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), { previewId: 'preview-1', note: '', destinationId: null });
+    assert.equal(ui.find(el => el.tag === 'textarea').value, summary);
+    const send = greenButton(ui);
+    assert.equal(send.textContent, 'Gửi cho nhân viên');
+    assert.doesNotMatch(ui.find(el => el.role === 'status').textContent, /Lần gửi trước|thử lại/i);
+    await send.onclick();
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), {
+        previewId: 'preview-1', summary, destinationId: null
+    });
 });
 
 test('a handoff whose message was already written only finishes the delivery step', async () => {
@@ -76,9 +82,11 @@ test('a handoff whose message was already written only finishes the delivery ste
         return { data: { success: true, data: { status: 'sent', handoffId: 'handoff-1', previewId: 'preview-1' } } };
     });
     await ui.window.openHumanHandoff({ handoffId: 'handoff-1' });
-    assert.equal(ui.find(el => el.tag === 'textarea'), undefined);
+    assert.equal(ui.find(el => el.tag === 'textarea').disabled, true);
     await greenButton(ui).onclick();
-    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), { previewId: 'preview-1', note: '', destinationId: null });
+    assert.deepEqual(JSON.parse(JSON.stringify(calls[1].payload)), {
+        previewId: 'preview-1', summary, destinationId: null
+    });
     assert.equal(greenButton(ui), undefined);
 });
 
@@ -104,7 +112,7 @@ test('a changed review replaces the summary without sending', async () => {
     await ui.window.openHumanHandoff({ switchToStaff: () => switched++ });
     await greenButton(ui).onclick();
     assert.equal(switched, 0);
-    assert.ok(ui.find(el => el.tag === 'div' && el.textContent === 'Bản tóm tắt mới'));
+    assert.equal(ui.find(el => el.tag === 'textarea').value, 'Bản tóm tắt mới');
     assert.equal(greenButton(ui).textContent, 'Gửi cho nhân viên');
     assert.equal(calls.length, 2);
 });
