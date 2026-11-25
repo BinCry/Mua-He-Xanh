@@ -84,7 +84,10 @@
                         previewId: data.previewId,
                         summary: editedSummary,
                         destinationId
-                    }, { timeout: 15000 });
+                    }, {
+                        timeout: 15000,
+                        headers: window.HelpdeskAgentUI?.conversationHeaders?.() || {}
+                    });
                     if (!result.data?.success || !result.data?.data) throw new Error();
                     const next = result.data.data;
                     const delivered = next.status === 'waiting_for_human';
@@ -110,7 +113,10 @@
         }
 
         try {
-            const response = await axios.post('/api/agent/handoff/preview', handoffId ? { handoffId } : {}, { timeout: 45000 });
+            const response = await axios.post('/api/agent/handoff/preview', handoffId ? { handoffId } : {}, {
+                timeout: 45000,
+                headers: window.HelpdeskAgentUI?.conversationHeaders?.() || {}
+            });
             if (!panel.isConnected) return;
             const data = response.data?.data;
             if (!response.data?.success || !data || !['preview', 'pending', 'sent'].includes(data.status)) throw new Error();

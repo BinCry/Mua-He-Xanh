@@ -73,19 +73,8 @@ function createAgentChatController({ client = agentClient, env = process.env } =
                 });
             }
 
-            let sessionUuid = req.cookies?.session_uuid;
-            if (!SESSION_UUID_PATTERN.test(String(sessionUuid || ''))) {
-                sessionUuid = uuidv4();
-                res.cookie('session_uuid', sessionUuid, {
-                    maxAge: 30 * 24 * 60 * 60 * 1000,
-                    httpOnly: true,
-                    sameSite: 'lax',
-                    secure: process.env.NODE_ENV === 'production'
-                });
-            }
-
             try {
-                const conversationId = `web-${sessionUuid}`;
+                const conversationId = `web-${agentConversationUuid(req, res)}`;
                 const output = await client.chat({
                     message,
                     conversationId,
@@ -111,17 +100,15 @@ function createAgentChatController({ client = agentClient, env = process.env } =
         },
         async clear(req, res) {
             const user = req.user || req.session?.user;
-            const sessionUuid = String(req.cookies?.session_uuid || '');
             if (req.body?.confirm !== 'clear') {
                 return res.status(400).json({ success: false, message: 'Cần xác nhận trước khi xóa hội thoại AI.' });
             }
             if (!user?.id || !IDENTIFIER_PATTERN.test(String(user.id))) {
                 return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập lại.' });
             }
-            if (!SESSION_UUID_PATTERN.test(sessionUuid)) return res.json({ success: true, data: { cleared: false } });
             try {
                 const cleared = await client.clear({
-                    conversationId: `web-${sessionUuid}`,
+                    conversationId: `web-${agentConversationUuid(req, res)}`,
                     principalId: String(user.id),
                     principalRole: isAdmin(user) ? 'admin' : 'customer',
                     requestId: uuidv4()
@@ -200,8 +187,12 @@ function createAgentChatController({ client = agentClient, env = process.env } =
     };
 }
 
-// Use the same server-owned conversation identity as chat and review receipts.
+// A browser page owns one AI conversation. The account session remains a legacy
+// fallback so older cached clients keep working without affecting staff chat.
 function agentConversationUuid(req, res) {
+    const pageValue = String(req.headers?.['x-agent-conversation-id'] || '');
+    if (SESSION_UUID_PATTERN.test(pageValue)) return pageValue;
+
     let value = String(req.cookies?.session_uuid || '');
     if (!SESSION_UUID_PATTERN.test(value)) {
         value = uuidv4();
