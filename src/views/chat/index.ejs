@@ -602,6 +602,14 @@
                             link.href = `/explore/${encodeURIComponent(action.target)}`;
                             link.textContent = String(action.label || 'Xem điểm đến');
                             actions.append(link);
+                        } else if (action?.type === 'request_reschedule_ticket') {
+                            const button = document.createElement('button');
+                            button.type = 'button';
+                            button.className = 'btn btn-sm btn-outline-success rounded-pill';
+                            button.textContent = String(action.label || 'Tạo yêu cầu đổi lịch');
+                            button.disabled = agentRequestPending;
+                            button.addEventListener('click', () => sendAgentMessage('Tạo yêu cầu đổi lịch'));
+                            actions.append(button);
                         } else if (action?.type === 'request_handoff') {
                             const button = document.createElement('button');
                             button.type = 'button';
