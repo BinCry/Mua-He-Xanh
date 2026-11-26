@@ -111,6 +111,23 @@ test('citation links allow safe source URLs and refuse unsafe schemes', () => {
     assert.equal(ui.citationUrl('https://user:pass@example.org/reference'), null);
 });
 
+test('both chat surfaces open every safe citation without replacing the conversation tab', () => {
+    for (const relativePath of [
+        '../src/views/chat/index.ejs',
+        '../src/views/layouts/main.ejs'
+    ]) {
+        const source = fs.readFileSync(path.join(__dirname, relativePath), 'utf8');
+        const renderer = source.match(
+            /source\.className = 'd-block small text-success text-decoration-underline';[\s\S]{0,800}sources\.append\(source\);/
+        );
+
+        assert.ok(renderer, `${relativePath} must render safe citation links`);
+        assert.match(renderer[0], /source\.target = '_blank';/);
+        assert.match(renderer[0], /source\.rel = 'noopener noreferrer';/);
+        assert.doesNotMatch(renderer[0], /href\.startsWith\('https:\/\/'\)/);
+    }
+});
+
 test('history is scoped to a user, omits loading messages and bounds handoff text', () => {
     const ui = agentUi();
     ui.save('customer-1', [
