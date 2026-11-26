@@ -578,10 +578,8 @@
                         source.textContent = title;
                         if (href) {
                             source.href = href;
-                            if (href.startsWith('https://') && !href.startsWith(window.location.origin)) {
-                                source.target = '_blank';
-                                source.rel = 'noopener noreferrer';
-                            }
+                            source.target = '_blank';
+                            source.rel = 'noopener noreferrer';
                         }
                         sources.append(source);
                         if (citation?.locator) {
