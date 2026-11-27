@@ -426,6 +426,7 @@ app.use(async (req, res, next) => {
     res.locals.appName = 'Bình Lợi - Miền Tây giữa lòng Sài Gòn';
     res.locals.session = req.session || {};
     res.locals.user = req.user || req.session?.user || null;
+    res.locals.personalizationAvailable = !['false', '0', 'off'].includes(String(process.env.AI_PERSONALIZATION_ENABLED || '').toLowerCase());
     res.locals.currentPath = req.path;
     res.locals.safeJsonForScript = safeJsonForScript;
     
