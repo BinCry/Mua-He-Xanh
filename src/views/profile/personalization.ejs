@@ -1,0 +1,27 @@
+<section class="container py-5" style="max-width:800px" id="personalization-page">
+    <a href="/profile" class="text-muted text-decoration-none"><i class="bi bi-arrow-left me-2"></i><span data-copy="profile">Hồ sơ du khách</span></a>
+    <h1 class="h2 mt-4 mb-4" data-copy="title">Cá nhân hóa</h1>
+    <div class="bg-white border rounded-4 p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center gap-3">
+            <label for="personalization-enabled" class="fw-semibold" data-copy="toggle">Cá nhân hóa trải nghiệm</label>
+            <div class="form-check form-switch m-0"><input id="personalization-enabled" class="form-check-input" type="checkbox" role="switch" disabled></div>
+        </div>
+        <p class="text-muted mb-0 mt-3" data-copy="description">Cho phép trợ lý ghi nhớ một số sở thích từ cuộc trò chuyện để đưa ra gợi ý phù hợp hơn.</p>
+    </div>
+    <p id="personalization-status" role="status" aria-live="polite"></p>
+    <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
+        <h2 class="h5 mb-0" data-copy="remembered">Thông tin đang ghi nhớ</h2>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="personalization-reload" data-copy="reload">Tải lại</button>
+    </div>
+    <div id="personalization-items" class="bg-white border rounded-4 p-3 mb-4"></div>
+    <button type="button" class="btn btn-outline-danger" id="personalization-clear" disabled data-copy="clear">Xóa toàn bộ thông tin đã ghi nhớ</button>
+    <div id="personalization-editor" class="border rounded-4 bg-white p-4 mt-4" hidden>
+        <h2 id="personalization-editor-title" class="h5"></h2>
+        <form id="personalization-form">
+            <div id="personalization-fields" class="mb-3"></div>
+            <button type="submit" class="btn btn-primary" data-copy="save">Lưu</button>
+            <button type="button" class="btn btn-outline-secondary" id="personalization-cancel" data-copy="cancel">Hủy</button>
+        </form>
+    </div>
+</section>
+<script src="/js/personalization.js" defer></script>
