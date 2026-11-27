@@ -19,6 +19,7 @@ const AgentHandoffController = require('../controllers/AgentHandoffController');
 const AuthController = require('../controllers/AuthController');
 const ShopController = require('../controllers/ShopController');
 const ProfileController = require('../controllers/ProfileController');
+const PersonalizationController = require('../controllers/PersonalizationController');
 const AdminController = require('../controllers/AdminController');
 const ReviewController = require('../controllers/ReviewController');
 const StudioApiController = require('../controllers/StudioApiController');
@@ -378,6 +379,12 @@ router.get('/events/:id', EventController.show);
 
 // ===== PROFILE =====
 router.get('/profile', ensureTourist, ProfileController.index);
+router.get('/personalization', ensureAuthenticated, PersonalizationController.page);
+router.get('/api/me/personalization', ensureAuthenticated, PersonalizationController.get);
+router.patch('/api/me/personalization', ensureAuthenticated, PersonalizationController.settings);
+router.patch('/api/me/personalization/items/:key', ensureAuthenticated, PersonalizationController.edit);
+router.delete('/api/me/personalization/items/:key', ensureAuthenticated, PersonalizationController.remove);
+router.delete('/api/me/personalization/items', ensureAuthenticated, PersonalizationController.clear);
 router.get('/profile/edit', ensureTourist, ProfileController.editPage);
 router.post('/profile/update', ensureTourist, ProfileController.update);
 router.get('/profile/rewards', ensureTourist, ProfileController.rewards);

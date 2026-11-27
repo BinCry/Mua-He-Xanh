@@ -669,6 +669,7 @@
             cancelTouristVoiceRecording();
         }
         agentMode = Boolean(useAgent);
+        if (agentMode) window.showPersonalizationNotice?.('chat-messages');
 
         const toggle = document.getElementById('agent-mode-toggle');
         const title = document.getElementById('chat-mode-title');

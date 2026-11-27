@@ -706,6 +706,7 @@
                 cancelFloatingVoiceRecording();
             }
             floatingAgentMode = Boolean(useAgent);
+            if (floatingAgentMode) window.showPersonalizationNotice?.('floatingChatMessages');
 
             const toggle = document.getElementById('floating-agent-mode-toggle');
             const title = document.getElementById('floating-chat-mode-title');
@@ -2040,6 +2041,9 @@
     })();
     </script>
     <script src="/js/handoff-preview.js?v=<%= assetV %>-uc04-page-conversation-1"></script>
+    <% if (locals.user && locals.personalizationAvailable !== false) { %>
+    <script src="/js/personalization-notice.js" data-user-id="<%= locals.user.id %>" defer></script>
+    <% } %>
 </body>
 
 </html>

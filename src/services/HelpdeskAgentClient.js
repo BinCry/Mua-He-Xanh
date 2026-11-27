@@ -62,6 +62,33 @@ function safeServiceFailure(error, operation = 'chat') {
 
 function createHelpdeskAgentClient({ httpClient = axios, env = process.env } = {}) {
     return {
+        async personalization({ method = 'GET', key, clear = false, payload, principalId, principalRole, requestId }) {
+            const token = String(env.AI_SERVICE_AUTH_TOKEN || '').trim();
+            let endpoint;
+            try { endpoint = new URL(String(env.AI_SERVICE_CHAT_URL || '').trim()); }
+            catch (_) { throw new AgentServiceError('AGENT_NOT_CONFIGURED'); }
+            if (token.length < MIN_TOKEN_LENGTH) throw new AgentServiceError('AGENT_NOT_CONFIGURED');
+            if ((endpoint.protocol !== 'https:' && !(endpoint.protocol === 'http:' && isLoopback(endpoint.hostname))) || endpoint.username || endpoint.password || endpoint.search || endpoint.hash || !/\/chat\/?$/.test(endpoint.pathname)) {
+                throw new AgentServiceError('AGENT_ENDPOINT_INVALID');
+            }
+            const suffix = key ? `/items/${encodeURIComponent(key)}` : clear ? '/items' : '';
+            endpoint.pathname = endpoint.pathname.replace(/\/chat\/?$/, `/personalization${suffix}`);
+            let response;
+            try {
+                response = await httpClient.request({
+                    method, url: endpoint.toString(), data: payload,
+                    timeout: REQUEST_TIMEOUT_MS, proxy: false, maxRedirects: 0, maxContentLength: 256 * 1024,
+                    headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json',
+                        'X-Principal-ID': principalId, 'X-Principal-Role': principalRole, 'X-Request-ID': requestId }
+                });
+            } catch (error) {
+                const status = error?.response?.status;
+                throw new AgentServiceError(status === 409 ? 'PROFILE_CONFLICT' : [400, 422].includes(status) ? 'PROFILE_INVALID' : 'AGENT_UNAVAILABLE');
+            }
+            const data = response?.data?.data;
+            if (response?.data?.success !== true || !data || typeof data !== 'object') throw new AgentServiceError('AGENT_RESPONSE_INVALID');
+            return data;
+        },
         async handoff({ handoffId, conversationId, principalId, principalRole, requestId }) {
             const token = String(env.AI_SERVICE_AUTH_TOKEN || '').trim();
             let endpoint;

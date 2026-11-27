@@ -273,6 +273,9 @@
                     <% } %>
                     <% if (navUser.role === 'user') { %>
                         <li><a class="dropdown-item py-2 rounded-2" href="/profile"><i class="bi bi-person me-2 text-muted"></i>Hồ sơ du khách</a></li>
+                        <% if (locals.personalizationAvailable !== false) { %>
+                        <li><a class="dropdown-item py-2 rounded-2" href="/personalization"><i class="bi bi-stars me-2 text-muted"></i>Cá nhân hóa</a></li>
+                        <% } %>
                         <li><a class="dropdown-item py-2 rounded-2" href="/my-workshops"><i class="bi bi-calendar2-week me-2 text-muted"></i>Booking Workshop</a></li>
                         <li><a class="dropdown-item py-2 rounded-2" href="/profile/rewards"><i class="bi bi-gift me-2 text-muted"></i>Điểm thưởng</a></li>
                     <% } %>
