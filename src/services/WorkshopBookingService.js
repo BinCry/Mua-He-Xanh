@@ -1,6 +1,7 @@
 const db = require('../core/database');
 const { v4: uuidv4 } = require('uuid');
 const { CommerceIntegrityService } = require('./CommerceIntegrityService');
+const { createBookingReference } = require('./BookingReference');
 
 function domainError(code) {
     const error = new Error(code);
@@ -51,6 +52,7 @@ class WorkshopBookingService {
 
             const booking = {
                 id: uuidv4(),
+                reference: createBookingReference(),
                 userId,
                 sessionId: session.id,
                 seats,
@@ -62,14 +64,15 @@ class WorkshopBookingService {
                 [seats, session.id]
             );
             await tx.query(
-                'INSERT INTO workshop_session_bookings (id, user_id, session_id, seats, title_snapshot, price_vnd_snapshot, status, idempotency_key) ' +
-                'VALUES ($1, $2, $3, $4, $5, $6, $7, $8)',
-                [booking.id, userId, session.id, seats, booking.title, booking.price, 'pending', idempotencyKey]
+                'INSERT INTO workshop_session_bookings (id, booking_reference, user_id, session_id, seats, title_snapshot, price_vnd_snapshot, status, idempotency_key) ' +
+                'VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)',
+                [booking.id, booking.reference, userId, session.id, seats, booking.title, booking.price, 'pending', idempotencyKey]
             );
             const body = {
                 success: true,
                 booking: {
                     id: booking.id,
+                    reference: booking.reference,
                     status: 'pending',
                     seats: booking.seats,
                     totalVnd: booking.price * booking.seats
