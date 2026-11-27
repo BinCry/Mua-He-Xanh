@@ -49,7 +49,8 @@ class AgentWorkshopBookingQueryService {
         });
 
         const params = [ownerId];
-        let sql = `SELECT b.id AS "bookingId", b.status, b.seats,
+        let sql = `SELECT b.id AS "bookingId", b.booking_reference AS "bookingReference",
+                          b.status, b.seats,
                           w.title AS "workshopTitle", d.name AS "destinationName",
                           ws.starts_at AS "startsAt", ws.ends_at AS "endsAt"
                    FROM workshop_session_bookings b
@@ -59,7 +60,7 @@ class AgentWorkshopBookingQueryService {
                    WHERE b.user_id = $1`;
         if (reference) {
             params.push(reference);
-            sql += ` AND b.id = $${params.length}`;
+            sql += ` AND (b.id = $${params.length} OR b.booking_reference = $${params.length})`;
         }
         params.push(boundedLimit, boundedOffset);
         sql += ` ORDER BY ws.starts_at DESC, b.created_at DESC
@@ -68,6 +69,7 @@ class AgentWorkshopBookingQueryService {
         const [rows] = await database.query(sql, params);
         return rows.map(row => ({
             bookingId: row.bookingId,
+            bookingReference: row.bookingReference,
             status: row.status,
             seats: Number(row.seats),
             workshopTitle: row.workshopTitle,

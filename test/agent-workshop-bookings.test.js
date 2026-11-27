@@ -68,7 +68,8 @@ test('booking query applies owner and optional reference in SQL before bounded p
         async query(sql, params) {
             captured = { sql, params };
             return [[{
-                bookingId: 'booking-123', status: 'confirmed', seats: '2',
+                bookingId: 'booking-123', bookingReference: 'BK-ABCDEF123456',
+                status: 'confirmed', seats: '2',
                 workshopTitle: 'Lam banh', destinationName: 'Binh Loi',
                 startsAt: '2026-12-01T01:00:00.000Z', endsAt: '2026-12-01T03:00:00.000Z',
                 email: 'must-not-leak@example.test', price_vnd_snapshot: 999999
@@ -84,11 +85,11 @@ test('booking query applies owner and optional reference in SQL before bounded p
         database
     });
 
-    assert.match(captured.sql, /WHERE b\.user_id = \$1 AND b\.id = \$2/);
+    assert.match(captured.sql, /WHERE b\.user_id = \$1 AND \(b\.id = \$2 OR b\.booking_reference = \$2\)/);
     assert.match(captured.sql, /LIMIT \$3 OFFSET \$4/);
     assert.deepEqual(captured.params, ['customer-123', 'booking-123', 5, 10]);
     assert.deepEqual(Object.keys(bookings[0]), [
-        'bookingId', 'status', 'seats', 'workshopTitle',
+        'bookingId', 'bookingReference', 'status', 'seats', 'workshopTitle',
         'destinationName', 'startsAt', 'endsAt'
     ]);
     assert.equal(bookings[0].seats, 2);
@@ -126,7 +127,8 @@ test('controller trusts authenticated headers, echoes request correlation and re
             async listForPrincipal(value) {
                 received = value;
                 return [{
-                    bookingId: 'booking-123', status: 'pending', seats: 1,
+                    bookingId: 'booking-123', bookingReference: 'BK-ABCDEF123456',
+                    status: 'pending', seats: 1,
                     workshopTitle: 'Lam banh', destinationName: 'Binh Loi',
                     startsAt: '2026-12-01T01:00:00.000Z', endsAt: '2026-12-01T03:00:00.000Z'
                 }];

@@ -3,6 +3,8 @@ const test = require('node:test');
 const fs = require('node:fs');
 const path = require('node:path');
 
+require('./booking-reference.test');
+
 test('both chat views send reschedule actions through the current agent conversation', () => {
     for (const [view, sendName, pendingName] of [
         ['chat/index.ejs', 'sendAgentMessage', 'agentRequestPending'],

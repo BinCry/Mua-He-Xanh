@@ -142,7 +142,8 @@ if (!canRun) {
                 is_active BOOLEAN NOT NULL DEFAULT TRUE, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
             );
             CREATE TABLE IF NOT EXISTS workshop_session_bookings (
-                id VARCHAR(36) PRIMARY KEY, user_id VARCHAR(36) NOT NULL, session_id VARCHAR(36) NOT NULL REFERENCES workshop_sessions(id),
+                id VARCHAR(36) PRIMARY KEY, booking_reference VARCHAR(20) NOT NULL UNIQUE,
+                user_id VARCHAR(36) NOT NULL, session_id VARCHAR(36) NOT NULL REFERENCES workshop_sessions(id),
                 seats INT NOT NULL CHECK (seats > 0), title_snapshot TEXT NOT NULL, price_vnd_snapshot BIGINT NOT NULL CHECK (price_vnd_snapshot >= 0),
                 status TEXT NOT NULL CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
                 idempotency_key TEXT NOT NULL, created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(), confirmed_at TIMESTAMPTZ,

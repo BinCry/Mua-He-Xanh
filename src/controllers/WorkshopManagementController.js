@@ -128,7 +128,7 @@ class WorkshopManagementController {
                     [workshopIds]
                 );
                 [bookings] = await db.query(
-                    `SELECT b.id, b.session_id, b.seats, b.status, b.created_at, b.confirmed_at, b.completed_at, b.cancelled_at,
+                    `SELECT b.id, b.booking_reference, b.session_id, b.seats, b.status, b.created_at, b.confirmed_at, b.completed_at, b.cancelled_at,
                             b.title_snapshot, b.price_vnd_snapshot, u.full_name, u.email, w.title AS workshop_title,
                             ws.starts_at, ws.ends_at
                      FROM workshop_session_bookings b

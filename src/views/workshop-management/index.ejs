@@ -77,10 +77,11 @@
     <div class="card-body p-4 border-bottom"><h2 class="h5 fw-bold mb-1">Booking Workshop</h2><p class="small text-secondary mb-0">Manager chỉ thấy booking của địa điểm mình quản lý; hoàn thành chỉ được thực hiện sau khi ca kết thúc.</p></div>
     <div class="table-responsive workshop-table-scroll">
       <table class="table align-middle mb-0 workshop-table">
-        <thead><tr><th>Khách</th><th>Workshop / ca</th><th>Số chỗ</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
+        <thead><tr><th>Mã booking</th><th>Khách</th><th>Workshop / ca</th><th>Số chỗ</th><th>Trạng thái</th><th class="text-end">Thao tác</th></tr></thead>
         <tbody>
         <% bookings.forEach(booking => { const bookingStatusLabel = ({pending:'Chờ xác nhận',confirmed:'Đã xác nhận',completed:'Đã hoàn thành',cancelled:'Đã hủy'})[booking.status] || booking.status; %>
           <tr>
+            <td><code class="booking-reference"><%= booking.booking_reference %></code></td>
             <td><strong><%= booking.full_name || 'Khách' %></strong><small class="d-block text-secondary"><%= booking.email || '' %></small></td>
             <td><strong><%= booking.workshop_title %></strong><small class="d-block text-secondary"><%= new Date(booking.starts_at).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' }) %></small></td>
             <td><%= booking.seats %></td>
@@ -92,7 +93,7 @@
             </div></td>
           </tr>
         <% }) %>
-        <% if (!bookings.length) { %><tr><td colspan="5" class="text-center text-secondary py-5">Chưa có booking Workshop.</td></tr><% } %>
+        <% if (!bookings.length) { %><tr><td colspan="6" class="text-center text-secondary py-5">Chưa có booking Workshop.</td></tr><% } %>
         </tbody>
       </table>
     </div>
@@ -112,6 +113,7 @@
   .workshop-filter{max-width:620px}
   .workshop-table-scroll{max-height:480px;overflow-y:auto;overscroll-behavior:contain}
   .workshop-table-scroll .workshop-table thead th{position:sticky;top:0;z-index:1;background:var(--bs-card-bg,#fff)}
+  .booking-reference{white-space:nowrap;font-weight:700;color:var(--admin-primary)}
   @media(max-width:767.98px){
     .workshop-management-page .btn{min-height:42px}
     .workshop-table td,.workshop-table th{padding:.8rem}

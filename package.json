@@ -14,6 +14,7 @@
     "db:migrate:festival-registration": "node scripts/apply_festival_registration_schema.js",
     "db:migrate:auth-sessions": "node scripts/apply_auth_session_schema.js",
     "db:migrate:chat-conversations": "node scripts/apply_chat_conversation_identity_schema.js",
+    "db:migrate:workshop-booking-reference": "node scripts/apply_workshop_booking_reference_schema.js",
     "db:migrate:journey-template-visibility": "node scripts/apply_journey_template_visibility_schema.js",
     "db:rollback:operational": "node scripts/rollback_operational_schema.js",
     "db:rollback:festival-registration": "node scripts/rollback_festival_registration_schema.js",
