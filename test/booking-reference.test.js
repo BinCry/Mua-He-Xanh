@@ -64,7 +64,7 @@ test('booking creation stores and returns the staff-facing reference separately 
 
 test('admin booking table puts the booking reference in the first column', () => {
     const view = fs.readFileSync('src/views/workshop-management/index.ejs', 'utf8');
-    assert.match(view, /<thead><tr><th>Mã booking<\/th><th>Khách<\/th>/);
+    assert.match(view, /<thead><tr><th>Mã đặt workshop<\/th><th>Khách<\/th>/);
     assert.match(view, /booking\.booking_reference/);
     assert.doesNotMatch(view, /booking-reference[^\n]*booking\.id/);
 });
