@@ -716,14 +716,14 @@
         if (input) toggleTouristSendIcon(input);
     }
 
-    async function sendAgentMessage(message) {
+    async function sendAgentMessage(message, { hidden = false } = {}) {
         if (!agentMode || agentRequestPending || !message) return;
         const input = document.getElementById('chat-input');
         const sendButton = document.getElementById('tourist-btn-send');
         const toggle = document.getElementById('agent-mode-toggle');
-        addAgentMessage('user', message);
+        if (!hidden) addAgentMessage('user', message);
         agentRequestPending = true;
-        agentMessages.push({ role: 'assistant', loading: true });
+        if (!hidden) agentMessages.push({ role: 'assistant', loading: true });
         renderAgentMessages();
         if (input) input.disabled = true;
         if (sendButton) sendButton.disabled = true;
@@ -739,13 +739,17 @@
                 throw new Error('AGENT_RESPONSE_INVALID');
             }
 
-            agentMessages.pop();
-            agentMessages.push(output.type === 'handoff'
-                    ? { ...window.HelpdeskAgentUI.project(output), actions: [{ type: 'request_handoff', label: 'Xem tóm tắt và chat nhân viên', handoffId: output.handoffId }] }
-                    : window.HelpdeskAgentUI.project(output));
-            window.HelpdeskAgentUI.save(currentUser?.id, agentMessages);
-            renderAgentMessages();
+            if (!hidden) {
+                agentMessages.pop();
+                agentMessages.push(output.type === 'handoff'
+                        ? { ...window.HelpdeskAgentUI.project(output), actions: [{ type: 'request_handoff', label: 'Xem tóm tắt và chat nhân viên', handoffId: output.handoffId }] }
+                        : window.HelpdeskAgentUI.project(output));
+                window.HelpdeskAgentUI.save(currentUser?.id, agentMessages);
+                renderAgentMessages();
+            }
+            return output;
         } catch (error) {
+            if (hidden) return null;
             agentMessages.pop();
             const paused = error?.response?.status === 409;
             addAgentMessage('assistant', paused
@@ -754,6 +758,7 @@
                 ...(!paused ? [{ type: 'retry', label: 'Thử lại' }] : []),
                 { type: 'request_handoff', label: 'Chat nhân viên' }
             ]);
+            return null;
         } finally {
             agentRequestPending = false;
             if (input) input.disabled = false;
