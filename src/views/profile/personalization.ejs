@@ -1,27 +1,99 @@
-<section class="container py-5" style="max-width:800px" id="personalization-page">
-    <a href="/profile" class="text-muted text-decoration-none"><i class="bi bi-arrow-left me-2"></i><span data-copy="profile">Hồ sơ du khách</span></a>
-    <h1 class="h2 mt-4 mb-4" data-copy="title">Cá nhân hóa</h1>
-    <div class="bg-white border rounded-4 p-4 mb-4">
-        <div class="d-flex justify-content-between align-items-center gap-3">
-            <label for="personalization-enabled" class="fw-semibold" data-copy="toggle">Cá nhân hóa trải nghiệm</label>
-            <div class="form-check form-switch m-0"><input id="personalization-enabled" class="form-check-input" type="checkbox" role="switch" disabled></div>
+<link rel="stylesheet" href="/css/personalization.css">
+
+<section class="personalization-page" id="personalization-page">
+    <a href="/profile" class="personalization-back">
+        <i class="bi bi-arrow-left" aria-hidden="true"></i>
+        <span data-copy="profile">Hồ sơ du khách</span>
+    </a>
+
+    <header class="personalization-heading">
+        <p class="personalization-eyebrow" data-copy="eyebrow">Bộ nhớ của trợ lý</p>
+        <h1 data-copy="title">Cá nhân hóa</h1>
+        <p data-copy="intro">Chọn điều trợ lý ghi nhớ và cập nhật bằng cách trò chuyện tự nhiên.</p>
+    </header>
+
+    <section class="personalization-toggle-card" aria-labelledby="personalization-toggle-label">
+        <div>
+            <label id="personalization-toggle-label" for="personalization-enabled" data-copy="toggle">Cá nhân hóa trải nghiệm</label>
+            <p data-copy="description">Cho phép trợ lý ghi nhớ một số sở thích từ cuộc trò chuyện để đưa ra gợi ý phù hợp hơn.</p>
         </div>
-        <p class="text-muted mb-0 mt-3" data-copy="description">Cho phép trợ lý ghi nhớ một số sở thích từ cuộc trò chuyện để đưa ra gợi ý phù hợp hơn.</p>
-    </div>
-    <p id="personalization-status" role="status" aria-live="polite"></p>
-    <div class="d-flex justify-content-between align-items-center gap-3 mb-3">
-        <h2 class="h5 mb-0" data-copy="remembered">Thông tin đang ghi nhớ</h2>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="personalization-reload" data-copy="reload">Tải lại</button>
-    </div>
-    <div id="personalization-items" class="bg-white border rounded-4 p-3 mb-4"></div>
-    <button type="button" class="btn btn-outline-danger" id="personalization-clear" disabled data-copy="clear">Xóa toàn bộ thông tin đã ghi nhớ</button>
-    <div id="personalization-editor" class="border rounded-4 bg-white p-4 mt-4" hidden>
-        <h2 id="personalization-editor-title" class="h5"></h2>
-        <form id="personalization-form">
-            <div id="personalization-fields" class="mb-3"></div>
-            <button type="submit" class="btn btn-primary" data-copy="save">Lưu</button>
-            <button type="button" class="btn btn-outline-secondary" id="personalization-cancel" data-copy="cancel">Hủy</button>
+        <div class="form-check form-switch personalization-switch">
+            <input id="personalization-enabled" class="form-check-input" type="checkbox" role="switch" disabled>
+        </div>
+    </section>
+
+    <p id="personalization-status" class="personalization-status" role="status" aria-live="polite"></p>
+
+    <article class="memory-card" aria-labelledby="memory-card-title">
+        <header class="memory-card-header">
+            <div>
+                <div class="memory-title-line">
+                    <h2 id="memory-card-title" data-copy="summaryTitle">Tóm tắt thông tin đang ghi nhớ</h2>
+                    <span id="personalization-updated" class="memory-updated"></span>
+                </div>
+                <p data-copy="summaryDescription">Trợ lý chỉ sử dụng những phần liên quan đến câu hỏi hiện tại.</p>
+            </div>
+
+            <details class="memory-menu" id="personalization-menu">
+                <summary id="personalization-menu-trigger" aria-label="Tùy chọn thông tin ghi nhớ" aria-controls="personalization-details" aria-expanded="false" data-copy-aria="menuLabel">
+                    <i class="bi bi-three-dots" aria-hidden="true"></i>
+                </summary>
+                <div class="memory-menu-popover">
+                    <button type="button" id="personalization-reload">
+                        <i class="bi bi-arrow-clockwise" aria-hidden="true"></i>
+                        <span data-copy="reload">Tải lại</span>
+                    </button>
+                    <button type="button" id="personalization-show-details">
+                        <i class="bi bi-list-ul" aria-hidden="true"></i>
+                        <span data-copy="viewDetails">Xem chi tiết</span>
+                    </button>
+                    <button type="button" class="is-danger" id="personalization-clear" disabled>
+                        <i class="bi bi-trash3" aria-hidden="true"></i>
+                        <span data-copy="clear">Xóa toàn bộ thông tin</span>
+                    </button>
+                </div>
+            </details>
+        </header>
+
+        <div id="personalization-memory-summary" class="memory-summary" aria-live="polite"></div>
+
+        <form id="personalization-prompt-form" class="memory-composer">
+            <label for="personalization-prompt" data-copy="promptLabel">Hỏi hoặc cập nhật thông tin đang ghi nhớ</label>
+            <div class="memory-composer-control">
+                <textarea id="personalization-prompt" name="message" rows="1" maxlength="2000" autocomplete="off" disabled data-copy-placeholder="promptPlaceholder" placeholder="Ví dụ: Tôi không còn ăn chay nữa."></textarea>
+                <button type="submit" id="personalization-prompt-submit" disabled data-copy-aria="send" aria-label="Gửi cập nhật">
+                    <i class="bi bi-arrow-up" aria-hidden="true"></i>
+                </button>
+            </div>
+            <p data-copy="promptHelp">Bạn có thể thêm, thay đổi hoặc xóa sở thích bằng một câu tự nhiên.</p>
         </form>
-    </div>
+    </article>
+
+    <section id="personalization-details" class="memory-details" aria-labelledby="personalization-details-title" hidden>
+        <header>
+            <div>
+                <p class="personalization-eyebrow" data-copy="structuredData">Dữ liệu có cấu trúc</p>
+                <h2 id="personalization-details-title" data-copy="detailsTitle">Chi tiết thông tin đã lưu</h2>
+            </div>
+            <button type="button" id="personalization-hide-details" class="memory-icon-button" data-copy-aria="closeDetails" aria-label="Đóng chi tiết">
+                <i class="bi bi-x-lg" aria-hidden="true"></i>
+            </button>
+        </header>
+
+        <div id="personalization-items"></div>
+
+        <div id="personalization-editor" class="memory-editor" hidden>
+            <h3 id="personalization-editor-title"></h3>
+            <form id="personalization-form">
+                <div id="personalization-fields"></div>
+                <p id="personalization-editor-error" class="memory-editor-error" role="alert"></p>
+                <div class="memory-editor-actions">
+                    <button type="submit" class="btn btn-primary" data-copy="save">Lưu thay đổi</button>
+                    <button type="button" class="btn btn-outline-secondary" id="personalization-cancel" data-copy="cancel">Hủy</button>
+                </div>
+            </form>
+        </div>
+    </section>
 </section>
+
 <script src="/js/personalization.js" defer></script>
