@@ -1,5 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 const { createPersonalizationController } = require('../src/controllers/PersonalizationController');
 const { createHelpdeskAgentClient } = require('../src/services/HelpdeskAgentClient');
 function response() {
@@ -56,4 +58,48 @@ test('personalization service uses authenticated fixed endpoint and strips inter
     await broken.get({ user: { id: 'customer-1' } }, output);
     assert.equal(output.statusCode, 503);
     assert.doesNotMatch(JSON.stringify(output.body), /secret/);
+});
+
+test('personalization UI exposes allowlisted favorite Shop products', () => {
+    const script = fs.readFileSync(path.join(__dirname, '../public/js/personalization.js'), 'utf8');
+    assert.match(script, /preferred_shop_products/);
+    for (const value of ['melon', 'incense', 'tote_bag', 't_shirt', 'pin_badge', 'souvenir_cup', 'ornamental_plant', 'local_craft']) {
+        assert.match(script, new RegExp(`\\b${value}\\b`));
+    }
+    assert.match(script, /Sản phẩm Shop yêu thích/);
+});
+
+test('personalization uses a memory summary and natural-language update composer', () => {
+    const view = fs.readFileSync(path.join(__dirname, '../src/views/profile/personalization.ejs'), 'utf8');
+    const script = fs.readFileSync(path.join(__dirname, '../public/js/personalization.js'), 'utf8');
+    const styles = fs.readFileSync(path.join(__dirname, '../public/css/personalization.css'), 'utf8');
+
+    assert.match(view, /id="personalization-memory-summary"/);
+    assert.match(view, /id="personalization-prompt-form"/);
+    assert.match(view, /Hỏi hoặc cập nhật thông tin đang ghi nhớ/);
+    assert.match(view, /id="personalization-prompt"[^>]*autocomplete="off"[^>]*disabled/);
+    assert.match(view, /id="personalization-details"[^>]*hidden/);
+    assert.match(script, /fetch\('\/api\/agent\/chat'/);
+    assert.match(script, /body: JSON\.stringify\(\{[\s\S]*message,[\s\S]*requestId:/);
+    assert.match(script, /state = await request\(\)/);
+    assert.match(styles, /\.memory-composer textarea[\s\S]*font-size: 16px/);
+    assert.match(styles, /@media \(max-width: 640px\)/);
+    assert.match(styles, /@media \(prefers-reduced-motion: reduce\)/);
+});
+
+test('structured controls remain available only through progressive disclosure', () => {
+    const view = fs.readFileSync(path.join(__dirname, '../src/views/profile/personalization.ejs'), 'utf8');
+    const script = fs.readFileSync(path.join(__dirname, '../public/js/personalization.js'), 'utf8');
+
+    assert.match(view, /id="personalization-show-details"/);
+    assert.match(view, /id="personalization-menu-trigger"[^>]*aria-controls="personalization-details"[^>]*aria-expanded="false"/);
+    assert.match(view, /id="personalization-items"/);
+    assert.match(view, /id="personalization-editor"[^>]*hidden/);
+    assert.match(script, /details\.hidden = false/);
+    assert.match(script, /detailsDisclosure\.setAttribute\('aria-expanded', 'true'\)/);
+    assert.match(script, /detailsDisclosure\.focus\(\)/);
+    assert.match(script, /if \(!state \|\| !state\.enabled\)/);
+    assert.match(script, /prefers-reduced-motion: reduce/);
+    assert.match(script, /editorError\.textContent = copy\.choose/);
+    assert.match(script, /allowed\[item\.key\]/);
 });
