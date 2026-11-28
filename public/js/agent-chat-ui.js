@@ -143,6 +143,93 @@
         return last?.status === 'clarification_required' && last.allowFreeText === false && last.options?.length > 0;
     }
 
+    function parseReschedulePreview(preview) {
+        const text = String(preview || '').trim();
+        if (!text) return null;
+        return { content: text };
+    }
+
+    function openRescheduleDraftEditor({ preview = '', save = async () => null } = {}) {
+        if (root.document.getElementById('reschedule-draft-editor')) return;
+        const draft = parseReschedulePreview(preview);
+        if (!draft) return;
+
+        const panel = root.document.createElement('section');
+        panel.id = 'reschedule-draft-editor';
+        panel.className = 'bg-white border rounded-4 shadow p-3';
+        panel.style.cssText = 'position:fixed;z-index:1100;top:50%;left:50%;transform:translate(-50%,-50%);width:min(94vw,620px);max-height:88vh;overflow:auto;color:#212529';
+        panel.setAttribute('role', 'dialog');
+        panel.setAttribute('aria-modal', 'true');
+        panel.setAttribute('aria-labelledby', 'reschedule-draft-title');
+
+        const title = root.document.createElement('h2');
+        title.id = 'reschedule-draft-title';
+        title.className = 'h4 mb-2';
+        title.textContent = 'Sửa nội dung yêu cầu';
+        const help = root.document.createElement('p');
+        help.className = 'text-muted mb-3';
+        help.textContent = 'Bạn có thể chỉnh sửa toàn bộ nội dung trước khi lưu. Việc sửa bản nháp không thay đổi booking thật.';
+
+        const contentLabel = root.document.createElement('label');
+        contentLabel.htmlFor = 'reschedule-draft-content';
+        contentLabel.className = 'form-label fw-semibold';
+        contentLabel.textContent = 'Nội dung yêu cầu gửi cho nhân viên';
+        const content = root.document.createElement('textarea');
+        content.id = 'reschedule-draft-content';
+        content.className = 'form-control mb-3';
+        content.rows = 14;
+        content.maxLength = 4000;
+        content.required = true;
+        content.value = draft.content;
+
+        const status = root.document.createElement('p');
+        status.className = 'small text-danger mb-2';
+        status.setAttribute('role', 'status');
+        const saveButton = root.document.createElement('button');
+        saveButton.type = 'button';
+        saveButton.className = 'btn btn-success me-2';
+        saveButton.textContent = 'Lưu thay đổi';
+        const cancel = root.document.createElement('button');
+        cancel.type = 'button';
+        cancel.className = 'btn btn-outline-secondary';
+        cancel.textContent = 'Hủy chỉnh sửa';
+        cancel.onclick = () => panel.remove();
+
+        let editStarted = false;
+        saveButton.onclick = async () => {
+            const revisedContent = content.value.trim();
+            if (!revisedContent) {
+                status.textContent = 'Vui lòng nhập nội dung yêu cầu.';
+                content.focus();
+                return;
+            }
+            saveButton.disabled = true;
+            cancel.disabled = true;
+            content.disabled = true;
+            status.className = 'small text-muted mb-2';
+            status.textContent = 'Đang cập nhật bản nháp…';
+            try {
+                const progress = { editStarted };
+                const result = await save(revisedContent, progress);
+                editStarted = progress.editStarted;
+                if (!result || result.type !== 'confirmation_required') throw new Error('DRAFT_EDIT_FAILED');
+                panel.remove();
+            } catch (_) {
+                status.className = 'small text-danger mb-2';
+                status.textContent = 'Chưa lưu được thay đổi. Nội dung vẫn được giữ lại; vui lòng thử lại.';
+                saveButton.disabled = false;
+                content.disabled = false;
+                // Once the backend entered edit mode, closing would strand the
+                // draft between two steps. Keep the dialog open for a safe retry.
+                cancel.disabled = editStarted;
+            }
+        };
+
+        panel.append(title, help, contentLabel, content, status, saveButton, cancel);
+        root.document.body.append(panel);
+        content.focus();
+    }
+
     function appendTicketControls(bubble, entry, messages, pending, send) {
         let labels = [];
         if (entry.status === 'clarification_required') labels = entry.options || [];
@@ -161,10 +248,24 @@
             button.style = 'min-height:44px;white-space:normal;overflow-wrap:anywhere';
             button.textContent = `${index + 1}. ${label}`;
             button.disabled = pending || messages[messages.length - 1] !== entry;
-            button.addEventListener('click', () => {
+            button.addEventListener('click', async () => {
                 if (button.disabled || messages[messages.length - 1] !== entry) return;
+                if (label === 'Sửa nội dung' && parseReschedulePreview(entry.preview)) {
+                    openRescheduleDraftEditor({
+                        preview: entry.preview,
+                        save: async (revisedRequest, progress) => {
+                            if (!progress.editStarted) {
+                                const edit = await send('Sửa toàn bộ nội dung', { hidden: true });
+                                if (!edit || edit.type !== 'clarification_required') return null;
+                                progress.editStarted = true;
+                            }
+                            return send(revisedRequest);
+                        }
+                    });
+                    return;
+                }
                 Array.from(controls.children).forEach(control => { control.disabled = true; });
-                send(label);
+                await send(label);
             });
             controls.append(button);
         });
@@ -173,6 +274,7 @@
 
     root.HelpdeskAgentUI = {
         load, save, clear, project, citationUrl, handoffSummary, appendTicketControls, choiceOnly,
-        conversationId, conversationHeaders, beginConversation
+        conversationId, conversationHeaders, beginConversation, parseReschedulePreview,
+        openRescheduleDraftEditor
     };
 })(window);

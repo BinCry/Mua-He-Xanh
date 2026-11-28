@@ -116,7 +116,7 @@
 
 
     <!-- Main Content -->
-    <% if (locals.user) { %><script src="/js/agent-chat-ui.js?v=<%= assetV %>-uc04-page-conversation-1"></script><% } %>
+    <% if (locals.user) { %><script src="/js/agent-chat-ui.js?v=<%= assetV %>-uc05-reschedule-editor-2"></script><% } %>
     <main>
         <%- body %>
     </main>
@@ -918,16 +918,18 @@
             window.openHumanHandoff({ handoffId, switchToStaff: () => setFloatingChatMode(false) });
         }
 
-        async function sendFloatingAgentMessage(message) {
+        async function sendFloatingAgentMessage(message, { hidden = false } = {}) {
             const question = String(message || '').trim();
             if (!floatingAgentMode || floatingAgentRequestPending || !question) return;
             const input = document.getElementById('floatingChatInput');
             const sendButton = document.getElementById('floating-btn-send');
             const toggle = document.getElementById('floating-agent-mode-toggle');
-            floatingAgentMessages.push({ role: 'user', content: question });
-            window.HelpdeskAgentUI.save(floatingAgentUserId, floatingAgentMessages);
+            if (!hidden) {
+                floatingAgentMessages.push({ role: 'user', content: question });
+                window.HelpdeskAgentUI.save(floatingAgentUserId, floatingAgentMessages);
+            }
             floatingAgentRequestPending = true;
-            floatingAgentMessages.push({ role: 'assistant', loading: true });
+            if (!hidden) floatingAgentMessages.push({ role: 'assistant', loading: true });
             renderFloatingAgentMessages();
             if (input) input.disabled = true;
             if (sendButton) sendButton.disabled = true;
@@ -942,11 +944,15 @@
                 if (response.data?.success !== true || !output || typeof output.type !== 'string') {
                     throw new Error('AGENT_RESPONSE_INVALID');
                 }
-                floatingAgentMessages.pop();
-                floatingAgentMessages.push(output.type === 'handoff'
-                    ? { ...window.HelpdeskAgentUI.project(output), actions: [{ type: 'request_handoff', label: 'Xem tóm tắt và chat nhân viên', handoffId: output.handoffId }] }
-                    : window.HelpdeskAgentUI.project(output));
+                if (!hidden) {
+                    floatingAgentMessages.pop();
+                    floatingAgentMessages.push(output.type === 'handoff'
+                        ? { ...window.HelpdeskAgentUI.project(output), actions: [{ type: 'request_handoff', label: 'Xem tóm tắt và chat nhân viên', handoffId: output.handoffId }] }
+                        : window.HelpdeskAgentUI.project(output));
+                }
+                return output;
             } catch (error) {
+                if (hidden) return null;
                 floatingAgentMessages.pop();
                 const paused = error?.response?.status === 409;
                 floatingAgentMessages.push({
@@ -959,6 +965,7 @@
                         { type: 'request_handoff', label: 'Chat nhân viên' }
                     ]
                 });
+                return null;
             } finally {
                 window.HelpdeskAgentUI.save(floatingAgentUserId, floatingAgentMessages);
                 floatingAgentRequestPending = false;
